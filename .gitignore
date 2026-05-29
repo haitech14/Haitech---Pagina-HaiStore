@@ -1,0 +1,44 @@
+# Dependencias
+node_modules
+.pnp
+.pnp.js
+
+# Build
+dist
+dist-ssr
+*.local
+
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Cursor (config local del IDE)
+.cursor/
+
+# Inventario local del servidor admin
+server/data/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Caché TS
+*.tsbuildinfo
+node_modules/.tmp
+node_modules
