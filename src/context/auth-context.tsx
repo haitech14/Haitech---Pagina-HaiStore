@@ -95,10 +95,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const demo = await apiFetch<{ token: string; user: AuthUser }>('/api/auth/login-demo', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
+      let demo: { token: string; user: AuthUser };
+      try {
+        demo = await apiFetch<{ token: string; user: AuthUser }>('/api/auth/login-demo', {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+        });
+      } catch (demoErr) {
+        const message = demoErr instanceof Error ? demoErr.message : '';
+        if (message === 'Recurso no encontrado') {
+          throw new Error(
+            'No se pudo conectar con el servidor de autenticación. Ejecuta «npm run dev:all» o «npm run server» en otra terminal.',
+          );
+        }
+        throw demoErr;
+      }
       setDemoToken(demo.token);
       applyMe({ user: demo.user, role: demo.user.role, authProvider: 'demo' });
     },

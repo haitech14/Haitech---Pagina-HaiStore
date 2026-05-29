@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Star } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/cart-context';
 import { featuredProducts, type FeaturedProduct } from '@/data/featured-products';
+import { productPath } from '@/lib/product-path';
 import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
 
 function DualPrice({ usd, className }: { usd: number; className?: string }) {
@@ -60,14 +61,19 @@ function FeaturedCard({ product }: { product: FeaturedProduct }) {
     });
   };
 
+  const detailHref = productPath(product.id);
+
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-shadow hover:shadow-md">
-      <div className="relative bg-muted/30">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-shadow hover:shadow-md">
+      <Link
+        to={detailHref}
+        className="relative block bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+      >
         <div className="flex aspect-square items-center justify-center p-4">
           {!imageError ? (
             <img
               src={product.image}
-              alt={product.name}
+              alt=""
               className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
               onError={() => setImageError(true)}
@@ -92,32 +98,41 @@ function FeaturedCard({ product }: { product: FeaturedProduct }) {
           )}
         </div>
 
-        <button
-          type="button"
-          aria-label={`Añadir ${product.name} a favoritos`}
-          className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border border-border/80 bg-background/90 text-muted-foreground shadow-sm backdrop-blur transition-colors hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-        >
-          <Heart className="size-4" aria-hidden="true" />
-        </button>
-      </div>
+        <span className="sr-only">Ver ficha de {product.name}</span>
+      </Link>
+
+      <button
+        type="button"
+        aria-label={`Añadir ${product.name} a favoritos`}
+        className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full border border-border/80 bg-background/90 text-muted-foreground shadow-sm backdrop-blur transition-colors hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+      >
+        <Heart className="size-4" aria-hidden="true" />
+      </button>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {product.category}
-        </p>
-        <h3 className="text-sm font-bold leading-tight sm:text-base">{product.name}</h3>
-        <Rating rating={product.rating} reviews={product.reviews} />
-
-        <div className="mt-1 space-y-0.5">
-          <p className="text-base font-bold text-foreground sm:text-lg">
-            <DualPrice usd={product.price} />
+        <Link
+          to={detailHref}
+          className="flex flex-1 flex-col gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+        >
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {product.category}
           </p>
-          {product.oldPrice != null && (
-            <p className="text-sm text-muted-foreground line-through">
-              <DualPrice usd={product.oldPrice} />
+          <h3 className="text-sm font-bold leading-tight transition-colors group-hover:text-red-600 sm:text-base">
+            {product.name}
+          </h3>
+          <Rating rating={product.rating} reviews={product.reviews} />
+
+          <div className="mt-1 space-y-0.5">
+            <p className="text-base font-bold text-foreground sm:text-lg">
+              <DualPrice usd={product.price} />
             </p>
-          )}
-        </div>
+            {product.oldPrice != null && (
+              <p className="text-sm text-muted-foreground line-through">
+                <DualPrice usd={product.oldPrice} />
+              </p>
+            )}
+          </div>
+        </Link>
 
         <Button
           onClick={handleAdd}

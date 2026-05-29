@@ -8,6 +8,7 @@ const demoSessions = new Map();
 
 const demoUsers = [
   { email: 'admin@haitech.pe', password: 'admin123', name: 'Administrador', role: 'admin' },
+  { email: 'soporte@haitech.pe', password: 'demo123', name: 'Soporte Haitech', role: 'corporativo' },
   { email: 'mayorista@haitech.pe', password: 'demo123', name: 'Cliente Mayorista', role: 'mayorista' },
   {
     email: 'distribuidor@haitech.pe',

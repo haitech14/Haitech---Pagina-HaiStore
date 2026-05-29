@@ -161,31 +161,77 @@ export function LoginPage() {
         </div>
       </header>
 
-      {/* Contenido principal */}
-      <main className="relative z-10 mx-auto grid w-full max-w-[1400px] flex-1 gap-8 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-10 lg:py-12">
-        {/* Tarjeta de login */}
+      {/* Contenido principal: imagen izquierda, formulario derecha */}
+      <main className="relative z-10 mx-auto grid w-full max-w-[1400px] flex-1 gap-8 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-10 lg:px-10 lg:py-12">
+        {/* Hero visual — izquierda */}
+        <section
+          aria-label="Equipos de impresión de alto rendimiento"
+          className="relative order-1 min-h-[280px] lg:order-1 lg:min-h-[480px]"
+        >
+          <div className="relative flex h-full min-h-[280px] items-center justify-center lg:min-h-[480px]">
+            <img
+              src="/login-hero-printers.png"
+              alt="Multifuncionales de alto rendimiento"
+              className="absolute inset-0 size-full rounded-2xl object-cover object-center"
+              loading="eager"
+            />
+            <div
+              className="absolute inset-0 rounded-2xl bg-gradient-to-r from-black/20 via-transparent to-black/50"
+              aria-hidden="true"
+            />
+
+            <ul className="absolute bottom-6 left-4 right-4 z-20 flex flex-col gap-3 sm:left-6 sm:bottom-8 lg:hidden">
+              {heroFeatures.map((item) => (
+                <li
+                  key={item.text}
+                  className="flex items-center gap-2 rounded-lg border border-red-600/30 bg-black/70 px-3 py-2 backdrop-blur-sm"
+                >
+                  <item.icon className="size-4 shrink-0 text-red-600" aria-hidden="true" />
+                  <span className="text-xs font-medium text-white/90">{item.text}</span>
+                </li>
+              ))}
+            </ul>
+
+            <ul className="absolute bottom-8 left-6 z-20 hidden flex-col gap-4 lg:flex">
+              {heroFeatures.map((item) => (
+                <li key={item.text} className="flex max-w-[220px] items-center gap-3">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-red-600/40 bg-black/70 text-red-600 backdrop-blur-sm">
+                    <item.icon className="size-4" aria-hidden="true" />
+                  </span>
+                  <span className="text-xs font-medium leading-snug text-white/90">{item.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Tarjeta de login — derecha, fondo blanco */}
         <section
           aria-labelledby="login-titulo"
-          className="login-card-glow mx-auto w-full max-w-md rounded-2xl border border-red-600/40 p-6 sm:p-8 lg:mx-0"
+          className="login-card-white order-2 mx-auto w-full max-w-md rounded-2xl border border-red-600/30 p-6 text-gray-900 sm:p-8 lg:order-2 lg:ml-auto lg:mr-0"
         >
           <div className="mb-6 flex justify-center">
-            <span className="flex size-12 items-center justify-center rounded-xl border border-red-600/30 bg-red-600/10">
-              <Shield className="size-6 text-red-600" aria-hidden="true" />
-            </span>
+            <img
+              src="/logoclaro.png"
+              alt="Printcore — Soluciones de impresión"
+              className="h-14 w-auto max-w-[240px] object-contain"
+              width={240}
+              height={56}
+            />
           </div>
 
           <h1 id="login-titulo" className="text-center text-3xl font-bold sm:text-4xl">
-            <span className="text-white">Bien</span>
+            <span className="text-gray-900">Bien</span>
             <span className="text-red-600">venido</span>
           </h1>
-          <p className="mt-2 text-center text-sm text-white/50">
+          <p className="mt-2 text-center text-sm text-gray-500">
             Accede a tu cuenta para gestionar tus pedidos, soporte y más.
           </p>
 
           <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
             <div className="relative">
               <Mail
-                className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-white/35"
+                className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-gray-400"
                 aria-hidden="true"
               />
               <input
@@ -196,13 +242,13 @@ export function LoginPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
-                className="login-input w-full"
+                className="login-input login-input--light w-full"
               />
             </div>
 
             <div className="relative">
               <Lock
-                className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-white/35"
+                className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-gray-400"
                 aria-hidden="true"
               />
               <input
@@ -213,12 +259,12 @@ export function LoginPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
-                className="login-input w-full pr-11"
+                className="login-input login-input--light w-full pr-11"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                 aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
                 {showPassword ? (
@@ -237,7 +283,7 @@ export function LoginPage() {
                   onCheckedChange={(checked) => setRemember(checked === true)}
                   className="border-red-600 data-[state=checked]:bg-red-600 data-[state=checked]:text-white"
                 />
-                <Label htmlFor="remember" className="cursor-pointer text-xs text-white/70">
+                <Label htmlFor="remember" className="cursor-pointer text-xs text-gray-600">
                   Mantener sesión iniciada
                 </Label>
               </div>
@@ -250,7 +296,7 @@ export function LoginPage() {
             </div>
 
             {error && (
-              <p role="alert" className="text-center text-sm text-red-400">
+              <p role="alert" className="text-center text-sm text-red-600">
                 {error}
               </p>
             )}
@@ -258,7 +304,7 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-60"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-60"
             >
               {isSubmitting ? 'Ingresando…' : 'Ingresar'}
               <ArrowRight className="size-4" aria-hidden="true" />
@@ -268,14 +314,14 @@ export function LoginPage() {
               href={WHATSAPP_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-transparent text-sm font-semibold text-white transition-colors hover:border-white/40 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-800 transition-colors hover:border-gray-400 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
             >
               <Icon path={mdiWhatsapp} size={0.85} className="text-[#25D366]" aria-hidden="true" />
               Continuar por WhatsApp
             </a>
           </form>
 
-          <p className="mt-6 text-center text-sm text-white/50">
+          <p className="mt-6 text-center text-sm text-gray-500">
             ¿No tienes cuenta?{' '}
             <Link
               to="/login/registro"
@@ -284,36 +330,6 @@ export function LoginPage() {
               Crear cuenta
             </Link>
           </p>
-        </section>
-
-        {/* Hero visual */}
-        <section
-          aria-label="Equipos de impresión de alto rendimiento"
-          className="relative hidden min-h-[420px] lg:block"
-        >
-          <div className="relative flex h-full items-center justify-center">
-            <div className="login-hero-ring absolute aspect-square w-[min(100%,520px)]" aria-hidden="true" />
-
-            <div className="relative z-10 flex w-full max-w-lg items-end justify-center px-4 pb-8 pt-16">
-              <img
-                src="/hero-products.png"
-                alt=""
-                className="max-h-[340px] w-auto max-w-full object-contain drop-shadow-2xl"
-                loading="eager"
-              />
-            </div>
-
-            <ul className="absolute right-0 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-5">
-              {heroFeatures.map((item) => (
-                <li key={item.text} className="flex max-w-[200px] items-center gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-red-600/30 bg-black/60 text-red-600">
-                    <item.icon className="size-4" aria-hidden="true" />
-                  </span>
-                  <span className="text-xs font-medium leading-snug text-white/80">{item.text}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </section>
       </main>
 

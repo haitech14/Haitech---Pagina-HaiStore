@@ -1,3 +1,5 @@
+import type { Product } from '@/types/product';
+
 export interface FeaturedProduct {
   id: string;
   name: string;
@@ -75,3 +77,21 @@ export const featuredProducts: FeaturedProduct[] = [
     image: '/products/mochila-techpro.png',
   },
 ];
+
+export function getFeaturedProductById(id: string): FeaturedProduct | undefined {
+  return featuredProducts.find((product) => product.id === id);
+}
+
+export function featuredToProduct(featured: FeaturedProduct): Product {
+  return {
+    id: featured.id,
+    name: featured.name,
+    description: null,
+    price: featured.price,
+    currency: 'USD',
+    image_url: featured.image,
+    stock: 10,
+    category: featured.category,
+    created_at: new Date().toISOString(),
+  };
+}

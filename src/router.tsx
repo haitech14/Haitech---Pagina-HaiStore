@@ -19,6 +19,9 @@ const AdminInventoryPage = lazy(() =>
 const ContactPage = lazy(() =>
   import('@/pages/contact').then((m) => ({ default: m.ContactPage })),
 );
+const ProductDetailPage = lazy(() =>
+  import('@/pages/product-detail').then((m) => ({ default: m.ProductDetailPage })),
+);
 const NotFoundPage = lazy(() =>
   import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage })),
 );
@@ -54,6 +57,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: withSuspense(<HomePage />) },
       { path: 'tienda', element: withSuspense(<StorePage />) },
+      { path: 'tienda/producto/:id', element: withSuspense(<ProductDetailPage />) },
       { path: 'panel/inventario', element: withSuspense(<AdminInventoryPage />) },
       { path: 'panel/usuarios', element: withSuspense(<AdminInventoryPage />) },
       { path: 'panel', element: withSuspense(<AdminInventoryPage />) },

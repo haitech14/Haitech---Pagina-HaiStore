@@ -20,6 +20,11 @@ export function isPriceRole(value) {
   return PRICE_ROLES.includes(value);
 }
 
+/** Roles de usuario (precio + admin). */
+export function isUserRole(value) {
+  return value === 'admin' || isPriceRole(value);
+}
+
 export function resolvePriceRole(userRole) {
   if (userRole === 'admin') return 'public';
   if (isPriceRole(userRole)) return userRole;

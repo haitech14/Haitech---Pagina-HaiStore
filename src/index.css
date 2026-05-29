@@ -163,6 +163,14 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.login-card-white {
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(220, 38, 38, 0.35),
+    0 8px 40px rgba(0, 0, 0, 0.35),
+    0 0 32px rgba(220, 38, 38, 0.12);
+}
+
 .login-input {
   height: 3rem;
   border-radius: 0.5rem;
@@ -178,13 +186,28 @@
     box-shadow 0.2s;
 }
 
+.login-input--light {
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  color: #111827;
+}
+
 .login-input::placeholder {
   color: rgba(255, 255, 255, 0.35);
+}
+
+.login-input--light::placeholder {
+  color: #9ca3af;
 }
 
 .login-input:focus-visible {
   border-color: rgba(220, 38, 38, 0.55);
   box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
+}
+
+.login-input--light:focus-visible {
+  border-color: rgba(220, 38, 38, 0.65);
+  background: #fff;
 }
 
 .login-hero-ring {
