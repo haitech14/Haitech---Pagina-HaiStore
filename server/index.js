@@ -10,7 +10,25 @@ import { settingsRouter } from './routes/settings.js';
 const app = express();
 const PORT = process.env.ADMIN_PORT ?? 3080;
 
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
+const corsOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const lanOriginPattern =
+  /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}):5173$/;
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || corsOrigins.includes(origin) || lanOriginPattern.test(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
+  }),
+);
 app.use(express.json());
 
 // Log básico de peticiones.
@@ -39,6 +57,6 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-app.listen(PORT, () => {
-  console.log(`[api] HaiStore admin escuchando en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[api] HaiStore admin escuchando en http://localhost:${PORT} (red: 0.0.0.0:${PORT})`);
 });

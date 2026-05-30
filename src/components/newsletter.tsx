@@ -1,20 +1,10 @@
 import { useState } from 'react';
 import {
   ArrowRight,
-  Bell,
   CheckCircle2,
-  Lock,
   Mail,
-  ShieldCheck,
   Sparkles,
-  Tag,
 } from 'lucide-react';
-
-const trustItems = [
-  { icon: Tag, label: 'Ofertas exclusivas' },
-  { icon: Bell, label: 'Novedades primero' },
-  { icon: ShieldCheck, label: 'Sin spam, lo prometemos' },
-] as const;
 
 export function Newsletter() {
   const [email, setEmail] = useState('');
@@ -98,30 +88,6 @@ export function Newsletter() {
             </form>
           )}
         </div>
-      </div>
-
-      {/* Beneficios */}
-      <div className="relative mt-8 flex flex-col gap-4 border-t border-white/20 pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-0">
-          {trustItems.map((item, index) => (
-            <li key={item.label} className="flex items-center">
-              {index > 0 && (
-                <span
-                  className="mx-3 hidden h-4 w-px bg-white/35 sm:block"
-                  aria-hidden="true"
-                />
-              )}
-              <span className="flex items-center gap-1.5 text-xs text-white/95 sm:text-sm">
-                <item.icon className="size-3.5 shrink-0 sm:size-4" aria-hidden="true" />
-                {item.label}
-              </span>
-            </li>
-          ))}
-        </ul>
-        <p className="flex items-center gap-1.5 text-xs text-white/90 sm:text-sm">
-          <Lock className="size-3.5 shrink-0" aria-hidden="true" />
-          Tu información está segura con nosotros.
-        </p>
       </div>
     </section>
   );

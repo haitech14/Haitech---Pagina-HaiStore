@@ -41,7 +41,7 @@ export function CategoryStrip() {
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   return (
-    <section aria-labelledby="categorias-titulo" className="border-b bg-background">
+    <section aria-labelledby="categorias-titulo" className="bg-background">
       <div className="container py-10 sm:py-12">
         <header className="mx-auto mb-8 max-w-2xl text-center sm:mb-10">
           <div className="flex items-center justify-center gap-3 sm:gap-4">

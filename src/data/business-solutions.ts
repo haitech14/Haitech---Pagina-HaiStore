@@ -1,44 +1,58 @@
-import { Shield, Users, Workflow, type LucideIcon } from 'lucide-react';
+export type PromoCardVariant = 'dark-b2b' | 'light-service' | 'dark-offers';
+export type PromoCardButtonVariant = 'red' | 'navy';
 
-export interface BusinessSolution {
+export interface PromoCard {
   id: string;
+  variant: PromoCardVariant;
   title: string;
-  description: string;
+  subtitle?: string;
+  description?: string;
+  features?: readonly string[];
   image: string;
   imageAlt: string;
-  icon: LucideIcon;
+  buttonLabel: string;
+  buttonVariant: PromoCardButtonVariant;
   href: string;
 }
 
-export const businessSolutions: BusinessSolution[] = [
+export const promoCards: PromoCard[] = [
   {
-    id: 'smart-flow',
-    title: 'Ricoh Smart Flow',
-    description:
-      'Capacita a tu fuerza laboral con flujos de trabajo optimizados desde nuestra plataforma todo en uno. Organiza datos, procesos y comunicaciones.',
-    image: '/solutions/smart-flow.png',
-    imageAlt: 'Equipo revisando flujos de trabajo en tablet',
-    icon: Workflow,
+    id: 'b2b',
+    variant: 'dark-b2b',
+    title: '¿Compras para tu empresa?',
+    subtitle: 'Soluciones B2B a medida',
+    features: [
+      'Factura inmediata',
+      'Leasing y renting tecnológico',
+      'Contratos de mantenimiento',
+      'Precios especiales por volumen',
+    ],
+    image: '/promo-cards/b2b-printer.png',
+    imageAlt: 'Multifuncional Ricoh profesional para empresas',
+    buttonLabel: 'Ver soluciones B2B',
+    buttonVariant: 'red',
     href: '/tienda?categoria=soluciones-negocio',
   },
   {
-    id: 'colaboracion',
-    title: 'Soluciones de Colaboración',
-    description:
-      'Conecte ideas, personas y oportunidades. Impulsa la productividad y la creatividad con clientes, equipos y socios, desde cualquier lugar del mundo.',
-    image: '/solutions/colaboracion.png',
-    imageAlt: 'Profesional trabajando en laptop en oficina',
-    icon: Users,
-    href: '/tienda?categoria=soluciones-colaboracion',
+    id: 'service',
+    variant: 'light-service',
+    title: 'Servicio técnico especializado',
+    description: 'Diagnóstico, mantenimiento y reparaciones con garantía.',
+    image: '/promo-cards/technician-service.png',
+    imageAlt: 'Técnico especializado reparando equipo de impresión',
+    buttonLabel: 'Agendar servicio',
+    buttonVariant: 'navy',
+    href: '/contacto',
   },
   {
-    id: 'microsoft-365',
-    title: 'Licencia Microsoft 365',
-    description:
-      'Optimiza la productividad de tu empresa con Microsoft 365. Aumenta la colaboración y la seguridad de tu negocio con soluciones en la nube.',
-    image: '/solutions/microsoft-365.png',
-    imageAlt: 'Paquetes de Microsoft Office 365 y Windows 11',
-    icon: Shield,
-    href: '/tienda?categoria=soluciones-negocio',
+    id: 'offers',
+    variant: 'dark-offers',
+    title: 'Ofertas y descuentos por tiempo limitado',
+    description: 'Aprovecha nuestras promociones exclusivas.',
+    image: '/promo-cards/discount-percent.png',
+    imageAlt: 'Símbolo de descuento en oferta especial',
+    buttonLabel: 'Ver ofertas',
+    buttonVariant: 'red',
+    href: '/tienda',
   },
 ];

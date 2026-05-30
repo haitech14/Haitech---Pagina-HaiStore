@@ -1,118 +1,323 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import {
+  ChevronRight,
+  Clock,
+  CreditCard,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  Truck,
+} from 'lucide-react';
 import { Icon } from '@mdi/react';
-import { mdiFacebook, mdiInstagram, mdiTwitter, mdiYoutube } from '@mdi/js';
+import { mdiFacebook, mdiInstagram, mdiWhatsapp } from '@mdi/js';
 
-const columns = [
-  {
-    title: 'Comprar',
-    links: ['Productos', 'Ofertas', 'Novedades', 'Marcas', 'Accesorios'],
-  },
-  {
-    title: 'Información',
-    links: ['Sobre nosotros', 'Blog', 'Políticas de envío', 'Términos y condiciones'],
-  },
-  {
-    title: 'Ayuda',
-    links: ['Centro de ayuda', 'Estado de pedido', 'Garantía', 'Contacto'],
-  },
+import { cn } from '@/lib/utils';
+
+const WHATSAPP_LINK = 'https://wa.me/51915149290';
+
+const highlights = [
+  { icon: Truck, title: 'Envíos rápidos', subtitle: 'A todo el Perú' },
+  { icon: CreditCard, title: 'Pagos 100% seguros', subtitle: 'Protegemos tus datos' },
+  { icon: ShieldCheck, title: 'Garantía oficial', subtitle: 'Productos originales' },
 ] as const;
 
-const socials = [
-  { path: mdiFacebook, label: 'Facebook' },
-  { path: mdiInstagram, label: 'Instagram' },
-  { path: mdiTwitter, label: 'Twitter' },
-  { path: mdiYoutube, label: 'YouTube' },
+const categoryLinks = [
+  { label: 'Multifuncionales', to: '/tienda' },
+  { label: 'Plotters', to: '/tienda' },
+  { label: 'Tintas', to: '/tienda' },
+  { label: 'Repuestos', to: '/tienda' },
+  { label: 'Consumibles', to: '/tienda' },
 ] as const;
 
-const payments = ['VISA', 'Mastercard', 'PayPal', 'Apple Pay'] as const;
+const infoLinks = [
+  { label: 'Sobre Nosotros', to: '/contacto' },
+  { label: 'Contacto', to: '/contacto' },
+  { label: 'Privacidad', to: '/privacidad' },
+  { label: 'Términos', to: '/terminos' },
+] as const;
+
+const helpLinks = [
+  { label: 'Servicio técnico', to: '/contacto' },
+  { label: 'Alquiler de impresoras', to: '/contacto' },
+  { label: 'Garantía', to: '/contacto' },
+  { label: 'Seguimiento de pedido', to: '/contacto' },
+  { label: 'Libro de reclamaciones', to: '/contacto' },
+] as const;
+
+const contactItems = [
+  { icon: MapPin, label: 'Lima - Perú', href: '/contacto', external: false },
+  { icon: Phone, label: '+51 915 149 290', href: 'tel:+51915149290', external: true },
+  {
+    icon: mdiWhatsapp,
+    label: 'WhatsApp',
+    href: WHATSAPP_LINK,
+    external: true,
+    mdi: true,
+  },
+  {
+    icon: Mail,
+    label: 'ventas@haitech.pe',
+    href: 'mailto:ventas@haitech.pe',
+    external: true,
+  },
+  { icon: Clock, label: '8AM–6PM', href: undefined, external: false },
+] as const;
+
+const socialLinks = [
+  { label: 'Facebook', href: 'https://facebook.com/', path: mdiFacebook },
+  { label: 'Instagram', href: 'https://instagram.com/', path: mdiInstagram },
+  { label: 'WhatsApp', href: WHATSAPP_LINK, path: mdiWhatsapp },
+] as const;
+
+function FooterHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-4">
+      <h2 className="text-sm font-bold uppercase tracking-wider text-white">{children}</h2>
+      <span className="mt-2 block h-0.5 w-8 bg-red-600" aria-hidden="true" />
+    </div>
+  );
+}
+
+function FooterLinkList({ links }: { links: readonly { label: string; to: string }[] }) {
+  return (
+    <ul className="flex flex-col gap-2.5">
+      {links.map((link) => (
+        <li key={link.label}>
+          <Link
+            to={link.to}
+            className="group flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
+          >
+            <ChevronRight
+              className="size-3 shrink-0 text-red-600 transition-transform group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
+            {link.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function FooterNewsletterBar() {
+  const [email, setEmail] = useState('');
+  const [done, setDone] = useState(false);
+
+  return (
+    <div className="mb-10 rounded-xl border border-white/10 bg-white/[0.03] p-5 sm:mb-12 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-0">
+        <div className="flex-1 lg:border-r lg:border-white/10 lg:pr-8 xl:pr-12">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+            <div className="relative shrink-0" aria-hidden="true">
+              <span className="flex size-12 items-center justify-center rounded-full bg-red-600 sm:size-14">
+                <Mail className="size-5 text-white sm:size-6" strokeWidth={1.75} />
+              </span>
+              <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full border-2 border-black bg-red-500" />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-base font-bold text-white sm:text-lg">Recibe ofertas y novedades</p>
+              <p className="mt-1 text-sm text-white/55">
+                Suscríbete y recibe descuentos exclusivos.
+              </p>
+
+              {done ? (
+                <p role="status" className="mt-4 text-sm font-semibold text-white">
+                  ¡Gracias por suscribirte!
+                </p>
+              ) : (
+                <form
+                  className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-stretch"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    setDone(true);
+                  }}
+                >
+                  <div className="relative min-w-0 flex-1">
+                    <label htmlFor="footer-newsletter-email" className="sr-only">
+                      Tu correo electrónico
+                    </label>
+                    <Mail
+                      className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/40"
+                      aria-hidden="true"
+                    />
+                    <input
+                      id="footer-newsletter-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="Tu correo electrónico"
+                      className="h-11 w-full rounded-md border border-white/15 bg-black/40 py-2 pl-10 pr-3 text-sm text-white outline-none placeholder:text-white/40 focus-visible:ring-2 focus-visible:ring-red-600"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="h-11 shrink-0 rounded-md bg-red-600 px-5 text-xs font-bold uppercase tracking-wide text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                  >
+                    Suscribirme
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <ul className="grid flex-1 gap-6 sm:grid-cols-3 lg:pl-8 xl:pl-12">
+          {highlights.map((item) => (
+            <li key={item.title} className="flex items-start gap-3">
+              <span
+                className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white"
+                aria-hidden="true"
+              >
+                <item.icon className="size-5" strokeWidth={1.5} />
+              </span>
+              <div className="min-w-0 leading-tight">
+                <p className="text-sm font-bold text-white">{item.title}</p>
+                <p className="mt-0.5 text-xs text-white/55">{item.subtitle}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function WhatsAppFloatButton() {
+  return (
+    <a
+      href={WHATSAPP_LINK}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Chatear por WhatsApp"
+      className="fixed bottom-5 right-5 z-50 flex size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_4px_20px_rgba(37,211,102,0.45)] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:bottom-6 sm:right-6"
+    >
+      <Icon path={mdiWhatsapp} size={1.15} aria-hidden="true" />
+    </a>
+  );
+}
 
 export function SiteFooter() {
   return (
-    <footer className="bg-black text-white/70">
-      <div className="container grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-5">
-        {/* Marca */}
-        <div className="lg:col-span-2">
-          <Link to="/" className="inline-flex items-center" aria-label="Haitech, inicio">
-            <img src="/logoclaro.ico" alt="Haitech" className="h-10 w-auto" />
-          </Link>
-          <p className="mt-4 max-w-xs text-sm">
-            Tecnología que impulsa tu mundo. Calidad y tecnología para mejorar tu
-            experiencia.
-          </p>
-          <ul className="mt-5 flex gap-3">
-            {socials.map((social) => (
-              <li key={social.label}>
-                <a
-                  href="#"
-                  aria-label={social.label}
-                  className="flex size-9 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                >
-                  <Icon path={social.path} size={0.7} aria-hidden="true" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+    <>
+      <footer className="bg-black text-white/70">
+        <div className="container py-10 sm:py-12">
+          <FooterNewsletterBar />
 
-        {/* Columnas de enlaces */}
-        {columns.map((column) => (
-          <nav key={column.title} aria-label={column.title}>
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">
-              {column.title}
-            </h2>
-            <ul className="flex flex-col gap-2 text-sm">
-              {column.links.map((link) => (
-                <li key={link}>
-                  <Link
-                    to="/tienda"
-                    className="transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
-                  >
-                    {link}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ))}
-
-        {/* Contacto */}
-        <div>
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">
-            Contacto
-          </h2>
-          <ul className="flex flex-col gap-3 text-sm">
-            <li className="flex items-center gap-2">
-              <Mail className="size-4 text-red-500" aria-hidden="true" />
-              info@haitech.com
-            </li>
-            <li className="flex items-center gap-2">
-              <Phone className="size-4 text-red-500" aria-hidden="true" />
-              +1 (555) 123-4567
-            </li>
-            <li className="flex items-start gap-2">
-              <MapPin className="mt-0.5 size-4 shrink-0 text-red-500" aria-hidden="true" />
-              123 Tech Street, Miami, FL, EE. UU.
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="border-t border-white/10">
-        <div className="container flex flex-col items-center justify-between gap-4 py-6 text-sm sm:flex-row">
-          <p>© {new Date().getFullYear()} Haitech. Todos los derechos reservados.</p>
-          <ul className="flex items-center gap-2">
-            {payments.map((payment) => (
-              <li
-                key={payment}
-                className="rounded-md bg-white/10 px-3 py-1 text-xs font-semibold text-white"
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <Link
+                to="/"
+                className="inline-block font-heading text-2xl font-bold uppercase tracking-wide text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+                aria-label="Haitech, inicio"
               >
-                {payment}
-              </li>
-            ))}
-          </ul>
+                HAI<span className="text-red-600">TECH</span>
+              </Link>
+              <p className="mt-2 text-sm font-medium text-white">Soluciones que imprimen valor</p>
+              <span className="mt-3 block h-0.5 w-8 bg-red-600" aria-hidden="true" />
+              <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/55">
+                Especialistas en multifuncionales Ricoh y soluciones de impresión para empresas.
+              </p>
+              <ul className="mt-5 flex gap-2.5">
+                {socialLinks.map((social) => (
+                  <li key={social.label}>
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
+                      className="flex size-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:border-red-600/50 hover:bg-red-600/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+                    >
+                      <Icon path={social.path} size={0.75} aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <nav aria-label="Categorías">
+              <FooterHeading>Categorías</FooterHeading>
+              <FooterLinkList links={categoryLinks} />
+            </nav>
+
+            <nav aria-label="Información">
+              <FooterHeading>Información</FooterHeading>
+              <FooterLinkList links={infoLinks} />
+            </nav>
+
+            <nav aria-label="Ayuda">
+              <FooterHeading>Ayuda</FooterHeading>
+              <FooterLinkList links={helpLinks} />
+            </nav>
+
+            <div>
+              <FooterHeading>Contacto</FooterHeading>
+              <ul className="flex flex-col gap-3 text-sm">
+                {contactItems.map((item) => {
+                  const content = (
+                    <>
+                      {'mdi' in item && item.mdi ? (
+                        <Icon
+                          path={item.icon as string}
+                          size={0.67}
+                          className="size-4 shrink-0 text-red-600"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <item.icon className="size-4 shrink-0 text-red-600" aria-hidden="true" />
+                      )}
+                      <span>{item.label}</span>
+                    </>
+                  );
+
+                  if (!item.href) {
+                    return (
+                      <li key={item.label} className="flex items-center gap-2.5 text-white/60">
+                        {content}
+                      </li>
+                    );
+                  }
+
+                  const className = cn(
+                    'flex items-center gap-2.5 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white',
+                    item.external ? 'text-white/60' : 'text-white/60',
+                  );
+
+                  return (
+                    <li key={item.label}>
+                      {item.external ? (
+                        <a
+                          href={item.href}
+                          target={item.href.startsWith('http') ? '_blank' : undefined}
+                          rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                          className={className}
+                        >
+                          {content}
+                        </a>
+                      ) : (
+                        <Link to={item.href} className={className}>
+                          {content}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-10 border-t border-white/10 pt-6 sm:mt-12">
+            <p className="text-xs text-white/45 sm:text-sm">
+              © {new Date().getFullYear()} HAI TECH. Todos los derechos reservados.
+            </p>
+          </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+
+      <WhatsAppFloatButton />
+    </>
   );
 }

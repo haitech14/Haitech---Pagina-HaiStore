@@ -38,6 +38,7 @@ export default defineConfig({
     ],
   },
   server: {
+    host: true,
     port: 5173,
     // Proxy del API admin local (server/) durante el desarrollo.
     proxy: {

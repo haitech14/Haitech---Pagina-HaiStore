@@ -109,6 +109,7 @@ export function ColorWheel({ rotation, spinning, className }: ColorWheelProps) {
               {wheelPrizes.map((prize, index) => {
                 const angle = index * WHEEL_SEGMENT_ANGLE + WHEEL_SEGMENT_ANGLE / 2 - 90;
                 const Icon = prize.icon;
+                const upright = -(rotation + angle);
 
                 return (
                   <div
@@ -117,7 +118,16 @@ export function ColorWheel({ rotation, spinning, className }: ColorWheelProps) {
                     className="absolute left-1/2 top-1/2 w-[46%] origin-left"
                     style={{ transform: `rotate(${angle}deg)` }}
                   >
-                    <div className="flex w-[92px] flex-col items-center gap-1 pl-[66%] sm:w-[100px] sm:gap-1.5">
+                    <div
+                      className={cn(
+                        'flex w-[92px] flex-col items-center gap-1 pl-[66%] sm:w-[100px] sm:gap-1.5',
+                        spinning ? SPIN_TRANSITION : 'transition-none',
+                      )}
+                      style={{
+                        transform: `rotate(${upright}deg)`,
+                        transformOrigin: '0% 50%',
+                      }}
+                    >
                       <Icon
                         className="wheel-segment-icon size-6 sm:size-7"
                         strokeWidth={2.75}

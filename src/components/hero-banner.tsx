@@ -56,8 +56,8 @@ export function HeroBanner() {
 
       <div className="container relative py-8 sm:py-10 lg:min-h-[380px] lg:py-12">
         <div className="flex max-w-2xl flex-col items-start gap-4">
-          <span className="-mb-1 inline-flex items-center gap-2 rounded-full border border-red-600/50 bg-red-600/10 px-3 pb-0.5 pt-1 text-[0.65rem] font-bold uppercase leading-none tracking-[0.18em] text-red-600">
-            <span className="size-1.5 rounded-full bg-red-600" aria-hidden="true" />
+          <span className="-mb-1 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 pb-0.5 pt-1 text-[0.65rem] font-bold uppercase leading-none tracking-[0.18em] text-white">
+            <span className="size-1.5 rounded-full bg-white" aria-hidden="true" />
             Nueva generación de
           </span>
 

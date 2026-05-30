@@ -9,8 +9,11 @@ import { cn } from '@/lib/utils';
 
 const BULB_COUNT = 24;
 const SPIN_DURATION_MS = 4600;
-/** Distancia radial de las etiquetas desde el centro (px aprox. en ruleta 360px). */
-const LABEL_RADIUS_PX = 118;
+/** Radio del aro de iconos (% del diámetro desde el centro). */
+const ICON_RING_WIDTH_PERCENT = 41;
+
+const SPIN_TRANSITION =
+  'transition-transform duration-[4600ms] ease-[cubic-bezier(0.12,0.75,0.22,1)] motion-reduce:transition-none motion-reduce:duration-0';
 
 interface SubscriptionRuletaWheelProps {
   idleDiskRotation: number;
@@ -51,18 +54,18 @@ export function SubscriptionRuletaWheel({
             'shadow-[0_0_35px_rgba(251,191,36,0.45),inset_0_2px_4px_rgba(255,255,255,0.35)]',
           )}
         >
-          {/* Bombillas sobre el borde amarillo */}
+          {/* Bombillas sobre el aro dorado — ligeramente más hacia afuera */}
           {Array.from({ length: BULB_COUNT }).map((_, index) => {
             const angle = (index / BULB_COUNT) * 360 - 90;
             return (
-              <div
+              <span
                 key={`bulb-${index}`}
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-20"
+                className="pointer-events-none absolute left-1/2 top-1/2 z-20 h-[calc(50%+1px)] w-0 origin-bottom"
                 style={{ transform: `rotate(${angle}deg)` }}
               >
-                <span className="absolute left-1/2 top-[5px] block size-2.5 -translate-x-1/2 rounded-full bg-yellow-50 shadow-[0_0_7px_2px_rgba(255,255,255,0.95),0_0_14px_4px_rgba(250,204,21,0.55)]" />
-              </div>
+                <span className="absolute left-0 top-0 block size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-50 shadow-[0_0_9px_3px_rgba(255,255,255,0.95),0_0_16px_5px_rgba(250,204,21,0.6)]" />
+              </span>
             );
           })}
 
@@ -72,9 +75,7 @@ export function SubscriptionRuletaWheel({
               <div
                 className={cn(
                   'absolute inset-0 rounded-full',
-                  isSpinning &&
-                    'transition-transform duration-[4600ms] ease-[cubic-bezier(0.12,0.75,0.22,1)] motion-reduce:transition-none motion-reduce:duration-0',
-                  !isSpinning && 'transition-none',
+                  isSpinning ? SPIN_TRANSITION : 'transition-none',
                 )}
                 style={{ transform: `rotate(${diskRotation}deg)` }}
               >
@@ -82,32 +83,52 @@ export function SubscriptionRuletaWheel({
                   className="absolute inset-0 rounded-full"
                   style={{ background: gradient }}
                 />
+              </div>
 
+              {/* Etiquetas — giran con el disco pero siempre horizontales */}
+              <div
+                className={cn(
+                  'pointer-events-none absolute inset-0',
+                  isSpinning ? SPIN_TRANSITION : 'transition-none',
+                )}
+                style={{ transform: `rotate(${diskRotation}deg)` }}
+              >
                 {SUBSCRIPTION_RULETA_PREMIOS.map((premio, index) => {
                   const midAngle =
                     index * RULETA_SEGMENT_ANGLE + RULETA_SEGMENT_ANGLE / 2 - 90;
                   const Icon = premio.icon;
+                  const upright = -(diskRotation + midAngle);
 
                   return (
                     <div
                       key={premio.id}
                       aria-hidden="true"
-                      className="absolute left-1/2 top-1/2"
+                      className="absolute left-1/2 top-1/2 origin-left"
                       style={{
-                        transform: `rotate(${midAngle}deg) translateY(-${LABEL_RADIUS_PX}px)`,
+                        width: `${ICON_RING_WIDTH_PERCENT}%`,
+                        transform: `rotate(${midAngle}deg)`,
                       }}
                     >
-                      <div className="flex w-[72px] flex-col items-center gap-1 text-center sm:w-[78px]">
+                      <div
+                        className={cn(
+                          'flex w-[68px] flex-col items-center gap-0.5 pl-[100%] text-center sm:w-[72px]',
+                          isSpinning ? SPIN_TRANSITION : 'transition-none',
+                        )}
+                        style={{
+                          transform: `rotate(${upright}deg)`,
+                          transformOrigin: '0% 50%',
+                        }}
+                      >
                         <Icon
-                          className="wheel-segment-icon size-6 sm:size-7"
-                          strokeWidth={2.5}
+                          className="wheel-segment-icon size-5 shrink-0 sm:size-[1.35rem]"
+                          strokeWidth={2.35}
                           aria-hidden="true"
                         />
-                        <span className="leading-[1.08] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65),0_0_6px_rgba(0,0,0,0.35)]">
-                          <span className="block text-[0.54rem] font-extrabold uppercase tracking-tight sm:text-[0.6rem]">
+                        <span className="leading-[1.06] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65),0_0_6px_rgba(0,0,0,0.35)]">
+                          <span className="block text-[0.52rem] font-extrabold uppercase tracking-tight sm:text-[0.58rem]">
                             {premio.label}
                           </span>
-                          <span className="mt-0.5 block text-[0.48rem] font-bold uppercase sm:text-[0.54rem]">
+                          <span className="mt-0.5 block text-[0.46rem] font-bold uppercase sm:text-[0.52rem]">
                             {premio.sublabel}
                           </span>
                         </span>
@@ -117,17 +138,17 @@ export function SubscriptionRuletaWheel({
                 })}
               </div>
 
-              {/* Centro fijo — más compacto */}
-              <div className="absolute left-1/2 top-1/2 z-10 flex size-[22%] min-w-[68px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-[3px] border-amber-400 bg-white px-2 py-1.5 text-center shadow-[0_4px_14px_rgba(0,0,0,0.25)] sm:min-w-[74px]">
-                <p className="font-black uppercase leading-[1.05] tracking-wide text-black">
-                  <span className="block text-[0.46rem] sm:text-[0.52rem]">Gira</span>
-                  <span className="block text-[0.46rem] sm:text-[0.52rem]">y gana</span>
+              {/* Centro fijo — texto a la izquierda, puntos finos a la derecha */}
+              <div className="absolute left-1/2 top-1/2 z-10 flex size-[24%] min-w-[76px] -translate-x-1/2 -translate-y-1/2 items-center justify-between gap-1 rounded-full border-[3px] border-amber-400 bg-white px-2 py-1.5 shadow-[0_4px_14px_rgba(0,0,0,0.25)] sm:min-w-[82px] sm:px-2.5">
+                <p className="font-black uppercase leading-[1.02] tracking-wide text-black">
+                  <span className="block text-[0.44rem] sm:text-[0.5rem]">Gira</span>
+                  <span className="block text-[0.44rem] sm:text-[0.5rem]">y gana</span>
                 </p>
-                <div className="mt-1 flex gap-1" aria-hidden="true">
-                  <span className="size-1.5 rounded-full bg-red-500 sm:size-2" />
-                  <span className="size-1.5 rounded-full bg-yellow-400 sm:size-2" />
-                  <span className="size-1.5 rounded-full bg-green-500 sm:size-2" />
-                  <span className="size-1.5 rounded-full bg-blue-500 sm:size-2" />
+                <div className="flex shrink-0 flex-col gap-[3px]" aria-hidden="true">
+                  <span className="size-1 rounded-full bg-red-500" />
+                  <span className="size-1 rounded-full bg-yellow-400" />
+                  <span className="size-1 rounded-full bg-green-500" />
+                  <span className="size-1 rounded-full bg-blue-500" />
                 </div>
               </div>
             </div>
