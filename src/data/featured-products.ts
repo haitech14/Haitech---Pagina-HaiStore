@@ -1,9 +1,13 @@
-import type { Product } from '@/types/product';
+import catalogData from '@/data/inventory-catalog.json';
+import { catalogRowToFeatured, type CatalogRow } from '@/lib/catalog-featured';
+import type { Product, ProductAttribute } from '@/types/product';
 
 export interface FeaturedProduct {
   id: string;
   name: string;
   category: string;
+  brand?: string | null;
+  attributes?: ProductAttribute[];
   price: number;
   oldPrice?: number;
   discount?: number;
@@ -13,95 +17,45 @@ export interface FeaturedProduct {
   image: string;
 }
 
-export const featuredProducts: FeaturedProduct[] = [
-  {
-    id: 'ricoh-im-430f',
-    name: 'Impresora Multifuncional RICOH IM 430F',
-    category: 'Multifuncionales',
-    price: 702,
-    oldPrice: 891,
-    discount: 21,
-    rating: 5,
-    reviews: 48,
-    image: '/products/ricoh-im-430f.png',
-  },
-  {
-    id: 'toner-ricoh-c6003-cyan',
-    name: 'Toner Ricoh MP C6003 C4503 841849 Cyan Compatible',
-    category: 'Toner y suministros',
-    price: 40.27,
-    oldPrice: 80.81,
-    discount: 50,
-    rating: 5,
-    reviews: 94,
-    image: '/categories/toner-suministros.png',
-  },
-  {
-    id: 'sony-wh1000xm5',
-    name: 'Sony WH-1000XM5',
-    category: 'Audio',
-    price: 299.99,
-    oldPrice: 349.99,
-    discount: 15,
-    rating: 5,
-    reviews: 128,
-    image: '/products/sony-wh1000xm5.png',
-  },
-  {
-    id: 'macbook-air-m13',
-    name: 'MacBook Air M3 13"',
-    category: 'Laptops',
-    price: 1099.0,
-    isNew: true,
-    rating: 5,
-    reviews: 86,
-    image: '/products/macbook-air-m13.png',
-  },
-  {
-    id: 'iphone-15-pro',
-    name: 'iPhone 15 Pro 256GB',
-    category: 'Smartphones',
-    price: 1099.0,
-    oldPrice: 1229.0,
-    discount: 10,
-    rating: 5,
-    reviews: 203,
-    image: '/products/iphone-15-pro.png',
-  },
-  {
-    id: 'apple-watch-9',
-    name: 'Apple Watch Series 9',
-    category: 'Smartwatches',
-    price: 399.0,
-    isNew: true,
-    rating: 4,
-    reviews: 64,
-    image: '/products/apple-watch-9.png',
-  },
-  {
-    id: 'galaxy-buds2-pro',
-    name: 'Samsung Galaxy Buds2 Pro',
-    category: 'Audio',
-    price: 159.99,
-    oldPrice: 199.99,
-    discount: 20,
-    rating: 4,
-    reviews: 97,
-    image: '/products/galaxy-buds2-pro.png',
-  },
-  {
-    id: 'mochila-techpro',
-    name: 'Mochila TechPro',
-    category: 'Accesorios',
-    price: 49.99,
-    rating: 4,
-    reviews: 41,
-    image: '/products/mochila-techpro.png',
-  },
+/** Orden del carrusel en inicio (debe existir en inventory-catalog.json). */
+export const FEATURED_PRODUCT_IDS: string[] = [
+  'ricoh-im-430f',
+  'ricoh-im-c3000',
+  'ricoh-sp-330dn',
+  'konica-bizhub-c300i',
+  'canon-ir-advance',
+  'toner-ricoh-c6003-cyan',
+  'ricoh-toner-mp',
+  'hp-laserjet-m234',
 ];
 
+const FEATURED_META: Record<
+  string,
+  Pick<FeaturedProduct, 'rating' | 'reviews' | 'isNew'>
+> = {
+  'ricoh-im-430f': { rating: 5, reviews: 48 },
+  'ricoh-im-c3000': { rating: 5, reviews: 36 },
+  'ricoh-sp-330dn': { rating: 5, reviews: 52 },
+  'konica-bizhub-c300i': { rating: 5, reviews: 29 },
+  'canon-ir-advance': { rating: 5, reviews: 41 },
+  'toner-ricoh-c6003-cyan': { rating: 5, reviews: 94 },
+  'ricoh-toner-mp': { rating: 5, reviews: 67 },
+  'hp-laserjet-m234': { rating: 4, reviews: 38 },
+};
+
+const catalogFeaturedProducts: FeaturedProduct[] = FEATURED_PRODUCT_IDS.map((id) => {
+  const row = (catalogData.products as CatalogRow[]).find((product) => product.id === id);
+  if (!row) {
+    throw new Error(`Producto destacado "${id}" no está en inventory-catalog.json`);
+  }
+  return catalogRowToFeatured(row, FEATURED_META[id]);
+});
+
+/** Respaldo estático si el API no está disponible. */
+export const featuredProducts: FeaturedProduct[] = catalogFeaturedProducts;
+
 export function getFeaturedProductById(id: string): FeaturedProduct | undefined {
-  return featuredProducts.find((product) => product.id === id);
+  return catalogFeaturedProducts.find((product) => product.id === id);
 }
 
 export function featuredToProduct(featured: FeaturedProduct): Product {

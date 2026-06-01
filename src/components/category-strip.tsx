@@ -4,6 +4,8 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { categories, type Category } from '@/data/categories';
+import { categoryPath } from '@/lib/category-path';
+import { cn } from '@/lib/utils';
 
 function CategoryImage({ category }: { category: Category }) {
   const [hasError, setHasError] = useState(false);
@@ -56,7 +58,7 @@ export function CategoryStrip() {
             <span className="h-px w-10 bg-red-600 sm:w-14" aria-hidden="true" />
           </div>
           <p className="mt-3 text-pretty text-sm text-muted-foreground sm:text-base">
-            Todo lo que necesitas en tecnología, impresoras y más, en un solo lugar.
+            Elige una categoría para ver su página con subcategorías y productos.
           </p>
         </header>
 
@@ -71,15 +73,17 @@ export function CategoryStrip() {
           </button>
 
           <div className="overflow-hidden sm:mx-11 lg:mx-12" ref={emblaRef}>
-            <ul className="flex gap-3 sm:gap-4">
+            <ul className="flex gap-3 sm:gap-4" role="list">
               {categories.map((category) => (
                 <li
                   key={category.slug}
                   className="min-w-0 flex-[0_0_72%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_20%]"
                 >
                   <Link
-                    to="/tienda"
-                    className="group flex h-full flex-col overflow-hidden rounded-lg border border-border/80 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-red-600/30 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    to={categoryPath(category.slug)}
+                    className={cn(
+                      'group flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/80 bg-card text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-red-600/30 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500',
+                    )}
                   >
                     <span className="block h-1 bg-red-600" aria-hidden="true" />
 

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useProduct } from '@/hooks/use-product';
 
 export function ProductDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id: rawId } = useParams<{ id: string }>();
+  const id = rawId ? decodeURIComponent(rawId) : undefined;
   const { product, featuredMeta, isLoading, notFound } = useProduct(id);
 
   if (isLoading) {

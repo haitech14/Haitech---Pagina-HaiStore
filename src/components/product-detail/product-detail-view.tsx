@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { ProductDetailAttributeBadges } from '@/components/product-detail/product-detail-attribute-badges';
 import { ProductDetailCombo } from '@/components/product-detail/product-detail-combo';
 import { ProductDetailDescription } from '@/components/product-detail/product-detail-description';
 import { ProductDetailFeatures } from '@/components/product-detail/product-detail-features';
@@ -129,6 +130,8 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                 <h1 className="text-xl font-bold leading-tight text-neutral-900 sm:text-2xl lg:text-[1.65rem]">
                   {detail.displayTitle}
                 </h1>
+
+                <ProductDetailAttributeBadges product={product} />
 
                 <p className="text-xs text-neutral-500">
                   Marca: {detail.brandLabel} | SKU: {detail.sku} | Color: {detail.colorLabel}

@@ -8,6 +8,7 @@ import {
   Zap,
 } from 'lucide-react';
 
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Button } from '@/components/ui/button';
 import { ProductDetailPurchaseAccordion } from '@/components/product-detail/product-detail-purchase-accordion';
 import { useCart } from '@/context/cart-context';
@@ -220,16 +221,29 @@ export function ProductDetailPurchaseBox({ product, detail }: ProductDetailPurch
       </div>
 
       <div className="mt-3 flex flex-col gap-2">
-        <Button
-          type="button"
-          size="lg"
-          className="h-11 w-full gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
-          onClick={handleAddToCart}
-          disabled={outOfStock}
-        >
-          <ShoppingCart className="size-4" aria-hidden="true" />
-          Agregar al carrito
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            size="lg"
+            className="h-11 min-h-11 flex-1 gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
+            onClick={handleAddToCart}
+            disabled={outOfStock}
+          >
+            <ShoppingCart className="size-4" aria-hidden="true" />
+            Agregar al carrito
+          </Button>
+          <ProductWhatsAppButton
+            className="size-11"
+            stopPropagation={false}
+            product={{
+              id: product.id,
+              name: product.name,
+              priceUsd: product.price,
+              category: product.category,
+              brand: product.brand,
+            }}
+          />
+        </div>
         <Button
           type="button"
           size="lg"

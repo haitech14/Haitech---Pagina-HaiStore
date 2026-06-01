@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { clients, type Client } from '@/data/clients';
 import { cn } from '@/lib/utils';
@@ -44,28 +43,26 @@ export function ClientsSection() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
   const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
 
-    setScrollSnaps(emblaApi.scrollSnapList());
+    const updateSnaps = () => setScrollSnaps(emblaApi.scrollSnapList());
+    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+
+    updateSnaps();
     onSelect();
     emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', updateSnaps);
     emblaApi.on('reInit', onSelect);
 
     return () => {
       emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', updateSnaps);
       emblaApi.off('reInit', onSelect);
     };
-  }, [emblaApi, onSelect]);
+  }, [emblaApi]);
 
   return (
     <section
@@ -100,22 +97,13 @@ export function ClientsSection() {
           </p>
         </header>
 
-        <div className="relative">
-          <button
-            type="button"
-            onClick={scrollPrev}
-            aria-label="Clientes anteriores"
-            className="absolute -left-1 top-1/2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-100 bg-white text-neutral-600 shadow-[0_4px_16px_rgba(15,23,42,0.1)] transition-colors hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:flex lg:-left-5"
-          >
-            <ChevronLeft className="size-5" aria-hidden="true" />
-          </button>
-
-          <div className="overflow-hidden sm:mx-12 lg:mx-14" ref={emblaRef}>
+        <div className="flex flex-col gap-6">
+          <div className="overflow-hidden" ref={emblaRef}>
             <ul className="flex touch-pan-y gap-4 sm:gap-5">
               {clients.map((client) => (
                 <li
                   key={client.id}
-                  className="min-w-0 flex-[0_0_72%] sm:flex-[0_0_46%] md:flex-[0_0_31%] lg:flex-[0_0_calc((100%-5rem)/6)]"
+                  className="min-w-0 flex-[0_0_78%] sm:flex-[0_0_48%] md:flex-[0_0_32%] lg:flex-[0_0_calc((100%-5rem)/6)]"
                 >
                   <ClientCard client={client} />
                 </li>
@@ -123,38 +111,29 @@ export function ClientsSection() {
             </ul>
           </div>
 
-          <button
-            type="button"
-            onClick={scrollNext}
-            aria-label="Más clientes"
-            className="absolute -right-1 top-1/2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-100 bg-white text-neutral-600 shadow-[0_4px_16px_rgba(15,23,42,0.1)] transition-colors hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:flex lg:-right-5"
-          >
-            <ChevronRight className="size-5" aria-hidden="true" />
-          </button>
+          {scrollSnaps.length > 1 && (
+            <div
+              className="flex items-center justify-center gap-2"
+              role="tablist"
+              aria-label="Paginación de clientes"
+            >
+              {scrollSnaps.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === selectedIndex}
+                  aria-label={`Ir al grupo ${index + 1} de clientes`}
+                  onClick={() => scrollTo(index)}
+                  className={cn(
+                    'size-2.5 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
+                    index === selectedIndex ? 'bg-red-600' : 'bg-neutral-300 hover:bg-neutral-400',
+                  )}
+                />
+              ))}
+            </div>
+          )}
         </div>
-
-        {scrollSnaps.length > 1 && (
-          <div
-            className="mt-8 flex items-center justify-center gap-2"
-            role="tablist"
-            aria-label="Paginación de clientes"
-          >
-            {scrollSnaps.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                role="tab"
-                aria-selected={index === selectedIndex}
-                aria-label={`Ir al grupo ${index + 1} de clientes`}
-                onClick={() => scrollTo(index)}
-                className={cn(
-                  'size-2.5 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-                  index === selectedIndex ? 'bg-red-600' : 'bg-neutral-300 hover:bg-neutral-400',
-                )}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </section>
   );

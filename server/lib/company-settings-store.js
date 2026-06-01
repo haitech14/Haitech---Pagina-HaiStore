@@ -2,6 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { optimizeImageDataUrl } from './optimize-image.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SETTINGS_PATH = path.join(__dirname, '../data/company-settings.json');
 
@@ -14,7 +16,7 @@ const DEFAULT_SETTINGS = {
   ruc: '20612146561',
   address: 'Av. Petit Thouars Nro. — LINCE - LIMA - LIMA',
   city: 'Lima',
-  phone: '+51 1 234 5678',
+  phone: '+51 915 149 290',
   email: 'ventas@haitech.com',
   website: 'www.haitech.com',
   logoUrl: '/logo.png',
@@ -40,7 +42,17 @@ const DEFAULT_SETTINGS = {
   ].join('\n'),
   quoteValidityDays: 3,
   primaryColor: '#1e40af',
+  usdToPenExchangeRate: 3.7,
+  usdToPenPurchaseExchangeRate: 3.7,
 };
+
+function normalizeExchangeRate(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_SETTINGS.usdToPenExchangeRate;
+  }
+  return Math.round(parsed * 10000) / 10000;
+}
 
 async function ensureSettingsFile() {
   try {
@@ -75,6 +87,14 @@ function normalizeSettings(input = {}) {
     quoteTermsText: String(input.quoteTermsText ?? DEFAULT_SETTINGS.quoteTermsText).trim(),
     quoteValidityDays: Math.max(1, Number(input.quoteValidityDays) || DEFAULT_SETTINGS.quoteValidityDays),
     primaryColor: String(input.primaryColor ?? DEFAULT_SETTINGS.primaryColor).trim(),
+    usdToPenExchangeRate: normalizeExchangeRate(
+      input.usdToPenExchangeRate ?? DEFAULT_SETTINGS.usdToPenExchangeRate,
+    ),
+    usdToPenPurchaseExchangeRate: normalizeExchangeRate(
+      input.usdToPenPurchaseExchangeRate ??
+        input.usdToPenExchangeRate ??
+        DEFAULT_SETTINGS.usdToPenPurchaseExchangeRate,
+    ),
   };
 }
 
@@ -86,6 +106,10 @@ export async function readCompanySettings() {
 
 export async function writeCompanySettings(input) {
   const settings = normalizeSettings(input);
+  if (settings.logoUrl.startsWith('data:image/')) {
+    settings.logoUrl =
+      (await optimizeImageDataUrl(settings.logoUrl, { maxEdge: 480 })) ?? settings.logoUrl;
+  }
   await fs.mkdir(path.dirname(SETTINGS_PATH), { recursive: true });
   await fs.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
   return settings;

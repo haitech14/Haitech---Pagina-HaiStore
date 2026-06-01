@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/auth-context';
 import type { AuthUser } from '@/lib/auth-storage';
+import { ADMIN_ROUTES } from '@/lib/admin-routes';
 import { cn } from '@/lib/utils';
 import { USER_ROLE_LABELS, type UserRole } from '@/types/product';
 
@@ -105,7 +106,7 @@ function HaiPointsBanner({ points }: { points: number }) {
 
 export function AccountDropdown() {
   const navigate = useNavigate();
-  const { user, isAdmin, logout } = useAuth();
+  const { user, logout, canAccessAdminPanel: showAdminPanel } = useAuth();
   const displayName = getDisplayName(user);
   const roleLabel = user ? USER_ROLE_LABELS[user.role] : USER_ROLE_LABELS.public;
 
@@ -166,6 +167,15 @@ export function AccountDropdown() {
                 </div>
               </div>
 
+              {showAdminPanel && (
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
+                  onSelect={() => goTo(ADMIN_ROUTES.DASHBOARD)}
+                >
+                  <AccountMenuRow icon={LayoutGrid} label="Panel Administración" />
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuItem
                 className="cursor-pointer rounded-none p-0 py-3 focus:bg-transparent data-[highlighted]:bg-transparent"
                 onSelect={() => goTo('/tienda')}
@@ -176,24 +186,16 @@ export function AccountDropdown() {
               <div className="py-1">
                 <DropdownMenuItem
                   className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
-                  onSelect={() => goTo('/tienda')}
+                  onSelect={() => goTo('/mi-cuenta')}
                 >
                   <AccountMenuRow icon={User} label="Mi Cuenta" />
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
-                  onSelect={() => goTo('/tienda')}
+                  onSelect={() => goTo('/mi-cuenta?tab=pedidos')}
                 >
                   <AccountMenuRow icon={ShoppingBag} label="Mis Pedidos" />
                 </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem
-                    className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
-                    onSelect={() => goTo('/panel/inventario')}
-                  >
-                    <AccountMenuRow icon={LayoutGrid} label="Panel Administración" />
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuItem
                   className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
                   onSelect={() => goTo('/contacto')}

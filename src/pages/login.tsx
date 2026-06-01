@@ -54,7 +54,7 @@ export function LoginPage() {
     try {
       await login(email, password);
       const destination =
-        email.trim().toLowerCase() === 'admin@haitech.pe' ? '/panel/inventario' : from;
+        email.trim().toLowerCase() === 'admin@haitech.pe' ? '/admin' : from;
       navigate(destination, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo iniciar sesión');
@@ -215,6 +215,11 @@ export function LoginPage() {
                 {error}
               </p>
             )}
+
+            <p className="text-center text-xs text-gray-400">
+              Demo local: <span className="font-mono">admin@haitech.pe</span> /{' '}
+              <span className="font-mono">admin123</span>
+            </p>
 
             <button
               type="submit"

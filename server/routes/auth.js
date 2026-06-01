@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { hasAdminApiAccess } from '../lib/admin-access.js';
 import { authenticateDemo, destroyDemoSession, requireAuth } from '../lib/auth-store.js';
 import {
   isSupabaseAuthEnabled,
@@ -19,7 +20,7 @@ authRouter.post('/login-demo', (req, res) => {
 
   const result = authenticateDemo(email, password);
   if (!result) {
-    return res.status(401).json({ error: 'Credenciales incorrectas' });
+    return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
   }
 
   res.json(result);
@@ -81,7 +82,7 @@ authRouter.post('/sync-profile', async (req, res, next) => {
 /** Lista perfiles (solo admin). */
 authRouter.get('/profiles', requireAuth, async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (!hasAdminApiAccess(req.user)) {
       return res.status(403).json({ error: 'Se requiere rol de administrador' });
     }
 
@@ -92,7 +93,7 @@ authRouter.get('/profiles', requireAuth, async (req, res, next) => {
 
     const { data, error } = await client
       .from('profiles')
-      .select('id, email, full_name, role, updated_at')
+      .select('id, email, full_name, role, created_at, updated_at')
       .order('email');
 
     if (error) throw error;
@@ -105,7 +106,7 @@ authRouter.get('/profiles', requireAuth, async (req, res, next) => {
 /** Actualizar rol de un usuario (solo admin). */
 authRouter.patch('/profiles/:id', requireAuth, async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (!hasAdminApiAccess(req.user)) {
       return res.status(403).json({ error: 'Se requiere rol de administrador' });
     }
 

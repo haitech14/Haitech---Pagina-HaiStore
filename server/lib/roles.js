@@ -1,33 +1,34 @@
-export const PRICE_ROLES = [
-  'public',
-  'corporativo',
-  'tecnico',
-  'mayorista',
-  'distribuidor',
-  'vip',
-];
+export const PRICE_ROLES = ['public', 'tecnico', 'mayorista', 'distribuidor'];
+
+export const LEGACY_USER_PRICE_ROLE_MAP = {
+  corporativo: 'tecnico',
+  vip: 'distribuidor',
+};
 
 export const PRICE_ROLE_LABELS = {
   public: 'Público',
-  corporativo: 'Corporativo',
   tecnico: 'Técnico',
   mayorista: 'Mayorista',
   distribuidor: 'Distribuidor',
-  vip: 'VIP',
 };
 
 export function isPriceRole(value) {
   return PRICE_ROLES.includes(value);
 }
 
-/** Roles de usuario (precio + admin). */
+export function isLegacyUserPriceRole(value) {
+  return Object.prototype.hasOwnProperty.call(LEGACY_USER_PRICE_ROLE_MAP, value);
+}
+
+/** Roles de usuario (precio + admin + legacy). */
 export function isUserRole(value) {
-  return value === 'admin' || isPriceRole(value);
+  return value === 'admin' || isPriceRole(value) || isLegacyUserPriceRole(value);
 }
 
 export function resolvePriceRole(userRole) {
   if (userRole === 'admin') return 'public';
   if (isPriceRole(userRole)) return userRole;
+  if (isLegacyUserPriceRole(userRole)) return LEGACY_USER_PRICE_ROLE_MAP[userRole];
   return 'public';
 }
 
@@ -35,10 +36,8 @@ export function ensureFullPrices(prices = {}) {
   const pub = Number(prices.public ?? 0);
   return {
     public: pub,
-    corporativo: Number(prices.corporativo ?? Math.round(pub * 0.92)),
-    tecnico: Number(prices.tecnico ?? Math.round(pub * 0.88)),
+    tecnico: Number(prices.tecnico ?? prices.corporativo ?? Math.round(pub * 0.88)),
     mayorista: Number(prices.mayorista ?? Math.round(pub * 0.85)),
-    distribuidor: Number(prices.distribuidor ?? Math.round(pub * 0.78)),
-    vip: Number(prices.vip ?? Math.round(pub * 0.72)),
+    distribuidor: Number(prices.distribuidor ?? prices.vip ?? Math.round(pub * 0.78)),
   };
 }

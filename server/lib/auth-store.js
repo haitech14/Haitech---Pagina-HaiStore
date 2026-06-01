@@ -1,5 +1,6 @@
 import { randomBytes } from 'crypto';
 
+import { hasAdminApiAccess } from './admin-access.js';
 import { resolvePriceRole } from './roles.js';
 import { isSupabaseAuthEnabled, verifySupabaseToken } from './supabase-auth.js';
 
@@ -8,7 +9,7 @@ const demoSessions = new Map();
 
 const demoUsers = [
   { email: 'admin@haitech.pe', password: 'admin123', name: 'Administrador', role: 'admin' },
-  { email: 'soporte@haitech.pe', password: 'demo123', name: 'Soporte Haitech', role: 'corporativo' },
+  { email: 'soporte@haitech.pe', password: 'demo123', name: 'Soporte Haitech', role: 'admin' },
   { email: 'mayorista@haitech.pe', password: 'demo123', name: 'Cliente Mayorista', role: 'mayorista' },
   {
     email: 'distribuidor@haitech.pe',
@@ -70,7 +71,7 @@ export async function requireAuth(req, res, next) {
 
 export async function requireAdmin(req, res, next) {
   await requireAuth(req, res, async () => {
-    if (req.user.role !== 'admin') {
+    if (!hasAdminApiAccess(req.user)) {
       return res.status(403).json({ error: 'Se requiere rol de administrador' });
     }
     next();

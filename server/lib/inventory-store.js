@@ -3,7 +3,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
 
+import { normalizeAttributes } from './inventory-attributes.js';
+import { optimizeProductMedia } from './optimize-image.js';
+import {
+  normalizeProductStock,
+  normalizeWarehouses,
+  stockFromTotal,
+} from './inventory-warehouses.js';
 import { seedProducts } from './seed-products.js';
+import { ensureProductSortOrders, sortProductsByOrder } from './inventory-product-order.js';
 import { ensureFullPrices, resolvePriceRole } from './roles.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -18,10 +26,213 @@ async function ensureInventoryFile() {
   }
 }
 
-function migrateProductPrices(product) {
+function normalizeSuppliers(value, legacyPurchaseUsd) {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => {
+        if (!entry || typeof entry !== 'object') return null;
+        const name = typeof entry.name === 'string' ? entry.name.trim() : '';
+        const purchase_price_usd = Math.max(0, Number(entry.purchase_price_usd) || 0);
+        const id =
+          typeof entry.id === 'string' && entry.id.trim().length > 0
+            ? entry.id.trim()
+            : randomUUID();
+        if (!name && purchase_price_usd <= 0) return null;
+        return { id, name, purchase_price_usd };
+      })
+      .filter(Boolean);
+  }
+
+  const legacy = Math.max(0, Number(legacyPurchaseUsd) || 0);
+  if (legacy > 0) {
+    return [{ id: randomUUID(), name: '', purchase_price_usd: legacy }];
+  }
+
+  return [];
+}
+
+const PRODUCT_ATTACHMENT_KINDS = ['technical_sheet', 'manual', 'brochure', 'other'];
+const PRODUCT_ATTACHMENT_LABELS = {
+  technical_sheet: 'Ficha técnica',
+  manual: 'Manual',
+  brochure: 'Brochure',
+  other: 'Otro',
+};
+
+function normalizeAttachments(value) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((entry) => {
+      if (!entry || typeof entry !== 'object') return null;
+      const url = typeof entry.url === 'string' ? entry.url.trim() : '';
+      if (!url) return null;
+      const kind = PRODUCT_ATTACHMENT_KINDS.includes(entry.kind) ? entry.kind : 'other';
+      const label =
+        typeof entry.label === 'string' && entry.label.trim()
+          ? entry.label.trim()
+          : PRODUCT_ATTACHMENT_LABELS[kind];
+      return {
+        id:
+          typeof entry.id === 'string' && entry.id.trim().length > 0
+            ? entry.id.trim()
+            : randomUUID(),
+        kind,
+        label,
+        url,
+        file_name: typeof entry.file_name === 'string' ? entry.file_name : undefined,
+        mime_type: typeof entry.mime_type === 'string' ? entry.mime_type : undefined,
+      };
+    })
+    .filter(Boolean);
+}
+
+function resolvePurchasePriceUsd(suppliers, fallbackUsd = 0) {
+  const priced = suppliers
+    .map((supplier) => Number(supplier.purchase_price_usd) || 0)
+    .filter((price) => price > 0);
+
+  if (priced.length > 0) {
+    return Math.round(Math.min(...priced) * 100) / 100;
+  }
+
+  return Math.max(0, Number(fallbackUsd) || 0);
+}
+
+export function migrateInventoryProduct(product, warehouses = normalizeWarehouses()) {
+  const prices = ensureFullPrices(product.prices ?? { public: product.price ?? 0 });
+  const publicPrice = prices.public ?? 0;
+  const gallery = Array.isArray(product.gallery)
+    ? product.gallery.filter((url) => typeof url === 'string' && url.length > 0)
+    : product.image_url
+      ? [product.image_url]
+      : [];
+  const image_url = product.image_url ?? gallery[0] ?? null;
+  const fallbackPurchase = Number(
+    product.purchase_price_usd ?? Math.round(publicPrice * 0.72 * 100) / 100,
+  );
+  const suppliers = normalizeSuppliers(product.suppliers, fallbackPurchase);
+  const attachments = normalizeAttachments(product.attachments);
+  const attributes = normalizeAttributes(product.attributes);
+  const { stock_by_warehouse, stock } = normalizeProductStock(
+    product.stock_by_warehouse,
+    product.stock,
+    warehouses,
+  );
+
+  const sort_order = Number.isFinite(Number(product.sort_order))
+    ? Math.max(0, Math.floor(Number(product.sort_order)))
+    : undefined;
+
   return {
     ...product,
-    prices: ensureFullPrices(product.prices ?? { public: product.price ?? 0 }),
+    ...(sort_order !== undefined ? { sort_order } : {}),
+    prices,
+    code: product.code?.trim() || String(product.id ?? '').toUpperCase().replace(/-/g, ''),
+    suppliers,
+    attachments,
+    attributes,
+    purchase_price_usd: resolvePurchasePriceUsd(suppliers, fallbackPurchase),
+    image_url,
+    gallery: gallery.length > 0 ? gallery : image_url ? [image_url] : [],
+    stock_by_warehouse,
+    stock,
+  };
+}
+
+function normalizeDeletedIds(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((id) => typeof id === 'string' && id.length > 0))];
+}
+
+export function getDeletedProductIds(data) {
+  return normalizeDeletedIds(data?.deletedProductIds);
+}
+
+/**
+ * Fusiona un producto del catálogo maestro con el existente en inventario.
+ * Conserva stock, proveedores, adjuntos y atributos; actualiza precios e imágenes del catálogo.
+ */
+export function mergeCatalogProduct(seed, existing, warehouses) {
+  if (!existing) {
+    return migrateInventoryProduct(seed, warehouses);
+  }
+
+  const seedGallery = Array.isArray(seed.gallery)
+    ? seed.gallery.filter((url) => typeof url === 'string' && url.length > 0)
+    : [];
+  const existingGallery = Array.isArray(existing.gallery)
+    ? existing.gallery.filter((url) => typeof url === 'string' && url.length > 0)
+    : [];
+
+  return migrateInventoryProduct(
+    {
+      ...seed,
+      sort_order: existing.sort_order,
+      code: existing.code?.trim() || seed.code,
+      name: existing.name?.trim() || seed.name,
+      category: existing.category ?? seed.category,
+      brand: existing.brand ?? seed.brand,
+      stock: existing.stock,
+      stock_by_warehouse: existing.stock_by_warehouse,
+      suppliers: existing.suppliers,
+      attachments: existing.attachments,
+      attributes: existing.attributes,
+      purchase_price_usd: existing.purchase_price_usd,
+      prices: seed.prices ?? existing.prices,
+      description: seed.description ?? existing.description,
+      image_url: seed.image_url ?? existing.image_url,
+      gallery: seedGallery.length > 0 ? seedGallery : existingGallery,
+      compare_at_price_usd: seed.compare_at_price_usd ?? existing.compare_at_price_usd,
+    },
+    warehouses,
+  );
+}
+
+/**
+ * Alinea el inventario con el catálogo maestro (`inventory-catalog.json`, misma base que la vitrina).
+ * @param {{ resetDeleted?: boolean }} options - Si true, vuelve a importar productos eliminados antes.
+ */
+export async function syncInventoryFromCatalog(options = {}) {
+  const { resetDeleted = false } = options;
+  await ensureInventoryFile();
+  const raw = await fs.readFile(INVENTORY_PATH, 'utf-8');
+  const data = JSON.parse(raw);
+  let deletedProductIds = normalizeDeletedIds(data.deletedProductIds);
+
+  if (resetDeleted) {
+    deletedProductIds = [];
+  }
+
+  const deleted = new Set(deletedProductIds);
+  const catalogIds = new Set(seedProducts.map((seed) => seed.id));
+  const warehouses = normalizeWarehouses(data.warehouses);
+
+  const existingById = new Map(
+    (data.products ?? []).map((product) => [product.id, product]),
+  );
+
+  const catalogProducts = seedProducts
+    .filter((seed) => !deleted.has(seed.id))
+    .map((seed) => mergeCatalogProduct(seed, existingById.get(seed.id), warehouses));
+
+  const customProducts = (data.products ?? [])
+    .filter((product) => !catalogIds.has(product.id) && !deleted.has(product.id))
+    .map((product) => migrateInventoryProduct(product));
+
+  const merged = [...catalogProducts, ...customProducts].map((product) =>
+    migrateInventoryProduct(product, warehouses),
+  );
+  const { products } = ensureProductSortOrders(merged);
+
+  await writeInventory({ products, deletedProductIds, warehouses });
+
+  return {
+    products,
+    deletedProductIds,
+    warehouses,
+    catalogCount: catalogProducts.length,
+    customCount: customProducts.length,
   };
 }
 
@@ -29,16 +240,49 @@ export async function readInventory() {
   await ensureInventoryFile();
   const raw = await fs.readFile(INVENTORY_PATH, 'utf-8');
   const data = JSON.parse(raw);
-  data.products = (data.products ?? []).map(migrateProductPrices);
-  return data;
+  const deletedProductIds = getDeletedProductIds(data);
+  const deleted = new Set(deletedProductIds);
+  const warehouses = normalizeWarehouses(data.warehouses);
+
+  const migrated = (data.products ?? [])
+    .filter((product) => !deleted.has(product.id))
+    .map((product) => migrateInventoryProduct(product, warehouses));
+
+  const { products, changed: sortChanged } = ensureProductSortOrders(migrated);
+  const hadStaleDeleted = (data.products ?? []).some((product) => deleted.has(product.id));
+
+  if (hadStaleDeleted || sortChanged) {
+    await writeInventory({ products, deletedProductIds, warehouses });
+  }
+
+  return {
+    products,
+    deletedProductIds,
+    warehouses,
+  };
 }
 
 export async function writeInventory(data) {
+  let warehouses = data.warehouses;
+  if (!warehouses) {
+    try {
+      const raw = await fs.readFile(INVENTORY_PATH, 'utf-8');
+      warehouses = normalizeWarehouses(JSON.parse(raw).warehouses);
+    } catch {
+      warehouses = normalizeWarehouses();
+    }
+  } else {
+    warehouses = normalizeWarehouses(warehouses);
+  }
+
+  const migrated = (data.products ?? []).map((product) =>
+    migrateInventoryProduct(product, warehouses),
+  );
+  const products = await Promise.all(migrated.map((product) => optimizeProductMedia(product)));
   const normalized = {
-    products: (data.products ?? []).map((product) => ({
-      ...product,
-      prices: ensureFullPrices(product.prices),
-    })),
+    products,
+    deletedProductIds: normalizeDeletedIds(data.deletedProductIds),
+    warehouses,
   };
   await fs.mkdir(path.dirname(INVENTORY_PATH), { recursive: true });
   await fs.writeFile(INVENTORY_PATH, JSON.stringify(normalized, null, 2));
@@ -66,32 +310,68 @@ export function toPublicProduct(product, role) {
     brand: product.brand ?? null,
     created_at: product.created_at,
     price_role: priceRole,
+    sort_order: Number.isFinite(Number(product.sort_order)) ? Number(product.sort_order) : 0,
+    attributes: product.attributes ?? [],
   };
 }
 
-export function normalizeProductInput(body, existing) {
+export { applyOrderedIds, ensureProductSortOrders, sortProductsByOrder } from './inventory-product-order.js';
+
+export function normalizeProductInput(body, existing, warehouses) {
   const basePublic = Number(
     body.prices?.public ?? body.price ?? existing?.prices?.public ?? 0,
   );
   const prices = ensureFullPrices({
+    ...(existing?.prices ?? {}),
+    ...(body.prices ?? {}),
     public: basePublic,
-    corporativo: body.prices?.corporativo ?? existing?.prices?.corporativo,
-    tecnico: body.prices?.tecnico ?? existing?.prices?.tecnico,
-    mayorista: body.prices?.mayorista ?? existing?.prices?.mayorista,
-    distribuidor: body.prices?.distribuidor ?? existing?.prices?.distribuidor,
-    vip: body.prices?.vip ?? existing?.prices?.vip,
   });
 
-  return {
-    id: existing?.id ?? body.id ?? randomUUID(),
-    name: String(body.name ?? existing?.name ?? '').trim(),
-    description: body.description ?? existing?.description ?? null,
-    currency: body.currency ?? existing?.currency ?? 'USD',
-    stock: Number(body.stock ?? existing?.stock ?? 0),
-    category: body.category ?? existing?.category ?? null,
-    brand: body.brand ?? existing?.brand ?? null,
-    image_url: body.image_url ?? existing?.image_url ?? null,
-    created_at: existing?.created_at ?? new Date().toISOString(),
-    prices,
-  };
+  const gallery = Array.isArray(body.gallery)
+    ? body.gallery.filter((url) => typeof url === 'string' && url.length > 0)
+    : existing?.gallery ?? [];
+  const image_url = body.image_url ?? existing?.image_url ?? gallery[0] ?? null;
+
+  const rawId = existing?.id ?? body.id;
+  const id =
+    typeof rawId === 'string' && rawId.trim().length > 0 ? rawId.trim() : randomUUID();
+
+  const warehouseList = normalizeWarehouses(warehouses);
+  const hasStockByWarehouse = Array.isArray(body.stock_by_warehouse);
+  const stockPatch = hasStockByWarehouse
+    ? normalizeProductStock(body.stock_by_warehouse, existing?.stock ?? 0, warehouseList)
+    : body.stock !== undefined && body.stock !== null
+      ? stockFromTotal(body.stock, warehouseList)
+      : normalizeProductStock(
+          existing?.stock_by_warehouse,
+          existing?.stock ?? 0,
+          warehouseList,
+        );
+
+  return migrateInventoryProduct(
+    {
+      id,
+      code: body.code ?? existing?.code,
+      name: String(body.name ?? existing?.name ?? '').trim(),
+      description: body.description ?? existing?.description ?? null,
+      currency: body.currency ?? existing?.currency ?? 'USD',
+      stock: stockPatch.stock,
+      stock_by_warehouse: stockPatch.stock_by_warehouse,
+      category: body.category ?? existing?.category ?? null,
+      brand: body.brand ?? existing?.brand ?? null,
+      image_url,
+      gallery,
+      purchase_price_usd: body.purchase_price_usd ?? existing?.purchase_price_usd,
+      suppliers: body.suppliers ?? existing?.suppliers,
+      attachments: body.attachments ?? existing?.attachments,
+      attributes: body.attributes ?? existing?.attributes,
+      created_at: existing?.created_at ?? new Date().toISOString(),
+      sort_order:
+        body.sort_order !== undefined && body.sort_order !== null
+          ? body.sort_order
+          : existing?.sort_order,
+      prices,
+    },
+    warehouseList,
+  );
 }

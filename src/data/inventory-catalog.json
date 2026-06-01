@@ -1,0 +1,491 @@
+{
+  "products": [
+    {
+      "id": "ricoh-im-430f",
+      "code": "RICOHIM430F",
+      "name": "Impresora Multifuncional RICOH IM 430F",
+      "description": "Multifuncional monocromática A4, 40 ppm, panel táctil 10.1\".",
+      "currency": "USD",
+      "stock": 12,
+      "category": "Multifuncionales",
+      "brand": "Ricoh",
+      "image_url": "/products/ricoh-im-430f.png",
+      "gallery": ["/products/ricoh-im-430f.png"],
+      "compare_at_price_usd": 891,
+      "purchase_price_usd": 505.44,
+      "created_at": "2026-05-15T00:00:00.000Z",
+      "prices": {
+        "public": 702,
+        "corporativo": 646,
+        "tecnico": 618,
+        "mayorista": 597,
+        "distribuidor": 548,
+        "vip": 505
+      }
+    },
+    {
+      "id": "ricoh-im-c3000",
+      "name": "RICOH IM C3000",
+      "description": "Multifuncional a color láser A3 para oficinas de alto volumen.",
+      "currency": "USD",
+      "stock": 8,
+      "category": "Multifuncionales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "created_at": "2026-05-10T00:00:00.000Z",
+      "prices": {
+        "public": 2599,
+        "corporativo": 2391,
+        "tecnico": 2287,
+        "mayorista": 2209,
+        "distribuidor": 2027,
+        "vip": 1871
+      }
+    },
+    {
+      "id": "ricoh-sp-330dn",
+      "name": "RICOH SP 330DN",
+      "description": "Impresora láser monocromática con dúplex automático y red.",
+      "currency": "USD",
+      "stock": 14,
+      "category": "Impresoras",
+      "brand": "Ricoh",
+      "image_url": null,
+      "created_at": "2026-05-08T00:00:00.000Z",
+      "prices": {
+        "public": 399,
+        "corporativo": 367,
+        "tecnico": 351,
+        "mayorista": 339,
+        "distribuidor": 311,
+        "vip": 287
+      }
+    },
+    {
+      "id": "konica-bizhub-c300i",
+      "name": "Konica Minolta bizhub C300i",
+      "description": "Multifuncional inteligente con conectividad cloud y seguridad.",
+      "currency": "USD",
+      "stock": 6,
+      "category": "Multifuncionales",
+      "brand": "Konica Minolta",
+      "image_url": null,
+      "created_at": "2026-05-05T00:00:00.000Z",
+      "prices": {
+        "public": 3299,
+        "corporativo": 3035,
+        "tecnico": 2903,
+        "mayorista": 2804,
+        "distribuidor": 2573,
+        "vip": 2375
+      }
+    },
+    {
+      "id": "canon-ir-advance",
+      "name": "Canon imageRUNNER ADVANCE C5535i",
+      "description": "Multifuncional a color de producción media-alta.",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Multifuncionales",
+      "brand": "Canon",
+      "image_url": null,
+      "created_at": "2026-05-01T00:00:00.000Z",
+      "prices": {
+        "public": 4399,
+        "corporativo": 4047,
+        "tecnico": 3871,
+        "mayorista": 3739,
+        "distribuidor": 3431,
+        "vip": 3167
+      }
+    },
+    {
+      "id": "canon-lbp226dw",
+      "name": "Canon imageCLASS LBP226dw",
+      "description": "Impresora láser Wi-Fi con impresión dúplex automática.",
+      "currency": "USD",
+      "stock": 20,
+      "category": "Impresoras",
+      "brand": "Canon",
+      "image_url": null,
+      "created_at": "2026-04-28T00:00:00.000Z",
+      "prices": {
+        "public": 289,
+        "corporativo": 266,
+        "tecnico": 254,
+        "mayorista": 246,
+        "distribuidor": 225,
+        "vip": 208
+      }
+    },
+    {
+      "id": "epson-ecotank-l6290",
+      "name": "Epson EcoTank L6290",
+      "description": "Multifuncional de tanque de tinta con ADF y fax.",
+      "currency": "USD",
+      "stock": 16,
+      "category": "Multifuncionales",
+      "brand": "Epson",
+      "image_url": null,
+      "created_at": "2026-04-22T00:00:00.000Z",
+      "prices": {
+        "public": 469,
+        "corporativo": 431,
+        "tecnico": 413,
+        "mayorista": 399,
+        "distribuidor": 366,
+        "vip": 338
+      }
+    },
+    {
+      "id": "epson-workforce-pro",
+      "name": "Epson WorkForce Pro WF-C5790",
+      "description": "Inkjet empresarial de bajo costo por página.",
+      "currency": "USD",
+      "stock": 10,
+      "category": "Impresoras",
+      "brand": "Epson",
+      "image_url": null,
+      "created_at": "2026-04-18T00:00:00.000Z",
+      "prices": {
+        "public": 719,
+        "corporativo": 661,
+        "tecnico": 633,
+        "mayorista": 611,
+        "distribuidor": 561,
+        "vip": 518
+      }
+    },
+    {
+      "id": "hp-laserjet-m234",
+      "name": "HP LaserJet Pro M234dw",
+      "description": "Láser monocromática con Wi-Fi y app HP Smart.",
+      "currency": "USD",
+      "stock": 28,
+      "category": "Impresoras",
+      "brand": "HP",
+      "image_url": null,
+      "created_at": "2026-04-12T00:00:00.000Z",
+      "prices": {
+        "public": 259,
+        "corporativo": 238,
+        "tecnico": 228,
+        "mayorista": 220,
+        "distribuidor": 202,
+        "vip": 186
+      }
+    },
+    {
+      "id": "hp-toner-58a",
+      "name": "HP 58A Tóner Original",
+      "description": "Cartucho de tóner negro original HP 58A (CF258A).",
+      "currency": "USD",
+      "stock": 52,
+      "category": "Tóner y Suministros",
+      "brand": "HP",
+      "image_url": null,
+      "created_at": "2026-04-08T00:00:00.000Z",
+      "prices": {
+        "public": 92,
+        "corporativo": 85,
+        "tecnico": 81,
+        "mayorista": 78,
+        "distribuidor": 72,
+        "vip": 66
+      }
+    },
+    {
+      "id": "kyocera-ecosys-m5526",
+      "name": "Kyocera ECOSYS M5526cdw",
+      "description": "Multifuncional color con tambor de larga duración.",
+      "currency": "USD",
+      "stock": 11,
+      "category": "Multifuncionales",
+      "brand": "Kyocera",
+      "image_url": null,
+      "created_at": "2026-04-02T00:00:00.000Z",
+      "prices": {
+        "public": 619,
+        "corporativo": 569,
+        "tecnico": 545,
+        "mayorista": 526,
+        "distribuidor": 483,
+        "vip": 446
+      }
+    },
+    {
+      "id": "lexmark-ms431dn",
+      "name": "Lexmark MS431dn",
+      "description": "Impresora láser monocromática de red con dúplex.",
+      "currency": "USD",
+      "stock": 13,
+      "category": "Impresoras",
+      "brand": "Lexmark",
+      "image_url": null,
+      "created_at": "2026-03-25T00:00:00.000Z",
+      "prices": {
+        "public": 339,
+        "corporativo": 312,
+        "tecnico": 298,
+        "mayorista": 288,
+        "distribuidor": 264,
+        "vip": 244
+      }
+    },
+    {
+      "id": "oki-c332dn",
+      "name": "OKI C332dn",
+      "description": "Impresora LED a color compacta para equipos pequeños.",
+      "currency": "USD",
+      "stock": 8,
+      "category": "Impresoras",
+      "brand": "OKI",
+      "image_url": null,
+      "created_at": "2026-03-18T00:00:00.000Z",
+      "prices": {
+        "public": 429,
+        "corporativo": 395,
+        "tecnico": 378,
+        "mayorista": 365,
+        "distribuidor": 335,
+        "vip": 309
+      }
+    },
+    {
+      "id": "pantum-m7100dw",
+      "name": "PANTUM M7100DW",
+      "description": "Multifuncional láser monocromática de alto valor.",
+      "currency": "USD",
+      "stock": 22,
+      "category": "Multifuncionales",
+      "brand": "Pantum",
+      "image_url": null,
+      "created_at": "2026-03-10T00:00:00.000Z",
+      "prices": {
+        "public": 209,
+        "corporativo": 192,
+        "tecnico": 184,
+        "mayorista": 178,
+        "distribuidor": 163,
+        "vip": 150
+      }
+    },
+    {
+      "id": "colortrac-scanner",
+      "name": "Colortrac SmartLF SC 42",
+      "description": "Escáner de formato ancho para planos, CAD y GIS.",
+      "currency": "USD",
+      "stock": 4,
+      "category": "Formato Ancho",
+      "brand": "Colortrac",
+      "image_url": null,
+      "created_at": "2026-03-01T00:00:00.000Z",
+      "prices": {
+        "public": 3999,
+        "corporativo": 3679,
+        "tecnico": 3519,
+        "mayorista": 3399,
+        "distribuidor": 3119,
+        "vip": 2879
+      }
+    },
+    {
+      "id": "ricoh-toner-mp",
+      "name": "RICOH MP C3003 Tóner Negro",
+      "description": "Tóner original Ricoh para serie MP C3003 / IM C3000.",
+      "currency": "USD",
+      "stock": 38,
+      "category": "Tóner y Suministros",
+      "brand": "Ricoh",
+      "image_url": null,
+      "created_at": "2026-02-20T00:00:00.000Z",
+      "prices": {
+        "public": 98,
+        "corporativo": 90,
+        "tecnico": 86,
+        "mayorista": 83,
+        "distribuidor": 76,
+        "vip": 71
+      }
+    },
+    {
+      "id": "ricoh-drum-unit",
+      "name": "RICOH Unidad de tambor IM C3000",
+      "description": "Unidad de imagen original para IM C3000 / C4000.",
+      "currency": "USD",
+      "stock": 15,
+      "category": "Repuestos",
+      "brand": "Ricoh",
+      "image_url": null,
+      "created_at": "2026-02-10T00:00:00.000Z",
+      "prices": {
+        "public": 185,
+        "corporativo": 170,
+        "tecnico": 163,
+        "mayorista": 157,
+        "distribuidor": 144,
+        "vip": 133
+      }
+    },
+    {
+      "id": "toner-ricoh-c6003-cyan",
+      "code": "TONERC6003CY",
+      "name": "Toner Ricoh MP C6003 C4503 841849 Cyan Compatible",
+      "description": "Tóner cyan compatible de alto rendimiento para Ricoh MP C6003 / C4503.",
+      "currency": "USD",
+      "stock": 45,
+      "category": "Toner y suministros",
+      "brand": "Ricoh",
+      "image_url": "/categories/toner-suministros.png",
+      "gallery": ["/categories/toner-suministros.png"],
+      "compare_at_price_usd": 80.81,
+      "purchase_price_usd": 28.99,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 40.27,
+        "corporativo": 37,
+        "tecnico": 35,
+        "mayorista": 34,
+        "distribuidor": 31,
+        "vip": 29
+      }
+    },
+    {
+      "id": "sony-wh1000xm5",
+      "code": "SONYWH1000XM5",
+      "name": "Sony WH-1000XM5",
+      "description": "Auriculares inalámbricos con cancelación de ruido líder en su categoría.",
+      "currency": "USD",
+      "stock": 18,
+      "category": "Audio",
+      "brand": "Sony",
+      "image_url": "/products/sony-wh1000xm5.png",
+      "gallery": ["/products/sony-wh1000xm5.png"],
+      "compare_at_price_usd": 349.99,
+      "purchase_price_usd": 215.99,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 299.99,
+        "corporativo": 276,
+        "tecnico": 264,
+        "mayorista": 255,
+        "distribuidor": 234,
+        "vip": 216
+      }
+    },
+    {
+      "id": "macbook-air-m13",
+      "code": "MBAIRM313",
+      "name": "MacBook Air M3 13\"",
+      "description": "Laptop ultraligera con chip Apple M3, 13 pulgadas.",
+      "currency": "USD",
+      "stock": 9,
+      "category": "Laptops",
+      "brand": "Apple",
+      "image_url": "/products/macbook-air-m13.png",
+      "gallery": ["/products/macbook-air-m13.png"],
+      "is_new": true,
+      "purchase_price_usd": 790.8,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 1099,
+        "corporativo": 1011,
+        "tecnico": 967,
+        "mayorista": 934,
+        "distribuidor": 857,
+        "vip": 791
+      }
+    },
+    {
+      "id": "iphone-15-pro",
+      "code": "IPHONE15P256",
+      "name": "iPhone 15 Pro 256GB",
+      "description": "Smartphone premium con chip A17 Pro y cámara avanzada.",
+      "currency": "USD",
+      "stock": 14,
+      "category": "Smartphones",
+      "brand": "Apple",
+      "image_url": "/products/iphone-15-pro.png",
+      "gallery": ["/products/iphone-15-pro.png"],
+      "compare_at_price_usd": 1229,
+      "purchase_price_usd": 790.8,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 1099,
+        "corporativo": 1011,
+        "tecnico": 967,
+        "mayorista": 934,
+        "distribuidor": 857,
+        "vip": 791
+      }
+    },
+    {
+      "id": "apple-watch-9",
+      "code": "APPLEWATCH9",
+      "name": "Apple Watch Series 9",
+      "description": "Smartwatch con pantalla Always-On y chip S9.",
+      "currency": "USD",
+      "stock": 20,
+      "category": "Smartwatches",
+      "brand": "Apple",
+      "image_url": "/products/apple-watch-9.png",
+      "gallery": ["/products/apple-watch-9.png"],
+      "is_new": true,
+      "purchase_price_usd": 287.28,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 399,
+        "corporativo": 367,
+        "tecnico": 351,
+        "mayorista": 339,
+        "distribuidor": 311,
+        "vip": 287
+      }
+    },
+    {
+      "id": "galaxy-buds2-pro",
+      "code": "GALAXYBUDS2P",
+      "name": "Samsung Galaxy Buds2 Pro",
+      "description": "Auriculares true wireless con audio Hi-Fi y ANC.",
+      "currency": "USD",
+      "stock": 25,
+      "category": "Audio",
+      "brand": "Samsung",
+      "image_url": "/products/galaxy-buds2-pro.png",
+      "gallery": ["/products/galaxy-buds2-pro.png"],
+      "compare_at_price_usd": 199.99,
+      "purchase_price_usd": 115.19,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 159.99,
+        "corporativo": 147,
+        "tecnico": 141,
+        "mayorista": 136,
+        "distribuidor": 125,
+        "vip": 115
+      }
+    },
+    {
+      "id": "mochila-techpro",
+      "code": "MOCHILATECHPRO",
+      "name": "Mochila TechPro",
+      "description": "Mochila para laptop con compartimentos acolchados y USB.",
+      "currency": "USD",
+      "stock": 30,
+      "category": "Accesorios",
+      "brand": "TechPro",
+      "image_url": "/products/mochila-techpro.png",
+      "gallery": ["/products/mochila-techpro.png"],
+      "purchase_price_usd": 35.99,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 49.99,
+        "corporativo": 46,
+        "tecnico": 44,
+        "mayorista": 42,
+        "distribuidor": 39,
+        "vip": 36
+      }
+    }
+  ]
+}

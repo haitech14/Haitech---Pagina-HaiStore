@@ -21,6 +21,10 @@ export interface CompanySettings {
   quoteTermsText: string;
   quoteValidityDays: number;
   primaryColor: string;
+  /** Tipo de cambio venta USD → PEN (precios al cliente, tienda, TPV). */
+  usdToPenExchangeRate: number;
+  /** Tipo de cambio compra USD → PEN (costos, proveedores, columna Compra). */
+  usdToPenPurchaseExchangeRate: number;
 }
 
 export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
@@ -32,7 +36,7 @@ export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
   ruc: '20612146561',
   address: 'Av. Petit Thouars Nro. — LINCE - LIMA - LIMA',
   city: 'Lima',
-  phone: '+51 1 234 5678',
+  phone: '+51 915 149 290',
   email: 'ventas@haitech.com',
   website: 'www.haitech.com',
   logoUrl: '/logo.png',
@@ -58,4 +62,6 @@ export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
   ].join('\n'),
   quoteValidityDays: 3,
   primaryColor: '#1e40af',
+  usdToPenExchangeRate: 3.7,
+  usdToPenPurchaseExchangeRate: 3.7,
 };

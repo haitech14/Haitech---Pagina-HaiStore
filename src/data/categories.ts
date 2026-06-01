@@ -18,6 +18,8 @@ export interface Category {
   tagline: string;
   icon: LucideIcon;
   image?: string;
+  /** Nombres de categoría en inventario que coinciden con esta tarjeta. */
+  inventoryCategories?: string[];
 }
 
 export const categories: Category[] = [
@@ -27,6 +29,7 @@ export const categories: Category[] = [
     tagline: 'Imprime, escanea y copia en un solo equipo',
     icon: Copy,
     image: '/categories/multifuncionales.png',
+    inventoryCategories: ['Multifuncionales', 'Multifuncionales Nuevas'],
   },
   {
     slug: 'impresoras',
@@ -48,6 +51,7 @@ export const categories: Category[] = [
     tagline: 'Consumibles originales y compatibles',
     icon: PackageOpen,
     image: '/categories/toner-suministros.png',
+    inventoryCategories: ['Toner y suministros', 'Tóner y Suministros'],
   },
   {
     slug: 'repuestos',

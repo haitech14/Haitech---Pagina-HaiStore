@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 
+import { ProductAttributeBadges } from '@/components/product-attribute-badges';
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -62,9 +64,12 @@ export function ProductCard({ product }: { product: Product }) {
             )}
           </div>
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-base transition-colors hover:text-red-600">
-              {product.name}
-            </CardTitle>
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <CardTitle className="text-base transition-colors hover:text-red-600">
+                {product.name}
+              </CardTitle>
+              <ProductAttributeBadges product={product} compact />
+            </div>
             <div className="flex shrink-0 flex-col items-end gap-1">
               {product.brand && (
                 <span className="text-xs font-semibold text-[#DC2626]">{product.brand}</span>
@@ -88,15 +93,24 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         </CardContent>
       </Link>
-      <CardFooter>
+      <CardFooter className="flex gap-2">
         <Button
-          className="w-full bg-red-600 hover:bg-red-500"
+          className="min-h-11 flex-1 bg-red-600 hover:bg-red-500"
           onClick={() => addItem(product)}
           disabled={outOfStock}
         >
           <Plus aria-hidden="true" />
           Añadir al carrito
         </Button>
+        <ProductWhatsAppButton
+          product={{
+            id: product.id,
+            name: product.name,
+            priceUsd: product.price,
+            category: product.category,
+            brand: product.brand,
+          }}
+        />
       </CardFooter>
     </Card>
   );

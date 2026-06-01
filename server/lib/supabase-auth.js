@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
+import { resolveBootstrapRole } from './admin-access.js';
 import { isUserRole } from './roles.js';
 
 let adminClient = null;
@@ -18,11 +19,16 @@ export function isSupabaseAuthEnabled() {
 }
 
 function resolveRoleFromUser(user, profile) {
+  const email = profile?.email ?? user.email ?? '';
   const candidates = [profile?.role, user.app_metadata?.role, user.user_metadata?.role];
+  let role = 'public';
   for (const value of candidates) {
-    if (typeof value === 'string' && isUserRole(value)) return value;
+    if (typeof value === 'string' && isUserRole(value)) {
+      role = value;
+      break;
+    }
   }
-  return 'public';
+  return resolveBootstrapRole(email, role);
 }
 
 export async function verifySupabaseToken(token) {

@@ -15,7 +15,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
+import { useAuth } from '@/context/auth-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
+import { useProformaMutations } from '@/hooks/use-admin-proformas';
+import { buildProformaPayloadFromProductQuote } from '@/lib/build-proforma-payload';
 import { buildProductQuotePdf } from '@/lib/generate-product-quote-pdf';
 import { usdToPen } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
@@ -53,7 +56,9 @@ export function ProductQuoteDialog({
   brandLabel,
   onGenerated,
 }: ProductQuoteDialogProps) {
+  const { isAdmin } = useAuth();
   const { data: companySettings } = useCompanySettings();
+  const { createProforma } = useProformaMutations();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
@@ -92,6 +97,32 @@ export function ProductQuoteDialog({
         blob: generated.blob,
         quoteNumber: generated.quoteNumber,
       });
+
+      if (isAdmin) {
+        try {
+          await createProforma.mutateAsync(
+            buildProformaPayloadFromProductQuote(
+              generated.quoteNumber,
+              values,
+              {
+                id: product.id,
+                name: displayTitle,
+                sku,
+                brand: brandLabel,
+                pricePen: usdToPen(product.price),
+                imageUrl: product.image_url,
+              },
+              company.quoteValidityDays,
+            ),
+          );
+        } catch {
+          setSubmitError(
+            'PDF generado, pero no se pudo registrar la proforma en el panel de ventas.',
+          );
+          return;
+        }
+      }
+
       reset();
       onOpenChange(false);
     } catch {

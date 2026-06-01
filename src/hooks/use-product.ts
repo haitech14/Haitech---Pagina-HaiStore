@@ -1,29 +1,74 @@
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
+import { useAuth } from '@/context/auth-context';
 import {
   featuredToProduct,
   getFeaturedProductById,
   type FeaturedProduct,
 } from '@/data/featured-products';
 import { useProducts } from '@/hooks/use-products';
+import { apiFetch } from '@/lib/api';
+import { getCatalogProductById } from '@/lib/catalog-featured';
+import { normalizeInventoryProduct } from '@/lib/inventory-product';
+import { toPublicProduct } from '@/lib/pricing';
 import type { Product } from '@/types/product';
 
-export function useProduct(id: string | undefined) {
-  const featured = id ? getFeaturedProductById(id) : undefined;
-  const { data: products, isLoading: catalogLoading } = useProducts();
+async function fetchProductById(id: string): Promise<Product | null> {
+  try {
+    return await apiFetch<Product>(`/api/products/${encodeURIComponent(id)}`);
+  } catch {
+    return null;
+  }
+}
 
-  const fromCatalog = useMemo(
+export function useProduct(id: string | undefined) {
+  const { role } = useAuth();
+  const featured = id ? getFeaturedProductById(id) : undefined;
+  const {
+    data: products,
+    isLoading: catalogLoading,
+    isError: catalogError,
+  } = useProducts();
+
+  const fromList = useMemo(
     () => (id ? products?.find((product) => product.id === id) : undefined),
     [id, products],
   );
 
-  const product: Product | undefined = fromCatalog ?? (featured ? featuredToProduct(featured) : undefined);
-  const isLoading = Boolean(id && !featured && catalogLoading);
+  const shouldFetchOne = Boolean(
+    id && !featured && !fromList && !catalogLoading && !catalogError,
+  );
+
+  const { data: fetchedProduct, isLoading: fetchingOne } = useQuery({
+    queryKey: ['product', id, role],
+    queryFn: () => (id ? fetchProductById(id) : Promise.resolve(null)),
+    enabled: shouldFetchOne,
+    staleTime: 1000 * 60,
+  });
+
+  const fromCatalogJson = useMemo(() => {
+    if (!id || featured || fromList || fetchedProduct) return undefined;
+    if (!catalogError) return undefined;
+    const row = getCatalogProductById(id);
+    if (!row) return undefined;
+    return toPublicProduct(normalizeInventoryProduct(row), role);
+  }, [id, featured, fromList, fetchedProduct, catalogError, role]);
+
+  const product: Product | undefined =
+    fromList ??
+    fetchedProduct ??
+    (featured ? featuredToProduct(featured) : undefined) ??
+    fromCatalogJson;
+
+  const isLoading = Boolean(
+    id && !featured && (catalogLoading || (shouldFetchOne && fetchingOne)),
+  );
   const notFound = Boolean(id && !isLoading && !product);
 
   return {
     product,
-    featuredMeta: featured as FeaturedProduct | undefined,
+    featuredMeta: featured,
     isLoading,
     notFound,
   };

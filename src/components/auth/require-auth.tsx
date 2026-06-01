@@ -2,6 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
 import { useAuth } from '@/context/auth-context';
+import { canAccessAdminPanel } from '@/lib/admin-access';
 
 export function RequireAuth({
   children,
@@ -10,7 +11,7 @@ export function RequireAuth({
   children: ReactNode;
   adminOnly?: boolean;
 }) {
-  const { user, isLoading, isAdmin } = useAuth();
+  const { user, isLoading, role } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -26,8 +27,8 @@ export function RequireAuth({
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  if (adminOnly && !isAdmin) {
-    return <Navigate to="/tienda" replace />;
+  if (adminOnly && !canAccessAdminPanel(user, role)) {
+    return <Navigate to="/tienda" replace state={{ reason: 'admin-denied' }} />;
   }
 
   return children;

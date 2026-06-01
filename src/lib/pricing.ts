@@ -1,3 +1,4 @@
+import { normalizeAttributes } from '@/lib/inventory-attributes';
 import {
   ensureFullPrices,
   resolvePriceRole,
@@ -28,6 +29,8 @@ export function toPublicProduct(product: InventoryProduct, role: string): Produc
     brand: product.brand ?? null,
     created_at: product.created_at,
     price_role: priceRole,
+    sort_order: product.sort_order,
+    attributes: normalizeAttributes(product.attributes),
   };
 }
 

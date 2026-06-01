@@ -8,6 +8,11 @@ import {
 import { cn } from '@/lib/utils';
 
 const BULB_COUNT = 18;
+const BULB_RADIUS_PERCENT = 49;
+/** Iconos más hacia el centro del disco. */
+const ICON_RADIUS_PERCENT = 27;
+/** Texto un poco más exterior que el icono. */
+const TEXT_RADIUS_PERCENT = 34;
 
 const SPIN_TRANSITION =
   'transition-transform duration-[4500ms] ease-[cubic-bezier(0.12,0.75,0.22,1)] motion-reduce:transition-none';
@@ -16,6 +21,14 @@ interface ColorWheelProps {
   rotation: number;
   spinning: boolean;
   className?: string;
+}
+
+function polarPosition(angleDeg: number, radiusPercent: number) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return {
+    left: `${50 + radiusPercent * Math.cos(rad)}%`,
+    top: `${50 + radiusPercent * Math.sin(rad)}%`,
+  };
 }
 
 export function ColorWheel({ rotation, spinning, className }: ColorWheelProps) {
@@ -75,18 +88,17 @@ export function ColorWheel({ rotation, spinning, className }: ColorWheelProps) {
             'shadow-[0_0_35px_rgba(251,191,36,0.45),inset_0_2px_4px_rgba(255,255,255,0.35)]',
           )}
         >
-          {/* Bombillas sobre el aro dorado */}
+          {/* Bombillas sobre el borde dorado */}
           {Array.from({ length: BULB_COUNT }).map((_, index) => {
             const angle = (index / BULB_COUNT) * 360 - 90;
+            const { left, top } = polarPosition(angle, BULB_RADIUS_PERCENT);
             return (
               <span
                 key={index}
                 aria-hidden="true"
-                className="pointer-events-none absolute left-1/2 top-1/2 z-20 h-[calc(50%-1px)] w-0 origin-bottom"
-                style={{ transform: `rotate(${angle}deg)` }}
-              >
-                <span className="absolute left-0 top-0 block size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-100 shadow-[0_0_8px_2px_rgba(254,240,138,0.95),0_0_14px_4px_rgba(250,204,21,0.45)]" />
-              </span>
+                className="pointer-events-none absolute z-20 block size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-100 shadow-[0_0_8px_2px_rgba(254,240,138,0.95),0_0_14px_4px_rgba(250,204,21,0.45)]"
+                style={{ left, top }}
+              />
             );
           })}
 
@@ -105,41 +117,64 @@ export function ColorWheel({ rotation, spinning, className }: ColorWheelProps) {
                 style={{ background: gradient }}
               />
 
-              {/* Premios — giran con cada segmento de color */}
+              {/* Premios — uno por segmento de color */}
               {wheelPrizes.map((prize, index) => {
-                const angle = index * WHEEL_SEGMENT_ANGLE + WHEEL_SEGMENT_ANGLE / 2 - 90;
+                const midAngle =
+                  index * WHEEL_SEGMENT_ANGLE + WHEEL_SEGMENT_ANGLE / 2 - 90;
+                const iconPos = polarPosition(midAngle, ICON_RADIUS_PERCENT);
+                const textPos = polarPosition(midAngle, TEXT_RADIUS_PERCENT);
                 const Icon = prize.icon;
-                const upright = -(rotation + angle);
+                const upright = -(rotation + midAngle);
 
                 return (
-                  <div
-                    key={prize.id}
-                    aria-hidden="true"
-                    className="absolute left-1/2 top-1/2 w-[46%] origin-left"
-                    style={{ transform: `rotate(${angle}deg)` }}
-                  >
+                  <div key={prize.id} aria-hidden="true">
+                    {/* Icono centrado en el eje del segmento */}
                     <div
-                      className={cn(
-                        'flex w-[92px] flex-col items-center gap-1 pl-[66%] sm:w-[100px] sm:gap-1.5',
-                        spinning ? SPIN_TRANSITION : 'transition-none',
-                      )}
+                      className="absolute size-0"
                       style={{
-                        transform: `rotate(${upright}deg)`,
-                        transformOrigin: '0% 50%',
+                        left: iconPos.left,
+                        top: iconPos.top,
+                        transform: `translate(-50%, -50%) rotate(${midAngle}deg)`,
                       }}
                     >
-                      <Icon
-                        className="wheel-segment-icon size-6 sm:size-7"
-                        strokeWidth={2.75}
-                        aria-hidden="true"
-                      />
-                      <div className="text-center leading-[1.05] text-white">
-                        <span className="block text-[0.58rem] font-extrabold uppercase tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:text-[0.66rem]">
-                          {prize.label}
-                        </span>
-                        <span className="block text-[0.52rem] font-bold capitalize drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:text-[0.58rem]">
-                          {prize.sublabel}
-                        </span>
+                      <div
+                        className={cn(
+                          'flex size-8 items-center justify-center sm:size-9',
+                          spinning ? SPIN_TRANSITION : 'transition-none',
+                        )}
+                        style={{ transform: `rotate(${upright}deg)` }}
+                      >
+                        <Icon
+                          className="wheel-segment-icon size-5 sm:size-[1.35rem]"
+                          strokeWidth={1.35}
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </div>
+                    {/* Etiquetas en radio exterior */}
+                    <div
+                      className="absolute size-0"
+                      style={{
+                        left: textPos.left,
+                        top: textPos.top,
+                        transform: `translate(-50%, -50%) rotate(${midAngle}deg)`,
+                      }}
+                    >
+                      <div
+                        className={cn(
+                          'flex w-[4.5rem] flex-col items-center text-center sm:w-[5rem]',
+                          spinning ? SPIN_TRANSITION : 'transition-none',
+                        )}
+                        style={{ transform: `rotate(${upright}deg)` }}
+                      >
+                        <div className="leading-[1.05] text-white">
+                          <span className="block text-[0.58rem] font-extrabold uppercase tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:text-[0.66rem]">
+                            {prize.label}
+                          </span>
+                          <span className="block text-[0.52rem] font-bold capitalize drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:text-[0.58rem]">
+                            {prize.sublabel}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

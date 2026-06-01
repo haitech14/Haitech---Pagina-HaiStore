@@ -12,15 +12,16 @@ export function formatCurrency(value: number, currency = 'EUR', locale = 'es-ES'
   }).format(value);
 }
 
-/** Tipo de cambio referencial USD → PEN para precios duales en vitrina. */
-export const USD_TO_PEN = 3.7;
+import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
 
-export function usdToPen(usd: number): number {
-  return Math.round(usd * USD_TO_PEN);
+export { DEFAULT_USD_TO_PEN, USD_TO_PEN } from '@/lib/exchange-rate';
+
+export function usdToPen(usd: number, rate = getUsdToPenSaleRate()): number {
+  return Math.round(usd * rate);
 }
 
-export function penToUsd(pen: number): number {
-  return Math.round((pen / USD_TO_PEN) * 100) / 100;
+export function penToUsd(pen: number, rate = getUsdToPenSaleRate()): number {
+  return Math.round((pen / rate) * 100) / 100;
 }
 
 export function formatUsd(usd: number): string {
@@ -33,4 +34,14 @@ export function formatPenFromUsd(usd: number): string {
     currency: 'PEN',
     maximumFractionDigits: 0,
   }).format(usdToPen(usd));
+}
+
+/** Soles con decimales (tabla de inventario). */
+export function formatPenFromUsdPrecise(usd: number, rate = getUsdToPenSaleRate()): string {
+  return new Intl.NumberFormat('es-PE', {
+    style: 'currency',
+    currency: 'PEN',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(usd * rate);
 }

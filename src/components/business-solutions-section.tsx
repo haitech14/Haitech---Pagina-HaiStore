@@ -68,7 +68,7 @@ function DarkWavePattern() {
 
 function B2bPromoCard({ card }: { card: PromoCard }) {
   return (
-    <article className="relative flex min-h-[22rem] flex-col overflow-hidden rounded-[1.25rem] shadow-[0_8px_32px_rgba(0,0,0,0.45)] sm:min-h-[24rem] lg:min-h-[20rem]">
+    <article className="relative flex h-full min-h-[22rem] flex-col overflow-hidden rounded-[1.25rem] shadow-[0_8px_32px_rgba(0,0,0,0.45)] sm:min-h-[24rem] lg:min-h-0 lg:h-[19.5rem]">
       <DarkWavePattern />
 
       <div className="relative flex flex-1 flex-col lg:flex-row">
@@ -116,7 +116,7 @@ function B2bPromoCard({ card }: { card: PromoCard }) {
 
 function ServicePromoCard({ card }: { card: PromoCard }) {
   return (
-    <article className="relative flex min-h-[22rem] flex-col overflow-hidden rounded-[1.25rem] bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)] sm:min-h-[24rem] lg:min-h-[20rem]">
+    <article className="relative flex h-full min-h-[22rem] flex-col overflow-hidden rounded-[1.25rem] bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)] sm:min-h-[24rem] lg:min-h-0 lg:h-[19.5rem]">
       <div className="relative flex flex-1 flex-col lg:flex-row">
         <div className="relative z-10 flex flex-1 flex-col justify-between gap-6 p-5 sm:p-6 lg:max-w-[55%] lg:p-7">
           <div>
@@ -155,7 +155,7 @@ function ServicePromoCard({ card }: { card: PromoCard }) {
 
 function OffersPromoCard({ card }: { card: PromoCard }) {
   return (
-    <article className="relative flex min-h-[22rem] flex-col overflow-hidden rounded-[1.25rem] shadow-[0_8px_32px_rgba(0,0,0,0.45)] sm:min-h-[24rem] lg:min-h-[20rem]">
+    <article className="relative flex h-full min-h-[22rem] flex-col overflow-hidden rounded-[1.25rem] shadow-[0_8px_32px_rgba(0,0,0,0.45)] sm:min-h-[24rem] lg:min-h-0 lg:h-[19.5rem]">
       <DarkWavePattern />
 
       <div className="relative flex flex-1 flex-col lg:flex-row">
@@ -177,7 +177,7 @@ function OffersPromoCard({ card }: { card: PromoCard }) {
           <img
             src={card.image}
             alt={card.imageAlt}
-            className="max-h-40 w-auto object-contain sm:max-h-48 lg:absolute lg:bottom-0 lg:right-0 lg:max-h-none lg:h-full lg:w-full lg:object-contain lg:object-right-bottom"
+            className="max-h-40 w-auto object-contain sm:max-h-48 lg:absolute lg:bottom-0 lg:right-0 lg:max-h-none lg:h-full lg:w-full lg:object-cover lg:object-center"
             loading="lazy"
           />
         </div>
@@ -204,9 +204,9 @@ export function BusinessSolutionsSection() {
         Soluciones, servicio técnico y ofertas
       </h2>
       <div className="container">
-        <ul className="grid gap-5 sm:gap-6 lg:grid-cols-3 lg:gap-5 xl:gap-6">
+        <ul className="grid gap-5 sm:gap-6 lg:grid-cols-3 lg:auto-rows-fr lg:items-stretch lg:gap-5 xl:gap-6">
           {promoCards.map((card) => (
-            <li key={card.id}>
+            <li key={card.id} className="h-full">
               <PromoCardItem card={card} />
             </li>
           ))}

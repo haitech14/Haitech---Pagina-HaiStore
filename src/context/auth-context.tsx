@@ -4,6 +4,8 @@ import { apiFetch } from '@/lib/api';
 import { setDemoToken } from '@/lib/auth-storage';
 import type { AuthUser } from '@/lib/auth-storage';
 import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured } from '@/lib/supabase-config';
+import { canAccessAdminPanel, hasAdminApiAccess } from '@/lib/admin-access';
 import { isUserRole, type UserRole } from '@/types/product';
 
 interface AuthContextValue {
@@ -11,6 +13,7 @@ interface AuthContextValue {
   role: UserRole | 'public';
   isLoading: boolean;
   isAdmin: boolean;
+  canAccessAdminPanel: boolean;
   authProvider: 'supabase' | 'demo' | null;
   login: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
@@ -78,28 +81,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = React.useCallback(
     async (email: string, password: string) => {
+      const normalizedEmail = email.trim().toLowerCase();
       setDemoToken(null);
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        });
 
-      if (!error && data.session) {
-        try {
-          await apiFetch('/api/auth/sync-profile', { method: 'POST' });
-        } catch {
-          /* perfil puede crearse por trigger */
+        if (!error && data.session) {
+          try {
+            await apiFetch('/api/auth/sync-profile', { method: 'POST' });
+          } catch {
+            /* perfil puede crearse por trigger */
+          }
+          await refreshSession();
+          return;
         }
-        await refreshSession();
-        return;
       }
+
+      await supabase.auth.signOut();
 
       let demo: { token: string; user: AuthUser };
       try {
         demo = await apiFetch<{ token: string; user: AuthUser }>('/api/auth/login-demo', {
           method: 'POST',
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email: normalizedEmail, password }),
         });
       } catch (demoErr) {
         const message = demoErr instanceof Error ? demoErr.message : '';
@@ -108,8 +116,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             'No se pudo conectar con el servidor de autenticación. Ejecuta «npm run dev:all» o «npm run server» en otra terminal.',
           );
         }
+        if (message.includes('401') || message.toLowerCase().includes('credencial')) {
+          throw new Error('Correo o contraseña incorrectos.');
+        }
         throw demoErr;
       }
+
       setDemoToken(demo.token);
       applyMe({ user: demo.user, role: demo.user.role, authProvider: 'demo' });
     },
@@ -153,7 +165,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       role,
       isLoading,
-      isAdmin: role === 'admin',
+      isAdmin: hasAdminApiAccess(user, role),
+      canAccessAdminPanel: canAccessAdminPanel(user, role),
       authProvider,
       login,
       signUp,

@@ -1,3 +1,5 @@
+@import 'react-day-picker/style.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,6 +26,19 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    /* Panel admin — sidebar negro; rojo solo como fondo/acento (no texto rojo sobre negro) */
+    --admin-sidebar-bg: 0 0% 7%;
+    --admin-sidebar-bg-top: 0 0% 4%;
+    --admin-sidebar-hover: 0 0% 14%;
+    --admin-sidebar-fg: 0 0% 96%;
+    --admin-sidebar-fg-muted: 0 0% 68%;
+    --admin-sidebar-border: 0 0% 20%;
+    --admin-sidebar-active-bg: 0 72% 51%;
+    --admin-sidebar-active-fg: 0 0% 100%;
+    --admin-sidebar-card-title: 0 0% 12%;
+    --admin-accent: 0 72% 51%;
+    --admin-accent-hover: 0 72% 45%;
+    --admin-accent-soft: 0 75% 62%;
   }
 
   .dark {
@@ -261,13 +276,11 @@
   }
 }
 
-/* Iconos de la ruleta: trazo blanco con borde luminoso, sin contenedor. */
+/* Iconos de la ruleta: trazo fino blanco con sombra suave. */
 .wheel-segment-icon {
   color: #fff;
-  filter:
-    drop-shadow(0 0 0.75px #fff)
-    drop-shadow(0 0 1.5px #fff)
-    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 0 0.35px rgba(255, 255, 255, 0.9))
+    drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.35));
 }
 
 /* Utilidad de salto de contenido para lectores de pantalla. */
