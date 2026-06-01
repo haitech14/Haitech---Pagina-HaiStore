@@ -45,8 +45,8 @@ export function AdminListasPreciosPage() {
           <p className="text-sm text-muted-foreground">
             Mismos precios que ve la tienda pública y cada rol de cliente. Los importes se
             editan en inventario; el tipo de cambio (
-            {company?.usd_to_pen_rate != null
-              ? `1 USD = ${company.usd_to_pen_rate} PEN`
+            {company?.usdToPenExchangeRate != null
+              ? `1 USD = ${company.usdToPenExchangeRate} PEN`
               : 'configura en ajustes'}
             ) aplica a todas las listas.
           </p>

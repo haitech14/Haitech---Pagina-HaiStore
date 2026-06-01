@@ -14,7 +14,7 @@ function formatExpiryDate(createdAt: string, validityDays: number): string {
 
 export function buildProformaWhatsAppMessage(
   proforma: ProformaRecord,
-  company: Pick<CompanySettings, 'legalName' | 'supportPhone' | 'supportEmail'>,
+  company: Pick<CompanySettings, 'legalName' | 'phone' | 'email'>,
 ): string {
   const greeting = proforma.customer.atencion.trim() || proforma.customer.razonSocial;
   const total = formatTpvMoney(proforma.totalPen, proforma.currency);
@@ -32,8 +32,8 @@ export function buildProformaWhatsAppMessage(
   }
 
   const contactParts = [
-    company.supportPhone ? `📞 ${company.supportPhone}` : null,
-    company.supportEmail ? `✉️ ${company.supportEmail}` : null,
+    company.phone ? `📞 ${company.phone}` : null,
+    company.email ? `✉️ ${company.email}` : null,
   ].filter(Boolean);
 
   return [

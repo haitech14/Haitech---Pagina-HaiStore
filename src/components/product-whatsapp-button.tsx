@@ -26,13 +26,14 @@ export function ProductWhatsAppButton({
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const detailPath = product.id ? productPath(product.id) : null;
+  const resolvedProductUrl =
+    product.productUrl ??
+    (typeof window !== 'undefined' && detailPath
+      ? `${window.location.origin}${detailPath}`
+      : null);
   const lineItem: ProductWhatsAppLineItem = {
     ...product,
-    productUrl:
-      product.productUrl ??
-      (typeof window !== 'undefined' && detailPath
-        ? `${window.location.origin}${detailPath}`
-        : undefined),
+    ...(resolvedProductUrl ? { productUrl: resolvedProductUrl } : {}),
   };
 
   const launchWhatsApp = async (nextContact: Parameters<typeof saveContact>[0]) => {

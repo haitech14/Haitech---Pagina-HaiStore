@@ -27,8 +27,6 @@ import type {
   InventoryBulkStockMode,
 } from '@/types/inventory-bulk';
 
-const NO_CHANGE = '__no_change__';
-
 interface InventoryBulkEditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

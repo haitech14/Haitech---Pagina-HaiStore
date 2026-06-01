@@ -19,10 +19,6 @@ export function useAdminStoreCustomers() {
 export function useAdminStoreCustomersMutations() {
   const queryClient = useQueryClient();
 
-  const invalidate = () => {
-    void queryClient.invalidateQueries({ queryKey: ['admin-store-customers'] });
-  };
-
   const updateCustomer = useMutation({
     mutationFn: ({
       id,

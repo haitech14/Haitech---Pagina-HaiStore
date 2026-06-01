@@ -27,11 +27,6 @@ export function InventoryInlineField({
 }: InventoryInlineFieldProps) {
   const isEditing = activeFieldId === fieldId;
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    onClose();
-  };
-
   const handleDisplayKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();

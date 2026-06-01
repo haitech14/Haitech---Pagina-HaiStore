@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import {
-  cityFromBilling,
   isCompleteWhatsAppContact,
   readStoredWhatsAppContact,
   storeWhatsAppContact,

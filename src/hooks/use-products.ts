@@ -5,7 +5,7 @@ import { inventoryFallback } from '@/data/inventory-fallback';
 import { apiFetch } from '@/lib/api';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
-import { ensureFullPrices, mapInventoryForRole } from '@/lib/pricing';
+import { mapInventoryForRole } from '@/lib/pricing';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct, Product } from '@/types/product';
 
@@ -114,7 +114,7 @@ export function useInventoryMutations() {
   });
 
   const syncCatalog = useMutation({
-    mutationFn: (resetDeleted = true) =>
+    mutationFn: (resetDeleted: boolean = true) =>
       apiFetch<{ ok: boolean; total: number; fromCatalog: number }>(
         '/api/products/sync-catalog',
         {

@@ -4,6 +4,7 @@ import {
   formatBadgeDisplayValue,
   isPrimaryProductBadge,
   type ProductBadgeSource,
+  type ProductDetailBadge,
 } from '@/lib/product-detail-badges';
 import { cn } from '@/lib/utils';
 
@@ -14,7 +15,7 @@ interface ProductAttributeBadgesProps {
   className?: string;
 }
 
-function badgeDisplayText(badge: { id: string; value: string }): string {
+function badgeDisplayText(badge: ProductDetailBadge): string {
   if (isPrimaryProductBadge(badge.id)) {
     return formatBadgeDisplayValue(badge);
   }

@@ -9,6 +9,27 @@ export type CatalogRow = InventoryProduct & {
   is_new?: boolean;
 };
 
+type CatalogJsonRow = Partial<InventoryProduct> &
+  Pick<InventoryProduct, 'id' | 'name' | 'prices'> & {
+    compare_at_price_usd?: number;
+    is_new?: boolean;
+  };
+
+/** Filas del JSON maestro normalizadas (incluye sort_order por defecto). */
+export function getCatalogRows(): CatalogRow[] {
+  return (catalogData.products as unknown as CatalogJsonRow[]).map((raw) => {
+    const product = normalizeInventoryProduct(raw);
+    const row: CatalogRow = { ...product };
+    if (raw.compare_at_price_usd != null) {
+      row.compare_at_price_usd = raw.compare_at_price_usd;
+    }
+    if (raw.is_new != null) {
+      row.is_new = raw.is_new;
+    }
+    return row;
+  });
+}
+
 export function normalizeCategoryName(value: string): string {
   return value
     .toLowerCase()
@@ -22,7 +43,7 @@ export function productMatchesCategories(
   labels: readonly string[],
 ): boolean {
   const normalizedLabels = labels.map((label) => normalizeCategoryName(label));
-  const tags = productCategoryTags({ category });
+  const tags = productCategoryTags({ category: category ?? null });
   if (tags.length === 0) {
     const norm = normalizeCategoryName(category ?? '');
     return normalizedLabels.includes(norm);
@@ -50,32 +71,41 @@ export function catalogRowToFeatured(
       ? Math.round((1 - publicPrice / compareAt) * 100)
       : undefined;
 
-  return {
+  const featured: FeaturedProduct = {
     id: product.id,
     name: product.name,
     category: product.category ?? '',
     brand: product.brand ?? null,
-    ...(product.attributes?.length ? { attributes: product.attributes } : {}),
     price: publicPrice,
-    oldPrice: compareAt,
-    discount,
     isNew: meta?.isNew ?? row.is_new ?? false,
     rating: meta?.rating ?? 5,
     reviews: meta?.reviews ?? stableReviewCount(product.id),
     image: product.image_url ?? '',
   };
+
+  if (product.attributes?.length) {
+    featured.attributes = product.attributes;
+  }
+  if (compareAt != null && compareAt > publicPrice) {
+    featured.oldPrice = compareAt;
+    if (discount != null) {
+      featured.discount = discount;
+    }
+  }
+
+  return featured;
 }
 
 export function getCatalogFeaturedByCategories(
   categoryLabels: readonly string[],
   limit = 10,
 ): FeaturedProduct[] {
-  return (catalogData.products as CatalogRow[])
+  return getCatalogRows()
     .filter((row) => productMatchesCategories(row.category, categoryLabels))
     .slice(0, limit)
     .map((row) => catalogRowToFeatured(row));
 }
 
 export function getCatalogProductById(id: string): CatalogRow | undefined {
-  return (catalogData.products as CatalogRow[]).find((row) => row.id === id);
+  return getCatalogRows().find((row) => row.id === id);
 }

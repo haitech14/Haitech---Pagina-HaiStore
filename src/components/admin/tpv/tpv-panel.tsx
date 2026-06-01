@@ -14,7 +14,6 @@ import {
   AdminPdfPreviewDialog,
   type AdminPdfPreview,
 } from '@/components/admin/admin-pdf-preview-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAdminProductsQuery } from '@/hooks/use-admin-dashboard';

@@ -1,5 +1,4 @@
-import catalogData from '@/data/inventory-catalog.json';
-import { catalogRowToFeatured, type CatalogRow } from '@/lib/catalog-featured';
+import { catalogRowToFeatured, getCatalogRows } from '@/lib/catalog-featured';
 import type { Product, ProductAttribute } from '@/types/product';
 
 export interface FeaturedProduct {
@@ -44,7 +43,7 @@ const FEATURED_META: Record<
 };
 
 const catalogFeaturedProducts: FeaturedProduct[] = FEATURED_PRODUCT_IDS.map((id) => {
-  const row = (catalogData.products as CatalogRow[]).find((product) => product.id === id);
+  const row = getCatalogRows().find((product) => product.id === id);
   if (!row) {
     throw new Error(`Producto destacado "${id}" no está en inventory-catalog.json`);
   }

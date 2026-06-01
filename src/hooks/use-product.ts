@@ -2,11 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
-import {
-  featuredToProduct,
-  getFeaturedProductById,
-  type FeaturedProduct,
-} from '@/data/featured-products';
+import { featuredToProduct, getFeaturedProductById } from '@/data/featured-products';
 import { useProducts } from '@/hooks/use-products';
 import { apiFetch } from '@/lib/api';
 import { getCatalogProductById } from '@/lib/catalog-featured';

@@ -179,7 +179,7 @@ export function InventoryRolePricesFieldset({
         <PriceField
           id={`${idPrefix}-purchase`}
           label="Compra"
-          hint={purchaseFromSuppliers ? 'Menor entre proveedores' : undefined}
+          {...(purchaseFromSuppliers ? { hint: 'Menor entre proveedores' } : {})}
           usdValue={purchaseUsd}
           onUsdChange={onPurchaseChange}
           exchangeRate={purchaseRate}

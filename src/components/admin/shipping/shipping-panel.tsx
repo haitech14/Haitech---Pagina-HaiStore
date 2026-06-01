@@ -66,7 +66,7 @@ export function ShippingPanel() {
 
   const zoneName = useMemo(() => {
     const map = new Map(zones.map((z) => [z.id, z.name]));
-    return (id: string) => map.get(id) ?? id;
+    return (id: (typeof zones)[number]['id']) => map.get(id) ?? id;
   }, [zones]);
 
   useEffect(() => {

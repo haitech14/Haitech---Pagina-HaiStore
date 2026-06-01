@@ -108,7 +108,7 @@ export function ProductCard({ product }: { product: Product }) {
             name: product.name,
             priceUsd: product.price,
             category: product.category,
-            brand: product.brand,
+            brand: product.brand ?? null,
           }}
         />
       </CardFooter>

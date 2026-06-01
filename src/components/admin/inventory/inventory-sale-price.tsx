@@ -63,7 +63,7 @@ export function InventorySalePrice({
         <InventoryProfitTooltipContent
           profitUsd={profitUsd}
           profitPen={profitPen}
-          priceRole={priceRole}
+          {...(priceRole ? { priceRole } : {})}
         />
       </InventoryHoverTooltip>
     </span>

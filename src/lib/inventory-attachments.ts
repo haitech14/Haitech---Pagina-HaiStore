@@ -16,37 +16,48 @@ export const PRODUCT_ATTACHMENT_LABELS: Record<ProductAttachmentKind, string> = 
 
 const MAX_ATTACHMENT_BYTES = 4 * 1024 * 1024;
 
+function toProductAttachment(row: Partial<ProductAttachment>): ProductAttachment | null {
+  const url = typeof row.url === 'string' ? row.url.trim() : '';
+  if (!url) return null;
+
+  const kind = PRODUCT_ATTACHMENT_KINDS.includes(row.kind as ProductAttachmentKind)
+    ? (row.kind as ProductAttachmentKind)
+    : 'other';
+  const label =
+    typeof row.label === 'string' && row.label.trim()
+      ? row.label.trim()
+      : PRODUCT_ATTACHMENT_LABELS[kind];
+
+  const attachment: ProductAttachment = {
+    id:
+      typeof row.id === 'string' && row.id.trim().length > 0
+        ? row.id.trim()
+        : crypto.randomUUID(),
+    kind,
+    label,
+    url,
+  };
+
+  if (typeof row.file_name === 'string' && row.file_name.trim()) {
+    attachment.file_name = row.file_name.trim();
+  }
+  if (typeof row.mime_type === 'string' && row.mime_type.trim()) {
+    attachment.mime_type = row.mime_type.trim();
+  }
+
+  return attachment;
+}
+
 export function normalizeAttachments(value: unknown): ProductAttachment[] {
   if (!Array.isArray(value)) return [];
 
-  return value
-    .map((entry) => {
-      if (!entry || typeof entry !== 'object') return null;
-      const row = entry as Partial<ProductAttachment>;
-      const url = typeof row.url === 'string' ? row.url.trim() : '';
-      if (!url) return null;
-
-      const kind = PRODUCT_ATTACHMENT_KINDS.includes(row.kind as ProductAttachmentKind)
-        ? (row.kind as ProductAttachmentKind)
-        : 'other';
-      const label =
-        typeof row.label === 'string' && row.label.trim()
-          ? row.label.trim()
-          : PRODUCT_ATTACHMENT_LABELS[kind];
-
-      return {
-        id:
-          typeof row.id === 'string' && row.id.trim().length > 0
-            ? row.id.trim()
-            : crypto.randomUUID(),
-        kind,
-        label,
-        url,
-        file_name: typeof row.file_name === 'string' ? row.file_name : undefined,
-        mime_type: typeof row.mime_type === 'string' ? row.mime_type : undefined,
-      };
-    })
-    .filter((row): row is ProductAttachment => row != null);
+  const attachments: ProductAttachment[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object') continue;
+    const parsed = toProductAttachment(entry as Partial<ProductAttachment>);
+    if (parsed) attachments.push(parsed);
+  }
+  return attachments;
 }
 
 export function guessAttachmentKind(fileName: string): ProductAttachmentKind {
@@ -75,14 +86,17 @@ export function readAttachmentFile(
         reject(new Error('No se pudo leer el archivo.'));
         return;
       }
-      resolve({
+      const attachment: ProductAttachment = {
         id: crypto.randomUUID(),
         kind,
         label: PRODUCT_ATTACHMENT_LABELS[kind],
         file_name: file.name,
-        mime_type: file.type || undefined,
         url,
-      });
+      };
+      if (file.type) {
+        attachment.mime_type = file.type;
+      }
+      resolve(attachment);
     };
     reader.onerror = () => reject(new Error('No se pudo leer el archivo.'));
     reader.readAsDataURL(file);

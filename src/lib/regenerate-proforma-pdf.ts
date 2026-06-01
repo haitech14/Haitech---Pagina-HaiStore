@@ -27,7 +27,7 @@ function toTpvLines(proforma: ProformaRecord): TpvLineItem[] {
     brand: line.brand,
     quantity: line.quantity,
     unitPricePen: line.unitPricePen,
-    imageUrl: line.imageUrl,
+    imageUrl: line.imageUrl ?? null,
   }));
 }
 
@@ -51,7 +51,7 @@ export async function regenerateProformaPdf(
         brand: line.brand,
         pricePen: line.unitPricePen,
         quantity: line.quantity,
-        imageUrl: line.imageUrl,
+        imageUrl: line.imageUrl ?? null,
       },
       company,
     );

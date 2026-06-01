@@ -36,7 +36,7 @@ export function SubcategoriesGrid({
           {
             name: sub.name,
             slug: sub.slug,
-            image: sub.image,
+            image: sub.image ?? null,
             inventoryLabels: sub.inventoryLabels,
           },
           products,
@@ -77,7 +77,7 @@ export function SubcategoriesGrid({
             <SubcategoryAutoImage
               name="Ver todo"
               slug={`${parentSlug}-all`}
-              image={parentImage}
+              image={parentImage ?? null}
               compact
             />
             <div className="border-t border-border/60 px-2 py-1.5">
@@ -108,7 +108,7 @@ export function SubcategoriesGrid({
                 <SubcategoryAutoImage
                   name={sub.name}
                   slug={sub.slug}
-                  image={subcategoryImages.get(sub.id) ?? sub.image}
+                  image={subcategoryImages.get(sub.id) ?? sub.image ?? null}
                   compact
                 />
                 <div className="flex items-center justify-between gap-1 border-t border-border/60 px-2 py-1.5">
