@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Package, Truck } from 'lucide-react';
+import { MapPin, Package, Plus, Truck } from 'lucide-react';
+
+import { NewShipmentDialog } from '@/components/admin/shipping/new-shipment-dialog';
+import { ShipmentRowActions } from '@/components/admin/shipping/shipment-row-actions';
 
 import { AdminEmptyState } from '@/components/admin/AdminEmptyState';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  deleteShipment,
+  duplicateShipment,
   loadShipments,
   loadShippingCarriers,
   loadShippingRates,
@@ -58,6 +63,7 @@ export function ShippingPanel() {
   const [carriers] = useState(() => loadShippingCarriers());
   const [shipments, setShipments] = useState<ShipmentRecord[]>(() => loadShipments());
   const [savedHint, setSavedHint] = useState<string | null>(null);
+  const [newShipmentOpen, setNewShipmentOpen] = useState(false);
 
   const carrierName = useMemo(() => {
     const map = new Map(carriers.map((c) => [c.id, c.name]));
@@ -119,12 +125,36 @@ export function ShippingPanel() {
             Zonas
           </button>
         </div>
-        {savedHint && (
-          <p role="status" className="text-sm text-green-700">
-            {savedHint}
-          </p>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {tab === 'shipments' && (
+            <Button
+              type="button"
+              className="gap-2 bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))]/90"
+              onClick={() => setNewShipmentOpen(true)}
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              Nuevo envío
+            </Button>
+          )}
+          {savedHint && (
+            <p role="status" className="text-sm text-green-700">
+              {savedHint}
+            </p>
+          )}
+        </div>
       </div>
+
+      <NewShipmentDialog
+        open={newShipmentOpen}
+        onOpenChange={setNewShipmentOpen}
+        zones={zones}
+        carriers={carriers}
+        rates={rates}
+        onCreated={(next) => {
+          setShipments(next);
+          setSavedHint('Envío registrado.');
+        }}
+      />
 
       {tab === 'zones' && (
         <div className="grid gap-3 md:grid-cols-2">
@@ -255,18 +285,19 @@ export function ShippingPanel() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        {NEXT_STATUS[row.status] ? (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => advanceShipment(row.id)}
-                          >
-                            → {STATUS_LABELS[NEXT_STATUS[row.status]!]}
-                          </Button>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
+                        <ShipmentRowActions
+                          shipment={row}
+                          carrierName={carrierName(row.carrierId)}
+                          zoneName={zoneName(row.zoneId)}
+                          {...(NEXT_STATUS[row.status]
+                            ? {
+                                nextStatus: NEXT_STATUS[row.status],
+                                onAdvance: () => advanceShipment(row.id),
+                              }
+                            : {})}
+                          onDuplicate={() => setShipments(duplicateShipment(row.id))}
+                          onDelete={() => setShipments(deleteShipment(row.id))}
+                        />
                       </td>
                     </tr>
                   ))}

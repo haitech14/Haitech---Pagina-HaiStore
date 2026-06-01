@@ -1,43 +1,32 @@
 import { Router } from 'express';
-import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 
 import { requireAdmin, resolveRequestRole } from '../lib/auth-store.js';
 import {
   applyOrderedIds,
   assignProductSortOrders,
-  ensureProductSortOrders,
   sortProductsByOrder,
 } from '../lib/inventory-product-order.js';
 import {
-  migrateInventoryProduct,
   normalizeProductInput,
   readInventory,
   syncInventoryFromCatalog,
-  toPublicProduct,
   writeInventory,
 } from '../lib/inventory-store.js';
 import { applyBulkPatch } from '../lib/inventory-bulk-patch.js';
+import {
+  getPublicProductById,
+  listProducts,
+  syncProductsToSupabase,
+} from '../lib/product-catalog.js';
+import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 
 export const productsRouter = Router();
-
-function getAdminClient() {
-  const url = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) return null;
-  return createClient(url, serviceKey, { auth: { persistSession: false } });
-}
-
-async function listFromInventory(role, adminView = false) {
-  const { products } = await readInventory();
-  if (adminView) return products;
-  return products.map((product) => toPublicProduct(product, role));
-}
 
 productsRouter.get('/', async (req, res, next) => {
   try {
     const role = await resolveRequestRole(req);
-    const products = await listFromInventory(role);
+    const products = await listProducts({ role, adminView: false });
     res.json(products);
   } catch (error) {
     next(error);
@@ -46,7 +35,7 @@ productsRouter.get('/', async (req, res, next) => {
 
 productsRouter.get('/admin/all', requireAdmin, async (_req, res, next) => {
   try {
-    const products = await listFromInventory('public', true);
+    const products = await listProducts({ role: 'public', adminView: true });
     res.json(products);
   } catch (error) {
     next(error);
@@ -75,41 +64,11 @@ function duplicateProduct(source, warehouses) {
   );
 }
 
-function supabaseProductRow(product) {
-  const image_url =
-    typeof product.image_url === 'string' && product.image_url.startsWith('data:')
-      ? null
-      : product.image_url;
-
-  return {
-    id: product.id,
-    name: product.name,
-    description: product.description,
-    price: product.prices.public,
-    prices: product.prices,
-    currency: product.currency,
-    image_url,
-    stock: product.stock,
-    category: product.category,
-    brand: product.brand ?? null,
-  };
-}
-
-async function syncSupabaseProducts(supabase, products) {
-  if (!supabase) return;
-  for (const product of products) {
-    const { error } = await supabase.from('products').upsert(supabaseProductRow(product));
-    if (error) {
-      console.error('[products] supabase upsert:', product.id, error.message);
-    }
-  }
-}
-
 productsRouter.post('/sync-catalog', requireAdmin, async (req, res, next) => {
   try {
     const resetDeleted = req.body?.resetDeleted === true;
     const result = await syncInventoryFromCatalog({ resetDeleted });
-    await syncSupabaseProducts(getAdminClient(), result.products);
+    await syncProductsToSupabase(result.products);
     res.json({
       ok: true,
       total: result.products.length,
@@ -141,7 +100,7 @@ productsRouter.post('/bulk/delete', requireAdmin, async (req, res, next) => {
       warehouses: inventory.warehouses,
     });
 
-    const supabase = getAdminClient();
+    const supabase = getSupabaseAdmin();
     if (supabase && removed.length > 0) {
       await supabase.from('products').delete().in('id', removed.map((p) => p.id));
     }
@@ -180,7 +139,7 @@ productsRouter.patch('/bulk', requireAdmin, async (req, res, next) => {
       deletedProductIds: inventory.deletedProductIds ?? [],
       warehouses: inventory.warehouses,
     });
-    await syncSupabaseProducts(getAdminClient(), updatedProducts);
+    await syncProductsToSupabase(updatedProducts);
 
     res.json({ ok: true, updated: updatedCount, products: updatedProducts });
   } catch (error) {
@@ -222,7 +181,7 @@ productsRouter.post('/bulk/duplicate', requireAdmin, async (req, res, next) => {
       deletedProductIds: inventory.deletedProductIds ?? [],
       warehouses: inventory.warehouses,
     });
-    await syncSupabaseProducts(getAdminClient(), created);
+    await syncProductsToSupabase(created);
 
     res.status(201).json({ ok: true, created: created.length, products: created });
   } catch (error) {
@@ -259,10 +218,9 @@ productsRouter.put('/reorder', requireAdmin, async (req, res, next) => {
 productsRouter.get('/:id', async (req, res, next) => {
   try {
     const role = await resolveRequestRole(req);
-    const { products } = await readInventory();
-    const product = products.find((entry) => entry.id === req.params.id);
+    const product = await getPublicProductById(req.params.id, role);
     if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
-    res.json(toPublicProduct(product, role));
+    res.json(product);
   } catch (error) {
     next(error);
   }
@@ -291,13 +249,7 @@ productsRouter.post('/', requireAdmin, async (req, res, next) => {
       warehouses: inventory.warehouses,
     });
 
-    const supabase = getAdminClient();
-    if (supabase) {
-      const { error } = await supabase.from('products').insert(supabaseProductRow(product));
-      if (error) {
-        console.error('[products] supabase insert:', product.id, error.message);
-      }
-    }
+    await syncProductsToSupabase([product]);
 
     res.status(201).json(product);
   } catch (error) {
@@ -327,16 +279,7 @@ productsRouter.patch('/:id', requireAdmin, async (req, res, next) => {
       warehouses: inventory.warehouses,
     });
 
-    const supabase = getAdminClient();
-    if (supabase) {
-      const { error } = await supabase
-        .from('products')
-        .update(supabaseProductRow(updated))
-        .eq('id', updated.id);
-      if (error) {
-        console.error('[products] supabase update:', updated.id, error.message);
-      }
-    }
+    await syncProductsToSupabase([updated]);
 
     res.json(updated);
   } catch (error) {
@@ -358,7 +301,7 @@ productsRouter.delete('/:id', requireAdmin, async (req, res, next) => {
       warehouses: inventory.warehouses,
     });
 
-    const supabase = getAdminClient();
+    const supabase = getSupabaseAdmin();
     if (supabase) {
       await supabase.from('products').delete().eq('id', removed.id);
     }
