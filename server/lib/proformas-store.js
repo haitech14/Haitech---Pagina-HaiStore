@@ -1,20 +1,22 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROFORMAS_PATH = path.join(__dirname, '../data/proformas.json');
+import { getProformasPath } from './server-paths.js';
+
+function proformasPath() {
+  return getProformasPath();
+}
 
 const VALID_STATUSES = new Set(['pending', 'contacted', 'negotiating', 'won', 'lost']);
 const VALID_SOURCES = new Set(['tpv', 'product']);
 
 async function ensureFile() {
   try {
-    await fs.access(PROFORMAS_PATH);
+    await fs.access(proformasPath());
   } catch {
-    await fs.mkdir(path.dirname(PROFORMAS_PATH), { recursive: true });
-    await fs.writeFile(PROFORMAS_PATH, JSON.stringify({ proformas: [] }, null, 2));
+    await fs.mkdir(path.dirname(proformasPath()), { recursive: true });
+    await fs.writeFile(proformasPath(), JSON.stringify({ proformas: [] }, null, 2));
   }
 }
 
@@ -80,7 +82,7 @@ function normalizeProforma(raw) {
 
 export async function readProformas() {
   await ensureFile();
-  const raw = await fs.readFile(PROFORMAS_PATH, 'utf-8');
+  const raw = await fs.readFile(proformasPath(), 'utf-8');
   const data = JSON.parse(raw);
   const proformas = (data.proformas ?? [])
     .map(normalizeProforma)
@@ -91,7 +93,7 @@ export async function readProformas() {
 export async function writeProformas(proformas) {
   await ensureFile();
   const normalized = proformas.map(normalizeProforma);
-  await fs.writeFile(PROFORMAS_PATH, JSON.stringify({ proformas: normalized }, null, 2));
+  await fs.writeFile(proformasPath(), JSON.stringify({ proformas: normalized }, null, 2));
   return normalized;
 }
 

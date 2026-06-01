@@ -1,13 +1,15 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
 
 import { readInventory } from './inventory-store.js';
 import { seedProducts } from './seed-products.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CATEGORIES_PATH = path.join(__dirname, '../data/store-categories.json');
+import { getStoreCategoriesPath } from './server-paths.js';
+
+function categoriesPath() {
+  return getStoreCategoriesPath();
+}
 
 const DEFAULT_CATEGORIES = [
   {
@@ -84,11 +86,11 @@ function normalizeCategory(raw, existing) {
 
 async function ensureCategoriesFile() {
   try {
-    await fs.access(CATEGORIES_PATH);
+    await fs.access(categoriesPath());
   } catch {
-    await fs.mkdir(path.dirname(CATEGORIES_PATH), { recursive: true });
+    await fs.mkdir(path.dirname(categoriesPath()), { recursive: true });
     await fs.writeFile(
-      CATEGORIES_PATH,
+      categoriesPath(),
       JSON.stringify({ categories: DEFAULT_CATEGORIES }, null, 2),
     );
   }
@@ -96,15 +98,15 @@ async function ensureCategoriesFile() {
 
 export async function readStoreCategories() {
   await ensureCategoriesFile();
-  const raw = await fs.readFile(CATEGORIES_PATH, 'utf-8');
+  const raw = await fs.readFile(categoriesPath(), 'utf-8');
   const data = JSON.parse(raw);
   return (data.categories ?? []).map((row) => normalizeCategory(row));
 }
 
 export async function writeStoreCategories(categories) {
   const normalized = categories.map((row) => normalizeCategory(row));
-  await fs.mkdir(path.dirname(CATEGORIES_PATH), { recursive: true });
-  await fs.writeFile(CATEGORIES_PATH, JSON.stringify({ categories: normalized }, null, 2));
+  await fs.mkdir(path.dirname(categoriesPath()), { recursive: true });
+  await fs.writeFile(categoriesPath(), JSON.stringify({ categories: normalized }, null, 2));
   return normalized;
 }
 

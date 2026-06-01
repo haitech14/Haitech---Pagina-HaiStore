@@ -13,16 +13,21 @@ import {
 import { seedProducts } from './seed-products.js';
 import { ensureProductSortOrders, sortProductsByOrder } from './inventory-product-order.js';
 import { ensureFullPrices, resolvePriceRole } from './roles.js';
+import { getInventoryPath } from './server-paths.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const INVENTORY_PATH = path.join(__dirname, '../data/inventory.json');
+
+function inventoryPath() {
+  return getInventoryPath();
+}
 
 async function ensureInventoryFile() {
+  const filePath = inventoryPath();
   try {
-    await fs.access(INVENTORY_PATH);
+    await fs.access(filePath);
   } catch {
-    await fs.mkdir(path.dirname(INVENTORY_PATH), { recursive: true });
-    await fs.writeFile(INVENTORY_PATH, JSON.stringify({ products: seedProducts }, null, 2));
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify({ products: seedProducts }, null, 2));
   }
 }
 
@@ -196,7 +201,7 @@ export function mergeCatalogProduct(seed, existing, warehouses) {
 export async function syncInventoryFromCatalog(options = {}) {
   const { resetDeleted = false } = options;
   await ensureInventoryFile();
-  const raw = await fs.readFile(INVENTORY_PATH, 'utf-8');
+  const raw = await fs.readFile(inventoryPath(), 'utf-8');
   const data = JSON.parse(raw);
   let deletedProductIds = normalizeDeletedIds(data.deletedProductIds);
 
@@ -238,7 +243,7 @@ export async function syncInventoryFromCatalog(options = {}) {
 
 export async function readInventory() {
   await ensureInventoryFile();
-  const raw = await fs.readFile(INVENTORY_PATH, 'utf-8');
+  const raw = await fs.readFile(inventoryPath(), 'utf-8');
   const data = JSON.parse(raw);
   const deletedProductIds = getDeletedProductIds(data);
   const deleted = new Set(deletedProductIds);
@@ -266,7 +271,7 @@ export async function writeInventory(data) {
   let warehouses = data.warehouses;
   if (!warehouses) {
     try {
-      const raw = await fs.readFile(INVENTORY_PATH, 'utf-8');
+      const raw = await fs.readFile(inventoryPath(), 'utf-8');
       warehouses = normalizeWarehouses(JSON.parse(raw).warehouses);
     } catch {
       warehouses = normalizeWarehouses();
@@ -284,8 +289,8 @@ export async function writeInventory(data) {
     deletedProductIds: normalizeDeletedIds(data.deletedProductIds),
     warehouses,
   };
-  await fs.mkdir(path.dirname(INVENTORY_PATH), { recursive: true });
-  await fs.writeFile(INVENTORY_PATH, JSON.stringify(normalized, null, 2));
+  await fs.mkdir(path.dirname(inventoryPath()), { recursive: true });
+  await fs.writeFile(inventoryPath(), JSON.stringify(normalized, null, 2));
 }
 
 export { resolvePriceRole };

@@ -1,11 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import { optimizeImageDataUrl } from './optimize-image.js';
+import { getCompanySettingsPath } from './server-paths.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SETTINGS_PATH = path.join(__dirname, '../data/company-settings.json');
+function settingsPath() {
+  return getCompanySettingsPath();
+}
 
 const DEFAULT_SETTINGS = {
   companyName: 'HAITECH',
@@ -56,10 +57,10 @@ function normalizeExchangeRate(value) {
 
 async function ensureSettingsFile() {
   try {
-    await fs.access(SETTINGS_PATH);
+    await fs.access(settingsPath());
   } catch {
-    await fs.mkdir(path.dirname(SETTINGS_PATH), { recursive: true });
-    await fs.writeFile(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2));
+    await fs.mkdir(path.dirname(settingsPath()), { recursive: true });
+    await fs.writeFile(settingsPath(), JSON.stringify(DEFAULT_SETTINGS, null, 2));
   }
 }
 
@@ -100,7 +101,7 @@ function normalizeSettings(input = {}) {
 
 export async function readCompanySettings() {
   await ensureSettingsFile();
-  const raw = await fs.readFile(SETTINGS_PATH, 'utf-8');
+  const raw = await fs.readFile(settingsPath(), 'utf-8');
   return normalizeSettings(JSON.parse(raw));
 }
 
@@ -110,7 +111,7 @@ export async function writeCompanySettings(input) {
     settings.logoUrl =
       (await optimizeImageDataUrl(settings.logoUrl, { maxEdge: 480 })) ?? settings.logoUrl;
   }
-  await fs.mkdir(path.dirname(SETTINGS_PATH), { recursive: true });
-  await fs.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+  await fs.mkdir(path.dirname(settingsPath()), { recursive: true });
+  await fs.writeFile(settingsPath(), JSON.stringify(settings, null, 2));
   return settings;
 }
