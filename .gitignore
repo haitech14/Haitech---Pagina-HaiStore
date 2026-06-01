@@ -42,3 +42,4 @@ pnpm-debug.log*
 *.tsbuildinfo
 node_modules/.tmp
 node_modules
+.vercel
