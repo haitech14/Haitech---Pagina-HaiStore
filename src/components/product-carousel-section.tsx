@@ -4,6 +4,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 
 import { ProductShowcaseCard } from '@/components/product-showcase-card';
 import type { FeaturedProduct } from '@/data/featured-products';
+import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn } from '@/lib/utils';
 
 export interface ProductCarouselSectionProps {
@@ -31,6 +32,7 @@ export function ProductCarouselSection({
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
+    watchDrag: emblaShouldWatchDrag,
   });
 
   const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
@@ -88,7 +90,7 @@ export function ProductCarouselSection({
       <div className="flex flex-col gap-4">
         <div className="overflow-hidden" ref={emblaRef}>
           {products.length > 0 ? (
-            <ul className="flex touch-pan-y gap-4">
+            <ul className="flex gap-4">
               {products.map((product) => (
                 <li
                   key={product.id}

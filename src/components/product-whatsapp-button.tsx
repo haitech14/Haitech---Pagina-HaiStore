@@ -66,7 +66,7 @@ export function ProductWhatsAppButton({
         variant="outline"
         size="icon"
         className={cn(
-          'size-10 shrink-0 border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 focus-visible:ring-[#25D366]',
+          'size-10 min-h-11 shrink-0 rounded-lg border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 focus-visible:ring-[#25D366]',
           className,
         )}
         aria-label={`Consultar ${product.name} por WhatsApp`}

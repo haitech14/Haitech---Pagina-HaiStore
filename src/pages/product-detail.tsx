@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { ProductDetailView } from '@/components/product-detail/product-detail-view';
@@ -8,6 +9,10 @@ export function ProductDetailPage() {
   const { id: rawId } = useParams<{ id: string }>();
   const id = rawId ? decodeURIComponent(rawId) : undefined;
   const { product, featuredMeta, isLoading, notFound } = useProduct(id);
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [id]);
 
   if (isLoading) {
     return (

@@ -77,13 +77,19 @@ export function formatBadgeDisplayValue(badge: ProductDetailBadge): string {
   return value;
 }
 
+const PRIMARY_BADGE_IDS = new Set(BADGE_SPECS.map((spec) => spec.id));
+
+export function isPrimaryProductBadge(id: string): boolean {
+  return PRIMARY_BADGE_IDS.has(id);
+}
+
 function defaultBadges(product: ProductBadgeSource): ProductDetailBadge[] {
   if (isIm430f(product)) {
     return [
       { id: 'condicion', label: 'Condición', value: 'Nuevo' },
       { id: 'velocidad', label: 'Velocidad', value: '40 ppm' },
-      { id: 'formato', label: 'Formato', value: 'Formato A4' },
-      { id: 'adf', label: 'ADF', value: 'ADF Doble Scan' },
+      { id: 'formato', label: 'Formato', value: 'A4' },
+      { id: 'adf', label: 'ADF', value: 'Doble Scan' },
     ];
   }
 
@@ -91,8 +97,8 @@ function defaultBadges(product: ProductBadgeSource): ProductDetailBadge[] {
     return [
       { id: 'condicion', label: 'Condición', value: 'Nuevo' },
       { id: 'velocidad', label: 'Velocidad', value: '40 ppm' },
-      { id: 'formato', label: 'Formato', value: 'Formato A4' },
-      { id: 'adf', label: 'ADF', value: 'ADF Estándar' },
+      { id: 'formato', label: 'Formato', value: 'A4' },
+      { id: 'adf', label: 'ADF', value: 'Estándar' },
     ];
   }
 

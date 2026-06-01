@@ -25,6 +25,8 @@ export interface Product {
   price: number;
   currency: string;
   image_url: string | null;
+  /** Galería del inventario (la principal suele coincidir con image_url). */
+  gallery?: string[];
   stock: number;
   category: string | null;
   brand?: string | null;

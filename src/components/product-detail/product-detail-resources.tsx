@@ -15,8 +15,6 @@ interface ProductDetailResourcesProps {
   displayTitle: string;
   sku: string;
   brandLabel: string;
-  installmentPen?: number | null;
-  installmentCount?: number;
 }
 
 function ResourceButton({
@@ -52,8 +50,6 @@ export function ProductDetailResources({
   displayTitle,
   sku,
   brandLabel,
-  installmentPen = null,
-  installmentCount = 6,
 }: ProductDetailResourcesProps) {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [pdfPreview, setPdfPreview] = useState<QuotePdfPreview | null>(null);
@@ -71,35 +67,18 @@ export function ProductDetailResources({
   const fichaLink = links.find((link) => link.label === 'Ficha Técnica');
   const manualLink = links.find((link) => link.label === 'Manual de Usuario');
 
-  if (links.length === 0 && installmentPen == null) {
+  if (links.length === 0) {
     return null;
   }
 
   return (
     <>
-      <div className="space-y-3">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
-          {quoteLink && (
-            <ResourceButton link={quoteLink} onQuoteClick={() => setQuoteOpen(true)} />
-          )}
-          {fichaLink && <ResourceButton link={fichaLink} onQuoteClick={() => setQuoteOpen(true)} />}
-          {manualLink && <ResourceButton link={manualLink} onQuoteClick={() => setQuoteOpen(true)} />}
-        </div>
-
-        {installmentPen != null && (
-          <div className="flex flex-col gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-            <p className="font-medium text-neutral-800">
-              Hasta {installmentCount} cuotas sin intereses de{' '}
-              <span className="font-bold">S/ {installmentPen.toLocaleString('es-PE')}</span>
-            </p>
-            <button
-              type="button"
-              className="shrink-0 text-left text-sm font-semibold text-red-600 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:text-right"
-            >
-              Ver opciones &gt;
-            </button>
-          </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+        {quoteLink && (
+          <ResourceButton link={quoteLink} onQuoteClick={() => setQuoteOpen(true)} />
         )}
+        {fichaLink && <ResourceButton link={fichaLink} onQuoteClick={() => setQuoteOpen(true)} />}
+        {manualLink && <ResourceButton link={manualLink} onQuoteClick={() => setQuoteOpen(true)} />}
       </div>
 
       <ProductQuoteDialog

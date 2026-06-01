@@ -12,9 +12,11 @@ import { cn } from '@/lib/utils';
 interface ProductDetailComboProps {
   items: ProductComboItem[];
   mainProduct: Product;
+  /** Dentro de la pestaña «Toner y Consumibles» (sin borde exterior duplicado). */
+  embedded?: boolean;
 }
 
-export function ProductDetailCombo({ items, mainProduct }: ProductDetailComboProps) {
+export function ProductDetailCombo({ items, mainProduct, embedded = false }: ProductDetailComboProps) {
   const { addItem } = useCart();
   const [selected, setSelected] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(items.map((item) => [item.id, item.defaultSelected])),
@@ -58,17 +60,27 @@ export function ProductDetailCombo({ items, mainProduct }: ProductDetailComboPro
 
   return (
     <section
-      className="overflow-hidden rounded-xl border border-neutral-200 bg-white"
+      className={cn(
+        'overflow-hidden bg-white',
+        embedded ? '' : 'rounded-xl border border-neutral-200',
+      )}
       aria-labelledby="combo-titulo"
     >
-      <div className="border-b border-neutral-200 px-4 py-4 sm:px-5">
-        <h2 id="combo-titulo" className="text-base font-bold text-neutral-900">
-          Complementa tu compra
+      {!embedded && (
+        <div className="border-b border-neutral-200 px-4 py-4 sm:px-5">
+          <h2 id="combo-titulo" className="text-base font-bold text-neutral-900">
+            Complementa tu compra
+          </h2>
+          <p className="mt-1 text-sm text-neutral-500">Accesorios recomendados para tu impresora</p>
+        </div>
+      )}
+      {embedded && (
+        <h2 id="combo-titulo" className="sr-only">
+          Toner y consumibles recomendados
         </h2>
-        <p className="mt-1 text-sm text-neutral-500">Accesorios recomendados para tu impresora</p>
-      </div>
+      )}
 
-      <div className="relative bg-white px-4 py-4 sm:px-5">
+      <div className={cn('relative bg-white', embedded ? '' : 'px-4 py-4 sm:px-5')}>
         <div className="overflow-hidden pr-10" ref={emblaRef}>
           <ul className="flex gap-3">
             {items.map((item) => (
@@ -125,7 +137,12 @@ export function ProductDetailCombo({ items, mainProduct }: ProductDetailComboPro
         )}
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-neutral-200 bg-neutral-100/80 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-6 sm:gap-y-2 sm:px-5 lg:flex-nowrap">
+      <div
+        className={cn(
+          'flex flex-col gap-3 border-t border-neutral-200 bg-neutral-100/80 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-6 sm:gap-y-2 lg:flex-nowrap',
+          embedded ? 'mt-4 rounded-lg px-3 sm:px-4' : 'px-4 sm:px-5',
+        )}
+      >
         <p className="shrink-0 text-sm text-neutral-600">
           {selectedCount} accesorio{selectedCount !== 1 ? 's' : ''} seleccionado
           {selectedCount !== 1 ? 's' : ''}

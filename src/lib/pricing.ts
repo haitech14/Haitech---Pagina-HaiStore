@@ -24,6 +24,7 @@ export function toPublicProduct(product: InventoryProduct, role: string): Produc
     price: getEffectivePrice(product, role),
     currency: product.currency,
     image_url: product.image_url,
+    gallery: product.gallery?.length ? [...product.gallery] : product.image_url ? [product.image_url] : [],
     stock: product.stock,
     category: product.category,
     brand: product.brand ?? null,

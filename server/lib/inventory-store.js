@@ -305,6 +305,12 @@ export function toPublicProduct(product, role) {
     price: getEffectivePrice(product, role),
     currency: product.currency ?? 'USD',
     image_url: product.image_url ?? null,
+    gallery:
+      Array.isArray(product.gallery) && product.gallery.length > 0
+        ? product.gallery.filter((url) => typeof url === 'string' && url.length > 0)
+        : product.image_url
+          ? [product.image_url]
+          : [],
     stock: product.stock ?? 0,
     category: product.category ?? null,
     brand: product.brand ?? null,

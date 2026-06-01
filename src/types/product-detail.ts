@@ -111,6 +111,4 @@ export interface ProductDetailViewModel {
   isOnOffer: boolean;
   oldPricePen: number | null;
   discountPercent: number | null;
-  installmentPen: number | null;
-  installmentCount: number;
 }

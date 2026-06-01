@@ -9,6 +9,8 @@ interface ProductRatingProps {
 }
 
 export function ProductRating({ rating, reviews, className }: ProductRatingProps) {
+  if (reviews <= 0) return null;
+
   const fullStars = Math.min(5, Math.max(0, Math.round(rating)));
 
   return (

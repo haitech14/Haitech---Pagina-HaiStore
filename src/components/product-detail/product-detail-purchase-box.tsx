@@ -10,6 +10,7 @@ import {
 
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Button } from '@/components/ui/button';
+import { ProductDetailPriceBlock } from '@/components/product-detail/product-detail-price-block';
 import { ProductDetailPurchaseAccordion } from '@/components/product-detail/product-detail-purchase-accordion';
 import { useCart } from '@/context/cart-context';
 import type { ProductDetailViewModel } from '@/types/product-detail';
@@ -77,12 +78,14 @@ export function ProductDetailPurchaseBox({ product, detail }: ProductDetailPurch
 
   return (
     <aside
-      className="rounded-xl border border-neutral-200 bg-neutral-100 p-4 lg:sticky lg:top-24 lg:self-start"
+      className="rounded-xl bg-neutral-100 p-4 lg:sticky lg:top-24 lg:self-start"
       aria-labelledby="compra-titulo"
     >
       <h2 id="compra-titulo" className="sr-only">
         Comprar {product.name}
       </h2>
+
+      <ProductDetailPriceBlock product={product} detail={detail} />
 
       <p
         className={cn(
@@ -305,7 +308,7 @@ export function ProductDetailPurchaseBox({ product, detail }: ProductDetailPurch
       <div className="mt-4 pt-4">
         <p className="mb-2 text-xs font-medium text-neutral-500">Medios de pago</p>
         <img
-          src="/mediosdepago.png"
+          src="/mediosdepago2.png"
           alt="Medios de pago aceptados: Visa, Mastercard, American Express, Yape, Plin, Diners Club y PagoEfectivo"
           className="block h-auto w-full max-w-full object-contain"
           loading="lazy"

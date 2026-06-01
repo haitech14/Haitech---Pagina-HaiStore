@@ -26,6 +26,7 @@ import type {
   ProductSpecRow,
 } from '@/types/product-detail';
 import type { Product } from '@/types/product';
+import { collectProductImageUrls } from '@/lib/product-media';
 import { usdToPen } from '@/lib/utils';
 
 const SUPPLY_FEATURES: ProductFeatureIcon[] = [
@@ -169,39 +170,41 @@ function buildGallery(product: Product): ProductGalleryItem[] {
   const isSupply = isSupplyProduct(product);
   const description = buildDescriptionContent(product, isPrinter, isSupply);
 
-  if (isIm430f(product)) {
-    return [
-      {
-        type: 'image',
-        src: '/products/ricoh-im-430f.png',
-        alt: 'Impresora RICOH IM 430F — vista frontal',
-      },
-      {
-        type: 'image',
-        src: 'https://img.youtube.com/vi/zlmBXCWnR20/maxresdefault.jpg',
-        alt: 'Impresora RICOH IM 430F — panel táctil',
-      },
-      {
-        type: 'video',
-        youtubeId: 'zlmBXCWnR20',
-        ...(IM430F_DESCRIPTION.youtubeTitle
-          ? { title: IM430F_DESCRIPTION.youtubeTitle }
-          : {}),
-        poster: 'https://img.youtube.com/vi/zlmBXCWnR20/hqdefault.jpg',
-      },
-    ];
+  const inventoryUrls = collectProductImageUrls(product);
+  const items: ProductGalleryItem[] = inventoryUrls.map((src, index) => ({
+    type: 'image' as const,
+    src,
+    alt: index === 0 ? product.name : `${product.name} — imagen ${index + 1}`,
+  }));
+
+  if (items.length === 0) {
+    items.push({
+      type: 'image',
+      src: isSupply ? '/categories/toner-suministros.png' : '/categories/multifuncionales.png',
+      alt: product.name,
+    });
   }
 
-  const main = product.image_url ?? '/categories/multifuncionales.png';
-  const items: ProductGalleryItem[] = [{ type: 'image', src: main, alt: product.name }];
+  const youtubeId =
+    description?.youtubeVideoId ??
+    (isIm430f(product) ? IM430F_DESCRIPTION.youtubeVideoId : undefined);
 
-  if (description?.youtubeVideoId) {
-    items.push({
-      type: 'video',
-      youtubeId: description.youtubeVideoId,
-      ...(description.youtubeTitle ? { title: description.youtubeTitle } : {}),
-      poster: `https://img.youtube.com/vi/${description.youtubeVideoId}/hqdefault.jpg`,
-    });
+  if (youtubeId) {
+    const alreadyHasVideo = items.some(
+      (item) => item.type === 'video' && item.youtubeId === youtubeId,
+    );
+    if (!alreadyHasVideo) {
+      items.push({
+        type: 'video',
+        youtubeId,
+        ...(description?.youtubeTitle || IM430F_DESCRIPTION.youtubeTitle
+          ? {
+              title: description?.youtubeTitle ?? IM430F_DESCRIPTION.youtubeTitle,
+            }
+          : {}),
+        poster: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+      });
+    }
   }
 
   return items;
@@ -420,12 +423,9 @@ function resolvePricing(
 ): {
   oldPricePen: number | null;
   discountPercent: number | null;
-  installmentPen: number | null;
-  installmentCount: number;
   isOnOffer: boolean;
 } {
   const pricePen = usdToPen(product.price);
-  const installmentCount = isPrinterEquipment(product) ? 6 : 3;
 
   if (featuredMeta?.oldPrice) {
     const oldPen = usdToPen(featuredMeta.oldPrice);
@@ -433,8 +433,6 @@ function resolvePricing(
     return {
       oldPricePen: oldPen,
       discountPercent: discount,
-      installmentPen: Math.round(pricePen / installmentCount),
-      installmentCount,
       isOnOffer: true,
     };
   }
@@ -443,8 +441,6 @@ function resolvePricing(
     return {
       oldPricePen: 3299,
       discountPercent: 21,
-      installmentPen: 433,
-      installmentCount: 6,
       isOnOffer: true,
     };
   }
@@ -454,8 +450,6 @@ function resolvePricing(
     return {
       oldPricePen: oldPen,
       discountPercent: 50,
-      installmentPen: Math.round(pricePen / installmentCount),
-      installmentCount,
       isOnOffer: true,
     };
   }
@@ -463,8 +457,6 @@ function resolvePricing(
   return {
     oldPricePen: null,
     discountPercent: null,
-    installmentPen: Math.round(pricePen / installmentCount),
-    installmentCount,
     isOnOffer: false,
   };
 }
@@ -547,7 +539,5 @@ export function buildProductDetail(
     isOnOffer: pricing.isOnOffer,
     oldPricePen: pricing.oldPricePen,
     discountPercent: pricing.discountPercent,
-    installmentPen: pricing.installmentPen,
-    installmentCount: pricing.installmentCount,
   };
 }
