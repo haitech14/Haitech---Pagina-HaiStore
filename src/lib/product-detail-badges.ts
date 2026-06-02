@@ -63,12 +63,21 @@ function isIm430f(product: ProductBadgeSource): boolean {
 }
 
 /** Texto visible en tarjetas (sin prefijo «Condición:», etc.). */
-export function formatBadgeDisplayValue(badge: ProductDetailBadge): string {
+export function formatBadgeDisplayValue(
+  badge: ProductDetailBadge,
+  options?: { compact?: boolean },
+): string {
+  const compact = options?.compact === true;
   const value = badge.value.trim();
   if (badge.id === 'formato' && !/^formato\b/i.test(value)) {
-    return `Formato ${value}`;
+    return compact ? value : `Formato ${value}`;
   }
   if (badge.id === 'adf' && !/^adf\b/i.test(value)) {
+    if (compact) {
+      if (/doble\s*scan/i.test(value)) return 'ADF D.Scan';
+      if (/est[aá]ndar/i.test(value)) return 'ADF Std.';
+      return value.length > 10 ? `ADF ${value.slice(0, 8)}…` : `ADF ${value}`;
+    }
     return `ADF ${value}`;
   }
   if (badge.id === 'condicion' && /^nuevo$/i.test(value)) {

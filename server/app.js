@@ -44,6 +44,16 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
+app.get('/', (_req, res) => {
+  res.json({
+    service: 'haistore-admin',
+    status: 'ok',
+    endpoints: {
+      health: '/api/health',
+    },
+  });
+});
+
 app.use('/api/support', supportRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);

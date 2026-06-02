@@ -15,9 +15,9 @@ interface ProductAttributeBadgesProps {
   className?: string;
 }
 
-function badgeDisplayText(badge: ProductDetailBadge): string {
+function badgeDisplayText(badge: ProductDetailBadge, compact: boolean): string {
   if (isPrimaryProductBadge(badge.id)) {
-    return formatBadgeDisplayValue(badge);
+    return formatBadgeDisplayValue(badge, { compact });
   }
   return badge.value.trim();
 }
@@ -34,8 +34,10 @@ export function ProductAttributeBadges({
   return (
     <ul
       className={cn(
-        'flex flex-wrap gap-1.5 pb-0.5',
-        !compact && 'overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        'flex w-full min-w-0 pb-0.5',
+        compact
+          ? 'flex-nowrap gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+          : 'flex-wrap gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         className,
       )}
       aria-label="Características del producto"
@@ -47,11 +49,11 @@ export function ProductAttributeBadges({
             className={cn(
               'whitespace-nowrap rounded-md border border-neutral-300 bg-neutral-200 font-medium text-neutral-700',
               compact
-                ? 'px-1.5 py-0 text-[0.6rem] leading-relaxed sm:text-[0.65rem]'
+                ? 'px-1 py-0 text-[0.5rem] leading-tight sm:text-[0.55rem]'
                 : 'px-2 py-0.5 text-xs',
             )}
           >
-            {badgeDisplayText(badge)}
+            {badgeDisplayText(badge, compact)}
           </Badge>
         </li>
       ))}

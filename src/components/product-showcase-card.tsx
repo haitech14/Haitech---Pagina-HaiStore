@@ -141,7 +141,6 @@ export function ProductShowcaseCard({ product }: { product: FeaturedProduct }) {
                 attributes: product.attributes ?? [],
               }}
               compact
-              className="flex-wrap"
             />
             <Rating rating={product.rating} reviews={product.reviews} />
 

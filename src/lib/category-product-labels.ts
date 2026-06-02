@@ -13,6 +13,19 @@ export function findCategoryBySlug(slug: string): Category | undefined {
   return categories.find((category) => category.slug === slug);
 }
 
+export function findStoreSubcategoryBySlug(
+  node: StoreCategoryTreeNode | undefined,
+  subSlug: string,
+): StoreCategoryTreeNode | undefined {
+  if (!node) return undefined;
+  for (const child of node.children ?? []) {
+    if (child.slug === subSlug) return child;
+    const nested = findStoreSubcategoryBySlug(child, subSlug);
+    if (nested) return nested;
+  }
+  return undefined;
+}
+
 /** Etiquetas de inventario para filtrar productos en `/categoria/:slug` (estáticas + árbol de tienda). */
 export function resolveCategoryPageProductLabels(
   category: Category,
@@ -22,10 +35,9 @@ export function resolveCategoryPageProductLabels(
   const staticLabels = [...getCategoryProductLabels(category)];
 
   if (storeCategory && subSlug) {
-    const sub = storeCategory.children?.find((row) => row.slug === subSlug);
+    const sub = findStoreSubcategoryBySlug(storeCategory, subSlug);
     if (sub) {
-      const subLabels = sub.inventoryLabels?.length ? [...sub.inventoryLabels] : [sub.name];
-      return [...new Set([...subLabels, ...staticLabels])];
+      return sub.inventoryLabels?.length ? [...sub.inventoryLabels] : [sub.name];
     }
   }
 

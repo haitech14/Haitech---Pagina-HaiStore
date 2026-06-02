@@ -12,7 +12,8 @@ export interface HomeCatalogSectionConfig {
   inventoryCategorySlugs: string[];
 }
 
-export const HOME_CATALOG_SECTIONS: HomeCatalogSectionConfig[] = [
+/** Bloque superior del inicio (antes de soluciones B2B). */
+export const HOME_CATALOG_EQUIPMENT_SECTIONS: HomeCatalogSectionConfig[] = [
   {
     id: 'multifuncionales',
     title: 'Multifuncionales',
@@ -27,6 +28,10 @@ export const HOME_CATALOG_SECTIONS: HomeCatalogSectionConfig[] = [
     categoryPathSlug: 'impresoras',
     inventoryCategorySlugs: ['impresoras'],
   },
+];
+
+/** Debajo de soluciones B2B / servicio técnico. */
+export const HOME_CATALOG_SUPPLIES_SECTIONS: HomeCatalogSectionConfig[] = [
   {
     id: 'toner-suministros',
     title: 'Toner y Suministros',
@@ -41,6 +46,12 @@ export const HOME_CATALOG_SECTIONS: HomeCatalogSectionConfig[] = [
     categoryPathSlug: 'repuestos',
     inventoryCategorySlugs: ['repuestos'],
   },
+];
+
+/** Orden completo (p. ej. rutas o documentación). */
+export const HOME_CATALOG_SECTIONS: HomeCatalogSectionConfig[] = [
+  ...HOME_CATALOG_EQUIPMENT_SECTIONS,
+  ...HOME_CATALOG_SUPPLIES_SECTIONS,
 ];
 
 export function resolveHomeSectionInventoryLabels(section: HomeCatalogSectionConfig): string[] {

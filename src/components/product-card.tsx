@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -84,15 +83,7 @@ export function ProductCard({ product }: { product: Product }) {
             {product.name}
           </CardTitle>
 
-          <ProductAttributeBadges product={product} compact className="flex-wrap" />
-
-          <div className="min-h-[2.5rem]">
-            {product.description ? (
-              <CardDescription className="line-clamp-2 text-xs leading-relaxed">
-                {product.description}
-              </CardDescription>
-            ) : null}
-          </div>
+          <ProductAttributeBadges product={product} compact />
         </CardHeader>
 
         <CardContent className="mt-auto space-y-1.5 px-4 pb-3 pt-0">

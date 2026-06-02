@@ -1,6 +1,6 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
-import { categoryPathAll, categoryPathWithCondition } from '@/lib/category-path';
+import { scrollToCategoryProducts } from '@/lib/category-path';
 import {
   PRODUCT_CONDITION_LABELS,
   PRODUCT_CONDITIONS,
@@ -10,20 +10,25 @@ import {
 import { cn } from '@/lib/utils';
 
 interface ProductConditionTabsProps {
-  categorySlug: string;
   activeCondition: ProductCondition | null;
   counts?: Partial<Record<ProductCondition, number>>;
   className?: string;
 }
 
 export function ProductConditionTabs({
-  categorySlug,
   activeCondition,
   counts,
   className,
 }: ProductConditionTabsProps) {
-  const [searchParams] = useSearchParams();
-  const subSlug = searchParams.get('sub');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const selectCondition = (condition: ProductCondition | null) => {
+    const next = new URLSearchParams(searchParams);
+    if (condition) next.set('estado', condition);
+    else next.delete('estado');
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+    requestAnimationFrame(() => scrollToCategoryProducts('smooth'));
+  };
 
   return (
     <div
@@ -34,8 +39,8 @@ export function ProductConditionTabs({
       role="tablist"
       aria-label="Filtrar por condición del producto"
     >
-      <Link
-        to={categoryPathAll(categorySlug, subSlug)}
+      <button
+        type="button"
         role="tab"
         aria-selected={activeCondition === null}
         className={cn(
@@ -45,19 +50,21 @@ export function ProductConditionTabs({
             ? 'border-neutral-900 bg-neutral-900 text-white'
             : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300',
         )}
+        onClick={() => selectCondition(null)}
       >
         Todos
-      </Link>
+      </button>
       {PRODUCT_CONDITIONS.map((condition) => {
         const count = counts?.[condition];
         const disabled = count === 0;
         return (
-          <Link
+          <button
             key={condition}
-            to={categoryPathWithCondition(categorySlug, condition, subSlug)}
+            type="button"
             role="tab"
             aria-selected={activeCondition === condition}
             aria-disabled={disabled}
+            disabled={disabled}
             className={cn(
               'min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
@@ -66,12 +73,10 @@ export function ProductConditionTabs({
                 : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300',
               disabled && 'pointer-events-none opacity-45',
             )}
-            onClick={(event) => {
-              if (disabled) event.preventDefault();
-            }}
+            onClick={() => selectCondition(condition)}
           >
             {PRODUCT_CONDITION_LABELS[condition]}
-          </Link>
+          </button>
         );
       })}
     </div>

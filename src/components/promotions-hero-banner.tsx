@@ -7,7 +7,12 @@ import { Button } from '@/components/ui/button';
 import { promotionSlides } from '@/data/promotions-hero';
 import { cn } from '@/lib/utils';
 
-export function PromotionsHeroBanner() {
+interface PromotionsHeroBannerProps {
+  /** Sin contenedor externo (dentro del layout del inicio). */
+  embedded?: boolean;
+}
+
+export function PromotionsHeroBanner({ embedded = false }: PromotionsHeroBannerProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
@@ -44,8 +49,11 @@ export function PromotionsHeroBanner() {
   const pauseAutoplay = () => setAutoplayPaused(true);
 
   return (
-    <section aria-label="Promociones destacadas" className="bg-background">
-      <div className="container py-6 sm:py-8">
+    <section
+      aria-label="Promociones destacadas"
+      className={cn(!embedded && 'bg-background')}
+    >
+      <div className={cn(!embedded && 'container py-6 sm:py-8')}>
         <div
           className="relative overflow-hidden rounded-2xl border border-border shadow-sm"
           onMouseEnter={pauseAutoplay}

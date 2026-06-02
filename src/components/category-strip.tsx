@@ -1,7 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 import { categories, type Category } from '@/data/categories';
 import { categoryPath } from '@/lib/category-path';
@@ -12,7 +11,7 @@ function CategoryImage({ category }: { category: Category }) {
   const showImage = Boolean(category.image) && !hasError;
 
   return (
-    <div className="flex aspect-[4/3] items-center justify-center bg-white p-4">
+    <div className="flex aspect-[16/10] items-center justify-center bg-white p-3 sm:p-4">
       {showImage ? (
         <img
           src={category.image}
@@ -33,19 +32,10 @@ function CategoryImage({ category }: { category: Category }) {
 }
 
 export function CategoryStrip() {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'start',
-    dragFree: true,
-    containScroll: 'trimSnaps',
-  });
-
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-
   return (
     <section aria-labelledby="categorias-titulo" className="bg-background">
       <div className="container py-10 sm:py-12">
-        <header className="mx-auto mb-8 max-w-2xl text-center sm:mb-10">
+        <header className="mx-auto mb-8 max-w-3xl text-center sm:mb-10">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
             <span className="h-px w-10 bg-red-600 sm:w-14" aria-hidden="true" />
             <h2
@@ -62,57 +52,35 @@ export function CategoryStrip() {
           </p>
         </header>
 
-        <div className="relative">
-          <button
-            type="button"
-            onClick={scrollPrev}
-            aria-label="Categorías anteriores"
-            className="absolute -left-1 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:border-red-600/50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:flex lg:-left-3"
-          >
-            <ChevronLeft className="size-5" aria-hidden="true" />
-          </button>
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-6 lg:gap-4" role="list">
+          {categories.map((category) => (
+            <li key={category.slug} className="min-w-0">
+              <Link
+                to={categoryPath(category.slug)}
+                className={cn(
+                  'group flex h-full w-full flex-col overflow-hidden rounded-xl border border-border/70 bg-white text-left shadow-[0_8px_24px_-16px_hsl(var(--foreground)/0.45)] transition-all hover:-translate-y-0.5 hover:border-red-600/30 hover:shadow-[0_14px_28px_-16px_hsl(var(--foreground)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500',
+                )}
+              >
+                <CategoryImage category={category} />
 
-          <div className="overflow-hidden sm:mx-11 lg:mx-12" ref={emblaRef}>
-            <ul className="flex gap-3 sm:gap-4" role="list">
-              {categories.map((category) => (
-                <li
-                  key={category.slug}
-                  className="min-w-0 flex-[0_0_72%] sm:flex-[0_0_45%] md:flex-[0_0_30%] lg:flex-[0_0_20%]"
-                >
-                  <Link
-                    to={categoryPath(category.slug)}
-                    className={cn(
-                      'group flex h-full w-full flex-col overflow-hidden rounded-lg border border-border/80 bg-card text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-red-600/30 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500',
-                    )}
+                <div className="flex min-h-14 items-center justify-between gap-2 border-t border-border/60 bg-white px-3 py-3 sm:px-4">
+                  <p className="text-pretty text-[0.65rem] font-bold uppercase leading-tight tracking-wide text-foreground sm:text-xs">
+                    {category.name}
+                  </p>
+                  <span
+                    className="grid size-6 shrink-0 place-items-center rounded-full border border-red-600/40 bg-white sm:size-7"
+                    aria-hidden="true"
                   >
-                    <span className="block h-1 bg-red-600" aria-hidden="true" />
-
-                    <CategoryImage category={category} />
-
-                    <div className="flex items-center justify-between gap-2 border-t border-border/60 bg-card px-3 py-3 sm:px-4">
-                      <p className="text-pretty text-[0.65rem] font-bold uppercase leading-tight tracking-wide text-foreground sm:text-xs">
-                        {category.name}
-                      </p>
-                      <ChevronRight
-                        className="size-4 shrink-0 text-red-600 transition-transform group-hover:translate-x-0.5"
-                        aria-hidden="true"
-                      />
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <button
-            type="button"
-            onClick={scrollNext}
-            aria-label="Más categorías"
-            className="absolute -right-1 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:border-red-600/50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:flex lg:-right-3"
-          >
-            <ChevronRight className="size-5" aria-hidden="true" />
-          </button>
-        </div>
+                    <ChevronRight
+                      className="size-4 text-red-600 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden="true"
+                    />
+                  </span>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

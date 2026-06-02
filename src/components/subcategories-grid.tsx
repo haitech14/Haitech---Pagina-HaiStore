@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { SubcategoryAutoImage } from '@/components/subcategory-auto-image';
 import { Badge } from '@/components/ui/badge';
-import { categoryPath } from '@/lib/category-path';
+import { scrollToCategoryProducts } from '@/lib/category-path';
 import { resolveSubcategoryImage } from '@/lib/subcategory-product-image';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -17,7 +17,7 @@ interface SubcategoriesGridProps {
   products?: Product[];
 }
 
-const cardLinkClass =
+const cardButtonClass =
   'flex h-full w-full flex-col overflow-hidden rounded-md border bg-card text-left shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500';
 
 export function SubcategoriesGrid({
@@ -27,6 +27,8 @@ export function SubcategoriesGrid({
   activeSubSlug,
   products = [],
 }: SubcategoriesGridProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const subcategoryImages = useMemo(() => {
     const map = new Map<string, string | null>();
     for (const sub of subcategories) {
@@ -47,6 +49,17 @@ export function SubcategoriesGrid({
     return map;
   }, [subcategories, products, parentImage]);
 
+  const selectSubcategory = useCallback(
+    (subSlug: string | null) => {
+      const next = new URLSearchParams(searchParams);
+      if (subSlug) next.set('sub', subSlug);
+      else next.delete('sub');
+      setSearchParams(next, { replace: true, preventScrollReset: true });
+      requestAnimationFrame(() => scrollToCategoryProducts('smooth'));
+    },
+    [searchParams, setSearchParams],
+  );
+
   if (subcategories.length === 0) return null;
 
   return (
@@ -63,11 +76,12 @@ export function SubcategoriesGrid({
         role="list"
       >
         <li>
-          <Link
-            to={categoryPath(parentSlug)}
-            aria-current={activeSubSlug === null ? 'page' : undefined}
+          <button
+            type="button"
+            aria-pressed={activeSubSlug === null}
+            onClick={() => selectSubcategory(null)}
             className={cn(
-              cardLinkClass,
+              cardButtonClass,
               'hover:border-red-600/40',
               activeSubSlug === null
                 ? 'border-red-600 ring-1 ring-red-600/25'
@@ -86,18 +100,19 @@ export function SubcategoriesGrid({
               </p>
               <p className="text-[0.55rem] text-muted-foreground">Todos</p>
             </div>
-          </Link>
+          </button>
         </li>
 
         {subcategories.map((sub) => {
           const isActive = activeSubSlug === sub.slug;
           return (
             <li key={sub.id}>
-              <Link
-                to={categoryPath(parentSlug, sub.slug)}
-                aria-current={isActive ? 'page' : undefined}
+              <button
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => selectSubcategory(sub.slug)}
                 className={cn(
-                  cardLinkClass,
+                  cardButtonClass,
                   'hover:-translate-y-0.5 hover:border-red-600/30 hover:shadow-md',
                   isActive
                     ? 'border-red-600 ring-1 ring-red-600/25'
@@ -124,7 +139,7 @@ export function SubcategoriesGrid({
                     </Badge>
                   )}
                 </div>
-              </Link>
+              </button>
             </li>
           );
         })}

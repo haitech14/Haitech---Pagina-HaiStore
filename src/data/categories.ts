@@ -9,6 +9,7 @@ import {
   Monitor,
   ScanLine,
   Video,
+  Wrench,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -59,6 +60,14 @@ export const categories: Category[] = [
     tagline: 'Partes y componentes para impresoras',
     icon: Cog,
     image: '/categories/repuestos.png',
+    inventoryCategories: ['Repuestos'],
+  },
+  {
+    slug: 'servicio-tecnico',
+    name: 'Servicio Técnico',
+    tagline: 'Mantenimiento, instalación y soporte especializado',
+    icon: Wrench,
+    image: '/categories/servicio-tecnico.png',
   },
   {
     slug: 'escaneres',

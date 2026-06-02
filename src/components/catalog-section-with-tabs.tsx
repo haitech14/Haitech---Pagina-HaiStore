@@ -64,9 +64,6 @@ export function CatalogSectionWithTabs({
     [productsByCondition],
   );
 
-  const hasAnyProducts = PRODUCT_CONDITIONS.some((key) => productsByCondition[key].length > 0);
-  if (!hasAnyProducts) return null;
-
   const titleId = `${section.id}-titulo`;
   const emptyMessage =
     EMPTY_TAB_MESSAGES_BY_SECTION[section.id]?.[activeCondition] ??

@@ -52,6 +52,16 @@ const DEFAULT_CATEGORIES = [
     image: '/categories/repuestos.png',
     tagline: 'Partes y componentes para impresoras',
   },
+  {
+    id: 'cat-servicio-tecnico',
+    name: 'Servicio Técnico',
+    slug: 'servicio-tecnico',
+    parentId: null,
+    sortOrder: 4,
+    inventoryLabels: ['Servicio Técnico', 'Servicio tecnico'],
+    image: '/categories/servicio-tecnico.png',
+    tagline: 'Mantenimiento, instalación y soporte especializado',
+  },
 ];
 
 function slugify(value) {

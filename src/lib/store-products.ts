@@ -1,5 +1,4 @@
 import type { FeaturedProduct } from '@/data/featured-products';
-import { pickRandomMostViewedProducts } from '@/lib/product-views';
 import { productMatchesCategoryFilter } from '@/lib/inventory-categories';
 import { compareProductsBySortOrder } from '@/lib/inventory-product-order';
 import type { CatalogFamilySlug } from '@/lib/product-condition';
@@ -71,15 +70,20 @@ export function pickFeaturedByIds(
     .map(productToFeatured);
 }
 
-function pickFeaturedByFlag(products: Product[], limit: number): FeaturedProduct[] {
-  return [...products]
-    .filter((product) => product.is_featured === true)
-    .sort(compareProductsBySortOrder)
-    .slice(0, limit)
-    .map(productToFeatured);
+/** Mezcla Fisher–Yates (copia el array de entrada). */
+export function shuffleProducts<T>(items: readonly T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
 
-/** Destacados del inicio: manual → ids configurados → aleatorio entre más vistos. */
+/**
+ * Destacados del inicio: `is_featured`, ids configurados y, si faltan,
+ * relleno aleatorio con productos reales del catálogo hasta `limit`.
+ */
 export function resolveStoreFeaturedProducts(
   products: Product[],
   featuredIds: readonly string[],
@@ -87,11 +91,34 @@ export function resolveStoreFeaturedProducts(
 ): FeaturedProduct[] {
   if (!products.length) return [];
 
-  const flagged = pickFeaturedByFlag(products, limit);
-  if (flagged.length > 0) return flagged;
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const pool: Product[] = [];
+  const selectedIds = new Set<string>();
 
-  const byIds = pickFeaturedByIds(products, featuredIds);
-  if (byIds.length > 0) return byIds.slice(0, limit);
+  const addProduct = (product: Product) => {
+    if (selectedIds.has(product.id)) return;
+    selectedIds.add(product.id);
+    pool.push(product);
+  };
 
-  return pickRandomMostViewedProducts(products, limit).map(productToFeatured);
+  for (const product of products) {
+    if (product.is_featured === true) addProduct(product);
+  }
+
+  for (const id of featuredIds) {
+    const product = byId.get(id);
+    if (product) addProduct(product);
+  }
+
+  if (pool.length < limit) {
+    const rest = shuffleProducts(products.filter((product) => !selectedIds.has(product.id)));
+    for (const product of rest) {
+      if (pool.length >= limit) break;
+      addProduct(product);
+    }
+  }
+
+  return shuffleProducts(pool)
+    .slice(0, limit)
+    .map(productToFeatured);
 }

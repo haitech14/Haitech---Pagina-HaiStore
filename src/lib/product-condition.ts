@@ -24,6 +24,40 @@ function productHaystack(product: Product): string {
   return `${product.category ?? ''} ${product.name} ${product.description ?? ''}`.toLowerCase();
 }
 
+function categoryIndicatesFamily(
+  category: string | null | undefined,
+  family: CatalogFamilySlug,
+): boolean {
+  if (!category?.trim()) return false;
+  const haystack = category.toLowerCase();
+
+  switch (family) {
+    case 'multifuncionales':
+      return haystack.includes('multifuncional');
+    case 'impresoras':
+      return haystack.includes('impresor') && !haystack.includes('multifuncional');
+    case 'toner-suministros':
+      return (
+        (haystack.includes('toner') ||
+          haystack.includes('tóner') ||
+          haystack.includes('suministro') ||
+          haystack.includes('consumible') ||
+          haystack.includes('cartucho')) &&
+        !haystack.includes('repuesto')
+      );
+    case 'repuestos':
+      return (
+        haystack.includes('repuesto') ||
+        haystack.includes('tambor') ||
+        haystack.includes('fusor') ||
+        haystack.includes('rodillo') ||
+        haystack.includes('mantenimiento')
+      );
+    default:
+      return false;
+  }
+}
+
 function hasRemanufactured(haystack: string): boolean {
   return haystack.includes('remanufactur') || haystack.includes('reacondicion');
 }
@@ -83,6 +117,10 @@ export function productMatchesCatalogFamily(
   product: Product,
   family: CatalogFamilySlug,
 ): boolean {
+  if (categoryIndicatesFamily(product.category, family)) {
+    return true;
+  }
+
   const haystack = productHaystack(product);
 
   switch (family) {

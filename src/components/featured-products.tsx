@@ -1,16 +1,30 @@
 import { useMemo } from 'react';
 
 import { ProductCarouselSection } from '@/components/product-carousel-section';
-import { FEATURED_PRODUCT_IDS, type FeaturedProduct } from '@/data/featured-products';
+import {
+  FEATURED_PRODUCT_IDS,
+  featuredProducts,
+  type FeaturedProduct,
+} from '@/data/featured-products';
 import { useProducts } from '@/hooks/use-products';
-import { resolveStoreFeaturedProducts } from '@/lib/store-products';
+import {
+  FEATURED_CAROUSEL_LIMIT,
+  resolveStoreFeaturedProducts,
+  shuffleProducts,
+} from '@/lib/store-products';
 
 function useFeaturedFromStore(): FeaturedProduct[] {
   const { data: storeProducts } = useProducts();
 
   return useMemo(() => {
-    if (!storeProducts?.length) return [];
-    return resolveStoreFeaturedProducts(storeProducts, FEATURED_PRODUCT_IDS);
+    if (!storeProducts?.length) {
+      return shuffleProducts(featuredProducts).slice(0, FEATURED_CAROUSEL_LIMIT);
+    }
+
+    const resolved = resolveStoreFeaturedProducts(storeProducts, FEATURED_PRODUCT_IDS);
+    if (resolved.length > 0) return resolved;
+
+    return shuffleProducts(featuredProducts).slice(0, FEATURED_CAROUSEL_LIMIT);
   }, [storeProducts]);
 }
 
