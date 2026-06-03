@@ -1,27 +1,25 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { ProductCardPricing } from '@/components/product/product-card-pricing';
+import { ProductCardTitle } from '@/components/product/product-card-title';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { productPath } from '@/lib/product-path';
-import { cn, formatPenFromUsd, usdToPen } from '@/lib/utils';
 
 interface FlashDealCardProps {
   product: FeaturedProduct;
 }
 
-function formatPenStrike(usd: number): string {
-  return new Intl.NumberFormat('es-PE', {
-    style: 'currency',
-    currency: 'PEN',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(usdToPen(usd));
-}
-
 export function FlashDealCard({ product }: FlashDealCardProps) {
   const [imageError, setImageError] = useState(false);
-  const brandLabel = product.brand?.trim().toUpperCase();
   const detailHref = productPath(product.id);
+  const titleSource = {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    brand: product.brand ?? null,
+    attributes: product.attributes ?? [],
+  };
 
   return (
     <article className="flex h-full min-h-[17rem] flex-col rounded-lg border border-border bg-card p-3 sm:min-h-[18rem] sm:p-4">
@@ -45,26 +43,16 @@ export function FlashDealCard({ product }: FlashDealCardProps) {
           )}
         </div>
 
-        {brandLabel ? (
-          <p className="truncate text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground">
-            {brandLabel}
-          </p>
-        ) : null}
+        <ProductCardTitle product={titleSource} />
 
-        <h3 className="mt-1 line-clamp-2 text-pretty text-sm font-medium leading-snug text-foreground">
-          {product.name}
-        </h3>
-
-        <div className="mt-auto space-y-0.5 pt-3">
-          {product.oldPrice != null ? (
-            <p className="text-sm text-muted-foreground line-through">{formatPenStrike(product.oldPrice)}</p>
-          ) : null}
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <p className="text-lg font-bold text-foreground sm:text-xl">{formatPenFromUsd(product.price)}</p>
-            {product.discount != null ? (
-              <span className={cn('text-sm font-bold text-green-600')}>{product.discount}% DSCTO</span>
-            ) : null}
-          </div>
+        <div className="mt-auto pt-3">
+          <ProductCardPricing
+            productId={product.id}
+            priceUsd={product.price}
+            {...(product.oldPrice != null ? { oldPriceUsd: product.oldPrice } : {})}
+            {...(product.discount != null ? { discountPercent: product.discount } : {})}
+            penOnly
+          />
         </div>
       </Link>
     </article>

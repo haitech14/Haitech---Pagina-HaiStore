@@ -47,7 +47,7 @@ function attributeValue(attributes: ProductAttribute[], match: readonly string[]
   return null;
 }
 
-function isPrinterProduct(product: ProductBadgeSource): boolean {
+export function isPrinterProduct(product: ProductBadgeSource): boolean {
   const text = `${product.category ?? ''} ${product.name}`.toLowerCase();
   return (
     text.includes('impres') ||

@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart, Star } from 'lucide-react';
 
 import { ProductCardOverlayActions } from '@/components/product/product-card-overlay-actions';
+import { ProductCardPricing } from '@/components/product/product-card-pricing';
+import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductNuevoCornerBadge } from '@/components/product/product-nuevo-corner-badge';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
-import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { useProductCompare } from '@/context/product-compare-context';
 import type { FeaturedProduct } from '@/data/featured-products';
@@ -61,8 +62,13 @@ export function ProductShowcaseCard({ product }: { product: FeaturedProduct }) {
   const [imageError, setImageError] = useState(false);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const compareSelected = isSelected(product.id);
-  const brandLabel = product.brand?.trim();
-
+  const badgeSource = {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    brand: product.brand ?? null,
+    attributes: product.attributes ?? [],
+  };
   const cartProduct = {
     id: product.id,
     name: product.name,
@@ -76,15 +82,8 @@ export function ProductShowcaseCard({ product }: { product: FeaturedProduct }) {
   };
 
   const detailHref = productPath(product.id);
-  const badgeSource = {
-    id: product.id,
-    name: product.name,
-    category: product.category,
-    brand: product.brand ?? null,
-    attributes: product.attributes ?? [],
-  };
   const showNuevoCorner =
-    product.discount == null && (product.isNew === true || productHasNuevoCornerBadge(badgeSource));
+    product.isNew === true || productHasNuevoCornerBadge(badgeSource);
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200/80 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)]">
@@ -118,47 +117,22 @@ export function ProductShowcaseCard({ product }: { product: FeaturedProduct }) {
             </div>
 
             <div className="pointer-events-none absolute left-3 top-3 z-[2]">
-              {product.discount != null ? (
-                <span className="inline-flex rounded-md bg-red-600 px-2 py-0.5 text-[0.7rem] font-bold text-white shadow-sm">
-                  -{product.discount}%
-                </span>
-              ) : showNuevoCorner ? (
-                <ProductNuevoCornerBadge />
-              ) : null}
+              {showNuevoCorner ? <ProductNuevoCornerBadge /> : null}
             </div>
           </div>
 
           <div className="flex flex-1 flex-col gap-1 px-4 pt-2">
-            {brandLabel ? (
-              <p className="truncate text-[0.65rem] font-normal uppercase tracking-wider text-neutral-400">
-                {brandLabel}
-              </p>
-            ) : null}
-
-          <h3 className="line-clamp-2 text-balance text-sm font-normal leading-tight text-neutral-900 sm:text-[0.95rem]">
-            {product.name}
-          </h3>
+            <ProductCardTitle product={badgeSource} />
 
             <Rating rating={product.rating} reviews={product.reviews} />
 
-            <div className="mt-auto space-y-0.5 pb-3 pt-0.5">
-              {product.oldPrice != null && (
-                <p className="text-sm font-normal text-neutral-400 line-through decoration-neutral-400">
-                  <DualPrice usd={product.oldPrice} />
-                </p>
-              )}
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <p className="text-base font-bold text-red-600 sm:text-lg">
-                  <AdminRolePricesTooltip
-                    productId={product.id}
-                    displayUsd={product.price}
-                    className="font-bold text-red-600"
-                  />
-                </p>
-                {product.discount != null ? (
-                  <span className="text-sm font-semibold text-green-600">{product.discount}% DSCTO</span>
-                ) : null}
-              </div>
+            <div className="mt-auto pb-3 pt-1">
+              <ProductCardPricing
+                productId={product.id}
+                priceUsd={product.price}
+                {...(product.oldPrice != null ? { oldPriceUsd: product.oldPrice } : {})}
+                {...(product.discount != null ? { discountPercent: product.discount } : {})}
+              />
             </div>
           </div>
         </div>

@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
-import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
+import { ProductCardPricing } from '@/components/product/product-card-pricing';
+import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductNuevoCornerBadge } from '@/components/product/product-nuevo-corner-badge';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { productHasNuevoCornerBadge } from '@/lib/product-detail-badges';
@@ -23,7 +24,6 @@ export function ProductCard({ product }: { product: Product }) {
   const detailHref = productPath(product.id);
   const imageUrl = resolveProductImageUrl(product);
   const showNuevoCorner = productHasNuevoCornerBadge(product);
-  const brandLabel = product.brand?.trim();
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
@@ -61,27 +61,13 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
 
           <div className="flex flex-1 flex-col gap-1 px-4 pt-2">
-            {brandLabel ? (
-              <p className="truncate text-[0.65rem] font-normal uppercase tracking-wider text-neutral-400">
-                {brandLabel}
-              </p>
-            ) : null}
-
-            <h3 className="line-clamp-2 text-balance text-sm font-normal leading-snug text-neutral-900 sm:text-[0.95rem]">
-              {product.name}
-            </h3>
+            <ProductCardTitle product={product} />
 
             <div className="mt-auto space-y-1 pb-3 pt-0.5">
               <Badge variant="outline" className="w-fit text-[0.65rem] font-medium">
                 Precio {PRICE_ROLE_LABELS[priceRole]}
               </Badge>
-              <p className="text-base font-bold leading-tight text-red-600 sm:text-lg">
-                <AdminRolePricesTooltip
-                  productId={product.id}
-                  displayUsd={product.price}
-                  className="font-bold text-red-600"
-                />
-              </p>
+              <ProductCardPricing productId={product.id} priceUsd={product.price} />
               <p className={cn('text-xs', outOfStock ? 'text-destructive' : 'text-muted-foreground')}>
                 {outOfStock ? 'Sin stock' : `${product.stock} disponibles`}
               </p>
