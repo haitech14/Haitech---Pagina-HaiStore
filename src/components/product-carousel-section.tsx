@@ -116,7 +116,7 @@ export function ProductCarouselSection({
 
         {showDots && products.length > 0 && (
           <div
-            className="flex justify-center gap-2"
+            className="flex items-center justify-center gap-1.5"
             role="tablist"
             aria-label={`Páginas del carrusel: ${title}`}
           >

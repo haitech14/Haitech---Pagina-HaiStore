@@ -1,0 +1,208 @@
+import type { CrmMuralCard, CrmMuralColumn } from '@/types/crm-mural';
+
+/** Orden del lienzo: Ventas (con cuentas al pie) → Productos → Equipos → Envíos. */
+export const CRM_MURAL_COLUMNS: CrmMuralColumn[] = [
+  { id: 'ventas', label: 'Ventas', accentClass: 'bg-violet-500' },
+  { id: 'productos', label: 'Productos', accentClass: 'bg-emerald-500' },
+  { id: 'equipos', label: 'Equipos', accentClass: 'bg-amber-500' },
+  { id: 'envios', label: 'Envíos', accentClass: 'bg-red-500' },
+];
+
+export const CRM_MURAL_PINNED_ACCOUNTS_LABEL = 'Número de cuenta';
+
+export const CRM_MURAL_CARDS: CrmMuralCard[] = [
+  {
+    id: 'v1',
+    columnId: 'ventas',
+    kind: 'text',
+    topBorderClass: 'border-t-amber-600',
+    paragraphs: [
+      '¡Buenos días! 👋',
+      'Soy *Nicolas Aliaga*, asesor comercial de *NBN Tecnología Total S.A.C.* 👩‍💼',
+      'Contamos con stock de impresoras Ricoh, tóner original y equipos de cómputo listos para despacho.',
+      '¿En qué podemos apoyarte hoy? 🙋‍♂️',
+    ],
+  },
+  {
+    id: 'v2',
+    columnId: 'ventas',
+    kind: 'text',
+    paragraphs: [
+      '¡Hola! 👋',
+      'Te escribo por *WhatsApp* y también puedo llamarte si lo prefieres 📞',
+      'Tenemos promociones en multifuncionales y laptops con *instalación sin costo* en Lima 🎁',
+      '¿Te envío cotización o ficha técnica?',
+    ],
+  },
+  {
+    id: 'c1',
+    columnId: 'cuentas',
+    kind: 'accounts',
+    topBorderClass: 'border-t-blue-600',
+    title: '📌 *NBN TECNOLOGIA TOTAL S.A.C.*',
+    accounts: [
+      {
+        bank: '🟩 BCP — Soles',
+        lines: ['Cta: 194-123456789-0-12', 'CCI: 002-194-00123456789012'],
+      },
+      {
+        bank: 'BCP — Dólares',
+        lines: ['Cta: 194-987654321-1-99', 'CCI: 002-194-00987654321999'],
+      },
+      {
+        bank: 'BBVA — Soles',
+        lines: ['Cta: 0011-0123-456789012345', 'CCI: 011-0123-001234567890123'],
+      },
+      {
+        bank: 'Interbank — Soles',
+        lines: ['Cta: 200-30045678901', 'CCI: 003-200-0030045678901-02'],
+      },
+    ],
+  },
+  {
+    id: 'p1',
+    columnId: 'productos',
+    kind: 'product',
+    topBorderClass: 'border-t-emerald-600',
+    title: '*NUEVA RICOH IM 430F (A4)*',
+    priceLabel: '*$989* o *S/ 4000*',
+    features: [
+      { label: 'Copia' },
+      { label: 'Imprime' },
+      { label: 'Escanea' },
+      { label: 'Dúplex automático' },
+      { label: 'Instalación sin costo 🎁', highlight: true },
+    ],
+    footer: '📌 Tóner adicional: S/ 280 (negro) · S/ 380 (color)',
+  },
+  {
+    id: 'p2',
+    columnId: 'productos',
+    kind: 'product',
+    title: '*RICOH IM C2010*',
+    priceLabel: '*$1,450* o *S/ 6,500*',
+    features: [
+      { label: 'Impresión a color' },
+      { label: 'Copia / Escaneo' },
+      { label: 'Red y Wi‑Fi' },
+      { label: 'Instalación sin costo 🎁', highlight: true },
+    ],
+    footer: '📌 Incluye capacitación básica en sitio (Lima).',
+  },
+  {
+    id: 'p3',
+    columnId: 'productos',
+    kind: 'product',
+    title: '*TÓNER RICOH ORIGINAL*',
+    priceLabel: 'Desde *S/ 180*',
+    features: [
+      { label: 'Alta duración' },
+      { label: 'Garantía de fábrica' },
+      { label: 'Stock inmediato' },
+    ],
+  },
+  {
+    id: 'e1',
+    columnId: 'equipos',
+    kind: 'equipment',
+    topBorderClass: 'border-t-amber-600',
+    title: '*NUEVA LAPTOP DELL i3 11va Gen 8 GB RAM*',
+    priceLabel: '*S/ 1550*',
+    specs: [
+      { label: '256 GB SSD' },
+      { label: 'Windows 11' },
+      { label: 'Mousepad + funda 🎁', highlight: true },
+      { label: 'Garantía 1 año' },
+    ],
+  },
+  {
+    id: 'e2',
+    columnId: 'equipos',
+    kind: 'equipment',
+    title: '*PC DELL i5 — Monitor 22"*',
+    priceLabel: '*S/ 2,450*',
+    specs: [
+      { label: '16 GB RAM' },
+      { label: '512 GB SSD' },
+      { label: 'Instalación sin costo 🎁', highlight: true },
+    ],
+  },
+  {
+    id: 'e3',
+    columnId: 'equipos',
+    kind: 'equipment',
+    title: '*SERVIDOR HP MICRO*',
+    priceLabel: 'Consultar',
+    specs: [
+      { label: 'Xeon / 32 GB RAM' },
+      { label: 'RAID 1' },
+      { label: 'Soporte remoto Haitech' },
+    ],
+  },
+  {
+    id: 's1',
+    columnId: 'envios',
+    kind: 'shipment',
+    topBorderClass: 'border-t-red-500',
+    dateLabel: '📅 *20/10/2022*',
+    shippingFields: [
+      { label: '*Datos de Envío:* 🙋‍♀️', value: '' },
+      { label: '*Razón Social:*', value: 'Industrias del Sur SAC' },
+      { label: '*Ruc:*', value: '20123456789' },
+      { label: '*Dirección:* 📍', value: 'Av. Industrial 450, Surco' },
+      { label: '*Destino:*', value: 'Lima — Surco' },
+      { label: '*Atención:*', value: 'María López' },
+      { label: '*DNI:*', value: '45678901' },
+      { label: '*Cel:*', value: '987 654 321' },
+      { label: '*Agencia:*', value: 'Olva Courier' },
+      { label: '*Pedido:* 📮', value: '' },
+    ],
+    orderLines: [
+      { description: 'RICOH IM 430F', priceLabel: 'S/ 4,000' },
+      { description: 'Tóner negro x2', priceLabel: 'S/ 560' },
+    ],
+    totalLabel: '*Total:* $1,020 · S/ 4,560',
+  },
+  {
+    id: 's2',
+    columnId: 'envios',
+    kind: 'shipment',
+    dateLabel: '📅 *18/10/2022*',
+    shippingFields: [
+      { label: '*Datos de Envío:* 🙋‍♀️', value: '' },
+      { label: '*Razón Social:*', value: 'Clínica Salud Total' },
+      { label: '*Ruc:*', value: '20456789012' },
+      { label: '*Dirección:* 📍', value: 'Jr. Salud 120, Lince' },
+      { label: '*Destino:*', value: 'Lima — Lince' },
+      { label: '*Atención:*', value: 'Carlos Ruiz' },
+      { label: '*DNI:*', value: '12345678' },
+      { label: '*Cel:*', value: '912 345 678' },
+      { label: '*Agencia:*', value: 'Shalom' },
+    ],
+    orderLines: [{ description: 'PC DELL i5 + monitor', priceLabel: 'S/ 2,450' }],
+    totalLabel: '*Total:* $545 · S/ 2,450',
+  },
+  {
+    id: 's3',
+    columnId: 'envios',
+    kind: 'shipment',
+    dateLabel: '📅 *15/10/2022*',
+    shippingFields: [
+      { label: '*Datos de Envío:* 🙋‍♀️', value: '' },
+      { label: '*Razón Social:*', value: 'Distribuidora Lima Norte' },
+      { label: '*Ruc:*', value: '20987654321' },
+      { label: '*Dirección:* 📍', value: 'Los Olivos, Lima' },
+      { label: '*Destino:*', value: 'Lima — Los Olivos' },
+      { label: '*Atención:*', value: 'Pedro Gómez' },
+      { label: '*DNI:*', value: '87654321' },
+      { label: '*Cel:*', value: '998 112 233' },
+      { label: '*Agencia:*', value: 'Marvisur' },
+      { label: '*Pedido:* 📮', value: '' },
+    ],
+    orderLines: [
+      { description: 'Tóner Ricoh pack x5', priceLabel: 'S/ 900' },
+      { description: 'Flete', priceLabel: 'S/ 45' },
+    ],
+    totalLabel: '*Total:* $210 · S/ 945',
+  },
+];

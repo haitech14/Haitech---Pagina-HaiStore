@@ -10,6 +10,8 @@ import { ProductQuickViewDialog } from '@/components/product/product-quick-view-
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { useProductCompare } from '@/context/product-compare-context';
+import { useWishlist } from '@/context/wishlist-context';
+import { featuredToWishlistItem } from '@/lib/wishlist-product';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { featuredToCompareItem } from '@/lib/compare-product';
 import { productHasNuevoCornerBadge } from '@/lib/product-detail-badges';
@@ -33,7 +35,8 @@ export function DualPrice({
     <span className={cn('inline-flex flex-wrap items-baseline gap-x-1.5', className)}>
       <span className={strike}>{formatUsd(usd)}</span>
       <span aria-hidden="true" className="font-normal text-neutral-400">
-        ·
+        {' '}
+        -{' '}
       </span>
       <span className={strike}>{formatPenFromUsd(usd)}</span>
     </span>
@@ -69,11 +72,27 @@ function Rating({ rating, reviews }: { rating: number; reviews: number }) {
 const cartRevealClass =
   'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100';
 
-export function ProductShowcaseCard({ product }: { product: FeaturedProduct }) {
+export function ProductShowcaseCard({
+  product,
+  brandTone = 'default',
+  variant = 'default',
+  imageSize = 'default',
+}: {
+  product: FeaturedProduct;
+  brandTone?: 'default' | 'accent';
+  /** Destacados del inicio: imagen cuadrada y tipografía de precio ampliada. */
+  variant?: 'default' | 'featured';
+  /** Imagen más grande dentro del recuadro (ofertas relámpago). */
+  imageSize?: 'default' | 'large';
+}) {
+  const isFeatured = variant === 'featured';
+  const isLargeImage = imageSize === 'large';
   const { isSelected, toggle } = useProductCompare();
+  const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [imageError, setImageError] = useState(false);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const compareSelected = isSelected(product.id);
+  const wishlistSelected = isWishlisted(product.id);
   const badgeSource = {
     id: product.id,
     name: product.name,
@@ -98,25 +117,39 @@ export function ProductShowcaseCard({ product }: { product: FeaturedProduct }) {
     product.isNew === true || productHasNuevoCornerBadge(badgeSource);
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200/80 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)]">
+    <article
+      className={cn(
+        'group relative flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-[0_4px_18px_rgba(15,23,42,0.1)] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(15,23,42,0.14)]',
+      )}
+    >
       <div className="relative flex flex-1 flex-col">
-        <Link
-          to={detailHref}
-          className="absolute inset-0 z-[1] rounded-t-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
-          aria-label={`Ver ficha de ${product.name}`}
-        >
-          <span className="sr-only">Ver ficha de {product.name}</span>
-        </Link>
-
-        <div className="pointer-events-none relative z-0 flex flex-1 flex-col">
-          <div className="relative">
-            <div className="relative block bg-neutral-50/50">
-              <div className="flex aspect-[4/3] items-center justify-center p-5 sm:aspect-square sm:p-6">
+        <div className="relative">
+          <div className="relative block bg-neutral-50/80">
+            <Link
+              to={detailHref}
+              className="absolute inset-0 z-[1] rounded-t-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+              aria-label={`Ver ficha de ${product.name}`}
+            >
+              <span className="sr-only">Ver ficha de {product.name}</span>
+            </Link>
+              <div
+                className={cn(
+                  'flex items-center justify-center overflow-hidden',
+                  isLargeImage
+                    ? 'aspect-square p-1 sm:p-1.5'
+                    : isFeatured
+                      ? 'aspect-square p-2 sm:p-3'
+                      : 'aspect-[4/3] p-2 sm:aspect-square sm:p-3',
+                )}
+              >
                 {!imageError && product.image ? (
                   <img
                     src={product.image}
                     alt=""
-                    className="max-h-full max-w-full object-contain"
+                    className={cn(
+                      'object-contain object-center',
+                      isLargeImage ? 'size-full' : 'max-h-full max-w-full',
+                    )}
                     loading="lazy"
                     onError={() => setImageError(true)}
                   />
@@ -128,30 +161,42 @@ export function ProductShowcaseCard({ product }: { product: FeaturedProduct }) {
               </div>
             </div>
 
-            <div className="pointer-events-none absolute left-3 top-3 z-[2]">
-              {showNuevoCorner ? <ProductNuevoCornerBadge /> : null}
-            </div>
+          <div className="pointer-events-none absolute left-3 top-3 z-[2]">
+            {showNuevoCorner ? <ProductNuevoCornerBadge /> : null}
           </div>
+        </div>
 
-          <div className="flex flex-1 flex-col gap-1 px-4 pt-2">
-            <ProductCardTitle product={badgeSource} />
+        <div
+          className={cn(
+            'relative z-[2] flex flex-1 flex-col px-4',
+            isFeatured ? 'gap-1.5 pb-4 pt-2' : 'gap-1 pb-3 pt-2',
+          )}
+        >
+          <Link
+            to={detailHref}
+            className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+          >
+            <ProductCardTitle product={badgeSource} brandTone={brandTone} />
+          </Link>
 
-            <Rating rating={product.rating} reviews={product.reviews} />
+          {!isFeatured ? <Rating rating={product.rating} reviews={product.reviews} /> : null}
 
-            <div className="mt-auto pb-3 pt-1">
-              <ProductCardPricing
-                productId={product.id}
-                priceUsd={product.price}
-                {...(product.oldPrice != null ? { oldPriceUsd: product.oldPrice } : {})}
-                {...(product.discount != null ? { discountPercent: product.discount } : {})}
-              />
-            </div>
+          <div className={cn('relative z-[3] mt-auto pointer-events-auto', !isFeatured && 'pt-0.5')}>
+            <ProductCardPricing
+              productId={product.id}
+              priceUsd={product.price}
+              featured={isFeatured}
+              {...(product.oldPrice != null ? { oldPriceUsd: product.oldPrice } : {})}
+              {...(product.discount != null ? { discountPercent: product.discount } : {})}
+            />
           </div>
         </div>
 
         <ProductCardOverlayActions
           productName={product.name}
           isCompareSelected={compareSelected}
+          isWishlisted={wishlistSelected}
+          onWishlist={() => toggleWishlist(featuredToWishlistItem(product))}
           onQuickView={() => setQuickViewOpen(true)}
           onCompare={() => toggle(featuredToCompareItem(product))}
         />
@@ -163,9 +208,9 @@ export function ProductShowcaseCard({ product }: { product: FeaturedProduct }) {
         onOpenChange={setQuickViewOpen}
       />
 
-      <div className={cn('relative z-10', cartRevealClass)}>
-        <div className="min-h-0 overflow-hidden">
-          <div className="flex items-stretch gap-2 border-t border-neutral-200/80 px-4 pb-4 pt-3">
+      <div className={cn('relative z-10 pointer-events-none', cartRevealClass)}>
+        <div className="min-h-0 overflow-hidden pointer-events-auto">
+          <div className="flex items-stretch gap-2 px-4 pb-3 pt-1">
             <AddToCartButton
               product={cartProduct}
               className="h-10 min-h-11 flex-1 rounded-lg bg-red-600 px-2 text-xs font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600 sm:text-sm lg:px-2.5"

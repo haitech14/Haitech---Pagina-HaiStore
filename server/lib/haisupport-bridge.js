@@ -166,15 +166,17 @@ export async function ensureStoreCustomerFromHaitechClient(clientInput) {
         .eq('id', storeRow.id)
         .select('*')
         .single();
-      if (error) throw new Error('No se pudo actualizar el cliente');
+      if (error) throw new Error(`No se pudo actualizar el cliente: ${error.message}`);
       storeRow = data;
     } else {
       if (!row.id) row.id = randomUUID();
       row.created_at = new Date().toISOString();
       const { data, error } = await supabase.from('store_customers').insert(row).select('*').single();
-      if (error) throw new Error('No se pudo crear el cliente');
+      if (error) throw new Error(`No se pudo crear el cliente: ${error.message}`);
       storeRow = data;
     }
+  } else {
+    throw new Error('Supabase no configurado (SUPABASE_SERVICE_ROLE_KEY)');
   }
 
   let hsClientId = client.haisupportClientId ?? storeRow?.haisupport_client_id ?? null;

@@ -8,6 +8,7 @@ const overlayButtonClass =
 interface ProductCardOverlayActionsProps {
   productName: string;
   isCompareSelected: boolean;
+  isWishlisted?: boolean;
   onWishlist?: () => void;
   onQuickView: () => void;
   onCompare: () => void;
@@ -16,6 +17,7 @@ interface ProductCardOverlayActionsProps {
 export function ProductCardOverlayActions({
   productName,
   isCompareSelected,
+  isWishlisted = false,
   onWishlist,
   onQuickView,
   onCompare,
@@ -24,11 +26,27 @@ export function ProductCardOverlayActions({
     <div className="pointer-events-auto absolute right-3 top-3 z-10 flex flex-col gap-1.5">
       <button
         type="button"
-        aria-label={`Añadir ${productName} a favoritos`}
-        className={cn(overlayButtonClass, 'text-red-600 hover:bg-red-50')}
-        onClick={onWishlist}
+        aria-pressed={isWishlisted}
+        aria-label={
+          isWishlisted
+            ? `Quitar ${productName} de favoritos`
+            : `Añadir ${productName} a favoritos`
+        }
+        className={cn(
+          overlayButtonClass,
+          isWishlisted ? 'border-red-600 bg-red-50 text-red-600' : 'text-red-600 hover:bg-red-50',
+        )}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onWishlist?.();
+        }}
       >
-        <Heart className="size-4 fill-none" strokeWidth={2} aria-hidden="true" />
+        <Heart
+          className={cn('size-4', isWishlisted && 'fill-red-600')}
+          strokeWidth={2}
+          aria-hidden="true"
+        />
       </button>
       <button
         type="button"

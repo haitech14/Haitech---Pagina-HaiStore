@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -24,18 +25,28 @@ const contactSchema = z.object({
 
 type ContactValues = z.infer<typeof contactSchema>;
 
+const SERVICE_PREFILL_MESSAGE =
+  'Solicito programar un servicio técnico. Modelo del equipo: ___ | Ciudad: ___ | Detalle del problema: ___';
+
 export function ContactPage() {
+  const [searchParams] = useSearchParams();
   const [sent, setSent] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ContactValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: { name: '', email: '', message: '' },
   });
+
+  useEffect(() => {
+    if (searchParams.get('tema') !== 'servicio') return;
+    setValue('message', SERVICE_PREFILL_MESSAGE, { shouldDirty: true });
+  }, [searchParams, setValue]);
 
   const onSubmit = async (values: ContactValues) => {
     setSubmitError(null);

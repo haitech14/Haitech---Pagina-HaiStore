@@ -4,7 +4,13 @@ import {
   DEFAULT_SHIPPING_ZONES,
   DEMO_SHIPMENTS,
 } from '@/data/shipping-defaults';
+import { nextShipmentOrderRef } from '@/lib/shipment-order-serial';
 import type { ShipmentRecord, ShippingCarrier, ShippingRate, ShippingZone } from '@/types/shipping';
+
+export {
+  nextShipmentOrderRef as generateShipmentOrderRef,
+  peekShipmentOrderRef,
+} from '@/lib/shipment-order-serial';
 
 const ZONES_KEY = 'haistore-shipping-zones';
 const CARRIERS_KEY = 'haistore-shipping-carriers';
@@ -64,12 +70,6 @@ export function updateShipmentStatus(id: string, status: ShipmentRecord['status'
 
 export type NewShipmentInput = Omit<ShipmentRecord, 'id' | 'status' | 'createdAt'>;
 
-export function generateShipmentOrderRef(): string {
-  const year = new Date().getFullYear();
-  const suffix = String(Math.floor(1000 + Math.random() * 9000));
-  return `HS-${year}-${suffix}`;
-}
-
 const TRACKING_PREFIX: Record<string, string> = {
   haitech: 'HT-LIM',
   olva: 'OLVA',
@@ -126,7 +126,7 @@ export function duplicateShipment(id: string): ShipmentRecord[] {
   const copy: ShipmentRecord = {
     ...source,
     id: `shp-${Date.now()}`,
-    orderRef: generateShipmentOrderRef(),
+    orderRef: nextShipmentOrderRef(),
     trackingCode: generateShipmentTrackingCode(source.carrierId),
     status: 'pending_pickup',
     createdAt: new Date().toISOString(),

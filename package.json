@@ -12,11 +12,15 @@
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
     "server": "node --watch server/index.js",
-    "dev:all": "concurrently -n web,api -c cyan,magenta \"npm:dev\" \"npm:server\"",
+    "dev:all": "node scripts/print-dev-urls.mjs && concurrently -n web,api -c cyan,magenta \"vite\" \"npm run server\"",
     "sync:supabase": "node scripts/sync-supabase.mjs",
     "sync:product-images": "node scripts/sync-product-images.mjs",
     "sync:vercel-env": "node scripts/push-vercel-env.mjs",
-    "db:migrate:005": "node scripts/apply-supabase-migration.mjs supabase/migrations/005_products_catalog_fields.sql"
+    "db:migrate:005": "node scripts/apply-supabase-migration.mjs supabase/migrations/005_products_catalog_fields.sql",
+    "import:persona-customers": "node scripts/import-persona-customers.mjs",
+    "import:ventas-reports": "node scripts/import-ventas-reports.mjs",
+    "db:migrate:011": "node scripts/apply-supabase-migration.mjs supabase/migrations/011_imported_sale_documents.sql",
+    "db:migrate:009": "node scripts/apply-supabase-migration.mjs supabase/migrations/009_store_customers_persona.sql"
   },
   "engines": {
     "node": ">=18"
@@ -59,6 +63,7 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "xlsx": "^0.18.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {

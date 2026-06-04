@@ -1,6 +1,6 @@
 import type { PriceRole } from '@/types/product';
 
-export type TpvDocumentType = 'proforma' | 'factura' | 'boleta';
+export type TpvDocumentType = 'proforma' | 'factura' | 'boleta' | 'guia_remision';
 
 export type TpvCurrency = 'PEN' | 'USD';
 
@@ -74,6 +74,17 @@ export const TPV_DOCUMENT_META: Record<TpvDocumentType, TpvDocumentMeta> = {
     requiresRuc: false,
     documentFieldLabel: 'DNI / RUC',
     footerNote: 'Comprobante de venta al consumidor final.',
+    validityDays: 0,
+  },
+  guia_remision: {
+    type: 'guia_remision',
+    label: 'Guía de remisión',
+    badgeTitle: 'GUÍA DE REMISIÓN',
+    detailSectionTitle: 'DETALLE DEL TRASLADO',
+    seriesPrefix: 'T001',
+    requiresRuc: true,
+    documentFieldLabel: 'RUC',
+    footerNote: 'Documento de traslado de mercancía. No constituye comprobante de pago.',
     validityDays: 0,
   },
 };

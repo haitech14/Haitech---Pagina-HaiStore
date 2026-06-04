@@ -20,6 +20,8 @@ export interface StoreProductCategory {
   updated_at: string;
 }
 
+import type { PersonaData } from '@/lib/persona-report-columns';
+
 export interface StoreCustomer {
   id: string;
   profile_id?: string | null;
@@ -28,6 +30,13 @@ export interface StoreCustomer {
   phone?: string | null;
   company_name?: string | null;
   tax_id?: string | null;
+  nombre_contacto?: string | null;
+  direccion?: string | null;
+  ciudad?: string | null;
+  tipo_cliente?: string | null;
+  persona_data?: PersonaData | null;
+  /** UUIDs de productos de interés de compra. */
+  productos_interes?: string[] | null;
   default_shipping?: Record<string, unknown> | null;
   default_billing?: Record<string, unknown> | null;
   notes?: string | null;

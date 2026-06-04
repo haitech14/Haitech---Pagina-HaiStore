@@ -8,26 +8,26 @@ function ClientCard({ client }: { client: Client }) {
   const [logoError, setLogoError] = useState(false);
 
   return (
-    <article className="flex h-full flex-col items-center rounded-xl bg-white px-4 py-8 shadow-[0_4px_24px_rgba(15,23,42,0.07)] sm:px-5 sm:py-9">
-      <div className="flex size-20 items-center justify-center rounded-full bg-red-600 sm:size-[5.5rem]">
-        <div className="flex size-[calc(100%-6px)] items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white">
+    <article className="flex h-full flex-col items-center rounded-lg bg-white px-2.5 py-4 shadow-[0_2px_16px_rgba(15,23,42,0.06)] sm:px-3 sm:py-5">
+      <div className="flex size-12 items-center justify-center rounded-full bg-red-600 ring-2 ring-red-600/20 sm:size-14">
+        <div className="flex size-[calc(100%-4px)] items-center justify-center overflow-hidden rounded-full border border-white bg-white">
           {!logoError ? (
             <img
               src={client.logo}
               alt=""
-              className="size-full object-contain p-1.5"
+              className="size-full object-contain p-1"
               loading="lazy"
               onError={() => setLogoError(true)}
             />
           ) : (
-            <span className="flex size-full items-center justify-center bg-red-600 text-lg font-bold text-white">
+            <span className="flex size-full items-center justify-center bg-red-600 text-xs font-bold text-white sm:text-sm">
               {client.initials}
             </span>
           )}
         </div>
       </div>
 
-      <h3 className="mt-5 text-center text-sm font-bold leading-snug text-neutral-700 sm:text-[0.95rem]">
+      <h3 className="mt-2.5 line-clamp-2 text-center text-[0.7rem] font-bold leading-snug text-neutral-700 sm:mt-3 sm:text-xs">
         {client.name}
       </h3>
     </article>
@@ -75,7 +75,7 @@ export function ClientsSection() {
       />
 
       <div className="container relative">
-        <header className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
+        <header className="mx-auto mb-6 max-w-3xl text-center sm:mb-8">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
             <span className="h-px w-8 bg-sky-400 sm:w-12" aria-hidden="true" />
             <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-sky-500 sm:text-xs">
@@ -97,13 +97,13 @@ export function ClientsSection() {
           </p>
         </header>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <div className="overflow-hidden" ref={emblaRef}>
-            <ul className="flex touch-pan-y gap-4 sm:gap-5">
+            <ul className="flex touch-pan-y gap-2 sm:gap-2.5 md:gap-3">
               {clients.map((client) => (
                 <li
                   key={client.id}
-                  className="min-w-0 flex-[0_0_78%] sm:flex-[0_0_48%] md:flex-[0_0_32%] lg:flex-[0_0_calc((100%-5rem)/6)]"
+                  className="min-w-0 flex-[0_0_calc((100%-0.5rem)/2)] sm:flex-[0_0_calc((100%-1.25rem)/3)] md:flex-[0_0_calc((100%-2.25rem)/4)] lg:flex-[0_0_calc((100%-3rem)/5)] xl:flex-[0_0_calc((100%-3.75rem)/6)]"
                 >
                   <ClientCard client={client} />
                 </li>
@@ -113,7 +113,7 @@ export function ClientsSection() {
 
           {scrollSnaps.length > 1 && (
             <div
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-1.5"
               role="tablist"
               aria-label="Paginación de clientes"
             >

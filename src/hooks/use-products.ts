@@ -1,21 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
-import { inventoryFallback } from '@/data/inventory-fallback';
 import { apiFetch } from '@/lib/api';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
-import { mapInventoryForRole } from '@/lib/pricing';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct, Product } from '@/types/product';
 
-async function fetchProductsForRole(role: string): Promise<Product[]> {
-  try {
-    return await apiFetch<Product[]>('/api/products');
-  } catch {
-    const migrated = inventoryFallback.map((p) => normalizeInventoryProduct(p));
-    return mapInventoryForRole(migrated, role);
-  }
+async function fetchProductsForRole(): Promise<Product[]> {
+  return apiFetch<Product[]>('/api/products');
 }
 
 export function useProducts() {
@@ -23,7 +16,7 @@ export function useProducts() {
 
   return useQuery({
     queryKey: ['products', role],
-    queryFn: () => fetchProductsForRole(role),
+    queryFn: fetchProductsForRole,
     staleTime: 1000 * 15,
     refetchInterval: 1000 * 20,
   });

@@ -4,6 +4,7 @@ import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import {
   PRODUCT_CARD_DISCOUNT_CLASS,
   PRODUCT_CARD_PRICE_COMPARE_CLASS,
+  PRODUCT_CARD_PRICE_FEATURED_CLASS,
   PRODUCT_CARD_PRICE_MAIN_CLASS,
 } from '@/lib/product-card-title';
 import { formatPenFromUsd, usdToPen } from '@/lib/utils';
@@ -24,6 +25,8 @@ interface ProductCardPricingProps {
   discountPercent?: number;
   /** Solo soles (ofertas relámpago). */
   penOnly?: boolean;
+  /** Vitrina de productos destacados (tipografía de precio más grande). */
+  featured?: boolean;
 }
 
 export function ProductCardPricing({
@@ -32,14 +35,17 @@ export function ProductCardPricing({
   oldPriceUsd,
   discountPercent,
   penOnly = false,
+  featured = false,
 }: ProductCardPricingProps) {
   const pricing = resolveProductCardPricing(productId, priceUsd, {
     ...(oldPriceUsd != null ? { oldPrice: oldPriceUsd } : {}),
     ...(discountPercent != null ? { discount: discountPercent } : {}),
   });
 
+  const priceMainClass = featured ? PRODUCT_CARD_PRICE_FEATURED_CLASS : PRODUCT_CARD_PRICE_MAIN_CLASS;
+
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-1">
       <p className={PRODUCT_CARD_PRICE_COMPARE_CLASS}>
         {penOnly ? (
           formatPenStrike(pricing.compareUsd)
@@ -47,20 +53,20 @@ export function ProductCardPricing({
           <DualPrice usd={pricing.compareUsd} strikethrough />
         )}
       </p>
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <p className={PRODUCT_CARD_PRICE_MAIN_CLASS}>
-          {penOnly ? (
-            formatPenFromUsd(pricing.currentUsd)
-          ) : (
-            <AdminRolePricesTooltip
-              productId={productId}
-              displayUsd={pricing.currentUsd}
-              className={PRODUCT_CARD_PRICE_MAIN_CLASS}
-            />
-          )}
-        </p>
+      <p className={priceMainClass}>
+        {penOnly ? (
+          formatPenFromUsd(pricing.currentUsd)
+        ) : (
+          <AdminRolePricesTooltip
+            productId={productId}
+            displayUsd={pricing.currentUsd}
+            className={priceMainClass}
+          />
+        )}
+      </p>
+      <p>
         <span className={PRODUCT_CARD_DISCOUNT_CLASS}>{pricing.discountPercent}% DSCTO</span>
-      </div>
+      </p>
     </div>
   );
 }

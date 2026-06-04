@@ -1,5 +1,6 @@
 import { Outlet, ScrollRestoration } from 'react-router-dom';
 
+import { HaibotFloatingMenu } from '@/components/haibot/haibot-floating-menu';
 import { Header } from '@/components/layout/header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { ShoppingCartDrawer } from '@/components/cart/shopping-cart-drawer';
@@ -21,6 +22,7 @@ export function RootLayout() {
       <SubscriptionPopup />
       <ShoppingCartDrawer />
       <ProductCompareTray />
+      <HaibotFloatingMenu />
     </div>
   );
 }

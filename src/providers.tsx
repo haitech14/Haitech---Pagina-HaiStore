@@ -7,6 +7,7 @@ import { CartProvider } from '@/context/cart-context';
 import { AuthProvider } from '@/context/auth-context';
 import { ExchangeRateSync } from '@/context/exchange-rate-context';
 import { ProductCompareProvider } from '@/context/product-compare-context';
+import { WishlistProvider } from '@/context/wishlist-context';
 import { SupabaseRealtimeSync } from '@/components/supabase-realtime-sync';
 
 const queryClient = new QueryClient({
@@ -26,10 +27,12 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <ExchangeRateSync />
       <AuthProvider>
         <CartProvider>
-          <ProductCompareProvider>
-            {children}
-            <Toaster richColors closeButton position="top-center" />
-          </ProductCompareProvider>
+          <WishlistProvider>
+            <ProductCompareProvider>
+              {children}
+              <Toaster richColors closeButton position="top-center" />
+            </ProductCompareProvider>
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>

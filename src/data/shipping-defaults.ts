@@ -104,7 +104,7 @@ export const DEFAULT_SHIPPING_RATES: ShippingRate[] = [
 export const DEMO_SHIPMENTS: ShipmentRecord[] = [
   {
     id: 'shp-001',
-    orderRef: 'HS-2026-0142',
+    orderRef: 'OE01-001',
     customerName: 'Distribuidora Lima Norte',
     district: 'Los Olivos',
     zoneId: 'lima-metropolitana',
@@ -117,7 +117,7 @@ export const DEMO_SHIPMENTS: ShipmentRecord[] = [
   },
   {
     id: 'shp-002',
-    orderRef: 'HS-2026-0138',
+    orderRef: 'OE01-002',
     customerName: 'Clínica Salud Total',
     district: 'San Isidro',
     zoneId: 'lima-metropolitana',
@@ -130,7 +130,7 @@ export const DEMO_SHIPMENTS: ShipmentRecord[] = [
   },
   {
     id: 'shp-003',
-    orderRef: 'HS-2026-0125',
+    orderRef: 'OE01-003',
     customerName: 'Agroindustrial Pacífico',
     district: 'Trujillo',
     zoneId: 'provincia-costera',

@@ -133,7 +133,7 @@ export async function buildTpvDocumentPdf(
   doc.setFont('helvetica', 'normal');
   doc.text(documentNumber, badgeX + badgeW / 2, y + 14, { align: 'center' });
   doc.text(formatShortDate(issueDate), badgeX + badgeW / 2, y + 19, { align: 'center' });
-  if (documentType === 'factura') {
+  if (documentType === 'factura' || documentType === 'guia_remision') {
     doc.setFontSize(6);
     doc.text('TPV — Tienda física', badgeX + badgeW / 2, y + 23, { align: 'center' });
   }
@@ -176,7 +176,14 @@ export async function buildTpvDocumentPdf(
     ['LISTA DE PRECIO:', PRICE_ROLE_LABELS[customer.priceList]],
     ['MONEDA:', tpvCurrencyLabel(customer.currency)],
     ['ÍTEMS:', String(lines.length)],
-    ['FORMA DE PAGO:', documentType === 'proforma' ? 'Por definir' : 'Contado / transferencia'],
+    [
+      'FORMA DE PAGO:',
+      documentType === 'proforma'
+        ? 'Por definir'
+        : documentType === 'guia_remision'
+          ? 'Traslado'
+          : 'Contado / transferencia',
+    ],
   ];
   detailRows.forEach(([label, value]) => {
     const lineCount = drawLabelValue(doc, label, value, rightX + 3, rowY, 26, boxW - 6);
@@ -323,7 +330,9 @@ export async function buildTpvDocumentPdf(
   const obs =
     documentType === 'proforma'
       ? 'Cotización sujeta a stock disponible. Precios en soles con IGV incluido.'
-      : 'Gracias por su preferencia. Conserve este comprobante para garantía y soporte.';
+      : documentType === 'guia_remision'
+        ? 'Traslado de bienes según normativa SUNAT. Verifique datos del destinatario y punto de llegada.'
+        : 'Gracias por su preferencia. Conserve este comprobante para garantía y soporte.';
   const obsLines = doc.splitTextToSize(obs, boxW - 6);
   doc.text(obsLines, rightX + 3, y + 11);
 

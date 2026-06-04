@@ -1,18 +1,12 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, LineChart as LineChartIcon, PieChart as PieChartIcon } from 'lucide-react';
+import { LineChart as LineChartIcon, PieChart as PieChartIcon } from 'lucide-react';
 import { CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from 'recharts';
 
 import { AdminDashboardCard } from '@/components/admin/AdminDashboardCard';
-import {
-  AdminDateRangePicker,
-  getDefaultAdminDateRange,
-  type AdminDateRange,
-} from '@/components/admin/AdminDateRangePicker';
+import { useAdminDateRange } from '@/context/admin-date-range-context';
 import { AdminEmptyState } from '@/components/admin/AdminEmptyState';
 import { AdminKpiCard } from '@/components/admin/AdminKpiCard';
 import { AdminOrderStatusBadge } from '@/components/admin/AdminOrderStatusBadge';
-import { Button } from '@/components/ui/button';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import {
   useAdminDashboardKpis,
@@ -30,35 +24,8 @@ const chartConfig = {
   previous: { label: 'Periodo anterior', color: 'hsl(var(--muted-foreground))' },
 };
 
-function exportDashboardCsv(
-  range: AdminDateRange,
-  kpis: ReturnType<typeof useAdminDashboardKpis>['kpis'],
-  inventory: ReturnType<typeof useAdminInventoryByCategory>['data'],
-) {
-  const lines = [
-    'Sección,Valor',
-    `Rango,${range.from.toISOString()} - ${range.to.toISOString()}`,
-    `Ventas totales,${kpis.totalSales.value}`,
-    `Pedidos,${kpis.orders.value}`,
-    `Clientes nuevos,${kpis.newCustomers.value}`,
-    `Tasa conversión,${kpis.conversionRate.value ?? '—'}`,
-    '',
-    'Inventario por categoría,Total,Stock bajo,% saludable',
-    ...inventory.map(
-      (row) => `${row.category},${row.total},${row.lowStock},${row.healthyPercent}%`,
-    ),
-  ];
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = 'panel-admin-resumen.csv';
-  anchor.click();
-  URL.revokeObjectURL(url);
-}
-
 export function AdminDashboard() {
-  const [range, setRange] = useState<AdminDateRange>(() => getDefaultAdminDateRange(14));
+  const { range } = useAdminDateRange();
   const { isLoading, kpis } = useAdminDashboardKpis(range);
   const salesSeries = useAdminSalesTimeSeries(range);
   const salesByCategory = useAdminSalesByCategory(range);
@@ -70,21 +37,6 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <AdminDateRangePicker value={range} onChange={setRange} />
-          <Button
-            type="button"
-            variant="outline"
-            className="min-h-11"
-            onClick={() => exportDashboardCsv(range, kpis, inventory.data)}
-          >
-            <Download className="size-4" aria-hidden="true" />
-            Exportar
-          </Button>
-        </div>
-      </div>
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AdminKpiCard
           title="Ventas totales"

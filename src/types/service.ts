@@ -12,6 +12,8 @@ export interface ServiceCategory {
   name: string;
   description: string;
   active: boolean;
+  /** Orden en catálogo (código de categoría / prioridad). */
+  sortOrder?: number;
 }
 
 export interface ServiceOrder {

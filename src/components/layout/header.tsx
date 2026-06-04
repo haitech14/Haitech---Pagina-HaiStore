@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
+  Heart,
   ShoppingCart,
   Search,
   Menu,
@@ -18,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
 import { useCart } from '@/context/cart-context';
+import { useWishlist } from '@/context/wishlist-context';
 import { cn } from '@/lib/utils';
 
 const homeItem = { to: '/', label: 'Inicio', end: true } as const;
@@ -169,8 +171,14 @@ function SearchForm({ className }: { className?: string }) {
   );
 }
 
+function favoritesSubtitle(count: number): string {
+  if (count === 0) return 'Vacío';
+  return count === 1 ? '1 guardado' : `${count} guardados`;
+}
+
 export function Header() {
   const { totalItems, totalPrice, openCart } = useCart();
+  const { totalItems: favoritesCount } = useWishlist();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -219,7 +227,7 @@ export function Header() {
       {/* Cabecera fija */}
       <div className="sticky top-0 z-40 bg-background">
       {/* Fila principal */}
-      <div className="container flex h-16 items-center gap-3 border-b border-border sm:gap-4 lg:border-b-0">
+      <div className="container flex h-16 items-center gap-3 sm:gap-4">
         {/* Botón menú móvil */}
         <Button
           variant="ghost"
@@ -253,11 +261,42 @@ export function Header() {
 
         <AccountDropdown />
 
-        {/* Carrito */}
+        <div className="ml-auto flex items-center gap-0.5 sm:ml-0 sm:gap-1">
+          {/* Favoritos */}
+          <Button
+            variant="ghost"
+            className="h-11 gap-2 px-2"
+            asChild
+          >
+            <Link
+              to="/favoritos"
+              aria-label={`Favoritos, ${favoritesCount} productos guardados`}
+            >
+              <span className="relative">
+                <Heart className="size-6 text-red-600" strokeWidth={2} aria-hidden="true" />
+                {favoritesCount > 0 && (
+                  <Badge
+                    className="absolute -right-2 -top-2 h-5 min-w-5 justify-center bg-red-600 px-1"
+                    aria-hidden="true"
+                  >
+                    {favoritesCount}
+                  </Badge>
+                )}
+              </span>
+              <span className="hidden flex-col items-start leading-tight sm:flex">
+                <span className="text-sm font-semibold">Favoritos</span>
+                <span className="text-xs text-muted-foreground">
+                  {favoritesSubtitle(favoritesCount)}
+                </span>
+              </span>
+            </Link>
+          </Button>
+
+          {/* Carrito */}
         <Button
           type="button"
           variant="ghost"
-          className="ml-auto h-11 gap-2 px-2 sm:ml-0"
+          className="h-11 gap-2 px-2"
           aria-label={`Carrito de compras, ${totalItems} artículos`}
           onClick={openCart}
         >
@@ -277,6 +316,7 @@ export function Header() {
             <span className="text-xs text-muted-foreground">${totalPrice.toFixed(2)}</span>
           </span>
         </Button>
+        </div>
       </div>
 
       {/* Navegación secundaria (desktop) */}

@@ -3,7 +3,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { CustomerEditFormValues } from '@/components/admin/customer-edit-dialog';
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
+import { personaFormToApiBody } from '@/lib/persona-customer-payload';
+import type { UserRole } from '@/types/product';
 import type { AdminStoreCustomersPayload, StoreCustomerWithRole } from '@/types/store';
+
+export interface PersonaImportResult {
+  created: number;
+  updated: number;
+  skipped: number;
+  total: number;
+  errors: Array<{ row: number; message: string }>;
+}
 
 export function useAdminStoreCustomers() {
   const { isAdmin } = useAuth();
@@ -20,6 +30,10 @@ export function useAdminStoreCustomers() {
 export function useAdminStoreCustomersMutations() {
   const queryClient = useQueryClient();
 
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey: ['admin-store-customers'] });
+  };
+
   const updateCustomer = useMutation({
     mutationFn: ({
       id,
@@ -30,32 +44,57 @@ export function useAdminStoreCustomersMutations() {
     }) =>
       apiFetch<{ customer: StoreCustomerWithRole }>(`/api/customers/admin/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify({
-          full_name: values.full_name,
-          email: values.email,
-          phone: values.phone,
-          company_name: values.company_name,
-          tax_id: values.tax_id,
-          notes: values.notes,
-          profile_role: values.profile_role,
-        }),
+        body: JSON.stringify(personaFormToApiBody(values)),
       }),
-    onSuccess: (data) => {
-      queryClient.setQueryData<AdminStoreCustomersPayload>(
-        ['admin-store-customers'],
-        (current) => {
-          if (!current) return current;
-          return {
-            ...current,
-            customers: current.customers.map((customer) =>
-              customer.id === data.customer.id ? data.customer : customer,
-            ),
-          };
-        },
-      );
-      void queryClient.invalidateQueries({ queryKey: ['admin-store-customers'] });
-    },
+    onSuccess: () => invalidate(),
   });
 
-  return { updateCustomer };
+  const createCustomer = useMutation({
+    mutationFn: (body: ReturnType<typeof personaFormToApiBody>) =>
+      apiFetch<{ customer: StoreCustomerWithRole }>('/api/customers/admin', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => invalidate(),
+  });
+
+  const importPersonaExcel = useMutation({
+    mutationFn: (fileBase64: string) =>
+      apiFetch<PersonaImportResult>('/api/customers/admin/import-persona', {
+        method: 'POST',
+        body: JSON.stringify({ fileBase64 }),
+      }),
+    onSuccess: () => invalidate(),
+  });
+
+  const patchCustomerField = useMutation({
+    mutationFn: ({
+      id,
+      body,
+    }: {
+      id: string;
+      body: { profile_role?: UserRole; productos_interes?: string[] };
+    }) =>
+      apiFetch<{ customer: StoreCustomerWithRole }>(`/api/customers/admin/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => invalidate(),
+  });
+
+  const deleteCustomer = useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<{ ok: boolean; id: string }>(`/api/customers/admin/${id}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: () => invalidate(),
+  });
+
+  return {
+    updateCustomer,
+    createCustomer,
+    importPersonaExcel,
+    patchCustomerField,
+    deleteCustomer,
+  };
 }

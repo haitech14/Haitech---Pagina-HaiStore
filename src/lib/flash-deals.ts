@@ -1,47 +1,39 @@
 import type { FeaturedProduct } from '@/data/featured-products';
-import {
-  catalogRowToFeatured,
-  getCatalogRows,
-  type CatalogRow,
-} from '@/lib/catalog-featured';
-import { resolveProductImageUrl } from '@/lib/product-image-url';
+import { shuffleProductsDaily } from '@/lib/daily-shuffle';
+import { enrichFeaturedFromCatalog } from '@/lib/featured-catalog-enrich';
+import { productToFeatured } from '@/lib/store-products';
 import type { Product } from '@/types/product';
 
-function discountPercent(row: CatalogRow): number {
-  const compareAt = row.compare_at_price_usd;
-  if (compareAt == null || compareAt <= row.prices.public) return 0;
-  return Math.round((1 - row.prices.public / compareAt) * 100);
+/** Productos visibles por vista en el panel del carrusel. */
+export const FLASH_DEALS_PER_VIEW = 4;
+
+export function chunkFlashDealProducts<T>(
+  items: readonly T[],
+  size = FLASH_DEALS_PER_VIEW,
+): T[][] {
+  const pages: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    pages.push(items.slice(i, i + size));
+  }
+  return pages;
 }
 
-/** Productos del catálogo con precio tachado (compare_at > precio público). */
-export function getFlashDealProducts(limit = 8): FeaturedProduct[] {
-  return getCatalogRows()
-    .filter((row) => discountPercent(row) > 0)
-    .sort((a, b) => discountPercent(b) - discountPercent(a))
-    .slice(0, limit)
-    .map((row) => catalogRowToFeatured(row));
-}
+export const FLASH_DEALS_LIMIT = 12;
+export const MIN_FLASH_DEALS = 3;
 
-/** Combina ofertas del catálogo con precios e imágenes en vivo del API. */
+/** Ofertas relámpago: solo productos del inventario en vivo con stock disponible. */
 export function resolveFlashDealProducts(
   storeProducts: Product[] | undefined,
-  limit = 8,
+  limit = FLASH_DEALS_LIMIT,
 ): FeaturedProduct[] {
-  const deals = getFlashDealProducts(limit);
-  if (!storeProducts?.length) return deals;
+  if (!storeProducts?.length) return [];
 
-  const byId = new Map(storeProducts.map((product) => [product.id, product]));
-  return deals.map((featured) => {
-    const live = byId.get(featured.id);
-    if (!live) return featured;
-    return {
-      ...featured,
-      price: live.price,
-      image: resolveProductImageUrl(live),
-      brand: live.brand ?? featured.brand ?? null,
-      name: live.name,
-    };
-  });
+  const inStock = storeProducts.filter((product) => product.stock > 0 && product.price > 0);
+  if (inStock.length < MIN_FLASH_DEALS) return [];
+
+  return shuffleProductsDaily(inStock)
+    .slice(0, limit)
+    .map((product) => enrichFeaturedFromCatalog(productToFeatured(product)));
 }
 
 /** Segundos hasta medianoche (America/Lima) para el contador diario. */

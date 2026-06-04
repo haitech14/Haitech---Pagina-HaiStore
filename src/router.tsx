@@ -23,6 +23,10 @@ const AccountPage = lazyWithRetry(
   () => import('@/pages/account').then((m) => ({ default: m.AccountPage })),
   'mi cuenta',
 );
+const FavoritesPage = lazyWithRetry(
+  () => import('@/pages/favorites').then((m) => ({ default: m.FavoritesPage })),
+  'favoritos',
+);
 const ProductDetailPage = lazyWithRetry(
   () => import('@/pages/product-detail').then((m) => ({ default: m.ProductDetailPage })),
   'producto',
@@ -56,6 +60,48 @@ const AdminInventarioPage = lazyWithRetry(
 const AdminClientesPage = lazyWithRetry(
   () => import('@/pages/admin/AdminClientesPage').then((m) => ({ default: m.AdminClientesPage })),
   'clientes',
+);
+const AdminCrmLayout = lazyWithRetry(
+  () =>
+    import('@/pages/admin/AdminCrmLayout').then((m) => ({
+      default: m.AdminCrmLayout,
+    })),
+  'crm-layout',
+);
+const AdminCrmResumenPage = lazyWithRetry(
+  () =>
+    import('@/pages/admin/AdminCrmResumenPage').then((m) => ({
+      default: m.AdminCrmResumenPage,
+    })),
+  'crm-resumen',
+);
+const AdminCrmPipelinePage = lazyWithRetry(
+  () =>
+    import('@/pages/admin/AdminCrmPipelinePage').then((m) => ({
+      default: m.AdminCrmPipelinePage,
+    })),
+  'crm-pipeline',
+);
+const AdminCrmMuralPage = lazyWithRetry(
+  () =>
+    import('@/pages/admin/AdminCrmMuralPage').then((m) => ({
+      default: m.AdminCrmMuralPage,
+    })),
+  'crm-mural',
+);
+const AdminCrmClientesPage = lazyWithRetry(
+  () =>
+    import('@/pages/admin/AdminCrmClientesPage').then((m) => ({
+      default: m.AdminCrmClientesPage,
+    })),
+  'crm-clientes',
+);
+const AdminMarketingPage = lazyWithRetry(
+  () =>
+    import('@/pages/admin/AdminMarketingPage').then((m) => ({
+      default: m.AdminMarketingPage,
+    })),
+  'marketing',
 );
 const AdminConfiguracionLayout = lazyWithRetry(
   () =>
@@ -179,13 +225,28 @@ export const router = createBrowserRouter([
       { path: 'productos', element: <Navigate to="/admin/inventario" replace /> },
       { path: 'inventario', element: withSuspense(<AdminInventarioPage />) },
       { path: 'clientes', element: withSuspense(<AdminClientesPage />) },
-      { path: 'marketing', element: withSuspense(<AdminPlaceholder page="marketing" />) },
+      {
+        path: 'crm',
+        element: withSuspense(<AdminCrmLayout />),
+        children: [
+          { index: true, element: <Navigate to="/admin/crm/resumen" replace /> },
+          { path: 'resumen', element: withSuspense(<AdminCrmResumenPage />) },
+          { path: 'pipeline', element: withSuspense(<AdminCrmPipelinePage />) },
+          { path: 'mural', element: withSuspense(<AdminCrmMuralPage />) },
+          { path: 'clientes', element: withSuspense(<AdminCrmClientesPage />) },
+        ],
+      },
+      { path: 'marketing', element: withSuspense(<AdminMarketingPage />) },
       { path: 'reportes', element: withSuspense(<AdminPlaceholder page="reportes" />) },
       {
         path: 'configuracion',
         element: withSuspense(<AdminConfiguracionLayout />),
         children: [
           { index: true, element: <Navigate to="/admin/configuracion/general" replace /> },
+          {
+            path: 'usuarios',
+            element: <Navigate to="/admin/crm/clientes" replace />,
+          },
           { path: ':section', element: withSuspense(<AdminConfiguracionSectionPage />) },
         ],
       },
@@ -203,7 +264,7 @@ export const router = createBrowserRouter([
   },
   { path: '/panel', element: <Navigate to="/admin" replace /> },
   { path: '/panel/inventario', element: <Navigate to="/admin/inventario" replace /> },
-  { path: '/panel/usuarios', element: <Navigate to="/admin/configuracion/usuarios" replace /> },
+  { path: '/panel/usuarios', element: <Navigate to="/admin/crm/clientes" replace /> },
   {
     path: '/panel/configuracion',
     element: <Navigate to="/admin/configuracion/general" replace />,
@@ -220,6 +281,7 @@ export const router = createBrowserRouter([
       { path: 'tienda/producto/:id', element: withSuspense(<ProductDetailPage />) },
       { path: 'contacto', element: withSuspense(<ContactPage />) },
       { path: 'mi-cuenta', element: withSuspense(<AccountPage />) },
+      { path: 'favoritos', element: withSuspense(<FavoritesPage />) },
       { path: 'terminos', element: withSuspense(<TermsPage />) },
       { path: 'privacidad', element: withSuspense(<PrivacyPage />) },
       { path: '*', element: withSuspense(<NotFoundPage />) },

@@ -1,11 +1,14 @@
-import { useMemo, useState } from 'react';
-import { Pencil, Search, Users } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
+import { FileUp, MessageCircle, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
+import { CustomerCreateDialog } from '@/components/admin/customer-create-dialog';
 import {
   CustomerEditDialog,
   type CustomerEditFormValues,
 } from '@/components/admin/customer-edit-dialog';
-import { Badge } from '@/components/ui/badge';
+import { CustomerListProductsCell } from '@/components/admin/customer-list-products-cell';
+import { CustomerListRoleCell } from '@/components/admin/customer-list-role-cell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,24 +27,45 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useAdminProductsQuery } from '@/hooks/use-admin-dashboard';
 import {
   useAdminStoreCustomers,
   useAdminStoreCustomersMutations,
 } from '@/hooks/use-admin-customers';
 import {
+  buildCustomerWhatsAppMessage,
+  getCustomerWhatsAppPhone,
+  openCustomerWhatsApp,
+} from '@/lib/customer-whatsapp-message';
+import {
   CUSTOMER_ROLE_SECTIONS,
   filterAndSortCustomers,
   isHaiSupportOnlyCustomer,
-  roleBadgeLabel,
   type CustomerRoleGroupKey,
   type CustomerSortKey,
 } from '@/lib/customers-by-role';
+import { CUSTOMER_LIST_COLUMNS, getCustomerListCellValue } from '@/lib/persona-report-columns';
+import { personaFormToApiBody } from '@/lib/persona-customer-payload';
+import type { UserRole } from '@/types/product';
 import type { StoreCustomerWithRole } from '@/types/store';
 
 const ALL_ROLES = 'all' as const;
 
-function formatRegisteredAt(iso: string): string {
-  return new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium' }).format(new Date(iso));
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result !== 'string') {
+        reject(new Error('No se pudo leer el archivo'));
+        return;
+      }
+      const base64 = result.includes(',') ? result.split(',')[1] : result;
+      resolve(base64 ?? '');
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('Error al leer el archivo'));
+    reader.readAsDataURL(file);
+  });
 }
 
 interface RegisteredCustomersPanelProps {
@@ -52,12 +76,22 @@ export function RegisteredCustomersPanel({ variant = 'page' }: RegisteredCustome
   const { data, isLoading, isError } = useAdminStoreCustomers();
   const customers = data?.customers ?? [];
   const counts = data?.counts;
-  const { updateCustomer } = useAdminStoreCustomersMutations();
+  const { data: inventoryData } = useAdminProductsQuery();
+  const inventoryProducts = inventoryData ?? [];
+  const {
+    updateCustomer,
+    createCustomer,
+    importPersonaExcel,
+    patchCustomerField,
+    deleteCustomer,
+  } = useAdminStoreCustomersMutations();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<CustomerRoleGroupKey | typeof ALL_ROLES>(ALL_ROLES);
   const [sort, setSort] = useState<CustomerSortKey>('name');
   const [editing, setEditing] = useState<StoreCustomerWithRole | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const filtered = useMemo(
     () =>
@@ -76,15 +110,126 @@ export function RegisteredCustomersPanel({ variant = 'page' }: RegisteredCustome
     await updateCustomer.mutateAsync({ id: editing.id, values });
   };
 
+  const handleCreate = async (body: ReturnType<typeof personaFormToApiBody>) => {
+    await createCustomer.mutateAsync(body);
+    toast.success('Cliente creado correctamente');
+  };
+
+  const productNameById = useMemo(
+    () => new Map(inventoryProducts.map((p) => [p.id, p.name])),
+    [inventoryProducts],
+  );
+
+  const handleRoleChange = async (customer: StoreCustomerWithRole, role: UserRole) => {
+    try {
+      await patchCustomerField.mutateAsync({
+        id: customer.id,
+        body: { profile_role: role },
+      });
+      toast.success('Tipo de cliente actualizado');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo actualizar el rol');
+    }
+  };
+
+  const handleProductsSave = async (customer: StoreCustomerWithRole, productIds: string[]) => {
+    try {
+      await patchCustomerField.mutateAsync({
+        id: customer.id,
+        body: { productos_interes: productIds },
+      });
+      toast.success('Productos de interés guardados');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudieron guardar los productos');
+    }
+  };
+
+  const handleWhatsApp = (customer: StoreCustomerWithRole) => {
+    const ids = customer.productos_interes ?? [];
+    const productNames = ids
+      .map((id) => productNameById.get(id))
+      .filter((name): name is string => Boolean(name));
+    const phone = getCustomerWhatsAppPhone(customer);
+    if (!phone.replace(/\D/g, '').match(/\d{9,}/)) {
+      toast.error('El cliente no tiene un número de celular válido');
+      return;
+    }
+    const opened = openCustomerWhatsApp(customer, productNames);
+    if (!opened) {
+      void navigator.clipboard.writeText(buildCustomerWhatsAppMessage(customer, productNames));
+      toast.success('Mensaje copiado. Pégalo en WhatsApp.');
+    }
+  };
+
+  const handleDelete = async (customer: StoreCustomerWithRole) => {
+    const label = customer.full_name ?? customer.company_name ?? customer.email;
+    if (!window.confirm(`¿Eliminar el cliente «${label}»? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    try {
+      await deleteCustomer.mutateAsync(customer.id);
+      toast.success('Cliente eliminado');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo eliminar el cliente');
+    }
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      const fileBase64 = await fileToBase64(file);
+      const result = await importPersonaExcel.mutateAsync(fileBase64);
+      toast.success(
+        `Importación: ${result.created} nuevos, ${result.updated} actualizados${result.errors.length ? `, ${result.errors.length} errores` : ''}.`,
+      );
+      if (result.errors.length > 0) {
+        console.warn('[persona-import]', result.errors);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo importar el Excel');
+    }
+  };
+
+  const headerActions = (
+    <div className="flex flex-wrap items-center gap-2">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        className="sr-only"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void handleImportFile(file);
+          event.target.value = '';
+        }}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        className="gap-2"
+        disabled={importPersonaExcel.isPending}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <FileUp className="size-4" aria-hidden="true" />
+        {importPersonaExcel.isPending ? 'Importando…' : 'Importar Excel'}
+      </Button>
+      <Button
+        type="button"
+        className="gap-2 bg-red-600 hover:bg-red-500"
+        onClick={() => setCreating(true)}
+      >
+        <Plus className="size-4" aria-hidden="true" />
+        Nuevo Cliente
+      </Button>
+    </div>
+  );
+
   const summary = !isLoading && customers.length > 0 && (
     <p className="text-sm text-muted-foreground" role="status">
       {filtered.length === customers.length
         ? `${customers.length} cliente${customers.length === 1 ? '' : 's'}`
         : `${filtered.length} de ${customers.length} clientes`}
       {totalWithAccount > 0 ? ` · ${totalWithAccount} con cuenta` : ''}
-      {counts && counts.haisupport > 0
-        ? ` · ${counts.haisupport} HaiSupport`
-        : ''}
+      {counts && counts.haisupport > 0 ? ` · ${counts.haisupport} HaiSupport` : ''}
     </p>
   );
 
@@ -102,7 +247,7 @@ export function RegisteredCustomersPanel({ variant = 'page' }: RegisteredCustome
           <Input
             id="customers-search"
             type="search"
-            placeholder="Nombre, correo, empresa…"
+            placeholder="Nombre, correo, empresa, RUC, campos Persona…"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="pl-9"
@@ -166,7 +311,7 @@ export function RegisteredCustomersPanel({ variant = 'page' }: RegisteredCustome
 
       {!isLoading && customers.length === 0 && !isError && (
         <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-          Aún no hay clientes registrados en el sistema.
+          Aún no hay clientes registrados. Importa el Excel Persona o crea un cliente nuevo.
         </p>
       )}
 
@@ -180,64 +325,108 @@ export function RegisteredCustomersPanel({ variant = 'page' }: RegisteredCustome
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-[11rem]">Cliente</TableHead>
-              <TableHead className="min-w-[7rem]">Tipo de cliente</TableHead>
-              <TableHead className="hidden min-w-[8rem] sm:table-cell">Empresa</TableHead>
-              <TableHead className="hidden min-w-[6rem] md:table-cell">Teléfono</TableHead>
-              <TableHead className="hidden w-32 lg:table-cell">Registro</TableHead>
-              <TableHead className="w-14 text-right">
-                <span className="sr-only">Acciones</span>
+              {CUSTOMER_LIST_COLUMNS.map((column) => (
+                <TableHead
+                  key={column.key}
+                  className="whitespace-nowrap text-xs font-semibold"
+                  style={{ minWidth: column.minWidth }}
+                >
+                  {column.label}
+                </TableHead>
+              ))}
+              <TableHead className="sticky right-0 min-w-[8.5rem] bg-card text-right text-xs font-semibold">
+                Acciones
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((customer) => (
-              <TableRow key={customer.id}>
-                <TableCell>
-                  <p className="font-medium">{customer.full_name ?? '—'}</p>
-                  <p className="text-xs text-muted-foreground">{customer.email}</p>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <Badge variant="outline" className="font-normal whitespace-nowrap">
-                      {roleBadgeLabel(customer)}
-                    </Badge>
-                    {isHaiSupportOnlyCustomer(customer) ? (
-                      <Badge variant="secondary" className="font-normal whitespace-nowrap text-xs">
-                        HaiSupport
-                      </Badge>
-                    ) : null}
-                  </div>
-                </TableCell>
-                <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
-                  {customer.company_name ?? '—'}
-                </TableCell>
-                <TableCell className="hidden text-sm tabular-nums md:table-cell">
-                  {customer.phone ?? '—'}
-                </TableCell>
-                <TableCell className="hidden text-xs text-muted-foreground lg:table-cell">
-                  {formatRegisteredAt(customer.created_at)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {isHaiSupportOnlyCustomer(customer) ? (
-                    <span className="text-xs text-muted-foreground" title="Editar en HaiSupport">
-                      —
-                    </span>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="size-9"
-                      aria-label={`Editar ${customer.full_name ?? customer.email}`}
-                      onClick={() => setEditing(customer)}
-                    >
-                      <Pencil className="size-4" aria-hidden="true" />
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+            {filtered.map((customer) => {
+              const readOnly = isHaiSupportOnlyCustomer(customer);
+              const fieldBusy =
+                patchCustomerField.isPending && patchCustomerField.variables?.id === customer.id;
+              return (
+                <TableRow key={`${customer.source ?? 'store'}:${customer.id}`}>
+                  {CUSTOMER_LIST_COLUMNS.map((column) => {
+                    if (column.key === 'tipo_cliente') {
+                      return (
+                        <TableCell key={column.key} className="text-xs">
+                          <CustomerListRoleCell
+                            customer={customer}
+                            disabled={readOnly || fieldBusy}
+                            onRoleChange={(role) => void handleRoleChange(customer, role)}
+                          />
+                        </TableCell>
+                      );
+                    }
+                    if (column.key === 'productos_interes') {
+                      return (
+                        <TableCell key={column.key} className="text-xs">
+                          <CustomerListProductsCell
+                            customer={customer}
+                            products={inventoryProducts}
+                            disabled={readOnly || fieldBusy}
+                            isSaving={fieldBusy}
+                            onSave={(ids) => void handleProductsSave(customer, ids)}
+                          />
+                        </TableCell>
+                      );
+                    }
+                    const value = getCustomerListCellValue(customer, column.key);
+                    return (
+                      <TableCell
+                        key={column.key}
+                        className="max-w-[16rem] truncate text-xs"
+                        title={value || undefined}
+                      >
+                        {value || '—'}
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell className="sticky right-0 bg-card text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="size-9 text-green-700 hover:bg-green-50 hover:text-green-800"
+                        aria-label={`WhatsApp con ${customer.full_name ?? customer.email}`}
+                        title="WhatsApp"
+                        onClick={() => handleWhatsApp(customer)}
+                      >
+                        <MessageCircle className="size-4" aria-hidden="true" />
+                      </Button>
+                      {!readOnly && (
+                        <>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="size-9"
+                            aria-label={`Editar ${customer.full_name ?? customer.email}`}
+                            title="Editar"
+                            onClick={() => setEditing(customer)}
+                          >
+                            <Pencil className="size-4" aria-hidden="true" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="size-9 text-destructive hover:bg-destructive/10"
+                            disabled={deleteCustomer.isPending}
+                            aria-label={`Eliminar ${customer.full_name ?? customer.email}`}
+                            title="Eliminar"
+                            onClick={() => void handleDelete(customer)}
+                          >
+                            <Trash2 className="size-4" aria-hidden="true" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       )}
@@ -256,43 +445,50 @@ export function RegisteredCustomersPanel({ variant = 'page' }: RegisteredCustome
     />
   );
 
+  const createDialog = (
+    <CustomerCreateDialog
+      open={creating}
+      onOpenChange={setCreating}
+      onSubmit={handleCreate}
+      isSaving={createCustomer.isPending}
+    />
+  );
+
   if (variant === 'embedded') {
     return (
-      <section className="space-y-4" aria-labelledby="settings-customers-heading">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-start gap-2">
-            <Users className="mt-0.5 size-4 shrink-0 text-red-600" aria-hidden="true" />
-            <div>
-              <h2 id="settings-customers-heading" className="text-base font-semibold">
-                Clientes registrados
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Listado único con tipo de cliente, filtros y edición de datos.
-              </p>
-            </div>
+      <section className="space-y-4" aria-label="Clientes">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            Listado operativo Persona, filtros y alta manual.
+          </p>
+          <div className="flex flex-col items-stretch gap-2 sm:items-end">
+            {headerActions}
+            {summary}
           </div>
-          {summary}
         </div>
         {filters}
         {table}
         {editDialog}
+        {createDialog}
       </section>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="space-y-1">
-        <h2 className="text-2xl font-bold tracking-tight text-balance">Clientes registrados</h2>
-        <p className="text-muted-foreground">
-          Todos los clientes en una sola tabla. El tipo de cliente define la lista de precios en la
-          tienda.
-        </p>
-        {summary}
-      </header>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground">
+            Mismas columnas del listado de referencia. El detalle completo se edita en el formulario.
+          </p>
+          {summary}
+        </div>
+        {headerActions}
+      </div>
       {filters}
       {table}
       {editDialog}
+      {createDialog}
     </div>
   );
 }

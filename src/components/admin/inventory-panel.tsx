@@ -3,7 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
-  Columns3,
   Layers,
   PackagePlus,
   Paperclip,
@@ -57,7 +56,7 @@ export function InventoryPanel() {
   const { data: products, isLoading, isError, error, refetch, isFetching } = useAdminInventory();
   const { data: warehouses = DEFAULT_WAREHOUSES } = useWarehouses();
   const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const { columnOrder, reorder, resetOrder, isDefaultOrder } = useInventoryColumnOrder();
+  const { columnOrder, reorder } = useInventoryColumnOrder();
   const {
     deleteProduct,
     updateProduct,
@@ -272,11 +271,16 @@ export function InventoryPanel() {
         </div>
       </header>
 
-      <div className="flex flex-col gap-3 rounded-lg border bg-muted/20 p-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-        <div className="space-y-2 sm:min-w-[220px]">
-          <Label htmlFor="inv-category-filter">Categoría</Label>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/20 p-4">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-3">
+          <Label htmlFor="inv-category-filter" className="shrink-0 text-sm font-medium">
+            Categoría
+          </Label>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger id="inv-category-filter" className="h-11 bg-background">
+            <SelectTrigger
+              id="inv-category-filter"
+              className="h-10 min-w-[12rem] max-w-full flex-1 bg-background sm:max-w-xs"
+            >
               <SelectValue placeholder="Todas las categorías" />
             </SelectTrigger>
             <SelectContent>
@@ -290,34 +294,20 @@ export function InventoryPanel() {
           </Select>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant={batchMode ? 'default' : 'outline'}
-            size="sm"
-            onClick={toggleBatchMode}
-            className={cn(
-              'gap-1.5 min-h-9',
-              batchMode && 'bg-red-600 hover:bg-red-500 focus-visible:ring-red-600',
-            )}
-            aria-pressed={batchMode}
-          >
-            <Layers className="size-4" aria-hidden="true" />
-            Lotes
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={resetOrder}
-            disabled={isDefaultOrder}
-            className="gap-1.5"
-            title="Restaurar el orden predeterminado de columnas"
-          >
-            <Columns3 className="size-4" aria-hidden="true" />
-            Restaurar columnas
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant={batchMode ? 'default' : 'outline'}
+          size="sm"
+          onClick={toggleBatchMode}
+          className={cn(
+            'shrink-0 gap-1.5 min-h-10',
+            batchMode && 'bg-red-600 hover:bg-red-500 focus-visible:ring-red-600',
+          )}
+          aria-pressed={batchMode}
+        >
+          <Layers className="size-4" aria-hidden="true" />
+          Lotes
+        </Button>
       </div>
 
       {batchMode && (

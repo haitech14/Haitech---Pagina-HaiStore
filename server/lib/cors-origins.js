@@ -21,8 +21,9 @@ export function getCorsOrigins() {
   return [...origins];
 }
 
+/** localhost y redes privadas (puertos Vite 517x). */
 export const lanOriginPattern =
-  /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}):517\d+$/;
+  /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):517\d+$/;
 
 export function isCorsOriginAllowed(origin, allowedOrigins) {
   if (!origin) return true;

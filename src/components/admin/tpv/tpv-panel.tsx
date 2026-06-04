@@ -1,14 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  FileText,
-  Minus,
-  Plus,
-  Receipt,
-  ScrollText,
-  Search,
-  ShoppingCart,
-  Trash2,
-} from 'lucide-react';
+import { Minus, Plus, Search, ShoppingCart, Trash2 } from 'lucide-react';
 
 import {
   AdminPdfPreviewDialog,
@@ -21,17 +12,19 @@ import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
 import { useCreateStoreOrder } from '@/hooks/use-create-store-order';
 import { buildProformaPayloadFromTpv } from '@/lib/build-proforma-payload';
+import { TPV_ACCENT_TEXT_CLASS, TPV_PRIMARY_BUTTON_CLASS } from '@/lib/tpv-highlight';
+import { cn } from '@/lib/utils';
 import { buildTpvDocumentPdf } from '@/lib/generate-tpv-document-pdf';
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
 import { getEffectivePrice } from '@/lib/pricing';
 import { haitechFormToClient, tpvCustomerToHaitechForm } from '@/lib/haitech-client-mappers';
-import { nextTpvDocumentNumber, peekTpvDocumentNumber } from '@/lib/tpv-document-serial';
+import { nextTpvDocumentNumber } from '@/lib/tpv-document-serial';
 import { formatTpvMoney, unitPriceForTpv } from '@/lib/tpv-pricing';
-import { cn } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { InventoryProduct } from '@/types/product';
 import { TpvCatalogList } from '@/components/admin/tpv/tpv-catalog-list';
 import { TpvCustomerForm } from '@/components/admin/tpv/tpv-customer-form';
+import { TpvDocumentTypeFieldset } from '@/components/admin/tpv/tpv-document-type-fieldset';
 import type { TpvCustomer, TpvDocumentType, TpvLineItem } from '@/types/tpv';
 import { TPV_DOCUMENT_META } from '@/types/tpv';
 import type { PriceRole } from '@/types/product';
@@ -69,8 +62,12 @@ function productToLine(
 function validateCustomer(type: TpvDocumentType, customer: TpvCustomer): string | null {
   if (!customer.razonSocial.trim()) return 'Indique el nombre o razón social del cliente.';
   const doc = customer.documento.replace(/\D/g, '');
-  if (type === 'factura') {
-    if (doc.length !== 11) return 'La factura requiere un RUC válido de 11 dígitos.';
+  if (type === 'factura' || type === 'guia_remision') {
+    if (doc.length !== 11) {
+      return type === 'guia_remision'
+        ? 'La guía de remisión requiere un RUC válido de 11 dígitos.'
+        : 'La factura requiere un RUC válido de 11 dígitos.';
+    }
   } else if (type === 'boleta') {
     if (doc.length !== 8 && doc.length !== 11) {
       return 'La boleta requiere DNI (8 dígitos) o RUC (11 dígitos).';
@@ -86,6 +83,7 @@ export function TpvPanel() {
   const createStoreOrder = useCreateStoreOrder();
 
   const [search, setSearch] = useState('');
+  const [documentType, setDocumentType] = useState<TpvDocumentType>('factura');
   const [cart, setCart] = useState<TpvLineItem[]>([]);
   const [customer, setCustomer] = useState<TpvCustomer>(EMPTY_CUSTOMER);
   const [preview, setPreview] = useState<AdminPdfPreview | null>(null);
@@ -173,10 +171,14 @@ export function TpvPanel() {
           cart,
           company,
         );
-        const url = URL.createObjectURL(generated.blob);
+        const pdfBlob =
+          generated.blob.type === 'application/pdf'
+            ? generated.blob
+            : new Blob([generated.blob], { type: 'application/pdf' });
+        const url = URL.createObjectURL(pdfBlob);
         setPreview({
           url,
-          blob: generated.blob,
+          blob: pdfBlob,
           filename: generated.filename,
           documentNumber: generated.documentNumber,
           documentLabel: meta.label,
@@ -233,24 +235,49 @@ export function TpvPanel() {
   return (
     <div className="space-y-4">
       <div className="grid gap-6 xl:grid-cols-[1fr_minmax(320px,400px)]">
+        <div className="flex flex-col gap-4">
         {/* Catálogo */}
         <section className="rounded-xl border bg-card p-4">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Catálogo rápido</h3>
-            <div className="relative max-w-md flex-1">
-              <Search
-                className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por nombre, SKU o marca…"
-                className="pl-9"
-                aria-label="Buscar productos en TPV"
-              />
+          <form
+            className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-end"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void generateDocument(documentType);
+            }}
+          >
+            <TpvDocumentTypeFieldset
+              value={documentType}
+              onChange={setDocumentType}
+              disabled={generating !== null}
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-end">
+              <div className="relative min-w-0 flex-1 space-y-1.5">
+                <label htmlFor="tpv-catalog-search" className="text-xs font-medium text-muted-foreground">
+                  Catálogo rápido
+                </label>
+                <Search
+                  className="pointer-events-none absolute bottom-2.5 left-3 size-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <Input
+                  id="tpv-catalog-search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar por nombre, SKU o marca…"
+                  className="h-11 pl-9"
+                />
+              </div>
+              <Button
+                type="submit"
+                className={cn('h-11 shrink-0', TPV_PRIMARY_BUTTON_CLASS)}
+                disabled={generating !== null}
+              >
+                {generating
+                  ? 'Generando…'
+                  : `Generar ${TPV_DOCUMENT_META[documentType].label}`}
+              </Button>
             </div>
-          </div>
+          </form>
 
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Cargando productos…</p>
@@ -265,44 +292,9 @@ export function TpvPanel() {
           )}
         </section>
 
-        {/* Carrito y cliente */}
-        <aside className="flex flex-col gap-4">
-          <section className="rounded-xl border border-[hsl(var(--admin-accent))]/25 bg-[hsl(var(--admin-accent))]/5 p-3 sm:p-4">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Generar comprobante PDF</p>
-            <div className="grid grid-cols-3 gap-2" role="group" aria-label="Tipo de comprobante">
-              {(['proforma', 'factura', 'boleta'] as const).map((type) => {
-                const meta = TPV_DOCUMENT_META[type];
-                const Icon =
-                  type === 'proforma' ? ScrollText : type === 'factura' ? FileText : Receipt;
-                const isFactura = type === 'factura';
-                return (
-                  <Button
-                    key={type}
-                    type="button"
-                    variant={isFactura ? 'default' : 'outline'}
-                    className={cn(
-                      'h-auto min-h-11 flex-col gap-1 px-2 py-2.5',
-                      isFactura && 'bg-[hsl(var(--admin-accent))] hover:opacity-90',
-                    )}
-                    disabled={generating !== null}
-                    onClick={() => void generateDocument(type)}
-                  >
-                    <Icon className="size-4 shrink-0" aria-hidden="true" />
-                    <span className="text-center text-[0.7rem] font-semibold leading-tight sm:text-xs">
-                      {meta.label}
-                    </span>
-                    <span className="text-center text-[0.6rem] font-normal leading-tight opacity-80">
-                      {peekTpvDocumentNumber(type)}
-                    </span>
-                  </Button>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="rounded-xl border bg-card p-4">
+        <section className="rounded-xl border bg-card p-4" aria-labelledby="tpv-cart-heading">
             <div className="mb-3 flex items-center justify-between gap-2">
-              <h3 className="flex items-center gap-2 text-sm font-semibold">
+              <h3 id="tpv-cart-heading" className="flex items-center gap-2 text-sm font-semibold">
                 <ShoppingCart className="size-4" aria-hidden="true" />
                 Carrito ({cart.length})
               </h3>
@@ -316,7 +308,7 @@ export function TpvPanel() {
             {cart.length === 0 ? (
               <p className="text-sm text-muted-foreground">Seleccione productos del catálogo.</p>
             ) : (
-              <ul className="max-h-48 space-y-2 overflow-y-auto">
+              <ul className="max-h-56 space-y-2 overflow-y-auto">
                 {cart.map((line) => (
                   <li
                     key={line.productId}
@@ -377,13 +369,15 @@ export function TpvPanel() {
               </div>
               <div className="flex justify-between font-bold">
                 <dt>Total</dt>
-                <dd className="text-[hsl(var(--admin-accent))]">
+                <dd className={TPV_ACCENT_TEXT_CLASS}>
                   {formatTpvMoney(totals.subtotal, customer.currency)}
                 </dd>
               </div>
             </dl>
-          </section>
+        </section>
+        </div>
 
+        <aside className="flex flex-col gap-4">
           <section className="rounded-xl border bg-card p-4">
             <h3 className="mb-3 text-sm font-semibold">Cliente</h3>
             <TpvCustomerForm customer={customer} onChange={setCustomer} />

@@ -5,7 +5,6 @@ import {
   ChevronUp,
   Clock,
   Mail,
-  MessageCircle,
   Phone,
   ShieldCheck,
 } from 'lucide-react';
@@ -159,20 +158,6 @@ function FooterCollapseTab({
         )}
       </button>
     </div>
-  );
-}
-
-function ChatFloatButton() {
-  return (
-    <a
-      href={WHATSAPP_LINK}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Chatear con asesor"
-      className="fixed bottom-5 right-5 z-50 flex size-14 items-center justify-center rounded-lg bg-red-600 text-white shadow-[0_4px_20px_rgba(220,38,38,0.45)] transition-transform hover:bg-red-500 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 sm:bottom-6 sm:right-6"
-    >
-      <MessageCircle className="size-7" strokeWidth={1.75} aria-hidden="true" />
-    </a>
   );
 }
 
@@ -346,8 +331,6 @@ export function SiteFooter() {
           </p>
         </div>
       </footer>
-
-      <ChatFloatButton />
     </>
   );
 }

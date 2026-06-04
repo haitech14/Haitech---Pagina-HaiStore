@@ -29,6 +29,7 @@ import {
   shipmentToForm,
   validateShipmentForm,
 } from '@/lib/shipment-form';
+import { peekShipmentOrderRef } from '@/lib/shipment-order-serial';
 import {
   createShipment,
   generateShipmentTrackingCode,
@@ -167,6 +168,7 @@ export function NewShipmentDialog({
               <Input
                 id="shipment-order"
                 value={form.orderRef}
+                placeholder={peekShipmentOrderRef()}
                 onChange={(e) => setForm((prev) => ({ ...prev, orderRef: e.target.value }))}
               />
             </div>

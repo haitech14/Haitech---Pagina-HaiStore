@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 import { AdminEmptyState } from '@/components/admin/AdminEmptyState';
 import { AdminOrderStatusBadge } from '@/components/admin/AdminOrderStatusBadge';
+import { ImportedSalesErpTable } from '@/components/admin/sales/imported-sales-erp-table';
 import { ProformaEditDialog } from '@/components/admin/sales/proforma-edit-dialog';
 import { SaleOrderActions } from '@/components/admin/sales/sale-order-actions';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ALL_IMPORTED_MONTHS } from '@/hooks/use-admin-imported-sales';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
 import { formatOrderTotal, mapStoreOrderStatusToBadge } from '@/lib/admin-order-status';
@@ -41,7 +43,10 @@ import {
 } from '@/lib/proforma-whatsapp-message';
 import { downloadProformaPdf } from '@/lib/regenerate-proforma-pdf';
 import { formatTpvMoney } from '@/lib/tpv-pricing';
+import { importedSaleMatchesQuery } from '@/lib/ventas-report-columns';
+import { cn } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
+import type { ImportedSaleDocument, VentasMonthSummary } from '@/types/imported-sale';
 import { PRICE_ROLE_LABELS, isPriceRole } from '@/types/product';
 import {
   PROFORMA_FOLLOW_UP_LABELS,
@@ -55,11 +60,12 @@ const ALL_STATUS = 'all' as const;
 const ALL_SELLERS = 'all' as const;
 const ALL_TYPES = 'all' as const;
 
-type RowType = 'venta' | 'cotizacion';
+type RowType = 'venta' | 'cotizacion' | 'historico';
 
 type UnifiedRow =
   | { kind: 'venta'; id: string; sortDate: string; order: StoreOrder }
-  | { kind: 'cotizacion'; id: string; sortDate: string; proforma: ProformaRecord };
+  | { kind: 'cotizacion'; id: string; sortDate: string; proforma: ProformaRecord }
+  | { kind: 'historico'; id: string; sortDate: string; doc: ImportedSaleDocument };
 
 const paymentLabels: Record<string, string> = {
   paid: 'Pagado',
@@ -90,6 +96,12 @@ function formatDate(iso: string) {
   }
 }
 
+function matchesSelectedMonth(isoDate: string, selectedMonth: string): boolean {
+  if (selectedMonth === ALL_IMPORTED_MONTHS) return true;
+  const key = selectedMonth.slice(0, 7);
+  return isoDate.slice(0, 7) === key;
+}
+
 function orderCustomerLabel(order: StoreOrder): string {
   const customer = order.customer;
   return (
@@ -100,6 +112,31 @@ function orderCustomerLabel(order: StoreOrder): string {
   );
 }
 
+function importedCustomerLabel(doc: ImportedSaleDocument): string {
+  const linked = doc.customer;
+  return (
+    linked?.company_name?.trim() ||
+    linked?.full_name?.trim() ||
+    doc.customer_name ||
+    'Cliente'
+  );
+}
+
+function formatImportedTotal(doc: ImportedSaleDocument): string {
+  const amount = Number(doc.total);
+  if (doc.currency === 'PEN') {
+    return formatTpvMoney(amount, 'PEN');
+  }
+  return formatTpvMoney(amount, 'USD');
+}
+
+function documentBadgeVariant(documentType: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+  const upper = documentType.toUpperCase();
+  if (upper.includes('NOTA') && upper.includes('CREDITO')) return 'destructive';
+  if (upper.includes('FACTURA')) return 'default';
+  return 'secondary';
+}
+
 function cotizacionClientTypeLabel(proforma: ProformaRecord): string {
   if (proforma.source === 'product') return 'Cotización web';
   if (proforma.priceList && isPriceRole(proforma.priceList)) {
@@ -108,22 +145,38 @@ function cotizacionClientTypeLabel(proforma: ProformaRecord): string {
   return 'Mostrador';
 }
 
-function buildRows(orders: StoreOrder[], proformas: ProformaRecord[]): UnifiedRow[] {
-  const ventas: UnifiedRow[] = orders.map((order) => ({
-    kind: 'venta',
-    id: order.id,
-    sortDate: order.created_at,
-    order,
+function buildRows(
+  orders: StoreOrder[],
+  proformas: ProformaRecord[],
+  importedDocuments: ImportedSaleDocument[],
+  selectedMonth: string,
+): UnifiedRow[] {
+  const ventas: UnifiedRow[] = orders
+    .filter((order) => matchesSelectedMonth(order.created_at, selectedMonth))
+    .map((order) => ({
+      kind: 'venta' as const,
+      id: order.id,
+      sortDate: order.created_at,
+      order,
+    }));
+
+  const cotizaciones: UnifiedRow[] = proformas
+    .filter((proforma) => matchesSelectedMonth(proforma.createdAt, selectedMonth))
+    .map((proforma) => ({
+      kind: 'cotizacion' as const,
+      id: proforma.id,
+      sortDate: proforma.createdAt,
+      proforma,
+    }));
+
+  const historico: UnifiedRow[] = importedDocuments.map((doc) => ({
+    kind: 'historico' as const,
+    id: doc.id,
+    sortDate: doc.invoice_date,
+    doc,
   }));
 
-  const cotizaciones: UnifiedRow[] = proformas.map((proforma) => ({
-    kind: 'cotizacion',
-    id: proforma.id,
-    sortDate: proforma.createdAt,
-    proforma,
-  }));
-
-  return [...ventas, ...cotizaciones].sort(
+  return [...ventas, ...cotizaciones, ...historico].sort(
     (a, b) => new Date(b.sortDate).getTime() - new Date(a.sortDate).getTime(),
   );
 }
@@ -131,13 +184,23 @@ function buildRows(orders: StoreOrder[], proformas: ProformaRecord[]): UnifiedRo
 interface SalesUnifiedListPanelProps {
   orders: StoreOrder[];
   proformas: ProformaRecord[];
+  importedDocuments: ImportedSaleDocument[];
+  months: VentasMonthSummary[];
+  selectedMonth: string;
+  onMonthChange: (month: string) => void;
   isLoading?: boolean;
+  importedLoading?: boolean;
 }
 
 export function SalesUnifiedListPanel({
   orders,
   proformas,
+  importedDocuments,
+  months,
+  selectedMonth,
+  onMonthChange,
   isLoading = false,
+  importedLoading = false,
 }: SalesUnifiedListPanelProps) {
   const { data: companySettings } = useCompanySettings();
   const { updateProforma, deleteProforma } = useProformaMutations();
@@ -152,12 +215,26 @@ export function SalesUnifiedListPanel({
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
-  const rows = useMemo(() => buildRows(orders, proformas), [orders, proformas]);
+  const rows = useMemo(
+    () => buildRows(orders, proformas, importedDocuments, selectedMonth),
+    [orders, proformas, importedDocuments, selectedMonth],
+  );
+
+  const selectedMonthSummary = useMemo(
+    () => months.find((entry) => entry.month === selectedMonth),
+    [months, selectedMonth],
+  );
 
   const sellers = useMemo(() => {
-    const names = new Set(proformas.map((entry) => entry.sellerName).filter(Boolean));
+    const names = new Set<string>();
+    for (const proforma of proformas) {
+      if (proforma.sellerName) names.add(proforma.sellerName);
+    }
+    for (const doc of importedDocuments) {
+      if (doc.seller_name) names.add(doc.seller_name);
+    }
     return [...names].sort((a, b) => a.localeCompare(b, 'es'));
-  }, [proformas]);
+  }, [proformas, importedDocuments]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -183,6 +260,13 @@ export function SalesUnifiedListPanel({
         return haystack.includes(q);
       }
 
+      if (row.kind === 'historico') {
+        if (statusFilter !== ALL_STATUS) return false;
+        const doc = row.doc;
+        if (sellerFilter !== ALL_SELLERS && doc.seller_name !== sellerFilter) return false;
+        return importedSaleMatchesQuery(doc, q);
+      }
+
       const proforma = row.proforma;
       if (statusFilter !== ALL_STATUS && proforma.followUpStatus !== statusFilter) {
         return false;
@@ -206,6 +290,19 @@ export function SalesUnifiedListPanel({
       return haystack.includes(q);
     });
   }, [rows, query, sellerFilter, statusFilter, typeFilter]);
+
+  const filteredHistoricoDocs = useMemo(() => {
+    const q = query.trim();
+    return importedDocuments
+      .filter((doc) => matchesSelectedMonth(doc.invoice_date, selectedMonth))
+      .filter((doc) => sellerFilter === ALL_SELLERS || doc.seller_name === sellerFilter)
+      .filter((doc) => importedSaleMatchesQuery(doc, q))
+      .sort(
+        (a, b) => new Date(b.invoice_date).getTime() - new Date(a.invoice_date).getTime(),
+      );
+  }, [importedDocuments, selectedMonth, sellerFilter, query]);
+
+  const showErpReportTable = typeFilter === 'historico';
 
   const handleSave = async (payload: UpdateProformaPayload) => {
     if (!editing) return;
@@ -274,6 +371,46 @@ export function SalesUnifiedListPanel({
 
   return (
     <div className="space-y-4">
+      {importedLoading ? (
+        <p className="text-sm text-muted-foreground" role="status" aria-live="polite">
+          Cargando histórico ERP…
+        </p>
+      ) : null}
+      <div className="flex flex-col gap-3 rounded-lg border bg-muted/20 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <div className="w-full space-y-2 sm:min-w-[14rem] sm:max-w-xs">
+            <Label htmlFor="sales-month" className="text-xs font-medium uppercase tracking-wide">
+              Mes del reporte
+            </Label>
+            <Select value={selectedMonth} onValueChange={onMonthChange}>
+              <SelectTrigger id="sales-month">
+                <SelectValue placeholder="Seleccionar mes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_IMPORTED_MONTHS}>Todos los meses</SelectItem>
+                {months.map((entry) => (
+                  <SelectItem key={entry.month} value={entry.month}>
+                    {entry.label} ({entry.count})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {selectedMonthSummary ? (
+            <p className="text-sm text-muted-foreground sm:flex-1">
+              {selectedMonthSummary.count} comprobante
+              {selectedMonthSummary.count === 1 ? '' : 's'} en el periodo · USD{' '}
+              {selectedMonthSummary.totalUsd.toLocaleString('es-PE', {
+                minimumFractionDigits: 2,
+              })}
+              {selectedMonthSummary.totalPen !== 0
+                ? ` · S/ ${selectedMonthSummary.totalPen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`
+                : ''}
+            </p>
+          ) : null}
+        </div>
+      </div>
+
       <div className="flex flex-col gap-3 rounded-lg border bg-muted/20 p-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="min-w-[12rem] flex-1 space-y-2">
           <Label htmlFor="sales-search" className="text-xs font-medium uppercase tracking-wide">
@@ -287,16 +424,16 @@ export function SalesUnifiedListPanel({
             <Input
               id="sales-search"
               type="search"
-              placeholder="Nº, cliente, vendedor…"
+              placeholder="Nº, cliente, vendedor, RUC…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="pl-9"
             />
           </div>
         </div>
-        <div className="w-full space-y-2 sm:w-40">
+        <div className="w-full space-y-2 sm:w-44">
           <Label htmlFor="sales-filter-type" className="text-xs font-medium uppercase tracking-wide">
-            Tipo
+            Origen
           </Label>
           <Select
             value={typeFilter}
@@ -307,7 +444,8 @@ export function SalesUnifiedListPanel({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL_TYPES}>Todos</SelectItem>
-              <SelectItem value="venta">Ventas</SelectItem>
+              <SelectItem value="historico">Histórico (ERP)</SelectItem>
+              <SelectItem value="venta">Ventas tienda</SelectItem>
               <SelectItem value="cotizacion">Cotizaciones</SelectItem>
             </SelectContent>
           </Select>
@@ -355,10 +493,23 @@ export function SalesUnifiedListPanel({
         </div>
       </div>
 
-      {rows.length === 0 ? (
+      {showErpReportTable ? (
+        importedDocuments.length === 0 ? (
+          <AdminEmptyState
+            title="Sin histórico ERP"
+            description="Importa un Reporte de Ventas (.xlsx) para ver las mismas columnas del Excel."
+          />
+        ) : filteredHistoricoDocs.length === 0 ? (
+          <p className="rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+            Ningún comprobante coincide con los filtros.
+          </p>
+        ) : (
+          <ImportedSalesErpTable documents={filteredHistoricoDocs} />
+        )
+      ) : rows.length === 0 ? (
         <AdminEmptyState
-          title="Sin ventas ni cotizaciones"
-          description="Las ventas de la tienda y las cotizaciones generadas desde el TPV o la ficha de producto aparecerán aquí."
+          title="Sin registros de ventas"
+          description="Importa reportes Excel de ventas o registra cotizaciones y pedidos desde el TPV."
         />
       ) : filtered.length === 0 ? (
         <p className="rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
@@ -369,7 +520,7 @@ export function SalesUnifiedListPanel({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tipo</TableHead>
+                <TableHead>Origen</TableHead>
                 <TableHead>Nº</TableHead>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Vendedor</TableHead>
@@ -381,6 +532,51 @@ export function SalesUnifiedListPanel({
             </TableHeader>
             <TableBody>
               {filtered.map((row) => {
+                if (row.kind === 'historico') {
+                  const doc = row.doc;
+                  const totalNegative = Number(doc.total) < 0;
+                  return (
+                    <TableRow key={`historico-${doc.id}`}>
+                      <TableCell>
+                        <Badge
+                          variant={documentBadgeVariant(doc.document_type)}
+                          className="font-normal whitespace-nowrap"
+                        >
+                          {doc.document_type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-semibold tabular-nums">
+                        {doc.serie}-{doc.numero}
+                      </TableCell>
+                      <TableCell>
+                        <p className="font-medium">{importedCustomerLabel(doc)}</p>
+                        {doc.tax_id ? (
+                          <p className="text-xs text-muted-foreground">RUC {doc.tax_id}</p>
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="text-sm">{doc.seller_name ?? '—'}</TableCell>
+                      <TableCell>
+                        <span className="text-xs text-muted-foreground">
+                          ERP
+                          {doc.related_doc?.trim() ? ` · ${doc.related_doc.trim()}` : ''}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(doc.invoice_date)}
+                      </TableCell>
+                      <TableCell
+                        className={cn(
+                          'text-right font-medium tabular-nums',
+                          totalNegative && 'text-destructive',
+                        )}
+                      >
+                        {formatImportedTotal(doc)}
+                      </TableCell>
+                      <TableCell className="text-right text-xs text-muted-foreground">—</TableCell>
+                    </TableRow>
+                  );
+                }
+
                 if (row.kind === 'venta') {
                   const order = row.order;
                   return (

@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell, Menu, Search } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   CommandDialog,
@@ -14,16 +13,24 @@ import {
 } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { AdminExchangeRateControl } from '@/components/admin/admin-exchange-rate-control';
+import { AdminDashboardToolbarActions } from '@/components/admin/admin-dashboard-toolbar-actions';
+import { AdminCrmSubNav } from '@/components/admin/admin-crm-subnav';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
-import { useAuth } from '@/context/auth-context';
+import { useAdminSidebar } from '@/context/admin-sidebar-context';
 import { useAdminProductsQuery, useAdminProfiles } from '@/hooks/use-admin-dashboard';
-import { ADMIN_ROUTES, isAdminCatalogPath, isAdminSettingsPath } from '@/lib/admin-routes';
+import {
+  ADMIN_ROUTES,
+  isAdminCatalogPath,
+  isAdminCrmPath,
+  isAdminSettingsPath,
+} from '@/lib/admin-routes';
 
 function resolveAdminTopBarTitle(pathname: string, search: string): string {
   if (isAdminCatalogPath(pathname)) return 'Inventario';
+  if (isAdminCrmPath(pathname) || pathname.startsWith(ADMIN_ROUTES.CUSTOMERS)) {
+    return 'CRM';
+  }
   if (isAdminSettingsPath(pathname)) return 'Configuración';
-  if (pathname.startsWith(ADMIN_ROUTES.CUSTOMERS)) return 'Clientes';
   if (pathname.startsWith(ADMIN_ROUTES.VENTAS) || pathname.startsWith('/admin/pedidos')) {
     return search.includes('vista=tpv') || search.includes('nuevo=1') ? 'Nueva venta' : 'Ventas';
   }
@@ -31,7 +38,7 @@ function resolveAdminTopBarTitle(pathname: string, search: string): string {
   if (pathname.startsWith(ADMIN_ROUTES.SERVICES)) return 'Servicios';
   if (pathname.startsWith(ADMIN_ROUTES.RENTALS)) return 'Alquileres y planes';
   if (pathname.startsWith(ADMIN_ROUTES.MARKETING)) return 'Marketing';
-  if (pathname === ADMIN_ROUTES.DASHBOARD) return 'Panel administrativo';
+  if (pathname === ADMIN_ROUTES.DASHBOARD) return 'Dashboard';
   return 'Panel administrativo';
 }
 
@@ -39,16 +46,14 @@ export function AdminTopBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const title = resolveAdminTopBarTitle(location.pathname, location.search);
-  const { user } = useAuth();
+  const showCrmTabs =
+    isAdminCrmPath(location.pathname) || location.pathname.startsWith(ADMIN_ROUTES.CUSTOMERS);
+  const isDashboard = location.pathname === ADMIN_ROUTES.DASHBOARD;
+  const { open: sidebarOpen, toggle: toggleSidebar } = useAdminSidebar();
   const [commandOpen, setCommandOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { data: products = [] } = useAdminProductsQuery();
   const { data: profiles = [] } = useAdminProfiles();
-
-  const initials = useMemo(() => {
-    const source = user?.name ?? user?.email ?? 'A';
-    return source.slice(0, 2).toUpperCase();
-  }, [user?.email, user?.name]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -71,7 +76,7 @@ export function AdminTopBar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b bg-background px-4 sm:px-6">
+      <header className="sticky top-0 z-30 flex min-h-12 items-center gap-2 border-b border-[hsl(var(--admin-topbar-border))] bg-[hsl(var(--admin-topbar-bg))] px-4 sm:min-h-14 sm:gap-3 sm:px-6">
         <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
           <SheetTrigger asChild>
             <Button
@@ -92,77 +97,95 @@ export function AdminTopBar() {
           </SheetContent>
         </Sheet>
 
-        <div className="min-w-0 flex-1">
-          <h1
-            className={
-              location.pathname === ADMIN_ROUTES.DASHBOARD
-                ? 'truncate text-xl font-bold tracking-tight text-foreground'
-                : 'truncate text-lg font-semibold text-foreground'
-            }
-          >
-            {title}
-          </h1>
-          {location.pathname === ADMIN_ROUTES.DASHBOARD && (
-            <p className="truncate text-sm text-muted-foreground">
-              Bienvenido al centro de control de Haitech
-            </p>
-          )}
-        </div>
-
-        <div className="hidden max-w-md flex-1 md:block">
-          <button
-            type="button"
-            className="w-full"
-            onClick={() => setCommandOpen(true)}
-            aria-label="Abrir búsqueda global"
-          >
-            <div className="relative pointer-events-none">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                readOnly
-                placeholder="Buscar pedidos, productos, clientes…"
-                className="pl-9"
-                aria-hidden="true"
-                tabIndex={-1}
-              />
-              <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border bg-muted px-1.5 text-[0.65rem] font-medium text-muted-foreground sm:inline">
-                Ctrl+K
-              </kbd>
-            </div>
-          </button>
-        </div>
-
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="relative md:hidden"
-          aria-label="Buscar"
-          onClick={() => setCommandOpen(true)}
+          className="hidden shrink-0 lg:inline-flex"
+          onClick={toggleSidebar}
+          aria-label={sidebarOpen ? 'Ocultar barra lateral' : 'Mostrar barra lateral'}
+          aria-expanded={sidebarOpen}
         >
-          <Search className="size-5" />
+          <Menu className="size-5" aria-hidden="true" />
         </Button>
 
-        <AdminExchangeRateControl />
+        {isDashboard ? (
+          <>
+            <h1 className="shrink-0 text-lg font-bold tracking-tight text-foreground">Dashboard</h1>
+            <div className="flex min-w-0 flex-1 flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3">
+              <button
+                type="button"
+                className="min-w-0 flex-1 sm:max-w-xl"
+                onClick={() => setCommandOpen(true)}
+                aria-label="Abrir búsqueda global"
+              >
+                <div className="relative pointer-events-none">
+                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    readOnly
+                    placeholder="Buscar pedidos, productos, clientes…"
+                    className="h-8 pl-9 text-sm"
+                    aria-hidden="true"
+                    tabIndex={-1}
+                  />
+                  <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border bg-muted px-1.5 text-[0.65rem] font-medium text-muted-foreground sm:inline">
+                    Ctrl+K
+                  </kbd>
+                </div>
+              </button>
+              <AdminDashboardToolbarActions className="shrink-0" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+              {showCrmTabs ? (
+                <>
+                  <h1 className="shrink-0 text-lg font-bold tracking-tight text-foreground">CRM</h1>
+                  <AdminCrmSubNav variant="inline" />
+                </>
+              ) : (
+                <div className="min-w-0 flex-1">
+                  <h1 className="truncate text-lg font-semibold text-foreground">{title}</h1>
+                </div>
+              )}
+            </div>
 
-        <Button type="button" variant="ghost" size="icon" className="relative" aria-label="Notificaciones">
-          <Bell className="size-5" />
-          <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-red-600 text-[0.6rem] font-bold text-white">
-            0
-          </span>
-        </Button>
+            <div className="hidden max-w-md flex-1 md:block">
+              <button
+                type="button"
+                className="w-full"
+                onClick={() => setCommandOpen(true)}
+                aria-label="Abrir búsqueda global"
+              >
+                <div className="relative pointer-events-none">
+                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    readOnly
+                    placeholder="Buscar pedidos, productos, clientes…"
+                    className="pl-9"
+                    aria-hidden="true"
+                    tabIndex={-1}
+                  />
+                  <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border bg-muted px-1.5 text-[0.65rem] font-medium text-muted-foreground sm:inline">
+                    Ctrl+K
+                  </kbd>
+                </div>
+              </button>
+            </div>
 
-        <div className="hidden items-center gap-2 sm:flex">
-          <Avatar className="size-9">
-            <AvatarFallback className="bg-[hsl(var(--admin-accent))]/10 text-xs font-semibold text-[hsl(var(--admin-accent))]">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="hidden min-w-0 lg:block">
-            <p className="truncate text-sm font-medium text-foreground">{user?.name ?? 'Admin'}</p>
-            <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
-          </div>
-        </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="relative md:hidden"
+              aria-label="Buscar"
+              onClick={() => setCommandOpen(true)}
+            >
+              <Search className="size-5" />
+            </Button>
+          </>
+        )}
       </header>
 
       <CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>
@@ -185,7 +208,7 @@ export function AdminTopBar() {
               <CommandItem
                 key={profile.id}
                 value={`cliente ${profile.email ?? profile.full_name ?? profile.id}`}
-                onSelect={() => goTo(ADMIN_ROUTES.CUSTOMERS)}
+                onSelect={() => goTo(ADMIN_ROUTES.CRM_CLIENTES)}
               >
                 {profile.full_name ?? profile.email ?? profile.id}
               </CommandItem>

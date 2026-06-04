@@ -7,24 +7,28 @@ export const DEFAULT_SERVICE_CATEGORIES: ServiceCategory[] = [
     name: 'Mantenimiento preventivo',
     description: 'Revisiones programadas, limpieza y ajustes de equipos.',
     active: true,
+    sortOrder: 1,
   },
   {
     id: 'cat-correctivo',
     name: 'Servicio correctivo',
     description: 'Reparación de fallas, atascos y errores en campo.',
     active: true,
+    sortOrder: 2,
   },
   {
     id: 'cat-instalacion',
     name: 'Instalación',
     description: 'Puesta en marcha, red y capacitación básica.',
     active: true,
+    sortOrder: 3,
   },
   {
     id: 'cat-remoto',
     name: 'Soporte remoto',
     description: 'Diagnóstico y configuración vía asistencia remota.',
     active: true,
+    sortOrder: 4,
   },
 ];
 

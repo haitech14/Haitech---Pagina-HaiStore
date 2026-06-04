@@ -1,3 +1,4 @@
+import { openHtmlInNewWindow } from '@/lib/open-html-document';
 import { buildAgencyDisplay, buildShipmentCopyMessage } from '@/lib/shipment-copy-message';
 import type { ShipmentRecord } from '@/types/shipping';
 
@@ -13,16 +14,17 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
-export function printShipmentGuiaRemision(
+export function buildShipmentGuiaRemisionHtml(
   shipment: ShipmentRecord,
   context: ShipmentGuiaContext,
-): void {
+  options?: { autoPrint?: boolean },
+): string {
   const agencyDisplay = buildAgencyDisplay(context.carrierName, shipment.agencyDetail);
   const razon = shipment.razonSocial?.trim() || shipment.customerName;
   const destino = shipment.destination?.trim() || shipment.district;
   const copyBlock = buildShipmentCopyMessage(shipment, { agencyDisplay }).replace(/\n/g, '<br/>');
 
-  const html = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -60,13 +62,18 @@ export function printShipmentGuiaRemision(
     <div class="sign">Firma transportista</div>
     <div class="sign">Firma destinatario</div>
   </div>
-  <script>window.onload = function() { window.print(); };</script>
+  ${options?.autoPrint ? '<script>window.onload = function() { window.print(); };</script>' : ''}
 </body>
 </html>`;
+}
 
-  const popup = window.open('', '_blank', 'noopener,noreferrer,width=720,height=900');
-  if (!popup) return;
-  popup.document.open();
-  popup.document.write(html);
-  popup.document.close();
+export function printShipmentGuiaRemision(
+  shipment: ShipmentRecord,
+  context: ShipmentGuiaContext,
+): void {
+  openHtmlInNewWindow(buildShipmentGuiaRemisionHtml(shipment, context, { autoPrint: true }), {
+    width: 720,
+    height: 900,
+    autoPrint: true,
+  });
 }

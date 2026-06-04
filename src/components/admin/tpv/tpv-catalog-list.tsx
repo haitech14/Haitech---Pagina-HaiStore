@@ -3,6 +3,12 @@ import { Package } from 'lucide-react';
 
 import { buildInventoryCategoryOptions } from '@/lib/inventory-categories';
 import { compareProductsBySortOrder } from '@/lib/inventory-product-order';
+import {
+  TPV_ACCENT_TEXT_CLASS,
+  TPV_FOCUS_RING_CLASS,
+  TPV_HOVER_BORDER_CLASS,
+  TPV_SELECTED_CLASS,
+} from '@/lib/tpv-highlight';
 import { formatTpvMoney, unitPriceForTpv } from '@/lib/tpv-pricing';
 import { cn } from '@/lib/utils';
 import type { InventoryProduct, PriceRole } from '@/types/product';
@@ -65,8 +71,10 @@ function CatalogProductRow({
         onClick={onAdd}
         className={cn(
           'flex w-full min-h-11 items-center gap-3 rounded-lg border bg-background p-2 text-left transition-colors',
-          'hover:border-[hsl(var(--admin-accent))] hover:bg-muted/40',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-accent))]',
+          TPV_HOVER_BORDER_CLASS,
+          'hover:bg-muted/40',
+          'focus-visible:outline-none focus-visible:ring-2',
+          TPV_FOCUS_RING_CLASS,
         )}
       >
         <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-white sm:size-[4.5rem]">
@@ -91,7 +99,7 @@ function CatalogProductRow({
           </p>
         </div>
 
-        <span className="shrink-0 text-sm font-bold text-[hsl(var(--admin-accent))] sm:text-base">
+        <span className={cn('shrink-0 text-sm font-bold sm:text-base', TPV_ACCENT_TEXT_CLASS)}>
           {formatTpvMoney(unitPrice, currency)}
         </span>
       </button>
@@ -158,59 +166,63 @@ export function TpvCatalogList({
   }
 
   return (
-    <div className="flex max-h-[min(70vh,720px)] min-h-[280px] flex-col gap-3 sm:flex-row sm:gap-0">
-      <nav
-        className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b pb-2 sm:w-[9.5rem] sm:flex-col sm:gap-0.5 sm:overflow-y-auto sm:overflow-x-hidden sm:border-b-0 sm:border-r sm:pb-0 sm:pr-2 md:w-[10.5rem]"
-        aria-label="Categorías del catálogo"
-      >
-        {catalogByCategory.map((group) => {
-          const isActive = group.name === selectedCategory;
-          return (
-            <button
-              key={group.name}
-              type="button"
-              onClick={() => setSelectedCategory(group.name)}
-              aria-current={isActive ? 'true' : undefined}
-              className={cn(
-                'min-h-11 shrink-0 rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide transition-colors sm:w-full',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-accent))]',
-                isActive
-                  ? 'bg-[hsl(var(--admin-accent))] text-white'
-                  : 'text-foreground hover:bg-muted/60',
-              )}
-            >
-              <span className="line-clamp-2">{group.name}</span>
-              <span
+    <div className="flex max-h-[min(70vh,720px)] min-h-[280px] flex-col gap-3">
+      <header className="shrink-0 border-b pb-3">
+        <nav
+          className="flex gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          aria-label="Categorías del catálogo"
+        >
+          {catalogByCategory.map((group) => {
+            const isActive = group.name === selectedCategory;
+            return (
+              <button
+                key={group.name}
+                type="button"
+                onClick={() => setSelectedCategory(group.name)}
+                aria-current={isActive ? 'true' : undefined}
+                title={group.name}
                 className={cn(
-                  'mt-0.5 block text-[0.65rem] font-normal normal-case tabular-nums',
-                  isActive ? 'text-white/85' : 'text-muted-foreground',
+                  'flex min-h-11 min-w-[8.5rem] max-w-[14rem] shrink-0 flex-col justify-center rounded-lg px-3 py-2 text-left',
+                  'text-xs font-semibold uppercase tracking-wide transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2',
+                  TPV_FOCUS_RING_CLASS,
+                  isActive
+                    ? TPV_SELECTED_CLASS
+                    : 'bg-muted/30 text-foreground hover:bg-muted/60',
                 )}
               >
-                {group.products.length} producto{group.products.length === 1 ? '' : 's'}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
+                <span className="line-clamp-2 leading-snug">{group.name}</span>
+                <span
+                  className={cn(
+                    'mt-0.5 text-[0.65rem] font-normal normal-case tabular-nums',
+                    isActive ? 'text-white/85' : 'text-muted-foreground',
+                  )}
+                >
+                  {group.products.length} producto{group.products.length === 1 ? '' : 's'}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+      </header>
 
-      <div className="min-h-0 min-w-0 flex-1 sm:pl-3">
+      <div className="min-h-0 min-w-0 flex-1">
         {activeGroup ? (
-          <>
-            <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-              {activeGroup.name}
-            </h4>
-            <ul className="flex max-h-[min(62vh,640px)] flex-col gap-2 overflow-y-auto pr-1" role="list">
-              {activeGroup.products.map((product) => (
-                <CatalogProductRow
-                  key={product.id}
-                  product={product}
-                  unitPrice={unitPriceForTpv(product, priceList, currency)}
-                  currency={currency}
-                  onAdd={() => onAddProduct(product)}
-                />
-              ))}
-            </ul>
-          </>
+          <ul
+            className="flex max-h-[min(62vh,640px)] flex-col gap-2 overflow-y-auto pr-1"
+            role="list"
+            aria-label={`Productos en ${activeGroup.name}`}
+          >
+            {activeGroup.products.map((product) => (
+              <CatalogProductRow
+                key={product.id}
+                product={product}
+                unitPrice={unitPriceForTpv(product, priceList, currency)}
+                currency={currency}
+                onAdd={() => onAddProduct(product)}
+              />
+            ))}
+          </ul>
         ) : (
           <p className="py-8 text-center text-sm text-muted-foreground">
             Elige una categoría para ver los productos.

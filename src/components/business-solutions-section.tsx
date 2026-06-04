@@ -199,7 +199,7 @@ function PromoCardItem({ card }: { card: PromoCard }) {
 
 export function BusinessSolutionsSection() {
   return (
-    <section aria-labelledby="promo-cards-titulo" className="bg-background py-10 sm:py-12 lg:py-14">
+    <section aria-labelledby="promo-cards-titulo" className="bg-background py-6 sm:py-8 lg:py-10">
       <h2 id="promo-cards-titulo" className="sr-only">
         Soluciones, servicio técnico y ofertas
       </h2>

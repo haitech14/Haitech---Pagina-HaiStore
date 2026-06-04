@@ -42,9 +42,35 @@ if (!projectRef) {
   process.exit(1);
 }
 
+function buildPostgresUrls() {
+  /** @type {string[]} */
+  const urls = [];
+  const explicit = process.env.SUPABASE_DB_URL?.trim() || process.env.DATABASE_URL?.trim();
+  if (explicit) urls.push(explicit);
+
+  const password = process.env.SUPABASE_DB_PASSWORD?.trim();
+  if (password && projectRef) {
+    const enc = encodeURIComponent(password);
+    urls.push(
+      `postgresql://postgres:${enc}@db.${projectRef}.supabase.co:5432/postgres`,
+      `postgresql://postgres.${projectRef}:${enc}@aws-0-us-east-1.pooler.supabase.com:6543/postgres`,
+      `postgresql://postgres.${projectRef}:${enc}@aws-0-us-west-1.pooler.supabase.com:6543/postgres`,
+    );
+  }
+
+  return [...new Set(urls)];
+}
+
 async function applyViaManagementApi() {
   const token = process.env.SUPABASE_ACCESS_TOKEN?.trim();
   if (!token) return false;
+
+  if (token.startsWith('sb_publishable_') || token.startsWith('eyJ')) {
+    console.warn(
+      'SUPABASE_ACCESS_TOKEN no es un token de cuenta (usa sbp_… desde supabase.com/dashboard/account/tokens). Se omite Management API.\n',
+    );
+    return false;
+  }
 
   const res = await fetch(`https://api.supabase.com/v1/projects/${projectRef}/database/query`, {
     method: 'POST',
@@ -68,8 +94,8 @@ async function applyViaManagementApi() {
 }
 
 async function applyViaPostgres() {
-  const dbUrl = process.env.SUPABASE_DB_URL?.trim() || process.env.DATABASE_URL?.trim();
-  if (!dbUrl) return false;
+  const urls = buildPostgresUrls();
+  if (!urls.length) return false;
 
   let pg;
   try {
@@ -79,15 +105,34 @@ async function applyViaPostgres() {
     process.exit(1);
   }
 
-  const client = new pg.default.Client({ connectionString: dbUrl, ssl: { rejectUnauthorized: false } });
-  await client.connect();
-  try {
-    await client.query(sql);
-    console.log(`✓ Migración aplicada vía Postgres (${sqlFile})`);
-  } finally {
-    await client.end();
+  /** @type {Error | null} */
+  let lastError = null;
+
+  for (const dbUrl of urls) {
+    const client = new pg.default.Client({
+      connectionString: dbUrl,
+      ssl: { rejectUnauthorized: false },
+    });
+    try {
+      await client.connect();
+      await client.query(sql);
+      console.log(`✓ Migración aplicada vía Postgres (${sqlFile})`);
+      return true;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      const host = dbUrl.replace(/:[^:@/]+@/, ':***@');
+      console.warn(`Postgres (${host}): ${lastError.message}`);
+    } finally {
+      try {
+        await client.end();
+      } catch {
+        /* ignore */
+      }
+    }
   }
-  return true;
+
+  if (lastError) throw lastError;
+  return false;
 }
 
 async function applyViaCli() {
@@ -117,9 +162,11 @@ No hay credenciales para ejecutar DDL en Supabase.
 
 Añade UNA de estas opciones en .env y vuelve a ejecutar:
 
-  SUPABASE_ACCESS_TOKEN=sbp_...   (https://supabase.com/dashboard/account/tokens)
+  SUPABASE_ACCESS_TOKEN=sbp_...   (https://supabase.com/dashboard/account/tokens — NO uses sb_publishable_)
 
   SUPABASE_DB_URL=postgresql://...  (Dashboard → Settings → Database → URI)
+
+  SUPABASE_DB_PASSWORD=...  (contraseña de la base de datos del proyecto)
 
 O inicia sesión en CLI y enlaza el proyecto:
   npx supabase login

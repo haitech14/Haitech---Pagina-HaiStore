@@ -1,10 +1,11 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { CalendarClock, Plus, Tags, Wrench } from 'lucide-react';
+import { CalendarClock, Plus, Wrench } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { AdminEmptyState } from '@/components/admin/AdminEmptyState';
 import { NewServiceDialog } from '@/components/admin/services/new-service-dialog';
+import { ServiceCategoriesTaxonomy } from '@/components/admin/services/service-categories-taxonomy';
 
 const ServicesPriceListPanel = lazy(() =>
   import('@/components/admin/services/services-price-list-panel').then((m) => ({
@@ -13,8 +14,6 @@ const ServicesPriceListPanel = lazy(() =>
 );
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   loadServicePriceList,
   updateServiceCategory as updateLocalServiceCategory,
@@ -25,7 +24,6 @@ import {
   useServiceRequestMutations,
   useServiceRequests,
 } from '@/hooks/use-service-requests';
-import { cn } from '@/lib/utils';
 import type { ServiceCategory } from '@/types/service';
 import type { ServiceRequestStatus } from '@/types/haitech-domain';
 
@@ -106,6 +104,7 @@ export function ServicesPanel() {
         name: c.name,
         description: c.description,
         active: c.active,
+        sortOrder: c.sortOrder,
       }));
     }
     return localCategories;
@@ -352,65 +351,16 @@ export function ServicesPanel() {
       {tab === 'categorias' && (
         <div className="space-y-3">
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Tipos de servicio disponibles al registrar una orden (mantenimiento, correctivo,
-            instalación, etc.).
+            Categorías de servicio ordenadas por código. Los precios por rol se gestionan en la
+            pestaña Lista de precios.
           </p>
-          <div className="grid gap-3 md:grid-cols-2">
-            {categories.map((cat) => (
-              <article
-                key={cat.id}
-                className={cn(
-                  'rounded-xl border bg-card p-4',
-                  !cat.active && 'opacity-60',
-                )}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex gap-3">
-                    <Tags
-                      className="mt-0.5 size-5 text-[hsl(var(--admin-accent))]"
-                      aria-hidden="true"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <Label htmlFor={`cat-name-${cat.id}`} className="sr-only">
-                        Nombre
-                      </Label>
-                      <Input
-                        id={`cat-name-${cat.id}`}
-                        value={cat.name}
-                        className="mb-2 font-semibold"
-                        onChange={(e) => {
-                          void patchCategoryField(cat.id, 'name', e.target.value);
-                        }}
-                      />
-                      <Label htmlFor={`cat-desc-${cat.id}`} className="sr-only">
-                        Descripción
-                      </Label>
-                      <Input
-                        id={`cat-desc-${cat.id}`}
-                        value={cat.description}
-                        className="text-sm"
-                        onChange={(e) => {
-                          void patchCategoryField(cat.id, 'description', e.target.value);
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant={cat.active ? 'default' : 'outline'}
-                    size="sm"
-                    className={cn(
-                      'min-h-9',
-                      cat.active && 'bg-[hsl(var(--admin-accent))]',
-                    )}
-                    onClick={() => void toggleCategory(cat.id)}
-                  >
-                    {cat.active ? 'Activa' : 'Inactiva'}
-                  </Button>
-                </div>
-              </article>
-            ))}
-          </div>
+          <ServiceCategoriesTaxonomy
+            categories={categories}
+            onToggleCategory={(id) => void toggleCategory(id)}
+            onPatchCategoryField={(id, field, value) => {
+              void patchCategoryField(id, field, value);
+            }}
+          />
         </div>
       )}
 

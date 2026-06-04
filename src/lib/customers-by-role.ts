@@ -1,3 +1,4 @@
+import { personaDataToSearchBlob } from '@/lib/persona-report-columns';
 import { USER_ROLE_LABELS, type UserRole } from '@/types/product';
 import type { StoreCustomerWithRole } from '@/types/store';
 
@@ -122,6 +123,7 @@ export function filterAndSortCustomers(
         customer.company_name,
         customer.phone,
         customer.tax_id,
+        personaDataToSearchBlob(customer.persona_data),
       ]
         .filter(Boolean)
         .join(' ')

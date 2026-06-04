@@ -14,12 +14,19 @@ import {
   PRODUCT_CONDITIONS,
   type ProductCondition,
 } from '@/lib/product-condition';
+import type { FeaturedProduct } from '@/data/featured-products';
 import { filterStoreProductsForHomeSection } from '@/lib/store-products';
 import type { Product } from '@/types/product';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 
 interface CatalogCategorySectionsProps {
   sectionsConfig?: HomeCatalogSectionConfig[];
+}
+
+function sectionHasProducts(
+  productsByCondition: Record<ProductCondition, FeaturedProduct[]>,
+): boolean {
+  return PRODUCT_CONDITIONS.some((condition) => productsByCondition[condition].length > 0);
 }
 
 function buildSectionData(
@@ -29,7 +36,8 @@ function buildSectionData(
 ) {
   const products = storeProducts ?? [];
 
-  return sectionsConfig.map((section) => {
+  return sectionsConfig
+    .map((section) => {
     const treeLabels = section.inventoryCategorySlugs.flatMap((slug) => {
       const storeCategory = findStoreCategoryBySlug(categoryTree ?? [], slug);
       return storeCategory ? collectInventoryLabels(storeCategory) : [];
@@ -50,14 +58,15 @@ function buildSectionData(
       {} as Record<ProductCondition, ReturnType<typeof filterStoreProductsForHomeSection>>,
     );
 
-    return { section, productsByCondition };
-  });
+      return { section, productsByCondition };
+    })
+    .filter(({ productsByCondition }) => sectionHasProducts(productsByCondition));
 }
 
 export function CatalogCategorySections({
   sectionsConfig = HOME_CATALOG_SECTIONS,
 }: CatalogCategorySectionsProps) {
-  const { data: storeProducts } = useProducts();
+  const { data: storeProducts, isLoading, isError } = useProducts();
   const { data: categoryTree = [] } = useStoreCategoriesTree();
 
   const sections = useMemo(
@@ -65,7 +74,9 @@ export function CatalogCategorySections({
     [sectionsConfig, storeProducts, categoryTree],
   );
 
-  if (sections.length === 0) return null;
+  if (isLoading || isError || !storeProducts?.length || sections.length === 0) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-14 sm:gap-16">

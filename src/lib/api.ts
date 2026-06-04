@@ -38,6 +38,13 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
       );
     }
 
+    if (response.status === 503) {
+      throw new Error(
+        body.error ??
+          'Servicio temporalmente no disponible. Revisa la configuración de Supabase o migraciones.',
+      );
+    }
+
     if (response.status === 502 || response.status === 504) {
       throw new Error(
         import.meta.env.PROD

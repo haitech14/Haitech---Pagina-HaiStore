@@ -13,6 +13,13 @@ import {
 import { notifyHaiSupportChange } from '../lib/haisupport-sync.js';
 import { ensureStoreCustomerFromHaitechClient } from '../lib/haisupport-bridge.js';
 import { inboundPayloadToHaitechClient, storeCustomerRowToHaitechClient } from '../lib/haitech-mappers.js';
+import {
+  importPersonaCustomerRows,
+  parsePersonaWorkbook,
+  personaRowToHaitechClient,
+  sanitizePersonaData,
+  STORE_CUSTOMER_ADMIN_SELECT,
+} from '../lib/persona-excel.js';
 import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 
 export const customersRouter = Router();
@@ -215,9 +222,7 @@ customersRouter.get('/admin/all', requireAdmin, async (_req, res, next) => {
     if (supabase) {
       const { data, error } = await supabase
         .from('store_customers')
-        .select(
-          'id, profile_id, email, full_name, phone, company_name, tax_id, created_at, updated_at',
-        )
+        .select(STORE_CUSTOMER_ADMIN_SELECT)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -247,11 +252,16 @@ customersRouter.get('/admin/all', requireAdmin, async (_req, res, next) => {
 
       storeCustomers = rows.map((row) => {
         const profile = row.profile_id ? profileById.get(row.profile_id) : null;
+        const productosInteres = Array.isArray(row.productos_interes)
+          ? row.productos_interes.filter((id) => typeof id === 'string')
+          : [];
         return {
           ...row,
           full_name: row.full_name ?? profile?.full_name ?? null,
-          profile_role: profile?.role ?? null,
-          source: 'haistore',
+          profile_role: row.tipo_cliente ?? profile?.role ?? null,
+          source: row.source ?? 'haistore',
+          persona_data: row.persona_data ?? {},
+          productos_interes: productosInteres,
         };
       });
     }
@@ -298,9 +308,7 @@ customersRouter.patch('/admin/:id', requireAdmin, async (req, res, next) => {
 
     const { data: existing, error: fetchError } = await supabase
       .from('store_customers')
-      .select(
-        'id, profile_id, email, full_name, phone, company_name, tax_id, notes, created_at, updated_at',
-      )
+      .select(STORE_CUSTOMER_ADMIN_SELECT)
       .eq('id', id)
       .maybeSingle();
 
@@ -332,6 +340,32 @@ customersRouter.patch('/admin/:id', requireAdmin, async (req, res, next) => {
     if (body.company_name !== undefined) patch.company_name = trimOrNull(body.company_name);
     if (body.tax_id !== undefined) patch.tax_id = trimOrNull(body.tax_id);
     if (body.notes !== undefined) patch.notes = trimOrNull(body.notes);
+    if (body.nombre_contacto !== undefined) patch.nombre_contacto = trimOrNull(body.nombre_contacto);
+    if (body.direccion !== undefined) patch.direccion = trimOrNull(body.direccion);
+    if (body.ciudad !== undefined) patch.ciudad = trimOrNull(body.ciudad);
+    if (body.tipo_cliente !== undefined) {
+      const role = String(body.tipo_cliente).trim();
+      if (!PROFILE_ROLES.has(role)) {
+        return res.status(400).json({ error: 'Rol de cliente no válido' });
+      }
+      patch.tipo_cliente = role;
+    }
+    if (body.profile_role !== undefined && body.profile_role !== null && body.tipo_cliente === undefined) {
+      const role = String(body.profile_role).trim();
+      if (!PROFILE_ROLES.has(role)) {
+        return res.status(400).json({ error: 'Rol de cliente no válido' });
+      }
+      patch.tipo_cliente = role;
+    }
+    if (body.productos_interes !== undefined) {
+      const ids = Array.isArray(body.productos_interes)
+        ? body.productos_interes.filter((id) => typeof id === 'string' && id.trim().length > 0)
+        : [];
+      patch.productos_interes = ids;
+    }
+    if (body.persona_data !== undefined && typeof body.persona_data === 'object') {
+      patch.persona_data = sanitizePersonaData(body.persona_data);
+    }
 
     let customerRow = existing;
     if (Object.keys(patch).length > 0) {
@@ -339,9 +373,7 @@ customersRouter.patch('/admin/:id', requireAdmin, async (req, res, next) => {
         .from('store_customers')
         .update(patch)
         .eq('id', id)
-        .select(
-          'id, profile_id, email, full_name, phone, company_name, tax_id, notes, created_at, updated_at',
-        )
+        .select(STORE_CUSTOMER_ADMIN_SELECT)
         .single();
 
       if (updateError) {
@@ -351,7 +383,7 @@ customersRouter.patch('/admin/:id', requireAdmin, async (req, res, next) => {
       customerRow = updated;
     }
 
-    let profileRole = null;
+    let profileRole = customerRow.tipo_cliente ?? existing.tipo_cliente ?? null;
     if (existing.profile_id) {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -364,7 +396,7 @@ customersRouter.patch('/admin/:id', requireAdmin, async (req, res, next) => {
         return res.status(500).json({ error: 'No se pudo cargar el perfil del cliente' });
       }
 
-      profileRole = profile?.role ?? null;
+      profileRole = customerRow.tipo_cliente ?? profile?.role ?? profileRole;
 
       if (body.profile_role !== undefined && body.profile_role !== null) {
         const nextRole = String(body.profile_role).trim();
@@ -388,6 +420,10 @@ customersRouter.patch('/admin/:id', requireAdmin, async (req, res, next) => {
         }
 
         profileRole = nextRole;
+        if (!patch.tipo_cliente) {
+          await supabase.from('store_customers').update({ tipo_cliente: nextRole }).eq('id', id);
+          customerRow = { ...customerRow, tipo_cliente: nextRole };
+        }
       } else if (body.full_name !== undefined && profile) {
         await supabase
           .from('profiles')
@@ -396,11 +432,17 @@ customersRouter.patch('/admin/:id', requireAdmin, async (req, res, next) => {
       }
     }
 
+    const productosInteres = Array.isArray(customerRow.productos_interes)
+      ? customerRow.productos_interes.filter((id) => typeof id === 'string')
+      : [];
+
     res.json({
       customer: {
         ...customerRow,
         full_name: customerRow.full_name ?? null,
         profile_role: profileRole,
+        persona_data: customerRow.persona_data ?? {},
+        productos_interes: productosInteres,
       },
       source: 'supabase',
     });
@@ -415,19 +457,38 @@ customersRouter.patch('/admin/:id', requireAdmin, async (req, res, next) => {
 
 customersRouter.post('/admin', requireAdmin, async (req, res, next) => {
   try {
-    const client = inboundPayloadToHaitechClient(req.body ?? {});
-    const { clientId, snapshot } = await ensureStoreCustomerFromHaitechClient(client);
+    const body = req.body ?? {};
+    let clientInput = body;
+
+    if (body.persona_data && typeof body.persona_data === 'object') {
+      const persona = sanitizePersonaData(body.persona_data);
+      clientInput = {
+        ...personaRowToHaitechClient(persona),
+        ...body,
+        persona_data: persona,
+      };
+    }
+
+    const client = inboundPayloadToHaitechClient(clientInput);
+    const { clientId, snapshot } = await ensureStoreCustomerFromHaitechClient({
+      ...clientInput,
+      ...client,
+    });
 
     const supabase = getSupabaseAdmin();
     const { data: row } = await supabase
       .from('store_customers')
-      .select('*')
+      .select(STORE_CUSTOMER_ADMIN_SELECT)
       .eq('id', clientId)
       .single();
 
     const customer = row
-      ? { ...storeCustomerRowToHaitechClient(row), profile_role: client.tipoCliente ?? 'public' }
-      : snapshot;
+      ? {
+          ...row,
+          profile_role: row.tipo_cliente ?? client.tipoCliente ?? 'public',
+          persona_data: row.persona_data ?? {},
+        }
+      : { ...snapshot, profile_role: client.tipoCliente ?? 'public' };
 
     notifyHaiSupportChange('customers', 'create', customer);
     res.status(201).json({ customer, source: 'haistore' });
@@ -435,6 +496,33 @@ customersRouter.post('/admin', requireAdmin, async (req, res, next) => {
     if (error instanceof Error && error.message.includes('obligatoria')) {
       return res.status(400).json({ error: error.message });
     }
+    next(error);
+  }
+});
+
+customersRouter.post('/admin/import-persona', requireAdmin, async (req, res, next) => {
+  try {
+    const body = req.body ?? {};
+    let rows = [];
+
+    if (Array.isArray(body.rows)) {
+      rows = body.rows.map((row) => sanitizePersonaData(row));
+    } else if (body.fileBase64 && typeof body.fileBase64 === 'string') {
+      const buffer = Buffer.from(body.fileBase64, 'base64');
+      rows = parsePersonaWorkbook(buffer);
+    } else {
+      return res.status(400).json({
+        error: 'Envía `rows` (array) o `fileBase64` con el Excel Persona.',
+      });
+    }
+
+    if (rows.length === 0) {
+      return res.status(400).json({ error: 'El archivo no contiene filas válidas.' });
+    }
+
+    const result = await importPersonaCustomerRows(rows);
+    res.json(result);
+  } catch (error) {
     next(error);
   }
 });

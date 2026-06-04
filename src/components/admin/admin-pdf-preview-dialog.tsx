@@ -49,11 +49,18 @@ export function AdminPdfPreviewDialog({ preview, onOpenChange }: AdminPdfPreview
         {preview && (
           <>
             <div className="min-h-0 flex-1 overflow-hidden bg-neutral-100 px-4 py-3">
-              <iframe
-                src={preview.url}
+              <object
+                data={preview.url}
+                type="application/pdf"
                 title={`Vista previa ${preview.filename}`}
                 className="size-full min-h-[72vh] rounded-lg border border-neutral-200 bg-white"
-              />
+              >
+                <iframe
+                  src={preview.url}
+                  title={`Vista previa ${preview.filename}`}
+                  className="size-full min-h-[72vh] rounded-lg border border-neutral-200 bg-white"
+                />
+              </object>
             </div>
 
             <div className="flex shrink-0 flex-col gap-2 border-t px-6 py-4 sm:flex-row sm:justify-end">

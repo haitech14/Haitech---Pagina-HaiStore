@@ -19,6 +19,10 @@ export interface RuletaPremio {
   sublabel: string;
   icon: LucideIcon;
   extraSpin?: boolean;
+  /** Ajuste fino del ángulo (°) respecto al centro del sector. */
+  angleOffsetDeg?: number;
+  /** Ajuste fino del radio (% respecto al centro de la ruleta). */
+  radiusOffsetPercent?: number;
 }
 
 /** Orden horario desde el puntero (12 en punto). 9 sectores × 40°. */
@@ -100,6 +104,11 @@ export const SUBSCRIPTION_RULETA_PREMIOS: RuletaPremio[] = [
 
 export const RULETA_SEGMENT_COUNT = SUBSCRIPTION_RULETA_PREMIOS.length;
 export const RULETA_SEGMENT_ANGLE = 360 / RULETA_SEGMENT_COUNT;
+
+/** Ángulo del centro de un sector (mismo origen que `conic-gradient(from -90deg)`). */
+export function getRuletaSegmentMidAngleDeg(index: number): number {
+  return index * RULETA_SEGMENT_ANGLE + RULETA_SEGMENT_ANGLE / 2 - 90;
+}
 
 export function getRuletaConicGradient(): string {
   const stops = SUBSCRIPTION_RULETA_PREMIOS.map((premio, index) => {

@@ -13,10 +13,11 @@ function buildAllowedHosts(): true | string[] {
     .filter(Boolean);
 
   if (fromEnv.length > 0) return fromEnv;
-  if (process.env.VITE_LAN === '0') return [];
+  // Por defecto: localhost + IP de la red (móvil, otra PC). VITE_LAN=0 solo restringe a local.
+  if (process.env.VITE_LAN !== '0') return true;
 
   const hostname = os.hostname().toLowerCase();
-  return [hostname, `${hostname}.local`, '.local', '.ts.net', '.tailscale.net'];
+  return ['localhost', '127.0.0.1', hostname, `${hostname}.local`];
 }
 
 // https://vite.dev/config/

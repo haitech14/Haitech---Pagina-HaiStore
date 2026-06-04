@@ -43,12 +43,15 @@ interface InventoryProductFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initial?: InventoryProduct | null;
+  /** Tras crear un producto (no en edición). */
+  onCreated?: (product: InventoryProduct) => void;
 }
 
 export function InventoryProductFormDialog({
   open,
   onOpenChange,
   initial,
+  onCreated,
 }: InventoryProductFormDialogProps) {
   const isEdit = Boolean(initial?.id);
   const { createProduct, updateProduct } = useInventoryMutations();
@@ -180,9 +183,10 @@ export function InventoryProductFormDialog({
           payload: await prepareInventoryPayloadForApi(form),
         });
       } else {
-        await createProduct.mutateAsync(
+        const saved = await createProduct.mutateAsync(
           await prepareInventoryPayloadForApi(form, { isCreate: true }),
         );
+        onCreated?.(saved);
       }
       onOpenChange(false);
     } catch (err) {

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { InventoryDualPrice } from '@/components/admin/inventory/inventory-dual-price';
 import { DualPrice } from '@/components/product-showcase-card';
 import { useAdminProductRolePrices } from '@/hooks/use-admin-inventory-price-map';
+import { useAdminInventory } from '@/hooks/use-products';
 import { useAuth } from '@/context/auth-context';
 import {
   PRICE_ROLE_LABELS,
@@ -26,9 +27,11 @@ export function AdminRolePricesTooltip({
   children,
 }: AdminRolePricesTooltipProps) {
   const { isAdmin } = useAuth();
+  const { isLoading, isFetching } = useAdminInventory();
   const rolePrices = useAdminProductRolePrices(productId);
+  const pricesLoading = isLoading || isFetching;
 
-  if (!isAdmin || !rolePrices) {
+  if (!isAdmin) {
     return children ?? <DualPrice usd={displayUsd} {...(className ? { className } : {})} />;
   }
 
@@ -65,16 +68,24 @@ export function AdminRolePricesTooltip({
         <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-500">
           Precios por rol
         </p>
-        <ul className="space-y-2">
-          {PRICE_ROLES_EDIT_ORDER.map((role: PriceRole) => (
-            <li key={role} className="flex items-center justify-between gap-3">
-              <span className="text-xs font-medium text-neutral-700">
-                {PRICE_ROLE_LABELS[role]}
-              </span>
-              <InventoryDualPrice usd={rolePrices[role]} />
-            </li>
-          ))}
-        </ul>
+        {rolePrices ? (
+          <ul className="space-y-2">
+            {PRICE_ROLES_EDIT_ORDER.map((role: PriceRole) => (
+              <li key={role} className="flex items-center justify-between gap-3">
+                <span className="text-xs font-medium text-neutral-700">
+                  {PRICE_ROLE_LABELS[role]}
+                </span>
+                <InventoryDualPrice usd={rolePrices[role]} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-xs text-neutral-600">
+            {pricesLoading
+              ? 'Cargando listas de precio…'
+              : 'No hay precios por rol para este producto.'}
+          </p>
+        )}
       </span>
     </span>
   );

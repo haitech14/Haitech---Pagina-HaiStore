@@ -1,48 +1,22 @@
 import { useMemo } from 'react';
 
-import { ProductCarouselSection } from '@/components/product-carousel-section';
-import {
-  FEATURED_PRODUCT_IDS,
-  featuredProducts,
-  type FeaturedProduct,
-} from '@/data/featured-products';
+import { FeaturedProductsSection } from '@/components/featured-products-section';
 import { useProducts } from '@/hooks/use-products';
 import {
-  FEATURED_CAROUSEL_LIMIT,
-  resolveStoreFeaturedProducts,
-  shuffleProducts,
-} from '@/lib/store-products';
-
-function useFeaturedFromStore(): FeaturedProduct[] {
-  const { data: storeProducts } = useProducts();
-
-  return useMemo(() => {
-    if (!storeProducts?.length) {
-      return shuffleProducts(featuredProducts).slice(0, FEATURED_CAROUSEL_LIMIT);
-    }
-
-    const resolved = resolveStoreFeaturedProducts(storeProducts, FEATURED_PRODUCT_IDS);
-    if (resolved.length > 0) return resolved;
-
-    return shuffleProducts(featuredProducts).slice(0, FEATURED_CAROUSEL_LIMIT);
-  }, [storeProducts]);
-}
+  MIN_HOME_FEATURED,
+  resolveHomeFeaturedProducts,
+} from '@/lib/home-featured-products';
 
 export function FeaturedProducts() {
-  const products = useFeaturedFromStore();
+  const { data: storeProducts } = useProducts();
+  const products = useMemo(
+    () => resolveHomeFeaturedProducts(storeProducts),
+    [storeProducts],
+  );
 
-  if (products.length === 0) {
+  if (products.length < MIN_HOME_FEATURED) {
     return null;
   }
 
-  return (
-    <ProductCarouselSection
-      sectionId="productos-destacados"
-      title="Productos destacados"
-      subtitle="Descubre nuestros productos más populares con ofertas exclusivas"
-      products={products}
-      viewAllHref="/tienda"
-      viewAllLabel="Ver todos los productos"
-    />
-  );
+  return <FeaturedProductsSection products={products} />;
 }

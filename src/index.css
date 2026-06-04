@@ -39,6 +39,8 @@
     --admin-accent: 0 72% 51%;
     --admin-accent-hover: 0 72% 45%;
     --admin-accent-soft: 0 75% 62%;
+    --admin-topbar-bg: 0 0% 100%;
+    --admin-topbar-border: 214.3 31.8% 91.4%;
   }
 
   .dark {
@@ -84,6 +86,29 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer utilities {
+  /* Mural CRM / WhatsApp: emoticones a color en tarjetas y editor. */
+  .text-emoji {
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      sans-serif,
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Noto Color Emoji',
+      'Segoe UI Symbol',
+      sans-serif;
+    font-variant-emoji: emoji;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mural-canvas-dots {
+    background-color: #d4d4d4;
+    background-image: radial-gradient(circle, rgb(0 0 0 / 0.14) 1px, transparent 1px);
+    background-size: 14px 14px;
   }
 }
 
