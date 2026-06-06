@@ -315,11 +315,14 @@ export async function incrementProductViewCount(productId) {
   const current = inventory.products[index];
   const view_count = Math.max(0, Math.floor(Number(current.view_count ?? 0))) + 1;
   inventory.products[index] = { ...current, view_count };
-  await writeInventory({
-    products: inventory.products,
-    deletedProductIds: inventory.deletedProductIds ?? [],
-    warehouses: inventory.warehouses,
-  });
+  await writeInventory(
+    {
+      products: inventory.products,
+      deletedProductIds: inventory.deletedProductIds ?? [],
+      warehouses: inventory.warehouses,
+    },
+    { syncProductIds: [productId] },
+  );
 
   return true;
 }

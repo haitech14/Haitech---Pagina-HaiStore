@@ -231,7 +231,12 @@ export function InventoryProductFormDialog({
       }
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar el producto');
+      const message = err instanceof Error ? err.message : 'No se pudo guardar el producto';
+      setError(
+        message.includes('Sesión') || message.includes('permisos')
+          ? `${message} Si el servidor estaba guardando, espera unos segundos e intenta de nuevo sin cerrar sesión.`
+          : message,
+      );
     }
   };
 

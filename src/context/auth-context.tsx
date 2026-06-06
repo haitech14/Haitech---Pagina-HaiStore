@@ -56,11 +56,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           authProvider: 'supabase' | 'demo' | null;
         }>('/api/auth/me'),
         new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('timeout')), 12_000);
+          setTimeout(() => reject(new Error('auth-me-timeout')), 30_000);
         }),
       ]);
       applyMe(me);
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      const keepSession =
+        message === 'auth-me-timeout' ||
+        message.includes('conexión') ||
+        message.includes('502') ||
+        message.includes('504') ||
+        message.includes('503');
+
+      if (keepSession) {
+        console.warn('[auth] No se pudo refrescar la sesión; se mantiene la sesión actual.');
+        return;
+      }
+
       applyMe({ user: null, role: 'public', authProvider: null });
       setDemoToken(null);
     } finally {

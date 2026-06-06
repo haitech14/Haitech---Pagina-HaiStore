@@ -20,10 +20,10 @@ export function setDemoToken(token: string | null) {
 }
 
 export async function getAccessToken(): Promise<string | null> {
-  const demo = getDemoToken();
-  if (demo) return demo;
   const { data } = await supabase.auth.getSession();
   if (data.session?.access_token) return data.session.access_token;
+  const demo = getDemoToken();
+  if (demo) return demo;
   return null;
 }
 

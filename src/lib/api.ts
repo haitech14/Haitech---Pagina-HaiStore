@@ -28,7 +28,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
       setDemoToken(null);
       throw new Error(
         body.error ??
-          'Sesión expirada o no válida. Cierra sesión e inicia de nuevo como administrador.',
+          'Sesión expirada o no válida. Vuelve a iniciar sesión como administrador.',
       );
     }
 

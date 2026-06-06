@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import {
   ChevronLeft,
   ChevronRight,
@@ -201,6 +202,10 @@ export function InventoryPanel() {
     setRowBusyId(product.id);
     try {
       await bulkDuplicateProducts.mutateAsync([product.id]);
+      toast.success(`Copia creada de «${product.name}»`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo duplicar el producto';
+      toast.error(message);
     } finally {
       setRowBusyId(null);
     }
@@ -230,8 +235,14 @@ export function InventoryPanel() {
     if (ids.length === 0) return;
     setBulkBusy(true);
     try {
-      await bulkDuplicateProducts.mutateAsync(ids);
+      const result = await bulkDuplicateProducts.mutateAsync(ids);
       clearSelection();
+      toast.success(
+        `${result.created} copia${result.created === 1 ? '' : 's'} creada${result.created === 1 ? '' : 's'}`,
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudieron duplicar los productos';
+      toast.error(message);
     } finally {
       setBulkBusy(false);
     }

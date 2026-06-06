@@ -98,11 +98,14 @@ productsRouter.post('/bulk/delete', requireAdmin, async (req, res, next) => {
       ...new Set([...(inventory.deletedProductIds ?? []), ...removed.map((p) => p.id)]),
     ];
 
-    await writeInventory({
-      products: inventory.products,
-      deletedProductIds,
-      warehouses: inventory.warehouses,
-    });
+    await writeInventory(
+      {
+        products: inventory.products,
+        deletedProductIds,
+        warehouses: inventory.warehouses,
+      },
+      { syncProductIds: removed.map((p) => p.id) },
+    );
 
     const supabase = getSupabaseAdmin();
     if (supabase && removed.length > 0) {
@@ -138,12 +141,14 @@ productsRouter.patch('/bulk', requireAdmin, async (req, res, next) => {
       return res.status(404).json({ error: 'No se encontraron productos seleccionados' });
     }
 
-    await writeInventory({
-      products: inventory.products,
-      deletedProductIds: inventory.deletedProductIds ?? [],
-      warehouses: inventory.warehouses,
-    });
-    await syncProductsToSupabase(updatedProducts);
+    await writeInventory(
+      {
+        products: inventory.products,
+        deletedProductIds: inventory.deletedProductIds ?? [],
+        warehouses: inventory.warehouses,
+      },
+      { syncProductIds: updatedProducts.map((product) => product.id) },
+    );
 
     res.json({ ok: true, updated: updatedCount, products: updatedProducts });
   } catch (error) {
@@ -180,12 +185,14 @@ productsRouter.post('/bulk/duplicate', requireAdmin, async (req, res, next) => {
     }
 
     inventory.products = assignProductSortOrders(next);
-    await writeInventory({
-      products: inventory.products,
-      deletedProductIds: inventory.deletedProductIds ?? [],
-      warehouses: inventory.warehouses,
-    });
-    await syncProductsToSupabase(created);
+    await writeInventory(
+      {
+        products: inventory.products,
+        deletedProductIds: inventory.deletedProductIds ?? [],
+        warehouses: inventory.warehouses,
+      },
+      { syncProductIds: created.map((product) => product.id) },
+    );
 
     res.status(201).json({ ok: true, created: created.length, products: created });
   } catch (error) {
@@ -264,11 +271,14 @@ productsRouter.post('/', requireAdmin, async (req, res, next) => {
     const sorted = sortProductsByOrder(inventory.products);
     const next = assignProductSortOrders([...sorted, { ...product, sort_order: sorted.length }]);
     inventory.products = next;
-    const normalized = await writeInventory({
-      products: inventory.products,
-      deletedProductIds,
-      warehouses: inventory.warehouses,
-    });
+    const normalized = await writeInventory(
+      {
+        products: inventory.products,
+        deletedProductIds,
+        warehouses: inventory.warehouses,
+      },
+      { syncProductIds: [product.id] },
+    );
     const saved =
       normalized.products.find((entry) => entry.id === product.id) ?? product;
 
@@ -299,11 +309,14 @@ productsRouter.patch('/:id', requireAdmin, async (req, res, next) => {
     }
 
     inventory.products[index] = updated;
-    const normalized = await writeInventory({
-      products: inventory.products,
-      deletedProductIds: inventory.deletedProductIds ?? [],
-      warehouses: inventory.warehouses,
-    });
+    const normalized = await writeInventory(
+      {
+        products: inventory.products,
+        deletedProductIds: inventory.deletedProductIds ?? [],
+        warehouses: inventory.warehouses,
+      },
+      { syncProductIds: [req.params.id] },
+    );
     const saved =
       normalized.products.find((entry) => entry.id === req.params.id) ?? updated;
 
@@ -326,11 +339,14 @@ productsRouter.delete('/:id', requireAdmin, async (req, res, next) => {
 
     const [removed] = inventory.products.splice(index, 1);
     const deletedProductIds = [...new Set([...(inventory.deletedProductIds ?? []), removed.id])];
-    await writeInventory({
-      products: inventory.products,
-      deletedProductIds,
-      warehouses: inventory.warehouses,
-    });
+    await writeInventory(
+      {
+        products: inventory.products,
+        deletedProductIds,
+        warehouses: inventory.warehouses,
+      },
+      { syncProductIds: [removed.id] },
+    );
 
     const supabase = getSupabaseAdmin();
     if (supabase) {

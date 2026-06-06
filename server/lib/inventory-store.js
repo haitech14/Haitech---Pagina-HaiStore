@@ -341,8 +341,15 @@ export async function readInventory() {
   };
 }
 
-export async function writeInventory(data) {
+/**
+ * @param {object} data
+ * @param {{ syncProductIds?: string[] }} [options] IDs a sincronizar en Supabase (por defecto todos).
+ */
+export async function writeInventory(data, options = {}) {
   const preferSupabase = shouldPreferSupabaseCatalog();
+  const syncProductIds = Array.isArray(options.syncProductIds)
+    ? [...new Set(options.syncProductIds.filter((id) => typeof id === 'string' && id.length > 0))]
+    : null;
 
   let warehouses = data.warehouses;
   if (!warehouses) {
@@ -369,7 +376,13 @@ export async function writeInventory(data) {
 
   if (preferSupabase) {
     const { syncProductsToSupabase } = await import('./product-catalog.js');
-    await syncProductsToSupabase(products);
+    const productsToSync =
+      syncProductIds?.length > 0
+        ? products.filter((product) => syncProductIds.includes(product.id))
+        : products;
+    if (productsToSync.length > 0) {
+      await syncProductsToSupabase(productsToSync);
+    }
     if (!process.env.VERCEL) {
       await fs.mkdir(path.dirname(inventoryPath()), { recursive: true });
       await fs.writeFile(inventoryPath(), JSON.stringify(normalized, null, 2));

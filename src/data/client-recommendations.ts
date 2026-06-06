@@ -11,7 +11,7 @@ export const clientRecommendations: ClientRecommendation[] = [
     id: 'nbn-entrega-ricoh',
     image: '/clients/recommendations/cliente-nbn-entrega-ricoh.png',
     imageAlt:
-      'Cliente satisfecho frente a NBN con equipos Ricoh recién entregados y promoción de verano',
+      'Cliente satisfecho frente a NBN Copiers con su equipo Ricoh recién entregado y promoción de verano',
     caption: 'NBN — entrega y asesoría Ricoh',
   },
   {
@@ -20,6 +20,13 @@ export const clientRecommendations: ClientRecommendation[] = [
     imageAlt:
       'Cliente satisfecho junto a su vehículo con equipos Ricoh recién entregados en el maletero',
     caption: 'Entrega de equipos Ricoh a domicilio',
+  },
+  {
+    id: 'entrega-combobox-pro',
+    image: '/clients/recommendations/cliente-entrega-combobox-pro.png',
+    imageAlt:
+      'Cliente recibiendo en oficina su pedido Combobox Pro junto a un equipo multifuncional Ricoh',
+    caption: 'Entrega Combobox Pro en oficina',
   },
   {
     id: 'servicio-tecnico',

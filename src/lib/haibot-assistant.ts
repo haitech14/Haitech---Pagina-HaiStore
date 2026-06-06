@@ -53,7 +53,7 @@ export function getHaibotAssistantReply(userText: string): string {
   }
 
   if (text.includes('stock') || text.includes('disponib') || text.includes('inventario')) {
-    return 'Para consultar stock, escríbenos por WhatsApp al +51 915 149 290 indicando marca y modelo (ej. Ricoh IM 5000).';
+    return 'Escribe el modelo o código del producto y te muestro el stock al instante. También puedes pulsar el botón «Stock» debajo del chat.';
   }
 
   if (
@@ -66,7 +66,7 @@ export function getHaibotAssistantReply(userText: string): string {
   }
 
   if (text.includes('precio') || text.includes('cotiz') || text.includes('cuanto')) {
-    return 'Los precios actualizados están en la tienda. También puedes pedir cotización por WhatsApp al +51 915 149 290.';
+    return 'Escribe el producto que buscas y te doy el precio actualizado. Usa el botón «Precio» o escribe algo como «precio Ricoh IM 430F».';
   }
 
   if (text.includes('whatsapp') || text.includes('asesor') || text.includes('humano')) {
