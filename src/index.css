@@ -159,40 +159,6 @@
   animation: cart-line-flash 1.2s ease-out;
 }
 
-/* Carrusel continuo de marcas — respeta prefers-reduced-motion. */
-@keyframes brand-marquee {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.brand-marquee-track {
-  animation: brand-marquee 45s linear infinite;
-}
-
-.brand-marquee-track:hover {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .brand-marquee-track {
-    animation: none;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    max-width: 100%;
-    gap: 0.5rem;
-  }
-
-  .brand-marquee-track [aria-hidden='true'] {
-    display: none;
-  }
-}
-
 /* Página de login Printcore */
 .login-printcore {
   background-color: #000;

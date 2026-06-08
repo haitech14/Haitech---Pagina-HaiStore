@@ -27,6 +27,11 @@ export const printerBrands: Brand[] = [
   { name: 'Oki', logo: '/brands/oki.png' },
   { name: 'Pantum', logo: '/brands/pantum.png' },
   { name: 'Colortrac', logo: '/brands/colortrac.png' },
+  { name: 'Ramko', logo: '/brands/ramko.png' },
+  { name: 'Topjet', logo: '/brands/topjet.png' },
+  { name: 'Densitone', logo: '/brands/densitone.png' },
+  { name: 'Intercopy', logo: '/brands/intercopy.png' },
+  { name: 'Katun', logo: '/brands/katun.png' },
 ];
 
 export type BrandItem = string | Brand;

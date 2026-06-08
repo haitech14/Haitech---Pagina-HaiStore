@@ -11,7 +11,7 @@ import {
   HOME_CATALOG_SUPPLIES_SECTIONS,
 } from '@/lib/home-catalog-sections';
 import { Newsletter } from '@/components/newsletter';
-import { RentalCategoriesSection } from '@/components/rental-categories-section';
+import { NuestrasSolucionesSection } from '@/components/nuestras-soluciones-section';
 
 export function HomePage() {
   return (
@@ -25,7 +25,7 @@ export function HomePage() {
         <CatalogCategorySections sectionsConfig={HOME_CATALOG_EQUIPMENT_SECTIONS} />
       </div>
 
-      <RentalCategoriesSection />
+      <NuestrasSolucionesSection />
 
       <div className="container flex flex-col gap-8 pb-6 pt-2 sm:gap-10 sm:pb-8 sm:pt-4">
         <CatalogCategorySections sectionsConfig={HOME_CATALOG_SUPPLIES_SECTIONS} />

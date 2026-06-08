@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type TransitionEvent } from 'react';
 
 import {
   getRuletaConicGradient,
@@ -8,7 +8,9 @@ import {
 import { cn } from '@/lib/utils';
 
 const BULB_COUNT = 24;
-const SPIN_DURATION_MS = 4600;
+const SPIN_DURATION_MS = 5200;
+/** Pausa con el premio bajo el puntero antes del cuadro de felicidades. */
+const REVEAL_DELAY_MS = 1600;
 /** Radio de las bombillas en el borde exterior de la ruleta (% del contenedor). */
 const BULB_RADIUS_PERCENT = 50;
 /** Diámetro del hub «Ruleta del Color» respecto al disco interior (%). Origen polar = centro del disco. */
@@ -25,12 +27,14 @@ const WHEEL_CENTER_PERCENT = 50;
 const ICON_RING_OFFSET_DEG = -8;
 
 const SPIN_TRANSITION =
-  'transition-transform duration-[4600ms] ease-[cubic-bezier(0.12,0.75,0.22,1)] motion-reduce:transition-none motion-reduce:duration-0';
+  'transition-transform duration-[5200ms] ease-[cubic-bezier(0.08,0.82,0.12,1)] motion-reduce:transition-none motion-reduce:duration-0';
 
 interface SubscriptionRuletaWheelProps {
-  idleDiskRotation: number;
-  spinRotation: number;
-  isSpinning: boolean;
+  diskRotation: number;
+  isSpinAnimating: boolean;
+  /** Índice del sector ganador (resalta al detenerse). */
+  highlightIndex?: number | null;
+  onSpinComplete?: () => void;
   className?: string;
 }
 
@@ -47,14 +51,18 @@ function polarPositionFromWheelCenter(angleDeg: number, radiusPercent: number) {
 const WHEEL_PIVOT_TRANSFORM = 'translate(-50%, -50%)';
 
 export function SubscriptionRuletaWheel({
-  idleDiskRotation,
-  spinRotation,
-  isSpinning,
+  diskRotation,
+  isSpinAnimating,
+  highlightIndex = null,
+  onSpinComplete,
   className,
 }: SubscriptionRuletaWheelProps) {
   const gradient = useMemo(() => getRuletaConicGradient(), []);
 
-  const diskRotation = isSpinning ? spinRotation : idleDiskRotation;
+  const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
+    if (event.propertyName !== 'transform' || !isSpinAnimating) return;
+    onSpinComplete?.();
+  };
 
   return (
     <div className={cn('relative mx-auto w-full max-w-[430px] px-1 pb-6 pt-1', className)}>
@@ -102,11 +110,12 @@ export function SubscriptionRuletaWheel({
               <div
                 className={cn(
                   'pointer-events-none absolute left-1/2 top-1/2 size-full origin-center rounded-full',
-                  isSpinning ? SPIN_TRANSITION : 'transition-none',
+                  isSpinAnimating ? SPIN_TRANSITION : 'transition-none',
                 )}
                 style={{
                   transform: `${WHEEL_PIVOT_TRANSFORM} rotate(${diskRotation}deg)`,
                 }}
+                onTransitionEnd={handleTransitionEnd}
               >
                 <div
                   className="absolute inset-0 rounded-full"
@@ -114,6 +123,7 @@ export function SubscriptionRuletaWheel({
                 />
 
                 {SUBSCRIPTION_RULETA_PREMIOS.map((premio, index) => {
+                  const isWinner = highlightIndex === index;
                   const midAngle =
                     getRuletaSegmentMidAngleDeg(index) +
                     (premio.angleOffsetDeg ?? 0) +
@@ -127,7 +137,10 @@ export function SubscriptionRuletaWheel({
                     <div
                       key={premio.id}
                       aria-hidden="true"
-                      className="absolute flex w-[4.1rem] flex-col items-center justify-center sm:w-[4.35rem]"
+                      className={cn(
+                        'absolute flex w-[4.1rem] flex-col items-center justify-center sm:w-[4.35rem]',
+                        isWinner && 'z-20 scale-110 transition-transform duration-500',
+                      )}
                       style={{
                         left,
                         top,
@@ -135,7 +148,11 @@ export function SubscriptionRuletaWheel({
                       }}
                     >
                       <Icon
-                        className="size-6 shrink-0 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.65)] sm:size-7"
+                        className={cn(
+                          'size-6 shrink-0 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.65)] sm:size-7',
+                          isWinner &&
+                            'drop-shadow-[0_0_12px_rgba(255,255,255,0.95),0_0_20px_rgba(251,191,36,0.85)]',
+                        )}
                         strokeWidth={1.5}
                         aria-hidden="true"
                       />
@@ -180,4 +197,4 @@ export function SubscriptionRuletaWheel({
   );
 }
 
-export { SPIN_DURATION_MS };
+export { REVEAL_DELAY_MS, SPIN_DURATION_MS };

@@ -1,7 +1,9 @@
 import type { LucideIcon } from 'lucide-react';
-import { KeyRound, Shield } from 'lucide-react';
+import { BarChart3, Headphones, KeyRound, Shield } from 'lucide-react';
 
 import { categoryPath } from '@/lib/category-path';
+
+export type HaitechEcosystemVariant = 'support' | 'sales' | 'rent' | 'protect';
 
 export interface HaitechEcosystemBanner {
   id: string;
@@ -12,39 +14,35 @@ export interface HaitechEcosystemBanner {
   ctaLabel: string;
   image: string;
   imageAlt: string;
-  icon?: LucideIcon;
-  logoUrl?: string;
-  logoAlt?: string;
-  variant: 'support' | 'sales' | 'rent' | 'protect';
+  icon: LucideIcon;
+  variant: HaitechEcosystemVariant;
   external?: boolean;
 }
 
 export const HAITECH_ECOSYSTEM_BANNERS: readonly HaitechEcosystemBanner[] = [
   {
     id: 'haisupport',
-    brandPrefix: 'Hai',
+    brandPrefix: 'HAI',
     brandSuffix: 'Support',
     description: 'Sistema de Gestión Integral de Soporte Técnico y de Alquiler',
     href: 'https://soporte.haitech.pe/',
     ctaLabel: 'Ir a HaiSupport',
     image: '/promotions/promo-hero-servicio.png',
     imageAlt: 'Técnico de soporte atendiendo equipos de impresión',
-    logoUrl: '/logos/haisupport-logo.png',
-    logoAlt: 'HaiSupport — Desarrollado por HAITECH',
+    icon: Headphones,
     variant: 'support',
     external: true,
   },
   {
     id: 'haisales',
-    brandPrefix: 'Hai',
+    brandPrefix: 'HAI',
     brandSuffix: 'Sales',
     description: 'Sistema ERP, Facturación y CRM Empresarial',
     href: 'https://ventas.haitech.pe/',
     ctaLabel: 'Ir a HaiSales',
-    image: '/promo-cards/b2b-printer.png',
-    imageAlt: 'Equipo de oficina y soluciones empresariales',
-    logoUrl: '/logos/haisales-logo.png',
-    logoAlt: 'HAISales — Desarrollado por HAITECH ERP',
+    image: '/services/alquiler/laptops.png',
+    imageAlt: 'Laptop con panel de ventas y métricas empresariales',
+    icon: BarChart3,
     variant: 'sales',
     external: true,
   },

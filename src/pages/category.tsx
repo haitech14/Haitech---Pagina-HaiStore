@@ -18,6 +18,7 @@ import {
   CategoryProductsTableSkeleton,
 } from '@/components/category-products-table';
 import { ProductCard } from '@/components/product-card';
+import { ProductCatalogCard } from '@/components/product/product-catalog-card';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -128,7 +129,7 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
   const [priceMax, setPriceMax] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState<CategorySortValue>('price-asc');
   const [viewMode, setViewMode] = useState<CatalogViewMode>('table');
-  const [gridColumns, setGridColumns] = useState<CatalogGridColumns>(5);
+  const [gridColumns, setGridColumns] = useState<CatalogGridColumns>(4);
   const [filtersPanelOpen, setFiltersPanelOpen] = useState(true);
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
@@ -815,13 +816,13 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
                     : 'flex flex-col gap-4',
                 )}
               >
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    layout={viewMode === 'list' ? 'list' : 'grid'}
-                  />
-                ))}
+                {filteredProducts.map((product) =>
+                  viewMode === 'list' ? (
+                    <ProductCard key={product.id} product={product} layout="list" />
+                  ) : (
+                    <ProductCatalogCard key={product.id} product={product} />
+                  ),
+                )}
               </div>
             ) : null}
           </section>

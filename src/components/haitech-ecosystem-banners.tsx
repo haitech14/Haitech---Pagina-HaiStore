@@ -4,50 +4,164 @@ import { Link } from 'react-router-dom';
 import {
   HAITECH_ECOSYSTEM_BANNERS,
   type HaitechEcosystemBanner,
+  type HaitechEcosystemVariant,
 } from '@/data/haitech-ecosystem';
 import { cn } from '@/lib/utils';
 
 const VARIANT_STYLES: Record<
-  HaitechEcosystemBanner['variant'],
-  { shell: string; overlay: string; glow: string }
+  HaitechEcosystemVariant,
+  {
+    shell: string;
+    overlay: string;
+    glow: string;
+    iconShell: string;
+    prefixColor: string;
+    accentLine: string;
+    button: string;
+    imageClass?: string;
+  }
 > = {
   support: {
-    shell: 'bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800',
-    overlay: 'bg-gradient-to-r from-neutral-950 via-neutral-950/95 to-neutral-900/20',
-    glow: 'bg-red-600/20',
+    shell: 'bg-gradient-to-br from-neutral-950 via-[#120a0a] to-black',
+    overlay:
+      'bg-gradient-to-r from-neutral-950 from-[32%] via-neutral-950/90 via-[58%] to-transparent',
+    glow: 'bg-red-600/25',
+    iconShell:
+      'bg-sky-600 text-white shadow-[0_0_18px_rgba(14,165,233,0.4)] ring-1 ring-sky-400/30',
+    prefixColor: 'text-sky-400',
+    accentLine: 'bg-red-500',
+    button:
+      'border-red-500/80 bg-black/35 text-red-500 hover:border-red-400 hover:bg-red-600/10 hover:text-red-400',
   },
   sales: {
-    shell: 'bg-gradient-to-br from-[#0a1628] via-[#0f2038] to-[#152238]',
-    overlay: 'bg-gradient-to-r from-[#0a1628] via-[#0a1628]/95 to-[#0f2038]/15',
-    glow: 'bg-blue-500/15',
+    shell: 'bg-gradient-to-br from-[#060d18] via-[#0a1628] to-[#0f2038]',
+    overlay:
+      'bg-gradient-to-r from-[#060d18] from-[32%] via-[#0a1628]/90 via-[58%] to-transparent',
+    glow: 'bg-sky-500/25',
+    iconShell:
+      'bg-sky-600 text-white shadow-[0_0_18px_rgba(14,165,233,0.4)] ring-1 ring-sky-400/30',
+    prefixColor: 'text-sky-400',
+    accentLine: 'bg-sky-500',
+    button:
+      'border-sky-500/80 bg-black/35 text-sky-400 hover:border-sky-400 hover:bg-sky-500/10 hover:text-sky-300',
+    imageClass: 'opacity-[0.38] mix-blend-luminosity',
   },
   rent: {
-    shell: 'bg-gradient-to-br from-neutral-950 via-[#1a1208] to-neutral-900',
-    overlay: 'bg-gradient-to-r from-neutral-950 via-neutral-950/95 to-amber-950/20',
-    glow: 'bg-amber-500/15',
+    shell: 'bg-gradient-to-br from-neutral-950 via-[#140808] to-black',
+    overlay:
+      'bg-gradient-to-r from-neutral-950 from-[32%] via-neutral-950/90 via-[58%] to-transparent',
+    glow: 'bg-red-600/22',
+    iconShell:
+      'bg-red-950 text-white shadow-[0_0_14px_rgba(220,38,38,0.25)] ring-1 ring-red-900/60',
+    prefixColor: 'text-red-500',
+    accentLine: 'bg-red-500',
+    button:
+      'border-red-500/80 bg-black/35 text-red-500 hover:border-red-400 hover:bg-red-600/10 hover:text-red-400',
   },
   protect: {
-    shell: 'bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a]',
-    overlay: 'bg-gradient-to-r from-[#0f172a] via-[#0f172a]/95 to-emerald-950/20',
-    glow: 'bg-emerald-500/15',
+    shell: 'bg-gradient-to-br from-[#0a0f1a] via-[#101c32] to-[#060a12]',
+    overlay:
+      'bg-gradient-to-r from-[#0a0f1a] from-[32%] via-[#101c32]/92 via-[58%] to-transparent',
+    glow: 'bg-red-600/28',
+    iconShell:
+      'bg-indigo-950 text-white shadow-[0_0_16px_rgba(99,102,241,0.3)] ring-1 ring-indigo-500/35',
+    prefixColor: 'text-red-500',
+    accentLine: 'bg-red-500',
+    button:
+      'border-red-500/80 bg-black/35 text-red-500 hover:border-red-400 hover:bg-red-600/10 hover:text-red-400',
+    imageClass: 'opacity-[0.42] saturate-150',
   },
 };
 
-function BannerCard({ banner }: { banner: HaitechEcosystemBanner }) {
-  const styles = VARIANT_STYLES[banner.variant];
+function BannerBrandHeader({
+  banner,
+  styles,
+}: {
+  banner: HaitechEcosystemBanner;
+  styles: (typeof VARIANT_STYLES)[HaitechEcosystemVariant];
+}) {
+  const Icon = banner.icon;
+
+  return (
+    <div className="flex items-start gap-3">
+      <span
+        className={cn(
+          'flex size-11 shrink-0 items-center justify-center rounded-lg sm:size-12',
+          styles.iconShell,
+        )}
+        aria-hidden="true"
+      >
+        <Icon className="size-5" strokeWidth={1.85} />
+      </span>
+      <div className="min-w-0 pt-0.5">
+        <p className="text-lg font-bold leading-none tracking-tight sm:text-xl">
+          <span className={styles.prefixColor}>{banner.brandPrefix}</span>
+          <span className="text-white">{banner.brandSuffix}</span>
+        </p>
+        <span
+          className={cn('mt-2 block h-0.5 w-9 rounded-full', styles.accentLine)}
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+  );
+}
+
+function BannerCta({
+  banner,
+  styles,
+}: {
+  banner: HaitechEcosystemBanner;
+  styles: (typeof VARIANT_STYLES)[HaitechEcosystemVariant];
+}) {
   const className = cn(
-    'group relative flex min-h-[11.5rem] overflow-hidden rounded-xl border border-border/70 shadow-[0_8px_24px_-16px_hsl(var(--foreground)/0.45)] transition-all',
-    'hover:-translate-y-0.5 hover:border-red-600/30 hover:shadow-[0_14px_28px_-16px_hsl(var(--foreground)/0.5)]',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2',
-    styles.shell,
+    'inline-flex min-h-10 w-fit items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950',
+    styles.button,
   );
 
   const content = (
     <>
+      {banner.ctaLabel}
+      <ArrowRight className="size-4" aria-hidden="true" />
+    </>
+  );
+
+  if (banner.external) {
+    return (
+      <a
+        href={banner.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        onClick={(event) => event.stopPropagation()}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={banner.href} className={className} onClick={(event) => event.stopPropagation()}>
+      {content}
+    </Link>
+  );
+}
+
+function BannerCard({ banner }: { banner: HaitechEcosystemBanner }) {
+  const styles = VARIANT_STYLES[banner.variant];
+  const cardHref = banner.external ? banner.href : banner.href;
+
+  const inner = (
+    <>
       <img
         src={banner.image}
         alt=""
-        className="pointer-events-none absolute inset-y-0 right-0 h-full w-[52%] object-contain object-right opacity-35 transition-opacity duration-300 group-hover:opacity-45 sm:w-[48%] sm:opacity-40"
+        className={cn(
+          'pointer-events-none absolute inset-y-0 right-0 h-full w-[56%] object-contain object-right pr-2',
+          'opacity-[0.36] transition-opacity duration-300 group-hover:opacity-[0.5] sm:w-[52%]',
+          styles.imageClass,
+        )}
         loading="lazy"
       />
       <div
@@ -57,69 +171,51 @@ function BannerCard({ banner }: { banner: HaitechEcosystemBanner }) {
       <div
         aria-hidden="true"
         className={cn(
-          'pointer-events-none absolute -right-8 top-0 size-40 rounded-full blur-3xl',
+          'pointer-events-none absolute -bottom-4 -right-4 size-36 rounded-full blur-3xl sm:size-44',
           styles.glow,
         )}
       />
 
-      <div className="relative z-10 flex flex-1 flex-col justify-between gap-4 p-4 sm:p-5 lg:p-6">
-        <div className="flex flex-col gap-2 lg:max-w-[16rem] xl:max-w-[18rem]">
-          <div className="flex items-center gap-2">
-            {banner.logoUrl ? (
-              <img
-                src={banner.logoUrl}
-                alt={banner.logoAlt ?? `${banner.brandPrefix}${banner.brandSuffix}`}
-                className="h-10 w-auto max-w-[13rem] object-contain object-left sm:h-11 sm:max-w-[14rem]"
-                loading="lazy"
-              />
-            ) : (
-              <>
-                <span
-                  className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-600/20 text-red-500"
-                  aria-hidden="true"
-                >
-                  {banner.icon ? <banner.icon className="size-4" /> : null}
-                </span>
-                <p className="text-lg font-bold tracking-tight text-white sm:text-xl">
-                  <span className="text-red-500">{banner.brandPrefix}</span>
-                  {banner.brandSuffix}
-                </p>
-              </>
-            )}
-          </div>
-          <p className="text-pretty text-sm leading-snug text-white/85 sm:text-[0.9375rem]">
+      <div className="relative z-10 flex h-full min-h-[15.5rem] flex-col justify-between gap-6 p-5 sm:min-h-[16.5rem] sm:p-6">
+        <div className="flex max-w-[15rem] flex-col gap-3.5 sm:max-w-[16rem]">
+          <BannerBrandHeader banner={banner} styles={styles} />
+          <p className="text-pretty text-sm leading-relaxed text-white/90 sm:text-[0.9375rem]">
             {banner.description}
           </p>
           <span className="sr-only">{banner.imageAlt}</span>
         </div>
 
-        <span className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-red-400 transition-colors group-hover:text-red-300">
-          {banner.ctaLabel}
-          <ArrowRight
-            className="size-4 transition-transform group-hover:translate-x-0.5"
-            aria-hidden="true"
-          />
-        </span>
+        <BannerCta banner={banner} styles={styles} />
       </div>
     </>
   );
 
-  if (banner.external !== false) {
+  const shellClass = cn(
+    'group relative flex h-full w-full overflow-hidden rounded-2xl border border-white/10',
+    'shadow-[0_14px_36px_-22px_rgba(0,0,0,0.85)] transition-all duration-300',
+    'hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.95)]',
+    styles.shell,
+  );
+
+  if (banner.external) {
     return (
       <a
-        href={banner.href}
+        href={cardHref}
         target="_blank"
         rel="noopener noreferrer"
-        className={className}
+        className={cn(shellClass, 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background')}
       >
-        {content}
+        {inner}
       </a>
     );
   }
 
   return (
-    <Link to={banner.href} className={className}>
-      {content}
+    <Link
+      to={cardHref}
+      className={cn(shellClass, 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background')}
+    >
+      {inner}
     </Link>
   );
 }
@@ -127,15 +223,22 @@ function BannerCard({ banner }: { banner: HaitechEcosystemBanner }) {
 export function HaitechEcosystemBanners() {
   return (
     <div
-      className="mt-8 grid grid-cols-1 gap-3 sm:mt-10 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4"
-      role="list"
-      aria-label="Plataformas y servicios Haitech"
+      className={cn(
+        'mt-10 rounded-2xl border border-border/40 p-4 sm:mt-12 sm:p-5 lg:p-6',
+        'bg-muted/25 bg-[radial-gradient(circle_at_1px_1px,hsl(var(--border)/0.45)_1px,transparent_0)] [background-size:22px_22px]',
+      )}
     >
-      {HAITECH_ECOSYSTEM_BANNERS.map((banner) => (
-        <article key={banner.id} role="listitem" className="min-w-0">
-          <BannerCard banner={banner} />
-        </article>
-      ))}
+      <div
+        className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        role="list"
+        aria-label="Plataformas y servicios Haitech"
+      >
+        {HAITECH_ECOSYSTEM_BANNERS.map((banner) => (
+          <article key={banner.id} role="listitem" className="flex min-w-0">
+            <BannerCard banner={banner} />
+          </article>
+        ))}
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { ArrowRight, Gift, Mail, PartyPopper, Phone, Shield, User, X } from 'luc
 import { toast } from 'sonner';
 
 import {
+  REVEAL_DELAY_MS,
   SPIN_DURATION_MS,
   SubscriptionRuletaWheel,
 } from '@/components/subscription-ruleta-wheel';
@@ -61,7 +62,7 @@ const subscriptionSchema = z.object({
 
 type SubscriptionFormValues = z.infer<typeof subscriptionSchema>;
 
-type FormPhase = 'idle' | 'submitting' | 'spinning' | 'won';
+type FormPhase = 'idle' | 'submitting' | 'spinning' | 'landed' | 'won';
 
 function isStoreRoute(pathname: string): boolean {
   if (STORE_PATHS.includes(pathname as (typeof STORE_PATHS)[number])) return true;
@@ -87,15 +88,17 @@ function wasPopupShown(): boolean {
 export function SubscriptionPopup() {
   const { pathname } = useLocation();
   const titleId = useId();
-  const spinTimerRef = useRef<number | null>(null);
-  const idleDiskRef = useRef(0);
+  const revealTimerRef = useRef<number | null>(null);
+  const spinFallbackTimerRef = useRef<number | null>(null);
+  const spinCompletedRef = useRef(false);
 
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<FormPhase>('idle');
-  const [idleDiskRotation, setIdleDiskRotation] = useState(0);
-  const [spinRotation, setSpinRotation] = useState(0);
+  const [diskRotation, setDiskRotation] = useState(0);
+  const [isSpinAnimating, setIsSpinAnimating] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [wonPremio, setWonPremio] = useState<RuletaPremio | null>(null);
+  const [winningIndex, setWinningIndex] = useState<number | null>(null);
 
   const {
     register,
@@ -113,7 +116,8 @@ export function SubscriptionPopup() {
     },
   });
 
-  const isBusy = phase === 'submitting' || phase === 'spinning';
+  const isBusy = phase === 'submitting' || phase === 'spinning' || phase === 'landed';
+  const showWheelHighlight = phase === 'landed' || phase === 'won';
   const onStorePage = isStoreRoute(pathname);
 
   useEffect(() => {
@@ -136,47 +140,83 @@ export function SubscriptionPopup() {
   }, [onStorePage, pathname]);
 
   useEffect(() => {
-    if (!open || isBusy || prefersReducedMotion) return;
+    if (!open || phase !== 'idle' || prefersReducedMotion) return;
 
     const interval = window.setInterval(() => {
-      setIdleDiskRotation((current) => {
-        const next = current + IDLE_STEP_DEG;
-        idleDiskRef.current = next;
-        return next;
-      });
+      setDiskRotation((current) => current + IDLE_STEP_DEG);
     }, IDLE_INTERVAL_MS);
 
     return () => window.clearInterval(interval);
-  }, [open, isBusy, prefersReducedMotion]);
+  }, [open, phase, prefersReducedMotion]);
 
   useEffect(
     () => () => {
-      if (spinTimerRef.current) window.clearTimeout(spinTimerRef.current);
+      if (revealTimerRef.current) window.clearTimeout(revealTimerRef.current);
+      if (spinFallbackTimerRef.current) window.clearTimeout(spinFallbackTimerRef.current);
     },
     [],
   );
 
+  const scheduleFelicidades = useCallback(() => {
+    if (revealTimerRef.current) window.clearTimeout(revealTimerRef.current);
+    revealTimerRef.current = window.setTimeout(() => {
+      setPhase('won');
+    }, REVEAL_DELAY_MS);
+  }, []);
+
+  const handleSpinComplete = useCallback(() => {
+    if (spinCompletedRef.current) return;
+    spinCompletedRef.current = true;
+
+    if (spinFallbackTimerRef.current) {
+      window.clearTimeout(spinFallbackTimerRef.current);
+      spinFallbackTimerRef.current = null;
+    }
+    setIsSpinAnimating(false);
+    setPhase('landed');
+    scheduleFelicidades();
+  }, [scheduleFelicidades]);
+
   const handleClose = useCallback(() => {
-    if (phase === 'spinning') return;
+    if (phase === 'spinning' || phase === 'landed') return;
     setOpen(false);
     setPhase('idle');
     setWonPremio(null);
+    setWinningIndex(null);
+    setIsSpinAnimating(false);
+    if (revealTimerRef.current) window.clearTimeout(revealTimerRef.current);
+    if (spinFallbackTimerRef.current) window.clearTimeout(spinFallbackTimerRef.current);
   }, [phase]);
 
-  const runSpin = useCallback((prizeIndex: number, premio: RuletaPremio) => {
-    const delta = computeRuletaSpinDeltaDeg(prizeIndex);
-    const idleSnapshot = idleDiskRef.current;
+  const runSpin = useCallback(
+    (prizeIndex: number, premio: RuletaPremio) => {
+      const delta = computeRuletaSpinDeltaDeg(prizeIndex);
 
-    setPhase('spinning');
-    setSpinRotation((current) => current + idleSnapshot + delta);
-    setIdleDiskRotation(0);
-    idleDiskRef.current = 0;
-
-    spinTimerRef.current = window.setTimeout(() => {
+      spinCompletedRef.current = false;
       setWonPremio(premio);
-      setPhase('won');
-    }, SPIN_DURATION_MS);
-  }, []);
+      setWinningIndex(prizeIndex);
+      setPhase('spinning');
+      setIsSpinAnimating(true);
+
+      if (spinFallbackTimerRef.current) window.clearTimeout(spinFallbackTimerRef.current);
+      spinFallbackTimerRef.current = window.setTimeout(() => {
+        handleSpinComplete();
+      }, SPIN_DURATION_MS + 120);
+
+      if (prefersReducedMotion) {
+        setDiskRotation((current) => current + delta);
+        window.requestAnimationFrame(() => handleSpinComplete());
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          setDiskRotation((current) => current + delta);
+        });
+      });
+    },
+    [handleSpinComplete, prefersReducedMotion],
+  );
 
   const onSubmit = async (values: SubscriptionFormValues) => {
     setPhase('submitting');
@@ -245,56 +285,22 @@ export function SubscriptionPopup() {
         aria-describedby={undefined}
         aria-busy={isBusy}
         onInteractOutside={(event) => {
-          if (phase === 'spinning' || phase === 'won') event.preventDefault();
+          if (phase === 'spinning' || phase === 'landed' || phase === 'won') event.preventDefault();
         }}
         onEscapeKeyDown={(event) => {
-          if (phase === 'spinning') event.preventDefault();
+          if (phase === 'spinning' || phase === 'landed') event.preventDefault();
         }}
       >
         <DialogTitle className="sr-only">Suscripción — Ruleta del Color</DialogTitle>
 
-        {phase === 'won' && wonPremio ? (
-          <div
-            className="relative flex min-h-[420px] flex-col items-center justify-center gap-6 px-6 py-10 sm:px-10 sm:py-12"
-            role="status"
-            aria-live="polite"
-          >
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(220,38,38,0.12),transparent_55%)]"
-            />
-            <span className="flex size-16 items-center justify-center rounded-full bg-red-600/10 text-red-600">
-              <PartyPopper className="size-8" aria-hidden="true" />
-            </span>
-            <div className="relative z-10 text-center">
-              <h2 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-                ¡Felicidades!
-              </h2>
-              <p className="mt-2 text-base text-muted-foreground sm:text-lg">
-                Has ganado un premio en la{' '}
-                <span className="font-semibold text-red-600">Ruleta del Color</span>
-              </p>
-            </div>
-            <RuletaCouponCard premio={wonPremio} className="relative z-10" />
-            <p className="relative z-10 max-w-sm text-center text-sm text-muted-foreground">
-              <Mail className="mb-1 inline size-4 text-blue-500" aria-hidden="true" />{' '}
-              Te enviaremos el cupón a tu correo en las próximas 48 a 72 horas.
-            </p>
-            <Button
-              type="button"
-              onClick={handleClose}
-              className="relative z-10 h-12 min-w-[200px] bg-red-600 text-base font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
-            >
-              Entendido
-            </Button>
-          </div>
-        ) : (
-        <div className="flex flex-col md:flex-row">
+        <div className="relative flex flex-col md:flex-row">
           {/* Columna izquierda — ruleta (~46%) */}
           <div
             className={cn(
               'relative flex min-h-[380px] flex-col items-center justify-center overflow-hidden px-4 py-8 md:min-h-[520px] md:w-[46%] md:shrink-0 md:py-10',
               'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900',
+              phase === 'landed' && 'md:w-[52%]',
+              (phase === 'spinning' || phase === 'landed') && 'md:min-h-[560px]',
             )}
           >
             <div
@@ -311,25 +317,58 @@ export function SubscriptionPopup() {
             />
 
             <SubscriptionRuletaWheel
-              idleDiskRotation={idleDiskRotation}
-              spinRotation={spinRotation}
-              isSpinning={phase === 'spinning'}
+              diskRotation={diskRotation}
+              isSpinAnimating={isSpinAnimating}
+              highlightIndex={showWheelHighlight ? winningIndex : null}
+              onSpinComplete={handleSpinComplete}
               className="relative z-10"
             />
+
+            {phase === 'landed' && wonPremio ? (
+              <p
+                className="relative z-10 mt-4 max-w-[18rem] animate-in fade-in slide-in-from-bottom-2 text-center text-sm font-semibold text-white duration-500 sm:text-base"
+                role="status"
+                aria-live="polite"
+              >
+                ¡Premio seleccionado!{' '}
+                <span className="block text-amber-300">{formatPremioLabel(wonPremio)}</span>
+              </p>
+            ) : null}
           </div>
 
-          {/* Columna derecha — formulario */}
-          <div className="relative flex-1 bg-[#F5F5F5] px-5 py-7 sm:px-8 sm:py-8">
+          {/* Columna derecha — formulario o estado de giro */}
+          <div
+            className={cn(
+              'relative flex-1 bg-[#F5F5F5] px-5 py-7 sm:px-8 sm:py-8',
+              phase === 'landed' && 'hidden md:flex md:max-w-[48%] md:flex-col md:justify-center',
+            )}
+          >
             <button
               type="button"
               onClick={handleClose}
-              disabled={phase === 'spinning'}
+              disabled={phase === 'spinning' || phase === 'landed'}
               aria-label="Cerrar ventana de suscripción"
               className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
             >
               <X className="size-4" aria-hidden="true" />
             </button>
 
+            {phase === 'landed' && wonPremio ? (
+              <div
+                className="flex flex-col items-center justify-center gap-4 px-2 py-6 text-center md:py-0"
+                aria-hidden="true"
+              >
+                <span className="flex size-14 items-center justify-center rounded-full bg-red-600/10 text-red-600">
+                  <Gift className="size-7" aria-hidden="true" />
+                </span>
+                <p className="text-lg font-bold text-foreground">¡Buena elección!</p>
+                <p className="text-sm text-muted-foreground">
+                  El puntero se detuvo en{' '}
+                  <span className="font-semibold text-red-600">{formatPremioLabel(wonPremio)}</span>
+                </p>
+              </div>
+            ) : (
+            <>
             <div className="mb-6 flex items-start gap-3 pr-10">
               <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-600/10 text-red-600">
                 <Gift className="size-5" aria-hidden="true" />
@@ -512,9 +551,51 @@ export function SubscriptionPopup() {
                 Cupón será enviado por correo y será válido por 48 a 72 horas.
               </p>
             </form>
+            </>
+            )}
           </div>
+
+          {phase === 'won' && wonPremio ? (
+            <div
+              className={cn(
+                'absolute inset-0 z-20 flex flex-col items-center justify-center gap-6 px-6 py-10 sm:px-10 sm:py-12',
+                'animate-in fade-in zoom-in-95 duration-500',
+                'bg-gradient-to-b from-[#F5F5F5]/75 via-[#F5F5F5]/88 to-[#F5F5F5]/95 backdrop-blur-[1px]',
+              )}
+              role="status"
+              aria-live="polite"
+            >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(220,38,38,0.12),transparent_55%)]"
+              />
+              <span className="relative z-10 flex size-16 items-center justify-center rounded-full bg-red-600/10 text-red-600">
+                <PartyPopper className="size-8" aria-hidden="true" />
+              </span>
+              <div className="relative z-10 text-center">
+                <h2 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+                  ¡Felicidades!
+                </h2>
+                <p className="mt-2 text-base text-muted-foreground sm:text-lg">
+                  Has ganado un premio en la{' '}
+                  <span className="font-semibold text-red-600">Ruleta del Color</span>
+                </p>
+              </div>
+              <RuletaCouponCard premio={wonPremio} className="relative z-10" />
+              <p className="relative z-10 max-w-sm text-center text-sm text-muted-foreground">
+                <Mail className="mb-1 inline size-4 text-blue-500" aria-hidden="true" />{' '}
+                Te enviaremos el cupón a tu correo en las próximas 48 a 72 horas.
+              </p>
+              <Button
+                type="button"
+                onClick={handleClose}
+                className="relative z-10 h-12 min-w-[200px] bg-red-600 text-base font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
+              >
+                Entendido
+              </Button>
+            </div>
+          ) : null}
         </div>
-        )}
       </DialogContent>
     </Dialog>
   );

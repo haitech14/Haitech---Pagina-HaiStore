@@ -29,3 +29,20 @@ node scripts/import-compatible-toner-products.mjs "ruta/al/Toner Compatibles.xls
 ```
 
 Importa cartuchos y recargas a la subcategoría **Toner Compatibles** con proveedor MICAMERB.
+
+## Lista de precios procesada
+
+Coloca `Lista_Precios_Procesada.xlsx` en esta carpeta o pasa la ruta al script:
+
+```bash
+npm run import:processed-price-list
+# o:
+node scripts/import-processed-price-list.mjs "ruta/a/Lista_Precios_Procesada.xlsx"
+```
+
+Importa ~112 productos a **Toner Compatibles** con códigos `LP-*`, precios en USD (conversión desde soles con el tipo de cambio de ajustes de empresa) y reglas:
+
+- **Mayorista** = Distribuidor − 10 (soles, recalculado siempre)
+- **Corporativo S/** → precio público
+- Filas «Unidad de imagen»: nombre sin prefijo «Toner cartucho compatible RICOH»; filas «4 COLORES» se expanden a Cyan, Magenta, Yellow y Negro
+- Fusiona por código: conserva stock, galería e imágenes de productos existentes

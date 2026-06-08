@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import AutoScroll from 'embla-carousel-auto-scroll';
+import useEmblaCarousel from 'embla-carousel-react';
 
 import { SectionHeading } from '@/components/section-heading';
 import {
@@ -10,6 +13,9 @@ import {
   type BrandItem,
 } from '@/data/brands';
 import { cn } from '@/lib/utils';
+
+/** Velocidad del auto-scroll (mayor = más rápido). Default del plugin: 2. */
+const BRAND_MARQUEE_AUTO_SCROLL_SPEED = 1.35;
 
 interface BrandStripProps {
   brands?: BrandItem[];
@@ -45,6 +51,7 @@ function BrandLogoCard({
             isDark ? 'opacity-80 transition-opacity group-hover:opacity-100' : '',
           )}
           loading="lazy"
+          draggable={false}
         />
       ) : (
         <span
@@ -60,7 +67,7 @@ function BrandLogoCard({
   );
 
   const className = cn(
-    'group flex h-10 w-full items-center justify-center rounded-lg border px-2 transition-all sm:h-11',
+    'group flex h-10 w-full select-none items-center justify-center rounded-lg border px-2 transition-all sm:h-11',
     linkable && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500',
     isActive && 'border-[#DC2626] ring-1 ring-[#DC2626]',
     isDark
@@ -70,7 +77,7 @@ function BrandLogoCard({
 
   if (linkable) {
     return (
-      <Link to={getBrandFilterHref(brand)} className={className} aria-label={`Ver productos ${name}`}>
+      <Link to={getBrandFilterHref(brand)} className={className} aria-label={`Ver productos ${name}`} draggable={false}>
         {content}
       </Link>
     );
@@ -79,7 +86,7 @@ function BrandLogoCard({
   return <div className={className}>{content}</div>;
 }
 
-function BrandMarquee({
+function BrandMarqueeStatic({
   brands,
   isDark,
   linkable,
@@ -90,7 +97,57 @@ function BrandMarquee({
   linkable: boolean;
   activeBrandSlug?: string | null;
 }) {
-  const loopItems = [...brands, ...brands];
+  return (
+    <div className="container py-2">
+      <ul
+        className="mx-auto flex max-w-5xl flex-wrap justify-center gap-2 sm:gap-3"
+        role="list"
+        aria-label="Marcas disponibles"
+      >
+        {brands.map((brand) => (
+          <li key={getBrandName(brand)} className="w-[7.5rem] sm:w-[8.5rem]">
+            <BrandLogoCard
+              brand={brand}
+              isDark={isDark}
+              linkable={linkable}
+              isActive={activeBrandSlug === getBrandSlug(brand)}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function BrandMarqueeInteractive({
+  brands,
+  isDark,
+  linkable,
+  activeBrandSlug,
+}: {
+  brands: BrandItem[];
+  isDark: boolean;
+  linkable: boolean;
+  activeBrandSlug?: string | null;
+}) {
+  const [emblaRef] = useEmblaCarousel(
+    {
+      loop: true,
+      dragFree: true,
+      align: 'start',
+      containScroll: 'trimSnaps',
+      watchDrag: () => true,
+    },
+    [
+      AutoScroll({
+        speed: BRAND_MARQUEE_AUTO_SCROLL_SPEED,
+        startDelay: 0,
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+        playOnInit: true,
+      }),
+    ],
+  );
 
   return (
     <div className="container py-2">
@@ -104,24 +161,77 @@ function BrandMarquee({
           aria-hidden="true"
         />
 
-        <div className="brand-marquee-track flex w-max gap-2 sm:gap-3">
-          {loopItems.map((brand, index) => (
-            <div
-              key={`${getBrandName(brand)}-${index}`}
-              className="w-[7.5rem] shrink-0 sm:w-[8.5rem] md:w-[9.5rem]"
-              aria-hidden={index >= brands.length}
-            >
-              <BrandLogoCard
-                brand={brand}
-                isDark={isDark}
-                linkable={linkable && index < brands.length}
-                isActive={activeBrandSlug === getBrandSlug(brand)}
-              />
-            </div>
-          ))}
+        <div
+          ref={emblaRef}
+          className="cursor-grab overflow-hidden active:cursor-grabbing"
+          aria-label="Marcas disponibles — arrastra para explorar"
+        >
+          <ul className="flex touch-pan-y gap-2 sm:gap-3" role="list">
+            {brands.map((brand) => (
+              <li
+                key={getBrandName(brand)}
+                className="w-[7.5rem] shrink-0 sm:w-[8.5rem] md:w-[9.5rem]"
+              >
+                <BrandLogoCard
+                  brand={brand}
+                  isDark={isDark}
+                  linkable={linkable}
+                  isActive={activeBrandSlug === getBrandSlug(brand)}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
+  );
+}
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function BrandMarquee({
+  brands,
+  isDark,
+  linkable,
+  activeBrandSlug,
+}: {
+  brands: BrandItem[];
+  isDark: boolean;
+  linkable: boolean;
+  activeBrandSlug?: string | null;
+}) {
+  const [reducedMotion, setReducedMotion] = useState(prefersReducedMotion);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(media.matches);
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  const activeSlug = activeBrandSlug ?? null;
+
+  if (reducedMotion) {
+    return (
+      <BrandMarqueeStatic
+        brands={brands}
+        isDark={isDark}
+        linkable={linkable}
+        activeBrandSlug={activeSlug}
+      />
+    );
+  }
+
+  return (
+    <BrandMarqueeInteractive
+      brands={brands}
+      isDark={isDark}
+      linkable={linkable}
+      activeBrandSlug={activeSlug}
+    />
   );
 }
 
