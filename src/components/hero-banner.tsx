@@ -22,7 +22,7 @@ function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: numbe
   const headingId = index === 0 ? 'hero-titulo' : `hero-titulo-${slide.id}`;
 
   return (
-    <div className="relative min-h-[min(62vh,32rem)] sm:min-h-[min(66vh,36rem)] lg:min-h-[min(70vh,40rem)]">
+    <div className="relative min-h-[min(46vh,24rem)] sm:min-h-[min(50vh,26rem)] lg:min-h-[min(54vh,30rem)]">
       <div
         aria-hidden="true"
         className={cn(
@@ -36,8 +36,8 @@ function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: numbe
         className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-black/15"
       />
 
-      <div className="container relative flex min-h-[inherit] flex-col justify-center py-7 pb-14 sm:py-9 sm:pb-16 lg:py-10 lg:pb-20">
-        <div className="relative flex max-w-2xl flex-col items-start gap-4">
+      <div className="container relative flex min-h-[inherit] flex-col justify-center py-5 pb-11 sm:py-6 sm:pb-12 lg:py-7 lg:pb-14">
+        <div className="relative flex max-w-2xl flex-col items-start gap-3">
         <span className="-mb-1 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 pb-0.5 pt-1 text-[0.65rem] font-bold uppercase leading-none tracking-[0.18em] text-white">
           <span className="size-1.5 rounded-full bg-white" aria-hidden="true" />
           {slide.eyebrow}
@@ -45,7 +45,7 @@ function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: numbe
 
         <HeadingTag
           id={headingId}
-          className="font-hero text-5xl font-bold uppercase leading-[0.88] tracking-normal sm:text-6xl lg:text-7xl lg:leading-[0.9]"
+          className="font-hero text-4xl font-bold uppercase leading-[0.9] tracking-normal sm:text-5xl lg:text-6xl"
         >
           {slide.titleLines.map((line) => (
             <span
@@ -57,11 +57,11 @@ function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: numbe
           ))}
         </HeadingTag>
 
-        <p className="max-w-xl text-sm leading-snug text-white sm:text-base lg:text-lg">
+        <p className="max-w-xl text-sm leading-snug text-white sm:text-[0.95rem]">
           {slide.subtitle}
         </p>
 
-        <ul className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-3">
+        <ul className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-2">
           {slide.trustBadges.map((badge) => {
             const BadgeIcon = TRUST_ICON_MAP[badge.icon];
             return (
@@ -240,7 +240,7 @@ export function HeroBanner() {
       </div>
 
       <div
-        className="flex justify-center gap-2 border-t border-white/10 bg-black px-4 py-3"
+        className="flex justify-center gap-2 border-t border-white/10 bg-black px-4 py-2"
         role="tablist"
         aria-label="Seleccionar slide del banner"
       >

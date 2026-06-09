@@ -189,24 +189,9 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
           </h3>
         </Link>
 
-        <CatalogDualPrice productId={product.id} priceUsd={product.price} />
-
-        <div
-          className={cn(
-            'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200',
-            'group-hover:grid-rows-[1fr] group-hover:opacity-100',
-            'group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
-            'motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none',
-          )}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <CatalogVolumePricing priceUsd={product.price} />
-          </div>
-        </div>
-
         <p
           className={cn(
-            'flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.65rem] leading-tight',
+            '-mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.65rem] leading-tight',
             outOfStock ? 'text-orange-600' : 'text-emerald-700',
           )}
         >
@@ -224,53 +209,80 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
           ) : null}
         </p>
 
-        <div className="mt-auto grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch gap-1 pt-1">
-          <div className="flex items-center rounded-md border border-border bg-muted/30">
-            <button
-              type="button"
-              onClick={() => adjustQuantity(-1)}
-              disabled={quantity <= 1}
-              aria-label="Disminuir cantidad"
-              className="flex size-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40"
-            >
-              <Minus className="size-3" aria-hidden="true" />
-            </button>
-            <span
-              className="min-w-[1.5rem] text-center text-xs font-semibold tabular-nums text-foreground"
-              aria-live="polite"
-            >
-              {quantity}
-            </span>
-            <button
-              type="button"
-              onClick={() => adjustQuantity(1)}
-              disabled={quantity >= (stockQty || 99)}
-              aria-label="Aumentar cantidad"
-              className="flex size-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40"
-            >
-              <Plus className="size-3" aria-hidden="true" />
-            </button>
+        <CatalogDualPrice productId={product.id} priceUsd={product.price} />
+
+        <div
+          className={cn(
+            'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200',
+            'group-hover:grid-rows-[1fr] group-hover:opacity-100',
+            'group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
+            'motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none',
+          )}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <CatalogVolumePricing priceUsd={product.price} />
           </div>
+        </div>
 
-          <AddToCartButton
-            product={product}
-            addOptions={{ quantity }}
-            className="min-h-9 gap-1 rounded-md bg-red-600 px-1.5 text-[0.65rem] font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600 xl:text-xs"
-          >
-            <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
-            <span className="truncate">{cartLabel}</span>
-          </AddToCartButton>
+        <div
+          className={cn(
+            'mt-auto grid grid-rows-[1fr] opacity-100 transition-[grid-template-rows,opacity] duration-200',
+            'sm:grid-rows-[0fr] sm:opacity-0',
+            'sm:group-hover:grid-rows-[1fr] sm:group-hover:opacity-100',
+            'sm:group-focus-within:grid-rows-[1fr] sm:group-focus-within:opacity-100',
+            'motion-reduce:sm:grid-rows-[1fr] motion-reduce:sm:opacity-100 motion-reduce:sm:transition-none',
+          )}
+        >
+          <div className="min-h-0 overflow-hidden pt-1">
+            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch gap-1">
+              <div className="flex items-center rounded-md border border-border bg-muted/30">
+                <button
+                  type="button"
+                  onClick={() => adjustQuantity(-1)}
+                  disabled={quantity <= 1}
+                  aria-label="Disminuir cantidad"
+                  className="flex size-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40"
+                >
+                  <Minus className="size-3" aria-hidden="true" />
+                </button>
+                <span
+                  className="min-w-[1.5rem] text-center text-xs font-semibold tabular-nums text-foreground"
+                  aria-live="polite"
+                >
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => adjustQuantity(1)}
+                  disabled={quantity >= (stockQty || 99)}
+                  aria-label="Aumentar cantidad"
+                  className="flex size-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40"
+                >
+                  <Plus className="size-3" aria-hidden="true" />
+                </button>
+              </div>
 
-          <ProductWhatsAppButton
-            className="size-9 min-h-9 shrink-0 rounded-md border-[#25D366] bg-[#25D366] text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366]"
-            product={{
-              id: product.id,
-              name: product.name,
-              priceUsd: product.price,
-              category: product.category,
-              brand: product.brand ?? null,
-            }}
-          />
+              <AddToCartButton
+                product={product}
+                addOptions={{ quantity }}
+                className="min-h-9 gap-1 rounded-md bg-red-600 px-1.5 text-[0.65rem] font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600 xl:text-xs"
+              >
+                <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
+                <span className="truncate">{cartLabel}</span>
+              </AddToCartButton>
+
+              <ProductWhatsAppButton
+                className="size-9 min-h-9 shrink-0 rounded-md border-[#25D366] bg-[#25D366] text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366]"
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  priceUsd: product.price,
+                  category: product.category,
+                  brand: product.brand ?? null,
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </article>

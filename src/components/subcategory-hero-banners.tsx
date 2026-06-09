@@ -27,7 +27,6 @@ export function SubcategoryHeroBanners({
       activeSubSlug={activeSubSlug}
       onSelect={onSelectSub}
       verTodoLabel={`Todo ${parentName}`}
-      headingId="subcategorias-hero-titulo"
     />
   );
 }

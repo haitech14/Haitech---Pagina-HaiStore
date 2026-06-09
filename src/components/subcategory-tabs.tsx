@@ -7,8 +7,6 @@ interface SubcategoryTabsProps {
   activeSubSlug: string | null;
   onSelect: (subSlug: string | null) => void;
   verTodoLabel?: string;
-  showHeading?: boolean;
-  headingId?: string;
   className?: string;
 }
 
@@ -17,27 +15,16 @@ export function SubcategoryTabs({
   activeSubSlug,
   onSelect,
   verTodoLabel = 'Ver todo',
-  showHeading = true,
-  headingId = 'subcategorias-titulo',
   className,
 }: SubcategoryTabsProps) {
   if (subcategories.length === 0) return null;
 
   return (
-    <section aria-labelledby={showHeading ? headingId : undefined} className={className}>
-      {showHeading ? (
-        <h2
-          id={headingId}
-          className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-        >
-          Subcategorías
-        </h2>
-      ) : null}
-
+    <section aria-label="Subcategorías" className={className}>
       <div
         role="tablist"
         aria-label="Subcategorías"
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="-mx-4 flex flex-wrap items-center justify-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:overflow-visible sm:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <button
           type="button"
