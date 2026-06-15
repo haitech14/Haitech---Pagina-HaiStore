@@ -296,6 +296,70 @@ export function splitProductsByCatalogColor(products: readonly Product[]): {
   return { bn, color, ordered: [...bn, ...color] };
 }
 
+export interface CatalogFormatSubsection {
+  id: string;
+  title: string;
+  products: Product[];
+}
+
+export interface CatalogFormatSectionGroup {
+  id: 'bn' | 'color';
+  title: string;
+  subsections: CatalogFormatSubsection[];
+}
+
+function splitProductsByPaperFormat(products: readonly Product[]): {
+  a4: Product[];
+  a3: Product[];
+  ordered: Product[];
+} {
+  const a4: Product[] = [];
+  const a3: Product[] = [];
+
+  for (const product of products) {
+    if (inferFormatoPapel(product) === 'A3') {
+      a3.push(product);
+    } else {
+      a4.push(product);
+    }
+  }
+
+  return { a4, a3, ordered: [...a4, ...a3] };
+}
+
+export function buildCatalogFormatSections(
+  products: readonly Product[],
+): CatalogFormatSectionGroup[] {
+  const { bn, color } = splitProductsByCatalogColor(products);
+  const bnByPaper = splitProductsByPaperFormat(bn);
+  const colorByPaper = splitProductsByPaperFormat(color);
+
+  return [
+    {
+      id: 'bn',
+      title: 'Format B/N',
+      subsections: [
+        { id: 'bn-a4', title: 'Formato A4', products: bnByPaper.a4 },
+        { id: 'bn-a3', title: 'Formato A3', products: bnByPaper.a3 },
+      ],
+    },
+    {
+      id: 'color',
+      title: 'Color',
+      subsections: [
+        { id: 'color-a4', title: 'Formato A4', products: colorByPaper.a4 },
+        { id: 'color-a3', title: 'Formato A3', products: colorByPaper.a3 },
+      ],
+    },
+  ];
+}
+
+export function getCatalogLayoutOrderedProducts(products: readonly Product[]): Product[] {
+  return buildCatalogFormatSections(products).flatMap((section) =>
+    section.subsections.flatMap((subsection) => subsection.products),
+  );
+}
+
 export const CATALOG_SPEC_FILTER_TABS = [
   { key: `${FORMATO_PAPEL_ATTR}::A4`, label: 'Formato A4' },
   { key: `${FORMATO_PAPEL_ATTR}::A3`, label: 'Formato A3' },

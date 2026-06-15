@@ -43,10 +43,10 @@ interface CategoryCatalogToolbarProps {
   endAction?: ReactNode;
   /** Pestañas de subcategoría integradas en la misma fila. */
   subcategoryTabs?: ReactNode;
-  /** B/N y Color cuando el catálogo se divide por formato. */
-  colorFormatTabs?: CatalogColorFormatTab[];
-  selectedColorFormatKeys?: string[];
-  onToggleColorFormat?: (key: string) => void;
+  /** Pestañas A4, A3, B/N y Color del catálogo por formato. */
+  catalogSpecTabs?: CatalogColorFormatTab[];
+  selectedCatalogSpecKeys?: string[];
+  onToggleCatalogSpec?: (key: string) => void;
   filtersActive?: boolean;
 }
 
@@ -66,9 +66,9 @@ export function CategoryCatalogToolbar({
   sortBy,
   onSortChange,
   subcategoryTabs,
-  colorFormatTabs,
-  selectedColorFormatKeys = [],
-  onToggleColorFormat,
+  catalogSpecTabs,
+  selectedCatalogSpecKeys = [],
+  onToggleCatalogSpec,
   onToggleSidebarFilters,
   filtersOpen,
   filtersSheetOpen,
@@ -168,45 +168,61 @@ export function CategoryCatalogToolbar({
         </Popover>
       </div>
 
-      {colorFormatTabs && colorFormatTabs.length > 0 && onToggleColorFormat ? (
-        <div
-          className="flex flex-wrap items-center gap-2 border-t border-border/60 pt-3"
-          role="group"
-          aria-label="Formato de impresión"
-        >
-          <span className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
-            Formato
-          </span>
-          {colorFormatTabs.map((tab) => {
-            const isActive = selectedColorFormatKeys.includes(tab.key);
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                aria-pressed={isActive}
-                disabled={tab.count === 0}
-                onClick={() => onToggleColorFormat(tab.key)}
-                className={cn(
-                  'inline-flex min-h-9 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-                  'disabled:pointer-events-none disabled:opacity-45',
-                  isActive
-                    ? 'border-red-600 bg-red-600 text-white shadow-[0_2px_8px_rgba(220,38,38,0.35)]'
-                    : 'border-border/80 bg-background text-foreground hover:border-border hover:bg-muted/40',
-                )}
+      {catalogSpecTabs && catalogSpecTabs.length > 0 && onToggleCatalogSpec ? (
+        <div className="space-y-2.5 border-t border-border/60 pt-3">
+          {[
+            {
+              label: 'Formato papel',
+              tabs: catalogSpecTabs.filter((tab) => tab.key.includes('Formato papel::')),
+            },
+            {
+              label: 'Color',
+              tabs: catalogSpecTabs.filter((tab) => tab.key.startsWith('Color::')),
+            },
+          ]
+            .filter((group) => group.tabs.length > 0)
+            .map((group) => (
+              <div
+                key={group.label}
+                className="flex flex-wrap items-center gap-2"
+                role="group"
+                aria-label={group.label}
               >
-                <span>{tab.label}</span>
-                <span
-                  className={cn(
-                    'inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[0.65rem] leading-none',
-                    isActive ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground',
-                  )}
-                >
-                  {tab.count}
+                <span className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
+                  {group.label}
                 </span>
-              </button>
-            );
-          })}
+                {group.tabs.map((tab) => {
+                  const isActive = selectedCatalogSpecKeys.includes(tab.key);
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      aria-pressed={isActive}
+                      disabled={tab.count === 0}
+                      onClick={() => onToggleCatalogSpec(tab.key)}
+                      className={cn(
+                        'inline-flex min-h-9 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
+                        'disabled:pointer-events-none disabled:opacity-45',
+                        isActive
+                          ? 'border-red-600 bg-red-600 text-white shadow-[0_2px_8px_rgba(220,38,38,0.35)]'
+                          : 'border-border/80 bg-background text-foreground hover:border-border hover:bg-muted/40',
+                      )}
+                    >
+                      <span>{tab.label.replace(/^Formato\s+/i, '')}</span>
+                      <span
+                        className={cn(
+                          'inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[0.65rem] leading-none',
+                          isActive ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground',
+                        )}
+                      >
+                        {tab.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
         </div>
       ) : null}
     </div>

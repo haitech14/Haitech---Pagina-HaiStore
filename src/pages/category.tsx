@@ -73,6 +73,7 @@ import {
 } from '@/lib/product-condition';
 import {
   buildCatalogQuickFilters,
+  buildCatalogFormatSections,
   buildCatalogSpecFilterTabs,
   buildModelQuickFilters,
   CATALOG_SPEC_FILTER_TAB_KEYS,
@@ -87,7 +88,7 @@ import {
   productMatchesCatalogFilters,
   shouldShowCatalogSpecFilterTabs,
   shouldShowProductionFilters,
-  splitProductsByCatalogColor,
+  getCatalogLayoutOrderedProducts,
   toggleCatalogSpecFilter,
 } from '@/lib/category-catalog-filters';
 import { cn } from '@/lib/utils';
@@ -516,7 +517,7 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
 
   const paginationProducts = useMemo(() => {
     if (!showFormatSections) return filteredProducts;
-    return splitProductsByCatalogColor(filteredProducts).ordered;
+    return getCatalogLayoutOrderedProducts(filteredProducts);
   }, [filteredProducts, showFormatSections]);
 
   const catalogPageSize = getCatalogProductsPerPage(gridColumns);
@@ -528,17 +529,9 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
     catalogPageSize,
   );
 
-  const catalogFormatSections = useMemo(() => {
-    const { bn, color } = splitProductsByCatalogColor(pagedCatalogProducts);
-    return [
-      { id: 'bn' as const, title: 'Format B/N', products: bn },
-      { id: 'color' as const, title: 'Color', products: color },
-    ];
-  }, [pagedCatalogProducts]);
-
-  const colorFormatTabs = useMemo(
-    () => specFilterTabs.filter((tab) => tab.key.startsWith('Color::')),
-    [specFilterTabs],
+  const catalogFormatSections = useMemo(
+    () => buildCatalogFormatSections(pagedCatalogProducts),
+    [pagedCatalogProducts],
   );
 
   useEffect(() => {
@@ -918,11 +911,9 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
               onToggleProduction={toggleProduction}
               {...(showFormatSections
                 ? {
-                    colorFormatTabs,
-                    selectedColorFormatKeys: selectedSpecFilters.filter((key) =>
-                      key.startsWith('Color::'),
-                    ),
-                    onToggleColorFormat: toggleSpecFilter,
+                    catalogSpecTabs: specFilterTabs,
+                    selectedCatalogSpecKeys: selectedSpecFilters,
+                    onToggleCatalogSpec: toggleSpecFilter,
                   }
                 : {})}
               filtersActive={hasAttributeFilters || hasPriceFilter || inStockOnly}
