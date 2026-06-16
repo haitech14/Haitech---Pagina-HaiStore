@@ -36,9 +36,7 @@ export function ProductDetailBreadcrumbs({ items, className }: ProductDetailBrea
                 <span
                   className={cn(
                     'line-clamp-1 text-pretty',
-                    isLast
-                      ? 'font-semibold text-[#0f1f3d]'
-                      : 'text-muted-foreground',
+                    isLast ? 'font-medium text-red-600' : 'text-muted-foreground',
                   )}
                   aria-current={isLast ? 'page' : undefined}
                 >

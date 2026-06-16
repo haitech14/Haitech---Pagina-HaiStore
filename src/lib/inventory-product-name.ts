@@ -10,6 +10,15 @@ export type TonerColorCode = keyof typeof TONER_COLOR_CODE_LABELS;
 
 const TONER_COLOR_CODE_PATTERN = /\b(BK|CY|MG|YW)\b/i;
 const TONER_COLOR_SUFFIX_PATTERN = /\s+(Negro|Cyan|Magenta|Amarillo|Yellow)\s*$/i;
+const PRINT_CARTRIDGE_LABEL_PATTERN = /\bPRINT\s*CARTRIDGE\b|\bPRINT\s*CART\b/gi;
+
+/** Sustituye «Print Cartridge» / «PRINT CART» por «Toner Cartucho Original». */
+export function normalizeTonerCartridgeProductLabel(name: string): string {
+  return name
+    .replace(PRINT_CARTRIDGE_LABEL_PATTERN, 'Toner Cartucho Original')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
 
 /** Mueve BK/CY/MG/YW al final del nombre como Negro/Cyan/Magenta/Amarillo. */
 export function normalizeTonerColorProductName(name: string): string {
@@ -84,7 +93,9 @@ export function moveParentheticalSuffixToEnd(name: string): string {
 /** Nombre de inventario/tienda: paréntesis al final, color de tóner y reglas seminueva. */
 export function formatInventoryProductName(name: string): string {
   return formatSeminuevaProductName(
-    normalizeTonerColorProductName(moveParentheticalSuffixToEnd(name)),
+    normalizeTonerColorProductName(
+      moveParentheticalSuffixToEnd(normalizeTonerCartridgeProductLabel(name)),
+    ),
   );
 }
 

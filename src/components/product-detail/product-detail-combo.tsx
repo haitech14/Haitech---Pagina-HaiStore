@@ -91,16 +91,16 @@ export function ProductDetailCombo({
     <section
       className={cn(
         'overflow-hidden bg-white',
-        embedded ? className : cn('rounded-xl border border-border/60', className),
+        embedded ? className : cn('rounded-lg border border-border/60', className),
       )}
       aria-labelledby="combo-titulo"
     >
       {!embedded ? (
-        <div className="border-b border-border/60 px-4 py-4 sm:px-5">
-          <h2 id="combo-titulo" className="text-lg font-bold text-[#0f1f3d] sm:text-xl">
+        <div className="border-b border-border/60 px-4 py-3.5 sm:px-5">
+          <h2 id="combo-titulo" className="text-base font-bold text-[#0f1f3d] sm:text-lg">
             {title}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{resolvedSubtitle}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{resolvedSubtitle}</p>
         </div>
       ) : (
         <h2 id="combo-titulo" className="sr-only">
@@ -108,21 +108,33 @@ export function ProductDetailCombo({
         </h2>
       )}
 
-      <div className={cn('relative bg-white', embedded ? '' : 'px-4 py-4 sm:px-5')}>
-        <div className="overflow-hidden pr-10" ref={emblaRef}>
-          <ul className="flex gap-3">
+      <div className={cn('relative bg-white', embedded ? '' : 'px-4 py-3.5 sm:px-5')}>
+        <div className="overflow-hidden pr-8 sm:pr-10" ref={emblaRef}>
+          <ul className="flex gap-2.5 sm:gap-3">
             {items.map((item) => (
               <li
                 key={item.id}
-                className="min-w-0 flex-[0_0_46%] sm:flex-[0_0_240px] lg:flex-[0_0_260px]"
+                className="min-w-0 flex-[0_0_44%] sm:flex-[0_0_200px] lg:flex-[0_0_calc(33.333%-0.5rem)]"
               >
                 <article
                   className={cn(
-                    'flex h-full flex-col rounded-lg border bg-white p-3 transition-colors',
+                    'relative flex h-full flex-col rounded-lg border bg-white p-2.5 transition-colors sm:p-3',
                     selected[item.id] ? 'border-red-600/40 ring-1 ring-red-600/20' : 'border-border/60',
                   )}
                 >
-                  <div className="flex aspect-[4/3] items-center justify-center rounded-md bg-muted/30 p-2">
+                  <div className="absolute left-2 top-2 z-10 sm:left-2.5 sm:top-2.5">
+                    <Checkbox
+                      id={`combo-${item.id}`}
+                      checked={selected[item.id]}
+                      onCheckedChange={(checked) =>
+                        setSelected((prev) => ({ ...prev, [item.id]: checked === true }))
+                      }
+                      className="size-4 border-border bg-white data-[state=checked]:border-red-600 data-[state=checked]:bg-red-600"
+                      aria-label={`Incluir ${item.name}`}
+                    />
+                  </div>
+
+                  <div className="flex aspect-[4/3] items-center justify-center rounded-md bg-muted/25 p-3 pt-5">
                     <img
                       src={item.image}
                       alt=""
@@ -131,25 +143,11 @@ export function ProductDetailCombo({
                     />
                   </div>
 
-                  <div className="mt-2.5 flex items-center gap-2">
-                    <Checkbox
-                      id={`combo-${item.id}`}
-                      checked={selected[item.id]}
-                      onCheckedChange={(checked) =>
-                        setSelected((prev) => ({ ...prev, [item.id]: checked === true }))
-                      }
-                      className="border-border data-[state=checked]:border-red-600 data-[state=checked]:bg-red-600"
-                      aria-label={`Incluir ${item.name}`}
-                    />
-                    <label
-                      htmlFor={`combo-${item.id}`}
-                      className="line-clamp-2 flex-1 text-xs font-semibold leading-snug text-[#0f1f3d]"
-                    >
-                      {item.name}
-                    </label>
-                  </div>
+                  <p className="mt-2 line-clamp-2 text-[0.6875rem] font-semibold leading-snug text-[#0f1f3d] sm:text-xs">
+                    {item.name}
+                  </p>
 
-                  <p className="mt-2 text-sm font-bold text-[#0f1f3d]">
+                  <p className="mt-1.5 text-sm font-bold text-[#0f1f3d]">
                     {item.priceUsd != null ? (
                       <DualPrice usd={item.priceUsd} />
                     ) : (
@@ -162,10 +160,11 @@ export function ProductDetailCombo({
                       </>
                     )}
                   </p>
+
                   {item.productId ? (
                     <Link
                       to={productPath(item.productId)}
-                      className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+                      className="mt-auto inline-flex items-center gap-0.5 pt-2 text-[0.6875rem] font-bold text-red-600 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:text-xs"
                     >
                       Ver producto
                       <ChevronRight className="size-3.5" aria-hidden="true" />
@@ -182,38 +181,42 @@ export function ProductDetailCombo({
             type="button"
             onClick={scrollNext}
             aria-label="Ver más consumibles"
-            className="absolute right-4 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:right-5"
+            className="absolute right-3 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:right-4 sm:size-9"
           >
-            <ChevronRight className="size-5" aria-hidden="true" />
+            <ChevronRight className="size-4 sm:size-5" aria-hidden="true" />
           </button>
         ) : null}
       </div>
 
       <div
         className={cn(
-          'flex flex-col gap-3 border-t border-border/60 bg-muted/20 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-6 sm:gap-y-2 lg:flex-nowrap',
-          embedded ? 'mt-4 rounded-lg px-3 sm:px-4' : 'px-4 sm:px-5',
+          'flex flex-col gap-2.5 border-t border-border/60 bg-muted/25 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4',
+          embedded ? 'mt-3 rounded-lg px-3 sm:px-4' : 'px-4 sm:px-5',
         )}
       >
-        <p className="shrink-0 text-sm text-muted-foreground">
-          {selectedCount} producto{selectedCount !== 1 ? 's' : ''} seleccionado
-          {selectedCount !== 1 ? 's' : ''}
-        </p>
-
-        <p className="shrink-0 text-sm text-muted-foreground lg:flex-1 lg:text-center">
-          Total adicional:{' '}
-          <span className="font-bold text-[#0f1f3d]">
-            S/ {totalPen.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <p className="text-xs text-muted-foreground sm:text-sm">
+          <span>
+            {selectedCount} producto{selectedCount !== 1 ? 's' : ''} seleccionado
+            {selectedCount !== 1 ? 's' : ''}
+          </span>
+          <span className="mx-2 hidden text-border sm:inline" aria-hidden="true">
+            |
+          </span>
+          <span className="block sm:inline">
+            Total adicional:{' '}
+            <span className="font-bold text-[#0f1f3d]">
+              S/ {totalPen.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
           </span>
         </p>
 
         <Button
           type="button"
-          className="h-10 w-full shrink-0 gap-2 rounded-lg bg-red-600 px-4 text-sm font-bold text-white hover:bg-red-500 focus-visible:ring-red-600 sm:w-auto lg:ml-auto"
+          className="h-9 shrink-0 gap-2 rounded-lg bg-red-600 px-4 text-xs font-bold text-white hover:bg-red-500 focus-visible:ring-red-600 sm:h-10 sm:text-sm"
           onClick={handleAddCombo}
           disabled={selectedCount === 0}
         >
-          <ShoppingCart className="size-4" aria-hidden="true" />
+          <ShoppingCart className="size-4" strokeWidth={1.5} aria-hidden="true" />
           Agregar seleccionados al carrito
         </Button>
       </div>

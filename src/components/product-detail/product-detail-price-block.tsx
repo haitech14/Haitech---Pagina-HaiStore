@@ -33,35 +33,35 @@ export function ProductDetailPriceBlock({
   const stockDisplay = outOfStock ? 0 : product.stock;
 
   return (
-    <div className={cn('px-4 py-4', className)}>
+    <div className={cn('px-4 py-3.5 sm:py-4', className)}>
       {detail.oldPricePen != null ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground sm:text-sm">
           Antes:{' '}
           <span className="line-through decoration-muted-foreground">{formatPenStrike(detail.oldPricePen)}</span>
         </p>
       ) : null}
 
-      <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+      <div className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <AdminRolePricesTooltip productId={product.id} displayUsd={displayUsd}>
-          <span className="text-2xl font-bold leading-none text-red-600 sm:text-3xl">
+          <span className="text-[1.625rem] font-bold leading-none text-red-600 sm:text-[1.75rem]">
             {formatPenFromUsdPrecise(displayUsd)}
           </span>
         </AdminRolePricesTooltip>
         {detail.discountPercent != null ? (
-          <span className="rounded-full bg-red-50 px-2 py-0.5 text-sm font-bold text-red-600">
+          <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600 sm:text-sm">
             -{detail.discountPercent}%
           </span>
         ) : null}
       </div>
 
-      <p className="mt-1.5 text-sm font-semibold text-[#0f1f3d]">
+      <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
         Equivalente aprox. {formatUsd(displayUsd)}
       </p>
 
       {showStock ? (
         <p
           className={cn(
-            'mt-2.5 flex items-center gap-1.5 text-sm font-semibold',
+            'mt-2 flex items-center gap-1.5 text-xs font-medium sm:text-sm',
             outOfStock ? 'text-red-600' : 'text-[#0f1f3d]',
           )}
         >

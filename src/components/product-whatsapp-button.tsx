@@ -17,6 +17,7 @@ interface ProductWhatsAppButtonProps {
   stopPropagation?: boolean;
   /** Muestra texto junto al icono (p. ej. «Cotizar ahora»). */
   label?: string;
+  quantity?: number;
 }
 
 export function ProductWhatsAppButton({
@@ -24,6 +25,7 @@ export function ProductWhatsAppButton({
   className,
   stopPropagation = true,
   label,
+  quantity,
 }: ProductWhatsAppButtonProps) {
   const { contact, saveContact, isSaving } = useWhatsAppContact();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -37,6 +39,7 @@ export function ProductWhatsAppButton({
   const lineItem: ProductWhatsAppLineItem = {
     ...product,
     ...(resolvedProductUrl ? { productUrl: resolvedProductUrl } : {}),
+    ...(quantity != null && quantity > 0 ? { quantity } : {}),
   };
 
   const launchWhatsApp = async (nextContact: Parameters<typeof saveContact>[0]) => {
@@ -75,7 +78,11 @@ export function ProductWhatsAppButton({
             : 'size-10 min-h-11 shrink-0 rounded-lg border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 focus-visible:ring-[#25D366]',
           className,
         )}
-        aria-label={label ? `Cotizar ${product.name} por WhatsApp` : `Consultar ${product.name} por WhatsApp`}
+        aria-label={
+          label
+            ? `${label} — ${product.name}`
+            : `Consultar ${product.name} por WhatsApp`
+        }
         onClick={handleClick}
       >
         <Icon path={mdiWhatsapp} size={0.95} aria-hidden="true" />

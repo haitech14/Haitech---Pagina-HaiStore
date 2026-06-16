@@ -1,232 +1,202 @@
-import { useCallback, useState } from 'react';
-import { Download, FileText, Headphones, Shield, ShoppingCart, Truck } from 'lucide-react';
+import { useState } from 'react';
+import { Headphones, Minus, Plus, Shield, ShoppingCart, Truck } from 'lucide-react';
 
 import { AddToCartButton, getAddToCartLabel } from '@/components/cart/add-to-cart-button';
-import { DualPrice } from '@/components/product/product-dual-price';
-import { ProductBulkDiscountTable } from '@/components/product-detail/product-bulk-discount-table';
-import { ProductDetailHeroFeatures } from '@/components/product-detail/product-detail-hero-features';
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
+import { ProductDetailHeroActions } from '@/components/product-detail/product-detail-hero-actions';
 import { ProductDetailPriceBlock } from '@/components/product-detail/product-detail-price-block';
-import { ProductQuoteDialog } from '@/components/product-detail/product-quote-dialog';
-import { ProductQuotePdfViewer, type QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { cn } from '@/lib/utils';
-import type { CartConfigurationLine } from '@/types/product';
 import type { ProductDetailViewModel } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
 interface ProductDetailHeroInfoProps {
   product: Product;
   detail: ProductDetailViewModel;
-  equipmentConfiguration?: CartConfigurationLine | undefined;
-  accessoryProducts?: Product[];
+  onQuoteClick: () => void;
 }
 
-function BulletList({ bullets }: { bullets: string[] }) {
+function ProductDetailStockBadge({ product }: { product: Product }) {
+  const outOfStock = product.stock <= 0;
+  const stockDisplay = outOfStock ? 0 : product.stock;
+
   return (
-    <ul className="space-y-2.5">
-      {bullets.map((bullet) => (
-        <li key={bullet} className="flex items-start gap-2.5 text-sm leading-relaxed text-[#0f1f3d]">
-          <span
-            className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[0.6rem] font-bold text-white"
-            aria-hidden="true"
-          >
-            ✓
-          </span>
-          <span>{bullet}</span>
-        </li>
-      ))}
-    </ul>
+    <p
+      className={cn(
+        'flex items-center gap-1.5 font-medium',
+        outOfStock ? 'text-red-600' : 'text-[#0f1f3d]',
+      )}
+    >
+      <span
+        className={cn(
+          'flex size-5 items-center justify-center rounded-full text-[0.65rem] font-bold',
+          outOfStock ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600',
+        )}
+        aria-hidden="true"
+      >
+        {outOfStock ? '!' : '✓'}
+      </span>
+      {outOfStock ? 'Sin stock' : `${stockDisplay} en stock`}
+    </p>
   );
 }
-
-const TRUST_ITEMS = [
-  {
-    icon: Truck,
-    title: 'Envío',
-    description: 'Envíos a todo el país en 1-3 días hábiles.',
-  },
-  {
-    icon: Shield,
-    title: 'Garantía',
-    description: 'Garantía limitada de 1 año.',
-  },
-  {
-    icon: Headphones,
-    title: 'Soporte',
-    description: 'Soporte técnico especializado.',
-  },
-] as const;
 
 export function ProductDetailHeroInfo({
   product,
   detail,
-  equipmentConfiguration,
-  accessoryProducts = [],
+  onQuoteClick,
 }: ProductDetailHeroInfoProps) {
-  const [quoteOpen, setQuoteOpen] = useState(false);
-  const [pdfPreview, setPdfPreview] = useState<QuotePdfPreview | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const productCode = detail.sku;
+  const outOfStock = product.stock <= 0;
+  const stockMax = outOfStock ? 1 : Math.max(product.stock, 1);
+  const showNuevoBadge = detail.tagPills.includes('Nuevo');
 
-  const cartAddOptions =
-    equipmentConfiguration || accessoryProducts.length > 0
-      ? {
-          ...(equipmentConfiguration ? { configuration: equipmentConfiguration } : {}),
-          ...(accessoryProducts.length > 0 ? { accessoryProducts } : {}),
-        }
-      : undefined;
-
-  const handlePreviewClose = useCallback((open: boolean) => {
-    if (!open) {
-      setPdfPreview((current) => {
-        if (current?.url) URL.revokeObjectURL(current.url);
-        return null;
-      });
-    }
-  }, []);
-
-  const brandLabel = detail.brandLabel?.trim();
+  const adjustQuantity = (delta: number) => {
+    setQuantity((current) => Math.max(1, Math.min(stockMax, current + delta)));
+  };
 
   return (
-    <div className="flex flex-col gap-5">
-      {(brandLabel || detail.tagPills.length > 0) ? (
-        <div className="flex w-full flex-wrap items-center gap-2">
-          {brandLabel ? (
-            <span className="inline-flex h-7 items-center rounded-full bg-red-50 px-3 text-xs font-bold text-red-600 ring-1 ring-inset ring-red-600/15">
-              {brandLabel}
-            </span>
-          ) : null}
-          {detail.tagPills.map((pill) => (
-            <span
-              key={pill}
-              className="inline-flex h-7 items-center rounded-full bg-muted px-3 text-xs font-semibold text-[#0f1f3d]"
-            >
-              {pill}
-            </span>
-          ))}
-        </div>
+    <div className="flex min-w-0 flex-col">
+      {showNuevoBadge ? (
+        <span className="mb-1.5 inline-flex w-fit rounded bg-red-600 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white sm:text-xs">
+          Nuevo
+        </span>
       ) : null}
 
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-[#0f1f3d] sm:text-[1.75rem] lg:text-3xl lg:whitespace-nowrap">
-          {detail.heroTitle}
-        </h1>
-        <p className="text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
-          {detail.displaySubtitle}
+      <h1 className="text-balance text-xl font-bold leading-tight text-[#0f1f3d] sm:text-2xl lg:text-[1.65rem]">
+        {detail.heroTitle ?? product.name}
+      </h1>
+
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm">
+        <p className="text-muted-foreground">
+          Código:{' '}
+          <span className="font-semibold text-[#0f1f3d]">{productCode}</span>
         </p>
+        <span className="text-muted-foreground/50" aria-hidden="true">
+          ·
+        </span>
+        <ProductDetailStockBadge product={product} />
       </div>
 
-      {detail.heroHighlights.length > 0 ? (
-        <ProductDetailHeroFeatures highlights={detail.heroHighlights} />
+      {detail.bullets.length > 0 ? (
+        <ul className="mt-3 space-y-1.5 sm:mt-4 sm:space-y-2">
+          {detail.bullets.map((bullet) => (
+            <li key={bullet} className="flex items-start gap-2 text-xs text-[#0f1f3d] sm:text-sm">
+              <span
+                className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-red-600 text-[0.6rem] font-bold text-white"
+                aria-hidden="true"
+              >
+                ✓
+              </span>
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
       ) : null}
 
-      {detail.bullets.length > 0 ? <BulletList bullets={detail.bullets} /> : null}
-
-      <div className="overflow-hidden rounded-lg border border-border/70 bg-white">
-        <ProductDetailPriceBlock product={product} detail={detail} showStock />
-
-        {detail.bulkDiscountTiers.length > 0 ? (
-          <ProductBulkDiscountTable
-            embedded
-            product={product}
-            tiers={detail.bulkDiscountTiers}
-          />
-        ) : detail.wholesalePriceUsd != null ? (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/60 px-4 py-3">
-            <span className="text-sm font-semibold text-[#0f1f3d]">Precio por mayor</span>
-            <DualPrice usd={detail.wholesalePriceUsd} className="text-lg font-bold text-red-600" />
-          </div>
-        ) : null}
+      <div className="mt-3 sm:mt-4">
+        <ProductDetailPriceBlock product={product} detail={detail} className="px-0 py-0" />
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-        <button
-          type="button"
-          onClick={() => setQuoteOpen(true)}
-          className={cn(
-            'inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-5 text-sm font-bold text-white',
-            'transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-          )}
-        >
-          <FileText className="size-4" aria-hidden="true" />
-          Solicitar cotización
-        </button>
+      <div className="mt-4 flex flex-col gap-2.5 sm:mt-5">
+        <div className="flex gap-2.5">
+          <div
+            className="flex shrink-0 items-center rounded-lg border border-border bg-background"
+            aria-label="Cantidad"
+          >
+            <button
+              type="button"
+              onClick={() => adjustQuantity(-1)}
+              disabled={quantity <= 1 || outOfStock}
+              aria-label="Disminuir cantidad"
+              className="flex size-11 min-h-11 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
+            >
+              <Minus className="size-4" aria-hidden="true" />
+            </button>
+            <span
+              className="flex min-w-10 items-center justify-center px-2 text-base font-semibold text-[#0f1f3d] sm:min-w-12"
+              aria-live="polite"
+            >
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => adjustQuantity(1)}
+              disabled={quantity >= stockMax || outOfStock}
+              aria-label="Aumentar cantidad"
+              className="flex size-11 min-h-11 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
+            >
+              <Plus className="size-4" aria-hidden="true" />
+            </button>
+          </div>
 
-        <div className="flex flex-1 flex-col gap-3">
           <AddToCartButton
             product={product}
-            {...(cartAddOptions ? { addOptions: cartAddOptions } : {})}
-            variant="outline"
+            addOptions={{ quantity }}
             size="lg"
-            className="min-h-11 w-full rounded-lg border-2 border-[#0f1f3d] bg-white text-sm font-bold text-[#0f1f3d] hover:bg-muted/40 focus-visible:ring-[#0f1f3d]"
+            disabled={outOfStock}
+            className="min-h-11 flex-1 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600 sm:text-base"
           >
             <ShoppingCart className="size-4" aria-hidden="true" />
             {getAddToCartLabel(product, 'detail')}
           </AddToCartButton>
-
-          {detail.technicalSheetUrl ? (
-            <a
-              href={detail.technicalSheetUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                'inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-5 text-sm font-semibold text-[#0f1f3d]',
-                'transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f1f3d] focus-visible:ring-offset-2',
-              )}
-            >
-              <Download className="size-4" aria-hidden="true" />
-              Ficha técnica (PDF)
-            </a>
-          ) : (
-            <button
-              type="button"
-              disabled
-              title="Ficha técnica no disponible"
-              className={cn(
-                'inline-flex min-h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-border bg-muted/30 px-5 text-sm font-semibold text-muted-foreground',
-              )}
-            >
-              <Download className="size-4" aria-hidden="true" />
-              Ficha técnica (PDF)
-            </button>
-          )}
         </div>
+
+        <ProductDetailHeroActions
+          onQuoteClick={onQuoteClick}
+          technicalSheetUrl={detail.technicalSheetUrl}
+          fullWidth
+        />
+
+        <AddToCartButton
+          product={product}
+          addOptions={{ quantity }}
+          size="lg"
+          variant="outline"
+          disabled={outOfStock}
+          className="h-11 w-full rounded-lg border-[#0f1f3d]/30 bg-background text-sm font-semibold text-[#0f1f3d] hover:bg-muted/40 focus-visible:ring-[#0f1f3d] sm:text-base"
+        >
+          Comprar Ahora
+        </AddToCartButton>
+
+        <ProductWhatsAppButton
+          stopPropagation={false}
+          label="Comprar Ahora Whatsapp"
+          quantity={quantity}
+          className="h-11 w-full gap-2 px-4 text-sm font-semibold sm:text-base"
+          product={{
+            id: product.id,
+            name: product.name,
+            priceUsd: product.price,
+            category: product.category,
+            brand: product.brand ?? null,
+          }}
+        />
       </div>
 
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {TRUST_ITEMS.map((item) => {
-          const Icon = item.icon;
-          return (
-            <li
-              key={item.title}
-              className="flex items-start gap-3 rounded-lg border border-border/50 bg-muted/15 px-3 py-3"
-            >
-              <span
-                className="flex size-9 shrink-0 items-center justify-center rounded-full border border-red-600/20 bg-red-600/10 text-red-600"
-                aria-hidden="true"
-              >
-                <Icon className="size-4" strokeWidth={2} />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-[#0f1f3d]">{item.title}</p>
-                <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
-                  {item.description}
-                </p>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-
-      <ProductQuoteDialog
-        open={quoteOpen}
-        onOpenChange={setQuoteOpen}
-        product={product}
-        displayTitle={detail.displayTitle}
-        sku={detail.sku}
-        brandLabel={detail.brandLabel}
-        equipmentConfiguration={equipmentConfiguration}
-        onGenerated={setPdfPreview}
-      />
-
-      <ProductQuotePdfViewer preview={pdfPreview} onOpenChange={handlePreviewClose} />
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:mt-4 sm:grid-cols-3 sm:gap-2.5">
+        <div className="rounded-lg border border-border/70 bg-background px-3 py-2.5 text-center sm:py-3">
+          <Truck className="mx-auto size-5 text-red-600" aria-hidden="true" />
+          <p className="mt-1 text-[0.65rem] font-semibold text-[#0f1f3d] sm:text-xs">Envío</p>
+          <p className="text-[0.6rem] leading-snug text-muted-foreground sm:text-[0.65rem]">
+            Entrega en 3-5 días hábiles
+          </p>
+        </div>
+        <div className="rounded-lg border border-border/70 bg-background px-3 py-2.5 text-center sm:py-3">
+          <Shield className="mx-auto size-5 text-red-600" aria-hidden="true" />
+          <p className="mt-1 text-[0.65rem] font-semibold text-[#0f1f3d] sm:text-xs">Garantía</p>
+          <p className="text-[0.6rem] leading-snug text-muted-foreground sm:text-[0.65rem]">
+            1 año de garantía oficial
+          </p>
+        </div>
+        <div className="rounded-lg border border-border/70 bg-background px-3 py-2.5 text-center sm:py-3">
+          <Headphones className="mx-auto size-5 text-red-600" aria-hidden="true" />
+          <p className="mt-1 text-[0.65rem] font-semibold text-[#0f1f3d] sm:text-xs">Soporte</p>
+          <p className="text-[0.6rem] leading-snug text-muted-foreground sm:text-[0.65rem]">
+            Soporte técnico especializado
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

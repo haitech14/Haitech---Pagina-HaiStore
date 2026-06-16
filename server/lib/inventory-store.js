@@ -21,6 +21,15 @@ import { getInventoryPath } from './server-paths.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const INVENTORY_CACHE_TTL_MS = 45_000;
+let inventoryReadCache = null;
+let inventoryReadCacheAt = 0;
+
+function invalidateInventoryReadCache() {
+  inventoryReadCache = null;
+  inventoryReadCacheAt = 0;
+}
+
 function inventoryPath() {
   return getInventoryPath();
 }
@@ -31,6 +40,16 @@ async function ensureInventoryFile() {
     await fs.access(filePath);
   } catch {
     await fs.mkdir(path.dirname(filePath), { recursive: true });
+    const emptyInventory = {
+      products: [],
+      warehouses: normalizeWarehouses(),
+      deletedProductIds: [],
+    };
+    // En Vercel el disco es efímero; no sembrar el catálogo demo si Supabase es la fuente.
+    if (shouldPreferSupabaseCatalog() && process.env.VERCEL) {
+      await fs.writeFile(filePath, JSON.stringify(emptyInventory, null, 2));
+      return;
+    }
     await fs.writeFile(filePath, JSON.stringify({ products: seedProducts }, null, 2));
   }
 }
@@ -286,13 +305,21 @@ async function readInventoryFromSupabase() {
   let deletedProductIds = [];
   let fileProducts = [];
 
-  try {
-    const local = await readInventoryFromLocalFile();
-    warehouses = local.warehouses;
-    deletedProductIds = local.deletedProductIds;
-    fileProducts = local.products;
-  } catch {
-    // En Vercel no hay archivo persistente; solo Supabase.
+  const skipEphemeralLocalMerge =
+    Boolean(process.env.VERCEL) &&
+    !process.env.HAISTORE_DATA_DIR &&
+    supabaseProducts.length > 0;
+
+  if (!skipEphemeralLocalMerge) {
+    try {
+      const local = await readInventoryFromLocalFile();
+      warehouses = local.warehouses;
+      deletedProductIds = local.deletedProductIds;
+      const seedIds = new Set(seedProducts.map((seed) => seed.id));
+      fileProducts = local.products.filter((product) => !seedIds.has(product.id));
+    } catch {
+      // En Vercel no hay archivo persistente; solo Supabase.
+    }
   }
 
   const deleted = new Set(deletedProductIds);
@@ -311,38 +338,44 @@ async function readInventoryFromSupabase() {
 }
 
 export async function readInventory() {
+  const now = Date.now();
+  if (inventoryReadCache && now - inventoryReadCacheAt < INVENTORY_CACHE_TTL_MS) {
+    return inventoryReadCache;
+  }
+
+  let result;
   if (shouldPreferSupabaseCatalog()) {
-    const result = await readInventoryFromSupabase();
-    return {
-      products: result.products,
-      deletedProductIds: result.deletedProductIds,
-      warehouses: result.warehouses,
+    const loaded = await readInventoryFromSupabase();
+    result = {
+      products: loaded.products,
+      deletedProductIds: loaded.deletedProductIds,
+      warehouses: loaded.warehouses,
     };
+  } else {
+    await ensureInventoryFile();
+    const raw = await fs.readFile(inventoryPath(), 'utf-8');
+    const data = JSON.parse(raw);
+    const deletedProductIds = getDeletedProductIds(data);
+    const deleted = new Set(deletedProductIds);
+    const warehouses = normalizeWarehouses(data.warehouses);
+
+    const migrated = (data.products ?? [])
+      .filter((product) => !deleted.has(product.id))
+      .map((product) => migrateInventoryProduct(product, warehouses));
+
+    const { products, changed: sortChanged } = ensureProductSortOrders(migrated);
+    const hadStaleDeleted = (data.products ?? []).some((product) => deleted.has(product.id));
+
+    if (hadStaleDeleted || sortChanged) {
+      await writeInventory({ products, deletedProductIds, warehouses });
+    }
+
+    result = { products, deletedProductIds, warehouses };
   }
 
-  await ensureInventoryFile();
-  const raw = await fs.readFile(inventoryPath(), 'utf-8');
-  const data = JSON.parse(raw);
-  const deletedProductIds = getDeletedProductIds(data);
-  const deleted = new Set(deletedProductIds);
-  const warehouses = normalizeWarehouses(data.warehouses);
-
-  const migrated = (data.products ?? [])
-    .filter((product) => !deleted.has(product.id))
-    .map((product) => migrateInventoryProduct(product, warehouses));
-
-  const { products, changed: sortChanged } = ensureProductSortOrders(migrated);
-  const hadStaleDeleted = (data.products ?? []).some((product) => deleted.has(product.id));
-
-  if (hadStaleDeleted || sortChanged) {
-    await writeInventory({ products, deletedProductIds, warehouses });
-  }
-
-  return {
-    products,
-    deletedProductIds,
-    warehouses,
-  };
+  inventoryReadCache = result;
+  inventoryReadCacheAt = now;
+  return result;
 }
 
 /**
@@ -350,6 +383,7 @@ export async function readInventory() {
  * @param {{ syncProductIds?: string[] }} [options] IDs a sincronizar en Supabase (por defecto todos).
  */
 export async function writeInventory(data, options = {}) {
+  invalidateInventoryReadCache();
   const preferSupabase = shouldPreferSupabaseCatalog();
   const syncProductIds = Array.isArray(options.syncProductIds)
     ? [...new Set(options.syncProductIds.filter((id) => typeof id === 'string' && id.length > 0))]

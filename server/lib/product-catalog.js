@@ -94,6 +94,38 @@ function rowToPublicProduct(row, role) {
 
 let bootstrapPromise = null;
 
+const SUPABASE_PRODUCTS_PAGE_SIZE = 1000;
+
+async function fetchAllProductRowsFromSupabase(supabase) {
+  /** @type {Record<string, unknown>[]} */
+  const rows = [];
+  let offset = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(offset, offset + SUPABASE_PRODUCTS_PAGE_SIZE - 1);
+
+    if (error) {
+      throw error;
+    }
+
+    const page = data ?? [];
+    rows.push(...page);
+
+    if (page.length < SUPABASE_PRODUCTS_PAGE_SIZE) {
+      break;
+    }
+
+    offset += SUPABASE_PRODUCTS_PAGE_SIZE;
+  }
+
+  return rows;
+}
+
 export async function ensureSupabaseCatalogSeeded() {
   const supabase = getSupabaseAdmin();
   if (!supabase) return false;
@@ -136,18 +168,14 @@ async function listFromSupabase(role, adminView) {
 
   await ensureSupabaseCatalogSeeded();
 
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: true });
-
-  if (error) {
+  let rows;
+  try {
+    rows = await fetchAllProductRowsFromSupabase(supabase);
+  } catch (error) {
     console.error('[catalog] list Supabase:', error.message);
     return null;
   }
 
-  const rows = data ?? [];
   if (adminView) {
     return rows.map((row) => rowToInventoryProduct(row));
   }
@@ -203,6 +231,76 @@ export async function getPublicProductById(id, role = 'public') {
   return toPublicProduct(withResolvedMedia(product), role);
 }
 
+function normalizeSearchText(value) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '');
+}
+
+function productSearchHaystack(product) {
+  const attributes = Array.isArray(product.attributes) ? product.attributes : [];
+  return [
+    product.name,
+    product.code,
+    product.description,
+    product.brand,
+    product.category,
+    ...attributes.map((attr) => `${attr.name ?? ''} ${attr.value ?? ''}`),
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+function productMatchesSearchQuery(product, query) {
+  const terms = normalizeSearchText(query).split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return false;
+  const haystack = normalizeSearchText(productSearchHaystack(product));
+  return terms.every((term) => haystack.includes(term));
+}
+
+function productMatchesCategoryFilter(product, filterValue) {
+  if (!filterValue || filterValue === 'all') return true;
+  const target = normalizeSearchText(filterValue);
+  const category = normalizeSearchText(product.category ?? '');
+  if (!category) return false;
+  return category.split(',').some((part) => part.trim() === target || part.includes(target));
+}
+
+/**
+ * Búsqueda ligera en servidor (sin descargar todo el catálogo al cliente).
+ */
+export async function searchPublicProducts({
+  query,
+  role = 'public',
+  limit = 8,
+  categoryFilter = 'all',
+} = {}) {
+  const trimmed = String(query ?? '').trim();
+  if (trimmed.length < 3) {
+    return { products: [], total: 0 };
+  }
+
+  const safeLimit = Math.min(Math.max(Number(limit) || 8, 1), 50);
+  const { products } = await readInventory();
+
+  let matched = products
+    .filter((product) => productMatchesSearchQuery(product, trimmed))
+    .map((product) => toPublicProduct(withResolvedMedia(product), role));
+
+  if (categoryFilter && categoryFilter !== 'all') {
+    matched = matched.filter((product) => productMatchesCategoryFilter(product, categoryFilter));
+  }
+
+  matched.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+
+  return {
+    products: matched.slice(0, safeLimit),
+    total: matched.length,
+  };
+}
+
 function toMinimalSupabaseRow(row) {
   return {
     id: row.id,
@@ -254,18 +352,13 @@ export async function fetchInventoryProductsFromSupabase() {
 
   await ensureSupabaseCatalogSeeded();
 
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: true });
-
-  if (error) {
+  try {
+    const rows = await fetchAllProductRowsFromSupabase(supabase);
+    return rows.map((row) => rowToInventoryProduct(row));
+  } catch (error) {
     console.error('[catalog] fetch inventario Supabase:', error.message);
     return [];
   }
-
-  return (data ?? []).map((row) => rowToInventoryProduct(row));
 }
 
 export async function syncProductsToSupabase(products) {

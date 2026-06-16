@@ -3,6 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { HeaderCartExchangeBar } from '@/components/layout/header-currency-control';
+import { HeaderOrdersCompare } from '@/components/layout/header-orders-compare';
 import { cn } from '@/lib/utils';
 
 const stripActionClass =
@@ -27,6 +28,8 @@ export function HeaderActionStrip({
   return (
     <div className={cn('hidden shrink-0 items-center sm:flex', className)}>
       <div className="flex items-center bg-white">
+        <HeaderOrdersCompare />
+
         <AccountDropdown triggerVariant="strip" />
 
         <HeaderCartExchangeBar />

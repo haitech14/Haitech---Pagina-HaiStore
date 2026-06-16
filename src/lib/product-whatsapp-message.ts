@@ -15,6 +15,7 @@ export interface ProductWhatsAppLineItem {
   category?: string | null;
   brand?: string | null;
   productUrl?: string;
+  quantity?: number;
 }
 
 export function buildProductWhatsAppMessage(
@@ -32,6 +33,9 @@ export function buildProductWhatsAppMessage(
     '',
     `${WA_EMOJI.package} *${product.name.trim()}*`,
     meta ? `${WA_EMOJI.label} ${meta}` : null,
+    product.quantity != null && product.quantity > 1
+      ? `${WA_EMOJI.package} Cantidad: *${product.quantity}*`
+      : null,
     `${WA_EMOJI.dollar} *${priceUsd}* · *${pricePen}*`,
     product.productUrl ? `${WA_EMOJI.link} ${product.productUrl}` : null,
     '',

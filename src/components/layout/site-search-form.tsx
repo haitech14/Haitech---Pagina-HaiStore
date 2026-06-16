@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronDown, FolderOpen, Loader2, Search, Wrench } from 'lucide-react';
 
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
-import { useProducts } from '@/hooks/use-products';
+import { useProductSearch } from '@/hooks/use-product-search';
 import { categoryLandingPath } from '@/lib/category-path';
 import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
 import {
   filterCategoriesBySearch,
-  filterProductsBySearch,
   filterServicesBySearch,
   MIN_PRODUCT_SEARCH_LENGTH,
   PRODUCT_SEARCH_SUGGESTION_LIMIT,
@@ -66,7 +65,6 @@ export function SiteSearchForm({
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { data: products = [], isLoading } = useProducts();
   const { data: categoryTree = [] } = useStoreCategoriesTree();
 
   const [query, setQuery] = useState('');
@@ -92,15 +90,26 @@ export function SiteSearchForm({
     [deferredQuery],
   );
 
-  const productSuggestions = useMemo(
-    () =>
-      filterProductsBySearch(products, deferredQuery, {
-        categoryFilter,
-        categoryTree,
-        limit: PRODUCT_SEARCH_SUGGESTION_LIMIT,
-      }),
-    [products, deferredQuery, categoryFilter, categoryTree],
-  );
+  const trimmedQuery = query.trim();
+  const trimmedDeferredQuery = deferredQuery.trim();
+  const queryTooShort =
+    panelOpen && trimmedQuery.length > 0 && trimmedQuery.length < MIN_PRODUCT_SEARCH_LENGTH;
+
+  const searchEnabled =
+    panelOpen && trimmedDeferredQuery.length >= MIN_PRODUCT_SEARCH_LENGTH;
+
+  const { data: searchResult, isLoading: searchLoading, isFetching: searchFetching } =
+    useProductSearch(deferredQuery, {
+      categoryFilter,
+      limit: PRODUCT_SEARCH_SUGGESTION_LIMIT,
+      enabled: searchEnabled,
+    });
+
+  const productSuggestions = searchResult?.products ?? [];
+  const totalMatches = searchResult?.total ?? 0;
+  const searchPending = searchEnabled && (searchLoading || searchFetching);
+
+  const showSuggestions = searchEnabled && !searchPending;
 
   const suggestions = useMemo<SearchSuggestionItem[]>(
     () => [
@@ -109,22 +118,6 @@ export function SiteSearchForm({
       ...productSuggestions.map((product) => ({ type: 'product' as const, product })),
     ],
     [categorySuggestions, serviceSuggestions, productSuggestions],
-  );
-
-  const trimmedQuery = query.trim();
-  const trimmedDeferredQuery = deferredQuery.trim();
-  const queryTooShort =
-    panelOpen && trimmedQuery.length > 0 && trimmedQuery.length < MIN_PRODUCT_SEARCH_LENGTH;
-  const showSuggestions =
-    panelOpen && trimmedDeferredQuery.length >= MIN_PRODUCT_SEARCH_LENGTH && !isLoading;
-
-  const totalMatches = useMemo(
-    () =>
-      filterProductsBySearch(products, deferredQuery, {
-        categoryFilter,
-        categoryTree,
-      }).length,
-    [products, deferredQuery, categoryFilter, categoryTree],
   );
 
   useEffect(() => {
@@ -310,7 +303,7 @@ export function SiteSearchForm({
             <p className="px-4 py-3 text-sm text-muted-foreground" role="status">
               Escribe al menos {MIN_PRODUCT_SEARCH_LENGTH} caracteres para buscar.
             </p>
-          ) : isSearchPending || isLoading ? (
+          ) : isSearchPending || searchPending ? (
             <p
               className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground"
               role="status"

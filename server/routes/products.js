@@ -19,6 +19,7 @@ import {
   getPublicProductById,
   incrementProductViewCount,
   listProducts,
+  searchPublicProducts,
   syncProductsToSupabase,
 } from '../lib/product-catalog.js';
 import { shouldPreferSupabaseCatalog } from '../lib/catalog-source.js';
@@ -222,6 +223,19 @@ productsRouter.put('/reorder', requireAdmin, async (req, res, next) => {
     await syncProductsToSupabase(inventory.products);
 
     res.json({ ok: true, total: inventory.products.length, products: inventory.products });
+  } catch (error) {
+    next(error);
+  }
+});
+
+productsRouter.get('/search', async (req, res, next) => {
+  try {
+    const role = await resolveRequestRole(req);
+    const query = typeof req.query.q === 'string' ? req.query.q : '';
+    const categoryFilter = typeof req.query.cat === 'string' ? req.query.cat : 'all';
+    const limit = typeof req.query.limit === 'string' ? Number(req.query.limit) : 8;
+    const result = await searchPublicProducts({ query, role, limit, categoryFilter });
+    res.json(result);
   } catch (error) {
     next(error);
   }

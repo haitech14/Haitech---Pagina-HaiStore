@@ -120,8 +120,10 @@ export function inferColorLabel(modelo, colores) {
   if (coloresUpper.startsWith('CYAN')) return 'Cyan';
   if (coloresUpper.startsWith('MAGENTA')) return 'Magenta';
   if (coloresUpper.startsWith('YELLOW')) return 'Yellow';
+  if (coloresUpper === 'COLORES') return 'Colores';
 
-  return '';
+  const fromColumn = titleCaseColor(colores);
+  return fromColumn;
 }
 
 /**
@@ -210,30 +212,112 @@ export function buildProcessedPriceListCode(row) {
   return buildLpCode([row.marca, modelPart], colorKey);
 }
 
+function normalizeHeaderCell(cell) {
+  return String(cell ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '');
+}
+
+/**
+ * @param {Array<unknown>} headerRow
+ */
+export function resolveProcessedPriceListLayout(headerRow) {
+  const headers = (headerRow ?? []).map(normalizeHeaderCell);
+  const idx = (...needles) => {
+    for (let index = 0; index < headers.length; index += 1) {
+      const header = headers[index];
+      if (needles.some((needle) => header === needle || header.includes(needle))) {
+        return index;
+      }
+    }
+    return -1;
+  };
+
+  const marca = idx('marca');
+  const modelo = idx('modelo');
+  const colores = idx('colores', 'color');
+  const compra = idx('compra');
+  const tecnico = idx('tecnico');
+  const mayorista = idx('mayorista');
+  const publico = idx('publico');
+  const distribuidor = idx('distribuidor', 'dist');
+
+  if (tecnico >= 0 && mayorista >= 0 && publico >= 0) {
+    return {
+      variant: 'explicit-tiers',
+      marca: marca >= 0 ? marca : 0,
+      modelo: modelo >= 0 ? modelo : 1,
+      colores: colores >= 0 ? colores : 2,
+      compra: compra >= 0 ? compra : 3,
+      tecnico,
+      mayorista,
+      publico,
+    };
+  }
+
+  return {
+    variant: 'legacy',
+    marca: 0,
+    modelo: 1,
+    colores: 2,
+    compra: 3,
+    distribuidor: distribuidor >= 0 ? distribuidor : 5,
+    publico: publico >= 0 ? publico : 6,
+  };
+}
+
 /**
  * @param {Array<unknown>} row
+ * @param {number} index
  */
-export function mapProcessedPriceListRow(row) {
-  const marca = String(row[0] ?? '').trim();
-  const modelo = String(row[1] ?? '').trim();
-  const colores = String(row[2] ?? '').trim();
-  const compraPen = parsePriceCell(row[3]);
-  const distribuidorPen = parsePriceCell(row[5]);
-  const corporativoPen = parsePriceCell(row[6]);
+function readProcessedPriceListCell(row, index) {
+  if (index < 0) return '';
+  return row[index];
+}
 
-  if (!marca || compraPen <= 0) {
+/**
+ * @param {Array<unknown>} row
+ * @param {ReturnType<typeof resolveProcessedPriceListLayout>} [layout]
+ */
+export function mapProcessedPriceListRow(row, layout = resolveProcessedPriceListLayout([])) {
+  const marca = String(readProcessedPriceListCell(row, layout.marca) ?? '').trim();
+  const modelo = String(readProcessedPriceListCell(row, layout.modelo) ?? '').trim();
+  const colores = String(readProcessedPriceListCell(row, layout.colores) ?? '').trim();
+  const compraPen = parsePriceCell(readProcessedPriceListCell(row, layout.compra));
+
+  if (!marca || /^marca$/i.test(marca) || compraPen <= 0) {
     return [];
   }
 
-  const mayoristaPen = normalizeMayoristaPen(distribuidorPen);
+  let tecnicoPen = 0;
+  let mayoristaPen = 0;
+  let distribuidorPen = 0;
+  let publicoPen = 0;
+
+  if (layout.variant === 'explicit-tiers') {
+    tecnicoPen = parsePriceCell(readProcessedPriceListCell(row, layout.tecnico));
+    mayoristaPen = parsePriceCell(readProcessedPriceListCell(row, layout.mayorista));
+    publicoPen = parsePriceCell(readProcessedPriceListCell(row, layout.publico));
+    distribuidorPen = tecnicoPen;
+  } else {
+    distribuidorPen = parsePriceCell(readProcessedPriceListCell(row, layout.distribuidor));
+    publicoPen = parsePriceCell(readProcessedPriceListCell(row, layout.publico));
+    mayoristaPen = normalizeMayoristaPen(distribuidorPen);
+    tecnicoPen = distribuidorPen;
+  }
+
   const base = {
     marca,
     modelo,
     colores,
     compraPen,
+    tecnicoPen,
     mayoristaPen,
     distribuidorPen,
-    corporativoPen,
+    publicoPen,
+    corporativoPen: publicoPen,
     isUnidadImagen: isUnidadImagenModelo(modelo),
   };
 
@@ -284,8 +368,10 @@ export function expandUnidadImagenFourColors(row) {
  *   modelo: string;
  *   colores: string;
  *   compraPen: number;
+ *   tecnicoPen?: number;
  *   mayoristaPen: number;
  *   distribuidorPen: number;
+ *   publicoPen?: number;
  *   corporativoPen: number;
  *   isUnidadImagen?: boolean;
  *   colorLabel?: string;
@@ -303,14 +389,16 @@ export function buildProcessedPriceListProduct(row, rates) {
   const code = buildProcessedPriceListCode({ ...row, colorLabel });
 
   const purchaseUsd = penToUsd(row.compraPen, rates.purchaseRate);
-  const publicUsd = penToUsd(row.corporativoPen, rates.saleRate);
+  const publicUsd = penToUsd(row.publicoPen ?? row.corporativoPen, rates.saleRate);
+  const tecnicoUsd = penToUsd(row.tecnicoPen ?? 0, rates.saleRate);
   const distribuidorUsd = penToUsd(row.distribuidorPen, rates.saleRate);
   const mayoristaUsd = penToUsd(row.mayoristaPen, rates.saleRate);
 
   const prices = ensureFullPrices({
     public: publicUsd,
-    distribuidor: distribuidorUsd,
-    mayorista: mayoristaUsd,
+    tecnico: tecnicoUsd > 0 ? tecnicoUsd : undefined,
+    distribuidor: distribuidorUsd > 0 ? distribuidorUsd : undefined,
+    mayorista: mayoristaUsd > 0 ? mayoristaUsd : undefined,
   });
 
   /** @type {Array<{ name: string; value: string }>} */
@@ -354,18 +442,21 @@ export function parseProcessedPriceListWorkbook(buffer, options = {}) {
     defval: '',
   });
 
+  const layout = resolveProcessedPriceListLayout(rows[0] ?? []);
+  const dataStartIndex = layout.variant === 'explicit-tiers' ? 1 : 0;
+
   /** @type {ReturnType<typeof normalizeProductInput>[]} */
   const products = [];
   let rowsRead = 0;
 
-  for (let index = 0; index < rows.length; index += 1) {
+  for (let index = dataStartIndex; index < rows.length; index += 1) {
     const row = rows[index];
     if (!Array.isArray(row)) continue;
 
-    const marca = String(row[0] ?? '').trim();
-    if (marca === 'Marca') continue;
+    const marca = String(row[layout.marca] ?? row[0] ?? '').trim();
+    if (/^marca$/i.test(marca)) continue;
 
-    const expanded = mapProcessedPriceListRow(row);
+    const expanded = mapProcessedPriceListRow(row, layout);
     if (expanded.length === 0) continue;
 
     rowsRead += 1;

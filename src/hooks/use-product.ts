@@ -22,26 +22,21 @@ async function fetchProductById(id: string): Promise<Product | null> {
 export function useProduct(id: string | undefined) {
   const { role, viewAsRole, effectiveRole } = useAuth();
   const featured = id ? getFeaturedProductById(id) : undefined;
-  const {
-    data: products,
-    isLoading: catalogLoading,
-    isError: catalogError,
-  } = useProducts();
+  const { data: products, isError: catalogError } = useProducts();
 
   const fromList = useMemo(
     () => (id ? products?.find((product) => product.id === id) : undefined),
     [id, products],
   );
 
-  const shouldFetchOne = Boolean(
-    id && !featured && !fromList && !catalogLoading && !catalogError,
-  );
+  const shouldFetchOne = Boolean(id && !featured && !fromList);
 
   const { data: fetchedProduct, isLoading: fetchingOne } = useQuery({
     queryKey: ['product', id, role, viewAsRole],
     queryFn: () => (id ? fetchProductById(id) : Promise.resolve(null)),
     enabled: shouldFetchOne,
-    staleTime: 1000 * 60,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
     select: (product) =>
       product && viewAsRole ? applyViewAsPriceToProduct(product, effectiveRole) : product,
   });
@@ -62,10 +57,8 @@ export function useProduct(id: string | undefined) {
     (featured ? featuredToProduct(featured) : undefined) ??
     fromCatalogJson;
 
-  const isLoading = Boolean(
-    id && !featured && (catalogLoading || (shouldFetchOne && fetchingOne)),
-  );
-  const notFound = Boolean(id && !isLoading && !product);
+  const isLoading = Boolean(id && !featured && !product && shouldFetchOne && fetchingOne);
+  const notFound = Boolean(id && !featured && !isLoading && !product);
 
   return {
     product,

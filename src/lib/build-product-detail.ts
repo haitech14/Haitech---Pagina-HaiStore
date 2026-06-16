@@ -2,18 +2,22 @@ import {
   Award,
   BookOpen,
   Cloud,
+  Copy,
+  Cpu,
   FileText,
   FlipHorizontal2,
   Gauge,
   Inbox,
   Layers,
   Lock,
+  Network,
   Printer,
   ScanLine,
   Settings,
   Shield,
   Smartphone,
   Timer,
+  Usb,
   Wifi,
 } from 'lucide-react';
 
@@ -24,6 +28,7 @@ import type {
   ProductComboItem,
   ProductDescriptionContent,
   ProductDescriptionHighlight,
+  ProductDescriptionVisual,
   ProductDetailViewModel,
   ProductFeatureIcon,
   ProductGalleryItem,
@@ -59,12 +64,12 @@ const PRINTER_BULLETS = [
 ];
 
 const IM430F_BULLETS = [
-  'Hasta 45 páginas por minuto.',
-  'Escaneo dúplex automático de doble paso.',
-  'Bandeja de 500 hojas y alimentador automático.',
-  'Conectividad Wi-Fi, Ethernet y móvil.',
-  'Pantalla táctil a color de 4.3" para operación intuitiva.',
-  'Compatible con soluciones cloud y gestión remota Ricoh.',
+  'Imprime, copia, escanea y fax',
+  'Hasta 45 ppm',
+  'Pantalla Smart Operation Panel de 10.1"',
+  'Primera impresión en menos de 6 segundos',
+  'Escaneo a color',
+  'Conectividad móvil y nube',
 ];
 
 function buildHeroHighlights(
@@ -131,6 +136,90 @@ const DEFAULT_BULK_TIERS = [
   { range: 'Compra 6+', discount: '18% dscto.', discountPercent: 18 },
   { range: 'Compra 10+', discount: '30% dscto.', discountPercent: 30 },
 ];
+
+const PRINTER_CONNECTIVITY_VISUAL = [
+  { icon: Wifi, label: 'Wi-Fi' },
+  { icon: Network, label: 'RJ45 LAN' },
+  { icon: Usb, label: 'USB' },
+  { icon: Smartphone, label: 'Móvil' },
+] as const;
+
+const IM430F_DESCRIPTION_VISUAL: ProductDescriptionVisual = {
+  functions: [
+    { icon: Copy, label: 'Copiadora' },
+    { icon: Printer, label: 'Impresora' },
+    { icon: ScanLine, label: 'Escáner' },
+  ],
+  connectivity: [...PRINTER_CONNECTIVITY_VISUAL],
+  specs: [
+    { icon: Gauge, title: 'Velocidad', lines: ['45 ppm'] },
+    { icon: Cpu, title: 'Memoria', lines: ['2 GB'] },
+    { icon: Smartphone, title: 'Pantalla', lines: ['LCD 10,1"'] },
+    { icon: Layers, title: 'Rendimiento Mensual', lines: ['10,000 páginas x mes'] },
+    { icon: Printer, title: 'Capacidad de papel', lines: ['Estándar: 550 Hojas'] },
+    { icon: Inbox, title: 'ADF', lines: ['Casetera 500 Hojas', 'Bypass: 100 Hojas'] },
+  ],
+};
+
+function specValue(specs: ProductSpecRow[], ...labels: string[]): string {
+  for (const label of labels) {
+    const row = specs.find((entry) => entry.label.toLowerCase().includes(label.toLowerCase()));
+    if (row?.value?.trim()) return row.value.trim();
+  }
+  return '';
+}
+
+function shortenScreenLabel(value: string): string {
+  const inches = value.match(/(\d+(?:[.,]\d+)?)\s*(?:pulgadas|")/i);
+  if (inches) {
+    return `LCD ${inches[1]?.replace('.', ',')}"`;
+  }
+  return value;
+}
+
+function shortenMonthlyVolume(value: string): string {
+  const digits = value.replace(/[^\d]/g, '');
+  if (!digits) return value;
+  const formatted = Number(digits).toLocaleString('es-PE');
+  return `${formatted} páginas x mes`;
+}
+
+function buildDescriptionVisual(
+  product: Product,
+  specs: ProductSpecRow[],
+  isPrinter: boolean,
+): ProductDescriptionVisual | null {
+  if (!isPrinter) return null;
+  if (isIm430f(product)) return IM430F_DESCRIPTION_VISUAL;
+
+  const speed = specValue(specs, 'velocidad') || '40 ppm';
+  const screen = specValue(specs, 'pantalla');
+  const monthly = specValue(specs, 'volumen');
+  const paper = specValue(specs, 'capacidad', 'papel');
+
+  return {
+    functions: [
+      { icon: Copy, label: 'Copiadora' },
+      { icon: Printer, label: 'Impresora' },
+      { icon: ScanLine, label: 'Escáner' },
+    ],
+    connectivity: [...PRINTER_CONNECTIVITY_VISUAL],
+    specs: [
+      { icon: Gauge, title: 'Velocidad', lines: [speed.replace(/^hasta\s+/i, '')] },
+      { icon: Cpu, title: 'Memoria', lines: ['2 GB'] },
+      ...(screen
+        ? [{ icon: Smartphone, title: 'Pantalla', lines: [shortenScreenLabel(screen)] }]
+        : [{ icon: Smartphone, title: 'Pantalla', lines: ['Pantalla táctil'] }]),
+      ...(monthly
+        ? [{ icon: Layers, title: 'Rendimiento Mensual', lines: [shortenMonthlyVolume(monthly)] }]
+        : [{ icon: Layers, title: 'Rendimiento Mensual', lines: ['Alto volumen mensual'] }]),
+      ...(paper
+        ? [{ icon: Printer, title: 'Capacidad de papel', lines: [`Estándar: ${paper}`] }]
+        : [{ icon: Printer, title: 'Capacidad de papel', lines: ['Bandeja estándar'] }]),
+      { icon: Inbox, title: 'ADF', lines: ['Casetera ampliable', 'Bypass incluido'] },
+    ],
+  };
+}
 
 const IM430F_DESCRIPTION: ProductDescriptionContent = {
   paragraphs: [
@@ -223,14 +312,44 @@ function isSupplyProduct(product: Product): boolean {
 }
 
 function isIm430f(product: Product): boolean {
-  return product.id === 'ricoh-im-430f' || product.name.toLowerCase().includes('im 430f');
+  if (product.id === 'ricoh-im-430f') return true;
+  return /\bim\s*430\s*f\b/i.test(product.name);
+}
+
+const PRINTER_CATEGORY_PREFIX_PATTERN = /^(?:impresora\s+)?multifuncional(?:es)?\s+/i;
+
+function normalizeModelToken(model: string): string {
+  return model.replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
+function extractPrinterShortTitle(product: Product): string | null {
+  const name = product.name.trim();
+  const brand = product.brand?.trim();
+
+  const ricohMatch = name.match(/\bRICOH\s+(IM\s*C?\s*\d{3,4}[A-Z]?)\b/i);
+  if (ricohMatch?.[1]) {
+    return `RICOH ${normalizeModelToken(ricohMatch[1])}`;
+  }
+
+  const imMatch = name.match(/\b(IM\s*C?\s*\d{3,4}[A-Z]?)\b/i);
+  if (imMatch?.[1] && brand && /^ricoh$/i.test(brand)) {
+    return `RICOH ${normalizeModelToken(imMatch[1])}`;
+  }
+
+  if (brand) {
+    let model = stripBrandFromName(name, brand).replace(PRINTER_CATEGORY_PREFIX_PATTERN, '').trim();
+    if (model) {
+      return `${brand.toUpperCase()} ${model.toUpperCase()}`;
+    }
+  }
+
+  return null;
 }
 
 function resolveShortTitle(product: Product, isPrinter: boolean): string {
   if (isIm430f(product)) return 'RICOH IM 430F';
-  if (isPrinter && product.brand) {
-    const model = product.name.replace(new RegExp(product.brand, 'i'), '').trim();
-    return model ? `${product.brand.toUpperCase()} ${model.toUpperCase()}` : product.name;
+  if (isPrinter) {
+    return extractPrinterShortTitle(product) ?? product.name;
   }
   return product.name;
 }
@@ -253,7 +372,7 @@ function resolveDetailDisplayTitle(product: Product, brandLabel: string): string
 
 function resolveDisplaySubtitle(product: Product, isPrinter: boolean, isSupply: boolean): string {
   if (isIm430f(product)) {
-    return 'Multifuncional 4 en 1 para oficinas y empresas que necesitan velocidad, eficiencia y confiabilidad.';
+    return 'Impresora multifuncional inteligente';
   }
   if (isPrinter) {
     return (
@@ -271,7 +390,12 @@ function toHeroTitle(name: string): string {
     .map((word) => {
       if (!word) return word;
       const upper = word.toUpperCase();
-      if (upper === 'IM' || /^IM\d/.test(upper) || /^\d+[A-Z]?$/.test(upper)) {
+      if (
+        upper === 'IM' ||
+        upper === 'RICOH' ||
+        /^IM\d/.test(upper) ||
+        /^\d+[A-Z]?$/.test(upper)
+      ) {
         return upper;
       }
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -745,6 +869,8 @@ export function buildProductDetail(
         ? buildPrinterSpecs(product, brandLabel, sku)
         : buildGenericSpecs(product, brandLabel, sku);
 
+  const descriptionVisual = buildDescriptionVisual(product, specs, isPrinter);
+
   const showNuevo = productHasNuevoCornerBadge(product);
 
   const heroTitle = toHeroTitle(product.name);
@@ -776,6 +902,7 @@ export function buildProductDetail(
     soldCount: soldCountFromId(product.id),
     bullets,
     descriptionContent: buildDescriptionContent(product, isPrinter, isSupply),
+    descriptionVisual,
     specs,
     warrantyBullets: WARRANTY_BULLETS,
     gallery: buildGallery(product),

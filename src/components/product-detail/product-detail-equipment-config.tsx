@@ -16,6 +16,8 @@ interface ProductDetailEquipmentConfigProps {
   selection: EquipmentSelectionState;
   onSelectionChange: (selection: EquipmentSelectionState) => void;
   className?: string;
+  /** Oculta el título cuando va dentro de una pestaña. */
+  hideTitle?: boolean;
 }
 
 function formatOptionPrice(pricePen: number): string | null {
@@ -28,6 +30,7 @@ export function ProductDetailEquipmentConfig({
   selection,
   onSelectionChange,
   className,
+  hideTitle = false,
 }: ProductDetailEquipmentConfigProps) {
   const sectionId = useId();
 
@@ -69,10 +72,19 @@ export function ProductDetailEquipmentConfig({
   if (steps.length === 0) return null;
 
   return (
-    <section className={cn('space-y-3', className)} aria-labelledby={sectionId}>
-      <h2 id={sectionId} className="text-lg font-bold text-[#0f1f3d] sm:text-xl">
-        Configuración del equipo
-      </h2>
+    <section
+      className={cn('space-y-2.5 sm:space-y-3', className)}
+      aria-labelledby={sectionId}
+    >
+      {hideTitle ? (
+        <h2 id={sectionId} className="sr-only">
+          Configuración del equipo
+        </h2>
+      ) : (
+        <h2 id={sectionId} className="text-base font-bold text-[#0f1f3d] sm:text-lg">
+          Configuración del equipo
+        </h2>
+      )}
 
       {extrasTotalPen > 0 ? (
         <p className="text-sm font-semibold text-red-600">
@@ -118,17 +130,17 @@ function EquipmentConfigStepList({
             <button
               type="button"
               className={cn(
-                'flex w-full items-center gap-3 bg-[#0f1f3d] px-4 py-3.5 text-left text-white',
+                'flex w-full items-center gap-3 bg-[#0f1f3d] px-3.5 py-3 text-left text-white sm:px-4',
                 'transition-colors hover:bg-[#0f1f3d]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               )}
               aria-expanded={isOpen}
               aria-controls={panelId}
               onClick={() => setOpenSteps((current) => ({ ...current, [step.id]: !current[step.id] }))}
             >
-              <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">
+              <span className="min-w-0 flex-1 text-xs font-semibold leading-snug sm:text-sm">
                 Paso {step.stepNumber}: {step.title}
               </span>
-              <span className="inline-flex shrink-0 items-center gap-1.5 text-[0.6875rem] font-bold tracking-[0.12em] text-white">
+              <span className="inline-flex shrink-0 items-center gap-1 text-[0.625rem] font-bold tracking-[0.1em] text-white sm:text-[0.6875rem]">
                 EXPANDIR
                 <ChevronDown
                   className={cn('size-4 transition-transform', isOpen && 'rotate-180')}

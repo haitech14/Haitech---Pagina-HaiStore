@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { HeaderActionStrip } from '@/components/layout/header-action-strip';
+import { HeaderOrdersCompare } from '@/components/layout/header-orders-compare';
 import { HeaderCategoryNav, mainNavItems } from '@/components/layout/header-category-nav';
 import { HeaderCurrencyControl } from '@/components/layout/header-currency-control';
 import { SiteSearchForm } from '@/components/layout/site-search-form';
@@ -138,6 +139,7 @@ export function Header() {
         />
 
         <div className="ml-auto flex items-center gap-0.5 sm:hidden">
+          <HeaderOrdersCompare className="gap-1.5 px-1.5" />
           <AccountDropdown />
           <Button
             type="button"

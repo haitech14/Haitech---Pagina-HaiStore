@@ -203,18 +203,18 @@ export function SubscriptionRuletaWheel({
                     >
                       <Icon
                         className={cn(
-                          'size-8 shrink-0 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.65)] sm:size-9',
+                          'size-7 shrink-0 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.65)] sm:size-8',
                           isWinner &&
                             'drop-shadow-[0_0_12px_rgba(255,255,255,0.95),0_0_20px_rgba(251,191,36,0.85)]',
                         )}
-                        strokeWidth={1.75}
+                        strokeWidth={1.25}
                         aria-hidden="true"
                       />
                       <span className="mt-1 w-full text-center leading-[1.08] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65),0_0_6px_rgba(0,0,0,0.35)]">
-                        <span className="block text-[0.62rem] font-extrabold uppercase tracking-tight sm:text-[0.7rem]">
+                        <span className="block text-[0.62rem] font-normal uppercase tracking-tight sm:text-[0.7rem]">
                           {premio.label}
                         </span>
-                        <span className="mt-0.5 block text-[0.56rem] font-bold uppercase sm:text-[0.64rem]">
+                        <span className="mt-0.5 block text-[0.56rem] font-normal uppercase sm:text-[0.64rem]">
                           {premio.sublabel}
                         </span>
                       </span>

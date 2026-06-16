@@ -92,6 +92,25 @@ export interface ProductDescriptionContent {
   highlights: ProductDescriptionHighlight[];
 }
 
+export interface ProductDescriptionVisualItem {
+  icon: LucideIcon;
+  label: string;
+}
+
+export interface ProductDescriptionVisualSpec {
+  icon: LucideIcon;
+  title: string;
+  lines: string[];
+}
+
+/** Infografía de funciones y especificaciones en la pestaña Descripción. */
+export interface ProductDescriptionVisual {
+  functions: ProductDescriptionVisualItem[];
+  /** Conectividad (Wi-Fi, LAN, USB, móvil) a la derecha de las funciones. */
+  connectivity?: ProductDescriptionVisualItem[];
+  specs: ProductDescriptionVisualSpec[];
+}
+
 export type ProductGalleryItem =
   | { type: 'image'; src: string; alt?: string }
   | {
@@ -124,6 +143,8 @@ export interface ProductDetailViewModel {
   soldCount: number;
   bullets: string[];
   descriptionContent: ProductDescriptionContent | null;
+  /** Iconos de funciones y especificaciones en la descripción. */
+  descriptionVisual: ProductDescriptionVisual | null;
   specs: ProductSpecRow[];
   warrantyBullets: string[];
   gallery: ProductGalleryItem[];
