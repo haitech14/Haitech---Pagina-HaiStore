@@ -50,8 +50,9 @@ npm run dev:all
 ### Acceso desde móvil u otro PC en la red
 
 1. Arranca con `npm run dev:all`.
-2. Copia la URL **Network** que muestra Vite (ej. `http://192.168.1.2:5173`).
-3. Si no carga desde el teléfono, abre el firewall (PowerShell **como administrador**):
+2. Revisa el bloque **Desarrollo local activo**: muestra la hora local, zona horaria y las URLs por IP LAN.
+3. Copia la URL de **IP/Red** que imprime el script (ej. `http://192.168.1.2:5173`).
+4. Si no carga desde el teléfono, abre el firewall (PowerShell **como administrador**):
 
    ```bash
    npm run dev:lan
@@ -59,8 +60,14 @@ npm run dev:all
 
    Luego vuelve a ejecutar `npm run dev:all`.
 
-4. No uses `localhost` en el móvil; usa la IP de red que imprime Vite.
-5. Si el puerto 5173 está ocupado, Vite usará 5174: revisa la consola y usa ese puerto.
+5. No uses `localhost` en el móvil; usa la IP de red que imprime el script.
+6. Si el puerto 5173 está ocupado, Vite usará 5174: revisa la consola y usa ese puerto.
+
+Para forzar otro formato regional en la hora impresa, define `HAISTORE_DEV_LOCALE`:
+
+```bash
+HAISTORE_DEV_LOCALE=es-PE npm run dev:all
+```
 
 ## Scripts
 
