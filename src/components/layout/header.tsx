@@ -9,14 +9,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
+import { CatalogMobileAccordion } from '@/components/layout/catalog-mobile-accordion';
 import { HeaderActionStrip } from '@/components/layout/header-action-strip';
 import { HeaderCategoryNav, mainNavItems } from '@/components/layout/header-category-nav';
+import { HeaderTopBar } from '@/components/layout/header-top-bar';
 import { HeaderCurrencyControl } from '@/components/layout/header-currency-control';
+import { SolutionsMobileAccordion } from '@/components/layout/solutions-mobile-accordion';
 import { SiteSearchForm } from '@/components/layout/site-search-form';
-import { categories } from '@/data/categories';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
-import { categoryLandingPath } from '@/lib/category-path';
 import { cn, formatPenFromUsd } from '@/lib/utils';
 
 type MainNavItem = {
@@ -40,17 +41,10 @@ const mobileNavItems: MainNavItem[] = mainNavItems
     return mapped;
   });
 
-const solutionMobileLinks = categories
-  .filter((category) => category.slug.startsWith('soluciones-'))
-  .map((category) => ({
-    to: categoryLandingPath(category.slug),
-    label: category.name,
-  }));
 
 const navItems: MainNavItem[] = [
   { to: '/tienda', label: 'Productos' },
   ...mobileNavItems.filter((item) => item.label !== 'Servicios' && item.label !== 'Contacto'),
-  ...solutionMobileLinks,
   ...mobileNavItems.filter((item) => item.label === 'Servicios' || item.label === 'Contacto'),
 ];
 
@@ -95,6 +89,8 @@ export function Header() {
         scrolled && 'shadow-[0_6px_20px_rgba(15,23,42,0.16)]',
       )}
     >
+      <HeaderTopBar />
+
       {/* Fila principal */}
       <div className="container flex items-center gap-3 py-2 sm:gap-4">
         <div className="flex min-h-12 flex-1 items-center gap-3 sm:gap-4">
@@ -168,6 +164,8 @@ export function Header() {
           <div className="container flex flex-col gap-4 py-4">
             <HeaderCurrencyControl className="w-full md:hidden" />
             <SiteSearchForm variant="simple" onNavigate={() => setMobileOpen(false)} />
+            <CatalogMobileAccordion onNavigate={() => setMobileOpen(false)} />
+            <SolutionsMobileAccordion onNavigate={() => setMobileOpen(false)} />
             <nav aria-label="Navegación móvil">
               <ul className="flex flex-col">
                 {[homeItem, ...navItems].map((item) => (

@@ -52,7 +52,8 @@ if (!env.VITE_SUPABASE_URL && !env.SUPABASE_URL) {
 }
 
 if (!env.CORS_ORIGIN) {
-  env.CORS_ORIGIN = 'https://haistore.vercel.app,http://localhost:5173';
+  env.CORS_ORIGIN =
+    'https://haitech.pe,https://www.haitech.pe,https://haistore.vercel.app,http://localhost:5173';
 }
 
 if (!env.HAISTORE_CATALOG_SOURCE) {

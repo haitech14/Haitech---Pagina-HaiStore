@@ -141,7 +141,7 @@ const IM430F_CURATED_ACCESSORIES: CuratedAccessory[] = [
     id: 'combo-gabinete-alto-tipo-i',
     name: 'Gabinete alto Tipo I',
     priceUsd: 280,
-    fallbackImage: '/categories/repuestos.png',
+    fallbackImage: '/products/combo-gabinete-alto.webp',
     defaultSelected: false,
     matchPatterns: [/gabinete alto.*tipo\s*i/i, /gabinete.*tipo\s*i/i],
   },
@@ -149,7 +149,7 @@ const IM430F_CURATED_ACCESSORIES: CuratedAccessory[] = [
     id: 'combo-garantia-extendida-im430f',
     name: 'Garantía Extendida',
     priceUsd: 149,
-    fallbackImage: '/categories/accesorios-impresoras.png',
+    fallbackImage: '/products/combo-garantia-extendida.webp',
     defaultSelected: false,
     matchPatterns: [/garant[ií]a extendida/i, /garant[ií]a adicional/i],
   },
@@ -173,6 +173,11 @@ function findCuratedCatalogMatch(accessory: CuratedAccessory, catalog: Product[]
   return catalog.find((row) => matchesCuratedAccessory(row, accessory));
 }
 
+const CURATED_COMBO_DEDICATED_IMAGES = new Set([
+  'combo-gabinete-alto-tipo-i',
+  'combo-garantia-extendida-im430f',
+]);
+
 function buildCuratedComboItem(accessory: CuratedAccessory, catalog: Product[]): ProductComboItem {
   const matched = findCuratedCatalogMatch(accessory, catalog);
   const linkedProduct =
@@ -182,11 +187,17 @@ function buildCuratedComboItem(accessory: CuratedAccessory, catalog: Product[]):
         ? matched
         : undefined;
 
+  const image = CURATED_COMBO_DEDICATED_IMAGES.has(accessory.id)
+    ? accessory.fallbackImage
+    : linkedProduct
+      ? resolveComboConsumableImage(linkedProduct, accessory.fallbackImage)
+      : accessory.fallbackImage;
+
   return {
     id: linkedProduct?.id ?? accessory.id,
     ...(linkedProduct ? { productId: linkedProduct.id } : {}),
     name: accessory.name,
-    image: accessory.fallbackImage,
+    image,
     pricePen: usdToPen(accessory.priceUsd),
     priceUsd: accessory.priceUsd,
     defaultSelected: accessory.defaultSelected,

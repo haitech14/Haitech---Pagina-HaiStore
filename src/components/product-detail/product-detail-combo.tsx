@@ -23,6 +23,8 @@ interface ProductDetailComboProps {
   embedded?: boolean;
   /** Variante secundaria: cabecera compacta y rejilla fija para pocos ítems. */
   compact?: boolean;
+  /** Aún más pequeño: ideal arriba del precio en la columna hero. */
+  mini?: boolean;
 }
 
 function ComboCard({
@@ -30,28 +32,36 @@ function ComboCard({
   selected,
   onToggle,
   compact = false,
+  mini = false,
 }: {
   item: ProductComboItem;
   selected: boolean;
   onToggle: (checked: boolean) => void;
   compact?: boolean;
+  mini?: boolean;
 }) {
   return (
     <article
       className={cn(
         'relative flex h-full flex-col rounded-lg border bg-white transition-colors',
-        compact ? 'p-2' : 'p-2.5 sm:p-3',
+        mini ? 'p-1.5' : compact ? 'p-2' : 'p-2.5 sm:p-3',
         selected ? 'border-red-600/40 ring-1 ring-red-600/20' : 'border-border/60',
       )}
     >
-      <div className={cn('absolute left-1.5 top-1.5 z-10', !compact && 'sm:left-2.5 sm:top-2.5')}>
+      <div
+        className={cn(
+          'absolute left-1 top-1 z-10',
+          !mini && !compact && 'sm:left-2.5 sm:top-2.5',
+          compact && !mini && 'sm:left-2.5 sm:top-2.5',
+        )}
+      >
         <Checkbox
           id={`combo-${item.id}`}
           checked={selected}
           onCheckedChange={(checked) => onToggle(checked === true)}
           className={cn(
             'border-border bg-white data-[state=checked]:border-red-600 data-[state=checked]:bg-red-600',
-            compact ? 'size-3' : 'size-4',
+            mini ? 'size-2.5' : compact ? 'size-3' : 'size-4',
           )}
           aria-label={`Incluir ${item.name}`}
         />
@@ -60,7 +70,11 @@ function ComboCard({
       <div
         className={cn(
           'flex items-center justify-center rounded-md bg-muted/25',
-          compact ? 'aspect-[5/4] p-1.5 pt-4' : 'aspect-[4/3] p-3 pt-5',
+          mini
+            ? 'aspect-[4/3] max-h-20 p-0.5 pt-2.5'
+            : compact
+              ? 'aspect-[5/4] p-1.5 pt-4'
+              : 'aspect-[4/3] p-3 pt-5',
         )}
       >
         <img
@@ -73,14 +87,23 @@ function ComboCard({
 
       <p
         className={cn(
-          'mt-1.5 line-clamp-2 font-semibold leading-snug text-[#0f1f3d]',
-          compact ? 'text-[0.625rem]' : 'mt-2 text-[0.6875rem] sm:text-xs',
+          'line-clamp-2 font-semibold leading-snug text-[#0f1f3d]',
+          mini
+            ? 'mt-0.5 text-[0.625rem] leading-tight'
+            : compact
+              ? 'mt-1.5 text-[0.625rem]'
+              : 'mt-2 text-[0.6875rem] sm:text-xs',
         )}
       >
         {item.name}
       </p>
 
-      <p className={cn('font-bold text-[#0f1f3d]', compact ? 'mt-1 text-[0.6875rem]' : 'mt-1.5 text-sm')}>
+      <p
+        className={cn(
+          'font-bold text-[#0f1f3d]',
+          mini ? 'mt-px text-[0.5625rem]' : compact ? 'mt-1 text-[0.6875rem]' : 'mt-1.5 text-sm',
+        )}
+      >
         {item.priceUsd != null ? (
           <DualPrice usd={item.priceUsd} />
         ) : (
@@ -94,7 +117,7 @@ function ComboCard({
         )}
       </p>
 
-      {item.productId ? (
+      {item.productId && !mini ? (
         <Link
           to={productPath(item.productId)}
           className={cn(
@@ -119,6 +142,7 @@ export function ProductDetailCombo({
   className,
   embedded = false,
   compact = false,
+  mini = false,
 }: ProductDetailComboProps) {
   const { addItem } = useCart();
   const [selected, setSelected] = useState<Record<string, boolean>>(() =>
@@ -183,21 +207,31 @@ export function ProductDetailCombo({
 
   const resolvedSubtitle =
     subtitle ?? `Toner y consumibles compatibles con tu ${mainProduct.brand ?? 'equipo'}`;
-  const useGrid = compact && items.length <= 3;
+  const useGrid = (compact || mini) && items.length <= 3;
+  const isMiniLayout = mini && compact;
 
   return (
     <section
       className={cn(
         'overflow-hidden',
-        compact
-          ? 'rounded-lg border border-border/40 bg-muted/15'
-          : embedded
-            ? className
-            : cn('rounded-lg border border-border/60 bg-white', className),
+        isMiniLayout
+          ? 'rounded-md border border-border/40 bg-muted/10'
+          : compact
+            ? 'rounded-lg border border-border/40 bg-muted/15'
+            : embedded
+              ? className
+              : cn('rounded-lg border border-border/60 bg-white', className),
       )}
       aria-labelledby="combo-titulo"
     >
-      {compact ? (
+      {isMiniLayout ? (
+        <div className="border-b border-border/40 px-2 py-1">
+          <h2 id="combo-titulo" className="text-[0.6875rem] font-bold text-[#0f1f3d]">
+            {title}
+          </h2>
+          <p className="mt-px line-clamp-1 text-[0.5625rem] text-muted-foreground">{resolvedSubtitle}</p>
+        </div>
+      ) : compact ? (
         <div className="border-b border-border/40 px-3 py-2.5 sm:px-3.5">
           <h2 id="combo-titulo" className="text-sm font-bold text-[#0f1f3d]">
             {title}
@@ -217,12 +251,19 @@ export function ProductDetailCombo({
         </h2>
       )}
 
-      <div className={cn('relative bg-transparent', compact ? 'px-3 py-3 sm:px-3.5' : embedded ? '' : 'px-4 py-3.5 sm:px-5')}>
+      <div
+        className={cn(
+          'relative bg-transparent',
+          isMiniLayout ? 'px-2 py-1.5' : compact ? 'px-3 py-3 sm:px-3.5' : embedded ? '' : 'px-4 py-3.5 sm:px-5',
+        )}
+      >
         {useGrid ? (
           <ul
             className={cn(
-              'grid grid-cols-1 gap-2',
-              items.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2',
+              'grid',
+              isMiniLayout
+                ? 'grid-cols-3 gap-1.5'
+                : cn('grid-cols-1 gap-2', items.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'),
             )}
           >
             {items.map((item) => (
@@ -231,6 +272,7 @@ export function ProductDetailCombo({
                   item={item}
                   selected={selected[item.id]}
                   compact={compact}
+                  mini={mini}
                   onToggle={(checked) =>
                     setSelected((prev) => ({ ...prev, [item.id]: checked }))
                   }
@@ -251,6 +293,7 @@ export function ProductDetailCombo({
                       item={item}
                       selected={selected[item.id]}
                       compact={compact}
+                      mini={mini}
                       onToggle={(checked) =>
                         setSelected((prev) => ({ ...prev, [item.id]: checked }))
                       }
@@ -276,18 +319,27 @@ export function ProductDetailCombo({
 
       <div
         className={cn(
-          'flex flex-col gap-2 border-t border-border/40 bg-muted/20 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3',
-          compact ? 'px-3 sm:px-3.5' : embedded ? 'mt-3 rounded-lg px-3 sm:px-4' : 'px-4 sm:px-5',
+          'flex flex-col gap-1.5 border-t border-border/40 bg-muted/20 sm:flex-row sm:items-center sm:justify-between',
+            isMiniLayout
+            ? 'px-2 py-1 sm:gap-2'
+            : cn(
+                'gap-2 py-2 sm:gap-3',
+                compact ? 'px-3 sm:px-3.5' : embedded ? 'mt-3 rounded-lg px-3 sm:px-4' : 'px-4 sm:px-5',
+              ),
         )}
       >
-        <p className="text-[0.6875rem] text-muted-foreground sm:text-xs">
+        <p
+          className={cn(
+            'text-muted-foreground',
+            isMiniLayout ? 'text-[0.5625rem] leading-tight' : 'text-[0.6875rem] sm:text-xs',
+          )}
+        >
           <span>
-            {selectedCount} producto{selectedCount !== 1 ? 's' : ''} seleccionado
-            {selectedCount !== 1 ? 's' : ''}
+            {selectedCount} seleccionado{selectedCount !== 1 ? 's' : ''}
           </span>
           {selectedCount > 0 ? (
             <>
-              <span className="mx-1.5 hidden text-border sm:inline" aria-hidden="true">
+              <span className="mx-1 hidden text-border sm:inline" aria-hidden="true">
                 |
               </span>
               <span className="block sm:inline">
@@ -304,11 +356,16 @@ export function ProductDetailCombo({
           type="button"
           variant="outline"
           size="sm"
-          className="h-9 shrink-0 gap-1.5 rounded-md border-red-600/30 px-3 text-[0.6875rem] font-bold text-red-600 hover:bg-red-50 focus-visible:ring-red-600 sm:text-xs"
+          className={cn(
+            'shrink-0 gap-1 rounded-md border-red-600/30 font-bold text-red-600 hover:bg-red-50 focus-visible:ring-red-600',
+            isMiniLayout
+              ? 'h-6 px-1.5 text-[0.5625rem]'
+              : 'h-9 gap-1.5 px-3 text-[0.6875rem] sm:text-xs',
+          )}
           onClick={handleAddCombo}
           disabled={selectedCount === 0}
         >
-          <ShoppingCart className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+          <ShoppingCart className={cn(isMiniLayout ? 'size-3' : 'size-3.5')} strokeWidth={1.5} aria-hidden="true" />
           Agregar al carrito
         </Button>
       </div>

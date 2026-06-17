@@ -1,20 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 
 import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
+import { SolutionsMegaMenu } from '@/components/layout/solutions-mega-menu';
 import { mainNavLinkClass, MAIN_NAV_BAR_CLASS, MAIN_NAV_ROW_CLASS } from '@/components/layout/main-nav-styles';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { categories } from '@/data/categories';
 import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
-import { cn } from '@/lib/utils';
-
-const HOVER_CLOSE_DELAY_MS = 180;
 
 type MainNavItem =
   | {
@@ -26,10 +16,6 @@ type MainNavItem =
     }
   | { kind: 'productos' }
   | { kind: 'soluciones' };
-
-const solutionCategories = categories.filter((category) =>
-  category.slug.startsWith('soluciones-'),
-);
 
 const mainNavItems: MainNavItem[] = [
   { kind: 'productos' },
@@ -65,72 +51,6 @@ const mainNavItems: MainNavItem[] = [
   },
 ];
 
-function SolutionsNavItem() {
-  const [open, setOpen] = useState(false);
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearCloseTimer = useCallback(() => {
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
-  }, []);
-
-  const openMenu = useCallback(() => {
-    clearCloseTimer();
-    setOpen(true);
-  }, [clearCloseTimer]);
-
-  const scheduleClose = useCallback(() => {
-    clearCloseTimer();
-    closeTimerRef.current = setTimeout(() => setOpen(false), HOVER_CLOSE_DELAY_MS);
-  }, [clearCloseTimer]);
-
-  useEffect(() => () => clearCloseTimer(), [clearCloseTimer]);
-
-  return (
-    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          aria-haspopup="true"
-          aria-expanded={open}
-          onMouseEnter={openMenu}
-          onMouseLeave={scheduleClose}
-          onFocus={openMenu}
-          className={cn(mainNavLinkClass(open), 'gap-1')}
-        >
-          Soluciones
-          <ChevronDown
-            aria-hidden="true"
-            className={cn('size-3 transition-transform', open && 'rotate-180')}
-          />
-        </button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent
-        align="start"
-        sideOffset={0}
-        onMouseEnter={openMenu}
-        onMouseLeave={scheduleClose}
-        onCloseAutoFocus={(event) => event.preventDefault()}
-        className="min-w-[15rem] rounded-md border border-border/60 p-1 shadow-lg"
-      >
-        {solutionCategories.map((category) => (
-          <Link
-            key={category.slug}
-            to={categoryLandingPath(category.slug)}
-            onClick={() => setOpen(false)}
-            className="flex min-h-10 items-center rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {category.name}
-          </Link>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
 export function HeaderCategoryNav() {
   return (
     <nav aria-label="Menú principal" className={MAIN_NAV_BAR_CLASS}>
@@ -148,7 +68,7 @@ export function HeaderCategoryNav() {
             if (item.kind === 'soluciones') {
               return (
                 <li key="soluciones" className="shrink-0">
-                  <SolutionsNavItem />
+                  <SolutionsMegaMenu />
                 </li>
               );
             }

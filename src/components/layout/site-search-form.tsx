@@ -2,6 +2,7 @@ import { useDeferredValue, useEffect, useId, useMemo, useRef, useState } from 'r
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, FolderOpen, Loader2, Search, Wrench } from 'lucide-react';
 
+import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { useProductSearch } from '@/hooks/use-product-search';
 import { categoryLandingPath } from '@/lib/category-path';
@@ -9,6 +10,7 @@ import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
 import {
   filterCategoriesBySearch,
   filterServicesBySearch,
+  groupSearchProductsByCategory,
   MIN_PRODUCT_SEARCH_LENGTH,
   PRODUCT_SEARCH_SUGGESTION_LIMIT,
   type SearchCategorySuggestion,
@@ -49,6 +51,73 @@ function SuggestionSectionHeading({ children }: { children: string }) {
     <p className="border-b border-border/60 bg-muted/25 px-3.5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
       {children}
     </p>
+  );
+}
+
+type SearchProductSuggestionRowProps = {
+  product: Product;
+  optionId: string;
+  isActive: boolean;
+  onMouseEnter: () => void;
+  onClick: () => void;
+};
+
+function SearchProductSuggestionRow({
+  product,
+  optionId,
+  isActive,
+  onMouseEnter,
+  onClick,
+}: SearchProductSuggestionRowProps) {
+  const outOfStock = isProductOutOfStock(product);
+  const code = product.code?.trim() || null;
+  const stockLabel = outOfStock ? 'Sin stock' : `Stock: ${product.stock}`;
+  const imageUrl = resolveProductImageUrl(product) ?? '/promo-cards/b2b-printer.png';
+
+  return (
+    <button
+      id={optionId}
+      type="button"
+      role="option"
+      aria-selected={isActive}
+      aria-label={[product.name, code ? `Código ${code}` : null, stockLabel, formatUsd(product.price)]
+        .filter(Boolean)
+        .join(', ')}
+      className={cn(
+        'flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition-colors',
+        isActive ? 'bg-accent' : 'hover:bg-muted/60',
+      )}
+      onMouseEnter={onMouseEnter}
+      onClick={onClick}
+    >
+      <img
+        src={imageUrl}
+        alt=""
+        className="size-11 shrink-0 rounded-md border border-border/60 bg-muted object-contain p-0.5"
+        loading="lazy"
+      />
+      <span className="min-w-0 flex-1">
+        <span className="line-clamp-2 font-medium text-foreground">{product.name}</span>
+        <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+          {code ? (
+            <span className="font-mono text-[0.7rem] tracking-tight text-muted-foreground">
+              {code}
+            </span>
+          ) : null}
+          <span
+            className={cn(
+              'font-medium',
+              outOfStock ? 'text-orange-600' : 'text-emerald-700',
+            )}
+          >
+            {stockLabel}
+          </span>
+        </span>
+      </span>
+      <span className="shrink-0 text-xs font-semibold tabular-nums text-foreground">
+        {formatUsd(product.price)}
+      </span>
+    </button>
   );
 }
 
@@ -111,13 +180,35 @@ export function SiteSearchForm({
 
   const showSuggestions = searchEnabled && !searchPending;
 
+  const productGroups = useMemo(
+    () => groupSearchProductsByCategory(productSuggestions),
+    [productSuggestions],
+  );
+
+  const groupedProductSuggestions = useMemo(
+    () => productGroups.flatMap((group) => group.products),
+    [productGroups],
+  );
+
+  const productGroupsWithIndices = useMemo(() => {
+    let index = categorySuggestions.length + serviceSuggestions.length;
+    return productGroups.map((group) => ({
+      category: group.category,
+      products: group.products.map((product) => {
+        const suggestionIndex = index;
+        index += 1;
+        return { product, suggestionIndex };
+      }),
+    }));
+  }, [productGroups, categorySuggestions.length, serviceSuggestions.length]);
+
   const suggestions = useMemo<SearchSuggestionItem[]>(
     () => [
       ...categorySuggestions,
       ...serviceSuggestions,
-      ...productSuggestions.map((product) => ({ type: 'product' as const, product })),
+      ...groupedProductSuggestions.map((product) => ({ type: 'product' as const, product })),
     ],
-    [categorySuggestions, serviceSuggestions, productSuggestions],
+    [categorySuggestions, serviceSuggestions, groupedProductSuggestions],
   );
 
   useEffect(() => {
@@ -390,57 +481,33 @@ export function SiteSearchForm({
                   </>
                 ) : null}
 
-                {productSuggestions.length > 0 ? (
-                  <>
-                    <li role="presentation">
-                      <SuggestionSectionHeading>Productos</SuggestionSectionHeading>
-                    </li>
-                    {productSuggestions.map((product, index) => {
-                      const suggestionIndex =
-                        categorySuggestions.length + serviceSuggestions.length + index;
-                      const isActive = suggestionIndex === activeIndex;
-                      const imageUrl =
-                        resolveProductImageUrl(product) ?? '/promo-cards/b2b-printer.png';
-
-                      return (
-                        <li key={product.id} role="presentation">
-                          <button
-                            id={`${listboxId}-option-${suggestionIndex}`}
-                            type="button"
-                            role="option"
-                            aria-selected={isActive}
-                            className={cn(
-                              'flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition-colors',
-                              isActive ? 'bg-accent' : 'hover:bg-muted/60',
-                            )}
-                            onMouseEnter={() => setActiveIndex(suggestionIndex)}
-                            onClick={() => activateSuggestion({ type: 'product', product })}
-                          >
-                            <img
-                              src={imageUrl}
-                              alt=""
-                              className="size-11 shrink-0 rounded-md border border-border/60 bg-muted object-contain p-0.5"
-                              loading="lazy"
-                            />
-                            <span className="min-w-0 flex-1">
-                              <span className="line-clamp-2 font-medium text-foreground">
-                                {product.name}
-                              </span>
-                              {product.category ? (
-                                <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-                                  {product.category}
-                                </span>
-                              ) : null}
-                            </span>
-                            <span className="shrink-0 text-xs font-semibold tabular-nums text-foreground">
-                              {formatUsd(product.price)}
-                            </span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </>
-                ) : null}
+                {productGroupsWithIndices.length > 0
+                  ? productGroupsWithIndices.map((group) => (
+                      <li key={`product-group-${group.category}`} role="presentation">
+                        <ul role="group" aria-label={group.category}>
+                          <li role="presentation">
+                            <SuggestionSectionHeading>{group.category}</SuggestionSectionHeading>
+                          </li>
+                          {group.products.map(({ product, suggestionIndex }) => {
+                            const isActive = suggestionIndex === activeIndex;
+                            return (
+                              <li key={product.id} role="presentation">
+                                <SearchProductSuggestionRow
+                                  product={product}
+                                  optionId={`${listboxId}-option-${suggestionIndex}`}
+                                  isActive={isActive}
+                                  onMouseEnter={() => setActiveIndex(suggestionIndex)}
+                                  onClick={() =>
+                                    activateSuggestion({ type: 'product', product })
+                                  }
+                                />
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </li>
+                    ))
+                  : null}
               </ul>
               {totalMatches > productSuggestions.length ? (
                 <div className="border-t border-border/80 px-3 py-2">

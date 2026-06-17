@@ -107,6 +107,29 @@ export function filterServicesBySearch(
     }));
 }
 
+export interface SearchProductCategoryGroup {
+  category: string;
+  products: Product[];
+}
+
+/** Agrupa resultados de búsqueda por categoría para el panel de sugerencias. */
+export function groupSearchProductsByCategory(
+  products: Product[],
+): SearchProductCategoryGroup[] {
+  const groups = new Map<string, Product[]>();
+
+  for (const product of products) {
+    const category = product.category?.trim() || 'Sin categoría';
+    const bucket = groups.get(category) ?? [];
+    bucket.push(product);
+    groups.set(category, bucket);
+  }
+
+  return Array.from(groups.entries())
+    .sort(([a], [b]) => a.localeCompare(b, 'es'))
+    .map(([category, items]) => ({ category, products: items }));
+}
+
 export function filterProductsBySearch(
   products: Product[],
   query: string,

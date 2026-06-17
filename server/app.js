@@ -46,6 +46,7 @@ app.use((req, _res, next) => {
 app.get('/api/health', async (_req, res) => {
   let catalogProducts = null;
   let catalogError = null;
+  let catalogHint = null;
 
   if (isSupabaseAuthEnabled()) {
     try {
@@ -55,9 +56,17 @@ app.get('/api/health', async (_req, res) => {
         .select('id', { count: 'exact', head: true });
       if (error) catalogError = error.message;
       else catalogProducts = count ?? 0;
+
+      if (!error && catalogProducts === 0 && shouldPreferSupabaseCatalog()) {
+        catalogHint =
+          'Catálogo vacío en Supabase. Ejecuta npm run sync:supabase y verifica SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY en Vercel (mismo proyecto que haistore.vercel.app).';
+      }
     } catch (error) {
       catalogError = error instanceof Error ? error.message : 'unknown';
     }
+  } else if (process.env.VERCEL) {
+    catalogHint =
+      'Faltan SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY en Vercel. El disco serverless es efímero; el catálogo debe vivir en Supabase.';
   }
 
   res.json({
@@ -68,6 +77,7 @@ app.get('/api/health', async (_req, res) => {
     catalogSource: shouldPreferSupabaseCatalog() ? 'supabase' : 'file',
     catalogProducts,
     catalogError,
+    catalogHint,
   });
 });
 
@@ -101,6 +111,23 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Recurso no encontrado' });
 });
 
+function resolveApiErrorStatus(message) {
+  if (/catálogo vacío|supabase no configurado|migraci[oó]n/i.test(message)) {
+    return 503;
+  }
+  return 500;
+}
+
+function resolveApiErrorBody(message, isProductRoute) {
+  if (message.includes('JSON')) {
+    return isProductRoute ? 'Datos del producto inválidos' : 'Datos de la solicitud inválidos';
+  }
+  if (/catálogo vacío|supabase|migraci[oó]n/i.test(message)) {
+    return message;
+  }
+  return 'Error interno del servidor';
+}
+
 app.use((err, _req, res, _next) => {
   console.error('[api] error:', err);
   if (err.type === 'entity.too.large') {
@@ -111,12 +138,8 @@ app.use((err, _req, res, _next) => {
   }
   const message = typeof err.message === 'string' ? err.message : 'Error interno del servidor';
   const isProductRoute = _req.path?.startsWith('/api/products');
-  res.status(500).json({
-    error: message.includes('JSON')
-      ? isProductRoute
-        ? 'Datos del producto inválidos'
-        : 'Datos de la solicitud inválidos'
-      : 'Error interno del servidor',
+  res.status(resolveApiErrorStatus(message)).json({
+    error: resolveApiErrorBody(message, isProductRoute),
   });
 });
 

@@ -1,36 +1,27 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, Menu } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
-import { CatalogMegaMenuPanel } from '@/components/layout/catalog-mega-menu-panel';
-import { Button } from '@/components/ui/button';
+import { SolutionsMegaMenuPanel } from '@/components/layout/solutions-mega-menu-panel';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { megaMenuSectionMeta, type MegaMenuSectionId } from '@/data/mega-menu';
-import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
-import { buildMegaMenuFromStoreCategories } from '@/lib/mega-menu-from-store-categories';
+import {
+  solutionsMegaMenuSectionMeta,
+  solutionsMegaMenuSidebarIds,
+  type SolutionsMegaMenuSectionId,
+} from '@/data/solutions-mega-menu';
 import { mainNavLinkClass } from '@/components/layout/main-nav-styles';
 import { cn } from '@/lib/utils';
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
-interface CategoriesMegaMenuProps {
-  triggerVariant?: 'button' | 'nav';
-}
-
-export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMegaMenuProps) {
-  const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const { sidebarSectionIds } = useMemo(
-    () => buildMegaMenuFromStoreCategories(categoryTree),
-    [categoryTree],
-  );
-
-  const defaultSection = sidebarSectionIds[0] ?? 'destacados';
+export function SolutionsMegaMenu() {
+  const defaultSection = solutionsMegaMenuSidebarIds[0] ?? 'colaboracion';
 
   const [open, setOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<MegaMenuSectionId>(defaultSection);
+  const [activeSection, setActiveSection] = useState<SolutionsMegaMenuSectionId>(defaultSection);
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -47,12 +38,6 @@ export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMega
       : 12;
     setMenuWidth(Math.max(880, window.innerWidth - left - rightMargin));
   }, []);
-
-  useEffect(() => {
-    if (!sidebarSectionIds.includes(activeSection)) {
-      setActiveSection(defaultSection);
-    }
-  }, [activeSection, defaultSection, sidebarSectionIds]);
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current) {
@@ -86,41 +71,22 @@ export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMega
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        {triggerVariant === 'nav' ? (
-          <button
-            ref={triggerRef}
-            type="button"
-            aria-haspopup="true"
-            aria-expanded={open}
-            onMouseEnter={openMenu}
-            onMouseLeave={scheduleClose}
-            onFocus={openMenu}
-            className={cn(mainNavLinkClass(open), 'gap-1')}
-          >
-            Productos
-            <ChevronDown
-              aria-hidden="true"
-              className={cn('size-3 transition-transform', open && 'rotate-180')}
-            />
-          </button>
-        ) : (
-          <Button
-            ref={triggerRef}
-            aria-haspopup="true"
-            aria-expanded={open}
-            onMouseEnter={openMenu}
-            onMouseLeave={scheduleClose}
-            onFocus={openMenu}
-            className="h-full gap-2 rounded-none bg-red-700 text-white hover:bg-red-800 focus-visible:ring-white/50 data-[state=open]:bg-red-800"
-          >
-            <Menu aria-hidden="true" />
-            Categorías
-            <ChevronDown
-              aria-hidden="true"
-              className={cn('size-4 transition-transform', open && 'rotate-180')}
-            />
-          </Button>
-        )}
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-haspopup="true"
+          aria-expanded={open}
+          onMouseEnter={openMenu}
+          onMouseLeave={scheduleClose}
+          onFocus={openMenu}
+          className={cn(mainNavLinkClass(open), 'gap-1')}
+        >
+          Soluciones
+          <ChevronDown
+            aria-hidden="true"
+            className={cn('size-3 transition-transform', open && 'rotate-180')}
+          />
+        </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
@@ -137,13 +103,12 @@ export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMega
         )}
         style={menuWidth ? { width: menuWidth, maxHeight: 'min(40rem, 82vh)' } : undefined}
       >
-        <CatalogMegaMenuPanel
+        <SolutionsMegaMenuPanel
           activeSection={activeSection}
           onSectionChange={setActiveSection}
-          sidebarSectionIds={sidebarSectionIds}
           onNavigate={closeMenu}
         />
-        <span className="sr-only">{megaMenuSectionMeta[activeSection].label}</span>
+        <span className="sr-only">{solutionsMegaMenuSectionMeta[activeSection].label}</span>
       </DropdownMenuContent>
     </DropdownMenu>
   );

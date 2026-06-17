@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
   ClipboardList,
   FileText,
@@ -31,6 +31,8 @@ interface ProductDetailHeroInfoProps {
   product: Product;
   detail: ProductDetailViewModel;
   onQuoteClick?: () => void;
+  /** Combo recomendado (toner, accesorios) renderizado arriba del precio. */
+  comboSlot?: ReactNode;
 }
 
 const actionRowItemClassName =
@@ -40,6 +42,7 @@ export function ProductDetailHeroInfo({
   product,
   detail,
   onQuoteClick,
+  comboSlot,
 }: ProductDetailHeroInfoProps) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -193,6 +196,8 @@ export function ProductDetailHeroInfo({
           })}
         </ul>
       ) : null}
+
+      {comboSlot ? <div className="mt-3 min-w-0">{comboSlot}</div> : null}
 
       <div className="mt-3 rounded-lg bg-white p-3 sm:p-3.5">
         <div className="min-w-0">

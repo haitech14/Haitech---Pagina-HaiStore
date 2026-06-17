@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 import { categoryPath } from '@/lib/category-path';
-import type { MegaMenuSectionId } from '@/data/mega-menu';
+import { megaMenuImageForSlug, type MegaMenuSectionId } from '@/data/mega-menu';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 
 export interface MegaMenuNavItem {
@@ -31,6 +31,19 @@ export interface MegaMenuNavColumn {
   id: MegaMenuSectionId;
   title: string;
   items: MegaMenuNavItem[];
+}
+
+export interface MegaMenuLinkItem {
+  name: string;
+  href: string;
+}
+
+export interface MegaMenuColumnGroup {
+  slug: string;
+  title: string;
+  image: string;
+  href: string;
+  links: MegaMenuLinkItem[];
 }
 
 type MegaMenuCatalogSectionId = Exclude<MegaMenuSectionId, 'destacados' | 'servicios'>;
@@ -149,6 +162,79 @@ function collectMenuItemsForRoot(root: StoreCategoryTreeNode): MegaMenuNavItem[]
   }
 
   return items;
+}
+
+const FALLBACK_COLUMN_IMAGE = '/categories/toner-suministros.png';
+
+function imageForNode(node: StoreCategoryTreeNode, fallbackSlug?: string): string {
+  return (
+    node.image ??
+    megaMenuImageForSlug(node.slug) ??
+    (fallbackSlug ? megaMenuImageForSlug(fallbackSlug) : undefined) ??
+    FALLBACK_COLUMN_IMAGE
+  );
+}
+
+function collectColumnGroupsForRoot(root: StoreCategoryTreeNode): MegaMenuColumnGroup[] {
+  const groups: MegaMenuColumnGroup[] = [];
+  const children = (root.children ?? []).filter(hasProducts);
+
+  if (children.length === 0) {
+    if (!hasProducts(root)) return groups;
+    groups.push({
+      slug: root.slug,
+      title: root.name,
+      image: imageForNode(root),
+      href: categoryPath(root.slug),
+      links: [{ name: `Ver ${root.name}`, href: categoryPath(root.slug) }],
+    });
+    return groups;
+  }
+
+  for (const child of children) {
+    const grandChildren = (child.children ?? []).filter(hasProducts);
+
+    if (grandChildren.length > 0) {
+      groups.push({
+        slug: child.slug,
+        title: child.name,
+        image: imageForNode(child, root.slug),
+        href: categoryPath(root.slug, child.slug),
+        links: grandChildren.map((grand) => ({
+          name: grand.name,
+          href: categoryPath(root.slug, grand.slug),
+        })),
+      });
+      continue;
+    }
+
+    if (hasProducts(child)) {
+      groups.push({
+        slug: child.slug,
+        title: child.name,
+        image: imageForNode(child, root.slug),
+        href: categoryPath(root.slug, child.slug),
+        links: [{ name: child.name, href: categoryPath(root.slug, child.slug) }],
+      });
+    }
+  }
+
+  return groups;
+}
+
+export function buildMegaMenuColumnGroupsForSection(
+  sectionId: MegaMenuCatalogSectionId,
+  tree: StoreCategoryTreeNode[],
+): MegaMenuColumnGroup[] {
+  const groups: MegaMenuColumnGroup[] = [];
+
+  for (const rootId of SECTION_ROOT_IDS[sectionId]) {
+    const root = findNodeById(tree, rootId);
+    if (!root) continue;
+    groups.push(...collectColumnGroupsForRoot(root));
+  }
+
+  return groups;
 }
 
 export function buildMegaMenuFromStoreCategories(

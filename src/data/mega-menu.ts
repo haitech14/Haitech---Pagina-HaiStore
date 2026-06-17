@@ -6,7 +6,6 @@ import {
   Laptop,
   Package,
   Printer,
-  Shield,
   Star,
   Wrench,
 } from 'lucide-react';
@@ -51,70 +50,6 @@ export const megaMenuSectionMeta: Record<
     icon: Star,
   },
 };
-
-export const megaMenuFeatured = {
-  title: 'Soluciones para oficina',
-  description: 'Equipos, tóners y repuestos con atención especializada.',
-  cta: 'Ver catálogo',
-  href: '/tienda',
-  image: '/hero-bg.png',
-  imageAlt: 'Multifuncional y laptop para oficina',
-};
-
-export interface MegaMenuPlatformLink {
-  id: string;
-  href: string;
-  logoUrl?: string;
-  logoAlt: string;
-  brandPrefix: string;
-  brandSuffix: string;
-  description: string;
-  icon?: LucideIcon;
-  external?: boolean;
-}
-
-export const megaMenuPlatforms: readonly MegaMenuPlatformLink[] = [
-  {
-    id: 'haisupport',
-    href: 'https://soporte.haitech.pe/',
-    logoUrl: '/logos/haisupport-logo.png',
-    logoAlt: 'HaiSupport',
-    brandPrefix: 'Hai',
-    brandSuffix: 'Support',
-    description: 'Gestión de soporte técnico y alquiler',
-    external: true,
-  },
-  {
-    id: 'haisales',
-    href: 'https://ventas.haitech.pe/',
-    logoUrl: '/logos/haisales-logo.png',
-    logoAlt: 'HAISales — Desarrollado por HAITECH ERP',
-    brandPrefix: 'Hai',
-    brandSuffix: 'Sales',
-    description: 'ERP, facturación y CRM empresarial',
-    external: true,
-  },
-  {
-    id: 'hairent',
-    href: categoryPath('alquiler'),
-    logoAlt: 'Alquiler de Equipos',
-    brandPrefix: 'Alquiler',
-    brandSuffix: ' de Equipos',
-    description: 'Equipos en modalidad mensual',
-    icon: KeyRound,
-    external: false,
-  },
-  {
-    id: 'haiprotect',
-    href: '/haiprotect',
-    logoAlt: 'HaiProtect',
-    brandPrefix: 'Hai',
-    brandSuffix: 'Protect',
-    description: 'Garantía extendida y protección',
-    icon: Shield,
-    external: false,
-  },
-];
 
 export interface MegaMenuServiceLink {
   slug: string;
@@ -208,6 +143,50 @@ export const megaMenuHighlightCategories: readonly MegaMenuHighlightCategory[] =
   },
 ];
 
+export interface MegaMenuStaticColumnGroup {
+  slug: string;
+  title: string;
+  image: string;
+  href: string;
+  links: { name: string; href: string }[];
+}
+
+export const megaMenuDestacadosColumnGroups: readonly MegaMenuStaticColumnGroup[] =
+  megaMenuHighlightCategories.map((category) => ({
+    slug: category.slug,
+    title: category.name,
+    image: category.image,
+    href: category.href,
+    links: [
+      { name: category.tagline, href: category.href },
+      { name: 'Ver catálogo', href: category.href },
+    ],
+  }));
+
+export const megaMenuServiciosColumnGroups: readonly MegaMenuStaticColumnGroup[] = [
+  {
+    slug: 'operacion',
+    title: 'Operación',
+    image: '/categories/alquiler.png',
+    href: '/servicios',
+    links: megaMenuServiceLinks
+      .filter((service) => service.slug === 'alquiler' || service.slug === 'outsourcing')
+      .map((service) => ({ name: service.label, href: service.href })),
+  },
+  {
+    slug: 'soporte',
+    title: 'Soporte',
+    image: '/categories/servicio-tecnico.png',
+    href: serviceHubPath('servicio-tecnico'),
+    links: megaMenuServiceLinks
+      .filter(
+        (service) =>
+          service.slug === 'servicio-tecnico' || service.slug === 'servicios-corporativos',
+      )
+      .map((service) => ({ name: service.label, href: service.href })),
+  },
+];
+
 /** Imagen de categoría por slug (subcategorías incluidas). */
 export const megaMenuCategoryImages: Record<string, string> = {
   multifuncionales: '/categories/multifuncionales.png',
@@ -232,3 +211,26 @@ export function megaMenuImageForSlug(slug: string): string | undefined {
   const root = slug.split('-')[0];
   return megaMenuCategoryImages[root];
 }
+
+export interface MegaMenuPartnerBrand {
+  id: string;
+  name: string;
+  logo: string;
+  href?: string;
+}
+
+/** Marcas con las que trabaja HaiStore (franja inferior del mega menú). */
+export const megaMenuPartnerBrands: readonly MegaMenuPartnerBrand[] = [
+  { id: 'ricoh', name: 'Ricoh', logo: '/brands/ricoh.png', href: categoryPath('multifuncionales') },
+  { id: 'canon', name: 'Canon', logo: '/brands/canon.png', href: categoryPath('impresoras') },
+  { id: 'hp', name: 'HP', logo: '/brands/hp.png', href: categoryPath('toner-suministros') },
+  { id: 'epson', name: 'Epson', logo: '/brands/epson.png', href: categoryPath('impresoras') },
+  {
+    id: 'konica-minolta',
+    name: 'Konica Minolta',
+    logo: '/brands/konica-minolta.png',
+    href: categoryPath('multifuncionales'),
+  },
+  { id: 'kyocera', name: 'Kyocera', logo: '/brands/kyocera.png', href: categoryPath('multifuncionales') },
+  { id: 'pantum', name: 'Pantum', logo: '/brands/pantum.png', href: categoryPath('impresoras') },
+];

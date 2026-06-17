@@ -215,6 +215,37 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const showComboSection =
     detail.isPrinterEquipment && (catalogLoading || frequentlyBought.length > 0);
 
+  const comboSlot = showComboSection ? (
+    catalogLoading ? (
+      <div
+        className="overflow-hidden rounded-md border border-border/40 bg-muted/15"
+        role="status"
+        aria-live="polite"
+        aria-label="Cargando recomendaciones"
+      >
+        <div className="px-2.5 py-2">
+          <div className="h-3 w-40 animate-pulse rounded bg-muted" />
+          <div className="mt-2 grid grid-cols-3 gap-1.5">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="h-16 animate-pulse rounded-md bg-muted/50" />
+            ))}
+          </div>
+        </div>
+      </div>
+    ) : frequentlyBought.length > 0 ? (
+      <ProductDetailCombo
+        items={frequentlyBought}
+        mainProduct={product}
+        catalogProducts={catalogProducts}
+        title="Recomendado para este equipo"
+        subtitle={`Toner, accesorios y garantía para ${detail.shortTitle}`}
+        compact
+        mini
+        embedded
+      />
+    ) : null
+  ) : null;
+
   const heroGridClass =
     'grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-6 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] xl:gap-7';
 
@@ -238,39 +269,8 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               product={product}
               detail={detail}
               onQuoteClick={() => setQuoteOpen(true)}
+              comboSlot={comboSlot}
             />
-
-            {showComboSection ? (
-              <div className="min-w-0">
-                {catalogLoading ? (
-                  <div
-                    className="overflow-hidden rounded-lg border border-border/40 bg-muted/20"
-                    role="status"
-                    aria-live="polite"
-                    aria-label="Cargando recomendaciones"
-                  >
-                    <div className="px-3 py-3">
-                      <div className="h-4 w-48 animate-pulse rounded bg-muted" />
-                      <div className="mt-3 grid grid-cols-3 gap-2">
-                        {Array.from({ length: 3 }).map((_, index) => (
-                          <div key={index} className="h-24 animate-pulse rounded-lg bg-muted/50" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : frequentlyBought.length > 0 ? (
-                  <ProductDetailCombo
-                    items={frequentlyBought}
-                    mainProduct={product}
-                    catalogProducts={catalogProducts}
-                    title="Recomendado para este equipo"
-                    subtitle={`Toner, accesorios y garantía para ${detail.shortTitle}`}
-                    compact
-                    embedded
-                  />
-                ) : null}
-              </div>
-            ) : null}
           </div>
         </div>
 

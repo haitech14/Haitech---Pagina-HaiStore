@@ -97,24 +97,45 @@ let bootstrapPromise = null;
 
 const SUPABASE_PRODUCTS_PAGE_SIZE = 1000;
 
+function isSupabaseSchemaColumnError(error) {
+  const message = String(error?.message ?? error ?? '');
+  return /column|schema cache|Could not find/i.test(message);
+}
+
+async function fetchProductPageFromSupabase(supabase, offset, { ordered }) {
+  let query = supabase.from('products').select('*');
+  if (ordered) {
+    query = query.order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+  } else {
+    query = query.order('id', { ascending: true });
+  }
+  return query.range(offset, offset + SUPABASE_PRODUCTS_PAGE_SIZE - 1);
+}
+
 async function fetchAllProductRowsFromSupabase(supabase) {
   /** @type {Record<string, unknown>[]} */
   const rows = [];
   let offset = 0;
+  let ordered = true;
 
   while (true) {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true })
-      .range(offset, offset + SUPABASE_PRODUCTS_PAGE_SIZE - 1);
+    let result = await fetchProductPageFromSupabase(supabase, offset, { ordered });
 
-    if (error) {
-      throw error;
+    if (result.error && ordered && isSupabaseSchemaColumnError(result.error)) {
+      console.warn(
+        '[catalog] columnas de orden faltantes; reintento sin sort_order (aplica migración 005).',
+      );
+      ordered = false;
+      offset = 0;
+      rows.length = 0;
+      result = await fetchProductPageFromSupabase(supabase, offset, { ordered });
     }
 
-    const page = data ?? [];
+    if (result.error) {
+      throw result.error;
+    }
+
+    const page = result.data ?? [];
     rows.push(...page);
 
     if (page.length < SUPABASE_PRODUCTS_PAGE_SIZE) {
