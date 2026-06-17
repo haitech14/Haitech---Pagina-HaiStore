@@ -137,6 +137,22 @@ const IM430F_CURATED_ACCESSORIES: CuratedAccessory[] = [
       /print cartridge im\s*430/i,
     ],
   },
+  {
+    id: 'combo-gabinete-alto-tipo-i',
+    name: 'Gabinete alto Tipo I',
+    priceUsd: 280,
+    fallbackImage: '/categories/repuestos.png',
+    defaultSelected: false,
+    matchPatterns: [/gabinete alto.*tipo\s*i/i, /gabinete.*tipo\s*i/i],
+  },
+  {
+    id: 'combo-garantia-extendida-im430f',
+    name: 'Garantía Extendida',
+    priceUsd: 149,
+    fallbackImage: '/categories/accesorios-impresoras.png',
+    defaultSelected: false,
+    matchPatterns: [/garant[ií]a extendida/i, /garant[ií]a adicional/i],
+  },
 ];
 
 function matchesCuratedAccessory(product: Product, accessory: CuratedAccessory): boolean {
