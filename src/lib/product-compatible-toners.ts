@@ -1,8 +1,12 @@
 import { isPrinterEquipment } from '@/lib/build-product-detail';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
+import { ensureFullPrices } from '@/lib/roles';
 import type { ProductComboItem } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 import { usdToPen } from '@/lib/utils';
+
+const TONER_STOCK_IMAGE = '/categories/toner-suministros.png';
+const IM430F_TONER_CATALOG_ID = 'toner-419078';
 
 function normalizeText(value: string): string {
   return value
@@ -11,6 +15,11 @@ function normalizeText(value: string): string {
     .replace(/\p{M}/gu, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function isIm430fEquipment(equipment: Product): boolean {
+  if (equipment.id === 'ricoh-im-430f') return true;
+  return /\bim\s*430f\b/i.test(equipment.name);
 }
 
 function isConsumableProduct(product: Product): boolean {
@@ -76,8 +85,25 @@ function consumableMatchesEquipment(consumable: Product, keys: string[]): boolea
   });
 }
 
+function isMisassignedEquipmentImage(url: string | undefined): boolean {
+  if (!url) return false;
+  return (
+    url === '/products/ricoh-im-430f.webp' ||
+    url === '/products/ricoh-im-430f.png' ||
+    url.startsWith('/categories/multifuncionales') ||
+    url.startsWith('/categories/impresoras') ||
+    url.startsWith('/promo-cards/b2b-printer')
+  );
+}
+
+function resolveComboConsumableImage(product: Product, fallback = TONER_STOCK_IMAGE): string {
+  const candidate = buildProductImageCandidates(product)[0];
+  if (candidate && !isMisassignedEquipmentImage(candidate)) return candidate;
+  return fallback;
+}
+
 function productToComboItem(product: Product, defaultSelected: boolean): ProductComboItem {
-  const image = buildProductImageCandidates(product)[0] ?? '/categories/toner-suministros.png';
+  const image = resolveComboConsumableImage(product);
   return {
     id: product.id,
     productId: product.id,
@@ -89,21 +115,81 @@ function productToComboItem(product: Product, defaultSelected: boolean): Product
   };
 }
 
-const FALLBACK_BY_EQUIPMENT_ID: Record<string, ProductComboItem> = {
-  'ricoh-im-430f': {
-    id: 'combo-toner-430f',
-    name: 'Tóner RICOH IM 430F (15,500 páginas)',
-    image: '/categories/toner-suministros.png',
-    pricePen: 680,
+interface CuratedAccessory {
+  id: string;
+  name: string;
+  priceUsd: number;
+  fallbackImage: string;
+  defaultSelected: boolean;
+  matchPatterns: RegExp[];
+}
+
+const IM430F_CURATED_ACCESSORIES: CuratedAccessory[] = [
+  {
+    id: 'combo-toner-cartucho-im430f',
+    name: 'Toner Cartucho RICOH IM 430F',
+    priceUsd: 68,
+    fallbackImage: '/products/toner-419078.webp',
     defaultSelected: true,
+    matchPatterns: [
+      /cartucho.*im\s*430/i,
+      /toner.*im\s*430/i,
+      /print cartridge im\s*430/i,
+    ],
   },
-};
+];
+
+function matchesCuratedAccessory(product: Product, accessory: CuratedAccessory): boolean {
+  const haystack = normalizeText(`${product.name} ${product.description ?? ''} ${product.category ?? ''}`);
+  return accessory.matchPatterns.some((pattern) => pattern.test(haystack));
+}
+
+function resolveCatalogPublicUsd(product: Product): number {
+  return product.prices ? ensureFullPrices(product.prices).public : product.price;
+}
+
+function findCuratedCatalogMatch(accessory: CuratedAccessory, catalog: Product[]): Product | undefined {
+  if (accessory.id === 'combo-toner-cartucho-im430f') {
+    const preferred = catalog.find((row) => row.id === IM430F_TONER_CATALOG_ID);
+    if (preferred) return preferred;
+  }
+
+  return catalog.find((row) => matchesCuratedAccessory(row, accessory));
+}
+
+function buildCuratedComboItem(accessory: CuratedAccessory, catalog: Product[]): ProductComboItem {
+  const matched = findCuratedCatalogMatch(accessory, catalog);
+  const linkedProduct =
+    accessory.id === 'combo-toner-cartucho-im430f' && matched?.id === IM430F_TONER_CATALOG_ID
+      ? matched
+      : matched && Math.abs(resolveCatalogPublicUsd(matched) - accessory.priceUsd) < 0.01
+        ? matched
+        : undefined;
+
+  return {
+    id: linkedProduct?.id ?? accessory.id,
+    ...(linkedProduct ? { productId: linkedProduct.id } : {}),
+    name: accessory.name,
+    image: accessory.fallbackImage,
+    pricePen: usdToPen(accessory.priceUsd),
+    priceUsd: accessory.priceUsd,
+    defaultSelected: accessory.defaultSelected,
+  };
+}
+
+function resolveIm430fFrequentlyBought(_equipment: Product, catalog: Product[]): ProductComboItem[] {
+  return IM430F_CURATED_ACCESSORIES.map((item) => buildCuratedComboItem(item, catalog));
+}
 
 export function resolveFrequentlyBoughtItems(
   equipment: Product,
   catalog: Product[],
 ): ProductComboItem[] {
   if (!isPrinterEquipment(equipment)) return [];
+
+  if (isIm430fEquipment(equipment)) {
+    return resolveIm430fFrequentlyBought(equipment, catalog);
+  }
 
   const keys = extractSearchKeys(equipment);
   const matched = catalog
@@ -115,9 +201,6 @@ export function resolveFrequentlyBoughtItems(
   if (matched.length > 0) {
     return matched.map((row, index) => productToComboItem(row, index === 0));
   }
-
-  const fallback = FALLBACK_BY_EQUIPMENT_ID[equipment.id];
-  if (fallback) return [fallback];
 
   const brand = (equipment.brand ?? '').toLowerCase();
   if (brand) {

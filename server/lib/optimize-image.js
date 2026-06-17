@@ -1,5 +1,7 @@
 import sharp from 'sharp';
 
+import { isImageMediaUrl } from '../../shared/product-media.js';
+
 const WEBP_QUALITY = 82;
 /** Por debajo de esto no reoptimizar (ya es liviano para web). */
 const MAX_BYTES_BEFORE_OPTIMIZE = 140_000;
@@ -54,22 +56,30 @@ export async function optimizeImageDataUrl(dataUrl, options = {}) {
  */
 export async function optimizeProductMedia(product) {
   const gallery = Array.isArray(product.gallery) ? product.gallery : [];
-  const optimizedGallery = await Promise.all(gallery.map((url) => optimizeImageDataUrl(url)));
-  const image_url = product.image_url
+  const optimizedGallery = await Promise.all(
+    gallery.map((url) =>
+      typeof url === 'string' && url.startsWith('data:image/')
+        ? optimizeImageDataUrl(url)
+        : Promise.resolve(url),
+    ),
+  );
+  const optimizedImageUrl = product.image_url
     ? await optimizeImageDataUrl(product.image_url)
-    : optimizedGallery[0] ?? null;
+    : null;
 
   const deduped = [];
   const seen = new Set();
-  for (const url of [image_url, ...optimizedGallery]) {
+  for (const url of [optimizedImageUrl, ...optimizedGallery]) {
     if (!url || seen.has(url)) continue;
     seen.add(url);
     deduped.push(url);
   }
 
+  const image_url = deduped.find((url) => isImageMediaUrl(url)) ?? null;
+
   return {
     ...product,
-    image_url: deduped[0] ?? null,
+    image_url,
     gallery: deduped,
   };
 }

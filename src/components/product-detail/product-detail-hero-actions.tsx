@@ -10,7 +10,7 @@ interface ProductDetailHeroActionsProps {
 }
 
 const actionClassName =
-  'inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-[#0f1f3d]/25 bg-background px-3 text-xs font-medium text-[#0f1f3d] transition-colors hover:border-[#0f1f3d]/45 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f1f3d] sm:text-sm';
+  'inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm font-semibold text-[#0f1f3d] transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f1f3d]';
 
 export function ProductDetailHeroActions({
   onQuoteClick,
@@ -18,19 +18,18 @@ export function ProductDetailHeroActions({
   className,
   fullWidth = false,
 }: ProductDetailHeroActionsProps) {
-  const itemClassName = cn(actionClassName, fullWidth && 'min-h-10 w-full flex-1 sm:w-auto');
+  const itemClassName = cn(actionClassName, fullWidth && 'min-h-11 w-full');
 
   return (
     <div
       className={cn(
-        'flex flex-wrap items-stretch gap-2',
-        fullWidth ? 'w-full flex-col sm:flex-row' : 'shrink-0 justify-end',
+        fullWidth ? 'grid w-full grid-cols-2 gap-2.5' : 'flex shrink-0 flex-wrap items-stretch justify-end gap-2',
         className,
       )}
     >
       <button type="button" onClick={onQuoteClick} className={itemClassName}>
         <FileText className="size-4 shrink-0 text-red-600" aria-hidden="true" />
-        Generar Cotización
+        Crear Cotización
       </button>
 
       {technicalSheetUrl ? (

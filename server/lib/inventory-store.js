@@ -373,8 +373,21 @@ export async function readInventory() {
     result = { products, deletedProductIds, warehouses };
   }
 
-  inventoryReadCache = result;
-  inventoryReadCacheAt = now;
+  const preferSupabase = shouldPreferSupabaseCatalog();
+  const shouldCacheResult =
+    result.products.length > 0 || !preferSupabase || !process.env.VERCEL;
+
+  if (preferSupabase && process.env.VERCEL && result.products.length === 0) {
+    console.error('[inventory] catálogo vacío en Vercel con Supabase; no se cachea');
+    throw new Error(
+      'Catálogo vacío en producción. Ejecuta npm run sync:supabase y verifica SUPABASE_* en Vercel.',
+    );
+  }
+
+  if (shouldCacheResult) {
+    inventoryReadCache = result;
+    inventoryReadCacheAt = now;
+  }
   return result;
 }
 

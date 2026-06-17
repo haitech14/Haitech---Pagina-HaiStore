@@ -13,7 +13,7 @@ export function ProductDetailBreadcrumbs({ items, className }: ProductDetailBrea
 
   return (
     <nav aria-label="Migas de pan" className={cn('mb-5 text-xs sm:text-sm', className)}>
-      <ol className="flex flex-wrap items-center gap-y-1">
+      <ol className="flex flex-wrap items-center gap-y-1 sm:flex-nowrap">
         {items.map((crumb, index) => {
           const isLast = index === items.length - 1;
 
@@ -28,7 +28,7 @@ export function ProductDetailBreadcrumbs({ items, className }: ProductDetailBrea
               {crumb.href && !isLast ? (
                 <Link
                   to={crumb.href}
-                  className="text-muted-foreground transition-colors hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+                  className="text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
                 >
                   {crumb.label}
                 </Link>
@@ -36,7 +36,7 @@ export function ProductDetailBreadcrumbs({ items, className }: ProductDetailBrea
                 <span
                   className={cn(
                     'line-clamp-1 text-pretty',
-                    isLast ? 'font-medium text-red-600' : 'text-muted-foreground',
+                    isLast ? 'font-medium text-muted-foreground' : 'text-muted-foreground',
                   )}
                   aria-current={isLast ? 'page' : undefined}
                 >

@@ -12,6 +12,8 @@ import {
 } from '@/lib/exchange-rate';
 import {
   appendGalleryImagesToProduct,
+  appendGalleryVideosToProduct,
+  appendYoutubeToProduct,
   prepareInventoryPayloadForApi,
 } from '@/lib/inventory-product';
 
@@ -197,6 +199,41 @@ export function InventoryRowCells({
       }
     };
 
+    const persistUploadedVideos = async (files: FileList) => {
+      const selected = [...files];
+      if (selected.length === 0) return;
+
+      setAddingGallery(true);
+      try {
+        const media = await appendGalleryVideosToProduct(product, selected);
+        await saveMedia(media);
+        toast.success(selected.length === 1 ? 'Vídeo guardado' : 'Vídeos guardados');
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : 'No se pudo guardar el vídeo del producto',
+        );
+        throw error;
+      } finally {
+        setAddingGallery(false);
+      }
+    };
+
+    const persistYoutubeUrl = async (youtubeInput: string) => {
+      setAddingGallery(true);
+      try {
+        const media = appendYoutubeToProduct(product, youtubeInput);
+        await saveMedia(media);
+        toast.success('Vídeo de YouTube agregado');
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : 'No se pudo agregar el vídeo de YouTube',
+        );
+        throw error;
+      } finally {
+        setAddingGallery(false);
+      }
+    };
+
     const handleUploadMain = (files: FileList) => persistUploadedFiles(files, 1);
     const handleAddGallery = (files: FileList) => persistUploadedFiles(files);
 
@@ -207,6 +244,8 @@ export function InventoryRowCells({
           onPreview={() => setPreviewOpen(true)}
           onUploadMain={handleUploadMain}
           onAddGallery={handleAddGallery}
+          onAddVideo={persistUploadedVideos}
+          onAddYoutube={persistYoutubeUrl}
           isAddingGallery={addingGallery}
         />
         <InventoryImagePreviewDialog

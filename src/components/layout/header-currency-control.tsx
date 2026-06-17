@@ -186,17 +186,17 @@ function HeaderCartExchangeRate({ className }: { className?: string }) {
   );
 }
 
-/** T.C. arriba y selector $ / S/ / $S/ a la derecha. */
+/** T.C. y selector $ / S/ / $S/ en una sola fila. */
 export function HeaderCartExchangeBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'flex min-h-9 shrink-0 flex-col items-end justify-center gap-0.5 px-3 py-1',
+        'flex min-h-9 shrink-0 flex-row items-center gap-2 px-3 py-1',
         className,
       )}
       aria-label="Tipo de cambio y moneda de visualización"
     >
-      <HeaderCartExchangeRate className="text-right" />
+      <HeaderCartExchangeRate />
       <HeaderCurrencySymbolToggle />
     </div>
   );

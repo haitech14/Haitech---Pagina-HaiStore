@@ -7,8 +7,11 @@ import {
   FileText,
   FlipHorizontal2,
   Gauge,
+  Grid3x3,
   Inbox,
   Layers,
+  Leaf,
+  Monitor,
   Lock,
   Network,
   Printer,
@@ -30,14 +33,16 @@ import type {
   ProductDescriptionHighlight,
   ProductDescriptionVisual,
   ProductDetailViewModel,
+  ProductFeatureCard,
   ProductFeatureIcon,
   ProductGalleryItem,
+  ProductHeroSpecBullet,
   ProductSpecRow,
 } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 import { productHasNuevoCornerBadge } from '@/lib/product-detail-badges';
 import { findTechnicalSheetAttachment } from '@/lib/inventory-attachments';
-import { collectProductImageUrls } from '@/lib/product-media';
+import { buildProductGalleryItems } from '@/lib/product-media';
 import { ensureFullPrices } from '@/lib/roles';
 import { usdToPen } from '@/lib/utils';
 
@@ -71,6 +76,147 @@ const IM430F_BULLETS = [
   'Escaneo a color',
   'Conectividad móvil y nube',
 ];
+
+const IM430F_HERO_SPEC_BULLETS: ProductHeroSpecBullet[] = [
+  { label: 'Multifunción 4 en 1', value: 'impresión, copia, escaneo y fax' },
+  { label: 'Velocidad de impresión', value: 'hasta 45 ppm (A4)' },
+  { label: 'Calidad de impresión', value: '1200 x 1200 dpi' },
+  { label: 'Pantalla', value: 'táctil a color de 10.1"' },
+  { label: 'Conectividad', value: 'Wi-Fi, USB, LAN' },
+  {
+    label: 'Manejo de papel',
+    value: 'casetera 500 hojas + bypass 80 hojas | ADF dúplex 50 hojas',
+  },
+  { label: 'Rendimiento de tóner', value: 'hasta 15,000 páginas' },
+];
+
+const IM430F_HERO_LEAD = '';
+
+const IM430F_HERO_DESCRIPTION = '';
+
+const IM430F_FEATURE_BAR: ProductDescriptionHighlight[] = [
+  { icon: Gauge, title: '45 ppm', subtitle: 'Velocidad de impresión' },
+  { icon: Wifi, title: 'Wi-Fi', subtitle: 'Conectividad inalámbrica' },
+  { icon: Smartphone, title: 'Pantalla 10.1"', subtitle: 'Smart Operation Panel' },
+  { icon: Inbox, title: 'ADF', subtitle: 'Alimentador automático' },
+  { icon: Layers, title: '550 hojas', subtitle: 'Capacidad estándar' },
+  { icon: ScanLine, title: 'Escaneo a color', subtitle: 'Calidad profesional' },
+];
+
+function buildHeroSpecTitle(_product: Product, _isPrinter: boolean): string | null {
+  return null;
+}
+
+function buildHeroSpecBullets(
+  product: Product,
+  specs: ProductSpecRow[],
+  isPrinter: boolean,
+): ProductHeroSpecBullet[] {
+  if (!isPrinter) return [];
+  if (isIm430f(product)) return IM430F_HERO_SPEC_BULLETS;
+
+  const bullets: ProductHeroSpecBullet[] = [];
+
+  const functions = specs.find((row) => row.label === 'Funciones');
+  if (functions) {
+    bullets.push({ icon: Copy, text: 'Copiadora, Impresora, Escaner y fax' });
+  }
+
+  const speed = specs.find((row) => row.label === 'Velocidad');
+  const format = specs.find(
+    (row) => row.label === 'Formatos' || row.label === 'Formato' || row.label === 'Formato papel',
+  );
+  if (speed) {
+    const ppm = /^hasta\s/i.test(speed.value) ? speed.value : `hasta ${speed.value}`;
+    const formatoSuffix = format?.value.toLowerCase().includes('a4') ? ' en Formato A4' : '';
+    bullets.push({ icon: Printer, text: `Imprime ${ppm}${formatoSuffix}` });
+  } else if (format?.value.toLowerCase().includes('a4')) {
+    bullets.push({ icon: FileText, text: 'Formato A4' });
+  }
+
+  const resolution = specs.find((row) => row.label.toLowerCase().includes('resolución'));
+  if (resolution) {
+    bullets.push({
+      icon: Grid3x3,
+      text: `Resolución de impresión: ${resolution.value.replace(/^hasta\s+/i, '')}`,
+    });
+  }
+
+  const screen = specs.find((row) => row.label === 'Pantalla');
+  if (screen) {
+    bullets.push({ icon: Monitor, text: screen.value });
+  }
+
+  const connectivity = specs.find((row) => row.label === 'Conectividad');
+  if (connectivity) {
+    const formatted = connectivity.value
+      .replace(/\s*\/\s*/g, ', ')
+      .replace(/\s+y\s+/i, ', ')
+      .replace(/Red/gi, 'LAN');
+    bullets.push({ icon: Wifi, text: `Conectividad: ${formatted}` });
+  }
+
+  const paper = specs.find((row) => row.label.toLowerCase().includes('papel'));
+  if (paper) {
+    bullets.push({ icon: Layers, text: `Capacidad de papel: ${paper.value}` });
+  }
+
+  const adf = specs.find((row) => row.label.toLowerCase().includes('adf'));
+  if (adf) {
+    bullets.push({ icon: ScanLine, text: adf.value });
+  }
+
+  const volume = specs.find((row) => row.label.toLowerCase().includes('volumen'));
+  if (volume) {
+    const monthly = volume.value.replace(/^hasta\s+/i, '');
+    bullets.push({
+      icon: Gauge,
+      text: `Ciclo Mensual: ${monthly}`,
+    });
+  } else if (functions && bullets.length < 9) {
+    bullets.push({ icon: ScanLine, text: functions.value });
+  }
+
+  return bullets.slice(0, 9);
+}
+
+function resolveHeroLead(product: Product, isPrinter: boolean, isSupply: boolean): string {
+  if (isIm430f(product)) return IM430F_HERO_LEAD;
+  if (isPrinter) {
+    return (
+      product.description ??
+      'Equipo multifuncional profesional diseñado para oficinas que buscan productividad y confiabilidad.'
+    );
+  }
+  if (isSupply) return 'Consumible compatible de alta calidad para un rendimiento constante.';
+  return product.category ?? 'Producto HaiStore';
+}
+
+function resolveHeroDescription(product: Product, isPrinter: boolean, isSupply: boolean): string {
+  if (isIm430f(product)) return IM430F_HERO_DESCRIPTION;
+  if (isPrinter) {
+    return (
+      product.description ??
+      'Rendimiento, conectividad y facilidad de uso en un solo equipo. Consulta con nuestros asesores la configuración ideal para tu operación.'
+    );
+  }
+  if (isSupply) {
+    return 'Calidad de impresión consistente y compatibilidad verificada para tu equipo.';
+  }
+  return product.description ?? '';
+}
+
+function resolveHeroCategoryLabel(product: Product, isPrinter: boolean): string {
+  if (isIm430f(product)) return 'Multifuncional monocromo';
+  if (isPrinter) {
+    const haystack = `${product.name} ${product.category ?? ''}`.toLowerCase();
+    if (haystack.includes('color') || haystack.includes('a color')) {
+      return 'Multifuncional a color';
+    }
+    return 'Multifuncional monocromo';
+  }
+  return product.category ?? 'Productos';
+}
 
 function buildHeroHighlights(
   specs: ProductSpecRow[],
@@ -184,6 +330,40 @@ function shortenMonthlyVolume(value: string): string {
   return `${formatted} páginas x mes`;
 }
 
+function buildFeatureBar(
+  product: Product,
+  specs: ProductSpecRow[],
+  isPrinter: boolean,
+): ProductDescriptionHighlight[] {
+  if (!isPrinter) return [];
+  if (isIm430f(product)) return IM430F_FEATURE_BAR;
+
+  const speed = specValue(specs, 'velocidad') || '40 ppm';
+  const screen = specValue(specs, 'pantalla');
+  const paper = specValue(specs, 'capacidad', 'papel');
+
+  return [
+    {
+      icon: Gauge,
+      title: speed.replace(/^hasta\s+/i, ''),
+      subtitle: 'Velocidad de impresión',
+    },
+    { icon: Wifi, title: 'Wi-Fi', subtitle: 'Conectividad inalámbrica' },
+    {
+      icon: Smartphone,
+      title: screen ? shortenScreenLabel(screen) : 'Pantalla táctil',
+      subtitle: 'Panel de operación',
+    },
+    { icon: Inbox, title: 'ADF', subtitle: 'Alimentador automático' },
+    {
+      icon: Layers,
+      title: paper ? paper.replace(/.*(\d[\d.,]*\s*hojas?).*/i, '$1') : 'Bandeja estándar',
+      subtitle: 'Capacidad estándar',
+    },
+    { icon: ScanLine, title: 'Escaneo a color', subtitle: 'Calidad profesional' },
+  ];
+}
+
 function buildDescriptionVisual(
   product: Product,
   specs: ProductSpecRow[],
@@ -221,7 +401,52 @@ function buildDescriptionVisual(
   };
 }
 
+const IM430F_FEATURE_CARDS: ProductFeatureCard[] = [
+  {
+    icon: Printer,
+    title: 'Alto rendimiento',
+    description:
+      'Imprime hasta 43 páginas por minuto para mantener la productividad de tu equipo.',
+  },
+  {
+    icon: Copy,
+    title: 'Multifunción 5 en 1',
+    description:
+      'Imprime, copia, escanea, faxea y almacena documentos desde un solo dispositivo.',
+  },
+  {
+    icon: Monitor,
+    title: 'Experiencia intuitiva',
+    description: 'Pantalla táctil inteligente de 4.3 pulgadas para una operación rápida y sencilla.',
+  },
+  {
+    icon: Network,
+    title: 'Conectividad flexible',
+    description: 'Compatible con dispositivos móviles, servicios en la nube y diversas soluciones.',
+  },
+  {
+    icon: Shield,
+    title: 'Seguridad avanzada',
+    description: 'Protege tu información con funciones de seguridad líderes en la industria.',
+  },
+  {
+    icon: Leaf,
+    title: 'Eficiencia sostenible',
+    description:
+      'Diseñada para reducir el consumo de energía y el impacto ambiental sin comprometer el rendimiento.',
+  },
+];
+
 const IM430F_DESCRIPTION: ProductDescriptionContent = {
+  overviewTitle: 'Diseñada para la productividad',
+  overviewParagraphs: [
+    'La RICOH IM 430F mejora los flujos de trabajo documentales y optimiza la eficiencia de tu negocio con funciones inteligentes y una alta confiabilidad.',
+  ],
+  overviewLink: {
+    label: 'Más información sobre la serie IM 430',
+    href: '/tienda',
+  },
+  featureCards: IM430F_FEATURE_CARDS,
   paragraphs: [
     'La RICOH IM 430F es una impresora multifuncional inteligente diseñada para oficinas que buscan productividad, velocidad y eficiencia. Ofrece hasta 45 ppm, pantalla Smart Operation Panel de 10.1" y conectividad móvil y en la nube para flujos de trabajo modernos.',
     'Ideal para equipos que necesitan impresión, copiado, escaneo y fax en un solo equipo compacto, con calidad homogénea y control de costos operativos.',
@@ -241,19 +466,31 @@ function buildDescriptionContent(product: Product, isPrinter: boolean, isSupply:
   if (isIm430f(product)) return IM430F_DESCRIPTION;
 
   if (isPrinter) {
+    const highlights = [
+      { icon: Gauge, title: 'Alta velocidad', subtitle: 'Rendimiento constante en impresión y copiado' },
+      { icon: Inbox, title: 'Gran capacidad', subtitle: 'Bandejas ampliadas para alto volumen' },
+      { icon: Settings, title: 'Panel inteligente', subtitle: 'Operación intuitiva con pantalla táctil' },
+      { icon: Cloud, title: 'Conectividad', subtitle: 'Impresión móvil y en la nube' },
+      { icon: Lock, title: 'Seguridad', subtitle: 'Protección de documentos y accesos' },
+      { icon: Leaf, title: 'Eficiencia energética', subtitle: 'Menor consumo sin sacrificar rendimiento' },
+    ];
     return {
+      overviewTitle: 'Diseñada para la productividad',
+      overviewParagraphs: [
+        product.description ??
+          'Equipo multifuncional profesional diseñado para oficinas que buscan productividad, conectividad y control de costos operativos.',
+      ],
+      featureCards: highlights.map((item) => ({
+        icon: item.icon,
+        title: item.title,
+        description: item.subtitle,
+      })),
       paragraphs: [
         product.description ??
           'Equipo multifuncional profesional diseñado para oficinas que buscan productividad, conectividad y control de costos operativos.',
         'Compatible con impresión móvil, escaneo a carpetas y servicios en la nube para equipos de trabajo híbridos.',
       ],
-      highlights: [
-        { icon: Gauge, title: 'Alta velocidad', subtitle: 'Rendimiento constante en impresión y copiado' },
-        { icon: Inbox, title: 'Gran capacidad', subtitle: 'Bandejas ampliadas para alto volumen' },
-        { icon: Settings, title: 'Panel inteligente', subtitle: 'Operación intuitiva con pantalla táctil' },
-        { icon: Cloud, title: 'Conectividad', subtitle: 'Impresión móvil y en la nube' },
-        { icon: Lock, title: 'Seguridad', subtitle: 'Protección de documentos y accesos' },
-      ],
+      highlights,
     };
   }
 
@@ -372,7 +609,7 @@ function resolveDetailDisplayTitle(product: Product, brandLabel: string): string
 
 function resolveDisplaySubtitle(product: Product, isPrinter: boolean, isSupply: boolean): string {
   if (isIm430f(product)) {
-    return 'Impresora multifuncional inteligente';
+    return IM430F_HERO_LEAD;
   }
   if (isPrinter) {
     return (
@@ -427,48 +664,17 @@ function buildTagPills(
 }
 
 function buildGallery(product: Product): ProductGalleryItem[] {
-  const isPrinter = isPrinterEquipment(product);
+  const items = buildProductGalleryItems(product);
+  if (items.length > 0) return items;
+
   const isSupply = isSupplyProduct(product);
-  const description = buildDescriptionContent(product, isPrinter, isSupply);
-
-  const inventoryUrls = collectProductImageUrls(product);
-  const items: ProductGalleryItem[] = inventoryUrls.map((src, index) => ({
-    type: 'image' as const,
-    src,
-    alt: index === 0 ? product.name : `${product.name} — imagen ${index + 1}`,
-  }));
-
-  if (items.length === 0) {
-    items.push({
+  return [
+    {
       type: 'image',
       src: isSupply ? '/categories/toner-suministros.png' : '/categories/multifuncionales.png',
       alt: product.name,
-    });
-  }
-
-  const youtubeId =
-    description?.youtubeVideoId ??
-    (isIm430f(product) ? IM430F_DESCRIPTION.youtubeVideoId : undefined);
-
-  if (youtubeId) {
-    const alreadyHasVideo = items.some(
-      (item) => item.type === 'video' && item.youtubeId === youtubeId,
-    );
-    if (!alreadyHasVideo) {
-      items.push({
-        type: 'video',
-        youtubeId,
-        ...(description?.youtubeTitle || IM430F_DESCRIPTION.youtubeTitle
-          ? {
-              title: description?.youtubeTitle ?? IM430F_DESCRIPTION.youtubeTitle,
-            }
-          : {}),
-        poster: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
-      });
-    }
-  }
-
-  return items;
+    },
+  ];
 }
 
 function buildSupplySpecs(product: Product): ProductSpecRow[] {
@@ -804,9 +1010,11 @@ function resolvePricing(
   }
 
   if (isIm430f(product)) {
+    const discountPercent = 21;
+    const oldPriceUsd = Math.round((product.price / (1 - discountPercent / 100)) * 100) / 100;
     return {
-      oldPricePen: 3299,
-      discountPercent: 21,
+      oldPricePen: usdToPen(oldPriceUsd),
+      discountPercent,
       isOnOffer: true,
     };
   }
@@ -835,9 +1043,7 @@ export function buildProductDetail(
   const isPrinter = isPrinterEquipment(product);
   const isSupply = isSupplyProduct(product);
   const brandLabel = product.brand ?? (isSupply ? 'Compatible' : 'Haitech');
-  const categoryLabel = isPrinter
-    ? `Equipo ${product.category ?? 'Multifuncionales Remanufacturadas'}`
-    : (product.category ?? 'Productos');
+  const categoryLabel = resolveHeroCategoryLabel(product, isPrinter);
 
   const pricing = resolvePricing(product, featuredMeta);
   const sku = isIm430f(product) ? '9900129' : skuFromId(product.id);
@@ -858,6 +1064,8 @@ export function buildProductDetail(
 
   const shortTitle = resolveShortTitle(product, isPrinter);
   const displaySubtitle = resolveDisplaySubtitle(product, isPrinter, isSupply);
+  const heroLead = resolveHeroLead(product, isPrinter, isSupply);
+  const heroDescription = resolveHeroDescription(product, isPrinter, isSupply);
 
   const displayTitle = resolveDetailDisplayTitle(product, brandLabel);
 
@@ -869,7 +1077,11 @@ export function buildProductDetail(
         ? buildPrinterSpecs(product, brandLabel, sku)
         : buildGenericSpecs(product, brandLabel, sku);
 
+  const heroSpecBullets = buildHeroSpecBullets(product, specs, isPrinter);
+  const heroSpecTitle = buildHeroSpecTitle(product, isPrinter);
+
   const descriptionVisual = buildDescriptionVisual(product, specs, isPrinter);
+  const featureBar = buildFeatureBar(product, specs, isPrinter);
 
   const showNuevo = productHasNuevoCornerBadge(product);
 
@@ -896,13 +1108,18 @@ export function buildProductDetail(
     tagPills,
     heroHighlights,
     displaySubtitle,
+    heroLead,
+    heroDescription,
+    heroSpecBullets,
+    heroSpecTitle,
     categoryLabel,
-    rating: featuredMeta?.rating ?? 4,
-    reviews: featuredMeta?.reviews ?? soldCountFromId(product.id) + 2,
+    rating: featuredMeta?.rating ?? 4.6,
+    reviews: featuredMeta?.reviews ?? soldCountFromId(product.id) * 5 + 18,
     soldCount: soldCountFromId(product.id),
     bullets,
     descriptionContent: buildDescriptionContent(product, isPrinter, isSupply),
     descriptionVisual,
+    featureBar,
     specs,
     warrantyBullets: WARRANTY_BULLETS,
     gallery: buildGallery(product),

@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 
 import { getCorsOrigins, isCorsOriginAllowed } from './lib/cors-origins.js';
+import { shouldPreferSupabaseCatalog } from './lib/catalog-source.js';
+import { getSupabaseAdmin, isSupabaseAuthEnabled } from './lib/supabase-auth.js';
 import { supportRouter } from './routes/support.js';
 import { productsRouter } from './routes/products.js';
 import { authRouter } from './routes/auth.js';
@@ -41,12 +43,31 @@ app.use((req, _res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', async (_req, res) => {
+  let catalogProducts = null;
+  let catalogError = null;
+
+  if (isSupabaseAuthEnabled()) {
+    try {
+      const supabase = getSupabaseAdmin();
+      const { count, error } = await supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true });
+      if (error) catalogError = error.message;
+      else catalogProducts = count ?? 0;
+    } catch (error) {
+      catalogError = error instanceof Error ? error.message : 'unknown';
+    }
+  }
+
   res.json({
     status: 'ok',
     service: 'haistore-admin',
     ts: new Date().toISOString(),
     vercel: Boolean(process.env.VERCEL),
+    catalogSource: shouldPreferSupabaseCatalog() ? 'supabase' : 'file',
+    catalogProducts,
+    catalogError,
   });
 });
 

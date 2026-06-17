@@ -16,8 +16,9 @@ export { shouldPreferSupabaseCatalog };
 
 export function withResolvedMedia(product) {
   const stored = sanitizeStoredProductMedia(product);
-  const image_url = resolveProductImageUrl(stored) ?? resolveProductImageUrl(product);
-  const gallery = resolveProductGallery(stored);
+  const image_url =
+    resolveProductImageUrl({ ...product, ...stored }) ?? resolveProductImageUrl(product);
+  const gallery = resolveProductGallery({ ...product, ...stored });
   return { ...product, ...stored, image_url, gallery };
 }
 
@@ -196,6 +197,10 @@ async function listFromInventory(role, adminView) {
  * No usar solo Supabase: importaciones CLI (repuestos, tóner) viven en inventory.json.
  */
 export async function listProducts({ role = 'public', adminView = false } = {}) {
+  if (shouldPreferSupabaseCatalog()) {
+    const fromDb = await listFromSupabase(role, adminView);
+    if (fromDb != null) return fromDb;
+  }
   return listFromInventory(role, adminView);
 }
 
@@ -357,6 +362,9 @@ export async function fetchInventoryProductsFromSupabase() {
     return rows.map((row) => rowToInventoryProduct(row));
   } catch (error) {
     console.error('[catalog] fetch inventario Supabase:', error.message);
+    if (shouldPreferSupabaseCatalog() && process.env.VERCEL) {
+      throw error;
+    }
     return [];
   }
 }

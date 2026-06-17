@@ -9,6 +9,8 @@ export function getCorsOrigins() {
 
   origins.add('http://localhost:5173');
   origins.add('https://haistore.vercel.app');
+  origins.add('https://haitech.pe');
+  origins.add('https://www.haitech.pe');
 
   if (process.env.VERCEL_URL) {
     origins.add(`https://${process.env.VERCEL_URL}`);

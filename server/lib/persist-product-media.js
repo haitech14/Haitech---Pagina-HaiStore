@@ -4,6 +4,12 @@ import { fileURLToPath } from 'url';
 
 import sharp from 'sharp';
 
+import {
+  isVideoMediaUrl,
+  isYoutubeMediaUrl,
+  normalizeYoutubeMediaUrl,
+} from '../../shared/product-media.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const WEBP_QUALITY = 82;
@@ -31,6 +37,28 @@ export function publicProductMediaPath(productId, index = 0) {
   return `/products/${base}${suffix}.webp`;
 }
 
+export function publicProductVideoPath(productId, videoIndex = 0) {
+  const base = sanitizeProductId(productId);
+  const suffix = videoIndex > 0 ? `-video-${videoIndex + 1}` : '-video';
+  return `/products/${base}${suffix}.mp4`;
+}
+
+function countPersistedImages(urls) {
+  return urls.filter(
+    (url) =>
+      typeof url === 'string' &&
+      !isYoutubeMediaUrl(url) &&
+      !isVideoMediaUrl(url) &&
+      !url.startsWith('data:'),
+  ).length;
+}
+
+function countPersistedVideos(urls) {
+  return urls.filter(
+    (url) => typeof url === 'string' && (isVideoMediaUrl(url) || url.startsWith('data:video/')),
+  ).length;
+}
+
 async function exportDataUrlToFile(dataUrl, filePath) {
   const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : '';
   if (!base64) return false;
@@ -46,6 +74,24 @@ async function exportDataUrlToFile(dataUrl, filePath) {
 
   await fs.writeFile(filePath, output);
   return true;
+}
+
+async function exportVideoDataUrlToFile(dataUrl, filePath) {
+  const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : '';
+  if (!base64) return false;
+
+  const input = Buffer.from(base64, 'base64');
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, input);
+  return true;
+}
+
+function resolvePersistedUrl(url) {
+  if (isYoutubeMediaUrl(url)) return url;
+  const normalizedYoutube = normalizeYoutubeMediaUrl(url);
+  if (normalizedYoutube) return normalizedYoutube;
+  if (!url.startsWith('data:')) return url;
+  return null;
 }
 
 /**
@@ -70,10 +116,16 @@ export async function persistProductMedia(product) {
   const publicDir = getPublicProductsDir();
   const nextGallery = [];
 
-  for (let index = 0; index < sourceUrls.length; index += 1) {
-    const url = sourceUrls[index];
+  for (const url of sourceUrls) {
+    const persisted = resolvePersistedUrl(url);
+    if (persisted) {
+      nextGallery.push(persisted);
+      continue;
+    }
+
     if (url.startsWith('data:image/')) {
-      const publicPath = publicProductMediaPath(product.id, index);
+      const imageIndex = countPersistedImages(nextGallery);
+      const publicPath = publicProductMediaPath(product.id, imageIndex);
       const absolutePath = path.join(publicDir, path.basename(publicPath));
       try {
         await exportDataUrlToFile(url, absolutePath);
@@ -85,12 +137,25 @@ export async function persistProductMedia(product) {
       continue;
     }
 
-    if (!url.startsWith('data:')) {
-      nextGallery.push(url);
+    if (url.startsWith('data:video/')) {
+      const videoIndex = countPersistedVideos(nextGallery);
+      const publicPath = publicProductVideoPath(product.id, videoIndex);
+      const absolutePath = path.join(publicDir, path.basename(publicPath));
+      try {
+        await exportVideoDataUrlToFile(url, absolutePath);
+        nextGallery.push(publicPath);
+      } catch (error) {
+        console.warn('[persist-media]', product.id, error?.message ?? error);
+        nextGallery.push(url);
+      }
     }
   }
 
-  const image_url = nextGallery[0] ?? null;
+  const image_url =
+    nextGallery.find(
+      (entry) => !isYoutubeMediaUrl(entry) && !isVideoMediaUrl(entry),
+    ) ?? null;
+
   return {
     ...product,
     image_url,

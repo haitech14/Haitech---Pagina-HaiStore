@@ -1,3 +1,4 @@
+import { isImageMediaUrl } from '@/lib/product-media';
 import {
   publicProductMediaPath,
   resolveProductCategoryStockImage,
@@ -46,6 +47,7 @@ function isUsableProductImageUrl(
   options?: ResolveProductImageOptions,
 ): boolean {
   if (url.length === 0) return false;
+  if (!isImageMediaUrl(url)) return false;
   if (url.startsWith('data:') && !options?.allowDataUrl) return false;
   if (!shouldUseStockFallback(options) && isSyntheticStockImageUrl(product, url)) return false;
   return true;
@@ -106,4 +108,20 @@ export function resolveProductImageUrl(
 ): string | null {
   const candidates = buildProductImageCandidates(product, options);
   return candidates[0] ?? null;
+}
+
+/** Galería completa del producto (imágenes, vídeos y YouTube). */
+export function resolveProductGallery(
+  product: ResolveProductImageInput,
+  options?: ResolveProductImageOptions,
+): string[] {
+  const gallery = (product.gallery ?? []).filter(
+    (url): url is string => typeof url === 'string' && url.length > 0,
+  );
+  if (gallery.length > 0) {
+    return [...new Set(gallery)];
+  }
+
+  const image = resolveProductImageUrl(product, options);
+  return image ? [image] : [];
 }

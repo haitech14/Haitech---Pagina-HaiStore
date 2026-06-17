@@ -1,4 +1,9 @@
 import {
+  isImageMediaUrl,
+  isVideoMediaUrl,
+  isYoutubeMediaUrl,
+} from '@/lib/product-media';
+import {
   publicProductMediaPath,
   resolveProductCategoryStockImage,
   resolveProductModelStockImage,
@@ -32,14 +37,12 @@ export function isSyntheticProductMediaUrl(product: ProductMediaSource, url: str
   if (url.startsWith('data:')) return false;
 
   const stored = storedMediaUrls(product);
-  const id = sanitizeProductId(product.id);
-  const mainPath = id ? publicProductMediaPath(product.id) : null;
 
   if (stored.includes(url)) {
     if (isCategoryStockImageUrl(url)) return true;
-    if (mainPath && url === mainPath) return false;
-    if (id && new RegExp(`^/products/${id}-\\d+\\.webp$`, 'i').test(url)) return true;
+    if (isYoutubeMediaUrl(url) || isVideoMediaUrl(url)) return false;
     if (url.startsWith('/products/')) return false;
+    if (url.startsWith('http://') || url.startsWith('https://')) return false;
     return false;
   }
 
@@ -47,9 +50,12 @@ export function isSyntheticProductMediaUrl(product: ProductMediaSource, url: str
   if (url === resolveProductCategoryStockImage(product)) return true;
   if (isCategoryStockImageUrl(url)) return true;
 
+  const id = sanitizeProductId(product.id);
+  const mainPath = id ? publicProductMediaPath(product.id) : null;
+
   if (id) {
-    if (new RegExp(`^/products/${id}-\\d+\\.webp$`, 'i').test(url)) return true;
     if (mainPath && url === mainPath) return true;
+    if (new RegExp(`^/products/${id}-\\d+\\.webp$`, 'i').test(url)) return true;
   }
 
   return false;
@@ -71,10 +77,11 @@ export function sanitizeStoredProductMedia(
 ): { image_url: string | null; gallery: string[] } {
   const candidates = dedupeUrls([product.image_url, ...(product.gallery ?? [])]);
   const authentic = candidates.filter((url) => !isSyntheticProductMediaUrl(product, url));
-  const image_url = authentic[0] ?? null;
+  const images = authentic.filter(isImageMediaUrl);
+  const image_url = images[0] ?? null;
 
   return {
     image_url,
-    gallery: image_url ? [image_url] : [],
+    gallery: authentic,
   };
 }

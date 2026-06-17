@@ -18,6 +18,8 @@ interface ProductWhatsAppButtonProps {
   /** Muestra texto junto al icono (p. ej. «Cotizar ahora»). */
   label?: string;
   quantity?: number;
+  /** Estilo del botón cuando hay etiqueta. */
+  accent?: 'solid' | 'outline';
 }
 
 export function ProductWhatsAppButton({
@@ -26,6 +28,7 @@ export function ProductWhatsAppButton({
   stopPropagation = true,
   label,
   quantity,
+  accent = 'solid',
 }: ProductWhatsAppButtonProps) {
   const { contact, saveContact, isSaving } = useWhatsAppContact();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -74,7 +77,9 @@ export function ProductWhatsAppButton({
         size={label ? 'default' : 'icon'}
         className={cn(
           label
-            ? 'min-h-9 gap-1.5 bg-[#25D366] px-2 text-xs font-semibold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366]'
+            ? accent === 'outline'
+              ? 'min-h-11 gap-2 border border-[#25D366] bg-white px-3 text-sm font-bold uppercase tracking-wide text-[#25D366] hover:bg-[#25D366]/5 focus-visible:ring-[#25D366]'
+              : 'min-h-9 gap-1.5 bg-[#25D366] px-2 text-xs font-semibold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366]'
             : 'size-10 min-h-11 shrink-0 rounded-lg border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 focus-visible:ring-[#25D366]',
           className,
         )}

@@ -85,11 +85,30 @@ export interface ProductDescriptionHighlight {
   subtitle: string;
 }
 
+export interface ProductFeatureCard {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}
+
+export interface ProductHeroSpecBullet {
+  icon?: LucideIcon;
+  /** Formato con icono: una sola línea. */
+  text?: string;
+  /** Formato optimizado: etiqueta en negrita + valor. */
+  label?: string;
+  value?: string;
+}
+
 export interface ProductDescriptionContent {
   paragraphs: string[];
   youtubeVideoId?: string;
   youtubeTitle?: string;
   highlights: ProductDescriptionHighlight[];
+  overviewTitle?: string;
+  overviewParagraphs?: string[];
+  overviewLink?: { label: string; href: string };
+  featureCards?: ProductFeatureCard[];
 }
 
 export interface ProductDescriptionVisualItem {
@@ -118,6 +137,12 @@ export type ProductGalleryItem =
       youtubeId: string;
       title?: string;
       poster?: string;
+    }
+  | {
+      type: 'video-file';
+      src: string;
+      title?: string;
+      poster?: string;
     };
 
 export interface ProductDetailViewModel {
@@ -137,14 +162,24 @@ export interface ProductDetailViewModel {
   heroHighlights: ProductDescriptionHighlight[];
   /** Subtítulo bajo el nombre del producto. */
   displaySubtitle: string;
+  /** Frase destacada bajo el título en el hero (negrita). */
+  heroLead: string;
+  /** Párrafo descriptivo en el hero. */
+  heroDescription: string;
+  /** Especificaciones con icono en el hero. */
+  heroSpecBullets: ProductHeroSpecBullet[];
+  /** Encabezado de la lista de specs del hero (p. ej. versión optimizada). */
+  heroSpecTitle: string | null;
   categoryLabel: string;
   rating: number;
   reviews: number;
   soldCount: number;
   bullets: string[];
   descriptionContent: ProductDescriptionContent | null;
-  /** Iconos de funciones y especificaciones en la descripción. */
+  /** Iconos de funciones y especificaciones en la pestaña Descripción. */
   descriptionVisual: ProductDescriptionVisual | null;
+  /** Barra horizontal de highlights bajo el hero de ficha. */
+  featureBar: ProductDescriptionHighlight[];
   specs: ProductSpecRow[];
   warrantyBullets: string[];
   gallery: ProductGalleryItem[];

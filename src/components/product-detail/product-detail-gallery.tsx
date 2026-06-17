@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Play, ZoomIn } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Play, ZoomIn } from 'lucide-react';
 
 import {
   Dialog,
@@ -7,199 +7,209 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { youtubeThumbnailUrl } from '@/lib/product-media';
 import { cn } from '@/lib/utils';
 import type { ProductGalleryItem } from '@/types/product-detail';
 
 interface ProductDetailGalleryProps {
   items: ProductGalleryItem[];
   productName: string;
+  showNewBadge?: boolean;
 }
 
-function getItemThumb(item: ProductGalleryItem): string {
+function getItemKey(item: ProductGalleryItem): string {
   if (item.type === 'image') return item.src;
-  return item.poster ?? `https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg`;
+  if (item.type === 'video') return `youtube:${item.youtubeId}`;
+  return item.src;
 }
 
-function getItemLabel(item: ProductGalleryItem, index: number, productName: string): string {
+function getThumbnailSrc(item: ProductGalleryItem): string {
+  if (item.type === 'image') return item.src;
+  if (item.type === 'video') return item.poster ?? youtubeThumbnailUrl(item.youtubeId);
+  return item.poster ?? item.src;
+}
+
+function GalleryMainMedia({
+  item,
+  productName,
+  onImageError,
+  imageError,
+}: {
+  item: ProductGalleryItem;
+  productName: string;
+  onImageError: () => void;
+  imageError: boolean;
+}) {
   if (item.type === 'video') {
-    return `Ver video ${index + 1} de ${productName}`;
+    return (
+      <iframe
+        title={item.title ?? `Vídeo de ${productName}`}
+        src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}`}
+        className="aspect-video w-full max-w-[92%] rounded-md border-0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    );
   }
-  return `Ver imagen ${index + 1} de ${productName}`;
+
+  if (item.type === 'video-file') {
+    return (
+      <video
+        src={item.src}
+        controls
+        className="max-h-[min(50vh,460px)] w-full max-w-[92%] rounded-md bg-black object-contain"
+        preload="metadata"
+      >
+        <track kind="captions" />
+      </video>
+    );
+  }
+
+  if (imageError) {
+    return (
+      <span className="text-5xl font-bold text-muted-foreground/30" aria-hidden="true">
+        {productName.charAt(0)}
+      </span>
+    );
+  }
+
+  return (
+    <img
+      src={item.src}
+      alt={item.alt ?? productName}
+      className="max-h-[min(50vh,460px)] w-full max-w-[92%] object-contain object-center"
+      loading="eager"
+      onError={onImageError}
+    />
+  );
 }
 
 export function ProductDetailGallery({
   items,
   productName,
+  showNewBadge = false,
 }: ProductDetailGalleryProps) {
   const galleryItems = items.filter(Boolean);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [imageError, setImageError] = useState<Record<number, boolean>>({});
+  const [imageError, setImageError] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const activeItem = galleryItems[activeIndex] ?? galleryItems[0];
-  const showThumbnails = galleryItems.length > 1;
-  const canScrollPrev = activeIndex > 0;
-  const canScrollNext = activeIndex < galleryItems.length - 1;
-  const activeIsVideo = activeItem?.type === 'video';
-  const activeImageSrc = activeItem?.type === 'image' ? activeItem.src : null;
+  const safeIndex = galleryItems.length > 0 ? Math.min(activeIndex, galleryItems.length - 1) : 0;
+  const activeItem = galleryItems[safeIndex] ?? null;
+  const activeImage =
+    activeItem?.type === 'image' && !imageError
+      ? { src: activeItem.src, alt: activeItem.alt ?? productName }
+      : null;
 
-  const goPrev = () => setActiveIndex((i) => Math.max(0, i - 1));
-  const goNext = () => setActiveIndex((i) => Math.min(galleryItems.length - 1, i + 1));
+  useEffect(() => {
+    setImageError(false);
+  }, [safeIndex, activeItem?.type === 'image' ? activeItem.src : null]);
+
+  if (galleryItems.length === 0) {
+    return (
+      <div className="flex min-h-[220px] items-center justify-center rounded-lg border border-border/60 bg-white p-5 sm:min-h-[280px]">
+        <span className="text-5xl font-bold text-muted-foreground/30" aria-hidden="true">
+          {productName.charAt(0)}
+        </span>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex w-full flex-col gap-3">
-      <div
-        className={cn(
-          'flex w-full gap-2',
-          showThumbnails ? 'flex-col lg:flex-row lg:items-stretch' : 'flex-col',
-        )}
-      >
-        {showThumbnails ? (
-          <div className="order-2 flex items-center justify-center gap-1.5 lg:order-1 lg:w-[4.5rem] lg:shrink-0 lg:flex-col lg:justify-start">
-            <button
-              type="button"
-              onClick={goPrev}
-              disabled={!canScrollPrev}
-              aria-label="Elemento anterior"
-              className="hidden size-7 shrink-0 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition-colors hover:bg-muted/40 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 lg:flex"
-            >
-              <ChevronUp className="size-3.5" aria-hidden="true" />
-            </button>
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-start sm:gap-3">
+      {galleryItems.length > 1 ? (
+        <ul
+          className="flex shrink-0 gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:w-[4.5rem] sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:pb-0 [&::-webkit-scrollbar]:hidden"
+          aria-label={`Miniaturas de ${productName}`}
+        >
+          {galleryItems.map((item, index) => {
+            const isActive = index === safeIndex;
+            const isVideo = item.type === 'video' || item.type === 'video-file';
 
-            <button
-              type="button"
-              onClick={goPrev}
-              disabled={!canScrollPrev}
-              aria-label="Elemento anterior"
-              className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition-colors hover:bg-muted/40 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 lg:hidden"
-            >
-              <ChevronLeft className="size-3.5" aria-hidden="true" />
-            </button>
+            return (
+              <li key={getItemKey(item)} className="shrink-0">
+                <button
+                  type="button"
+                  className={cn(
+                    'relative size-14 overflow-hidden rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:size-16',
+                    isActive ? 'border-red-600' : 'border-border/70 hover:border-border',
+                  )}
+                  onClick={() => setActiveIndex(index)}
+                  aria-label={
+                    isVideo
+                      ? `Ver vídeo ${index + 1} de ${productName}`
+                      : `Ver imagen ${index + 1} de ${productName}`
+                  }
+                  aria-current={isActive}
+                >
+                  <img
+                    src={getThumbnailSrc(item)}
+                    alt=""
+                    className="size-full object-cover"
+                    loading="lazy"
+                  />
+                  {isVideo ? (
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/35">
+                      <Play className="size-4 text-white sm:size-5" aria-hidden="true" />
+                    </span>
+                  ) : null}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
 
-            <ul className="flex flex-row justify-center gap-1.5 lg:flex-col">
-              {galleryItems.map((item, index) => {
-                const isVideo = item.type === 'video';
-                const thumbSrc = getItemThumb(item);
-
-                return (
-                  <li key={`${item.type}-${index}`}>
-                    <button
-                      type="button"
-                      onClick={() => setActiveIndex(index)}
-                      aria-label={getItemLabel(item, index, productName)}
-                      aria-current={activeIndex === index ? 'true' : undefined}
-                      className={cn(
-                        'relative flex size-14 items-center justify-center overflow-hidden rounded-md bg-white p-1 transition-colors lg:size-[4rem]',
-                        activeIndex === index
-                          ? 'border-2 border-red-600'
-                          : 'border border-border hover:border-red-400',
-                      )}
-                    >
-                      {!imageError[index] ? (
-                        <img
-                          src={thumbSrc}
-                          alt=""
-                          className="size-full object-contain object-center"
-                          loading="lazy"
-                          onError={() => setImageError((prev) => ({ ...prev, [index]: true }))}
-                        />
-                      ) : (
-                        <span className="text-xs text-muted-foreground">{index + 1}</span>
-                      )}
-                      {isVideo ? (
-                        <span
-                          aria-hidden="true"
-                          className="absolute inset-0 flex items-center justify-center bg-black/25"
-                        >
-                          <span className="flex size-6 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-sm">
-                            <Play className="ml-0.5 size-3 fill-current" aria-hidden="true" />
-                          </span>
-                        </span>
-                      ) : null}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={!canScrollNext}
-              aria-label="Siguiente elemento"
-              className="hidden size-7 shrink-0 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition-colors hover:bg-muted/40 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 lg:flex"
-            >
-              <ChevronDown className="size-3.5" aria-hidden="true" />
-            </button>
-
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={!canScrollNext}
-              aria-label="Siguiente elemento"
-              className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition-colors hover:bg-muted/40 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 lg:hidden"
-            >
-              <ChevronRight className="size-3.5" aria-hidden="true" />
-            </button>
-          </div>
-        ) : null}
-
-        <div className="relative order-1 min-w-0 flex-1 lg:order-2">
+      <div className="relative min-w-0 flex-1">
+        <div className="relative overflow-hidden rounded-lg border border-border/60 bg-white">
+          {showNewBadge ? (
+            <span className="absolute left-3 top-3 z-10 rounded bg-red-600 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white sm:text-xs">
+              Nuevo
+            </span>
+          ) : null}
           <div
             className={cn(
-              'relative overflow-hidden rounded-lg border border-border/60 bg-white',
-              activeIsVideo ? 'aspect-[4/3] lg:aspect-video' : '',
+              'flex min-h-[220px] items-center justify-center bg-white p-5 sm:min-h-[280px] sm:p-6 lg:min-h-[340px]',
             )}
           >
-            <div
-              className={cn(
-                'flex items-center justify-center bg-white',
-                activeIsVideo ? 'size-full p-0' : 'min-h-[220px] p-5 sm:min-h-[280px] sm:p-6 lg:min-h-[340px]',
-              )}
-            >
-              {activeItem?.type === 'video' ? (
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${activeItem.youtubeId}?rel=0`}
-                  title={activeItem.title ?? `Video de ${productName}`}
-                  className="size-full"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                />
-              ) : !imageError[activeIndex] && activeItem?.type === 'image' ? (
+            {activeItem ? (
+              activeItem.type === 'image' ? (
                 <button
                   type="button"
                   onClick={() => setLightboxOpen(true)}
                   className="relative flex size-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
                   aria-label={`Ampliar imagen de ${productName}`}
                 >
-                  <img
-                    src={activeItem.src}
-                    alt={activeItem.alt ?? productName}
-                    className="max-h-[min(50vh,460px)] w-full max-w-[92%] object-contain object-center"
-                    loading="eager"
-                    onError={() => setImageError((prev) => ({ ...prev, [activeIndex]: true }))}
+                  <GalleryMainMedia
+                    item={activeItem}
+                    productName={productName}
+                    onImageError={() => setImageError(true)}
+                    imageError={imageError}
                   />
                 </button>
               ) : (
-                <span className="text-5xl font-bold text-muted-foreground/30" aria-hidden="true">
-                  {productName.charAt(0)}
-                </span>
-              )}
-            </div>
-
-            {!activeIsVideo && activeImageSrc ? (
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
-                className="absolute bottom-3 right-3 flex size-9 items-center justify-center rounded-full border border-border/80 bg-white/95 text-muted-foreground shadow-sm transition-colors hover:bg-white hover:text-[#0f1f3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
-                aria-label={`Ampliar imagen de ${productName}`}
-              >
-                <ZoomIn className="size-4" strokeWidth={1.5} aria-hidden="true" />
-              </button>
+                <div className="flex size-full items-center justify-center">
+                  <GalleryMainMedia
+                    item={activeItem}
+                    productName={productName}
+                    onImageError={() => setImageError(true)}
+                    imageError={imageError}
+                  />
+                </div>
+              )
             ) : null}
           </div>
+
+          {activeImage ? (
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              className="absolute bottom-3 right-3 flex size-9 items-center justify-center rounded-full border border-border/80 bg-white/95 text-muted-foreground shadow-sm transition-colors hover:bg-white hover:text-[#0f1f3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+              aria-label={`Ampliar imagen de ${productName}`}
+            >
+              <ZoomIn className="size-4" strokeWidth={1.5} aria-hidden="true" />
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -207,10 +217,10 @@ export function ProductDetailGallery({
         <DialogContent className="max-w-[min(96vw,56rem)] border-none bg-transparent p-2 shadow-none sm:p-4">
           <DialogTitle className="sr-only">{productName}</DialogTitle>
           <DialogDescription className="sr-only">Vista ampliada del producto</DialogDescription>
-          {activeImageSrc ? (
+          {activeImage ? (
             <img
-              src={activeImageSrc}
-              alt={productName}
+              src={activeImage.src}
+              alt={activeImage.alt}
               className="mx-auto max-h-[85vh] w-full object-contain"
             />
           ) : null}

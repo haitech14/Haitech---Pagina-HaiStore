@@ -28,9 +28,22 @@ export function publicProductMediaPath(productId, index = 0) {
   return `/products/${base}${suffix}.webp`;
 }
 
+function isConsumableProductName(haystack) {
+  const normalized = haystack
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '');
+
+  return /\b(toner|cartucho|cartridge|drum|tambor|fusor|fusing|rodillo|gabinete|repuesto|suministro|unidad de imagen)\b/.test(
+    normalized,
+  );
+}
+
 export function resolveProductModelStockImage(product) {
   const haystack = `${product?.code ?? ''} ${product?.name ?? ''} ${product?.brand ?? ''}`.trim();
   if (!haystack) return null;
+
+  if (isConsumableProductName(haystack)) return null;
 
   for (const entry of PRODUCT_MODEL_STOCK_IMAGES) {
     if (entry.pattern.test(haystack)) {

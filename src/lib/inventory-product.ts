@@ -2,6 +2,10 @@ import { optimizeImageDataUrl, optimizeImageFile } from '@/lib/optimize-image-fo
 import { randomId } from '@/lib/random-id';
 import { normalizeAttributes } from '@/lib/inventory-attributes';
 import { sanitizeStoredProductMedia } from '@/lib/product-media-sanitize';
+import {
+  isImageMediaUrl,
+  normalizeYoutubeMediaUrl,
+} from '@/lib/product-media';
 import { normalizeAttachments } from '@/lib/inventory-attachments';
 import { normalizeSuppliers, resolvePurchasePriceUsd } from '@/lib/inventory-suppliers';
 import { applyStockFields, DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
@@ -19,7 +23,7 @@ async function optimizeProductImages(product: InventoryProduct): Promise<Invento
     ? product.image_url.startsWith('data:image/')
       ? await optimizeImageDataUrl(product.image_url, 'product')
       : product.image_url
-    : optimizedGallery[0] ?? null;
+    : optimizedGallery.find((url) => isImageMediaUrl(url)) ?? null;
 
   const deduped: string[] = [];
   const seen = new Set<string>();
@@ -29,9 +33,11 @@ async function optimizeProductImages(product: InventoryProduct): Promise<Invento
     deduped.push(url);
   }
 
+  const mainImage = deduped.find((url) => isImageMediaUrl(url)) ?? null;
+
   return {
     ...product,
-    image_url: deduped[0] ?? null,
+    image_url: mainImage,
     gallery: deduped,
   };
 }
@@ -175,14 +181,52 @@ export async function appendGalleryImagesToProduct(
   }
 
   const urls = await Promise.all(files.map((file) => readImageFile(file)));
-  const image_url = product.image_url ?? urls[0] ?? null;
+  return appendGalleryUrlsToProduct(product, urls);
+}
+
+const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
+
+/** Añade vídeos MP4 a la galería. */
+export async function appendGalleryVideosToProduct(
+  product: InventoryProduct,
+  files: File[],
+): Promise<Pick<InventoryProduct, 'image_url' | 'gallery'>> {
+  if (files.length === 0) {
+    return { image_url: product.image_url, gallery: product.gallery ?? [] };
+  }
+
+  const urls = await Promise.all(files.map((file) => readVideoFile(file)));
+  return appendGalleryUrlsToProduct(product, urls);
+}
+
+/** Añade una URL de YouTube a la galería. */
+export function appendYoutubeToProduct(
+  product: InventoryProduct,
+  youtubeInput: string,
+): Pick<InventoryProduct, 'image_url' | 'gallery'> {
+  const url = normalizeYoutubeMediaUrl(youtubeInput);
+  if (!url) {
+    throw new Error('URL de YouTube inválida');
+  }
+  return appendGalleryUrlsToProduct(product, [url]);
+}
+
+function appendGalleryUrlsToProduct(
+  product: InventoryProduct,
+  urls: string[],
+): Pick<InventoryProduct, 'image_url' | 'gallery'> {
   const existingGallery = product.gallery ?? [];
   const newUrls = urls.filter((url) => !existingGallery.includes(url));
-  const gallery = [
+  const image_url =
+    product.image_url && isImageMediaUrl(product.image_url)
+      ? product.image_url
+      : newUrls.find((url) => isImageMediaUrl(url)) ?? product.image_url ?? null;
+
+  const gallery = dedupeMediaUrls([
     ...(image_url ? [image_url] : []),
     ...existingGallery.filter((item) => item !== image_url),
     ...newUrls.filter((url) => url !== image_url),
-  ];
+  ]);
 
   return { image_url, gallery };
 }
@@ -229,11 +273,15 @@ export function replaceProductMediaUrl(
   };
 }
 
-/** Marca una URL de la galería como foto principal. */
+/** Marca una URL de la galería como foto principal (solo imágenes). */
 export function setProductMainMediaUrl(
   product: InventoryProduct,
   url: string,
 ): Pick<InventoryProduct, 'image_url' | 'gallery'> {
+  if (!isImageMediaUrl(url)) {
+    throw new Error('La foto principal debe ser una imagen');
+  }
+
   return {
     image_url: url,
     gallery: dedupeMediaUrls([url, ...(product.gallery ?? []), product.image_url]),
@@ -268,6 +316,29 @@ export function getProductMediaUrls(product: InventoryProduct): string[] {
 /** Lee y comprime una imagen para uso web en inventario (~1200px, WebP). */
 export function readImageFile(file: File): Promise<string> {
   return optimizeImageFile(file, 'product');
+}
+
+/** Lee un vídeo MP4 como data URL para persistir en el servidor. */
+export function readVideoFile(file: File): Promise<string> {
+  if (!file.type.startsWith('video/') && !/\.mp4$/i.test(file.name)) {
+    throw new Error('Solo se admiten vídeos MP4');
+  }
+  if (file.size > MAX_VIDEO_BYTES) {
+    throw new Error('El vídeo supera el límite de 80 MB');
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error('No se pudo leer el vídeo'));
+    };
+    reader.onerror = () => reject(new Error('No se pudo leer el vídeo'));
+    reader.readAsDataURL(file);
+  });
 }
 
 /** Extrae archivos de imagen del portapapeles (Ctrl+V). */

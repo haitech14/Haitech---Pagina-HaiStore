@@ -10,6 +10,7 @@ import {
   resolveProductCategoryStockImage,
   resolveProductModelStockImage,
 } from '../../shared/product-stock-images.js';
+import { isImageMediaUrl } from '../../shared/product-media.js';
 import { getPublicProductsDir } from './persist-product-media.js';
 
 function shouldUseStockFallback(options) {
@@ -34,6 +35,7 @@ function isSyntheticStockImageUrl(product, url) {
 function isUsableProductImageUrl(product, url, options) {
   if (typeof url !== 'string' || url.length === 0) return false;
   if (url.startsWith('data:')) return false;
+  if (!isImageMediaUrl(url)) return false;
   if (!shouldUseStockFallback(options) && isSyntheticStockImageUrl(product, url)) return false;
   return true;
 }
@@ -97,6 +99,12 @@ export function resolveProductImageUrl(product, options) {
 }
 
 export function resolveProductGallery(product, options) {
-  const candidates = buildProductImageCandidates(product, options);
-  return [...new Set(candidates)];
+  const gallery = Array.isArray(product?.gallery)
+    ? product.gallery.filter((url) => typeof url === 'string' && url.length > 0)
+    : [];
+  if (gallery.length > 0) {
+    return [...new Set(gallery)];
+  }
+  const image = resolveProductImageUrl(product, options);
+  return image ? [image] : [];
 }
