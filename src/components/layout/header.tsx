@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   ShoppingCart,
   Menu,
@@ -12,9 +12,12 @@ import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { CatalogMobileAccordion } from '@/components/layout/catalog-mobile-accordion';
 import { HeaderActionStrip } from '@/components/layout/header-action-strip';
 import { HeaderCategoryNav, mainNavItems } from '@/components/layout/header-category-nav';
-import { HeaderTopBar } from '@/components/layout/header-top-bar';
-import { HeaderCurrencyControl } from '@/components/layout/header-currency-control';
+import {
+  HeaderCurrencyControl,
+  HeaderCurrencySymbolToggle,
+} from '@/components/layout/header-currency-control';
 import { SolutionsMobileAccordion } from '@/components/layout/solutions-mobile-accordion';
+import { HeaderLogoImage } from '@/components/layout/site-logo';
 import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
@@ -62,6 +65,7 @@ function mainNavLinkProps(item: MainNavItem) {
 }
 
 export function Header() {
+  const location = useLocation();
   const { totalItems, totalPrice, openCart } = useCart();
   const { displayCurrency } = useDisplayCurrency();
   const cartTotalAria =
@@ -81,6 +85,19 @@ export function Header() {
     return () => window.removeEventListener('scroll', updateScrolled);
   }, []);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileOpen]);
+
   return (
     <header
       className={cn(
@@ -89,8 +106,6 @@ export function Header() {
         scrolled && 'shadow-[0_6px_20px_rgba(15,23,42,0.16)]',
       )}
     >
-      <HeaderTopBar />
-
       {/* Fila principal */}
       <div className="container flex items-center gap-3 py-2 sm:gap-4">
         <div className="flex min-h-12 flex-1 items-center gap-3 sm:gap-4">
@@ -111,11 +126,11 @@ export function Header() {
             className="flex shrink-0 items-center gap-2 sm:gap-2.5"
             aria-label="Haitech, inicio"
           >
-            <img src="/logo.png" alt="Haitech Soluciones Tecnológicas" className="h-10 w-auto" />
+            <HeaderLogoImage heightClass="h-8 sm:h-9" width={197} height={53} />
             <img
               src="/ricohpartner.png"
               alt="Ricoh Alliance Partner"
-              className="h-14 w-auto rounded-sm sm:h-16"
+              className="h-10 w-auto rounded-sm sm:h-14 md:h-16"
               loading="lazy"
             />
           </Link>
@@ -133,8 +148,9 @@ export function Header() {
           onOpenCart={openCart}
         />
 
-        <div className="ml-auto flex items-center gap-0.5 sm:hidden">
+        <div className="ml-auto flex items-center gap-1 sm:hidden">
           <AccountDropdown />
+          <HeaderCurrencySymbolToggle className="min-h-11 p-1 [&_button]:min-h-9 [&_button]:min-w-8 [&_button]:px-1.5 [&_button]:text-xs" />
           <Button
             type="button"
             variant="ghost"
@@ -154,6 +170,10 @@ export function Header() {
             )}
           </Button>
         </div>
+      </div>
+
+      <div className="container border-t border-border/60 pb-2 pt-2 md:hidden">
+        <SiteSearchForm variant="simple" onNavigate={() => setMobileOpen(false)} />
       </div>
 
       <HeaderCategoryNav />

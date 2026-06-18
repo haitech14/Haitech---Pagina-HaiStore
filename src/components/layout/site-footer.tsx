@@ -25,11 +25,11 @@ import {
   FOOTER_SALES_EMAIL,
   FOOTER_SOCIAL_LINKS,
   FOOTER_SUPPORT_EMAIL,
-  FOOTER_TAGLINE,
   FOOTER_VALUE_PROPS,
   FOOTER_WHATSAPP_LINK,
   type FooterLink,
 } from '@/data/site-footer';
+import { FooterLogoImage } from '@/components/layout/site-logo';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import { cn } from '@/lib/utils';
 
@@ -171,12 +171,12 @@ export function SiteFooter() {
               className="inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
               aria-label={`${companyName}, inicio`}
             >
-              <p className="font-heading text-2xl font-bold uppercase tracking-wide text-white">
-                HAI<span className="text-red-600">TECH</span>
-              </p>
-              <p className="mt-1 text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-white/75">
-                {FOOTER_TAGLINE}
-              </p>
+              <FooterLogoImage
+                heightClass="h-10 sm:h-11"
+                width={220}
+                height={48}
+                loading="lazy"
+              />
             </Link>
 
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/55">{FOOTER_DESCRIPTION}</p>

@@ -78,9 +78,9 @@ export function ProductWhatsAppButton({
         className={cn(
           label
             ? accent === 'outline'
-              ? 'min-h-11 gap-2 border border-[#25D366] bg-white px-3 text-sm font-bold uppercase tracking-wide text-[#25D366] hover:bg-[#25D366]/5 focus-visible:ring-[#25D366]'
-              : 'min-h-9 gap-1.5 bg-[#25D366] px-2 text-xs font-semibold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366]'
-            : 'size-10 min-h-11 shrink-0 rounded-lg border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 focus-visible:ring-[#25D366]',
+              ? 'min-h-11 gap-2 border border-[#25D366] bg-white px-3 text-sm font-bold uppercase tracking-wide text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
+              : 'min-h-9 gap-1.5 bg-[#25D366] px-2 text-xs font-semibold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
+            : 'size-10 min-h-11 shrink-0 rounded-lg border border-[#25D366] bg-white text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2',
           className,
         )}
         aria-label={

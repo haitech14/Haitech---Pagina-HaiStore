@@ -16,6 +16,7 @@ import {
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { HeaderLogoImage } from '@/components/layout/site-logo';
 import { useAuth } from '@/context/auth-context';
 import { isAdminPanelEmail } from '@/lib/admin-access';
 
@@ -124,10 +125,8 @@ export function LoginPage() {
               className="inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
               aria-label="Haitech, inicio"
             >
-              <img
-                src="/logo.png"
-                alt="Haitech Soluciones Tecnológicas"
-                className="h-12 w-auto max-w-[260px] object-contain sm:h-14"
+              <HeaderLogoImage
+                heightClass="h-8 sm:h-9"
                 width={260}
                 height={56}
               />

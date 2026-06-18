@@ -158,46 +158,29 @@ function CartExchangeRateText({ saleRate }: { saleRate: number }) {
   );
 }
 
-function HeaderCartExchangeRate({ className }: { className?: string }) {
+/** Selector $ / S/ / $S/ y tipo de cambio junto al carrito. */
+export function HeaderCartExchangeBar({ className }: { className?: string }) {
   const { saleRate, purchaseRate } = useSystemExchangeRates();
   const { isAdmin } = useAuth();
 
-  if (isAdmin) {
-    return (
-      <AdminExchangeRateEditor
-        {...(className ? { className } : {})}
-        saleRate={saleRate}
-        purchaseRate={purchaseRate}
-        compact
-      />
-    );
-  }
-
-  return (
-    <p
-      className={cn(
-        'shrink-0 whitespace-nowrap text-[0.6rem] tabular-nums leading-tight text-muted-foreground sm:text-[0.65rem]',
-        className,
-      )}
-      aria-label="Tipo de cambio de venta"
-    >
-      <CartExchangeRateText saleRate={saleRate} />
-    </p>
-  );
-}
-
-/** T.C. y selector $ / S/ / $S/ en una sola fila. */
-export function HeaderCartExchangeBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
         'flex min-h-9 shrink-0 flex-row items-center gap-2 px-3 py-1',
         className,
       )}
-      aria-label="Tipo de cambio y moneda de visualización"
     >
-      <HeaderCartExchangeRate />
       <HeaderCurrencySymbolToggle />
+      {isAdmin ? (
+        <AdminExchangeRateEditor saleRate={saleRate} purchaseRate={purchaseRate} compact />
+      ) : (
+        <p
+          className="shrink-0 whitespace-nowrap text-xs tabular-nums leading-tight text-muted-foreground"
+          aria-label="Tipo de cambio de venta"
+        >
+          <CartExchangeRateText saleRate={saleRate} />
+        </p>
+      )}
     </div>
   );
 }
@@ -313,7 +296,7 @@ function AdminExchangeRateEditor({
           type="button"
           aria-label={compact ? 'Editar tipo de cambio de venta' : 'Editar tipo de cambio (Compra y Venta)'}
           className={cn(
-            'flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded text-right text-[0.65rem] tabular-nums leading-tight sm:text-xs',
+            'flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded text-right text-xs tabular-nums leading-tight',
             compact
               ? 'text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1 focus-visible:ring-offset-background'
               : 'text-neutral-400 transition-colors hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1 focus-visible:ring-offset-black',

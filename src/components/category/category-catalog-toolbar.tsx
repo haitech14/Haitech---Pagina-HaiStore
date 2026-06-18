@@ -82,16 +82,18 @@ export function CategoryCatalogToolbar({
 
   return (
     <div className="mb-4 space-y-3 rounded-xl border border-border bg-card p-3 shadow-sm sm:p-4">
-      <div className="flex items-center gap-2">
-        {subcategoryTabs ? (
-          <div
-            className="hidden shrink-0 items-center border-r border-border/70 pr-2 sm:flex sm:pr-3"
-            role="presentation"
-          >
+      {subcategoryTabs ? (
+        <div
+          className="-mx-1 flex min-w-0 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mx-0 sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden"
+          role="presentation"
+        >
+          <div className="flex shrink-0 items-center sm:border-r sm:border-border/70 sm:pr-3">
             {subcategoryTabs}
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
+      <div className="flex items-center gap-2">
         <div className="relative min-w-0 flex-1">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"

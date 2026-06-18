@@ -346,7 +346,7 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
               <Input
                 id="logoUrl"
                 value={form.logoUrl.startsWith('data:') ? '' : form.logoUrl}
-                placeholder="/logo.png"
+                placeholder="/logoclaro.png"
                 onChange={(event) => updateField('logoUrl', event.target.value)}
               />
               <Input

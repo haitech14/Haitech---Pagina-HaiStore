@@ -1,4 +1,4 @@
-import { buildWhatsAppShareUrl, WA_EMOJI } from '@/lib/whatsapp-encoding';
+import { buildWhatsAppMeUrl, WA_EMOJI } from '@/lib/whatsapp-encoding';
 import {
   HAITECH_WHATSAPP_MSISDN,
   normalizePeruWhatsAppMsisdn,
@@ -57,7 +57,7 @@ export function openProductWhatsAppChat(
 ): boolean {
   const message = buildProductWhatsAppMessage(product, contact);
   const msisdn = normalizePeruWhatsAppMsisdn(businessPhone);
-  const url = buildWhatsAppShareUrl(msisdn, message);
+  const url = buildWhatsAppMeUrl(msisdn, message);
   if (!url) return false;
   window.open(url, '_blank', 'noopener,noreferrer');
   return true;

@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 
 import { ProductDetailBreadcrumbs } from '@/components/product-detail/product-detail-breadcrumbs';
 import { ProductQuoteDialog } from '@/components/product-detail/product-quote-dialog';
@@ -14,12 +16,14 @@ import { ProductDetailDescriptionVisual } from '@/components/product-detail/prod
 import { ProductDetailEquipmentConfig } from '@/components/product-detail/product-detail-equipment-config';
 import { ProductDetailGallery } from '@/components/product-detail/product-detail-gallery';
 import { ProductDetailHeroInfo } from '@/components/product-detail/product-detail-hero-info';
+import { ProductDetailMobilePurchaseBar } from '@/components/product-detail/product-detail-mobile-purchase-bar';
 import { ProductDetailOverview } from '@/components/product-detail/product-detail-overview';
 import { ProductDetailRentalBanner } from '@/components/product-detail/product-detail-rental-banner';
 import { ProductDetailRelated } from '@/components/product-detail/product-detail-related';
 import { ProductDetailResources } from '@/components/product-detail/product-detail-resources';
 import { ProductDetailSpecsTable } from '@/components/product-detail/product-detail-specs-table';
 import { buildProductDetail } from '@/lib/build-product-detail';
+import { ensureFullPrices } from '@/lib/roles';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import {
   resolveEquipmentConfigSteps,
@@ -109,6 +113,17 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [quotePdfPreview, setQuotePdfPreview] = useState<QuotePdfPreview | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const purchaseActionsRef = useRef<HTMLDivElement>(null);
+
+  const displayUsd = product.prices
+    ? ensureFullPrices(product.prices).public
+    : product.price;
+  const outOfStock = isProductOutOfStock(product);
+
+  useEffect(() => {
+    setQuantity(1);
+  }, [product.id]);
 
   const handleQuotePdfPreviewClose = useCallback((open: boolean) => {
     if (!open) {
@@ -250,7 +265,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     'grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-6 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] xl:gap-7';
 
   return (
-    <div className="bg-white">
+    <div className="bg-white pb-20 lg:pb-0">
       <div className="container py-3 sm:py-5">
         <div className="mb-4 sm:mb-5">
           <ProductDetailBreadcrumbs items={breadcrumbs} className="mb-0" />
@@ -270,6 +285,9 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               detail={detail}
               onQuoteClick={() => setQuoteOpen(true)}
               comboSlot={comboSlot}
+              quantity={quantity}
+              onQuantityChange={setQuantity}
+              purchaseActionsRef={purchaseActionsRef}
             />
           </div>
         </div>
@@ -501,6 +519,14 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
       <ProductQuotePdfViewer
         preview={quotePdfPreview}
         onOpenChange={handleQuotePdfPreviewClose}
+      />
+
+      <ProductDetailMobilePurchaseBar
+        product={product}
+        quantity={quantity}
+        displayUsd={displayUsd}
+        outOfStock={outOfStock}
+        purchaseActionsRef={purchaseActionsRef}
       />
     </div>
   );

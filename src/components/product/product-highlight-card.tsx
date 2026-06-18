@@ -4,6 +4,7 @@ import { ImageOff, Minus, Plus, ShoppingCart } from 'lucide-react';
 
 import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
 import { AddToCartButton, getAddToCartLabel, isProductOutOfStock } from '@/components/cart/add-to-cart-button';
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductNuevoCornerBadge } from '@/components/product/product-nuevo-corner-badge';
 import { formatHighlightProductTitle } from '@/lib/product-card-title';
@@ -96,52 +97,69 @@ export function ProductHighlightCard({ product, layout = 'card' }: ProductHighli
           </AdminRolePricesTooltip>
         </div>
 
-        <div className="mt-auto flex w-full items-stretch gap-1 pt-1.5 sm:gap-1.5 sm:pt-2">
-          <div
-            className="flex shrink-0 items-center rounded-md border border-border bg-white"
-            role="group"
-            aria-label={`Cantidad de ${product.name}`}
-          >
-            <button
-              type="button"
-              onClick={() => adjustQuantity(-1)}
-              disabled={outOfStock || quantity <= 1}
-              aria-label="Disminuir cantidad"
-              className="flex size-7 shrink-0 items-center justify-center text-neutral-600 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40 sm:size-8"
+        <div className="mt-auto w-full pt-1.5 sm:pt-2">
+          <div className="flex w-full items-stretch gap-1 sm:gap-1.5">
+            <div
+              className="flex shrink-0 items-center rounded-md border border-border bg-white"
+              role="group"
+              aria-label={`Cantidad de ${product.name}`}
             >
-              <Minus className="size-3.5" aria-hidden="true" />
-            </button>
-            <span
-              className="min-w-[0.875rem] text-center text-[0.6875rem] font-semibold tabular-nums text-neutral-900 sm:text-xs"
-              aria-live="polite"
-              aria-atomic="true"
+              <button
+                type="button"
+                onClick={() => adjustQuantity(-1)}
+                disabled={outOfStock || quantity <= 1}
+                aria-label="Disminuir cantidad"
+                className="flex size-7 shrink-0 items-center justify-center text-neutral-600 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40 sm:size-8"
+              >
+                <Minus className="size-3.5" aria-hidden="true" />
+              </button>
+              <span
+                className="min-w-[0.875rem] text-center text-[0.6875rem] font-semibold tabular-nums text-neutral-900 sm:text-xs"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => adjustQuantity(1)}
+                disabled={outOfStock || quantity >= maxQuantity}
+                aria-label="Aumentar cantidad"
+                className="flex size-7 shrink-0 items-center justify-center text-neutral-600 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40 sm:size-8"
+              >
+                <Plus className="size-3.5" aria-hidden="true" />
+              </button>
+            </div>
+
+            <AddToCartButton
+              product={product}
+              addOptions={{ quantity }}
+              className={cn(
+                'h-7 min-h-7 min-w-0 flex-1 gap-1 rounded-md px-1.5 text-[0.625rem] font-semibold sm:h-8 sm:min-h-8 sm:px-2 sm:text-xs',
+                outOfStock
+                  ? 'border border-[#0d1b3d]/25 bg-white text-[#0f1f3d] hover:bg-neutral-50 focus-visible:ring-[#0d1b3d]'
+                  : 'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
+              )}
             >
-              {quantity}
-            </span>
-            <button
-              type="button"
-              onClick={() => adjustQuantity(1)}
-              disabled={outOfStock || quantity >= maxQuantity}
-              aria-label="Aumentar cantidad"
-              className="flex size-7 shrink-0 items-center justify-center text-neutral-600 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40 sm:size-8"
-            >
-              <Plus className="size-3.5" aria-hidden="true" />
-            </button>
+              {!outOfStock ? <ShoppingCart className="size-3 shrink-0" aria-hidden="true" /> : null}
+              {cartLabel}
+            </AddToCartButton>
           </div>
 
-          <AddToCartButton
-            product={product}
-            addOptions={{ quantity }}
-            className={cn(
-              'h-7 min-h-7 min-w-0 flex-1 gap-1 rounded-md px-1.5 text-[0.625rem] font-semibold sm:h-8 sm:min-h-8 sm:px-2 sm:text-xs',
-              outOfStock
-                ? 'border border-[#0d1b3d]/25 bg-white text-[#0f1f3d] hover:bg-neutral-50 focus-visible:ring-[#0d1b3d]'
-                : 'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
-            )}
-          >
-            {!outOfStock ? <ShoppingCart className="size-3 shrink-0" aria-hidden="true" /> : null}
-            {cartLabel}
-          </AddToCartButton>
+          <ProductWhatsAppButton
+            stopPropagation
+            accent="outline"
+            label="Solicitar por Whatsapp"
+            quantity={quantity}
+            product={{
+              id: product.id,
+              name: product.name,
+              priceUsd: product.price,
+              category: product.category,
+              brand: product.brand ?? null,
+            }}
+            className="mt-1.5 h-11 min-h-11 w-full rounded-md px-2 text-[0.625rem] font-semibold normal-case tracking-normal sm:text-xs"
+          />
         </div>
       </div>
     </article>

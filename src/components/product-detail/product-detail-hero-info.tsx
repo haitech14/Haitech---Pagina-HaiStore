@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode, type RefObject } from 'react';
 import {
   ClipboardList,
   FileText,
@@ -33,6 +33,9 @@ interface ProductDetailHeroInfoProps {
   onQuoteClick?: () => void;
   /** Combo recomendado (toner, accesorios) renderizado arriba del precio. */
   comboSlot?: ReactNode;
+  quantity: number;
+  onQuantityChange: (quantity: number) => void;
+  purchaseActionsRef?: RefObject<HTMLDivElement | null>;
 }
 
 const actionRowItemClassName =
@@ -43,9 +46,11 @@ export function ProductDetailHeroInfo({
   detail,
   onQuoteClick,
   comboSlot,
+  quantity,
+  onQuantityChange,
+  purchaseActionsRef,
 }: ProductDetailHeroInfoProps) {
   const { addItem } = useCart();
-  const [quantity, setQuantity] = useState(1);
   const { isSelected: isCompareSelected, toggle: toggleCompare } = useProductCompare();
   const { isSelected: isWishlistSelected, toggle: toggleWishlist } = useWishlist();
 
@@ -76,7 +81,7 @@ export function ProductDetailHeroInfo({
   const maxQuantity = outOfStock ? 1 : Math.max(1, stockDisplay || 99);
 
   const adjustQuantity = (delta: number) => {
-    setQuantity((current) => Math.max(1, Math.min(maxQuantity, current + delta)));
+    onQuantityChange(Math.max(1, Math.min(maxQuantity, quantity + delta)));
   };
 
   const handleBuyNow = () => {
@@ -247,7 +252,7 @@ export function ProductDetailHeroInfo({
           <p className="mt-1 text-xs text-muted-foreground">USD {formatUsd(displayUsd)}</p>
         </div>
 
-        <div className="mt-3 flex flex-row flex-wrap items-end gap-2">
+        <div ref={purchaseActionsRef} className="mt-3 flex flex-row flex-wrap items-end gap-2">
           <div className="shrink-0">
             <p className="mb-1 text-[0.65rem] text-muted-foreground">Cantidad</p>
             <div
@@ -320,7 +325,7 @@ export function ProductDetailHeroInfo({
               category: product.category,
               brand: product.brand ?? null,
             }}
-            className="h-9 min-h-9 w-full rounded-md border border-[#25D366]/70 bg-transparent px-3 text-[0.7rem] font-medium normal-case tracking-normal text-[#25D366] hover:bg-[#25D366]/5"
+            className="h-9 min-h-9 w-full rounded-md px-3 text-[0.7rem] font-medium normal-case tracking-normal"
           />
           <p className="mt-1 text-center text-[0.65rem] text-muted-foreground">
             Respuesta en menos de 5 min

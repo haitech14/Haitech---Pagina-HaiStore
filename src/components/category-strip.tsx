@@ -15,7 +15,7 @@ const categoryStripItems = categories.filter(
 );
 
 const CATEGORY_SLIDE_CLASS =
-  'min-w-0 flex-[0_0_calc((100%-0.5rem)/3)] sm:flex-[0_0_calc((100%-0.75rem)/4)] md:flex-[0_0_calc((100%-1rem)/5)] lg:flex-[0_0_calc((100%-1.25rem)/6)] xl:flex-[0_0_calc((100%-1.25rem)/6)]';
+  'min-w-0 flex-[0_0_calc((100%-0.5rem)/2.5)] sm:flex-[0_0_calc((100%-0.75rem)/4)] md:flex-[0_0_calc((100%-1rem)/5)] lg:flex-[0_0_calc((100%-1.25rem)/6)] xl:flex-[0_0_calc((100%-1.25rem)/6)]';
 
 function CategoryImage({ category }: { category: Category }) {
   const [hasError, setHasError] = useState(false);
@@ -55,7 +55,7 @@ function CategoryCard({ category }: { category: Category }) {
         <CategoryImage category={category} />
       </div>
 
-      <p className="line-clamp-2 text-balance text-[0.6875rem] font-medium leading-snug text-foreground sm:text-xs md:text-sm">
+      <p className="line-clamp-2 text-balance text-xs font-medium leading-snug text-foreground sm:text-sm">
         {category.name}
       </p>
     </Link>

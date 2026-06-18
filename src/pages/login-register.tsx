@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Mail, Shield, User } from 'lucide-react';
 
+import { FooterLogoImage } from '@/components/layout/site-logo';
 import { useAuth } from '@/context/auth-context';
 
 export function LoginRegisterPage() {
@@ -41,7 +42,7 @@ export function LoginRegisterPage() {
 
       <section className="login-card-glow relative z-10 w-full max-w-md rounded-2xl border border-red-600/40 p-6 sm:p-8">
         <Link to="/" className="mb-6 flex items-center justify-center" aria-label="Haitech, inicio">
-          <img src="/logo.png" alt="Haitech Soluciones Tecnológicas" className="h-10 w-auto" />
+          <FooterLogoImage heightClass="h-10" />
         </Link>
 
         <div className="mb-4 flex justify-center">

@@ -61,10 +61,10 @@ import {
 } from '@/data/rental-categories';
 import { catalogGridClassName, type CatalogGridColumns } from '@/lib/category-grid-layout';
 import {
-  getCatalogProductsPerPage,
-  clampCatalogPage,
   getCatalogPageSlice,
   getCatalogTotalPages,
+  getResponsiveCatalogPageSize,
+  clampCatalogPage,
 } from '@/lib/catalog-product-pagination';
 import {
   catalogFamilyForCategorySlug,
@@ -91,6 +91,7 @@ import {
   getCatalogLayoutOrderedProducts,
   toggleCatalogSpecFilter,
 } from '@/lib/category-catalog-filters';
+import { useIsDesktopNav, useIsMobile } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -149,6 +150,8 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
   const [catalogSearch, setCatalogSearch] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [catalogPage, setCatalogPage] = useState(1);
+  const isMobile = useIsMobile();
+  const isDesktopNav = useIsDesktopNav();
   const filtersAsideRef = useRef<HTMLElement>(null);
   const openCreateProductRef = useRef<(() => void) | null>(null);
   const { isAdmin } = useAuth();
@@ -520,7 +523,7 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
     return getCatalogLayoutOrderedProducts(filteredProducts);
   }, [filteredProducts, showFormatSections]);
 
-  const catalogPageSize = getCatalogProductsPerPage(gridColumns);
+  const catalogPageSize = getResponsiveCatalogPageSize(isMobile, gridColumns);
   const catalogTotalPages = getCatalogTotalPages(paginationProducts.length, catalogPageSize);
   const safeCatalogPage = clampCatalogPage(catalogPage, catalogTotalPages);
   const pagedCatalogProducts = getCatalogPageSlice(
@@ -556,6 +559,7 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
     estadoFilter,
     gridColumns,
     viewMode,
+    isMobile,
   ]);
 
   useEffect(() => {
@@ -576,12 +580,12 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
   }, []);
 
   const toggleCategoryFilters = useCallback(() => {
-    if (typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches) {
+    if (isDesktopNav) {
       setFiltersPanelOpen((open) => !open);
       return;
     }
     setFiltersSheetOpen(true);
-  }, []);
+  }, [isDesktopNav]);
 
   if (!slug || !category) {
     return <Navigate to="/" replace />;

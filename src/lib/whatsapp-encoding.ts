@@ -1,52 +1,100 @@
 /**
- * Emojis con escapes Unicode (estables en build/Windows) y URLs de WhatsApp en UTF-8.
+ * Emojis vía `String.fromCodePoint` en getters (sin literales UTF-8 en el bundle).
+ * El minificador convierte `\u{…}` a caracteres multibyte; en Windows eso puede
+ * corromperse al parsear el JS si el charset no es UTF-8.
  */
+
+function cp(...codePoints: number[]): string {
+  return String.fromCodePoint(...codePoints);
+}
+
 export const WA_EMOJI = {
-  wave: '\u{1F44B}',
-  pray: '\u{1F64F}',
-  smile: '\u{1F60A}',
-  package: '\u{1F4E6}',
-  label: '\u{1F3F7}\u{FE0F}',
-  dollar: '\u{1F4B5}',
-  money: '\u{1F4B0}',
-  link: '\u{1F517}',
-  clipboard: '\u{1F4CB}',
-  mobile: '\u{1F4F1}',
-  pin: '\u{1F4CD}',
-  phone: '\u{1F4DE}',
-  email: '\u{1F4E7}',
-  idCard: '\u{1FAAA}',
-  calendar: '\u{1F4C5}',
-  cart: '\u{1F6D2}',
-  bags: '\u{1F6CD}\u{FE0F}',
-  printer: '\u{1F5A8}\u{FE0F}',
-  building: '\u{1F3E2}',
-  creditCard: '\u{1F4B3}',
+  get wave() {
+    return cp(0x1f44b);
+  },
+  get pray() {
+    return cp(0x1f64f);
+  },
+  get smile() {
+    return cp(0x1f60a);
+  },
+  get package() {
+    return cp(0x1f4e6);
+  },
+  get label() {
+    return cp(0x1f3f7, 0xfe0f);
+  },
+  get dollar() {
+    return cp(0x1f4b5);
+  },
+  get money() {
+    return cp(0x1f4b0);
+  },
+  get link() {
+    return cp(0x1f517);
+  },
+  get clipboard() {
+    return cp(0x1f4cb);
+  },
+  get mobile() {
+    return cp(0x1f4f1);
+  },
+  get pin() {
+    return cp(0x1f4cd);
+  },
+  get phone() {
+    return cp(0x1f4de);
+  },
+  get email() {
+    return cp(0x1f4e7);
+  },
+  get idCard() {
+    return cp(0x1faaa);
+  },
+  get calendar() {
+    return cp(0x1f4c5);
+  },
+  get cart() {
+    return cp(0x1f6d2);
+  },
+  get bags() {
+    return cp(0x1f6cd, 0xfe0f);
+  },
+  get printer() {
+    return cp(0x1f5a8, 0xfe0f);
+  },
+  get building() {
+    return cp(0x1f3e2);
+  },
+  get creditCard() {
+    return cp(0x1f4b3);
+  },
 } as const;
 
-/** Codifica texto para parámetro `text` de WhatsApp (UTF-8 / NFC). */
+/** Codifica texto para parámetro `text` de WhatsApp (UTF-8 / NFC, un solo paso). */
 export function encodeWhatsAppText(text: string): string {
   return encodeURIComponent(text.normalize('NFC'));
 }
 
-/**
- * Enlace oficial de click-to-chat. `URLSearchParams` preserva emojis en UTF-8.
- * @see https://developers.facebook.com/docs/whatsapp/
- */
-export function buildWhatsAppShareUrl(phone: string, text: string): string | null {
+function normalizeWhatsAppPhoneDigits(phone: string): string | null {
   const digits = phone.replace(/\D/g, '');
   if (digits.length < 9) return null;
-  const normalized = digits.startsWith('51') ? digits : `51${digits}`;
-  const params = new URLSearchParams();
-  params.set('phone', normalized);
-  params.set('text', text.normalize('NFC'));
-  return `https://api.whatsapp.com/send?${params.toString()}`;
+  return digits.startsWith('51') ? digits : `51${digits}`;
 }
 
-/** Alias corto compatible con enlaces guardados (`wa.me` redirige igual). */
+/**
+ * Enlace `wa.me` con `text` codificado en UTF-8 (emojis como secuencias %F0%9F…).
+ * @see https://developers.facebook.com/docs/whatsapp/
+ */
 export function buildWhatsAppMeUrl(phone: string, text: string): string | null {
-  const digits = phone.replace(/\D/g, '');
-  if (digits.length < 9) return null;
-  const normalized = digits.startsWith('51') ? digits : `51${digits}`;
+  const normalized = normalizeWhatsAppPhoneDigits(phone);
+  if (!normalized) return null;
   return `https://wa.me/${normalized}?text=${encodeWhatsAppText(text)}`;
+}
+
+/** Mismo encoding que `buildWhatsAppMeUrl`, formato api.whatsapp.com (admin / CRM). */
+export function buildWhatsAppShareUrl(phone: string, text: string): string | null {
+  const normalized = normalizeWhatsAppPhoneDigits(phone);
+  if (!normalized) return null;
+  return `https://api.whatsapp.com/send?phone=${normalized}&text=${encodeWhatsAppText(text)}`;
 }

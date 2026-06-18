@@ -39,7 +39,7 @@ export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
   phone: '926 224 243 – 965 805 873',
   email: 'ventas@nbntecnologia.com',
   website: 'www.nbntecnologia.com',
-  logoUrl: '/logo.png',
+  logoUrl: '/logoclaro.png',
   quoteDocumentLabel: 'PROFORMA',
   quoteNumberPrefix: 'COT01',
   quoteNextNumber: 15,
