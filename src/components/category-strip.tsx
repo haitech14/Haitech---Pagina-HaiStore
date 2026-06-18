@@ -6,6 +6,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { categories, type Category } from '@/data/categories';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { CATEGORY_STRIP_TRACK_WRAPPER_CLASS } from '@/lib/category-strip-layout';
+import { categoryImageSources } from '@/lib/responsive-image';
 import { cn } from '@/lib/utils';
 
 const CATEGORY_STRIP_HIDDEN_SLUGS = new Set(['servicio-tecnico']);
@@ -17,20 +18,32 @@ const categoryStripItems = categories.filter(
 const CATEGORY_SLIDE_CLASS =
   'min-w-0 flex-[0_0_calc((100%-0.5rem)/2.5)] sm:flex-[0_0_calc((100%-0.75rem)/4)] md:flex-[0_0_calc((100%-1rem)/5)] lg:flex-[0_0_calc((100%-1.25rem)/6)] xl:flex-[0_0_calc((100%-1.25rem)/6)]';
 
-function CategoryImage({ category }: { category: Category }) {
+function CategoryImage({ category, priority }: { category: Category; priority?: boolean }) {
   const [hasError, setHasError] = useState(false);
   const showImage = Boolean(category.image) && !hasError;
 
   return (
     <div className="flex size-[6.25rem] items-center justify-center overflow-hidden rounded-full bg-neutral-200 sm:size-36 md:size-40 lg:size-44">
       {showImage ? (
-        <img
-          src={category.image}
-          alt=""
-          className="size-[88%] object-contain transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-          onError={() => setHasError(true)}
-        />
+        (() => {
+          const { webpSrcSet, fallbackSrc, sizes } = categoryImageSources(category.image!);
+          return (
+            <picture className="flex size-[88%] items-center justify-center">
+              <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
+              <img
+                src={fallbackSrc}
+                alt=""
+                width={176}
+                height={176}
+                className="size-full object-contain transition-transform duration-300 group-hover:scale-105"
+                loading={priority ? 'eager' : 'lazy'}
+                {...(priority ? { fetchPriority: 'high' as const } : {})}
+                sizes={sizes}
+                onError={() => setHasError(true)}
+              />
+            </picture>
+          );
+        })()
       ) : (
         <div className="flex size-[70%] items-center justify-center rounded-full bg-neutral-300/60">
           <category.icon
@@ -44,7 +57,7 @@ function CategoryImage({ category }: { category: Category }) {
   );
 }
 
-function CategoryCard({ category }: { category: Category }) {
+function CategoryCard({ category, priority }: { category: Category; priority?: boolean }) {
   return (
     <Link
       to={`/categoria/${category.slug}`}
@@ -52,7 +65,7 @@ function CategoryCard({ category }: { category: Category }) {
       aria-label={`Ver productos de ${category.name}`}
     >
       <div className="rounded-full transition-shadow group-hover:ring-2 group-hover:ring-red-600/40 group-hover:ring-offset-2 group-hover:ring-offset-white">
-        <CategoryImage category={category} />
+        <CategoryImage category={category} {...(priority ? { priority: true } : {})} />
       </div>
 
       <p className="line-clamp-2 text-balance text-xs font-medium leading-snug text-foreground sm:text-sm">
@@ -130,9 +143,12 @@ export function CategoryStrip() {
 
           <div ref={emblaRef} className="overflow-hidden px-0.5">
             <ul className="flex gap-1 sm:gap-1.5 lg:gap-2" role="list" aria-label="Categorías de productos">
-              {categoryStripItems.map((category) => (
+              {categoryStripItems.map((category, index) => (
                 <li key={category.slug} className={CATEGORY_SLIDE_CLASS}>
-                  <CategoryCard category={category} />
+                  <CategoryCard
+                    category={category}
+                    {...(index < 4 ? { priority: true as const } : {})}
+                  />
                 </li>
               ))}
             </ul>

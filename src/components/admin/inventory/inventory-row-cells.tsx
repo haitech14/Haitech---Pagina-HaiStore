@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
+import { formatProductDisplayCode } from '@/lib/product-display-code';
 
 import { InventoryInlinePriceEdit } from '@/components/admin/inventory/inventory-inline-price-edit';
 import { useCompanySettings } from '@/hooks/use-company-settings';
@@ -267,7 +268,7 @@ export function InventoryRowCells({
         onClose={close}
         display={
           <code className="block truncate rounded bg-muted px-1 py-0.5 text-[0.7rem] font-semibold tabular-nums">
-            {product.code}
+            {formatProductDisplayCode(product.code, { brand: product.brand }) ?? product.code}
           </code>
         }
         edit={

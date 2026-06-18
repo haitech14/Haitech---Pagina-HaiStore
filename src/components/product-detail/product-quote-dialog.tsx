@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FileDown } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { HaitechClientForm } from '@/components/admin/shared/haitech-client-form';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,11 @@ import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
 import { buildProformaPayloadFromProductQuote } from '@/lib/build-proforma-payload';
 import { buildProductQuoteLines } from '@/lib/equipment-config-selection';
-import { buildProductQuotePdf } from '@/lib/generate-product-quote-pdf';
+import {
+  buildProductQuotePdf,
+  buildQuoteTechnicalSheetFromProduct,
+  preloadQuotePdfAssets,
+} from '@/lib/generate-product-quote-pdf';
 import {
   haitechClientSchema,
   EMPTY_HAITECH_CLIENT,
@@ -23,6 +28,7 @@ import {
 import { usdToPen } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { CartConfigurationLine, Product } from '@/types/product';
+import type { ProductHeroSpecBullet } from '@/types/product-detail';
 
 interface ProductQuoteDialogProps {
   open: boolean;
@@ -31,6 +37,10 @@ interface ProductQuoteDialogProps {
   displayTitle: string;
   sku: string;
   brandLabel: string;
+  categoryLabel?: string;
+  heroSpecBullets?: ProductHeroSpecBullet[];
+  heroLead?: string;
+  heroDescription?: string;
   equipmentConfiguration?: CartConfigurationLine | undefined;
   onGenerated: (preview: QuotePdfPreview) => void;
 }
@@ -42,6 +52,10 @@ export function ProductQuoteDialog({
   displayTitle,
   sku,
   brandLabel,
+  categoryLabel,
+  heroSpecBullets,
+  heroLead,
+  heroDescription,
   equipmentConfiguration,
   onGenerated,
 }: ProductQuoteDialogProps) {
@@ -69,6 +83,11 @@ export function ProductQuoteDialog({
 
   const paidOptionsCount = equipmentConfiguration?.options.filter((option) => option.pricePen > 0).length ?? 0;
 
+  useEffect(() => {
+    if (!open) return;
+    preloadQuotePdfAssets([product.image_url]);
+  }, [open, product.image_url]);
+
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitError(null);
@@ -91,7 +110,19 @@ export function ProductQuoteDialog({
 
     try {
       const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
-      const generated = await buildProductQuotePdf(values, quoteLines, company);
+      let technicalSheet = null;
+      try {
+        technicalSheet = buildQuoteTechnicalSheetFromProduct(product, {
+          displayTitle,
+          categoryLabel: categoryLabel ?? product.category ?? 'Equipo',
+          ...(heroSpecBullets ? { heroSpecBullets } : {}),
+          ...(heroLead ? { heroLead } : {}),
+          ...(heroDescription ? { heroDescription } : {}),
+        });
+      } catch (sheetError) {
+        console.warn('[ProductQuoteDialog] technical sheet skipped', sheetError);
+      }
+      const generated = await buildProductQuotePdf(values, quoteLines, company, { technicalSheet });
 
       const url = URL.createObjectURL(generated.blob);
       onGenerated({
@@ -101,8 +132,11 @@ export function ProductQuoteDialog({
         quoteNumber: generated.quoteNumber,
       });
 
-      try {
-        await registerProductQuote.mutateAsync(
+      setClient(EMPTY_HAITECH_CLIENT);
+      onOpenChange(false);
+
+      void registerProductQuote
+        .mutateAsync(
           buildProformaPayloadFromProductQuote(
             generated.quoteNumber,
             values,
@@ -117,18 +151,14 @@ export function ProductQuoteDialog({
             })),
             company.quoteValidityDays,
           ),
-        );
-      } catch {
-        setSubmitError(
-          'PDF generado, pero no se pudo registrar la cotización en el panel de ventas.',
-        );
-        setIsSubmitting(false);
-        return;
-      }
-
-      setClient(EMPTY_HAITECH_CLIENT);
-      onOpenChange(false);
-    } catch {
+        )
+        .catch(() => {
+          toast.warning(
+            'PDF generado, pero no se pudo registrar la cotización en el panel de ventas.',
+          );
+        });
+    } catch (error) {
+      console.error('[ProductQuoteDialog] PDF generation failed', error);
       setSubmitError('No se pudo generar la cotización. Inténtelo nuevamente.');
     } finally {
       setIsSubmitting(false);

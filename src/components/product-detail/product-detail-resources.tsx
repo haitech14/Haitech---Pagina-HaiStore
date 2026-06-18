@@ -6,7 +6,7 @@ import {
   ProductQuotePdfViewer,
   type QuotePdfPreview,
 } from '@/components/product-detail/product-quote-pdf-viewer';
-import type { ProductResourceLink } from '@/types/product-detail';
+import type { ProductHeroSpecBullet, ProductResourceLink } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
 interface ProductDetailResourcesProps {
@@ -15,6 +15,8 @@ interface ProductDetailResourcesProps {
   displayTitle: string;
   sku: string;
   brandLabel: string;
+  categoryLabel?: string;
+  heroSpecBullets?: ProductHeroSpecBullet[];
 }
 
 function ResourceButton({
@@ -50,6 +52,8 @@ export function ProductDetailResources({
   displayTitle,
   sku,
   brandLabel,
+  categoryLabel,
+  heroSpecBullets,
 }: ProductDetailResourcesProps) {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [pdfPreview, setPdfPreview] = useState<QuotePdfPreview | null>(null);
@@ -88,6 +92,8 @@ export function ProductDetailResources({
         displayTitle={displayTitle}
         sku={sku}
         brandLabel={brandLabel}
+        {...(categoryLabel ? { categoryLabel } : {})}
+        {...(heroSpecBullets ? { heroSpecBullets } : {})}
         onGenerated={setPdfPreview}
       />
 

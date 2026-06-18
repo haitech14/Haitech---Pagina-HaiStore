@@ -3,6 +3,7 @@ import { Package } from 'lucide-react';
 
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildInventoryCategoryOptions } from '@/lib/inventory-categories';
+import { formatProductDisplayCode } from '@/lib/product-display-code';
 import { compareProductsBySortOrder } from '@/lib/inventory-product-order';
 import {
   TPV_ACCENT_TEXT_CLASS,
@@ -63,6 +64,7 @@ function CatalogProductRow({
   onAdd: () => void;
 }) {
   const [imageError, setImageError] = useState(false);
+  const displayCode = formatProductDisplayCode(product.code, { brand: product.brand });
   const showImage = Boolean(product.image_url) && !imageError;
 
   return (
@@ -96,7 +98,7 @@ function CatalogProductRow({
           <p className="line-clamp-2 text-sm font-medium text-foreground">{product.name}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {product.brand ?? 'Sin marca'} · Stock {product.stock}
-            {product.code ? ` · ${product.code}` : ''}
+            {displayCode ? ` · ${displayCode}` : ''}
           </p>
         </div>
 

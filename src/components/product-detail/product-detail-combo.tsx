@@ -25,6 +25,8 @@ interface ProductDetailComboProps {
   compact?: boolean;
   /** Aún más pequeño: ideal arriba del precio en la columna hero. */
   mini?: boolean;
+  /** Tarjetas horizontales con botón + (complementos del equipo). */
+  layout?: 'default' | 'complement';
 }
 
 function ComboCard({
@@ -44,7 +46,7 @@ function ComboCard({
     <article
       className={cn(
         'relative flex h-full flex-col rounded-lg border bg-white transition-colors',
-        mini ? 'p-1.5' : compact ? 'p-2' : 'p-2.5 sm:p-3',
+        mini ? 'p-1.5' : compact ? 'p-2.5' : 'p-2.5 sm:p-3',
         selected ? 'border-red-600/40 ring-1 ring-red-600/20' : 'border-border/60',
       )}
     >
@@ -73,7 +75,7 @@ function ComboCard({
           mini
             ? 'aspect-[4/3] max-h-20 p-0.5 pt-2.5'
             : compact
-              ? 'aspect-[5/4] p-1.5 pt-4'
+              ? 'aspect-[5/4] p-2 pt-5'
               : 'aspect-[4/3] p-3 pt-5',
         )}
       >
@@ -91,7 +93,7 @@ function ComboCard({
           mini
             ? 'mt-0.5 text-[0.625rem] leading-tight'
             : compact
-              ? 'mt-1.5 text-[0.625rem]'
+              ? 'mt-1.5 text-xs'
               : 'mt-2 text-[0.6875rem] sm:text-xs',
         )}
       >
@@ -101,7 +103,7 @@ function ComboCard({
       <p
         className={cn(
           'font-bold text-[#0f1f3d]',
-          mini ? 'mt-px text-[0.5625rem]' : compact ? 'mt-1 text-[0.6875rem]' : 'mt-1.5 text-sm',
+          mini ? 'mt-px text-[0.5625rem]' : compact ? 'mt-1 text-xs sm:text-sm' : 'mt-1.5 text-sm',
         )}
       >
         {item.priceUsd != null ? (
@@ -133,6 +135,57 @@ function ComboCard({
   );
 }
 
+function ComplementSelectableCard({
+  item,
+  selected,
+  onToggle,
+}: {
+  item: ProductComboItem;
+  selected: boolean;
+  onToggle: (checked: boolean) => void;
+}) {
+  const inputId = `complement-${item.id}`;
+  const priceLabel =
+    item.priceUsd != null ? null : `S/ ${item.pricePen.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  return (
+    <label
+      htmlFor={inputId}
+      className={cn(
+        'flex h-full w-full min-w-0 cursor-pointer flex-col rounded-lg border bg-white p-2 transition-colors sm:p-2.5',
+        selected ? 'border-red-600 ring-1 ring-red-600/25' : 'border-border/60 hover:border-border',
+      )}
+    >
+      <div className="mb-2 flex items-start justify-between gap-1">
+        <Checkbox
+          id={inputId}
+          checked={selected}
+          onCheckedChange={(checked) => onToggle(checked === true)}
+          className="size-3.5 border-border data-[state=checked]:border-red-600 data-[state=checked]:bg-red-600 sm:size-4"
+          aria-label={`Incluir ${item.name}`}
+        />
+      </div>
+
+      <div className="flex flex-1 flex-col items-center justify-center rounded-md bg-muted/25 px-1.5 py-3 sm:py-4">
+        <img
+          src={item.image}
+          alt=""
+          className="max-h-20 w-full max-w-[5.5rem] object-contain sm:max-h-24 sm:max-w-[6.5rem]"
+          loading="lazy"
+        />
+      </div>
+
+      <p className="mt-2 line-clamp-2 min-h-[2.25rem] text-pretty text-[0.625rem] font-medium leading-snug text-[#0f1f3d] sm:min-h-[2.5rem] sm:text-[0.6875rem]">
+        {item.name}
+      </p>
+
+      <p className="mt-1 truncate text-[0.6875rem] font-bold tabular-nums text-red-600 sm:text-xs" title={priceLabel ?? undefined}>
+        {item.priceUsd != null ? <DualPrice usd={item.priceUsd} className="text-[0.6875rem] font-bold sm:text-xs" /> : priceLabel}
+      </p>
+    </label>
+  );
+}
+
 export function ProductDetailCombo({
   items,
   mainProduct,
@@ -143,6 +196,7 @@ export function ProductDetailCombo({
   embedded = false,
   compact = false,
   mini = false,
+  layout = 'default',
 }: ProductDetailComboProps) {
   const { addItem } = useCart();
   const [selected, setSelected] = useState<Record<string, boolean>>(() =>
@@ -174,36 +228,108 @@ export function ProductDetailCombo({
     };
   }, [items, selected]);
 
+  const handleAddItem = (item: ProductComboItem, openDrawer = true) => {
+    const realProduct = item.productId
+      ? catalogProducts.find((row) => row.id === item.productId)
+      : undefined;
+
+    if (realProduct) {
+      addItem(realProduct, { openDrawer });
+      return;
+    }
+
+    addItem(
+      {
+        id: `${mainProduct.id}-${item.id}`,
+        name: item.name,
+        description: `Consumible para ${mainProduct.name}`,
+        price: item.priceUsd ?? Math.round(item.pricePen / 3.7),
+        currency: 'USD',
+        image_url: item.image,
+        stock: 10,
+        category: 'Tóner y Suministros',
+        created_at: new Date().toISOString(),
+      },
+      { openDrawer },
+    );
+  };
+
   const handleAddCombo = () => {
     const picked = items.filter((item) => selected[item.id]);
     picked.forEach((item, index) => {
-      const realProduct = item.productId
-        ? catalogProducts.find((row) => row.id === item.productId)
-        : undefined;
-
-      if (realProduct) {
-        addItem(realProduct, { openDrawer: index === picked.length - 1 });
-        return;
-      }
-
-      addItem(
-        {
-          id: `${mainProduct.id}-${item.id}`,
-          name: item.name,
-          description: `Consumible para ${mainProduct.name}`,
-          price: item.priceUsd ?? Math.round(item.pricePen / 3.7),
-          currency: 'USD',
-          image_url: item.image,
-          stock: 10,
-          category: 'Tóner y Suministros',
-          created_at: new Date().toISOString(),
-        },
-        { openDrawer: index === picked.length - 1 },
-      );
+      handleAddItem(item, index === picked.length - 1);
     });
   };
 
   if (items.length === 0) return null;
+
+  if (layout === 'complement') {
+    const columnCount = Math.max(1, items.length);
+
+    return (
+      <section
+        className={cn('@container/complement min-w-0', className)}
+        aria-labelledby="combo-titulo"
+      >
+        <h2 id="combo-titulo" className="text-left text-base font-bold text-[#0f1f3d] sm:text-lg">
+          {title}
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+          Selecciona los complementos que deseas incluir (una opción por columna).
+        </p>
+
+        <ul
+          className="mt-3 grid list-none gap-2 p-0 sm:mt-4 sm:gap-2.5"
+          style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
+        >
+          {items.map((item) => (
+            <li key={item.id} className="min-w-0">
+              <ComplementSelectableCard
+                item={item}
+                selected={Boolean(selected[item.id])}
+                onToggle={(checked) =>
+                  setSelected((prev) => ({ ...prev, [item.id]: checked }))
+                }
+              />
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-3 flex flex-col gap-2 border-t border-border/40 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground sm:text-sm">
+            <span>
+              {selectedCount} seleccionado{selectedCount !== 1 ? 's' : ''}
+            </span>
+            {selectedCount > 0 ? (
+              <>
+                <span className="mx-1 text-border" aria-hidden="true">
+                  |
+                </span>
+                <span>
+                  +{' '}
+                  <span className="font-semibold text-[#0f1f3d]">
+                    S/ {totalPen.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </span>
+              </>
+            ) : null}
+          </p>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-10 shrink-0 gap-1.5 rounded-md border-red-600/30 px-3.5 text-xs font-bold text-red-600 hover:bg-red-50 focus-visible:ring-red-600 sm:text-sm"
+            onClick={handleAddCombo}
+            disabled={selectedCount === 0}
+          >
+            <ShoppingCart className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+            Agregar seleccionados
+          </Button>
+        </div>
+      </section>
+    );
+  }
 
   const resolvedSubtitle =
     subtitle ?? `Toner y consumibles compatibles con tu ${mainProduct.brand ?? 'equipo'}`;
@@ -232,11 +358,11 @@ export function ProductDetailCombo({
           <p className="mt-px line-clamp-1 text-[0.5625rem] text-muted-foreground">{resolvedSubtitle}</p>
         </div>
       ) : compact ? (
-        <div className="border-b border-border/40 px-3 py-2.5 sm:px-3.5">
-          <h2 id="combo-titulo" className="text-sm font-bold text-[#0f1f3d]">
+        <div className="border-b border-border/40 px-3.5 py-3 sm:px-4">
+          <h2 id="combo-titulo" className="text-sm font-bold text-[#0f1f3d] sm:text-base">
             {title}
           </h2>
-          <p className="mt-0.5 text-[0.6875rem] text-muted-foreground sm:text-xs">{resolvedSubtitle}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{resolvedSubtitle}</p>
         </div>
       ) : !embedded ? (
         <div className="border-b border-border/60 px-4 py-3.5 sm:px-5">
@@ -254,7 +380,7 @@ export function ProductDetailCombo({
       <div
         className={cn(
           'relative bg-transparent',
-          isMiniLayout ? 'px-2 py-1.5' : compact ? 'px-3 py-3 sm:px-3.5' : embedded ? '' : 'px-4 py-3.5 sm:px-5',
+          isMiniLayout ? 'px-2 py-1.5' : compact ? 'px-3.5 py-3.5 sm:px-4' : embedded ? '' : 'px-4 py-3.5 sm:px-5',
         )}
       >
         {useGrid ? (
@@ -263,7 +389,7 @@ export function ProductDetailCombo({
               'grid',
               isMiniLayout
                 ? 'grid-cols-3 gap-1.5'
-                : cn('grid-cols-1 gap-2', items.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'),
+                : cn('grid-cols-1 gap-2.5', items.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'),
             )}
           >
             {items.map((item) => (
@@ -322,16 +448,16 @@ export function ProductDetailCombo({
           'flex flex-col gap-1.5 border-t border-border/40 bg-muted/20 sm:flex-row sm:items-center sm:justify-between',
             isMiniLayout
             ? 'px-2 py-1 sm:gap-2'
-            : cn(
-                'gap-2 py-2 sm:gap-3',
-                compact ? 'px-3 sm:px-3.5' : embedded ? 'mt-3 rounded-lg px-3 sm:px-4' : 'px-4 sm:px-5',
+            :             cn(
+                'gap-2 py-2.5 sm:gap-3',
+                compact ? 'px-3.5 sm:px-4' : embedded ? 'mt-3 rounded-lg px-3 sm:px-4' : 'px-4 sm:px-5',
               ),
         )}
       >
         <p
           className={cn(
             'text-muted-foreground',
-            isMiniLayout ? 'text-[0.5625rem] leading-tight' : 'text-[0.6875rem] sm:text-xs',
+            isMiniLayout ? 'text-[0.5625rem] leading-tight' : 'text-xs sm:text-sm',
           )}
         >
           <span>
@@ -360,7 +486,7 @@ export function ProductDetailCombo({
             'shrink-0 gap-1 rounded-md border-red-600/30 font-bold text-red-600 hover:bg-red-50 focus-visible:ring-red-600',
             isMiniLayout
               ? 'h-6 px-1.5 text-[0.5625rem]'
-              : 'h-9 gap-1.5 px-3 text-[0.6875rem] sm:text-xs',
+              : 'h-10 gap-1.5 px-3.5 text-xs sm:text-sm',
           )}
           onClick={handleAddCombo}
           disabled={selectedCount === 0}

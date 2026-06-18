@@ -1,4 +1,4 @@
-import { buildWhatsAppMeUrl, WA_EMOJI } from '@/lib/whatsapp-encoding';
+import { buildWhatsAppMeUrl } from '@/lib/whatsapp-encoding';
 import {
   HAITECH_WHATSAPP_MSISDN,
   normalizePeruWhatsAppMsisdn,
@@ -27,24 +27,22 @@ export function buildProductWhatsAppMessage(
   const meta = [product.brand?.trim(), product.category?.trim()].filter(Boolean).join(' · ');
 
   return [
-    `¡Hola! ${WA_EMOJI.wave} Soy *${contact.name.trim()}*`,
+    `¡Hola! Soy *${contact.name.trim()}*`,
     '',
     'Me interesa este producto de la tienda:',
     '',
-    `${WA_EMOJI.package} *${product.name.trim()}*`,
-    meta ? `${WA_EMOJI.label} ${meta}` : null,
-    product.quantity != null && product.quantity > 1
-      ? `${WA_EMOJI.package} Cantidad: *${product.quantity}*`
-      : null,
-    `${WA_EMOJI.dollar} *${priceUsd}* · *${pricePen}*`,
-    product.productUrl ? `${WA_EMOJI.link} ${product.productUrl}` : null,
+    `*${product.name.trim()}*`,
+    meta ? meta : null,
+    product.quantity != null && product.quantity > 1 ? `Cantidad: *${product.quantity}*` : null,
+    `Precio: *${priceUsd}* · *${pricePen}*`,
+    product.productUrl ? product.productUrl : null,
     '',
-    `${WA_EMOJI.clipboard} *Mis datos:*`,
-    `${WA_EMOJI.mobile} Celular: ${contact.phone.trim()}`,
-    `${WA_EMOJI.pin} Ciudad: ${contact.city.trim()}`,
+    '*Mis datos:*',
+    `Celular: ${contact.phone.trim()}`,
+    `Ciudad: ${contact.city.trim()}`,
     '',
-    `¿Podrían brindarme más información o una cotización? ${WA_EMOJI.pray}`,
-    `¡Gracias! ${WA_EMOJI.smile}`,
+    '¿Podrían brindarme más información o una cotización?',
+    '¡Gracias!',
   ]
     .filter((line): line is string => line != null)
     .join('\n');

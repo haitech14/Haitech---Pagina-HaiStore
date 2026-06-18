@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Building2, Coins, Link2, Palette, Save } from 'lucide-react';
 
 import { HaiSalesIntegrationCard } from '@/components/admin/integrations/haisales-integration-card';
+import { BulkDiscountTiersPanel } from '@/components/admin/bulk-discount-tiers-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -226,6 +227,12 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
         </>
       )}
 
+      {section === 'descuentos-volumen' && (
+        <section className="max-w-4xl rounded-xl border p-4 sm:p-5">
+          <BulkDiscountTiersPanel />
+        </section>
+      )}
+
       {section === 'pdf' && (
         <section className="rounded-xl border p-5">
           <h3 className="mb-4 text-lg font-semibold">Proforma / Cotización PDF</h3>
@@ -438,14 +445,16 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
       )}
 
       <div className="flex justify-end border-t pt-4">
-        <Button
-          type="submit"
-          disabled={saveSettings.isPending}
-          className="gap-2 bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600"
-        >
-          <Save className="size-4" aria-hidden="true" />
-          {saveSettings.isPending ? 'Guardando…' : 'Guardar configuración'}
-        </Button>
+        {section !== 'descuentos-volumen' ? (
+          <Button
+            type="submit"
+            disabled={saveSettings.isPending}
+            className="gap-2 bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600"
+          >
+            <Save className="size-4" aria-hidden="true" />
+            {saveSettings.isPending ? 'Guardando…' : 'Guardar configuración'}
+          </Button>
+        ) : null}
       </div>
     </form>
   );

@@ -1,8 +1,13 @@
 import type { ReactNode } from 'react';
 
+import {
+  CatalogFormatMainHeader,
+  CatalogFormatSubHeader,
+} from '@/components/category/catalog-format-section-header';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 import { catalogGridClassName, type CatalogGridColumns } from '@/lib/category-grid-layout';
 import type { CatalogFormatSectionGroup } from '@/lib/category-catalog-filters';
+import { categoryPath } from '@/lib/category-path';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -11,37 +16,7 @@ interface CategoryCatalogFormatSectionsProps {
   gridColumns: CatalogGridColumns;
   renderProduct: (product: Product) => ReactNode;
   className?: string;
-}
-
-function SectionHeading({
-  title,
-  count,
-  level = 'main',
-}: {
-  title: string;
-  count: number;
-  level?: 'main' | 'sub';
-}) {
-  const isMain = level === 'main';
-
-  return (
-    <div className={cn('flex flex-wrap items-end gap-2', isMain ? 'mb-3 sm:mb-4' : 'mb-2.5 sm:mb-3')}>
-      <h3
-        className={cn(
-          'text-balance font-bold tracking-tight text-[#0f1f3d]',
-          isMain ? 'text-base sm:text-lg' : 'text-sm sm:text-base',
-        )}
-      >
-        {title}
-      </h3>
-      <span className="pb-0.5 text-xs text-muted-foreground sm:text-sm">
-        ({count} {count === 1 ? 'producto' : 'productos'})
-      </span>
-      {isMain ? (
-        <span className="mb-1 hidden h-px min-w-[2rem] flex-1 bg-red-600/70 sm:block" aria-hidden="true" />
-      ) : null}
-    </div>
-  );
+  categorySlug?: string;
 }
 
 export function CategoryCatalogFormatSections({
@@ -49,6 +24,7 @@ export function CategoryCatalogFormatSections({
   gridColumns,
   renderProduct,
   className,
+  categorySlug = 'multifuncionales',
 }: CategoryCatalogFormatSectionsProps) {
   const visibleSections = sections
     .map((section) => ({
@@ -63,13 +39,15 @@ export function CategoryCatalogFormatSections({
 
   return (
     <div className={cn('space-y-8 sm:space-y-10', className)}>
-      {visibleSections.map((section) => (
+      {visibleSections.map((section) => {
+        const sectionCount = section.subsections.reduce(
+          (total, item) => total + item.products.length,
+          0,
+        );
+
+        return (
         <section key={section.id} aria-labelledby={`catalog-format-${section.id}`}>
-          <SectionHeading
-            title={section.title}
-            count={section.subsections.reduce((total, item) => total + item.products.length, 0)}
-            level="main"
-          />
+          <CatalogFormatMainHeader title={section.title} count={sectionCount} />
           <span id={`catalog-format-${section.id}`} className="sr-only">
             {section.title}
           </span>
@@ -77,10 +55,11 @@ export function CategoryCatalogFormatSections({
           <div className="space-y-6 sm:space-y-8">
             {section.subsections.map((subsection) => (
               <div key={subsection.id} aria-labelledby={`catalog-format-${subsection.id}`}>
-                <SectionHeading
+                <CatalogFormatSubHeader
                   title={subsection.title}
                   count={subsection.products.length}
-                  level="sub"
+                  viewAllHref={categoryPath(categorySlug)}
+                  className="mb-3 sm:mb-4"
                 />
                 <span id={`catalog-format-${subsection.id}`} className="sr-only">
                   {subsection.title}
@@ -90,7 +69,7 @@ export function CategoryCatalogFormatSections({
                     const delayMs = Math.min(revealIndex * 55, 440);
                     revealIndex += 1;
                     return (
-                      <ScrollReveal key={product.id} delayMs={delayMs} className="min-w-0">
+                      <ScrollReveal key={`${subsection.id}-${product.id}`} delayMs={delayMs} className="min-w-0">
                         {renderProduct(product)}
                       </ScrollReveal>
                     );
@@ -100,7 +79,8 @@ export function CategoryCatalogFormatSections({
             ))}
           </div>
         </section>
-      ))}
+        );
+      })}
     </div>
   );
 }

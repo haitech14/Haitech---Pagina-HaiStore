@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 
 import { clients, type Client } from '@/data/clients';
+import { clientLogoSources } from '@/lib/responsive-image';
 import { cn } from '@/lib/utils';
 
 function ClientLogo({ client }: { client: Client }) {
@@ -15,13 +16,23 @@ function ClientLogo({ client }: { client: Client }) {
       )}
     >
       {!logoError ? (
-        <img
-          src={client.logo}
-          alt={client.logoAlt}
-          className="max-h-full max-w-full object-contain object-center"
-          loading="lazy"
-          onError={() => setLogoError(true)}
-        />
+        (() => {
+          const { webpSrc, fallbackSrc } = clientLogoSources(client.logo);
+          return (
+            <picture className="flex max-h-full max-w-full items-center justify-center">
+              <source type="image/webp" srcSet={webpSrc} />
+              <img
+                src={fallbackSrc}
+                alt={client.logoAlt}
+                width={160}
+                height={80}
+                className="max-h-full max-w-full object-contain object-center"
+                loading="lazy"
+                onError={() => setLogoError(true)}
+              />
+            </picture>
+          );
+        })()
       ) : (
         <span
           className="text-xs font-bold text-muted-foreground"

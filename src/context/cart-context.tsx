@@ -11,6 +11,8 @@ export interface AddToCartOptions {
   configuration?: CartConfigurationLine;
   /** Accesorios del inventario a añadir como líneas separadas. */
   accessoryProducts?: Product[];
+  /** Precio unitario USD con descuento por volumen. */
+  volumeUnitPriceUsd?: number;
 }
 
 interface CartContextValue {
@@ -35,7 +37,8 @@ const HIGHLIGHT_MS = 2200;
 
 function cartLineUnitUsd(item: CartItem): number {
   const extrasUsd = penToUsd(item.configuration?.extrasPen ?? 0);
-  return item.product.price + extrasUsd;
+  const baseUsd = item.volumeUnitPriceUsd ?? item.product.price;
+  return baseUsd + extrasUsd;
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -86,7 +89,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (existing) {
             next = next.map((item) =>
               item.lineId === targetLineId
-                ? { ...item, quantity: item.quantity + lineQuantity }
+                ? {
+                    ...item,
+                    quantity: item.quantity + lineQuantity,
+                    ...(options?.volumeUnitPriceUsd != null && targetProduct.id === product.id
+                      ? { volumeUnitPriceUsd: options.volumeUnitPriceUsd }
+                      : {}),
+                  }
                 : item,
             );
           } else {
@@ -95,6 +104,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               quantity: lineQuantity,
               lineId: targetLineId,
               ...(lineConfiguration ? { configuration: lineConfiguration } : {}),
+              ...(options?.volumeUnitPriceUsd != null && targetProduct.id === product.id
+                ? { volumeUnitPriceUsd: options.volumeUnitPriceUsd }
+                : {}),
             };
             next = [...next, nextItem];
           }

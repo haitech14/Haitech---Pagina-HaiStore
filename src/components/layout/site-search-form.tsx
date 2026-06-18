@@ -11,11 +11,13 @@ import {
   filterCategoriesBySearch,
   filterServicesBySearch,
   groupSearchProductsByCategory,
+  getSearchCategoryEmoji,
   MIN_PRODUCT_SEARCH_LENGTH,
   PRODUCT_SEARCH_SUGGESTION_LIMIT,
   type SearchCategorySuggestion,
   type SearchServiceSuggestion,
 } from '@/lib/product-search';
+import { formatProductDisplayCode } from '@/lib/product-display-code';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import type { Product } from '@/types/product';
 import { cn, formatUsd } from '@/lib/utils';
@@ -70,7 +72,7 @@ function SearchProductSuggestionRow({
   onClick,
 }: SearchProductSuggestionRowProps) {
   const outOfStock = isProductOutOfStock(product);
-  const code = product.code?.trim() || null;
+  const code = formatProductDisplayCode(product.code, { brand: product.brand });
   const stockLabel = outOfStock ? 'Sin stock' : `Stock: ${product.stock}`;
   const imageUrl = resolveProductImageUrl(product) ?? '/promo-cards/b2b-printer.png';
 
@@ -486,7 +488,9 @@ export function SiteSearchForm({
                       <li key={`product-group-${group.category}`} role="presentation">
                         <ul role="group" aria-label={group.category}>
                           <li role="presentation">
-                            <SuggestionSectionHeading>{group.category}</SuggestionSectionHeading>
+                            <SuggestionSectionHeading>
+                              {`${getSearchCategoryEmoji(group.category)} ${group.category}`}
+                            </SuggestionSectionHeading>
                           </li>
                           {group.products.map(({ product, suggestionIndex }) => {
                             const isActive = suggestionIndex === activeIndex;

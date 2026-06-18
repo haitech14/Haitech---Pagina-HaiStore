@@ -23,6 +23,7 @@ import { ProductDetailRelated } from '@/components/product-detail/product-detail
 import { ProductDetailResources } from '@/components/product-detail/product-detail-resources';
 import { ProductDetailSpecsTable } from '@/components/product-detail/product-detail-specs-table';
 import { buildProductDetail } from '@/lib/build-product-detail';
+import { DEFAULT_BULK_DISCOUNT_TIERS, resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { ensureFullPrices } from '@/lib/roles';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import {
@@ -39,6 +40,7 @@ import {
   resolveEquipmentConsumables,
 } from '@/lib/product-equipment-consumables';
 import { useRentalPlans } from '@/hooks/use-rental-plans';
+import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProducts } from '@/hooks/use-products';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { cn } from '@/lib/utils';
@@ -87,6 +89,7 @@ const MOCK_REVIEWS = [
 
 export function ProductDetailView({ product, featuredMeta }: ProductDetailViewProps) {
   const { data: rentalPlansRaw = [] } = useRentalPlans({ activeOnly: true });
+  const { data: companySettings } = useCompanySettings();
   const { data: catalogProducts = [], isLoading: catalogLoading } = useProducts();
   const rentalPlansFromApi = useMemo(
     () =>
@@ -96,9 +99,10 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
       })),
     [rentalPlansRaw],
   );
+  const bulkDiscountTiers = companySettings?.bulkDiscountTiers ?? DEFAULT_BULK_DISCOUNT_TIERS;
   const detail = useMemo(
-    () => buildProductDetail(product, featuredMeta, rentalPlansFromApi),
-    [product, featuredMeta, rentalPlansFromApi],
+    () => buildProductDetail(product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers),
+    [product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers],
   );
   const frequentlyBought = useMemo(
     () => resolveFrequentlyBoughtItems(product, catalogProducts),
@@ -116,9 +120,18 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const [quantity, setQuantity] = useState(1);
   const purchaseActionsRef = useRef<HTMLDivElement>(null);
 
-  const displayUsd = product.prices
-    ? ensureFullPrices(product.prices).public
-    : product.price;
+  const fullPrices = useMemo(
+    () => ensureFullPrices(product.prices ? product.prices : { public: product.price }),
+    [product.price, product.prices],
+  );
+  const displayUsd = fullPrices.public;
+  const volumePricing = useMemo(
+    () =>
+      resolveBulkDiscountPricing(quantity, displayUsd, bulkDiscountTiers, {
+        floorPriceUsd: fullPrices.tecnico,
+      }),
+    [quantity, displayUsd, bulkDiscountTiers, fullPrices.tecnico],
+  );
   const outOfStock = isProductOutOfStock(product);
 
   useEffect(() => {
@@ -230,21 +243,22 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const showComboSection =
     detail.isPrinterEquipment && (catalogLoading || frequentlyBought.length > 0);
 
-  const comboSlot = showComboSection ? (
+  const comboSection = showComboSection ? (
     catalogLoading ? (
       <div
-        className="overflow-hidden rounded-md border border-border/40 bg-muted/15"
+        className="min-w-0"
         role="status"
         aria-live="polite"
-        aria-label="Cargando recomendaciones"
+        aria-label="Cargando complementos"
       >
-        <div className="px-2.5 py-2">
-          <div className="h-3 w-40 animate-pulse rounded bg-muted" />
-          <div className="mt-2 grid grid-cols-3 gap-1.5">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="h-16 animate-pulse rounded-md bg-muted/50" />
-            ))}
-          </div>
+        <div className="h-5 w-44 animate-pulse rounded bg-muted sm:h-6" />
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:gap-2.5">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="min-h-[7.5rem] min-w-0 animate-pulse rounded-lg border border-border/40 bg-muted/50 sm:min-h-[8.5rem]"
+            />
+          ))}
         </div>
       </div>
     ) : frequentlyBought.length > 0 ? (
@@ -252,11 +266,8 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         items={frequentlyBought}
         mainProduct={product}
         catalogProducts={catalogProducts}
-        title="Recomendado para este equipo"
-        subtitle={`Toner, accesorios y garantía para ${detail.shortTitle}`}
-        compact
-        mini
-        embedded
+        title="Complementa tu equipo"
+        layout="complement"
       />
     ) : null
   ) : null;
@@ -272,11 +283,15 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         </div>
 
         <div className={heroGridClass}>
-          <div className="min-w-0">
+          <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
             <ProductDetailGallery
               items={detail.gallery}
               productName={product.name}
             />
+
+            {detail.isPrinterEquipment && detail.rentalPlans.length > 0 ? (
+              <ProductDetailRentalBanner product={product} plans={detail.rentalPlans} />
+            ) : null}
           </div>
 
           <div className="flex min-w-0 flex-col gap-5 sm:gap-6">
@@ -284,21 +299,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               product={product}
               detail={detail}
               onQuoteClick={() => setQuoteOpen(true)}
-              comboSlot={comboSlot}
+              comboSlot={showComboSection ? comboSection : null}
               quantity={quantity}
               onQuantityChange={setQuantity}
               purchaseActionsRef={purchaseActionsRef}
             />
           </div>
         </div>
-
-        {detail.isPrinterEquipment && detail.rentalPlans.length > 0 ? (
-          <ProductDetailRentalBanner
-            product={product}
-            plans={detail.rentalPlans}
-            className="mt-6 sm:mt-8"
-          />
-        ) : null}
 
         <section
           className="mt-10 border-t border-border/60 pt-6 sm:mt-12"
@@ -430,6 +437,8 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   displayTitle={detail.displayTitle}
                   sku={detail.sku}
                   brandLabel={detail.brandLabel}
+                  categoryLabel={detail.categoryLabel}
+                  heroSpecBullets={detail.heroSpecBullets}
                 />
               </div>
             ) : null}
@@ -512,6 +521,10 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         displayTitle={detail.displayTitle}
         sku={detail.sku}
         brandLabel={detail.brandLabel}
+        categoryLabel={detail.categoryLabel}
+        heroSpecBullets={detail.heroSpecBullets}
+        heroLead={detail.heroLead}
+        heroDescription={detail.heroDescription}
         equipmentConfiguration={equipmentConfiguration}
         onGenerated={setQuotePdfPreview}
       />
@@ -524,7 +537,10 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
       <ProductDetailMobilePurchaseBar
         product={product}
         quantity={quantity}
-        displayUsd={displayUsd}
+        volumePricing={volumePricing}
+        basePriceUsd={displayUsd}
+        bulkDiscountTiers={bulkDiscountTiers}
+        floorPriceUsd={fullPrices.tecnico}
         outOfStock={outOfStock}
         purchaseActionsRef={purchaseActionsRef}
       />

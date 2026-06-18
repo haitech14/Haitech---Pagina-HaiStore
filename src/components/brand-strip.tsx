@@ -14,6 +14,7 @@ import {
   getBrandSlug,
   type BrandItem,
 } from '@/data/brands';
+import { brandLogoSources } from '@/lib/responsive-image';
 import { cn } from '@/lib/utils';
 
 /** Velocidad del auto-scroll (mayor = más rápido). Default del plugin: 2. */
@@ -52,21 +53,29 @@ function BrandLogoCard({
   const content = (
     <>
       {logo && !logoError ? (
-        <img
-          src={logo}
-          alt=""
-          width={logoDimensions.width}
-          height={logoDimensions.height}
-          className={cn(
-            logoClassName,
-            isDark
-              ? 'opacity-80 transition-opacity group-hover:opacity-100'
-              : 'opacity-90 transition-opacity group-hover:opacity-100',
-          )}
-          loading="lazy"
-          draggable={false}
-          onError={() => setLogoError(true)}
-        />
+        (() => {
+          const { webpSrc, fallbackSrc } = brandLogoSources(logo);
+          return (
+            <picture className="flex items-center justify-center">
+              <source type="image/webp" srcSet={webpSrc} />
+              <img
+                src={fallbackSrc}
+                alt=""
+                width={logoDimensions.width}
+                height={logoDimensions.height}
+                className={cn(
+                  logoClassName,
+                  isDark
+                    ? 'opacity-80 transition-opacity group-hover:opacity-100'
+                    : 'opacity-90 transition-opacity group-hover:opacity-100',
+                )}
+                loading="lazy"
+                draggable={false}
+                onError={() => setLogoError(true)}
+              />
+            </picture>
+          );
+        })()
       ) : (
         <span
           className={cn(

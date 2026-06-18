@@ -47,6 +47,51 @@ const DEFAULT_SETTINGS = {
   usdToPenPurchaseExchangeRate: 3.7,
 };
 
+const DEFAULT_BULK_DISCOUNT_TIERS = [
+  { range: '2', discount: '5% dscto.', discountPercent: 5 },
+  { range: '3', discount: '10% dscto.', discountPercent: 10 },
+  { range: '5', discount: '15% dscto.', discountPercent: 15 },
+  { range: '10+', discount: '25% dscto.', discountPercent: 25 },
+];
+
+const LEGACY_BULK_DISCOUNT_RANGES = new Set(['1-4', '5-9', '10-14', '15-20']);
+
+function formatBulkDiscountLabel(discountPercent) {
+  const percent = Math.round(discountPercent);
+  return `${percent}% dscto.`;
+}
+
+function normalizeBulkDiscountTier(input) {
+  if (!input || typeof input !== 'object') return null;
+
+  const range = String(input.range ?? '').trim();
+  const discountPercent = Math.min(100, Math.max(0, Number(input.discountPercent) || 0));
+
+  if (!range || discountPercent <= 0) return null;
+
+  return {
+    range,
+    discountPercent,
+    discount: formatBulkDiscountLabel(discountPercent),
+  };
+}
+
+function normalizeBulkDiscountTiers(input) {
+  if (!Array.isArray(input) || input.length === 0) {
+    return DEFAULT_BULK_DISCOUNT_TIERS;
+  }
+
+  const tiers = input.map(normalizeBulkDiscountTier).filter(Boolean);
+  if (tiers.length === 0) return DEFAULT_BULK_DISCOUNT_TIERS;
+  if (
+    tiers.length === LEGACY_BULK_DISCOUNT_RANGES.size &&
+    tiers.every((tier) => LEGACY_BULK_DISCOUNT_RANGES.has(String(tier.range).trim()))
+  ) {
+    return DEFAULT_BULK_DISCOUNT_TIERS;
+  }
+  return tiers;
+}
+
 function normalizeExchangeRate(value) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed <= 0) {
@@ -96,6 +141,7 @@ function normalizeSettings(input = {}) {
         input.usdToPenExchangeRate ??
         DEFAULT_SETTINGS.usdToPenPurchaseExchangeRate,
     ),
+    bulkDiscountTiers: normalizeBulkDiscountTiers(input.bulkDiscountTiers),
   };
 }
 

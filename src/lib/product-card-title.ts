@@ -1,5 +1,6 @@
 import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
+import { formatProductDisplayCode } from '@/lib/product-display-code';
 
 /** Título en grilla de catálogo (5 columnas en desktop). */
 export const PRODUCT_CARD_TITLE_SIZE = 'text-[0.84rem] leading-[1.2] sm:text-[0.9rem]';
@@ -116,7 +117,7 @@ export function getProductCardTitleContent(
   },
 ): ProductCardTitleContent {
   const brand = product.brand?.trim() || null;
-  const code = product.code?.trim() || null;
+  const code = formatProductDisplayCode(product.code, { brand: product.brand });
 
   return {
     brand: brand ? brand.toUpperCase() : null,

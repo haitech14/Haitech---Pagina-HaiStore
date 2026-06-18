@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { CrmAddLeadDialog } from '@/components/admin/crm/crm-add-lead-dialog';
@@ -11,6 +12,7 @@ import { groupLeadsByStage } from '@/lib/crm-pipeline-utils';
 import type { CrmPipelineLead, CrmPipelineStageId } from '@/types/crm-pipeline';
 
 export function CrmPipelineBoard() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { leads, kpis, saveLead, deleteLead, duplicateLead, moveLead, usdToPenRate } =
     useCrmPipeline();
 
@@ -26,6 +28,14 @@ export function CrmPipelineBoard() {
     setDialogStageId(stageId);
     setDialogOpen(true);
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get('nuevo') !== '1') return;
+    openCreateLead('leads');
+    const next = new URLSearchParams(searchParams);
+    next.delete('nuevo');
+    setSearchParams(next, { replace: true });
+  }, [openCreateLead, searchParams, setSearchParams]);
 
   const openEditLead = useCallback((lead: CrmPipelineLead) => {
     setEditingLead(lead);

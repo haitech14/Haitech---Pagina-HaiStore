@@ -1000,6 +1000,7 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
                 ) : showFormatSections ? (
                   <CategoryCatalogFormatSections
                     sections={catalogFormatSections}
+                    categorySlug={slug}
                     gridColumns={gridColumns}
                     renderProduct={(product) => (
                       <ProductHighlightCard product={product} layout="card" />

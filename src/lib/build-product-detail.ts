@@ -25,8 +25,10 @@ import {
 } from 'lucide-react';
 
 import type { FeaturedProduct } from '@/data/featured-products';
+import { DEFAULT_BULK_DISCOUNT_TIERS } from '@/lib/bulk-discount-tiers';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import type {
+  BulkDiscountTier,
   EquipmentConfigStep,
   ProductComboItem,
   ProductDescriptionContent,
@@ -274,13 +276,6 @@ const WARRANTY_BULLETS = [
   'Cobertura en piezas, mano de obra y desplazamiento en Lima Metropolitana.',
   'Extensiones de garantía disponibles hasta 36 meses adicionales.',
   'Soporte técnico certificado Haitech durante todo el periodo de garantía.',
-];
-
-const DEFAULT_BULK_TIERS = [
-  { range: 'Compra 2', discount: '5% dscto.', discountPercent: 5 },
-  { range: 'Compra 4', discount: '12% dscto.', discountPercent: 12 },
-  { range: 'Compra 6+', discount: '18% dscto.', discountPercent: 18 },
-  { range: 'Compra 10+', discount: '30% dscto.', discountPercent: 30 },
 ];
 
 const PRINTER_CONNECTIVITY_VISUAL = [
@@ -1039,6 +1034,7 @@ export function buildProductDetail(
   product: Product,
   featuredMeta?: FeaturedProduct,
   rentalPlansFromApi: Array<{ pagesPerMonth: number; monthlyPricePen: number }> = [],
+  bulkDiscountTiers: BulkDiscountTier[] = DEFAULT_BULK_DISCOUNT_TIERS,
 ): ProductDetailViewModel {
   const isPrinter = isPrinterEquipment(product);
   const isSupply = isSupplyProduct(product);
@@ -1142,7 +1138,7 @@ export function buildProductDetail(
     ],
     comboItems: buildComboItems(product, isPrinter, isSupply),
     equipmentConfigSteps: buildEquipmentConfigSteps(isPrinter, isSupply),
-    bulkDiscountTiers: DEFAULT_BULK_TIERS,
+    bulkDiscountTiers,
     rentalPlans: isPrinter ? rentalPlansFromApi : [],
     isPrinterEquipment: isPrinter,
     isSupplyProduct: isSupply,

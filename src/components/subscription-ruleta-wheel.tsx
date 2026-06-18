@@ -192,7 +192,7 @@ export function SubscriptionRuletaWheel({
                       key={premio.id}
                       aria-hidden="true"
                       className={cn(
-                        'absolute flex w-[5rem] flex-col items-center justify-center sm:w-[5.5rem]',
+                        'absolute flex w-[4.5rem] flex-col items-center justify-center sm:w-[5rem]',
                         isWinner && 'z-20 scale-110 transition-transform duration-500',
                       )}
                       style={{
@@ -203,18 +203,18 @@ export function SubscriptionRuletaWheel({
                     >
                       <Icon
                         className={cn(
-                          'size-7 shrink-0 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.65)] sm:size-8',
+                          'size-6 shrink-0 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.65)] sm:size-7',
                           isWinner &&
                             'drop-shadow-[0_0_12px_rgba(255,255,255,0.95),0_0_20px_rgba(251,191,36,0.85)]',
                         )}
                         strokeWidth={1.25}
                         aria-hidden="true"
                       />
-                      <span className="mt-1 w-full text-center leading-[1.08] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65),0_0_6px_rgba(0,0,0,0.35)]">
-                        <span className="block text-[0.62rem] font-normal uppercase tracking-tight sm:text-[0.7rem]">
+                      <span className="mt-0.5 w-full text-center leading-[1.08] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65),0_0_6px_rgba(0,0,0,0.35)]">
+                        <span className="block text-[0.56rem] font-normal uppercase tracking-tight sm:text-[0.64rem]">
                           {premio.label}
                         </span>
-                        <span className="mt-0.5 block text-[0.56rem] font-normal uppercase sm:text-[0.64rem]">
+                        <span className="mt-0.5 block text-[0.5rem] font-normal uppercase sm:text-[0.58rem]">
                           {premio.sublabel}
                         </span>
                       </span>

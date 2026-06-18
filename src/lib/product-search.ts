@@ -112,6 +112,28 @@ export interface SearchProductCategoryGroup {
   products: Product[];
 }
 
+const SEARCH_CATEGORY_DISPLAY_ORDER: RegExp[] = [
+  /multifuncion|impresor|formato ancho|plotter|copiadora|esc[aá]ner|equipo/i,
+  /consumible|toner|t[oó]ner|suministro/i,
+  /repuesto/i,
+  /accesorio/i,
+];
+
+function getSearchCategorySortRank(category: string): number {
+  const index = SEARCH_CATEGORY_DISPLAY_ORDER.findIndex((pattern) => pattern.test(category));
+  return index === -1 ? SEARCH_CATEGORY_DISPLAY_ORDER.length : index;
+}
+
+/** Emoji por división de inventario (equipos primero en el orden de grupos). */
+export function getSearchCategoryEmoji(category: string): string {
+  const normalized = category.toLowerCase();
+  if (SEARCH_CATEGORY_DISPLAY_ORDER[0].test(normalized)) return '🖨️';
+  if (SEARCH_CATEGORY_DISPLAY_ORDER[1].test(normalized)) return '🧴';
+  if (SEARCH_CATEGORY_DISPLAY_ORDER[2].test(normalized)) return '🔧';
+  if (SEARCH_CATEGORY_DISPLAY_ORDER[3].test(normalized)) return '🔌';
+  return '📦';
+}
+
 /** Agrupa resultados de búsqueda por categoría para el panel de sugerencias. */
 export function groupSearchProductsByCategory(
   products: Product[],
@@ -126,8 +148,41 @@ export function groupSearchProductsByCategory(
   }
 
   return Array.from(groups.entries())
-    .sort(([a], [b]) => a.localeCompare(b, 'es'))
-    .map(([category, items]) => ({ category, products: items }));
+    .sort(([a], [b]) => {
+      const rankDiff = getSearchCategorySortRank(a) - getSearchCategorySortRank(b);
+      if (rankDiff !== 0) return rankDiff;
+      return a.localeCompare(b, 'es');
+    })
+    .map(([category, items]) => ({
+      category,
+      products: [...items].sort((a, b) => a.name.localeCompare(b.name, 'es')),
+    }));
+}
+
+/** Recorta grupos conservando el orden por división (equipos primero). */
+export function limitSearchProductCategoryGroups(
+  groups: SearchProductCategoryGroup[],
+  limit: number,
+): SearchProductCategoryGroup[] {
+  if (limit <= 0) return [];
+
+  const limited: SearchProductCategoryGroup[] = [];
+  let count = 0;
+
+  for (const group of groups) {
+    const products: Product[] = [];
+    for (const product of group.products) {
+      if (count >= limit) break;
+      products.push(product);
+      count += 1;
+    }
+    if (products.length > 0) {
+      limited.push({ category: group.category, products });
+    }
+    if (count >= limit) break;
+  }
+
+  return limited;
 }
 
 export function filterProductsBySearch(

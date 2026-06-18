@@ -58,8 +58,20 @@ export function ProductHighlightCard({ product, layout = 'card' }: ProductHighli
         className="relative flex aspect-square w-full items-center justify-center bg-white px-2 pt-2 sm:px-3 sm:pt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
         aria-label={`Ver ficha de ${product.name}`}
       >
-        <div className="pointer-events-none absolute right-1.5 top-1.5 z-10 sm:right-2 sm:top-2">
+        <div className="pointer-events-none absolute right-1.5 top-1.5 z-10 flex flex-col items-end gap-1 sm:right-2 sm:top-2">
           <ProductNuevoCornerBadge variant="highlight" />
+          {isStrip && !outOfStock ? (
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[0.625rem] font-semibold leading-none shadow-sm sm:text-[0.6875rem]',
+                product.stock <= 3
+                  ? 'bg-amber-100 text-amber-900'
+                  : 'bg-emerald-100 text-emerald-800',
+              )}
+            >
+              {product.stock <= 3 ? 'Últimas unidades' : 'En stock'}
+            </span>
+          ) : null}
         </div>
         {imageUrl ? (
           <img

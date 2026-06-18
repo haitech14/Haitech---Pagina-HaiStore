@@ -7,6 +7,7 @@ import {
   type ProductBadgeSource,
 } from '@/lib/product-detail-badges';
 import { normalizeAttributes } from '@/lib/inventory-attributes';
+import { formatProductDisplayCode } from '@/lib/product-display-code';
 import { getCatalogProductById } from '@/lib/catalog-featured';
 import { resolveProductCardPricing, type ProductCardPricing } from '@/lib/product-card-pricing';
 import { getProductTableSpecDisplay } from '@/lib/product-table-spec-columns';
@@ -134,14 +135,16 @@ function resolveCatalogFormato(product: Product): string {
 }
 
 function resolveCatalogProductCode(product: Product): string | null {
-  const direct = product.code?.trim();
+  const direct = formatProductDisplayCode(product.code, { brand: product.brand });
   if (direct) return direct;
 
   const fromAttr = findAttributeValueByName(product, /c[oó]digo|^sku$/i);
-  if (fromAttr) return fromAttr;
+  if (fromAttr) return formatProductDisplayCode(fromAttr, { brand: product.brand }) ?? fromAttr;
 
   if (product.id && !/^[0-9a-f-]{36}$/i.test(product.id)) {
-    return product.id.toUpperCase().replace(/-/g, '');
+    return formatProductDisplayCode(product.id.toUpperCase().replace(/-/g, ''), {
+      brand: product.brand,
+    });
   }
 
   return null;

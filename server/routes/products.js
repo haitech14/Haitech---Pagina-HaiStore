@@ -22,6 +22,7 @@ import {
   searchPublicProducts,
   syncProductsToSupabase,
 } from '../lib/product-catalog.js';
+import { listHomeFeaturedProducts } from '../lib/home-featured-products.js';
 import { shouldPreferSupabaseCatalog } from '../lib/catalog-source.js';
 import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 
@@ -31,6 +32,18 @@ productsRouter.get('/', async (req, res, next) => {
   try {
     const role = await resolveRequestRole(req);
     const products = await listProducts({ role, adminView: false });
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+});
+
+productsRouter.get('/home-featured', async (req, res, next) => {
+  try {
+    const role = await resolveRequestRole(req);
+    const limit = req.query.limit;
+    const category = typeof req.query.category === 'string' ? req.query.category : 'multifuncionales';
+    const products = await listHomeFeaturedProducts({ role, categorySlug: category, limit });
     res.json(products);
   } catch (error) {
     next(error);

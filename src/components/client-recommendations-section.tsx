@@ -12,6 +12,7 @@ import {
   clientRecommendations,
   type ClientRecommendation,
 } from '@/data/client-recommendations';
+import { recommendationImageSources } from '@/lib/responsive-image';
 import { cn } from '@/lib/utils';
 
 const SLIDE_CLASS =
@@ -52,12 +53,22 @@ function RecommendationCard({
         )}
       >
         <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-          <img
-            src={item.image}
-            alt=""
-            className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            loading="lazy"
-          />
+          {(() => {
+            const { webpSrc, fallbackSrc } = recommendationImageSources(item.image);
+            return (
+              <picture className="block size-full">
+                <source type="image/webp" srcSet={webpSrc} />
+                <img
+                  src={fallbackSrc}
+                  alt=""
+                  width={320}
+                  height={400}
+                  className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                  loading="lazy"
+                />
+              </picture>
+            );
+          })()}
           <span
             className="absolute bottom-3 left-3 flex size-8 items-center justify-center rounded-full bg-red-600 text-lg font-bold leading-none text-white shadow-md"
             aria-hidden="true"

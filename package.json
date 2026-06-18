@@ -8,6 +8,7 @@
     "dev": "vite",
     "dev:lan": "powershell -ExecutionPolicy Bypass -File scripts/open-dev-lan.ps1",
     "build": "tsc -b && vite build",
+    "optimize:images": "node scripts/optimize-public-images.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",

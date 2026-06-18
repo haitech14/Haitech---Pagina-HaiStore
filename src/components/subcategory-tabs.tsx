@@ -63,7 +63,8 @@ export function SubcategoryTabs({
     <section aria-label={heading} className={cn('w-full', className)}>
       <div
         className={cn(
-          'flex flex-wrap items-center gap-x-3 gap-y-2',
+          'flex items-center',
+          compact ? 'flex-nowrap gap-x-1.5' : 'flex-wrap gap-x-3 gap-y-2',
           !showHeading && align === 'center' && 'justify-center',
           showHeading &&
             '-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:overflow-visible sm:px-0',
@@ -76,9 +77,10 @@ export function SubcategoryTabs({
           role="tablist"
           aria-label={heading}
           className={cn(
-            'flex flex-wrap items-center gap-2',
+            'flex items-center gap-1.5 sm:gap-2',
+            compact ? 'flex-nowrap' : 'flex-wrap',
             tabsRowAlignClass[align],
-            !showHeading && 'justify-center',
+            !showHeading && 'justify-start',
           )}
         >
         {subcategories.map((sub) => {
@@ -94,9 +96,11 @@ export function SubcategoryTabs({
               aria-selected={isActive}
               onClick={() => onSelect(sub.slug)}
               className={cn(
-                'inline-flex shrink-0 items-center gap-2 rounded-lg border font-semibold shadow-sm transition-colors',
+                'inline-flex shrink-0 items-center gap-1.5 rounded-lg border font-semibold shadow-sm transition-colors',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-                compact ? 'min-h-9 px-2.5 py-1.5 text-xs' : 'min-h-11 px-3.5 py-2 text-sm',
+                compact
+                  ? 'min-h-8 px-2 py-1 text-[0.6875rem] sm:min-h-9 sm:px-2.5 sm:py-1.5 sm:text-xs'
+                  : 'min-h-11 gap-2 px-3.5 py-2 text-sm',
                 variant === 'on-dark' && 'focus-visible:ring-offset-neutral-950',
                 isActive
                   ? 'border-red-600 bg-red-600 text-white shadow-[0_2px_8px_rgba(220,38,38,0.35)]'
@@ -110,7 +114,7 @@ export function SubcategoryTabs({
                 <Badge
                   variant="secondary"
                   className={cn(
-                    'h-5 min-w-5 shrink-0 px-1.5 text-[0.65rem] leading-none',
+                    'h-4 min-w-4 shrink-0 px-1 text-[0.6rem] leading-none sm:h-5 sm:min-w-5 sm:px-1.5 sm:text-[0.65rem]',
                     isActive && 'border-white/25 bg-white/20 text-white',
                     variant === 'on-dark' && !isActive && 'border-white/15 bg-white/10 text-white/90',
                   )}

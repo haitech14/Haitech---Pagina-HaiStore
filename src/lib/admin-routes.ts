@@ -19,6 +19,7 @@ export const ADMIN_ROUTES = {
   SETTINGS_PDF: '/admin/configuracion/pdf',
   SETTINGS_APPEARANCE: '/admin/configuracion/apariencia',
   SETTINGS_INTEGRATIONS: '/admin/configuracion/integraciones',
+  SETTINGS_VOLUME_DISCOUNTS: '/admin/configuracion/descuentos-volumen',
   SETTINGS_USUARIOS: '/admin/configuracion/usuarios',
   /** Punto de venta dentro de Ventas */
   TPV: '/admin/ventas?vista=tpv',
@@ -70,6 +71,7 @@ export function isAdminServicesPath(pathname: string): boolean {
 
 export const ADMIN_SETTINGS_SECTIONS = [
   'general',
+  'descuentos-volumen',
   'pdf',
   'apariencia',
   'integraciones',
@@ -83,6 +85,7 @@ export const ADMIN_SETTINGS_NAV: Array<{
   href: string;
 }> = [
   { id: 'general', label: 'General', href: ADMIN_ROUTES.SETTINGS_GENERAL },
+  { id: 'descuentos-volumen', label: 'Descuentos volumen', href: ADMIN_ROUTES.SETTINGS_VOLUME_DISCOUNTS },
   { id: 'pdf', label: 'PDF', href: ADMIN_ROUTES.SETTINGS_PDF },
   { id: 'apariencia', label: 'Apariencia', href: ADMIN_ROUTES.SETTINGS_APPEARANCE },
   { id: 'integraciones', label: 'Integraciones', href: ADMIN_ROUTES.SETTINGS_INTEGRATIONS },

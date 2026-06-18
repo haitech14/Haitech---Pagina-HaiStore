@@ -1,3 +1,6 @@
+import { DEFAULT_BULK_DISCOUNT_TIERS } from '@/lib/bulk-discount-tiers';
+import type { BulkDiscountTier } from '@/types/product-detail';
+
 export interface CompanySettings {
   companyName: string;
   legalName: string;
@@ -25,6 +28,8 @@ export interface CompanySettings {
   usdToPenExchangeRate: number;
   /** Tipo de cambio compra USD → PEN (costos, proveedores, columna Compra). */
   usdToPenPurchaseExchangeRate: number;
+  /** Tramos de descuento por volumen en ficha de producto. */
+  bulkDiscountTiers: BulkDiscountTier[];
 }
 
 export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
@@ -39,7 +44,7 @@ export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
   phone: '926 224 243 – 965 805 873',
   email: 'ventas@nbntecnologia.com',
   website: 'www.nbntecnologia.com',
-  logoUrl: '/logoclaro.png',
+  logoUrl: '/logo.png',
   quoteDocumentLabel: 'PROFORMA',
   quoteNumberPrefix: 'COT01',
   quoteNextNumber: 15,
@@ -61,7 +66,8 @@ export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
     'Forma de pago: transferencia bancaria o depósito a las cuentas indicadas.',
   ].join('\n'),
   quoteValidityDays: 3,
-  primaryColor: '#1e40af',
+  primaryColor: '#dc2626',
   usdToPenExchangeRate: 3.7,
   usdToPenPurchaseExchangeRate: 3.7,
+  bulkDiscountTiers: DEFAULT_BULK_DISCOUNT_TIERS,
 };

@@ -1,8 +1,7 @@
 import { useMemo, type ReactNode, type RefObject } from 'react';
 import {
   ClipboardList,
-  FileText,
-  GitCompareArrows,
+  Clock,
   Heart,
   Minus,
   Plus,
@@ -14,14 +13,15 @@ import {
 import { toast } from 'sonner';
 
 import { AddToCartButton, isProductOutOfStock } from '@/components/cart/add-to-cart-button';
+import { ProductBulkDiscountTable } from '@/components/product-detail/product-bulk-discount-table';
+import { TechnicalSheetDownloadLink } from '@/components/product-detail/technical-sheet-download-link';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/cart-context';
-import { useProductCompare } from '@/context/product-compare-context';
 import { useWishlist } from '@/context/wishlist-context';
-import { productToCompareItem } from '@/lib/compare-product';
 import { ensureFullPrices } from '@/lib/roles';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
+import { resolveBulkDiscountPricing, resolveBulkDiscountSavingsHint } from '@/lib/bulk-discount-tiers';
 import { cn, formatPenFromUsdPrecise, formatUsd, penToUsd, usdToPen } from '@/lib/utils';
 import { productToWishlistItem } from '@/lib/wishlist-product';
 import type { ProductDetailViewModel } from '@/types/product-detail';
@@ -31,7 +31,6 @@ interface ProductDetailHeroInfoProps {
   product: Product;
   detail: ProductDetailViewModel;
   onQuoteClick?: () => void;
-  /** Combo recomendado (toner, accesorios) renderizado arriba del precio. */
   comboSlot?: ReactNode;
   quantity: number;
   onQuantityChange: (quantity: number) => void;
@@ -39,7 +38,7 @@ interface ProductDetailHeroInfoProps {
 }
 
 const actionRowItemClassName =
-  'inline-flex items-center gap-1.5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 text-muted-foreground hover:text-[#0f1f3d]';
+  'flex min-w-0 flex-1 items-center justify-center gap-1 px-0.5 text-center text-[0.65rem] font-medium text-[#0f1f3d] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:gap-1.5 sm:text-xs';
 
 export function ProductDetailHeroInfo({
   product,
@@ -51,12 +50,13 @@ export function ProductDetailHeroInfo({
   purchaseActionsRef,
 }: ProductDetailHeroInfoProps) {
   const { addItem } = useCart();
-  const { isSelected: isCompareSelected, toggle: toggleCompare } = useProductCompare();
   const { isSelected: isWishlistSelected, toggle: toggleWishlist } = useWishlist();
 
-  const displayUsd = product.prices
-    ? ensureFullPrices(product.prices).public
-    : product.price;
+  const fullPrices = useMemo(
+    () => ensureFullPrices(product.prices ? product.prices : { public: product.price }),
+    [product.price, product.prices],
+  );
+  const displayUsd = fullPrices.public;
   const pricing = useMemo(() => {
     const oldFromPen =
       detail.oldPricePen != null && detail.oldPricePen > usdToPen(displayUsd)
@@ -73,9 +73,59 @@ export function ProductDetailHeroInfo({
     detail.oldPricePen ?? (showComparePrice ? usdToPen(pricing.compareUsd) : null);
   const hasSavings = previousPen != null && previousPen > currentPen + 0.01;
   const savingsPen = hasSavings ? previousPen - currentPen : 0;
-  const savingsPercent =
-    detail.discountPercent ??
-    (hasSavings && previousPen ? Math.round((savingsPen / previousPen) * 100) : 0);
+  const volumePricing = useMemo(
+    () =>
+      resolveBulkDiscountPricing(quantity, displayUsd, detail.bulkDiscountTiers, {
+        floorPriceUsd: fullPrices.tecnico,
+      }),
+    [quantity, displayUsd, detail.bulkDiscountTiers, fullPrices.tecnico],
+  );
+  const hasVolumeDiscount = volumePricing.tier != null && volumePricing.savingsUsd > 0.001;
+  const volumeSavingsHint = useMemo(
+    () =>
+      detail.bulkDiscountTiers.length > 0
+        ? resolveBulkDiscountSavingsHint(quantity, displayUsd, detail.bulkDiscountTiers, {
+            floorPriceUsd: fullPrices.tecnico,
+          })
+        : null,
+    [quantity, displayUsd, detail.bulkDiscountTiers, fullPrices.tecnico],
+  );
+  const savingsMessage = useMemo(() => {
+    if (volumeSavingsHint) {
+      const amount = formatPenFromUsdPrecise(volumeSavingsHint.savingsUsd);
+      return volumeSavingsHint.isActive
+        ? `Ahorras ${amount} con ${volumeSavingsHint.targetQuantity} ud.`
+        : `Si llevas ${volumeSavingsHint.targetQuantity} ud. puedes ahorrar ${amount}`;
+    }
+    if (hasSavings) {
+      return `Ahorras S/ ${savingsPen.toLocaleString('es-PE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} por unidad`;
+    }
+    return null;
+  }, [volumeSavingsHint, hasSavings, savingsPen]);
+  const showStruckNormalPrice =
+    hasVolumeDiscount ||
+    hasSavings ||
+    detail.bulkDiscountTiers.length > 0 ||
+    volumePricing.unitUsd < displayUsd - 0.001;
+  const normalPriceLabel = useMemo(() => {
+    if (hasSavings && !hasVolumeDiscount && previousPen != null) {
+      return `S/ ${previousPen.toLocaleString('es-PE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} / ud.`;
+    }
+    return `${formatPenFromUsdPrecise(displayUsd)} / ud.`;
+  }, [hasSavings, hasVolumeDiscount, previousPen, displayUsd]);
+  const cartAddOptions = useMemo(
+    () => ({
+      quantity,
+      ...(hasVolumeDiscount ? { volumeUnitPriceUsd: volumePricing.unitUsd } : {}),
+    }),
+    [quantity, hasVolumeDiscount, volumePricing.unitUsd],
+  );
   const outOfStock = isProductOutOfStock(product);
   const stockDisplay = outOfStock ? 0 : product.stock;
   const maxQuantity = outOfStock ? 1 : Math.max(1, stockDisplay || 99);
@@ -86,15 +136,10 @@ export function ProductDetailHeroInfo({
 
   const handleBuyNow = () => {
     if (outOfStock) return;
-    addItem(product, { quantity, openDrawer: true });
+    addItem(product, { ...cartAddOptions, openDrawer: true });
   };
 
-  const compareSelected = isCompareSelected(product.id);
   const wishlistSelected = isWishlistSelected(product.id);
-
-  const handleCompare = () => {
-    toggleCompare(productToCompareItem(product));
-  };
 
   const handleWishlist = () => {
     toggleWishlist(productToWishlistItem(product));
@@ -202,207 +247,220 @@ export function ProductDetailHeroInfo({
         </ul>
       ) : null}
 
-      {comboSlot ? <div className="mt-3 min-w-0">{comboSlot}</div> : null}
-
-      <div className="mt-3 rounded-lg bg-white p-3 sm:p-3.5">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            {savingsPercent > 0 ? (
-              <span className="inline-flex rounded-sm bg-red-600 px-1.5 py-px text-[0.6rem] font-bold uppercase tracking-wide text-white">
-                −{savingsPercent}% hoy
-              </span>
-            ) : (
-              <span className="inline-flex rounded-sm border border-red-600/30 bg-red-50 px-1.5 py-px text-[0.6rem] font-bold uppercase tracking-wide text-red-600">
-                Mejor precio
-              </span>
-            )}
-            <span
-              className="inline-flex rounded-sm border border-border/80 bg-muted/30 px-1.5 py-px text-[0.6rem] font-medium text-muted-foreground"
-              title="El precio mostrado incluye IGV"
-            >
-              Incl. IGV
-            </span>
-          </div>
-
-          {hasSavings ? (
-            <p className="mt-1.5 text-xs text-muted-foreground line-through decoration-muted-foreground/80">
-              S/{' '}
-              {previousPen!.toLocaleString('es-PE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </p>
+      <div className="mt-3 min-w-0">
+        <div
+          ref={purchaseActionsRef}
+          className="overflow-hidden rounded-lg border border-border/80 bg-white"
+        >
+          {detail.bulkDiscountTiers.length > 0 ? (
+            <ProductBulkDiscountTable
+              product={product}
+              tiers={detail.bulkDiscountTiers}
+              quantity={quantity}
+              embedded
+            />
           ) : null}
 
-          <p className="mt-0.5 text-2xl font-bold leading-tight text-red-600 sm:text-[1.65rem]">
-            {formatPenFromUsdPrecise(displayUsd)}
-          </p>
+          <div className="flex flex-col p-4">
+            {savingsMessage ? (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex rounded-sm bg-red-600 px-1.5 py-px text-[0.55rem] font-bold uppercase tracking-wide text-white sm:text-[0.6rem]">
+                  Ahorro
+                </span>
+                <span className="text-[0.65rem] font-medium text-emerald-700 sm:text-xs">
+                  {savingsMessage}
+                </span>
+              </div>
+            ) : null}
 
-          {hasSavings ? (
-            <p className="mt-1 text-sm font-semibold text-red-600">
-              Ahorras S/{' '}
-              {savingsPen.toLocaleString('es-PE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-              {savingsPercent > 0 ? ` (−${savingsPercent}%)` : ''}
-            </p>
-          ) : null}
+            <div className="mt-2 grid grid-cols-2 items-end gap-3 sm:gap-4">
+              <div className="min-w-0">
+                {showStruckNormalPrice ? (
+                  <p className="text-[0.65rem] font-medium text-muted-foreground line-through decoration-muted-foreground/80 sm:text-xs">
+                    Precio Normal — {normalPriceLabel}
+                  </p>
+                ) : (
+                  <p className="text-[0.65rem] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+                    Precio Normal
+                  </p>
+                )}
+                <p className="text-lg font-bold leading-tight text-red-600 sm:text-xl lg:text-[1.65rem]">
+                  {formatPenFromUsdPrecise(volumePricing.unitUsd)}
+                  <span className="ml-1 text-[0.65rem] font-semibold text-muted-foreground sm:text-xs">
+                    / ud.
+                  </span>
+                </p>
+                <p className="text-[0.65rem] text-muted-foreground sm:text-xs">
+                  USD {formatUsd(volumePricing.unitUsd)}
+                </p>
+              </div>
 
-          <p className="mt-1 text-xs text-muted-foreground">USD {formatUsd(displayUsd)}</p>
-        </div>
-
-        <div ref={purchaseActionsRef} className="mt-3 flex flex-row flex-wrap items-end gap-2">
-          <div className="shrink-0">
-            <p className="mb-1 text-[0.65rem] text-muted-foreground">Cantidad</p>
-            <div
-              className="flex h-11 items-stretch overflow-hidden rounded-md border border-border bg-muted/40"
-              role="group"
-              aria-label="Cantidad"
-            >
-              <button
-                type="button"
-                onClick={() => adjustQuantity(-1)}
-                disabled={quantity <= 1 || outOfStock}
-                aria-label="Disminuir cantidad"
-                className="flex size-11 items-center justify-center text-[#0f1f3d] hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40"
-              >
-                <Minus className="size-3.5" aria-hidden="true" />
-              </button>
-              <span
-                className="flex min-w-9 items-center justify-center text-xs font-bold text-[#0f1f3d]"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={() => adjustQuantity(1)}
-                disabled={quantity >= maxQuantity || outOfStock}
-                aria-label="Aumentar cantidad"
-                className="flex size-11 items-center justify-center text-[#0f1f3d] hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40"
-              >
-                <Plus className="size-3.5" aria-hidden="true" />
-              </button>
+              <div className="min-w-0">
+                <p className="text-[0.65rem] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+                  Total
+                </p>
+                <p className="text-sm font-bold text-[#0f1f3d] sm:text-base">
+                  <span className="text-red-600">
+                    {formatPenFromUsdPrecise(volumePricing.totalUsd)}
+                  </span>
+                  <span className="ml-1 text-[0.65rem] font-medium text-muted-foreground sm:text-xs">
+                    ({quantity} ud.)
+                  </span>
+                </p>
+              </div>
             </div>
-          </div>
 
-          <Button
-            type="button"
-            size="sm"
-            disabled={outOfStock}
-            onClick={handleBuyNow}
-            className="h-11 min-h-11 min-w-0 flex-1 gap-1.5 rounded-md bg-red-600 px-2 text-xs font-bold uppercase tracking-wide text-white hover:bg-red-500 focus-visible:ring-red-600 sm:flex-[1.2]"
-          >
-            <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
-            Comprar ahora
-          </Button>
+            <div className="mt-3 grid grid-cols-1 gap-2 min-[420px]:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)] min-[420px]:items-start">
+              <div
+                className="flex h-11 items-stretch overflow-hidden rounded-md border border-border bg-muted/40"
+                role="group"
+                aria-label="Cantidad"
+              >
+                <button
+                  type="button"
+                  onClick={() => adjustQuantity(-1)}
+                  disabled={quantity <= 1 || outOfStock}
+                  aria-label="Disminuir cantidad"
+                  className="flex size-11 items-center justify-center text-[#0f1f3d] hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40"
+                >
+                  <Minus className="size-3.5" aria-hidden="true" />
+                </button>
+                <span
+                  className="flex min-w-8 items-center justify-center text-xs font-semibold text-[#0f1f3d]"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => adjustQuantity(1)}
+                  disabled={quantity >= maxQuantity || outOfStock}
+                  aria-label="Aumentar cantidad"
+                  className="flex size-11 items-center justify-center text-[#0f1f3d] hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40"
+                >
+                  <Plus className="size-3.5" aria-hidden="true" />
+                </button>
+              </div>
 
-          <AddToCartButton
-            product={product}
-            addOptions={{ quantity }}
-            size="sm"
-            variant="outline"
-            disabled={outOfStock}
-            className="h-11 min-h-11 min-w-0 flex-1 gap-1.5 rounded-md border-border bg-white px-2 text-xs font-bold uppercase tracking-wide text-[#0f1f3d] hover:bg-muted/30 focus-visible:ring-[#0f1f3d] sm:flex-[1.2]"
-          >
-            <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
-            Añadir al carrito
-          </AddToCartButton>
-        </div>
+              <Button
+                type="button"
+                size="sm"
+                disabled={outOfStock}
+                onClick={handleBuyNow}
+                className="h-11 min-h-11 w-full gap-1.5 rounded-md bg-red-600 px-3 text-xs font-bold uppercase text-white hover:bg-red-500 focus-visible:ring-red-600 sm:text-sm"
+              >
+                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">Comprar ahora</span>
+              </Button>
 
-        <div className="mt-2.5">
-          <ProductWhatsAppButton
-            stopPropagation={false}
-            accent="outline"
-            label="Consultar vía WhatsApp"
-            quantity={quantity}
-            product={{
-              id: product.id,
-              name: product.name,
-              priceUsd: displayUsd,
-              category: product.category,
-              brand: product.brand ?? null,
-            }}
-            className="h-9 min-h-9 w-full rounded-md px-3 text-[0.7rem] font-medium normal-case tracking-normal"
-          />
-          <p className="mt-1 text-center text-[0.65rem] text-muted-foreground">
-            Respuesta en menos de 5 min
-          </p>
-        </div>
+              <AddToCartButton
+                product={product}
+                addOptions={cartAddOptions}
+                size="sm"
+                variant="outline"
+                disabled={outOfStock}
+                className="h-11 min-h-11 w-full gap-1.5 rounded-md border-[#0f1f3d] bg-white px-3 text-xs font-bold uppercase text-[#0f1f3d] hover:bg-muted/30 focus-visible:ring-[#0f1f3d] sm:text-sm"
+              >
+                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">Agregar a carrito</span>
+              </AddToCartButton>
+            </div>
 
-        <div className="mt-3 flex items-stretch border-t border-border/60 pt-3">
-          <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-1 text-center text-[0.65rem] font-medium text-[#0f1f3d] sm:text-xs">
-            <Shield className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <span>Compra segura</span>
-          </div>
-          <span className="w-px shrink-0 self-stretch bg-border" aria-hidden="true" />
-          <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-1 text-center text-[0.65rem] font-medium text-[#0f1f3d] sm:text-xs">
-            <Truck className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <span>Envíos a todo el país</span>
+            <div
+              className={cn(
+                'mt-2 grid grid-cols-1 gap-2',
+                onQuoteClick ? 'sm:grid-cols-2' : '',
+              )}
+            >
+              <ProductWhatsAppButton
+                stopPropagation={false}
+                accent="outline"
+                label="Comprar vía WhatsApp"
+                quantity={quantity}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  priceUsd: displayUsd,
+                  category: product.category,
+                  brand: product.brand ?? null,
+                }}
+                className="h-11 min-h-11 w-full rounded-md px-3 text-xs font-semibold normal-case tracking-normal sm:text-sm"
+              />
+              {onQuoteClick ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onQuoteClick}
+                  className="h-11 min-h-11 w-full gap-1.5 rounded-md border-[#0f1f3d] px-3 text-xs font-semibold normal-case text-[#0f1f3d] hover:bg-muted/30 focus-visible:ring-[#0f1f3d] sm:text-sm"
+                >
+                  <ClipboardList className="size-4 shrink-0" aria-hidden="true" />
+                  <span className="truncate">Generar cotización</span>
+                </Button>
+              ) : null}
+            </div>
+
+            {comboSlot ? <div className="mt-4 min-w-0">{comboSlot}</div> : null}
+
+            {detail.technicalSheetUrl ? (
+              <TechnicalSheetDownloadLink href={detail.technicalSheetUrl} />
+            ) : null}
+
+            <p className="mt-2 flex items-center justify-center gap-1.5 text-[0.65rem] text-muted-foreground sm:text-xs">
+              <Clock className="size-3.5 shrink-0" aria-hidden="true" />
+              Respuesta en menos de 5 min
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm">
-        <button
-          type="button"
-          onClick={handleCompare}
-          aria-pressed={compareSelected}
-          className={cn(
-            actionRowItemClassName,
-            compareSelected && 'text-red-600 hover:text-red-600',
-          )}
-        >
-          <GitCompareArrows className="size-4 shrink-0" aria-hidden="true" />
-          Comparar
-        </button>
-
-        <span className="h-4 w-px bg-border" aria-hidden="true" />
-
+      <div className="mt-2 flex items-stretch border-t border-border/60 pt-3">
         <button
           type="button"
           onClick={handleWishlist}
           aria-pressed={wishlistSelected}
           className={cn(
             actionRowItemClassName,
-            wishlistSelected && 'text-red-600 hover:text-red-600',
+            'hover:text-red-600',
+            wishlistSelected && 'text-red-600',
           )}
         >
           <Heart
-            className={cn('size-4 shrink-0', wishlistSelected && 'fill-current')}
+            className={cn(
+              'size-3.5 shrink-0 text-muted-foreground sm:size-4',
+              wishlistSelected && 'fill-current text-red-600',
+            )}
             aria-hidden="true"
           />
-          Agregar a favoritos
+          <span className="truncate">Favoritos</span>
         </button>
 
-        {detail.technicalSheetUrl ? (
-          <>
-            <span className="h-4 w-px bg-border" aria-hidden="true" />
+        <span className="w-px shrink-0 self-stretch bg-border" aria-hidden="true" />
 
-            <a
-              href={detail.technicalSheetUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={actionRowItemClassName}
-            >
-              <FileText className="size-4 shrink-0" aria-hidden="true" />
-              Ficha Técnica
-            </a>
-          </>
-        ) : null}
+        <button
+          type="button"
+          disabled={outOfStock}
+          onClick={handleBuyNow}
+          className={cn(
+            actionRowItemClassName,
+            'hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50',
+          )}
+        >
+          <ShoppingCart className="size-3.5 shrink-0 text-muted-foreground sm:size-4" aria-hidden="true" />
+          <span className="truncate">Comprar</span>
+        </button>
+      </div>
 
-        {onQuoteClick ? (
-          <>
-            <span className="h-4 w-px bg-border" aria-hidden="true" />
-
-            <button type="button" onClick={onQuoteClick} className={actionRowItemClassName}>
-              <ClipboardList className="size-4 shrink-0" aria-hidden="true" />
-              Generar Cotización
-            </button>
-          </>
-        ) : null}
+      <div className="mt-2 flex items-stretch border-t border-border/60 pt-3">
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-1 text-center text-[0.65rem] font-medium text-[#0f1f3d] sm:text-xs">
+          <Shield className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <span>Compra segura</span>
+        </div>
+        <span className="w-px shrink-0 self-stretch bg-border" aria-hidden="true" />
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-1 text-center text-[0.65rem] font-medium text-[#0f1f3d] sm:text-xs">
+          <Truck className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <span>Envíos a todo el país</span>
+        </div>
       </div>
     </div>
   );

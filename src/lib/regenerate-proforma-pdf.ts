@@ -1,4 +1,4 @@
-import { buildProductQuotePdf } from '@/lib/generate-product-quote-pdf';
+import { buildProductQuotePdf, buildQuoteTechnicalSheetFromLine } from '@/lib/generate-product-quote-pdf';
 import { buildTpvDocumentPdf } from '@/lib/generate-tpv-document-pdf';
 import { downloadQuotePdf } from '@/lib/generate-product-quote-pdf';
 import type { CompanySettings } from '@/types/company-settings';
@@ -36,6 +36,14 @@ export async function regenerateProformaPdf(
   company: CompanySettings,
 ): Promise<{ blob: Blob; filename: string }> {
   if (proforma.source === 'product' && proforma.lineItems.length > 0) {
+    const quoteLines = proforma.lineItems.map((line) => ({
+      name: line.name,
+      sku: line.sku,
+      brand: line.brand,
+      pricePen: line.unitPricePen,
+      quantity: line.quantity,
+      imageUrl: line.imageUrl ?? null,
+    }));
     const generated = await buildProductQuotePdf(
       {
         razonSocial: proforma.customer.razonSocial,
@@ -44,15 +52,9 @@ export async function regenerateProformaPdf(
         celular: proforma.customer.celular,
         ciudad: proforma.customer.ciudad ?? proforma.customer.direccion ?? 'Lima',
       },
-      proforma.lineItems.map((line) => ({
-        name: line.name,
-        sku: line.sku,
-        brand: line.brand,
-        pricePen: line.unitPricePen,
-        quantity: line.quantity,
-        imageUrl: line.imageUrl ?? null,
-      })),
+      quoteLines,
       company,
+      { technicalSheet: buildQuoteTechnicalSheetFromLine(quoteLines[0]) },
     );
     return { blob: generated.blob, filename: generated.filename };
   }

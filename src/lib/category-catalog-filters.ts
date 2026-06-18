@@ -1,4 +1,7 @@
-import { CATALOG_FORMAT_BN_SUBSECTION_SPOTLIGHTS } from '@/data/catalog-format-spotlight';
+import {
+  CATALOG_FORMAT_BN_SUBSECTION_SPOTLIGHTS,
+  CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS,
+} from '@/data/catalog-format-spotlight';
 import type { Product } from '@/types/product';
 
 export const FORMATO_PAPEL_ATTR = 'Formato papel';
@@ -409,11 +412,31 @@ function splitProductsByPaperFormat(products: readonly Product[]): {
   return { a4, a3, ordered: [...a4, ...a3] };
 }
 
+/** Incluye en A4 equipos cross-list (mismo id) que ya están en A3 u otro bucket. */
+function mergeCrossListedIntoA4(a4: Product[], sourceProducts: readonly Product[]): Product[] {
+  const a4Ids = new Set(a4.map((product) => product.id));
+  const crossListed: Product[] = [];
+
+  for (const product of sourceProducts) {
+    if (
+      productMatchesModelPatterns(product, CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS) &&
+      !a4Ids.has(product.id)
+    ) {
+      crossListed.push(product);
+      a4Ids.add(product.id);
+    }
+  }
+
+  if (crossListed.length === 0) return a4;
+  return [...crossListed, ...a4];
+}
+
 export function buildCatalogFormatSections(
   products: readonly Product[],
 ): CatalogFormatSectionGroup[] {
   const { bn, color } = splitProductsByCatalogColor(products);
   const bnByPaper = splitProductsByPaperFormat(bn);
+  const bnA4WithCrossList = mergeCrossListedIntoA4(bnByPaper.a4, bn);
   const colorByPaper = splitProductsByPaperFormat(color);
 
   return [
@@ -424,7 +447,7 @@ export function buildCatalogFormatSections(
         {
           id: 'bn-a4',
           title: 'Formato A4',
-          products: prioritizeCatalogFormatSubsectionProducts('bn-a4', bnByPaper.a4),
+          products: prioritizeCatalogFormatSubsectionProducts('bn-a4', bnA4WithCrossList),
         },
         {
           id: 'bn-a3',
@@ -442,6 +465,26 @@ export function buildCatalogFormatSections(
       ],
     },
   ];
+}
+
+export function findProductCatalogFormatPlacement(
+  product: Product,
+  sections: readonly CatalogFormatSectionGroup[],
+): { section: CatalogFormatSectionGroup; subsection: CatalogFormatSubsection } | null {
+  for (const section of sections) {
+    for (const subsection of section.subsections) {
+      if (subsection.products.some((row) => row.id === product.id)) {
+        return { section, subsection };
+      }
+    }
+  }
+
+  const colorId = inferColor(product) === 'Color' ? 'color' : 'bn';
+  const paperId = resolveFormatoPapel(product) === 'A3' ? `${colorId}-a3` : `${colorId}-a4`;
+  const section = sections.find((row) => row.id === colorId);
+  const subsection = section?.subsections.find((row) => row.id === paperId);
+  if (!section || !subsection) return null;
+  return { section, subsection };
 }
 
 export function getCatalogLayoutOrderedProducts(products: readonly Product[]): Product[] {

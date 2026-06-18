@@ -123,6 +123,8 @@ export interface CartItem {
   /** Identificador único de línea (producto + configuración opcional). */
   lineId: string;
   configuration?: CartConfigurationLine;
+  /** Precio unitario USD con descuento por volumen al agregar. */
+  volumeUnitPriceUsd?: number;
 }
 
 export interface UserProfile {

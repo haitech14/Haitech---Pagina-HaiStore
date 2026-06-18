@@ -26,6 +26,7 @@ export default defineConfig({
     react(),
     // Optimización de imágenes en build con Sharp.
     ViteImageOptimizer({
+      includePublic: true,
       png: { quality: 80 },
       jpeg: { quality: 80 },
       jpg: { quality: 80 },
