@@ -11,6 +11,7 @@ import {
   ScanLine,
   Video,
   Wrench,
+  Camera,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -31,13 +32,28 @@ export const categories: Category[] = [
     tagline: 'Imprime, escanea y copia en un solo equipo',
     icon: Copy,
     image: '/categories/multifuncionales.png',
-    inventoryCategories: ['Multifuncionales', 'Multifuncionales Nuevas'],
+    inventoryCategories: [
+      'Multifuncionales',
+      'Multifuncionales Nuevas',
+      'Multifuncionales, Multifuncionales Nuevas',
+      'Multifuncionales Seminuevas',
+      'Multifuncionales, Multifuncionales Seminuevas',
+      'Multifuncionales Remanufacturadas',
+      'Multifuncionales, Multifuncionales Remanufacturadas',
+    ],
   },
   {
     slug: 'impresoras',
     name: 'Impresoras',
     tagline: 'Láser, inkjet y soluciones de impresión',
     icon: Printer,
+    inventoryCategories: [
+      'Impresoras',
+      'Impresoras Laser Nuevas',
+      'Impresoras Láser Nuevas',
+      'Impresoras, Impresoras Laser Nuevas',
+      'Impresoras, Impresoras Láser Nuevas',
+    ],
     image: '/categories/impresoras.png',
   },
   {
@@ -45,23 +61,44 @@ export const categories: Category[] = [
     name: 'Formato Ancho',
     tagline: 'Plotters y equipos para gran formato',
     icon: Ruler,
+    inventoryCategories: [
+      'Formato Ancho',
+      'Plotter y Multifuncional de Planos',
+    ],
     image: '/categories/formato-ancho.png',
   },
   {
     slug: 'toner-suministros',
-    name: 'Suministros',
+    name: 'Toner',
     tagline: 'Consumibles originales y compatibles',
     icon: PackageOpen,
     image: '/categories/toner-suministros.png',
     inventoryCategories: [
+      'Toner',
+      'Toner Original',
+      'Toner, Toner Original',
+      'Toner Compatible',
+      'Toner, Toner Compatible',
+      'Toner Compatibles',
+      'Toner, Toner Compatibles',
       'Suministros',
+      'Toner, Suministros',
       'Toner y suministros',
       'Tóner y Suministros',
-      'Toner Original',
-      'Toner',
       'Toner Compatibles HaiPrint',
       'Toner Compatibles Haitone',
-      'Toner Compatibles',
+    ],
+  },
+  {
+    slug: 'repuestos',
+    name: 'Repuestos',
+    tagline: 'Partes y componentes para impresoras',
+    icon: Cog,
+    image: '/categories/repuestos.png',
+    inventoryCategories: [
+      'Repuestos',
+      'Repuestos Originales',
+      'Repuestos, Repuestos Originales',
     ],
   },
   {
@@ -71,14 +108,6 @@ export const categories: Category[] = [
     icon: PackageOpen,
     image: '/categories/accesorios-impresoras.png',
     inventoryCategories: ['Accesorios'],
-  },
-  {
-    slug: 'repuestos',
-    name: 'Repuestos',
-    tagline: 'Partes y componentes para impresoras',
-    icon: Cog,
-    image: '/categories/repuestos.png',
-    inventoryCategories: ['Repuestos', 'Repuestos Originales'],
   },
   {
     slug: 'servicio-tecnico',
@@ -93,6 +122,15 @@ export const categories: Category[] = [
     tagline: 'Digitalización rápida y precisa de documentos',
     icon: ScanLine,
     image: '/categories/escaneres.png',
+    inventoryCategories: ['Escáneres'],
+  },
+  {
+    slug: 'camaras',
+    name: 'Cámaras',
+    tagline: 'Videovigilancia, grabación y seguridad',
+    icon: Camera,
+    image: '/categories/camaras.png',
+    inventoryCategories: ['Cámaras'],
   },
   {
     slug: 'soluciones-colaboracion',
@@ -113,6 +151,7 @@ export const categories: Category[] = [
     name: 'Computadoras y Laptop',
     tagline: 'Equipos de cómputo y accesorios',
     icon: Laptop,
+    inventoryCategories: ['Computadoras y Laptop', 'Computadoras Laptop', 'Laptops'],
     image: '/categories/computadoras-laptop.png',
   },
   {
@@ -131,3 +170,10 @@ export const categories: Category[] = [
     inventoryCategories: ['Alquiler'],
   },
 ];
+
+/** Categorías visibles en home («Explora nuestras categorías») y mega menú Productos. */
+const LANDING_MENU_HIDDEN_SLUGS = new Set<string>(['servicio-tecnico']);
+
+export const landingMenuCategories = categories.filter(
+  (category) => !LANDING_MENU_HIDDEN_SLUGS.has(category.slug),
+);

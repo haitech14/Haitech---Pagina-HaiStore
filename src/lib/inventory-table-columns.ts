@@ -4,6 +4,10 @@ export type InventoryColumnId =
   | 'media'
   | 'code'
   | 'product'
+  | 'brand'
+  | 'gramaje'
+  | 'description'
+  | 'installation'
   | 'attributes'
   | 'category'
   | 'stock'
@@ -25,19 +29,27 @@ export const DEFAULT_INVENTORY_COLUMN_ORDER: InventoryReorderableColumnId[] = [
   'code',
   'category',
   'product',
+  'brand',
+  'gramaje',
+  'description',
+  'installation',
   'media',
   'stock',
   'attributes',
   ...INVENTORY_PRICE_COLUMN_ORDER,
 ];
 
-const STORAGE_KEY = 'haistore-inventory-column-order-v6';
-const LEGACY_STORAGE_KEY = 'haistore-inventory-column-order-v5';
+const STORAGE_KEY = 'haistore-inventory-column-order-v8';
+const LEGACY_STORAGE_KEY = 'haistore-inventory-column-order-v7';
 
 const COLUMN_LABELS: Record<InventoryReorderableColumnId, string> = {
   media: 'Imágenes',
   code: 'Código',
-  product: 'Producto',
+  product: 'Título',
+  brand: 'Marca',
+  gramaje: 'Gramaje',
+  description: 'Descripción',
+  installation: 'Instalación',
   attributes: 'Atributos',
   category: 'Categoría',
   stock: 'Stock',
@@ -62,6 +74,10 @@ const COLUMN_CELL_CLASS: Record<InventoryReorderableColumnId, string> = {
   media: 'w-[5.5rem] min-w-[5.5rem] max-w-[5.5rem]',
   code: 'w-[5rem] min-w-[5rem] max-w-[5.5rem]',
   product: 'min-w-[12rem] max-w-[16rem] w-[16rem]',
+  brand: 'w-[6rem] min-w-[6rem] max-w-[8rem]',
+  gramaje: 'w-[5.5rem] min-w-[5.5rem] max-w-[7rem]',
+  description: 'min-w-[14rem] max-w-[20rem] w-[18rem]',
+  installation: 'min-w-[14rem] max-w-[22rem] w-[20rem]',
   attributes: 'w-[9.5rem] min-w-[9.5rem] max-w-[11rem]',
   category: 'w-[8rem] min-w-[8rem] max-w-[9.5rem]',
   stock: 'w-[4.5rem] min-w-[4.5rem] text-center',

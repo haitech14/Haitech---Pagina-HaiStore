@@ -28,7 +28,7 @@ import {
   type HaibotQuickAction,
   type HaibotWorkflowId,
 } from '@/lib/haibot-quick-actions';
-import { useProducts } from '@/hooks/use-products';
+import { searchCatalogProducts } from '@/lib/catalog-search-api';
 import { cn } from '@/lib/utils';
 
 const SEARCH_MODE_LABELS: Record<HaibotSearchFocus, string> = {
@@ -101,8 +101,6 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
   const [searchFocus, setSearchFocus] = useState<HaibotSearchFocus | null>(null);
   const [activeWorkflow, setActiveWorkflow] = useState<HaibotWorkflowId | null>(null);
 
-  const { data: products = [], isLoading: productsLoading } = useProducts();
-
   useEffect(() => {
     if (!open) return;
     setMessages([createHaibotMessage('assistant', HAIBOT_WELCOME_MESSAGE)]);
@@ -125,14 +123,15 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
     }, delay);
   };
 
-  const buildReply = (text: string): string => {
-    if (productsLoading) {
-      return 'Estoy cargando el inventario. Intenta de nuevo en unos segundos.';
-    }
-
-    const search = resolveHaibotInventorySearch(text, products, searchFocus);
+  const buildReply = async (text: string): Promise<string> => {
+    const search = resolveHaibotInventorySearch(text, [], searchFocus);
     if (search) {
-      return formatHaibotInventorySearchReply(search.query, products, search.focus);
+      try {
+        const { products: matches } = await searchCatalogProducts(search.query, { limit: 50 });
+        return formatHaibotInventorySearchReply(search.query, matches, search.focus);
+      } catch {
+        return 'No pude consultar el inventario en este momento. Inténtalo de nuevo.';
+      }
     }
 
     return getHaibotAssistantReply(text);
@@ -146,9 +145,9 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
     setMessages((prev) => [...prev, createHaibotMessage('user', trimmed)]);
     setIsThinking(true);
 
-    const reply = buildReply(trimmed);
-    const delay = resolveHaibotInventorySearch(trimmed, products, searchFocus) ? 320 : 550;
-    replyAfterDelay(reply, delay);
+    const searchIntent = resolveHaibotInventorySearch(trimmed, [], searchFocus);
+    const delay = searchIntent ? 320 : 550;
+    void buildReply(trimmed).then((reply) => replyAfterDelay(reply, delay));
   };
 
   const handleSubmit = (event: FormEvent) => {

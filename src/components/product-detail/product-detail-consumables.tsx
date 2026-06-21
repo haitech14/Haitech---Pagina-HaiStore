@@ -15,7 +15,16 @@ function ConsumableCard({ item }: { item: ConsumableGroup['items'][number] }) {
   return (
     <article className="flex gap-3 rounded-lg border border-border/60 bg-white p-3">
       <div className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted/25 p-1.5 sm:size-20">
-        <img src={item.image} alt="" className="max-h-full max-w-full object-contain" loading="lazy" />
+        {item.image ? (
+          <img
+            src={item.image}
+            alt=""
+            className="max-h-full max-w-full object-contain"
+            loading="lazy"
+          />
+        ) : (
+          <span className="text-xs font-semibold text-muted-foreground">Sin Imagen</span>
+        )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <h4 className="line-clamp-2 text-sm font-semibold leading-snug text-[#0f1f3d]">{item.name}</h4>

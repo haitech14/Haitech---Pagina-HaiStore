@@ -1,6 +1,3 @@
-import { useMemo } from 'react';
-
-import { AdminExchangeRateControl } from '@/components/admin/admin-exchange-rate-control';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -9,9 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAuth } from '@/context/auth-context';
 import { useAdminWorkspace } from '@/context/admin-workspace-context';
-import { useAdminProfiles } from '@/hooks/use-admin-dashboard';
 import { ADMIN_WORKSPACE_BRAND_LIST } from '@/lib/admin-workspace-brands';
 import { cn } from '@/lib/utils';
 
@@ -35,25 +30,7 @@ export function AdminWorkspaceFilters({
   const isDark = variant === 'dark';
   const isSidebarInline = isDark && layout === 'sidebar';
   const isCompact = isDark && (layout === 'column' || isSidebarInline);
-  const { user } = useAuth();
   const { brandId, brand, setBrandId } = useAdminWorkspace();
-  const { data: profiles = [] } = useAdminProfiles();
-
-  const userOptions = useMemo(() => {
-    const fromProfiles = profiles
-      .filter((p) => p.full_name || p.email)
-      .map((p) => ({
-        id: p.id,
-        label: p.full_name ?? p.email ?? p.id,
-      }));
-    if (user?.id && !fromProfiles.some((p) => p.id === user.id)) {
-      fromProfiles.unshift({
-        id: user.id,
-        label: user.name ?? user.email ?? 'Usuario actual',
-      });
-    }
-    return fromProfiles;
-  }, [profiles, user?.email, user?.id, user?.name]);
 
   const labelClass = cn(
     'font-medium uppercase tracking-wide leading-none',
@@ -78,7 +55,7 @@ export function AdminWorkspaceFilters({
     <div
       className={cn(
         'flex',
-        isSidebarInline && 'grid grid-cols-2 gap-x-1.5 gap-y-2',
+        isSidebarInline && 'flex flex-col gap-2',
         isCompact && !isSidebarInline && 'flex-col gap-1.5',
         !isCompact && !isSidebarInline && 'gap-2',
         layout === 'column' && !isCompact && !isSidebarInline && 'flex-col',
@@ -86,7 +63,7 @@ export function AdminWorkspaceFilters({
         className,
       )}
       role="group"
-      aria-label="Filtros de empresa, sucursal, usuario y tipo de cambio"
+      aria-label="Filtros de empresa y sucursal"
     >
       <div className={fieldClass}>
         <Label htmlFor="admin-filter-empresa" className={labelClass}>
@@ -127,41 +104,6 @@ export function AdminWorkspaceFilters({
             ))}
           </SelectContent>
         </Select>
-      </div>
-
-      <div className={fieldClass}>
-        <Label htmlFor="admin-filter-usuario" className={labelClass}>
-          Usuario
-        </Label>
-        <Select defaultValue={user?.id ?? 'todos'}>
-          <SelectTrigger id="admin-filter-usuario" className={triggerClass} aria-label="Usuario">
-            <SelectValue placeholder="Todos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            {userOptions.map((option) => (
-              <SelectItem key={option.id} value={option.id}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className={fieldClass}>
-        <Label htmlFor="admin-filter-tc" className={labelClass}>
-          {isSidebarInline ? 'T. cambio' : 'Tipo de cambio'}
-        </Label>
-        <AdminExchangeRateControl
-          variant={isSidebarInline ? 'sidebar' : 'topbar'}
-          triggerId="admin-filter-tc"
-          {...(!isSidebarInline
-            ? {
-                triggerClassName: triggerClass,
-                className: 'inline-flex w-full min-w-[7.5rem] sm:max-w-[11rem]',
-              }
-            : {})}
-        />
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export type ConsumableCategoryId =
 export interface ConsumableItem {
   productId: string;
   name: string;
-  image: string;
+  image: string | null;
   priceUsd: number;
   sku?: string;
   componentLabel?: string;
@@ -201,7 +201,7 @@ function resolveComponentLabel(product: Product): string | undefined {
 }
 
 function toConsumableItem(product: Product): ConsumableItem {
-  const image = buildProductImageCandidates(product)[0] ?? '/categories/toner-suministros.png';
+  const image = buildProductImageCandidates(product)[0] ?? null;
   const componentLabel = resolveComponentLabel(product);
   return {
     productId: product.id,

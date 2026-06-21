@@ -54,7 +54,7 @@ export function AdminDashboardToolbarActions({ className }: AdminDashboardToolba
         type="button"
         variant="outline"
         className="h-8 shrink-0 px-2.5 text-xs sm:text-sm"
-        onClick={() => exportDashboardCsv(range, kpis, inventory.data)}
+        onClick={() => exportDashboardCsv(range, kpis, inventory.allCategories)}
       >
         <Download className="size-4" aria-hidden="true" />
         Exportar

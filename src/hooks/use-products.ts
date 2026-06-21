@@ -12,16 +12,21 @@ async function fetchProductsForRole(): Promise<Product[]> {
   return apiFetch<Product[]>('/api/products');
 }
 
-export function useProducts() {
+export interface UseProductsOptions {
+  enabled?: boolean;
+}
+
+export function useProducts(options?: UseProductsOptions) {
   const { role, viewAsRole, effectiveRole } = useAuth();
+  const enabled = options?.enabled !== false;
 
   return useQuery({
     queryKey: ['products', role, viewAsRole],
     queryFn: fetchProductsForRole,
+    enabled,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
-    refetchInterval: 1000 * 60 * 5,
     select: (products) =>
       viewAsRole ? applyViewAsPriceToProducts(products, effectiveRole) : products,
   });

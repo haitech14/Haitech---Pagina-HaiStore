@@ -12,9 +12,13 @@ import { apiFetch } from '@/lib/api';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import {
+  inventoryCategoryParentLabel,
+  mergeInventoryCategoryStockSnapshots,
   normalizeStockQuantity,
+  sortInventoryCategoriesByUrgency,
   tallyInventoryCategoryStock,
   toCategoryStockPercents,
+  URGENT_INVENTORY_CATEGORY_LIMIT,
   type InventoryCategoryStockSnapshot,
 } from '@/lib/inventory-stock-status';
 import { formatPenFromUsd } from '@/lib/utils';
@@ -339,24 +343,29 @@ export interface AdminInventoryCategoryRow extends InventoryCategoryStockSnapsho
   healthyPercent: number;
 }
 
-export function useAdminInventoryByCategory() {
+export function useAdminInventoryByCategory(options?: { urgentLimit?: number }) {
   const productsQuery = useAdminProductsQuery();
+  const urgentLimit = options?.urgentLimit ?? URGENT_INVENTORY_CATEGORY_LIMIT;
 
   const categories = new Map<string, InventoryCategoryStockSnapshot>();
 
   for (const product of productsQuery.data ?? []) {
-    const category = product.category?.trim() || 'Sin categoría';
+    const category = inventoryCategoryParentLabel(product.category);
     const entry = categories.get(category) ?? { total: 0, out: 0, low: 0, healthy: 0 };
     const tally = tallyInventoryCategoryStock(normalizeStockQuantity(product.stock));
-    entry.total += 1;
-    entry.out += tally.out;
-    entry.low += tally.low;
-    entry.healthy += tally.healthy;
-    categories.set(category, entry);
+    categories.set(
+      category,
+      mergeInventoryCategoryStockSnapshots(entry, {
+        total: 1,
+        out: tally.out,
+        low: tally.low,
+        healthy: tally.healthy,
+      }),
+    );
   }
 
-  const data: AdminInventoryCategoryRow[] = Array.from(categories.entries())
-    .map(([category, stats]) => {
+  const allCategories: AdminInventoryCategoryRow[] = sortInventoryCategoriesByUrgency(
+    Array.from(categories.entries()).map(([category, stats]) => {
       const percents = toCategoryStockPercents(stats);
       return {
         category,
@@ -364,11 +373,14 @@ export function useAdminInventoryByCategory() {
         lowStock: stats.out + stats.low,
         ...percents,
       };
-    })
-    .sort((a, b) => b.total - a.total);
+    }),
+  );
 
   return {
     isLoading: productsQuery.isLoading,
-    data,
+    data: allCategories.slice(0, urgentLimit),
+    allCategories,
+    hasMoreUrgentCategories: allCategories.length > urgentLimit,
+    totalCategories: allCategories.length,
   };
 }

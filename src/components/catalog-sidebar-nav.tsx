@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 
 import { categoryPath } from '@/lib/category-path';
+import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 import { cn } from '@/lib/utils';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 
@@ -19,6 +20,7 @@ interface CatalogSidebarNavProps {
   categoryTree: StoreCategoryTreeNode[];
   activeCategorySlug: string;
   subSlug: string | null;
+  allSubcategoriesSelected?: boolean;
   onSelectSub: (slug: string | null) => void;
 }
 
@@ -73,6 +75,7 @@ export function CatalogSidebarNav({
   categoryTree,
   activeCategorySlug,
   subSlug,
+  allSubcategoriesSelected = false,
   onSelectSub,
 }: CatalogSidebarNavProps) {
   const activeRoot = categoryTree.find((node) => node.slug === activeCategorySlug);
@@ -87,9 +90,15 @@ export function CatalogSidebarNav({
         return (
           <div key={root.id} className="space-y-1">
             <Link
-              to={categoryPath(root.slug)}
-              className={itemClass(isActiveCategory && subSlug == null)}
-              aria-current={isActiveCategory && subSlug == null ? 'page' : undefined}
+              to={
+                root.slug === 'multifuncionales'
+                  ? `${categoryPath(root.slug)}?sub=${ALL_SUBCATEGORIES_QUERY}`
+                  : categoryPath(root.slug)
+              }
+              className={itemClass(isActiveCategory && (subSlug == null && allSubcategoriesSelected))}
+              aria-current={
+                isActiveCategory && subSlug == null && allSubcategoriesSelected ? 'page' : undefined
+              }
             >
               <span className="line-clamp-2">{root.name}</span>
               <span className="shrink-0 text-xs tabular-nums text-muted-foreground">

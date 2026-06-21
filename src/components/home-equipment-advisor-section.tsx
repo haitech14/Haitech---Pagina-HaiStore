@@ -34,7 +34,7 @@ const ADVISOR_OPTIONS = [
 ] as const;
 
 const defaultAdvisorUrl = buildHaitechWhatsAppUrl(
-  'Hola, vengo desde HaiStore. No sé qué impresora necesita mi empresa. ¿Me pueden asesorar gratis?',
+  'Hola, vengo desde HaiStore. Necesito asesoría para elegir el equipo de impresión adecuado para mi negocio.',
 );
 
 export function HomeEquipmentAdvisorSection() {
@@ -58,7 +58,7 @@ export function HomeEquipmentAdvisorSection() {
             id="equipo-asesor-titulo"
             className="text-balance text-xl font-bold tracking-tight text-[#0f1f3d] sm:text-2xl lg:text-[1.75rem]"
           >
-            ¿No sabes qué impresora necesita tu empresa?
+            ¿No sabes qué equipo elegir? Te asesoramos gratis.
           </h2>
           <p className="text-pretty text-sm text-muted-foreground sm:text-base">
             Cuéntanos tu caso y te orientamos sin compromiso.
@@ -104,7 +104,7 @@ export function HomeEquipmentAdvisorSection() {
           >
             <a href={defaultAdvisorUrl} target="_blank" rel="noopener noreferrer">
               <Icon path={mdiWhatsapp} size={1} aria-hidden="true" />
-              Recibir asesoría gratis
+              Hablar con un asesor
             </a>
           </Button>
 

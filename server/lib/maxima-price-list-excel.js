@@ -1,5 +1,7 @@
 import XLSX from 'xlsx';
 
+import { LANDING_CATEGORY, landingInventoryCategory } from '../../shared/landing-categories.js';
+
 import { parsePriceCell } from './compatible-toner-excel.js';
 import { normalizeAttributes } from './inventory-attributes.js';
 import { normalizeProductInput } from './inventory-store.js';
@@ -85,15 +87,16 @@ export function mapMaximaSubFamiliaToCategory(subFamilia) {
   if (!s) return 'Varios';
 
   if (/TONER|TINTA|DRUM IMPRESORA|BANDEJA DE IMPRESORA|TONER FOTOCOPIADORA/.test(s)) {
-    return 'Suministros';
+    return landingInventoryCategory(LANDING_CATEGORY.toner, LANDING_CATEGORY.suministros);
   }
   if (s === 'REPUESTOS' || s.includes('REPUESTO')) return 'Repuestos';
   if (/IMP\.\s*MULTIF|IMPRES\.\s*MULTIF|MULTIF\.\s*LASER/.test(s)) return 'Multifuncionales';
   if (/IMP\.\s*LASER|IMPRES\.\s*LASER|^IMPRES\.|^IMP\./.test(s)) return 'Impresoras';
   if (/ACCESORIOS IMPRESORA|^ACCESORIO/.test(s)) return 'Accesorios';
   if (/MONITOR/.test(s)) return 'Monitores';
-  if (/NOTEBOOK|COMPUTADORA|PC AIO|TABLET|SMARTPHONE/.test(s)) return 'Computadoras Laptop';
-  if (/CAMARA|GRABADORA|ESCANER/.test(s)) return 'Escáneres';
+  if (/NOTEBOOK|COMPUTADORA|PC AIO|TABLET|SMARTPHONE/.test(s)) return LANDING_CATEGORY.computadorasLaptop;
+  if (/CAMARA|GRABADORA|^DVR\b|^NVR\b/.test(s)) return LANDING_CATEGORY.camaras;
+  if (/ESCANER/.test(s)) return LANDING_CATEGORY.escaneres;
   if (/ROUTER|SWITCH|ACCES POINT|USB INALAMBRICO|ANTIVIRUS|LICENCIAS WINDOWS/.test(s)) {
     return 'Soluciones de Negocio';
   }
@@ -102,7 +105,7 @@ export function mapMaximaSubFamiliaToCategory(subFamilia) {
       s,
     )
   ) {
-    return 'Computadoras Laptop';
+    return LANDING_CATEGORY.computadorasLaptop;
   }
   if (/MOCHILA|BATERIA|UPS|^VARIOS$|SMART|PANTALLA DIGITAL/.test(s)) return 'Accesorios';
 

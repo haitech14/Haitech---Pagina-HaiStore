@@ -97,20 +97,50 @@ export function isAdminSettingsPath(pathname: string): boolean {
 
 export type AdminRouteKey = keyof typeof ADMIN_ROUTES;
 
-export const ADMIN_NAV_MAIN = [
-  { key: 'DASHBOARD' as const, label: 'Dashboard', href: ADMIN_ROUTES.DASHBOARD, icon: 'layout-dashboard' },
+export const ADMIN_VENTAS_NAV = [
   { key: 'CRM' as const, label: 'CRM', href: ADMIN_ROUTES.CRM_RESUMEN, icon: 'contact-round' },
-  { key: 'VENTAS' as const, label: 'Ventas', href: ADMIN_ROUTES.VENTAS, icon: 'shopping-bag' },
-  { key: 'INVENTORY' as const, label: 'Inventario', href: ADMIN_ROUTES.INVENTORY, icon: 'warehouse' },
   { key: 'MARKETING' as const, label: 'Marketing', href: ADMIN_ROUTES.MARKETING, icon: 'megaphone' },
-  { key: 'SHIPPING' as const, label: 'Envíos', href: ADMIN_ROUTES.SHIPPING, icon: 'truck' },
-  { key: 'SERVICES' as const, label: 'Servicios', href: ADMIN_ROUTES.SERVICES, icon: 'wrench' },
   {
     key: 'RENTALS' as const,
     label: 'Alquileres y Planes',
     href: ADMIN_ROUTES.RENTALS,
     icon: 'calendar-range',
   },
+] as const;
+
+export function isAdminVentasNavPath(pathname: string): boolean {
+  return (
+    pathname.startsWith(ADMIN_ROUTES.VENTAS) ||
+    isAdminCrmPath(pathname) ||
+    pathname.startsWith(ADMIN_ROUTES.MARKETING) ||
+    pathname.startsWith(ADMIN_ROUTES.RENTALS)
+  );
+}
+
+function isAdminVentasChildPath(pathname: string, href: string): boolean {
+  if (href === ADMIN_ROUTES.CRM_RESUMEN) {
+    return isAdminCrmPath(pathname) || pathname === ADMIN_ROUTES.CUSTOMERS;
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function isAdminVentasChildActive(pathname: string, key: (typeof ADMIN_VENTAS_NAV)[number]['key']): boolean {
+  const item = ADMIN_VENTAS_NAV.find((entry) => entry.key === key);
+  return item ? isAdminVentasChildPath(pathname, item.href) : false;
+}
+
+export const ADMIN_NAV_MAIN = [
+  { key: 'DASHBOARD' as const, label: 'Dashboard', href: ADMIN_ROUTES.DASHBOARD, icon: 'layout-dashboard' },
+  {
+    key: 'VENTAS' as const,
+    label: 'Ventas',
+    href: ADMIN_ROUTES.VENTAS,
+    icon: 'shopping-bag',
+    children: ADMIN_VENTAS_NAV,
+  },
+  { key: 'INVENTORY' as const, label: 'Inventario', href: ADMIN_ROUTES.INVENTORY, icon: 'warehouse' },
+  { key: 'SHIPPING' as const, label: 'Envíos', href: ADMIN_ROUTES.SHIPPING, icon: 'truck' },
+  { key: 'SERVICES' as const, label: 'Servicios', href: ADMIN_ROUTES.SERVICES, icon: 'wrench' },
   { key: 'SETTINGS' as const, label: 'Configuración', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'settings' },
 ] as const;
 

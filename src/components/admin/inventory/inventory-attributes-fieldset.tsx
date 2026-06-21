@@ -9,11 +9,13 @@ import { InventoryAttributesEditor } from './inventory-attributes-editor';
 interface InventoryAttributesFieldsetProps {
   attributes: ProductAttribute[];
   onChange: (attributes: ProductAttribute[]) => void;
+  embedded?: boolean;
 }
 
 export function InventoryAttributesFieldset({
   attributes,
   onChange,
+  embedded = false,
 }: InventoryAttributesFieldsetProps) {
   const { data: products = [] } = useAdminInventory();
 
@@ -26,6 +28,27 @@ export function InventoryAttributesFieldset({
     return catalog.sort((a, b) => a.localeCompare(b, 'es'));
   }, [products, attributes]);
 
+  const content = (
+    <div className={embedded ? undefined : 'mt-3'}>
+      <InventoryAttributesEditor
+        attributes={attributes}
+        onChange={onChange}
+        nameOptions={nameOptions}
+        products={products}
+        idPrefix="inv-attr"
+        emptyLabel="Sin atributos registrados."
+      />
+    </div>
+  );
+
+  if (embedded) {
+    return (
+      <div id="inv-attributes-fieldset" className="outline-none" tabIndex={-1}>
+        {content}
+      </div>
+    );
+  }
+
   return (
     <fieldset id="inv-attributes-fieldset" className="rounded-lg border p-3 outline-none" tabIndex={-1}>
       <legend className="px-1 text-sm font-medium">Atributos</legend>
@@ -33,15 +56,7 @@ export function InventoryAttributesFieldset({
         Especificaciones del producto (color, velocidad, formato, etc.) visibles en inventario y
         ficha.
       </p>
-      <div className="mt-3">
-        <InventoryAttributesEditor
-          attributes={attributes}
-          onChange={onChange}
-          nameOptions={nameOptions}
-          products={products}
-          idPrefix="inv-attr"
-        />
-      </div>
+      {content}
     </fieldset>
   );
 }

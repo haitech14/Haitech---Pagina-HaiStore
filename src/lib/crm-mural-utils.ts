@@ -1,4 +1,5 @@
 import { CRM_MURAL_COLUMNS } from '@/data/crm-mural-mock';
+import { randomId } from '@/lib/random-id';
 import type { CrmMuralCard, CrmMuralColumnId } from '@/types/crm-mural';
 
 export const CRM_MURAL_DRAG_TYPE = 'application/x-haistore-crm-mural-card-id';
@@ -77,12 +78,12 @@ export async function copyMuralCardToClipboard(card: CrmMuralCard): Promise<void
 }
 
 export function duplicateMuralCard(card: CrmMuralCard): CrmMuralCard {
-  return { ...card, id: crypto.randomUUID() };
+  return { ...card, id: randomId() };
 }
 
 export function createEmptyMuralTextCard(columnId: CrmMuralColumnId): CrmMuralCard {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     columnId,
     kind: 'text',
     paragraphs: [''],

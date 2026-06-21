@@ -8,7 +8,7 @@ import {
 export type ResolveProductImageOptions = {
   /** Vista admin: permite previsualizar data: URL antes de persistir en disco. */
   allowDataUrl?: boolean;
-  /** Si es false, no usa imágenes genéricas por categoría ni `/products/{id}.webp`. */
+  /** Si es false, no añade imágenes genéricas al resolver en cliente. */
   stockFallback?: boolean;
 };
 
@@ -41,14 +41,19 @@ function isSyntheticStockImageUrl(product: ResolveProductImageInput, url: string
   return isCategoryStockImageUrl(url);
 }
 
-function isUsableProductImageUrl(
+function isUsableExplicitImageUrl(url: string, options?: ResolveProductImageOptions): boolean {
+  if (url.length === 0) return false;
+  if (!isImageMediaUrl(url)) return false;
+  if (url.startsWith('data:') && !options?.allowDataUrl) return false;
+  return true;
+}
+
+function isUsableFallbackImageUrl(
   product: ResolveProductImageInput,
   url: string,
   options?: ResolveProductImageOptions,
 ): boolean {
-  if (url.length === 0) return false;
-  if (!isImageMediaUrl(url)) return false;
-  if (url.startsWith('data:') && !options?.allowDataUrl) return false;
+  if (!isUsableExplicitImageUrl(url, options)) return false;
   if (!shouldUseStockFallback(options) && isSyntheticStockImageUrl(product, url)) return false;
   return true;
 }
@@ -78,24 +83,31 @@ export function buildProductImageCandidates(
   const candidates: string[] = [];
   const seen = new Set<string>();
 
-  const push = (url: string | null | undefined) => {
-    if (!url || url.startsWith('data:') || seen.has(url)) return;
-    if (!isUsableProductImageUrl(product, url, options)) return;
+  const pushExplicit = (url: string | null | undefined) => {
+    if (!url || seen.has(url)) return;
+    if (!isUsableExplicitImageUrl(url, options)) return;
     seen.add(url);
     candidates.push(url);
   };
 
-  push(product.image_url);
+  const pushFallback = (url: string | null | undefined) => {
+    if (!url || seen.has(url)) return;
+    if (!isUsableFallbackImageUrl(product, url, options)) return;
+    seen.add(url);
+    candidates.push(url);
+  };
+
+  pushExplicit(product.image_url);
   for (const url of product.gallery ?? []) {
-    push(url);
+    pushExplicit(url);
   }
 
   if (shouldUseStockFallback(options)) {
-    push(resolveProductModelStockImage(product));
+    pushFallback(resolveProductModelStockImage(product));
     if (product.id) {
-      push(publicProductMediaPath(product.id));
+      pushFallback(publicProductMediaPath(product.id));
     }
-    push(resolveProductCategoryStockImage(product));
+    pushFallback(resolveProductCategoryStockImage(product));
   }
 
   return candidates;

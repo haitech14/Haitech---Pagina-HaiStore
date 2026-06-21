@@ -44,7 +44,7 @@ import {
 import {
   type InventoryReorderableColumnId,
 } from '@/lib/inventory-table-columns';
-import { normalizeAttributes } from '@/lib/inventory-attributes';
+import { normalizeAttributes, getProductAttributeValue, upsertProductAttribute } from '@/lib/inventory-attributes';
 import { stockFromTotal } from '@/lib/inventory-stock';
 import {
   PRICE_ROLE_LABELS,
@@ -108,6 +108,13 @@ export function InventoryRowCells({
     await onPatch({
       stock: stockPatch.stock,
       stock_by_warehouse: stockPatch.stock_by_warehouse,
+    });
+    close();
+  };
+
+  const saveGramajeAttribute = async (value: string) => {
+    await onPatch({
+      attributes: upsertProductAttribute(product.attributes, 'Gramaje', value),
     });
     close();
   };
@@ -309,9 +316,6 @@ export function InventoryRowCells({
             {displayCode ? (
               <p className="mt-0.5 font-mono text-[0.65rem] text-muted-foreground">{displayCode}</p>
             ) : null}
-            {product.brand ? (
-              <p className="text-xs text-muted-foreground">{product.brand}</p>
-            ) : null}
           </div>
         }
         edit={
@@ -319,20 +323,92 @@ export function InventoryRowCells({
             <Input
               className="h-9"
               defaultValue={product.name}
-              aria-label="Nombre del producto"
+              aria-label="Título del producto"
               autoFocus
               onBlur={(event) => void saveText('name', event.target.value)}
-            />
-            <Input
-              className="h-8 text-xs"
-              defaultValue={product.brand ?? ''}
-              aria-label="Marca"
-              placeholder="Marca"
-              onBlur={(event) => void saveText('brand', event.target.value)}
             />
           </div>
         }
       />
+    );
+  }
+
+  if (columnId === 'brand') {
+    return (
+      <InventoryInlineField
+        fieldId={fieldKey('brand')}
+        activeFieldId={activeFieldId}
+        onActivate={() => setActiveFieldId(fieldKey('brand'))}
+        onClose={close}
+        display={
+          <p className="line-clamp-2 text-sm text-foreground">{product.brand?.trim() || '—'}</p>
+        }
+        edit={
+          <Input
+            className="h-9 text-xs"
+            defaultValue={product.brand ?? ''}
+            aria-label="Marca"
+            autoFocus
+            onBlur={(event) => void saveText('brand', event.target.value)}
+          />
+        }
+      />
+    );
+  }
+
+  if (columnId === 'gramaje') {
+    const gramaje = getProductAttributeValue(product.attributes, 'Gramaje');
+    return (
+      <InventoryInlineField
+        fieldId={fieldKey('gramaje')}
+        activeFieldId={activeFieldId}
+        onActivate={() => setActiveFieldId(fieldKey('gramaje'))}
+        onClose={close}
+        display={<p className="line-clamp-2 text-sm">{gramaje || '—'}</p>}
+        edit={
+          <Input
+            className="h-9 text-xs"
+            defaultValue={gramaje}
+            aria-label="Gramaje"
+            autoFocus
+            onBlur={(event) => void saveGramajeAttribute(event.target.value)}
+          />
+        }
+      />
+    );
+  }
+
+  if (columnId === 'description') {
+    return (
+      <InventoryInlineField
+        fieldId={fieldKey('description')}
+        activeFieldId={activeFieldId}
+        onActivate={() => setActiveFieldId(fieldKey('description'))}
+        onClose={close}
+        display={
+          <p className="line-clamp-3 text-xs leading-snug text-muted-foreground">
+            {product.description?.trim() || '—'}
+          </p>
+        }
+        edit={
+          <Input
+            className="h-9 text-xs"
+            defaultValue={product.description ?? ''}
+            aria-label="Descripción"
+            autoFocus
+            onBlur={(event) => void saveText('description', event.target.value)}
+          />
+        }
+      />
+    );
+  }
+
+  if (columnId === 'installation') {
+    const installation = getProductAttributeValue(product.attributes, 'Instalación');
+    return (
+      <p className="line-clamp-4 whitespace-pre-line text-xs leading-snug text-muted-foreground">
+        {installation || '—'}
+      </p>
     );
   }
 

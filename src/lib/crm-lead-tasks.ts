@@ -1,9 +1,10 @@
+import { randomId } from '@/lib/random-id';
 import type { CrmLeadTask } from '@/types/crm-lead-form';
 import type { CrmPipelineLead } from '@/types/crm-pipeline';
 
 export function newLeadTask(title = ''): CrmLeadTask {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     title: title.trim(),
     done: false,
     createdAt: new Date().toISOString(),
@@ -19,7 +20,7 @@ export function normalizeLeadTasks(value: unknown): CrmLeadTask[] {
     const row = entry as Partial<CrmLeadTask>;
     const title = typeof row.title === 'string' ? row.title.trim() : '';
     if (!title) continue;
-    const id = typeof row.id === 'string' && row.id.trim() ? row.id.trim() : crypto.randomUUID();
+    const id = typeof row.id === 'string' && row.id.trim() ? row.id.trim() : randomId();
     const createdAt =
       typeof row.createdAt === 'string' && row.createdAt ? row.createdAt : new Date().toISOString();
     const dueDate =

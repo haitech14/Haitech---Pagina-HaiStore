@@ -3,6 +3,7 @@ import {
   migrateInventoryProduct,
   readInventory,
   toPublicProduct,
+  toPublicProductList,
   writeInventory,
 } from './inventory-store.js';
 import { seedProducts } from './seed-products.js';
@@ -89,8 +90,9 @@ function rowToInventoryProduct(row) {
   return withResolvedMedia(product);
 }
 
-function rowToPublicProduct(row, role) {
-  return toPublicProduct(rowToInventoryProduct(row), role);
+function rowToPublicProduct(row, role, { listView = false } = {}) {
+  const product = rowToInventoryProduct(row);
+  return listView ? toPublicProductList(product, role) : toPublicProduct(product, role);
 }
 
 let bootstrapPromise = null;
@@ -227,7 +229,7 @@ async function listFromSupabase(role, adminView) {
     return rows.map((row) => rowToInventoryProduct(row));
   }
 
-  return rows.map((row) => rowToPublicProduct(row, role));
+  return rows.map((row) => rowToPublicProduct(row, role, { listView: true }));
 }
 
 async function listFromInventory(role, adminView) {
@@ -235,7 +237,9 @@ async function listFromInventory(role, adminView) {
   if (adminView) {
     return products.map((product) => migrateInventoryProduct(product));
   }
-  return products.map((product) => toPublicProduct(withResolvedMedia(product), role));
+  return products.map((product) =>
+    toPublicProductList(withResolvedMedia(product), role),
+  );
 }
 
 /**
@@ -338,7 +342,7 @@ export async function searchPublicProducts({
 
   let matched = products
     .filter((product) => productMatchesSearchQuery(product, trimmed))
-    .map((product) => toPublicProduct(withResolvedMedia(product), role));
+    .map((product) => toPublicProductList(withResolvedMedia(product), role));
 
   if (categoryFilter && categoryFilter !== 'all') {
     matched = matched.filter((product) => productMatchesCategoryFilter(product, categoryFilter));

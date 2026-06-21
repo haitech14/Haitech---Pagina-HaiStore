@@ -1,15 +1,19 @@
 import type { StoreCategory, StoreCategoryTreeNode } from '@/types/store-category';
-import { subcategoryVisualKind } from '@/lib/subcategory-visual';
 
-/** Subcategoría «Nuevas» por defecto en equipos (p. ej. multifuncionales). */
-export function findDefaultNewSubcategorySlug(
-  storeCategory: StoreCategoryTreeNode | undefined,
-): string | null {
-  if (!storeCategory?.children?.length) return null;
-  const nuevas = storeCategory.children.find(
-    (child) => subcategoryVisualKind(child.name) === 'new',
-  );
-  return nuevas?.slug ?? null;
+/** Valor de `?sub=` para ver todas las subcategorías sin filtro activo. */
+export const ALL_SUBCATEGORIES_QUERY = 'todas';
+
+export function parseCategorySubSearchParam(raw: string | null): {
+  subSlug: string | null;
+  isAllSubcategoriesView: boolean;
+} {
+  if (!raw) {
+    return { subSlug: null, isAllSubcategoriesView: false };
+  }
+  if (raw === ALL_SUBCATEGORIES_QUERY) {
+    return { subSlug: null, isAllSubcategoriesView: true };
+  }
+  return { subSlug: raw, isAllSubcategoriesView: false };
 }
 
 export function findStoreCategoryBySlug(

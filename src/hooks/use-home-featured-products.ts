@@ -20,7 +20,6 @@ export function useHomeFeaturedProducts() {
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
-    refetchInterval: 1000 * 60 * 5,
     select: (products) =>
       viewAsRole ? applyViewAsPriceToProducts(products, effectiveRole) : products,
   });

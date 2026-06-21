@@ -32,7 +32,7 @@ export function ProductAttributeBadges({
   className,
 }: ProductAttributeBadgesProps) {
   const badges = buildProductDetailBadges(product, { primaryOnly: compact }).filter(
-    (badge) => !(compact && isNuevoConditionBadge(badge)),
+    (badge) => !isNuevoConditionBadge(badge),
   );
   const brand = hideBrand ? '' : product.brand?.trim();
 

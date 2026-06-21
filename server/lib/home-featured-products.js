@@ -3,7 +3,13 @@ import { withResolvedMedia } from './product-catalog.js';
 
 /** Etiquetas de inventario por slug de categoría (home destacados). */
 const CATEGORY_LABELS = {
-  multifuncionales: ['Multifuncionales', 'Multifuncionales Nuevas'],
+  multifuncionales: [
+    'Multifuncionales',
+    'Multifuncionales Nuevas',
+    'Multifuncionales, Multifuncionales Nuevas',
+    'Multifuncionales Seminuevas',
+    'Multifuncionales, Multifuncionales Seminuevas',
+  ],
 };
 
 const HOME_HIGHLIGHTED_MODEL_PATTERNS = [

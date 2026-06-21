@@ -9,7 +9,7 @@ export interface ProductComparisonRow {
 export interface ProductComparisonColumn {
   productId?: string;
   modelLabel: string;
-  image: string;
+  image: string | null;
   isCurrent: boolean;
   values: Record<string, string | boolean>;
 }
@@ -126,7 +126,7 @@ function resolveModelColumn(
     return {
       productId: catalogMatch.id,
       modelLabel: spec.label,
-      image: catalogMatch.image_url ?? '/categories/multifuncionales.png',
+      image: catalogMatch.image_url ?? null,
       isCurrent,
       values: isCurrent ? spec.values : spec.values,
     };
@@ -134,7 +134,7 @@ function resolveModelColumn(
 
   return {
     modelLabel: spec.label,
-    image: spec.image ?? '/categories/multifuncionales.png',
+    image: spec.image ?? null,
     isCurrent,
     values: spec.values,
   };
@@ -159,7 +159,7 @@ export function resolveEquipmentComparison(
     columns.unshift({
       productId: equipment.id,
       modelLabel: equipment.name.replace(/ricoh\s*/i, 'IM ').trim() || 'Este equipo',
-      image: equipment.image_url ?? '/categories/multifuncionales.png',
+      image: equipment.image_url ?? null,
       isCurrent: true,
       values: specsToComparisonValues(specs),
     });

@@ -12,6 +12,8 @@ import {
 interface CatalogSectionWithTabsProps {
   section: HomeCatalogSectionConfig;
   productsByCondition: Record<ProductCondition, FeaturedProduct[]>;
+  /** Opcional: limitar las condiciones visibles (p. ej. sin «Partes»). */
+  conditionsOverride?: readonly ProductCondition[];
 }
 
 function firstTabWithProducts(
@@ -53,10 +55,11 @@ const EMPTY_TAB_MESSAGES_BY_SECTION: Partial<
 export function CatalogSectionWithTabs({
   section,
   productsByCondition,
+  conditionsOverride,
 }: CatalogSectionWithTabsProps) {
   const sectionConditions = useMemo(
-    () => getConditionsForCatalogFamily(section.id),
-    [section.id],
+    () => conditionsOverride ?? getConditionsForCatalogFamily(section.id),
+    [conditionsOverride, section.id],
   );
 
   const [activeCondition, setActiveCondition] = useState<ProductCondition>(() =>

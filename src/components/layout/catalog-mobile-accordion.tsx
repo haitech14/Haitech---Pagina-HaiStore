@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 import { CatalogMegaMenuPanel } from '@/components/layout/catalog-mega-menu-panel';
-import { buildMegaMenuFromStoreCategories } from '@/lib/mega-menu-from-store-categories';
-import type { MegaMenuSectionId } from '@/data/mega-menu';
+import { buildLandingCatalogMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { cn } from '@/lib/utils';
 
@@ -13,20 +12,22 @@ interface CatalogMobileAccordionProps {
 
 export function CatalogMobileAccordion({ onNavigate }: CatalogMobileAccordionProps) {
   const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const { sidebarSectionIds } = useMemo(
-    () => buildMegaMenuFromStoreCategories(categoryTree),
-    [categoryTree],
-  );
-  const defaultSection = sidebarSectionIds[0] ?? 'destacados';
+  const menu = useMemo(() => buildLandingCatalogMegaMenu(categoryTree), [categoryTree]);
 
   const [open, setOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<MegaMenuSectionId>(defaultSection);
+  const [activeCategorySlug, setActiveCategorySlug] = useState(menu.defaultCategorySlug);
+
+  const columnGroups = useMemo(
+    () => menu.getColumnGroups(activeCategorySlug),
+    [menu, activeCategorySlug],
+  );
 
   useEffect(() => {
-    if (!sidebarSectionIds.includes(activeSection)) {
-      setActiveSection(defaultSection);
+    const slugs = menu.sidebarItems.map((item) => item.slug);
+    if (!slugs.includes(activeCategorySlug)) {
+      setActiveCategorySlug(menu.defaultCategorySlug);
     }
-  }, [activeSection, defaultSection, sidebarSectionIds]);
+  }, [activeCategorySlug, menu.defaultCategorySlug, menu.sidebarItems]);
 
   const closeAll = () => {
     setOpen(false);
@@ -52,9 +53,11 @@ export function CatalogMobileAccordion({ onNavigate }: CatalogMobileAccordionPro
         <div className="border-t border-border/60">
           <CatalogMegaMenuPanel
             layout="mobile"
-            activeSection={activeSection}
-            onSectionChange={setActiveSection}
-            sidebarSectionIds={sidebarSectionIds}
+            activeCategorySlug={activeCategorySlug}
+            onCategoryChange={setActiveCategorySlug}
+            sidebarItems={menu.sidebarItems}
+            columnGroups={columnGroups}
+            showBrandStrip={menu.categoryShowsBrandStrip(activeCategorySlug)}
             onNavigate={closeAll}
           />
         </div>

@@ -15,11 +15,13 @@ import type { InventorySupplier } from '@/types/product';
 interface InventorySuppliersFieldsetProps {
   suppliers: InventorySupplier[];
   onChange: (suppliers: InventorySupplier[]) => void;
+  embedded?: boolean;
 }
 
 export function InventorySuppliersFieldset({
   suppliers,
   onChange,
+  embedded = false,
 }: InventorySuppliersFieldsetProps) {
   const supplierCatalog = useSupplierCatalog();
   const mergedCatalog = useMemo(() => {
@@ -49,15 +51,16 @@ export function InventorySuppliersFieldset({
     onChange([...suppliers, createEmptySupplier()]);
   };
 
-  return (
-    <fieldset className="rounded-lg border p-3">
-      <legend className="px-1 text-sm font-medium">Proveedores</legend>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Registra uno o más proveedores con su precio de compra. El costo de referencia usa el menor
-        precio.
-      </p>
+  const content = (
+    <>
+      {!embedded ? (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Registra uno o más proveedores con su precio de compra. El costo de referencia usa el menor
+          precio.
+        </p>
+      ) : null}
 
-      <div className="mt-3 space-y-2">
+      <div className={embedded ? 'space-y-2' : 'mt-3 space-y-2'}>
         {suppliers.length === 0 ? (
           <p className="text-sm text-muted-foreground">Sin proveedores registrados.</p>
         ) : (
@@ -119,11 +122,20 @@ export function InventorySuppliersFieldset({
           </ul>
         )}
 
-        <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={addSupplier}>
+        <Button type="button" variant="outline" size="sm" className="h-9 gap-1.5" onClick={addSupplier}>
           <Plus className="size-4" aria-hidden="true" />
           Agregar proveedor
         </Button>
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <fieldset className="rounded-lg border p-3">
+      <legend className="px-1 text-sm font-medium">Proveedores</legend>
+      {content}
     </fieldset>
   );
 }

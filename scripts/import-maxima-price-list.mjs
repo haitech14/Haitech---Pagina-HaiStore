@@ -30,6 +30,7 @@ const STORE_CATEGORY_LABEL_TARGETS = [
   { id: 'cat-impresoras', labels: ['Impresoras'] },
   { id: 'cat-repuestos', labels: ['Repuestos'] },
   { id: 'cat-escaneres', labels: ['Escáneres'] },
+  { id: 'cat-camaras', labels: ['Cámaras'] },
 ];
 
 async function ensureStoreCategoryLabels() {

@@ -5,7 +5,7 @@ import { Heart } from 'lucide-react';
 import { ProductShowcaseCard } from '@/components/product-showcase-card';
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/context/wishlist-context';
-import { useProducts } from '@/hooks/use-products';
+import { useProductsByIds } from '@/hooks/use-products-by-ids';
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { WishlistItem } from '@/lib/wishlist-product';
 
@@ -24,7 +24,8 @@ function wishlistToFeatured(item: WishlistItem, livePrice?: number): FeaturedPro
 
 export function FavoritesPage() {
   const { items, clear, totalItems } = useWishlist();
-  const { data: storeProducts } = useProducts();
+  const ids = useMemo(() => items.map((item) => item.id), [items]);
+  const { data: storeProducts = [] } = useProductsByIds(ids, items.length > 0);
 
   const products = useMemo(() => {
     const priceById = new Map(storeProducts?.map((product) => [product.id, product.price]) ?? []);

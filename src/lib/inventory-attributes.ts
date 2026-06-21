@@ -101,6 +101,41 @@ export function getAttributeValueOptions(
   return [...seen].sort((a, b) => a.localeCompare(b, 'es'));
 }
 
+export function getProductAttributeValue(
+  attributes: ProductAttribute[] | undefined,
+  attributeName: string,
+): string {
+  const name = attributeName.trim();
+  if (!name) return '';
+  return attributes?.find((attribute) => attribute.name?.trim() === name)?.value?.trim() ?? '';
+}
+
+export function upsertProductAttribute(
+  attributes: ProductAttribute[] | undefined,
+  attributeName: string,
+  value: string,
+): ProductAttribute[] {
+  const name = attributeName.trim();
+  const trimmedValue = value.trim();
+  const list = normalizeAttributes(attributes);
+
+  if (!name) return list;
+
+  const index = list.findIndex((attribute) => attribute.name.trim() === name);
+  if (!trimmedValue) {
+    if (index === -1) return list;
+    return list.filter((_, itemIndex) => itemIndex !== index);
+  }
+
+  if (index === -1) {
+    return [...list, { id: randomId(), name, value: trimmedValue }];
+  }
+
+  return list.map((attribute, itemIndex) =>
+    itemIndex === index ? { ...attribute, name, value: trimmedValue } : attribute,
+  );
+}
+
 export function mergeSelectOptions(
   options: readonly string[],
   currentValue: string,

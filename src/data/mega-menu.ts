@@ -197,6 +197,7 @@ export const megaMenuCategoryImages: Record<string, string> = {
   repuestos: '/categories/repuestos.png',
   'servicio-tecnico': '/categories/servicio-tecnico.png',
   escaneres: '/categories/escaneres.png',
+  camaras: '/categories/camaras.png',
   alquiler: '/categories/alquiler.png',
   tecnologia: '/categories/computadoras-laptop.png',
   accesorios: '/categories/accesorios-impresoras.png',

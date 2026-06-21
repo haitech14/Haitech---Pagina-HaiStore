@@ -38,6 +38,7 @@ import { CUSTOMER_EDIT_ROLES } from '@/lib/customers-by-role';
 import { useCrmPipeline } from '@/context/crm-pipeline-context';
 import { createInitialCrmLeadForm } from '@/lib/crm-lead-customer-fill';
 import { createPipelineLeadFromForm, parseLeadCurrency, parseLeadValueAmount } from '@/lib/crm-lead-form';
+import { randomId } from '@/lib/random-id';
 import { formatLeadCreatedAt, formatLeadEquivalentHint } from '@/lib/crm-pipeline-utils';
 import type { UserRole } from '@/types/product';
 import type {
@@ -85,7 +86,7 @@ const EMAIL_TYPES = [
 
 function newPhoneEntry(): CrmLeadPhoneEntry {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     countryCode: '+51',
     number: '',
     type: 'trabajo',
@@ -94,7 +95,7 @@ function newPhoneEntry(): CrmLeadPhoneEntry {
 
 function newEmailEntry(): CrmLeadEmailEntry {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     address: '',
     type: 'trabajo',
   };
@@ -228,7 +229,7 @@ export function CrmAddLeadDialog({
       stageId: editingLead?.stageId ?? form.stageId ?? defaultStageId,
       ownerLabel,
     };
-    const lead = createPipelineLeadFromForm(formForSave, leadId ?? crypto.randomUUID(), {
+    const lead = createPipelineLeadFromForm(formForSave, leadId ?? randomId(), {
       ...(editingLead?.createdAt ? { createdAt: editingLead.createdAt } : {}),
       sellerName: ownerLabel,
     });

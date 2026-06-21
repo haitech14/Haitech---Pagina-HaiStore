@@ -43,6 +43,7 @@ import {
 } from '@/lib/product-equipment-consumables';
 import { useRentalPlans } from '@/hooks/use-rental-plans';
 import { useCompanySettings } from '@/hooks/use-company-settings';
+import { useProductConsumables } from '@/hooks/use-product-consumables';
 import { useProducts } from '@/hooks/use-products';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { cn } from '@/lib/utils';
@@ -91,7 +92,6 @@ const MOCK_REVIEWS = [
 export function ProductDetailView({ product, featuredMeta }: ProductDetailViewProps) {
   const { data: rentalPlansRaw = [] } = useRentalPlans({ activeOnly: true });
   const { data: companySettings } = useCompanySettings();
-  const { data: catalogProducts = [], isLoading: catalogLoading } = useProducts();
   const rentalPlansFromApi = useMemo(
     () =>
       rentalPlansRaw.map((plan) => ({
@@ -104,6 +104,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const detail = useMemo(
     () => buildProductDetail(product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers),
     [product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers],
+  );
+  const { data: catalogProducts = [], isLoading: catalogLoading } = useProducts({
+    enabled: detail.isPrinterEquipment,
+  });
+  const { data: consumableGroupsFromApi = [] } = useProductConsumables(
+    product.id,
+    detail.isPrinterEquipment,
   );
   const frequentlyBought = useMemo(
     () => resolveFrequentlyBoughtItems(product, catalogProducts),
@@ -166,8 +173,11 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   );
 
   const consumableGroups = useMemo(
-    () => resolveEquipmentConsumables(product, catalogProducts),
-    [product, catalogProducts],
+    () =>
+      consumableGroupsFromApi.length > 0
+        ? consumableGroupsFromApi
+        : resolveEquipmentConsumables(product, catalogProducts),
+    [consumableGroupsFromApi, product, catalogProducts],
   );
 
   const showConsumablesTab = detail.isPrinterEquipment;

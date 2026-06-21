@@ -11,15 +11,25 @@ Aplicar migraciones en orden (Supabase → SQL Editor o `supabase db push`):
 ## Sincronizar local → Supabase → Vercel
 
 ```bash
+# Pipeline completo (inventario + imágenes + env Vercel)
+npm run sync:deploy
+
+# O paso a paso:
 # 1. Subir inventario de server/data/inventory.json a Supabase
 npm run sync:supabase
 
-# 2. Variables de entorno en Vercel (mismas que .env)
+# 2. Exportar imágenes data: → public/products/*.webp y actualizar Supabase
+npm run sync:product-images
+
+# 3. Variables de entorno en Vercel (mismas que .env)
 npm run sync:vercel-env
 
-# 3. Desplegar
+# 4. Desplegar
 vercel deploy --prod
 ```
+
+Tras importaciones masivas (Deltron, Maxima, etc.), ejecuta `npm run sync:deploy` antes del deploy.
+Verifica producción con `GET /api/health` (`catalogSource: "supabase"`, `catalogProducts` ≈ conteo local).
 
 En Vercel, `HAISTORE_CATALOG_SOURCE=supabase` y las claves `SUPABASE_*` hacen que el panel admin
 lea y escriba el catálogo en Supabase (no en disco efímero).

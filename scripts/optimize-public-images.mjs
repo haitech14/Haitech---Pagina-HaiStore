@@ -128,10 +128,35 @@ async function optimizeBrands() {
   }
 }
 
+async function optimizeProductImages() {
+  console.log('\n— Productos —');
+  const dir = path.join(PUBLIC, 'products');
+  if (!fs.existsSync(dir)) return;
+
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => /\.(png|jpe?g|webp)$/i.test(f) && !/-\d+\.webp$/i.test(f));
+
+  for (const file of files) {
+    const inputPath = path.join(dir, file);
+    const parsed = path.parse(inputPath);
+    const needs256 = !fs.existsSync(`${parsed.dir}/${parsed.name}-256.webp`);
+    const needs512 = !fs.existsSync(`${parsed.dir}/${parsed.name}-512.webp`);
+    if (!needs256 && !needs512) continue;
+
+    console.log(`  ${file}`);
+    const variants = [];
+    if (needs256) variants.push({ suffix: '-256', width: 256 });
+    if (needs512) variants.push({ suffix: '-512', width: 512 });
+    await generateVariants(inputPath, variants);
+  }
+}
+
 console.log('Optimizando imágenes públicas…');
 await optimizeHero();
 await optimizeCategories();
 await optimizeClients();
 await optimizeRecommendations();
 await optimizeBrands();
+await optimizeProductImages();
 console.log('\nListo.');

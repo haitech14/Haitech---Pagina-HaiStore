@@ -2,6 +2,7 @@ export const CATEGORY_HERO_ID = 'categoria-hero';
 export const CATEGORY_PRODUCTS_ID = 'categoria-productos';
 
 import type { ProductCondition } from '@/lib/product-condition';
+import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 
 function categoryQueryString(subSlug?: string | null, condition?: ProductCondition | null): string {
   const params = new URLSearchParams();
@@ -13,6 +14,9 @@ function categoryQueryString(subSlug?: string | null, condition?: ProductConditi
 
 /** Entrada desde vitrinas (home, mega menú): hero + subcategorías visibles al cargar. */
 export function categoryLandingPath(slug: string): string {
+  if (slug === 'multifuncionales') {
+    return `/categoria/${slug}?sub=${ALL_SUBCATEGORIES_QUERY}`;
+  }
   return `/categoria/${slug}`;
 }
 

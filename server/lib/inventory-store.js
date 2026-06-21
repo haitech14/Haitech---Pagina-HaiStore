@@ -509,6 +509,46 @@ export function toPublicProduct(product, role) {
   };
 }
 
+/** DTO mínimo para tarjetas de catálogo (sin attributes ni prices completos). */
+export function toPublicProductCard(product, role) {
+  const full = toPublicProduct(product, role);
+  return {
+    id: full.id,
+    code: full.code,
+    name: full.name,
+    price: full.price,
+    currency: full.currency,
+    image_url: full.image_url,
+    stock: full.stock,
+    category: full.category,
+    brand: full.brand,
+    sort_order: full.sort_order,
+    price_role: full.price_role,
+  };
+}
+
+/** DTO ligero para listados (sin description, gallery ni attachments). */
+export function toPublicProductList(product, role) {
+  const full = toPublicProduct(product, role);
+  return {
+    id: full.id,
+    code: full.code,
+    name: full.name,
+    price: full.price,
+    prices: full.prices,
+    currency: full.currency,
+    image_url: full.image_url,
+    stock: full.stock,
+    category: full.category,
+    brand: full.brand,
+    sort_order: full.sort_order,
+    is_featured: full.is_featured,
+    view_count: full.view_count,
+    attributes: full.attributes,
+    price_role: full.price_role,
+  };
+}
+
 export { applyOrderedIds, ensureProductSortOrders, sortProductsByOrder } from './inventory-product-order.js';
 
 export function normalizeProductInput(body, existing, warehouses) {

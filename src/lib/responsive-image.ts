@@ -49,3 +49,23 @@ export function brandLogoSources(imagePath: string) {
     fallbackSrc: imagePath,
   };
 }
+
+/** Variantes WebP para imágenes de producto en cards (~220px). */
+export function productCardImageSources(imagePath: string) {
+  const base = imageBasePath(imagePath);
+  return {
+    webpSrcSet: `${base}-256.webp 256w, ${base}-512.webp 512w`,
+    fallbackSrc: imagePath,
+    sizes: '(max-width: 640px) 45vw, 220px',
+  };
+}
+
+/** True si la ruta admite variantes responsive generadas en build. */
+export function supportsResponsiveProductImage(imagePath: string): boolean {
+  if (!imagePath || imagePath.startsWith('data:')) return false;
+  return (
+    imagePath.startsWith('/products/') ||
+    imagePath.startsWith('/categories/') ||
+    imagePath.startsWith('/promo-cards/')
+  );
+}

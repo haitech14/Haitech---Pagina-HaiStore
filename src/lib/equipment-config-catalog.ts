@@ -89,12 +89,29 @@ const OPTION_CATALOG_HINTS: Record<string, OptionCatalogHint> = {
   },
   'toner-extra': {
     keywords: ['toner', 'tóner', 'cartucho', 'negro'],
-    categories: ['Suministros', 'Toner', 'Tóner', 'Toner Compatibles HaiPrint', 'Toner Compatibles Haitone', 'Toner Compatibles', 'Toner Original'],
+    categories: [
+      'Toner, Suministros',
+      'Suministros',
+      'Toner',
+      'Tóner',
+      'Toner, Toner Compatible',
+      'Toner Compatible',
+      'Toner, Toner Compatibles',
+      'Toner Compatibles',
+      'Toner, Toner Original',
+      'Toner Original',
+    ],
     fallbackImage: '/categories/toner-suministros.png',
   },
   'kit-mantenimiento': {
     keywords: ['mantenimiento', 'kit', 'preventivo', 'unidad'],
-    categories: ['Repuestos', 'Suministros', 'Repuestos Originales'],
+    categories: [
+      'Repuestos',
+      'Repuestos, Repuestos Originales',
+      'Repuestos Originales',
+      'Toner, Suministros',
+      'Suministros',
+    ],
     fallbackImage: '/categories/repuestos.png',
   },
   'waste-bottle': {

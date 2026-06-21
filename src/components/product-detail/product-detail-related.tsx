@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 
 import {
@@ -6,11 +5,7 @@ import {
   CatalogFormatSubHeader,
 } from '@/components/category/catalog-format-section-header';
 import { ProductHighlightCard } from '@/components/product/product-highlight-card';
-import { useProducts } from '@/hooks/use-products';
-import {
-  buildCatalogFormatSections,
-  findProductCatalogFormatPlacement,
-} from '@/lib/category-catalog-filters';
+import { useProductRelated } from '@/hooks/use-product-related';
 import { categoryPath } from '@/lib/category-path';
 import { isPrinterEquipment } from '@/lib/build-product-detail';
 import { cn } from '@/lib/utils';
@@ -21,43 +16,19 @@ interface ProductDetailRelatedProps {
   className?: string;
 }
 
-const RELATED_LIMIT = 8;
 const CATEGORY_SLUG = 'multifuncionales';
 
 export function ProductDetailRelated({ product, className }: ProductDetailRelatedProps) {
-  const { data: products = [], isLoading } = useProducts();
-
-  const catalogContext = useMemo(() => {
-    if (!isPrinterEquipment(product)) return null;
-
-    const catalogProducts = products.filter((row) => isPrinterEquipment(row));
-    const sections = buildCatalogFormatSections(catalogProducts);
-    const placement = findProductCatalogFormatPlacement(product, sections);
-    if (!placement) return null;
-
-    const sectionCount = placement.section.subsections.reduce(
-      (total, subsection) => total + subsection.products.length,
-      0,
-    );
-
-    const related = placement.subsection.products
-      .filter((row) => row.id !== product.id)
-      .slice(0, RELATED_LIMIT);
-
-    return {
-      sectionTitle: placement.section.title,
-      sectionCount,
-      subsectionTitle: placement.subsection.title,
-      subsectionCount: placement.subsection.products.length,
-      related,
-    };
-  }, [product, products]);
+  const isEquipment = isPrinterEquipment(product);
+  const { data: related = [], isLoading } = useProductRelated(product.id, isEquipment);
 
   const [emblaRef] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: true,
   });
+
+  if (!isEquipment) return null;
 
   if (isLoading) {
     return (
@@ -77,7 +48,7 @@ export function ProductDetailRelated({ product, className }: ProductDetailRelate
     );
   }
 
-  if (!catalogContext || catalogContext.related.length === 0) return null;
+  if (related.length === 0) return null;
 
   return (
     <section
@@ -85,24 +56,24 @@ export function ProductDetailRelated({ product, className }: ProductDetailRelate
       className={cn('mt-8 border-t border-border/60 pt-8', className)}
     >
       <CatalogFormatMainHeader
-        title={catalogContext.sectionTitle}
-        count={catalogContext.sectionCount}
+        title="Productos relacionados"
+        count={related.length}
         className="mb-4 sm:mb-5"
       />
       <span id="productos-relacionados-titulo" className="sr-only">
-        {catalogContext.sectionTitle}
+        Productos relacionados
       </span>
 
       <CatalogFormatSubHeader
-        title={catalogContext.subsectionTitle}
-        count={catalogContext.subsectionCount}
+        title="Mismo formato"
+        count={related.length}
         viewAllHref={categoryPath(CATEGORY_SLUG)}
         className="mb-4 sm:mb-5"
       />
 
       <div className="overflow-hidden" ref={emblaRef}>
         <ul className="flex touch-pan-y gap-3 sm:gap-4">
-          {catalogContext.related.map((item) => (
+          {related.map((item) => (
             <li
               key={item.id}
               className="min-w-0 flex-[0_0_72%] sm:flex-[0_0_45%] lg:flex-[0_0_32%] xl:flex-[0_0_24%]"

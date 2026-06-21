@@ -3,17 +3,14 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
-import { categories, type Category } from '@/data/categories';
+import { landingMenuCategories, type Category } from '@/data/categories';
+import { categoryLandingPath } from '@/lib/category-path';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { CATEGORY_STRIP_TRACK_WRAPPER_CLASS } from '@/lib/category-strip-layout';
 import { categoryImageSources } from '@/lib/responsive-image';
 import { cn } from '@/lib/utils';
 
-const CATEGORY_STRIP_HIDDEN_SLUGS = new Set(['servicio-tecnico']);
-
-const categoryStripItems = categories.filter(
-  (category) => !CATEGORY_STRIP_HIDDEN_SLUGS.has(category.slug),
-);
+const categoryStripItems = landingMenuCategories;
 
 const CATEGORY_SLIDE_CLASS =
   'min-w-0 flex-[0_0_calc((100%-0.5rem)/2.5)] sm:flex-[0_0_calc((100%-0.75rem)/4)] md:flex-[0_0_calc((100%-1rem)/5)] lg:flex-[0_0_calc((100%-1.25rem)/6)] xl:flex-[0_0_calc((100%-1.25rem)/6)]';
@@ -60,7 +57,7 @@ function CategoryImage({ category, priority }: { category: Category; priority?: 
 function CategoryCard({ category, priority }: { category: Category; priority?: boolean }) {
   return (
     <Link
-      to={`/categoria/${category.slug}`}
+      to={categoryLandingPath(category.slug)}
       className="group flex w-full flex-col items-center gap-1.5 rounded-lg py-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:gap-2"
       aria-label={`Ver productos de ${category.name}`}
     >

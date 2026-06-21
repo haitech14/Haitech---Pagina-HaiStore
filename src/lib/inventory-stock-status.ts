@@ -69,3 +69,44 @@ export function formatInventoryCategoryStockSummary(snapshot: InventoryCategoryS
   if (snapshot.out > 0) parts.push(`${snapshot.out} sin stock`);
   return parts.join(' · ');
 }
+
+/** Agrupa etiquetas `Padre, Hijo` bajo el nombre de categoría padre. */
+export function inventoryCategoryParentLabel(category: string | null | undefined): string {
+  const raw = String(category ?? '').trim() || 'Sin categoría';
+  const commaIndex = raw.indexOf(',');
+  if (commaIndex <= 0) return raw;
+  return raw.slice(0, commaIndex).trim() || raw;
+}
+
+export function mergeInventoryCategoryStockSnapshots(
+  left: InventoryCategoryStockSnapshot,
+  right: InventoryCategoryStockSnapshot,
+): InventoryCategoryStockSnapshot {
+  return {
+    total: left.total + right.total,
+    out: left.out + right.out,
+    low: left.low + right.low,
+    healthy: left.healthy + right.healthy,
+  };
+}
+
+/** Mayor puntaje = más urgente (prioriza sin stock, luego bajo stock). */
+export function getInventoryCategoryUrgencyScore(snapshot: InventoryCategoryStockSnapshot): number {
+  const { total, out, low } = snapshot;
+  if (total <= 0) return 0;
+  const outRatio = out / total;
+  const lowRatio = low / total;
+  return out * 1_000_000 + low * 1_000 + Math.round(outRatio * 1_000) + Math.round(lowRatio * 100);
+}
+
+export function sortInventoryCategoriesByUrgency<T extends InventoryCategoryStockSnapshot>(
+  rows: T[],
+): T[] {
+  return [...rows].sort((left, right) => {
+    const scoreDelta = getInventoryCategoryUrgencyScore(right) - getInventoryCategoryUrgencyScore(left);
+    if (scoreDelta !== 0) return scoreDelta;
+    return right.total - left.total;
+  });
+}
+
+export const URGENT_INVENTORY_CATEGORY_LIMIT = 5;

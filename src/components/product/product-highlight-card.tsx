@@ -6,14 +6,17 @@ import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-too
 import { AddToCartButton, getAddToCartLabel, isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { DualPrice } from '@/components/product/product-dual-price';
-import { ProductNuevoCornerBadge } from '@/components/product/product-nuevo-corner-badge';
 import { formatHighlightProductTitle } from '@/lib/product-card-title';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
 const HIGHLIGHT_TEXT = '#0f1f3d';
+
+const whatsappRevealClass =
+  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
 
 interface ProductHighlightCardProps {
   product: Product;
@@ -47,7 +50,7 @@ export function ProductHighlightCard({ product, layout = 'card' }: ProductHighli
   return (
     <article
       className={cn(
-        'flex h-full flex-col overflow-hidden bg-white',
+        'group flex h-full flex-col overflow-hidden bg-white',
         isStrip
           ? 'rounded-xl border border-border/50 shadow-[0_2px_12px_rgba(15,31,61,0.08)] xl:rounded-none xl:border-0 xl:shadow-none'
           : 'rounded-xl border border-border/50 shadow-[0_2px_12px_rgba(15,31,61,0.08)]',
@@ -58,9 +61,8 @@ export function ProductHighlightCard({ product, layout = 'card' }: ProductHighli
         className="relative flex aspect-square w-full items-center justify-center bg-white px-2 pt-2 sm:px-3 sm:pt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
         aria-label={`Ver ficha de ${product.name}`}
       >
-        <div className="pointer-events-none absolute right-1.5 top-1.5 z-10 flex flex-col items-end gap-1 sm:right-2 sm:top-2">
-          <ProductNuevoCornerBadge variant="highlight" />
-          {isStrip && !outOfStock ? (
+        {isStrip && !outOfStock ? (
+          <div className="pointer-events-none absolute right-1.5 top-1.5 z-10 sm:right-2 sm:top-2">
             <span
               className={cn(
                 'rounded-full px-2 py-0.5 text-[0.625rem] font-semibold leading-none shadow-sm sm:text-[0.6875rem]',
@@ -71,14 +73,13 @@ export function ProductHighlightCard({ product, layout = 'card' }: ProductHighli
             >
               {product.stock <= 3 ? 'Últimas unidades' : 'En stock'}
             </span>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
         {imageUrl ? (
-          <img
+          <ProductCardImage
             src={imageUrl}
             alt=""
             className="max-h-[88%] max-w-[88%] object-contain object-center"
-            loading="lazy"
             onError={handleImageError}
           />
         ) : (
@@ -158,20 +159,24 @@ export function ProductHighlightCard({ product, layout = 'card' }: ProductHighli
             </AddToCartButton>
           </div>
 
-          <ProductWhatsAppButton
-            stopPropagation
-            accent="outline"
-            label="Solicitar por Whatsapp"
-            quantity={quantity}
-            product={{
-              id: product.id,
-              name: product.name,
-              priceUsd: product.price,
-              category: product.category,
-              brand: product.brand ?? null,
-            }}
-            className="mt-1.5 h-11 min-h-11 w-full rounded-md px-2 text-[0.625rem] font-semibold normal-case tracking-normal sm:text-xs"
-          />
+          <div className={whatsappRevealClass}>
+            <div className="min-h-0 overflow-hidden">
+              <ProductWhatsAppButton
+                stopPropagation
+                accent="outline"
+                label="Solicitar por Whatsapp"
+                quantity={quantity}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  priceUsd: product.price,
+                  category: product.category,
+                  brand: product.brand ?? null,
+                }}
+                className="mt-1.5 h-11 min-h-11 w-full rounded-md px-2 text-[0.625rem] font-semibold normal-case tracking-normal sm:text-xs"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </article>

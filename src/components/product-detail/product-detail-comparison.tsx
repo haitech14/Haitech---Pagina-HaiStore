@@ -41,12 +41,16 @@ export function ProductDetailComparison({ data, className }: ProductDetailCompar
                 >
                   <div className="mx-auto flex max-w-[9rem] flex-col items-center gap-2 rounded-lg p-2">
                     <div className="flex h-16 w-full items-center justify-center">
-                      <img
-                        src={column.image}
-                        alt=""
-                        className="max-h-full max-w-full object-contain"
-                        loading="lazy"
-                      />
+                      {column.image ? (
+                        <img
+                          src={column.image}
+                          alt=""
+                          className="max-h-full max-w-full object-contain"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="text-xs font-semibold text-muted-foreground">Sin Imagen</span>
+                      )}
                     </div>
                     {column.productId ? (
                       <Link
@@ -67,12 +71,16 @@ export function ProductDetailComparison({ data, className }: ProductDetailCompar
               >
                 <div className="mx-auto flex max-w-[9.5rem] flex-col items-center gap-2 rounded-lg border border-red-600/30 bg-red-50/90 p-2 ring-1 ring-red-600/20">
                   <div className="flex h-16 w-full items-center justify-center">
-                    <img
-                      src={currentColumn.image}
-                      alt=""
-                      className="max-h-full max-w-full object-contain"
-                      loading="lazy"
-                    />
+                    {currentColumn.image ? (
+                      <img
+                        src={currentColumn.image}
+                        alt=""
+                        className="max-h-full max-w-full object-contain"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="text-xs font-semibold text-muted-foreground">Sin Imagen</span>
+                    )}
                   </div>
                   {currentColumn.productId ? (
                     <Link

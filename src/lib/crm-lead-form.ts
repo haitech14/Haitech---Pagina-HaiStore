@@ -1,4 +1,5 @@
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
+import { randomId } from '@/lib/random-id';
 import {
   computeLeadLinesTotal,
   leadProductNameFromLines,
@@ -124,7 +125,7 @@ export function createPipelineLeadFromForm(
 }
 
 export function duplicatePipelineLead(lead: CrmPipelineLead): CrmPipelineLead {
-  const newId = crypto.randomUUID();
+  const newId = randomId();
   const snapshot = {
     ...lead.formSnapshot,
     contactName: lead.contactName,

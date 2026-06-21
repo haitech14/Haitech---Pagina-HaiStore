@@ -4,9 +4,8 @@ import { ImageOff, ShoppingCart } from 'lucide-react';
 import { AddToCartButton, getAddToCartLabel } from '@/components/cart/add-to-cart-button';
 import { ProductCardPricing } from '@/components/product/product-card-pricing';
 import { ProductCardTitle } from '@/components/product/product-card-title';
-import { ProductNuevoCornerBadge } from '@/components/product/product-nuevo-corner-badge';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
-import { productHasNuevoCornerBadge } from '@/lib/product-detail-badges';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
@@ -27,7 +26,6 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
   const [imageIndex, setImageIndex] = useState(0);
   const [imagesExhausted, setImagesExhausted] = useState(false);
   const imageUrl = imagesExhausted ? null : (imageCandidates[imageIndex] ?? null);
-  const showNuevoCorner = productHasNuevoCornerBadge(product);
 
   const handleImageError = () => {
     if (imageIndex + 1 < imageCandidates.length) {
@@ -71,25 +69,22 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
             >
               <span className="sr-only">Ver ficha de {product.name}</span>
             </Link>
-            {showNuevoCorner ? (
-              <div className="pointer-events-none absolute left-2 top-2 z-[2]">
-                <ProductNuevoCornerBadge />
-              </div>
-            ) : null}
             <div
               className="flex aspect-square items-center justify-center rounded-lg bg-muted/50"
               aria-hidden={imageUrl ? undefined : true}
             >
               {imageUrl ? (
-                <img
+                <ProductCardImage
                   src={imageUrl}
                   alt=""
                   className="max-h-full max-w-full object-contain p-1.5"
-                  loading="lazy"
                   onError={handleImageError}
                 />
               ) : (
-                <ImageOff className="size-8 text-muted-foreground/70" aria-hidden="true" />
+                <div className="flex flex-col items-center gap-1.5 text-center text-muted-foreground">
+                  <ImageOff className="size-8 text-muted-foreground/70" aria-hidden="true" />
+                  <span className="text-xs font-medium">Sin Imagen</span>
+                </div>
               )}
             </div>
           </div>
@@ -129,25 +124,22 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
             >
               <span className="sr-only">Ver ficha de {product.name}</span>
             </Link>
-            {showNuevoCorner ? (
-              <div className="pointer-events-none absolute left-3 top-3 z-[2]">
-                <ProductNuevoCornerBadge />
-              </div>
-            ) : null}
             <div
               className="flex aspect-[4/3] items-center justify-center rounded-lg bg-muted/50 sm:aspect-square"
               aria-hidden={imageUrl ? undefined : true}
             >
               {imageUrl ? (
-                <img
+                <ProductCardImage
                   src={imageUrl}
                   alt=""
                   className="max-h-full max-w-full object-contain p-1.5 sm:p-2"
-                  loading="lazy"
                   onError={handleImageError}
                 />
               ) : (
-                <ImageOff className="size-10 text-muted-foreground/70" aria-hidden="true" />
+                <div className="flex flex-col items-center gap-2 text-center text-muted-foreground">
+                  <ImageOff className="size-10 text-muted-foreground/70" aria-hidden="true" />
+                  <span className="text-xs font-medium">Sin Imagen</span>
+                </div>
               )}
             </div>
           </div>

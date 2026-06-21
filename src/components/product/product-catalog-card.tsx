@@ -20,6 +20,7 @@ import {
   getCatalogCardSpecLines,
 } from '@/lib/product-catalog-card-meta';
 import { PRODUCT_CARD_DISCOUNT_CLASS } from '@/lib/product-card-title';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { formatProductCardTitle } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
@@ -202,11 +203,10 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
           aria-label={`Ver ficha de ${product.name}`}
         >
           {imageUrl ? (
-            <img
+            <ProductCardImage
               src={imageUrl}
               alt=""
               className="size-full object-contain object-center p-0.5"
-              loading="lazy"
               onError={() => {
                 if (imageIndex + 1 < imageCandidates.length) {
                   setImageIndex((current) => current + 1);
@@ -218,7 +218,7 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
           ) : (
             <div className="flex flex-col items-center gap-2 px-4 text-center text-muted-foreground">
               <ImageOff className="size-8" aria-hidden="true" />
-              <span className="text-xs font-medium">Imagen no disponible</span>
+              <span className="text-xs font-medium">Sin Imagen</span>
             </div>
           )}
         </Link>

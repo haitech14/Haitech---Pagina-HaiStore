@@ -22,16 +22,32 @@ import {
   searchPublicProducts,
   syncProductsToSupabase,
 } from '../lib/product-catalog.js';
+import {
+  queryEquipmentConsumables,
+  queryProductsByCategory,
+  queryProductsByIds,
+  queryRelatedProducts,
+} from '../lib/catalog-query.js';
 import { listHomeFeaturedProducts } from '../lib/home-featured-products.js';
+import { listHomeCatalogSections } from '../lib/home-catalog-sections.js';
 import { shouldPreferSupabaseCatalog } from '../lib/catalog-source.js';
 import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 
 export const productsRouter = Router();
 
+const HOME_CACHE_CONTROL = 'public, s-maxage=300, stale-while-revalidate=600';
+const LIST_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=120';
+
+function parseSectionIds(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) return [];
+  return [...new Set(raw.split(',').map((id) => id.trim()).filter(Boolean))];
+}
+
 productsRouter.get('/', async (req, res, next) => {
   try {
     const role = await resolveRequestRole(req);
     const products = await listProducts({ role, adminView: false });
+    res.set('Cache-Control', LIST_CACHE_CONTROL);
     res.json(products);
   } catch (error) {
     next(error);
@@ -44,7 +60,21 @@ productsRouter.get('/home-featured', async (req, res, next) => {
     const limit = req.query.limit;
     const category = typeof req.query.category === 'string' ? req.query.category : 'multifuncionales';
     const products = await listHomeFeaturedProducts({ role, categorySlug: category, limit });
+    res.set('Cache-Control', HOME_CACHE_CONTROL);
     res.json(products);
+  } catch (error) {
+    next(error);
+  }
+});
+
+productsRouter.get('/home-sections', async (req, res, next) => {
+  try {
+    const role = await resolveRequestRole(req);
+    const sectionIds = parseSectionIds(req.query.sections);
+    const limit = req.query.limit;
+    const payload = await listHomeCatalogSections({ role, sectionIds, limit });
+    res.set('Cache-Control', HOME_CACHE_CONTROL);
+    res.json(payload);
   } catch (error) {
     next(error);
   }
@@ -241,6 +271,55 @@ productsRouter.put('/reorder', requireAdmin, async (req, res, next) => {
   }
 });
 
+function parseIdList(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) return [];
+  return [...new Set(raw.split(',').map((id) => id.trim()).filter(Boolean))];
+}
+
+productsRouter.get('/by-category', async (req, res, next) => {
+  try {
+    const role = await resolveRequestRole(req);
+    const labels = parseSectionIds(req.query.labels);
+    const attributeKeys = parsePipeList(req.query.attrs);
+    const result = await queryProductsByCategory({
+      role,
+      slug: typeof req.query.slug === 'string' ? req.query.slug : '',
+      labels,
+      condition: typeof req.query.condition === 'string' ? req.query.condition : null,
+      inStockOnly: req.query.inStock === '1' || req.query.inStock === 'true',
+      priceMin: req.query.priceMin != null ? Number(req.query.priceMin) : null,
+      priceMax: req.query.priceMax != null ? Number(req.query.priceMax) : null,
+      attributeKeys,
+      productionKey: typeof req.query.production === 'string' ? req.query.production : null,
+      search: typeof req.query.q === 'string' ? req.query.q : '',
+      sortBy: typeof req.query.sort === 'string' ? req.query.sort : 'price-asc',
+      page: req.query.page,
+      limit: req.query.limit,
+    });
+    res.set('Cache-Control', HOME_CACHE_CONTROL);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+function parsePipeList(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) return [];
+  return raw.split('|').map((entry) => entry.trim()).filter(Boolean);
+}
+
+productsRouter.get('/by-ids', async (req, res, next) => {
+  try {
+    const role = await resolveRequestRole(req);
+    const ids = parseIdList(req.query.ids);
+    const result = await queryProductsByIds({ role, ids });
+    res.set('Cache-Control', LIST_CACHE_CONTROL);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 productsRouter.get('/search', async (req, res, next) => {
   try {
     const role = await resolveRequestRole(req);
@@ -248,6 +327,30 @@ productsRouter.get('/search', async (req, res, next) => {
     const categoryFilter = typeof req.query.cat === 'string' ? req.query.cat : 'all';
     const limit = typeof req.query.limit === 'string' ? Number(req.query.limit) : 8;
     const result = await searchPublicProducts({ query, role, limit, categoryFilter });
+    res.set('Cache-Control', HOME_CACHE_CONTROL);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+productsRouter.get('/:id/related', async (req, res, next) => {
+  try {
+    const role = await resolveRequestRole(req);
+    const limit = typeof req.query.limit === 'string' ? Number(req.query.limit) : 8;
+    const result = await queryRelatedProducts({ id: req.params.id, role, limit });
+    res.set('Cache-Control', HOME_CACHE_CONTROL);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+productsRouter.get('/:id/consumables', async (req, res, next) => {
+  try {
+    const role = await resolveRequestRole(req);
+    const result = await queryEquipmentConsumables({ id: req.params.id, role });
+    res.set('Cache-Control', HOME_CACHE_CONTROL);
     res.json(result);
   } catch (error) {
     next(error);

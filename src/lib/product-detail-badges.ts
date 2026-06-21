@@ -94,10 +94,8 @@ export function isPrimaryProductBadge(id: string): boolean {
 }
 
 /** Si el producto lleva badge «Nuevo» en la esquina de la tarjeta (no en la fila de specs). */
-export function productHasNuevoCornerBadge(product: ProductBadgeSource): boolean {
-  return buildProductDetailBadges(product, { primaryOnly: true }).some(
-    (badge) => badge.id === 'condicion' && /^nuevo$/i.test(badge.value.trim()),
-  );
+export function productHasNuevoCornerBadge(_product: ProductBadgeSource): boolean {
+  return false;
 }
 
 export function isNuevoConditionBadge(badge: ProductDetailBadge): boolean {

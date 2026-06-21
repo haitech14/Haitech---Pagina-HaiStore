@@ -8,9 +8,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { megaMenuSectionMeta, type MegaMenuSectionId } from '@/data/mega-menu';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
-import { buildMegaMenuFromStoreCategories } from '@/lib/mega-menu-from-store-categories';
+import { buildLandingCatalogMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { mainNavLinkClass } from '@/components/layout/main-nav-styles';
 import { cn } from '@/lib/utils';
 
@@ -22,18 +21,18 @@ interface CategoriesMegaMenuProps {
 
 export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMegaMenuProps) {
   const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const { sidebarSectionIds } = useMemo(
-    () => buildMegaMenuFromStoreCategories(categoryTree),
-    [categoryTree],
-  );
-
-  const defaultSection = sidebarSectionIds[0] ?? 'destacados';
+  const menu = useMemo(() => buildLandingCatalogMegaMenu(categoryTree), [categoryTree]);
 
   const [open, setOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<MegaMenuSectionId>(defaultSection);
+  const [activeCategorySlug, setActiveCategorySlug] = useState(menu.defaultCategorySlug);
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const columnGroups = useMemo(
+    () => menu.getColumnGroups(activeCategorySlug),
+    [menu, activeCategorySlug],
+  );
 
   const updateMenuWidth = useCallback(() => {
     const trigger = triggerRef.current;
@@ -49,10 +48,11 @@ export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMega
   }, []);
 
   useEffect(() => {
-    if (!sidebarSectionIds.includes(activeSection)) {
-      setActiveSection(defaultSection);
+    const slugs = menu.sidebarItems.map((item) => item.slug);
+    if (!slugs.includes(activeCategorySlug)) {
+      setActiveCategorySlug(menu.defaultCategorySlug);
     }
-  }, [activeSection, defaultSection, sidebarSectionIds]);
+  }, [activeCategorySlug, menu.defaultCategorySlug, menu.sidebarItems]);
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current) {
@@ -138,12 +138,13 @@ export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMega
         style={menuWidth ? { width: menuWidth, maxHeight: 'min(40rem, 82vh)' } : undefined}
       >
         <CatalogMegaMenuPanel
-          activeSection={activeSection}
-          onSectionChange={setActiveSection}
-          sidebarSectionIds={sidebarSectionIds}
+          activeCategorySlug={activeCategorySlug}
+          onCategoryChange={setActiveCategorySlug}
+          sidebarItems={menu.sidebarItems}
+          columnGroups={columnGroups}
+          showBrandStrip={menu.categoryShowsBrandStrip(activeCategorySlug)}
           onNavigate={closeMenu}
         />
-        <span className="sr-only">{megaMenuSectionMeta[activeSection].label}</span>
       </DropdownMenuContent>
     </DropdownMenu>
   );

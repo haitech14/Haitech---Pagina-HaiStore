@@ -1,4 +1,5 @@
 import { addressFromCustomer } from '@/lib/crm-lead-address';
+import { randomId } from '@/lib/random-id';
 import { isUserRole } from '@/types/product';
 import type { CrmLeadEmailEntry, CrmLeadPhoneEntry, CrmNewLeadFormValues } from '@/types/crm-lead-form';
 import type { CrmPipelineStageId } from '@/types/crm-pipeline';
@@ -6,7 +7,7 @@ import type { StoreCustomerSearchResult } from '@/types/store-customer';
 
 function newPhoneEntry(): CrmLeadPhoneEntry {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     countryCode: '+51',
     number: '',
     type: 'trabajo',
@@ -15,7 +16,7 @@ function newPhoneEntry(): CrmLeadPhoneEntry {
 
 function newEmailEntry(): CrmLeadEmailEntry {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     address: '',
     type: 'trabajo',
   };

@@ -661,15 +661,7 @@ function buildTagPills(
 function buildGallery(product: Product): ProductGalleryItem[] {
   const items = buildProductGalleryItems(product);
   if (items.length > 0) return items;
-
-  const isSupply = isSupplyProduct(product);
-  return [
-    {
-      type: 'image',
-      src: isSupply ? '/categories/toner-suministros.png' : '/categories/multifuncionales.png',
-      alt: product.name,
-    },
-  ];
+  return [];
 }
 
 function buildSupplySpecs(product: Product): ProductSpecRow[] {
@@ -739,28 +731,28 @@ function buildPrinterSpecs(product: Product, brandLabel: string, sku: string): P
 }
 
 function buildComboItems(product: Product, isPrinter: boolean, isSupply: boolean): ProductComboItem[] {
-  const image = product.image_url ?? '/categories/toner-suministros.png';
+  const image = product.image_url ?? null;
 
   if (isSupply) {
     return [
       {
         id: 'combo-toner-original',
         name: 'Toner Original RICOH IM 430F (15,500 páginas)',
-        image,
+        image: image ?? '',
         pricePen: 257,
         defaultSelected: true,
       },
       {
         id: 'combo-toner-magenta',
         name: 'Toner Compatible Magenta MP C6003',
-        image,
+        image: image ?? '',
         pricePen: 149,
         defaultSelected: false,
       },
       {
         id: 'combo-unidad-imagen',
         name: 'Unidad de imagen DR IM 430F',
-        image,
+        image: image ?? '',
         pricePen: 189,
         defaultSelected: false,
       },

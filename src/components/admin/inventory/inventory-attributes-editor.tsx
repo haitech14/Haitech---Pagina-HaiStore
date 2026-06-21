@@ -25,6 +25,7 @@ interface InventoryAttributesEditorProps {
   nameOptions: string[];
   products?: readonly { attributes?: ProductAttribute[] }[];
   idPrefix?: string;
+  emptyLabel?: string;
 }
 
 export function InventoryAttributesEditor({
@@ -33,6 +34,7 @@ export function InventoryAttributesEditor({
   nameOptions,
   products = [],
   idPrefix = 'attr',
+  emptyLabel = 'Sin atributos.',
 }: InventoryAttributesEditorProps) {
   const [customNameIds, setCustomNameIds] = useState<Set<string>>(() => new Set());
   const [customValueIds, setCustomValueIds] = useState<Set<string>>(() => new Set());
@@ -79,7 +81,7 @@ export function InventoryAttributesEditor({
   return (
     <div className="space-y-2">
       {attributes.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Sin atributos.</p>
+        <p className="text-sm text-muted-foreground">{emptyLabel}</p>
       ) : (
         <ul className="space-y-2">
           {attributes.map((attribute, index) => {
@@ -208,7 +210,7 @@ export function InventoryAttributesEditor({
         </ul>
       )}
 
-      <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={add}>
+      <Button type="button" variant="outline" size="sm" className="h-9 gap-1.5" onClick={add}>
         <Plus className="size-4" aria-hidden="true" />
         Agregar atributo
       </Button>

@@ -14,7 +14,6 @@ import type { ProductGalleryItem } from '@/types/product-detail';
 interface ProductDetailGalleryProps {
   items: ProductGalleryItem[];
   productName: string;
-  showNewBadge?: boolean;
 }
 
 function getItemKey(item: ProductGalleryItem): string {
@@ -87,7 +86,6 @@ function GalleryMainMedia({
 export function ProductDetailGallery({
   items,
   productName,
-  showNewBadge = false,
 }: ProductDetailGalleryProps) {
   const galleryItems = items.filter(Boolean);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -108,9 +106,9 @@ export function ProductDetailGallery({
   if (galleryItems.length === 0) {
     return (
       <div className="flex min-h-[220px] items-center justify-center rounded-lg border border-border/60 bg-white p-5 sm:min-h-[280px]">
-        <span className="text-5xl font-bold text-muted-foreground/30" aria-hidden="true">
-          {productName.charAt(0)}
-        </span>
+        <div className="text-center">
+          <p className="text-sm font-semibold text-muted-foreground">Sin Imagen</p>
+        </div>
       </div>
     );
   }
@@ -162,11 +160,6 @@ export function ProductDetailGallery({
 
       <div className="relative min-w-0 flex-1">
         <div className="relative overflow-hidden rounded-lg border border-border/60 bg-white">
-          {showNewBadge ? (
-            <span className="absolute left-3 top-3 z-10 rounded bg-red-600 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white sm:text-xs">
-              Nuevo
-            </span>
-          ) : null}
           <div
             className={cn(
               'flex min-h-[220px] items-center justify-center bg-white p-5 sm:min-h-[280px] sm:p-6 lg:min-h-[340px]',

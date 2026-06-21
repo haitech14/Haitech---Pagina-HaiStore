@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import cors from 'cors';
 
 import { getCorsOrigins, isCorsOriginAllowed } from './lib/cors-origins.js';
@@ -24,6 +25,7 @@ const corsOrigins = getCorsOrigins();
 
 const app = express();
 
+app.use(compression());
 app.use(
   cors({
     origin(origin, callback) {

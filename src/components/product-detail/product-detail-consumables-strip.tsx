@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ShoppingCart } from 'lucide-react';
 
@@ -6,7 +7,7 @@ import { DualPrice } from '@/components/product/product-dual-price';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
 import type { ConsumableGroup } from '@/lib/product-equipment-consumables';
 import { productPath } from '@/lib/product-path';
-import { useProducts } from '@/hooks/use-products';
+import { useProductsByIds } from '@/hooks/use-products-by-ids';
 import type { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
 
@@ -51,12 +52,16 @@ function ConsumableStripCard({
         className="flex size-16 shrink-0 items-center justify-center rounded-md border border-border/50 bg-muted/20 p-1.5 sm:size-[4.5rem]"
         aria-label={`Ver ${item.name}`}
       >
-        <img
-          src={item.image}
-          alt=""
-          className="max-h-full max-w-full object-contain"
-          loading="lazy"
-        />
+        {item.image ? (
+          <img
+            src={item.image}
+            alt=""
+            className="max-h-full max-w-full object-contain"
+            loading="lazy"
+          />
+        ) : (
+          <span className="text-[0.6875rem] font-semibold text-muted-foreground">Sin Imagen</span>
+        )}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col">
         <Link
@@ -104,8 +109,9 @@ export function ProductDetailConsumablesStrip({
   className,
   onViewAll,
 }: ProductDetailConsumablesStripProps) {
-  const { data: catalogProducts = [] } = useProducts();
   const items = flattenConsumableItems(groups).slice(0, STRIP_LIMIT);
+  const productIds = useMemo(() => items.map((item) => item.productId), [items]);
+  const { data: catalogProducts = [] } = useProductsByIds(productIds, items.length > 0);
 
   if (items.length === 0) return null;
 

@@ -1,6 +1,7 @@
 import { getEffectivePrice } from '@/lib/pricing';
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
 import { parseLeadValueAmount } from '@/lib/crm-lead-form';
+import { randomId } from '@/lib/random-id';
 import type { CrmLeadLineItem } from '@/types/crm-lead-form';
 import type { CrmLeadCurrency } from '@/types/crm-pipeline';
 import type { InventoryProduct, UserRole } from '@/types/product';
@@ -28,7 +29,7 @@ export function createLeadLineFromProduct(
 ): CrmLeadLineItem {
   const unitPrice = catalogUnitPriceForLead(product, customerRole, currency);
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     productId: product.id,
     productName: product.name,
     quantity: 1,

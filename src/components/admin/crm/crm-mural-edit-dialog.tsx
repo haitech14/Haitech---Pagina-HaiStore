@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { muralCardDisplayTitle } from '@/lib/crm-mural-utils';
+import { randomId } from '@/lib/random-id';
 import type {
   CrmMuralAccountLine,
   CrmMuralCard,
@@ -107,7 +108,7 @@ export function CrmMuralEditDialog({
     const base =
       card ??
       ({
-        id: crypto.randomUUID(),
+        id: randomId(),
         columnId: defaultColumnId,
         kind: 'text',
         paragraphs: [''],

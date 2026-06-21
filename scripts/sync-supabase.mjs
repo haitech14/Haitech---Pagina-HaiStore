@@ -154,6 +154,30 @@ async function tryApplyMigration005() {
   return false;
 }
 
+function countProductsBySupplier(products) {
+  const counts = { deltron: 0, maxima: 0, other: 0 };
+  for (const product of products) {
+    const suppliers = Array.isArray(product.suppliers) ? product.suppliers : [];
+    const names = suppliers
+      .map((entry) => {
+        if (typeof entry === 'string') return entry;
+        if (entry && typeof entry === 'object') return String(entry.name ?? entry.label ?? '');
+        return '';
+      })
+      .join(' ')
+      .toLowerCase();
+
+    if (names.includes('deltron')) {
+      counts.deltron += 1;
+    } else if (names.includes('maxima')) {
+      counts.maxima += 1;
+    } else {
+      counts.other += 1;
+    }
+  }
+  return counts;
+}
+
 async function main() {
   console.log('HaiStore — sincronización local → Supabase\n');
 
@@ -167,6 +191,11 @@ async function main() {
   const { products } = loadLocalInventory();
   console.log(`Inventario local: ${products.length} productos`);
 
+  const supplierCounts = countProductsBySupplier(products);
+  console.log(
+    `  Por proveedor: Deltron ${supplierCounts.deltron}, Maxima ${supplierCounts.maxima}, otros ${supplierCounts.other}`,
+  );
+
   const before = await countRemote();
   console.log(`Supabase antes: ${before} productos\n`);
 
@@ -174,6 +203,16 @@ async function main() {
 
   const after = await countRemote();
   console.log(`Supabase después: ${after} productos`);
+
+  const delta = Math.abs(after - products.length);
+  const tolerance = Math.max(5, Math.floor(products.length * 0.01));
+  if (delta > tolerance) {
+    console.error(
+      `\n✗ Conteo remoto (${after}) no coincide con local (${products.length}). Diferencia ${delta} > tolerancia ${tolerance}.`,
+    );
+    process.exit(1);
+  }
+  console.log(`✓ Conteo verificado (Δ ${delta} ≤ ${tolerance})`);
 
   await syncCategoriesFromProducts();
 
@@ -185,7 +224,7 @@ async function main() {
     console.log(`  - supabase/migrations/${file}`);
   }
 
-  console.log('\nSiguiente: npm run sync:product-images && vercel deploy --prod');
+  console.log('\nSiguiente: npm run sync:deploy  (o sync:product-images && vercel deploy --prod)');
 }
 
 main().catch((err) => {

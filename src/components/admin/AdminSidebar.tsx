@@ -21,13 +21,9 @@ import {
 import type { LucideIcon } from 'lucide-react';
 
 import { AdminSidebarHeader } from '@/components/admin/admin-sidebar-header';
+import { AdminSidebarVentasGroup } from '@/components/admin/admin-sidebar-ventas-group';
 import { useAuth } from '@/context/auth-context';
-import {
-  ADMIN_NAV_MAIN,
-  ADMIN_ROUTES,
-  TECHNICIAN_NAV_KEYS,
-  isAdminCrmPath,
-} from '@/lib/admin-routes';
+import { ADMIN_NAV_MAIN, ADMIN_ROUTES, TECHNICIAN_NAV_KEYS } from '@/lib/admin-routes';
 import { cn } from '@/lib/utils';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -90,13 +86,20 @@ export function AdminSidebar({ mobile = false, onNavigate }: AdminSidebarProps) 
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {navItems.map((item) => {
+          if (item.key === 'VENTAS') {
+            return (
+              <AdminSidebarVentasGroup
+                key={item.key}
+                navLinkClass={navLinkClass}
+                onNavigate={onNavigate}
+              />
+            );
+          }
+
           const Icon = ICONS[item.icon] ?? LayoutDashboard;
-          const isCrmItem = item.key === 'CRM';
           const isActive =
             location.pathname === item.href ||
-            (isCrmItem &&
-              (isAdminCrmPath(location.pathname) ||
-                location.pathname.startsWith(ADMIN_ROUTES.CUSTOMERS)));
+            (item.key === 'SETTINGS' && location.pathname.startsWith(ADMIN_ROUTES.SETTINGS));
           return (
             <NavLink
               key={item.href}

@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
+import { fileURLToPath } from 'url';
 
 import { readInventory } from './inventory-store.js';
 import { seedProducts } from './seed-products.js';
@@ -13,6 +14,11 @@ import {
   COMPATIBLE_TONER_SUBCATEGORY_SLUG,
 } from '../../shared/compatible-toner.js';
 import { getStoreCategoriesPath } from './server-paths.js';
+
+const BUNDLED_STORE_CATEGORIES_PATH = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../data/store-categories.json',
+);
 
 function categoriesPath() {
   return getStoreCategoriesPath();
@@ -184,8 +190,18 @@ function normalizeCategory(raw, existing) {
 async function ensureCategoriesFile() {
   try {
     await fs.access(categoriesPath());
+    return;
   } catch {
-    await fs.mkdir(path.dirname(categoriesPath()), { recursive: true });
+    // noop — crear abajo
+  }
+
+  await fs.mkdir(path.dirname(categoriesPath()), { recursive: true });
+
+  try {
+    const bundled = await fs.readFile(BUNDLED_STORE_CATEGORIES_PATH, 'utf8');
+    await fs.writeFile(categoriesPath(), bundled);
+    return;
+  } catch {
     await fs.writeFile(
       categoriesPath(),
       JSON.stringify({ categories: DEFAULT_CATEGORIES }, null, 2),

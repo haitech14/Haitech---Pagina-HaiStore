@@ -11,18 +11,13 @@ import {
   EMPTY_STORE_CATEGORY_TREE,
   useStoreCategoriesTree,
 } from '@/hooks/use-store-categories';
-import { useProducts } from '@/hooks/use-products';
+import { useCategoryCatalog } from '@/hooks/use-category-catalog';
 import { categoryLandingPath, categoryPath } from '@/lib/category-path';
 import { catalogGridClassName } from '@/lib/category-grid-layout';
-import { productMatchesCategoryFilter } from '@/lib/inventory-categories';
-import { productMatchesCatalogFilters } from '@/lib/category-catalog-filters';
-import { isPrinterEquipmentProduct } from '@/lib/product-condition';
 import { findStoreCategoryBySlug } from '@/lib/store-category-display';
 import {
   CATALOG_PRODUCTS_PER_PAGE,
   clampCatalogPage,
-  getCatalogPageSlice,
-  getCatalogTotalPages,
 } from '@/lib/catalog-product-pagination';
 
 interface CategoryStripPreviewProps {
@@ -40,7 +35,6 @@ export function CategoryStripPreview({
   const category = findCategoryBySlug(categorySlug);
   const { data: categoryTreeData, isLoading: treeLoading } = useStoreCategoriesTree();
   const categoryTree = categoryTreeData ?? EMPTY_STORE_CATEGORY_TREE;
-  const { data: products, isLoading: productsLoading, isError } = useProducts();
 
   const storeCategory = useMemo(
     () => findStoreCategoryBySlug(categoryTree, categorySlug),
@@ -52,26 +46,20 @@ export function CategoryStripPreview({
     return resolveCategoryPageProductLabels(category, storeCategory, activeSubSlug);
   }, [category, storeCategory, activeSubSlug]);
 
-  const filteredProducts = useMemo(() => {
-    if (!products?.length || !category) return [];
+  const { data: catalogData, isLoading: productsLoading, isError } = useCategoryCatalog({
+    enabled: productLabels.length > 0,
+    slug: categorySlug,
+    labels: productLabels,
+    attributeKeys: selectedSpecFilters,
+    sortBy: 'price-asc',
+    page,
+    limit: CATALOG_PRODUCTS_PER_PAGE,
+  });
 
-    return products
-      .filter((product) => {
-        if (categorySlug === 'repuestos' && isPrinterEquipmentProduct(product)) {
-          return false;
-        }
-        return productLabels.some((label) => productMatchesCategoryFilter(product, label));
-      })
-      .filter((product) => productMatchesCatalogFilters(product, selectedSpecFilters, null))
-      .sort((a, b) => {
-        if (a.price !== b.price) return a.price - b.price;
-        return a.name.localeCompare(b.name, 'es');
-      });
-  }, [products, category, categorySlug, productLabels, selectedSpecFilters]);
-
-  const totalPages = getCatalogTotalPages(filteredProducts.length);
+  const filteredProducts = catalogData?.products ?? [];
+  const totalPages = catalogData?.totalPages ?? 1;
   const safePage = clampCatalogPage(page, totalPages);
-  const pagedProducts = getCatalogPageSlice(filteredProducts, safePage);
+  const pagedProducts = filteredProducts;
 
   useEffect(() => {
     setPage(1);

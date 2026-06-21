@@ -1,29 +1,46 @@
 import type { ChangeEvent, ClipboardEvent, FormEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { X } from 'lucide-react';
+import {
+  Camera,
+  CircleDollarSign,
+  ClipboardList,
+  ListTree,
+  Package,
+  Tags,
+  Users,
+} from 'lucide-react';
 
+import { InventoryAttributesFieldset } from '@/components/admin/inventory/inventory-attributes-fieldset';
+import { InventoryFormSection } from '@/components/admin/inventory/inventory-form-section';
+import { InventoryInventorySection } from '@/components/admin/inventory/inventory-inventory-section';
+import {
+  InventoryPhotoPreview,
+  InventoryPhotoUploadBox,
+} from '@/components/admin/inventory/inventory-photo-upload-box';
+import { InventoryPricesGrid } from '@/components/admin/inventory/inventory-prices-grid';
+import { InventorySelectField } from '@/components/admin/inventory/inventory-select-field';
+import { InventorySuppliersFieldset } from '@/components/admin/inventory/inventory-suppliers-fieldset';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { InventoryAttributesFieldset } from '@/components/admin/inventory/inventory-attributes-fieldset';
-import { InventoryMultiSelectField } from '@/components/admin/inventory/inventory-multi-select-field';
-import { InventoryStockFieldset } from '@/components/admin/inventory/inventory-stock-fieldset';
-import { InventorySuppliersFieldset } from '@/components/admin/inventory/inventory-suppliers-fieldset';
-import { InventoryRolePricesFieldset } from '@/components/admin/inventory/inventory-role-prices-fieldset';
+import { Textarea } from '@/components/ui/textarea';
 import { useAdminInventory, useInventoryMutations } from '@/hooks/use-products';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { useWarehouses } from '@/hooks/use-warehouses';
 import { buildBrandSelectOptions } from '@/lib/inventory-brand-options';
-import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
+import {
+  buildCategorySelectGroups,
+  collectOrphanCategoryLabels,
+} from '@/lib/inventory-category-options';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
-import { joinInventoryTagList, parseInventoryTagList } from '@/lib/inventory-tags';
 import { resolvePurchasePriceUsd } from '@/lib/inventory-suppliers';
 import {
   createEmptyInventoryProduct,
@@ -60,7 +77,7 @@ const FOCUS_SECTION_TARGETS: Record<
   { id: string; focusInput?: boolean }
 > = {
   title: { id: 'inv-name', focusInput: true },
-  image: { id: 'inv-photos-fieldset' },
+  image: { id: 'inv-photos-section' },
   attributes: { id: 'inv-attributes-fieldset' },
   category: { id: 'inv-category' },
 };
@@ -80,22 +97,15 @@ export function InventoryProductFormDialog({
   const [form, setForm] = useState<InventoryProduct>(initial ?? createEmptyInventoryProduct());
   const [error, setError] = useState<string | null>(null);
 
-  const categoryOptions = useMemo(
-    () => buildCategorySelectOptions(categoryTree, [form.category ?? '']),
-    [categoryTree, form.category],
-  );
+  const categoryGroups = useMemo(() => {
+    const orphans = collectOrphanCategoryLabels(categoryTree, [form.category ?? '']);
+    return buildCategorySelectGroups(categoryTree, orphans);
+  }, [categoryTree, form.category]);
 
   const brandOptions = useMemo(
     () => buildBrandSelectOptions(inventoryProducts, form.brand),
     [inventoryProducts, form.brand],
   );
-
-  const selectedCategories = useMemo(
-    () => parseInventoryTagList(form.category),
-    [form.category],
-  );
-
-  const selectedBrands = useMemo(() => parseInventoryTagList(form.brand), [form.brand]);
 
   useEffect(() => {
     if (open) {
@@ -117,10 +127,9 @@ export function InventoryProductFormDialog({
       window.setTimeout(() => {
         element.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2');
       }, 1800);
-      if (target.focusInput && element instanceof HTMLInputElement) {
-        element.focus();
-      } else if (element instanceof HTMLElement) {
-        element.focus({ preventScroll: true });
+      if (target.focusInput) {
+        const input = element instanceof HTMLInputElement ? element : element.querySelector('input');
+        if (input instanceof HTMLInputElement) input.focus();
       }
     }, 120);
 
@@ -150,33 +159,9 @@ export function InventoryProductFormDialog({
 
   const setMainImage = (url: string | null) => {
     setForm((prev) => {
-      const gallery = url
-        ? [url, ...prev.gallery.filter((item) => item !== url)]
-        : prev.gallery;
+      const gallery = url ? [url, ...prev.gallery.filter((item) => item !== url)] : prev.gallery;
       return { ...prev, image_url: url, gallery };
     });
-  };
-
-  const handleMainImageFile = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    try {
-      setMainImage(await readImageFile(file));
-    } catch {
-      setError('No se pudo cargar la imagen principal.');
-    }
-    event.target.value = '';
-  };
-
-  const handleGalleryFiles = async (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files?.length) return;
-    try {
-      await appendImages([...files]);
-    } catch {
-      setError('No se pudieron cargar las imágenes de la galería.');
-    }
-    event.target.value = '';
   };
 
   const appendImages = async (files: File[]) => {
@@ -194,7 +179,28 @@ export function InventoryProductFormDialog({
     });
   };
 
-  const handlePhotosPaste = async (event: ClipboardEvent<HTMLFieldSetElement>) => {
+  const handleMainImageFiles = async (files: FileList) => {
+    const file = files[0];
+    if (!file) return;
+    try {
+      setMainImage(await readImageFile(file));
+      setError(null);
+    } catch {
+      setError('No se pudo cargar la imagen principal.');
+    }
+  };
+
+  const handleGalleryFiles = async (files: FileList) => {
+    if (!files.length) return;
+    try {
+      await appendImages([...files]);
+      setError(null);
+    } catch {
+      setError('No se pudieron cargar las imágenes de la galería.');
+    }
+  };
+
+  const handlePhotosPaste = async (event: ClipboardEvent<HTMLDivElement>) => {
     const files = getImageFilesFromClipboard(event.clipboardData);
     if (files.length === 0) return;
     event.preventDefault();
@@ -244,190 +250,206 @@ export function InventoryProductFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? 'Editar producto' : 'Nuevo producto'}</DialogTitle>
-          <DialogDescription>
-            Código, imágenes, stock y precios en USD (los soles se calculan automáticamente en la
-            tabla).
+      <DialogContent className="flex max-h-[92vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[72rem]">
+        <DialogHeader className="shrink-0 space-y-1 border-b border-border/60 bg-card px-6 py-5 pr-14 text-left">
+          <DialogTitle className="text-xl font-bold tracking-tight text-foreground">
+            {isEdit ? 'Editar producto' : 'Nuevo producto'}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Completa los datos principales, fotos, stock y precios.
           </DialogDescription>
         </DialogHeader>
 
-        <form className="grid gap-4" onSubmit={handleSubmit}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="inv-code">Código</Label>
-              <Input
-                id="inv-code"
-                value={form.code}
-                onChange={(event) => updateField('code', event.target.value.toUpperCase())}
-                placeholder="SKU-001"
-                required
-              />
+        <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
+          <div
+            className="min-h-0 flex-1 overflow-y-auto bg-muted/35 px-6 py-5"
+            onPaste={(event) => void handlePhotosPaste(event)}
+          >
+            <div className="grid gap-4 md:grid-cols-2 md:items-start">
+              <div className="space-y-4">
+                <InventoryFormSection title="Información básica" icon={ClipboardList}>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="inv-code">Código</Label>
+                      <Input
+                        id="inv-code"
+                        className="h-10 bg-background"
+                        value={form.code}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                          updateField('code', event.target.value.toUpperCase())
+                        }
+                        placeholder="Ej. SKU-001"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="inv-name">Nombre</Label>
+                      <Input
+                        id="inv-name"
+                        className="h-10 bg-background"
+                        value={form.name}
+                        onChange={(event) => updateField('name', event.target.value)}
+                        placeholder="Nombre del producto"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="inv-description">Descripción</Label>
+                      <Textarea
+                        id="inv-description"
+                        className="min-h-[6.5rem] resize-y bg-background"
+                        value={form.description ?? ''}
+                        onChange={(event) => updateField('description', event.target.value)}
+                        placeholder="Describe las características del producto..."
+                        rows={4}
+                      />
+                    </div>
+                  </div>
+                </InventoryFormSection>
+
+              <InventoryFormSection title="Clasificación" icon={Tags}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <InventorySelectField
+                    id="inv-category"
+                    label="Categoría"
+                    placeholder="Elegir categoría..."
+                    value={form.category ?? ''}
+                    onChange={(value) => updateField('category', value || null)}
+                    groups={categoryGroups}
+                  />
+                  <InventorySelectField
+                    id="inv-brand"
+                    label="Marca"
+                    placeholder="Elegir marca..."
+                    value={form.brand ?? ''}
+                    onChange={(value) => updateField('brand', value || null)}
+                    options={brandOptions}
+                  />
+                </div>
+              </InventoryFormSection>
+
+              <InventoryFormSection
+                id="inv-photos-section"
+                title="Fotos del producto"
+                icon={Camera}
+              >
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <InventoryPhotoUploadBox
+                    label="Foto principal"
+                    uploadLabel="Subir imagen"
+                    hint="JPG, PNG o WebP. Máx. 5MB"
+                    onFiles={(files) => void handleMainImageFiles(files)}
+                    preview={
+                      form.image_url ? (
+                        <InventoryPhotoPreview
+                          src={form.image_url}
+                          alt="Vista previa de la foto principal"
+                          onRemove={() => setMainImage(null)}
+                        />
+                      ) : null
+                    }
+                  />
+                  <InventoryPhotoUploadBox
+                    label="Galería"
+                    uploadLabel="Subir imágenes"
+                    hint="Múltiples archivos. Máx. 20MB"
+                    multiple
+                    onFiles={(files) => void handleGalleryFiles(files)}
+                    preview={
+                      form.gallery.length > 0 ? (
+                        <ul className="mt-2 flex flex-wrap gap-2">
+                          {form.gallery.map((url) => (
+                            <li key={url}>
+                              <InventoryPhotoPreview
+                                src={url}
+                                alt=""
+                                size="thumb"
+                                onRemove={() => removeGalleryUrl(url)}
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null
+                    }
+                  />
+                </div>
+              </InventoryFormSection>
             </div>
-            <InventoryStockFieldset
-              form={form}
-              warehouses={warehouses}
-              onChange={(stockFields) =>
-                setForm((current) => ({ ...current, ...stockFields }))
-              }
-            />
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="inv-name">Nombre</Label>
-              <Input
-                id="inv-name"
-                value={form.name}
-                onChange={(event) => updateField('name', event.target.value)}
-                required
-              />
+
+            <div className="space-y-4">
+              <InventoryFormSection title="Inventario" icon={Package}>
+                <InventoryInventorySection
+                  form={form}
+                  warehouses={warehouses}
+                  onChange={(stockFields) =>
+                    setForm((current) => ({ ...current, ...stockFields }))
+                  }
+                />
+              </InventoryFormSection>
+
+              <InventoryFormSection
+                title="Proveedores"
+                icon={Users}
+                description="Asocia uno o más proveedores con tu precio de compra."
+              >
+                <InventorySuppliersFieldset
+                  embedded
+                  suppliers={form.suppliers ?? []}
+                  onChange={handleSuppliersChange}
+                />
+              </InventoryFormSection>
+
+              <InventoryFormSection
+                title="Atributos"
+                icon={ListTree}
+                description="Especificaciones del producto (color, velocidad, tamaño, etc.)."
+              >
+                <InventoryAttributesFieldset
+                  embedded
+                  attributes={form.attributes ?? []}
+                  onChange={(attributes: ProductAttribute[]) =>
+                    updateField('attributes', attributes)
+                  }
+                />
+              </InventoryFormSection>
+
+              <InventoryFormSection
+                title="Precios"
+                icon={CircleDollarSign}
+                description="Los valores se redondean a enteros terminados en 9 (ej. 2.188 → 2.199)."
+              >
+                <InventoryPricesGrid
+                  purchasePriceUsd={form.purchase_price_usd}
+                  onPurchaseChange={(value) =>
+                    updateField('purchase_price_usd', Number(value) || 0)
+                  }
+                  prices={form.prices}
+                  onPriceChange={updatePrice}
+                  purchaseFromSuppliers={supplierCount > 0}
+                />
+              </InventoryFormSection>
             </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="inv-description">Descripción</Label>
-              <Input
-                id="inv-description"
-                value={form.description ?? ''}
-                onChange={(event) => updateField('description', event.target.value)}
-              />
             </div>
-            <InventoryMultiSelectField
-              id="inv-category"
-              label="Categoría"
-              placeholder="Elegir categorías…"
-              searchPlaceholder="Buscar categoría…"
-              options={categoryOptions}
-              selected={selectedCategories}
-              onChange={(values) => updateField('category', joinInventoryTagList(values) || null)}
-            />
-            <InventoryMultiSelectField
-              id="inv-brand"
-              label="Marca"
-              placeholder="Elegir marcas…"
-              searchPlaceholder="Buscar marca…"
-              options={brandOptions}
-              selected={selectedBrands}
-              onChange={(values) => updateField('brand', joinInventoryTagList(values) || null)}
-            />
           </div>
 
-          <fieldset
-            id="inv-photos-fieldset"
-            className="rounded-lg border p-4 outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
-            tabIndex={0}
-            onPaste={(event) => void handlePhotosPaste(event)}
-            aria-label="Foto y galería del producto"
-          >
-            <legend className="px-1 text-sm font-medium">Foto y galería</legend>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Haz clic aquí y pega imágenes con Ctrl+V (o Cmd+V). Se optimizan a WebP (~1200px).
-            </p>
-
-            <div className="mt-4 grid gap-6 sm:grid-cols-2">
-              <div className="space-y-3">
-                <Label htmlFor="inv-image-file">Foto principal</Label>
-                <Input
-                  id="inv-image-file"
-                  type="file"
-                  accept="image/*"
-                  className="cursor-pointer"
-                  onChange={(event) => void handleMainImageFile(event)}
-                />
-                {form.image_url ? (
-                  <div className="relative w-fit">
-                    <img
-                      src={form.image_url}
-                      alt="Vista previa de la foto principal"
-                      className="max-h-32 w-auto max-w-full rounded-md border object-contain"
-                      onError={() =>
-                        setError(
-                          'No se pudo mostrar la vista previa. Vuelve a subir la imagen o guarda el producto.',
-                        )
-                      }
-                    />
-                    <button
-                      type="button"
-                      className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                      aria-label="Quitar foto principal"
-                      onClick={() => setMainImage(null)}
-                    >
-                      <X className="size-3.5" aria-hidden="true" />
-                    </button>
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Sin foto principal</p>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="inv-gallery-files">Galería</Label>
-                <Input
-                  id="inv-gallery-files"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="cursor-pointer"
-                  onChange={(event) => void handleGalleryFiles(event)}
-                />
-                {form.gallery.length > 0 ? (
-                  <ul className="flex flex-wrap gap-2">
-                    {form.gallery.map((url) => (
-                      <li key={url} className="relative">
-                        <img
-                          src={url}
-                          alt=""
-                          className="size-16 rounded-md border object-cover"
-                        />
-                        <button
-                          type="button"
-                          className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label="Quitar imagen de la galería"
-                          onClick={() => removeGalleryUrl(url)}
-                        >
-                          <X className="size-3.5" aria-hidden="true" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Sin imágenes en la galería</p>
-                )}
-              </div>
-            </div>
-          </fieldset>
-
-          <InventorySuppliersFieldset
-            suppliers={form.suppliers ?? []}
-            onChange={handleSuppliersChange}
-          />
-
-          <InventoryAttributesFieldset
-            attributes={form.attributes ?? []}
-            onChange={(attributes: ProductAttribute[]) => updateField('attributes', attributes)}
-          />
-
-          <InventoryRolePricesFieldset
-            purchasePriceUsd={form.purchase_price_usd}
-            onPurchaseChange={(value) =>
-              updateField('purchase_price_usd', Number(value) || 0)
-            }
-            prices={form.prices}
-            onPriceChange={updatePrice}
-            purchaseFromSuppliers={supplierCount > 0}
-          />
-
-          {error && (
-            <p role="alert" className="text-sm text-destructive">
+          {error ? (
+            <p role="alert" className="mx-6 mb-2 text-sm text-destructive">
               {error}
             </p>
-          )}
+          ) : null}
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="shrink-0 gap-2 border-t border-border/60 bg-card px-6 py-4 sm:justify-end">
+            <Button type="button" variant="outline" className="h-10 px-5" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" className="bg-red-600 hover:bg-red-500" disabled={isSaving}>
+            <Button
+              type="submit"
+              className="h-10 min-w-[9.5rem] bg-red-600 px-5 text-white hover:bg-red-500"
+              disabled={isSaving}
+            >
               {isSaving ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear producto'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

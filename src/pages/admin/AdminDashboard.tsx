@@ -226,22 +226,39 @@ export function AdminDashboard() {
           {inventory.isLoading ? (
             <p className="text-sm text-muted-foreground">Cargando inventario…</p>
           ) : inventory.data.length > 0 ? (
-            <ul className="space-y-4">
-              {inventory.data.map((row) => (
-                <li key={row.category}>
-                  <p className="mb-1 text-sm font-medium">{row.category}</p>
-                  <InventoryCategoryStockBar
-                    category={row.category}
-                    stats={{
-                      total: row.total,
-                      out: row.out,
-                      low: row.low,
-                      healthy: row.healthy,
-                    }}
-                  />
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Las {inventory.data.length} categorías con mayor urgencia (sin stock y bajo stock).
+              </p>
+              <ul className="space-y-4">
+                {inventory.data.map((row) => (
+                  <li key={row.category}>
+                    <p className="mb-1 text-sm font-medium">{row.category}</p>
+                    <InventoryCategoryStockBar
+                      category={row.category}
+                      stats={{
+                        total: row.total,
+                        out: row.out,
+                        low: row.low,
+                        healthy: row.healthy,
+                      }}
+                    />
+                  </li>
+                ))}
+              </ul>
+              {inventory.hasMoreUrgentCategories ? (
+                <p className="text-xs text-muted-foreground">
+                  {inventory.totalCategories - inventory.data.length} categoría
+                  {inventory.totalCategories - inventory.data.length === 1 ? '' : 's'} más en inventario.{' '}
+                  <Link
+                    to={ADMIN_ROUTES.INVENTORY}
+                    className="font-medium text-[hsl(var(--admin-accent))] hover:underline"
+                  >
+                    Ver todas
+                  </Link>
+                </p>
+              ) : null}
+            </div>
           ) : (
             <AdminEmptyState
               title="Sin productos en inventario"

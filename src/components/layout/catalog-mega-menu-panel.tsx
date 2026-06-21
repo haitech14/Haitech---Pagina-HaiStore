@@ -1,24 +1,15 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 
+import { megaMenuPartnerBrands } from '@/data/mega-menu';
 import {
-  megaMenuDestacadosColumnGroups,
-  megaMenuPartnerBrands,
-  megaMenuSectionMeta,
-  megaMenuServiciosColumnGroups,
-  type MegaMenuSectionId,
-} from '@/data/mega-menu';
-import {
-  buildMegaMenuColumnGroupsForSection,
+  type LandingCatalogMenuSidebarItem,
   type MegaMenuColumnGroup,
 } from '@/lib/mega-menu-from-store-categories';
-import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
+import { categoryLandingPath } from '@/lib/category-path';
 import { cn } from '@/lib/utils';
-import type { StoreCategoryTreeNode } from '@/types/store-category';
 
 const ICON_STROKE = 1.5;
-
-type MegaMenuCatalogSectionId = Exclude<MegaMenuSectionId, 'destacados' | 'servicios'>;
 
 function MegaMenuLink({
   to,
@@ -120,49 +111,28 @@ function MegaMenuBrandStrip({ onNavigate }: { onNavigate: () => void }) {
   );
 }
 
-function columnGroupsForSection(
-  sectionId: MegaMenuSectionId,
-  tree: StoreCategoryTreeNode[],
-): MegaMenuColumnGroup[] {
-  if (sectionId === 'destacados') return [...megaMenuDestacadosColumnGroups];
-  if (sectionId === 'servicios') return [...megaMenuServiciosColumnGroups];
-  return buildMegaMenuColumnGroupsForSection(sectionId as MegaMenuCatalogSectionId, tree);
-}
-
-function sectionShowsBrands(sectionId: MegaMenuSectionId): boolean {
-  return sectionId === 'impresion' || sectionId === 'suministros' || sectionId === 'tecnologia';
-}
-
 export interface CatalogMegaMenuPanelProps {
-  activeSection: MegaMenuSectionId;
-  onSectionChange: (sectionId: MegaMenuSectionId) => void;
-  sidebarSectionIds: MegaMenuSectionId[];
+  activeCategorySlug: string;
+  onCategoryChange: (slug: string) => void;
+  sidebarItems: LandingCatalogMenuSidebarItem[];
+  columnGroups: MegaMenuColumnGroup[];
+  showBrandStrip: boolean;
   onNavigate: () => void;
   layout?: 'desktop' | 'mobile';
 }
 
 export function CatalogMegaMenuPanel({
-  activeSection,
-  onSectionChange,
-  sidebarSectionIds,
+  activeCategorySlug,
+  onCategoryChange,
+  sidebarItems,
+  columnGroups,
+  showBrandStrip,
   onNavigate,
   layout = 'desktop',
 }: CatalogMegaMenuPanelProps) {
-  const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const sidebarItems = sidebarSectionIds.map((id) => ({
-    id,
-    ...megaMenuSectionMeta[id],
-  }));
-  const columnGroups = columnGroupsForSection(activeSection, categoryTree);
-  const activeMeta = megaMenuSectionMeta[activeSection];
+  const activeItem =
+    sidebarItems.find((item) => item.slug === activeCategorySlug) ?? sidebarItems[0];
   const isMobile = layout === 'mobile';
-
-  const sectionViewAllHref =
-    activeSection === 'servicios'
-      ? '/servicios'
-      : activeSection === 'destacados'
-        ? '/tienda'
-        : columnGroups[0]?.href ?? '/tienda';
 
   return (
     <div
@@ -176,7 +146,7 @@ export function CatalogMegaMenuPanel({
           'shrink-0 border-border/60 bg-muted/10',
           isMobile
             ? 'border-b px-3 py-2'
-            : 'w-[12.5rem] border-r py-3 pl-3 pr-2',
+            : 'flex w-[13.5rem] flex-col border-r py-3 pl-3 pr-2',
         )}
       >
         {!isMobile ? (
@@ -190,24 +160,24 @@ export function CatalogMegaMenuPanel({
             'flex gap-1',
             isMobile
               ? 'flex-row overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
-              : 'flex-col',
+              : 'max-h-[min(34rem,72vh)] flex-col overflow-y-auto pr-1 [scrollbar-width:thin]',
           )}
           role="tablist"
-          aria-label="Secciones del catálogo"
+          aria-label="Categorías del catálogo"
         >
           {sidebarItems.map((item) => {
-            const isActive = activeSection === item.id;
+            const isActive = activeCategorySlug === item.slug;
             const Icon = item.icon;
 
             return (
-              <li key={item.id} role="presentation" className={isMobile ? 'shrink-0' : undefined}>
+              <li key={item.slug} role="presentation" className={isMobile ? 'shrink-0' : undefined}>
                 <button
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  onMouseEnter={isMobile ? undefined : () => onSectionChange(item.id)}
-                  onFocus={() => onSectionChange(item.id)}
-                  onClick={() => onSectionChange(item.id)}
+                  onMouseEnter={isMobile ? undefined : () => onCategoryChange(item.slug)}
+                  onFocus={() => onCategoryChange(item.slug)}
+                  onClick={() => onCategoryChange(item.slug)}
                   className={cn(
                     'flex min-h-10 w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm font-medium transition-colors',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
@@ -245,16 +215,16 @@ export function CatalogMegaMenuPanel({
       <div
         className="flex min-w-0 flex-1 flex-col"
         role="tabpanel"
-        aria-label={activeMeta.label}
+        aria-label={activeItem?.label ?? 'Categoría'}
       >
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-5">
           <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
             <div>
-              <h3 className="text-base font-bold text-foreground sm:text-lg">{activeMeta.label}</h3>
-              <p className="mt-0.5 max-w-2xl text-sm text-muted-foreground">{activeMeta.description}</p>
+              <h3 className="text-base font-bold text-foreground sm:text-lg">{activeItem?.label}</h3>
+              <p className="mt-0.5 max-w-2xl text-sm text-muted-foreground">{activeItem?.description}</p>
             </div>
             <Link
-              to={sectionViewAllHref}
+              to={categoryLandingPath(activeCategorySlug)}
               onClick={onNavigate}
               className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-md px-1 text-xs font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
@@ -266,7 +236,7 @@ export function CatalogMegaMenuPanel({
           {columnGroups.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {columnGroups.map((group) => (
-                <MegaMenuColumn key={`${activeSection}-${group.slug}`} group={group} onNavigate={onNavigate} />
+                <MegaMenuColumn key={`${activeCategorySlug}-${group.slug}`} group={group} onNavigate={onNavigate} />
               ))}
             </div>
           ) : (
@@ -274,7 +244,7 @@ export function CatalogMegaMenuPanel({
           )}
         </div>
 
-        {sectionShowsBrands(activeSection) ? <MegaMenuBrandStrip onNavigate={onNavigate} /> : null}
+        {showBrandStrip ? <MegaMenuBrandStrip onNavigate={onNavigate} /> : null}
       </div>
     </div>
   );

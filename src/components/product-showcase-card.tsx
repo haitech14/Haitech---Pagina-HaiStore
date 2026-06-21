@@ -5,7 +5,6 @@ import { ShoppingCart, Star } from 'lucide-react';
 import { ProductCardOverlayActions } from '@/components/product/product-card-overlay-actions';
 import { ProductCardPricing } from '@/components/product/product-card-pricing';
 import { ProductCardTitle } from '@/components/product/product-card-title';
-import { ProductNuevoCornerBadge } from '@/components/product/product-nuevo-corner-badge';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { AddToCartButton, getAddToCartLabel } from '@/components/cart/add-to-cart-button';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
@@ -14,7 +13,6 @@ import { useWishlist } from '@/context/wishlist-context';
 import { featuredToWishlistItem } from '@/lib/wishlist-product';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { featuredToCompareItem } from '@/lib/compare-product';
-import { productHasNuevoCornerBadge } from '@/lib/product-detail-badges';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
 
@@ -91,8 +89,6 @@ export function ProductShowcaseCard({
   };
 
   const detailHref = productPath(product.id);
-  const showNuevoCorner =
-    product.isNew === true || productHasNuevoCornerBadge(badgeSource);
 
   return (
     <article
@@ -138,10 +134,6 @@ export function ProductShowcaseCard({
                 )}
               </div>
             </div>
-
-          <div className="pointer-events-none absolute left-3 top-3 z-[2]">
-            {showNuevoCorner ? <ProductNuevoCornerBadge /> : null}
-          </div>
         </div>
 
         <div
