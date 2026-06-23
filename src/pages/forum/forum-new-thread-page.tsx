@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,7 +28,7 @@ export function ForumNewThreadPage() {
   const [tags, setTags] = useState('');
 
   useEffect(() => {
-    document.title = 'Nuevo tema | Foro HaiStore';
+    document.title = `Nuevo tema | ${FORUM_TITLE_SUFFIX}`;
   }, []);
 
   useEffect(() => {

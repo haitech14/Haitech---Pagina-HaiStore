@@ -8,6 +8,7 @@ import {
   resolveBulkDiscountSavingsHint,
   type BulkDiscountPricing,
 } from '@/lib/bulk-discount-tiers';
+import { computeEquipmentExtrasUsd } from '@/lib/equipment-config-selection';
 import { cn } from '@/lib/utils';
 import type { CartConfigurationLine } from '@/types/product';
 import type { BulkDiscountTier } from '@/types/product-detail';
@@ -55,6 +56,9 @@ export function ProductDetailMobilePurchaseBar({
 
   const showBar = !heroActionsVisible && !outOfStock;
   const hasVolumeDiscount = volumePricing.tier != null && volumePricing.savingsUsd > 0.001;
+  const equipmentExtrasUsd = equipmentConfiguration
+    ? computeEquipmentExtrasUsd(equipmentConfiguration.options)
+    : 0;
   const cartAddOptions = {
     quantity,
     ...(hasVolumeDiscount ? { volumeUnitPriceUsd: volumePricing.unitUsd } : {}),
@@ -73,7 +77,8 @@ export function ProductDetailMobilePurchaseBar({
   }, [bulkDiscountTiers, quantity, basePriceUsd, floorPriceUsd]);
 
   const totalUsd =
-    quantity > 1 || hasVolumeDiscount ? volumePricing.totalUsd : volumePricing.unitUsd;
+    (quantity > 1 || hasVolumeDiscount ? volumePricing.totalUsd : volumePricing.unitUsd) +
+    equipmentExtrasUsd * quantity;
 
   return (
     <div

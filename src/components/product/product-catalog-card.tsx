@@ -21,6 +21,9 @@ import {
 import { PRODUCT_CARD_DISCOUNT_CLASS } from '@/lib/product-card-title';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
+import { ViewAsRoleBadge } from '@/components/product/view-as-role-badge';
+import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
+import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { formatProductCardTitle } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
@@ -29,7 +32,8 @@ import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
 function CatalogCardPricing({ product }: { product: Product }) {
-  const pricing = getCatalogCardPricing(product);
+  const displayPrice = useCatalogDisplayPrice(product);
+  const pricing = getCatalogCardPricing({ ...product, price: displayPrice.priceUsd });
   const { displayCurrency } = useDisplayCurrency();
   const showUsd = displayCurrency !== 'PEN';
   const showPen = displayCurrency !== 'USD';
@@ -41,28 +45,40 @@ function CatalogCardPricing({ product }: { product: Product }) {
 
   return (
     <div className="space-y-1">
-      <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
-        <div className={cn('grid gap-2', showUsd && showPen ? 'grid-cols-2' : 'grid-cols-1')}>
-          {showUsd ? (
-            <div className="min-w-0">
-              <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-red-600/90">USD</p>
-              <AdminRolePricesTooltip productId={product.id} displayUsd={pricing.currentUsd}>
-                <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
-                  {formatUsd(pricing.currentUsd)}
-                </p>
-              </AdminRolePricesTooltip>
+      {displayPrice.viewAsRolePrices.length > 1 ? (
+        <>
+          <ViewAsRoleBadge labels={displayPrice.viewAsRolePrices.map((line) => line.label)} />
+          <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
+            <ViewAsRolePrices rolePrices={displayPrice.viewAsRolePrices} compact />
+          </div>
+        </>
+      ) : (
+        <>
+          {displayPrice.viewAsLabel ? <ViewAsRoleBadge label={displayPrice.viewAsLabel} /> : null}
+          <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
+            <div className={cn('grid gap-2', showUsd && showPen ? 'grid-cols-2' : 'grid-cols-1')}>
+              {showUsd ? (
+                <div className="min-w-0">
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-red-600/90">USD</p>
+                  <AdminRolePricesTooltip productId={product.id} displayUsd={pricing.currentUsd}>
+                    <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
+                      {formatUsd(pricing.currentUsd)}
+                    </p>
+                  </AdminRolePricesTooltip>
+                </div>
+              ) : null}
+              {showPen ? (
+                <div className={cn('min-w-0', showUsd && 'border-l border-border/50 pl-2')}>
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-red-600/90">PEN</p>
+                  <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
+                    {formatPenFromUsd(pricing.currentUsd)}
+                  </p>
+                </div>
+              ) : null}
             </div>
-          ) : null}
-          {showPen ? (
-            <div className={cn('min-w-0', showUsd && 'border-l border-border/50 pl-2')}>
-              <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-red-600/90">PEN</p>
-              <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
-                {formatPenFromUsd(pricing.currentUsd)}
-              </p>
-            </div>
-          ) : null}
-        </div>
-      </div>
+          </div>
+        </>
+      )}
       {pricing.discountPercent > 0 ? (
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-0.5">
           <p className="text-[0.65rem] tabular-nums text-muted-foreground line-through sm:text-xs">
@@ -162,6 +178,7 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
   const displayTitle = formatProductCardTitle(product);
   const rating = getCatalogCardRating(product);
   const specLines = getCatalogCardSpecLines(product);
+  const displayPrice = useCatalogDisplayPrice(product);
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm transition-shadow duration-200 hover:shadow-md">
@@ -250,7 +267,7 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
           )}
         >
           <div className="min-h-0 overflow-hidden">
-            <CatalogVolumePricing priceUsd={product.price} />
+            <CatalogVolumePricing priceUsd={displayPrice.priceUsd} />
           </div>
         </div>
 

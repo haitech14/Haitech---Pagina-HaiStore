@@ -1,5 +1,5 @@
 import { catalogRowToFeatured, getCatalogProductById, getCatalogRows } from '@/lib/catalog-featured';
-import type { Product, ProductAttribute } from '@/types/product';
+import type { Product, ProductAttribute, PriceRole, ProductRolePrices } from '@/types/product';
 
 export interface FeaturedProduct {
   id: string;
@@ -9,6 +9,8 @@ export interface FeaturedProduct {
   code?: string | null;
   attributes?: ProductAttribute[];
   price: number;
+  prices?: ProductRolePrices;
+  price_role?: PriceRole;
   oldPrice?: number;
   discount?: number;
   isNew?: boolean;

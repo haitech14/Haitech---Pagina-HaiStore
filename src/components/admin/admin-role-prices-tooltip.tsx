@@ -26,12 +26,12 @@ export function AdminRolePricesTooltip({
   className,
   children,
 }: AdminRolePricesTooltipProps) {
-  const { isAdmin } = useAuth();
+  const { isAdmin, viewAsRoles } = useAuth();
   const { isLoading, isFetching } = useAdminInventory();
   const rolePrices = useAdminProductRolePrices(productId);
   const pricesLoading = isLoading || isFetching;
 
-  if (!isAdmin) {
+  if (!isAdmin || viewAsRoles.length > 0) {
     return children ?? <DualPrice usd={displayUsd} {...(className ? { className } : {})} />;
   }
 

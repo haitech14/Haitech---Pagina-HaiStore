@@ -2,10 +2,11 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ImageOff, ShoppingCart } from 'lucide-react';
 import { AddToCartButton, getAddToCartLabel } from '@/components/cart/add-to-cart-button';
-import { ProductCardPricing } from '@/components/product/product-card-pricing';
+import { CatalogPreviewPriceBlock } from '@/components/product/catalog-preview-price-block';
 import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
+import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
@@ -23,6 +24,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
   const outOfStock = product.stock <= 0;
   const detailHref = productPath(product.id);
   const imageCandidates = useMemo(() => buildProductImageCandidates(product), [product]);
+  const displayPrice = useCatalogDisplayPrice(product);
 
   const cartActions = (
     <div className="flex items-stretch gap-2">
@@ -38,7 +40,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
         product={{
           id: product.id,
           name: product.name,
-          priceUsd: product.price,
+          priceUsd: displayPrice.priceUsd,
           category: product.category,
           brand: product.brand ?? null,
         }}
@@ -85,7 +87,11 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
               <ProductCardTitle product={product} />
             </Link>
             <div className="relative z-[3] pointer-events-auto">
-              <ProductCardPricing productId={product.id} priceUsd={product.price} />
+              <CatalogPreviewPriceBlock
+                productId={product.id}
+                displayPrice={displayPrice}
+                badgeClassName="mb-1"
+              />
               <p className={cn('mt-1 text-xs', outOfStock ? 'text-destructive' : 'text-muted-foreground')}>
                 {outOfStock ? 'Sin stock' : `${product.stock} disponibles`}
               </p>
@@ -137,7 +143,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
           </Link>
 
           <div className="relative z-[3] mt-auto space-y-1 pt-0.5">
-            <ProductCardPricing productId={product.id} priceUsd={product.price} />
+            <CatalogPreviewPriceBlock productId={product.id} displayPrice={displayPrice} />
             <p className={cn('text-xs', outOfStock ? 'text-destructive' : 'text-muted-foreground')}>
               {outOfStock ? 'Sin stock' : `${product.stock} disponibles`}
             </p>

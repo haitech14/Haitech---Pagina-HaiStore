@@ -9,7 +9,7 @@ import { getCatalogProductById } from '@/lib/catalog-featured';
 import { findProductInQueryCache } from '@/lib/find-cached-product';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
 import { toPublicProduct } from '@/lib/pricing';
-import { applyViewAsPriceToProduct } from '@/lib/view-as-role';
+import { applyViewAsPriceToProduct, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { Product } from '@/types/product';
 
 export async function fetchProductById(id: string): Promise<Product | null> {
@@ -22,7 +22,7 @@ export async function fetchProductById(id: string): Promise<Product | null> {
 
 export function useProduct(id: string | undefined) {
   const queryClient = useQueryClient();
-  const { role, viewAsRole, effectiveRole } = useAuth();
+  const { role, viewAsRoles, effectiveRole } = useAuth();
   const featured = id ? getFeaturedProductById(id) : undefined;
 
   /** Solo reutiliza el listado si ya está en caché; no dispara /api/products en la ficha. */
@@ -41,13 +41,15 @@ export function useProduct(id: string | undefined) {
   const shouldFetchOne = Boolean(id);
 
   const { data: fetchedProduct, isFetching: fetchingOne } = useQuery({
-    queryKey: ['product', id, role, viewAsRole],
+    queryKey: ['product', id, role, viewAsRolesQueryKey(viewAsRoles)],
     queryFn: () => (id ? fetchProductById(id) : Promise.resolve(null)),
     enabled: shouldFetchOne,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     select: (product) =>
-      product && viewAsRole ? applyViewAsPriceToProduct(product, effectiveRole) : product,
+      product && shouldApplyViewAsPriceTransform(viewAsRoles)
+        ? applyViewAsPriceToProduct(product, effectiveRole)
+        : product,
   });
 
   const fromCatalogJson = useMemo(() => {
@@ -55,17 +57,17 @@ export function useProduct(id: string | undefined) {
     if (!catalogError) return undefined;
     const row = getCatalogProductById(id);
     if (!row) return undefined;
-    return viewAsRole
-      ? applyViewAsPriceToProduct(
-          toPublicProduct(normalizeInventoryProduct(row), effectiveRole),
-          effectiveRole,
-        )
-      : toPublicProduct(normalizeInventoryProduct(row), role);
-  }, [id, featured, fetchedProduct, catalogError, role, viewAsRole, effectiveRole]);
+    const base = toPublicProduct(normalizeInventoryProduct(row), role);
+    return shouldApplyViewAsPriceTransform(viewAsRoles)
+      ? applyViewAsPriceToProduct(base, effectiveRole)
+      : base;
+  }, [id, featured, fetchedProduct, catalogError, role, viewAsRoles, effectiveRole]);
 
   const applyViewAs = (candidate: Product | undefined): Product | undefined => {
     if (!candidate) return undefined;
-    return viewAsRole ? applyViewAsPriceToProduct(candidate, effectiveRole) : candidate;
+    return shouldApplyViewAsPriceTransform(viewAsRoles)
+      ? applyViewAsPriceToProduct(candidate, effectiveRole)
+      : candidate;
   };
 
   const product: Product | undefined =

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { MIN_PRODUCT_SEARCH_LENGTH } from '@/lib/product-search';
-import { applyViewAsPriceToProducts } from '@/lib/view-as-role';
+import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { Product } from '@/types/product';
 
 interface ProductSearchResponse {
@@ -29,14 +29,14 @@ export function useProductSearch(
   query: string,
   options: { categoryFilter?: string; limit?: number; enabled?: boolean } = {},
 ) {
-  const { role, viewAsRole, effectiveRole } = useAuth();
+  const { role, viewAsRoles, effectiveRole } = useAuth();
   const trimmed = query.trim();
   const categoryFilter = options.categoryFilter ?? 'all';
   const limit = options.limit ?? 8;
   const enabled = (options.enabled ?? true) && trimmed.length >= MIN_PRODUCT_SEARCH_LENGTH;
 
   return useQuery({
-    queryKey: ['product-search', trimmed, categoryFilter, limit, role, viewAsRole],
+    queryKey: ['product-search', trimmed, categoryFilter, limit, role, viewAsRolesQueryKey(viewAsRoles)],
     queryFn: () => fetchProductSearch(trimmed, categoryFilter, limit),
     enabled,
     staleTime: 30_000,
@@ -45,7 +45,7 @@ export function useProductSearch(
     select: (result) => {
       const products = Array.isArray(result?.products) ? result.products : [];
       return {
-        products: viewAsRole
+        products: shouldApplyViewAsPriceTransform(viewAsRoles)
           ? applyViewAsPriceToProducts(products, effectiveRole)
           : products,
         total: typeof result?.total === 'number' ? result.total : products.length,

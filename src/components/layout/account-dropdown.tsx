@@ -122,13 +122,16 @@ export function AccountDropdown({ triggerVariant = 'icon' }: AccountDropdownProp
     logout,
     canAccessAdminPanel: showAdminPanel,
     role,
-    effectiveRole,
-    viewAsRole,
-    setViewAsRole,
+    viewAsRoles,
+    toggleViewAsRole,
+    clearViewAsRoles,
   } = useAuth();
   const displayName = getDisplayName(user);
-  const roleLabel = viewAsRole
-    ? `Como ${USER_ROLE_LABELS[effectiveRole as UserRole]}`
+  const previewingAsRole = viewAsRoles.length > 0;
+  const roleLabel = previewingAsRole
+    ? viewAsRoles.length === 1
+      ? `Como ${USER_ROLE_LABELS[viewAsRoles[0]!]}`
+      : `Como ${viewAsRoles.map((item) => USER_ROLE_LABELS[item]).join(' · ')}`
     : user
       ? USER_ROLE_LABELS[user.role]
       : USER_ROLE_LABELS.public;
@@ -185,7 +188,7 @@ export function AccountDropdown({ triggerVariant = 'icon' }: AccountDropdownProp
                     <span
                       className={cn(
                         'mt-1 inline-block rounded-md px-1.5 py-0.5 text-[0.65rem] font-semibold leading-none',
-                        viewAsRole ? 'bg-orange-100 text-orange-800' : roleBadgeClass(user.role),
+                        previewingAsRole ? 'bg-orange-100 text-orange-800' : roleBadgeClass(user.role),
                       )}
                     >
                       {roleLabel}
@@ -211,20 +214,26 @@ export function AccountDropdown({ triggerVariant = 'icon' }: AccountDropdownProp
                   <DropdownMenuSubContent className="rounded-lg border-border/80 p-1 shadow-lg">
                     <DropdownMenuItem
                       className="min-h-10 cursor-pointer justify-between gap-2 rounded-md px-3 py-2 text-sm font-medium focus:bg-muted/60"
-                      onSelect={() => setViewAsRole(null)}
+                      onSelect={(event) => {
+                        event.preventDefault();
+                        clearViewAsRoles();
+                      }}
                     >
                       <span>Mi rol real ({USER_ROLE_LABELS[role as UserRole] ?? role})</span>
-                      {!viewAsRole ? (
+                      {!previewingAsRole ? (
                         <Check className="size-4 shrink-0 text-red-600" aria-hidden="true" />
                       ) : null}
                     </DropdownMenuItem>
                     {VIEW_AS_ROLE_OPTIONS.map((option) => {
-                      const selected = viewAsRole === option.value;
+                      const selected = viewAsRoles.includes(option.value);
                       return (
                         <DropdownMenuItem
                           key={option.value}
                           className="min-h-10 cursor-pointer justify-between gap-2 rounded-md px-3 py-2 text-sm focus:bg-muted/60"
-                          onSelect={() => setViewAsRole(option.value)}
+                          onSelect={(event) => {
+                            event.preventDefault();
+                            toggleViewAsRole(option.value);
+                          }}
                         >
                           <span>{option.label}</span>
                           {selected ? (

@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 
+import { redeemCoupon, validateCouponCode } from './coupons-store.js';
 import { ensureStoreCustomerFromHaitechClient } from './haisupport-bridge.js';
 import { notifyHaiSupportChange } from './haisupport-sync.js';
 import { inboundPayloadToHaitechClient } from './haitech-mappers.js';
@@ -72,8 +73,35 @@ export async function createStoreOrderFromBody(body) {
     };
   });
 
-  const totalUsd = subtotalUsd;
-  const totalPen = currency === 'PEN' ? totalUsd * exchangeRate : totalUsd * exchangeRate;
+  const totalUsdBeforeDiscount = subtotalUsd;
+  let discountUsd = 0;
+  let couponId = null;
+  let couponCode = null;
+  let orderNotes = body.notes ?? null;
+
+  const couponInput = typeof body.couponCode === 'string' ? body.couponCode.trim() : '';
+  if (couponInput) {
+    const couponResult = await validateCouponCode(couponInput, {
+      subtotalUsd,
+      exchangeRate,
+      customerEmail: customer.email,
+      lineItems: lineItems.map((line) => ({
+        productId: line.productId,
+        category: line.category ?? null,
+        categorySlug: line.categorySlug ?? null,
+        lineTotalUsd: Math.max(0, Number(line.unitPriceUsd) || 0) * Math.max(1, Number(line.quantity) || 1),
+      })),
+    });
+    discountUsd = couponResult.discountUsd;
+    couponId = couponResult.coupon.id;
+    couponCode = couponResult.coupon.code;
+    if (couponResult.freeShipping) {
+      orderNotes = [orderNotes, 'Cupón: envío gratis aplicado'].filter(Boolean).join(' — ');
+    }
+  }
+
+  const totalUsd = Math.max(0, Math.round((subtotalUsd - discountUsd) * 100) / 100);
+  const totalPen = Math.round(totalUsd * exchangeRate * 100) / 100;
 
   const status = VALID_ORDER_STATUS.has(body.status) ? body.status : 'confirmed';
   const paymentStatus = VALID_PAYMENT_STATUS.has(body.paymentStatus) ? body.paymentStatus : 'paid';
@@ -86,9 +114,12 @@ export async function createStoreOrderFromBody(body) {
       payment_status: paymentStatus,
       payment_method: body.paymentMethod ?? 'TPV',
       currency,
-      subtotal_usd: subtotalUsd,
+      subtotal_usd: totalUsdBeforeDiscount,
       tax_usd: 0,
       total_usd: totalUsd,
+      discount_usd: discountUsd,
+      coupon_id: couponId,
+      coupon_code: couponCode,
       total_pen: totalPen,
       exchange_rate: exchangeRate,
       billing_address: {
@@ -99,7 +130,7 @@ export async function createStoreOrderFromBody(body) {
         direccion: customer.direccion,
         ciudad: customer.ciudad,
       },
-      notes: body.notes ?? null,
+      notes: orderNotes,
     })
     .select('*')
     .single();
@@ -120,6 +151,16 @@ export async function createStoreOrderFromBody(body) {
     await supabase.from('store_orders').delete().eq('id', order.id);
     console.error('[orders-store] items:', itemsError.message);
     throw new Error(`No se pudieron guardar los ítems del pedido: ${itemsError.message}`);
+  }
+
+  if (couponId) {
+    try {
+      await redeemCoupon(couponId, order.id);
+    } catch (error) {
+      await supabase.from('store_order_items').delete().eq('order_id', order.id);
+      await supabase.from('store_orders').delete().eq('id', order.id);
+      throw error instanceof Error ? error : new Error('No se pudo canjear el cupón');
+    }
   }
 
   const payload = {

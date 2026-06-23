@@ -18,7 +18,9 @@ export interface ProductResourceLink {
   href?: string;
   icon: LucideIcon;
   accentSubtitle?: boolean;
-  action?: 'quote';
+  action?: 'quote' | 'technical_sheet';
+  fileName?: string;
+  mimeType?: string;
 }
 
 export interface ProductWarrantyOption {
@@ -203,6 +205,10 @@ export interface ProductDetailViewModel {
   discountPercent: number | null;
   /** URL del PDF de ficha técnica cuando está cargado en inventario. */
   technicalSheetUrl: string | null;
+  /** Nombre de archivo sugerido para descargar la ficha técnica. */
+  technicalSheetFileName: string | null;
+  /** Tipo MIME de la ficha técnica cuando está disponible. */
+  technicalSheetMimeType: string | null;
   /** Precio mayorista (USD) para mostrar junto al precio público. */
   wholesalePriceUsd: number | null;
 }

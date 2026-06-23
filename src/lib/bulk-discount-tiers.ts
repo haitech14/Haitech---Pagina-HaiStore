@@ -4,7 +4,7 @@ export const DEFAULT_BULK_DISCOUNT_TIERS: BulkDiscountTier[] = [
   { range: '2', discount: '5% dscto.', discountPercent: 5 },
   { range: '3', discount: '10% dscto.', discountPercent: 10 },
   { range: '5', discount: '15% dscto.', discountPercent: 15 },
-  { range: '10+', discount: '25% dscto.', discountPercent: 25 },
+  { range: '10+', discount: '20% dscto.', discountPercent: 20 },
 ];
 
 const LEGACY_BULK_DISCOUNT_RANGES = new Set(['1-4', '5-9', '10-14', '15-20']);

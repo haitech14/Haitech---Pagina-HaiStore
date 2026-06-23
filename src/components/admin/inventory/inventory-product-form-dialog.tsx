@@ -5,8 +5,6 @@ import {
   CircleDollarSign,
   ClipboardList,
   ListTree,
-  Package,
-  Tags,
   Users,
 } from 'lucide-react';
 
@@ -18,6 +16,7 @@ import {
   InventoryPhotoPreview,
   InventoryPhotoUploadBox,
 } from '@/components/admin/inventory/inventory-photo-upload-box';
+import { InventoryProductResourceFields } from '@/components/admin/inventory/inventory-product-resource-fields';
 import { InventoryPricesGrid } from '@/components/admin/inventory/inventory-prices-grid';
 import { InventoryVolumeRolePricesSection } from '@/components/admin/inventory/inventory-volume-role-prices-section';
 import { InventorySelectField } from '@/components/admin/inventory/inventory-select-field';
@@ -287,7 +286,7 @@ export function InventoryProductFormDialog({
           >
             <div className="grid gap-4 md:grid-cols-2 md:items-start">
               <div className="space-y-4">
-                <InventoryFormSection title="Información básica" icon={ClipboardList}>
+                <InventoryFormSection title="Información del producto" icon={ClipboardList}>
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="inv-code">Código</Label>
@@ -324,91 +323,97 @@ export function InventoryProductFormDialog({
                         rows={4}
                       />
                     </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <InventorySelectField
+                        id="inv-category"
+                        label="Categoría"
+                        placeholder="Elegir categoría..."
+                        value={form.category ?? ''}
+                        onChange={(value) => updateField('category', value || null)}
+                        groups={categoryGroups}
+                      />
+                      <InventorySelectField
+                        id="inv-brand"
+                        label="Marca"
+                        placeholder="Elegir marca..."
+                        value={form.brand ?? ''}
+                        onChange={(value) => updateField('brand', value || null)}
+                        options={brandOptions}
+                      />
+                    </div>
+                    <InventoryInventorySection
+                      form={form}
+                      warehouses={warehouses}
+                      onChange={(stockFields) =>
+                        setForm((current) => ({ ...current, ...stockFields }))
+                      }
+                    />
                   </div>
                 </InventoryFormSection>
 
-              <InventoryFormSection title="Clasificación" icon={Tags}>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <InventorySelectField
-                    id="inv-category"
-                    label="Categoría"
-                    placeholder="Elegir categoría..."
-                    value={form.category ?? ''}
-                    onChange={(value) => updateField('category', value || null)}
-                    groups={categoryGroups}
-                  />
-                  <InventorySelectField
-                    id="inv-brand"
-                    label="Marca"
-                    placeholder="Elegir marca..."
-                    value={form.brand ?? ''}
-                    onChange={(value) => updateField('brand', value || null)}
-                    options={brandOptions}
-                  />
-                </div>
-              </InventoryFormSection>
-
               <InventoryFormSection
                 id="inv-photos-section"
-                title="Fotos del producto"
+                title="Fotos y recursos"
                 icon={Camera}
               >
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <InventoryPhotoUploadBox
-                    label="Foto principal"
-                    uploadLabel="Subir imagen"
-                    hint="JPG, PNG o WebP. Se optimiza y guarda en el álbum."
-                    onFiles={(files) => void handleMainImageFiles(files)}
-                    onPickFromAlbum={() => setAlbumPicker('main')}
-                    preview={
-                      form.image_url ? (
-                        <InventoryPhotoPreview
-                          src={form.image_url}
-                          alt="Vista previa de la foto principal"
-                          onRemove={() => setMainImage(null)}
-                        />
-                      ) : null
+                <div className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <InventoryPhotoUploadBox
+                      label="Foto principal"
+                      uploadLabel="Subir imagen"
+                      hint="JPG, PNG o WebP. Se optimiza y guarda en el álbum."
+                      onFiles={(files) => void handleMainImageFiles(files)}
+                      onPickFromAlbum={() => setAlbumPicker('main')}
+                      preview={
+                        form.image_url ? (
+                          <InventoryPhotoPreview
+                            src={form.image_url}
+                            alt="Vista previa de la foto principal"
+                            onRemove={() => setMainImage(null)}
+                          />
+                        ) : null
+                      }
+                    />
+                    <InventoryPhotoUploadBox
+                      label="Galería"
+                      uploadLabel="Subir imágenes"
+                      hint="Múltiples archivos. No repite la foto principal."
+                      multiple
+                      onFiles={(files) => void handleGalleryFiles(files)}
+                      onPickFromAlbum={() => setAlbumPicker('gallery')}
+                      preview={
+                        form.gallery.filter((url) => isImageMediaUrl(url)).length > 0 ? (
+                          <ul className="mt-2 flex flex-wrap gap-2">
+                            {form.gallery
+                              .filter((url) => isImageMediaUrl(url))
+                              .map((url) => (
+                              <li key={url}>
+                                <InventoryPhotoPreview
+                                  src={url}
+                                  alt=""
+                                  size="thumb"
+                                  onRemove={() => removeGalleryUrl(url)}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null
+                      }
+                    />
+                  </div>
+                  <InventoryProductResourceFields
+                    form={form}
+                    onAttachmentsChange={(attachments) => updateField('attachments', attachments)}
+                    onVideoChange={(media) =>
+                      setForm((prev) => ({ ...prev, ...media }))
                     }
-                  />
-                  <InventoryPhotoUploadBox
-                    label="Galería"
-                    uploadLabel="Subir imágenes"
-                    hint="Múltiples archivos. No repite la foto principal."
-                    multiple
-                    onFiles={(files) => void handleGalleryFiles(files)}
-                    onPickFromAlbum={() => setAlbumPicker('gallery')}
-                    preview={
-                      form.gallery.length > 0 ? (
-                        <ul className="mt-2 flex flex-wrap gap-2">
-                          {form.gallery.map((url) => (
-                            <li key={url}>
-                              <InventoryPhotoPreview
-                                src={url}
-                                alt=""
-                                size="thumb"
-                                onRemove={() => removeGalleryUrl(url)}
-                              />
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null
-                    }
+                    onError={setError}
                   />
                 </div>
               </InventoryFormSection>
             </div>
 
             <div className="space-y-4">
-              <InventoryFormSection title="Inventario" icon={Package}>
-                <InventoryInventorySection
-                  form={form}
-                  warehouses={warehouses}
-                  onChange={(stockFields) =>
-                    setForm((current) => ({ ...current, ...stockFields }))
-                  }
-                />
-              </InventoryFormSection>
-
               <InventoryFormSection
                 title="Proveedores"
                 icon={Users}

@@ -180,11 +180,11 @@ export function TpvCatalogList({
           className="flex gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           aria-label="Categorías del catálogo"
         >
-          {catalogByCategory.map((group) => {
+          {catalogByCategory.map((group, groupIndex) => {
             const isActive = group.name === selectedCategory;
             return (
               <button
-                key={group.name}
+                key={`${group.name}-${groupIndex}`}
                 type="button"
                 onClick={() => setSelectedCategory(group.name)}
                 aria-current={isActive ? 'true' : undefined}

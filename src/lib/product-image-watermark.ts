@@ -4,11 +4,18 @@ export function shouldWatermarkProductImage(url: string | null | undefined): boo
   if (!url?.trim()) return false;
   if (url.startsWith('data:image/')) return true;
   if (url.startsWith('/products/')) return true;
+  // URLs absolutas (p.ej. Supabase Storage / CDN) que contienen el path esperado.
+  if (url.includes('/products/')) return true;
   return false;
 }
 
-/** Overlay en catálogo solo para vistas previas antes de persistir. */
+export function isProductImageWatermarkEnabled(): boolean {
+  return import.meta.env.VITE_HAISTORE_DISABLE_WATERMARK !== '1';
+}
+
+/** Overlay en vitrina (detalle + catálogo). */
 export function shouldShowProductImageWatermarkOverlay(url: string | null | undefined): boolean {
   if (!url?.trim()) return false;
-  return url.startsWith('data:image/');
+  if (!isProductImageWatermarkEnabled()) return false;
+  return shouldWatermarkProductImage(url);
 }

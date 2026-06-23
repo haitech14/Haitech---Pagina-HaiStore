@@ -1,12 +1,13 @@
-import { Check, Star } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { Star } from 'lucide-react';
 
-import { ProductDetailFeatureBar } from '@/components/product-detail/product-detail-feature-bar';
 import { ProductDetailHeroActions } from '@/components/product-detail/product-detail-hero-actions';
-import { cn } from '@/lib/utils';
-import type { ProductDetailViewModel } from '@/types/product-detail';
-import type { Product } from '@/types/product';
+import { ProductDetailHeroTonerSelector } from '@/components/product-detail/product-detail-hero-toner-selector';
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
+import type { ConfigureTonerCard } from '@/lib/product-configure-toner';
+import { resolveHeroBulletIcon } from '@/lib/product-storefront-detail';
+import { cn } from '@/lib/utils';
+import type { ProductDetailViewModel, ProductHeroSpecBullet } from '@/types/product-detail';
+import type { Product } from '@/types/product';
 
 interface ProductDetailHeroInfoProps {
   product: Product;
@@ -14,7 +15,14 @@ interface ProductDetailHeroInfoProps {
   onCompareClick?: () => void;
   onQuoteClick?: () => void;
   showCompareAction?: boolean;
-  afterPurchaseMode?: ReactNode;
+  tonerCards?: ConfigureTonerCard[];
+  selectedTonerOptionIds?: Set<string>;
+  onTonerToggle?: (card: ConfigureTonerCard) => void;
+}
+
+function isRegaloBullet(bullet: ProductHeroSpecBullet): boolean {
+  const haystack = `${bullet.text ?? ''} ${bullet.label ?? ''}`.toLowerCase();
+  return haystack.includes('regalo');
 }
 
 export function ProductDetailHeroInfo({
@@ -23,18 +31,14 @@ export function ProductDetailHeroInfo({
   onCompareClick,
   onQuoteClick,
   showCompareAction = false,
-  afterPurchaseMode,
+  tonerCards = [],
+  selectedTonerOptionIds,
+  onTonerToggle,
 }: ProductDetailHeroInfoProps) {
   const outOfStock = isProductOutOfStock(product);
   const stockDisplay = outOfStock ? 0 : product.stock;
   const displayRating = Number(detail.rating.toFixed(1));
   const fullStars = Math.min(5, Math.max(0, Math.round(displayRating)));
-  const featureBarItems =
-    detail.featureBar.length > 0
-      ? detail.featureBar
-      : detail.heroHighlights.slice(0, 4);
-  const featureBarColumns = detail.featureBar.length > 0 ? 6 : 4;
-
   const renderSpecBullets = (bullets: typeof detail.heroSpecBullets) => {
     if (bullets.length === 0) return null;
 
@@ -46,12 +50,13 @@ export function ProductDetailHeroInfo({
             bullet.label ??
             bullet.text ??
             'spec';
+          const IconComponent = resolveHeroBulletIcon(bullet);
           if (bullet.parts?.length) {
             return (
               <li key={key} className="flex items-start gap-2">
-                <Check
+                <IconComponent
                   className="mt-0.5 size-4 shrink-0 text-red-600"
-                  strokeWidth={2.5}
+                  strokeWidth={2}
                   aria-hidden="true"
                 />
                 <span className="flex flex-col gap-1">
@@ -67,9 +72,9 @@ export function ProductDetailHeroInfo({
           if (bullet.label && bullet.value) {
             return (
               <li key={key} className="flex items-start gap-2">
-                <Check
+                <IconComponent
                   className="mt-0.5 size-4 shrink-0 text-red-600"
-                  strokeWidth={2.5}
+                  strokeWidth={2}
                   aria-hidden="true"
                 />
                 <span>
@@ -78,7 +83,6 @@ export function ProductDetailHeroInfo({
               </li>
             );
           }
-          const IconComponent = bullet.icon ?? Check;
           return (
             <li key={key} className="flex items-start gap-2">
               <IconComponent
@@ -148,18 +152,30 @@ export function ProductDetailHeroInfo({
         </p>
       </div>
 
-      {featureBarItems.length > 0 ? (
-        <ProductDetailFeatureBar
-          items={featureBarItems}
-          columns={featureBarColumns}
-          variant="compact"
-          className="mt-2.5"
-        />
-      ) : null}
+      {(() => {
+        const regaloIndex = detail.heroSpecBullets.findIndex(isRegaloBullet);
+        const bulletsBefore =
+          regaloIndex >= 0
+            ? detail.heroSpecBullets.slice(0, regaloIndex + 1)
+            : detail.heroSpecBullets;
+        const bulletsAfter = regaloIndex >= 0 ? detail.heroSpecBullets.slice(regaloIndex + 1) : [];
+        const showTonerSelector =
+          tonerCards.length > 0 && selectedTonerOptionIds != null && onTonerToggle != null;
 
-      {renderSpecBullets(detail.heroSpecBullets)}
-
-      {afterPurchaseMode}
+        return (
+          <>
+            {renderSpecBullets(bulletsBefore)}
+            {showTonerSelector ? (
+              <ProductDetailHeroTonerSelector
+                cards={tonerCards}
+                selectedOptionIds={selectedTonerOptionIds}
+                onToggle={onTonerToggle}
+              />
+            ) : null}
+            {renderSpecBullets(bulletsAfter)}
+          </>
+        );
+      })()}
 
       {detail.heroLead ? (
         <p className="mt-3 text-sm font-semibold leading-snug text-[#0f1f3d] sm:text-base">
@@ -175,6 +191,8 @@ export function ProductDetailHeroInfo({
 
       <ProductDetailHeroActions
         technicalSheetUrl={detail.technicalSheetUrl}
+        technicalSheetFileName={detail.technicalSheetFileName}
+        technicalSheetMimeType={detail.technicalSheetMimeType}
         {...(showCompareAction && onCompareClick ? { onCompareClick } : {})}
         {...(onQuoteClick ? { onQuoteClick } : {})}
         className="mt-4"

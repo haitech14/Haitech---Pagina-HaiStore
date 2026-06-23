@@ -11,7 +11,7 @@ export { PRODUCT_ATTACHMENT_KINDS };
 export const PRODUCT_ATTACHMENT_LABELS: Record<ProductAttachmentKind, string> = {
   technical_sheet: 'Ficha técnica',
   manual: 'Manual de usuario',
-  printer_driver: 'Driver impresora',
+  printer_driver: 'Driver',
   firmware: 'Firmware',
   brochure: 'Brochure',
   other: 'Otro',
@@ -81,7 +81,29 @@ export function findAttachmentByKind(
 export function findTechnicalSheetAttachment(
   product: { attachments?: ProductAttachment[] | null },
 ): ProductAttachment | undefined {
-  return product.attachments?.find((attachment) => attachment.kind === 'technical_sheet');
+  return findAttachmentByKind(product, 'technical_sheet');
+}
+
+export function isPdfAttachment(
+  url: string,
+  mimeType?: string | null,
+  fileName?: string | null,
+): boolean {
+  if (mimeType?.toLowerCase().includes('pdf')) return true;
+  if (fileName?.toLowerCase().endsWith('.pdf')) return true;
+  if (url.toLowerCase().startsWith('data:application/pdf')) return true;
+  return false;
+}
+
+export function downloadProductAttachment(url: string, fileName: string): void {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = fileName;
+  anchor.target = '_blank';
+  anchor.rel = 'noopener noreferrer';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
 }
 
 export function publicProductAttachments(

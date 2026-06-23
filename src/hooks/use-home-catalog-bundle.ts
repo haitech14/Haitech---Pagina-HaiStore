@@ -10,7 +10,7 @@ import {
   type HomeCatalogBundleResponse,
 } from '@/lib/home-catalog-bundle';
 import type { FeaturedProduct } from '@/data/featured-products';
-import { applyViewAsPriceToProducts } from '@/lib/view-as-role';
+import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import { ensureFullPrices } from '@/lib/roles';
 import {
   getConditionsForCatalogFamily,
@@ -99,10 +99,10 @@ function applyViewAsToBundle(
 }
 
 export function useHomeCatalogBundle() {
-  const { role, viewAsRole, effectiveRole } = useAuth();
+  const { role, viewAsRoles, effectiveRole } = useAuth();
 
   return useQuery({
-    queryKey: [HOME_CATALOG_BUNDLE_QUERY_KEY, role, viewAsRole],
+    queryKey: [HOME_CATALOG_BUNDLE_QUERY_KEY, role, viewAsRolesQueryKey(viewAsRoles)],
     queryFn: fetchHomeCatalogBundle,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
@@ -112,7 +112,7 @@ export function useHomeCatalogBundle() {
     placeholderData: (previous) =>
       previous ?? readStoredHomeCatalogBundle() ?? undefined,
     initialData: () => {
-      if (role !== 'public' || viewAsRole) return undefined;
+      if (role !== 'public' || viewAsRoles.length > 0) return undefined;
       return readStoredHomeCatalogBundle();
     },
     initialDataUpdatedAt: () => {
@@ -121,7 +121,9 @@ export function useHomeCatalogBundle() {
     },
     select: (payload) => {
       const normalized = normalizeBundle(payload);
-      return viewAsRole ? applyViewAsToBundle(normalized, effectiveRole) : normalized;
+      return shouldApplyViewAsPriceTransform(viewAsRoles)
+        ? applyViewAsToBundle(normalized, effectiveRole)
+        : normalized;
     },
   });
 }

@@ -50,7 +50,7 @@ export function seedProductQueryCache(
   queryClient: QueryClient,
   product: Product,
   role: string,
-  viewAsRole: string | null,
+  viewAsRoles: readonly string[],
 ): void {
-  queryClient.setQueryData(['product', product.id, role, viewAsRole], product);
+  queryClient.setQueryData(['product', product.id, role, [...viewAsRoles].sort().join(',')], product);
 }

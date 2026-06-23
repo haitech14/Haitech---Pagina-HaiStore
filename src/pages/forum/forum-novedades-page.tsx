@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import { ForumDiscussionRow } from '@/components/forum/forum-discussion-row';
 import { usePinnedForumThreads } from '@/hooks/use-forum';
 
@@ -8,7 +9,7 @@ export function ForumNovedadesPage() {
   const { data: threads = [], isLoading } = usePinnedForumThreads();
 
   useEffect(() => {
-    document.title = 'Novedades | Foro HaiStore';
+    document.title = `Novedades | ${FORUM_TITLE_SUFFIX}`;
   }, []);
 
   return (

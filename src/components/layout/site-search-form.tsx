@@ -77,8 +77,8 @@ function SearchProductSuggestionRow({
   onMouseEnter,
   onNavigateProduct,
 }: SearchProductSuggestionRowProps) {
-  const { isAdmin, viewAsRole } = useAuth();
-  const showAdminPrices = isAdmin && !viewAsRole;
+  const { isAdmin, viewAsRoles } = useAuth();
+  const showAdminPrices = isAdmin && viewAsRoles.length === 0;
   const outOfStock = isProductOutOfStock(product);
   const code = formatProductDisplayCode(product.code, {
     brand: product.brand,
@@ -194,7 +194,7 @@ export function SiteSearchForm({
 }: SiteSearchFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { role, viewAsRole } = useAuth();
+  const { role, viewAsRoles } = useAuth();
   const fieldId = useId();
   const categoryFieldId = `${fieldId}-category`;
   const inputFieldId = `${fieldId}-query`;
@@ -331,7 +331,7 @@ export function SiteSearchForm({
   };
 
   const goToProduct = (product: Product) => {
-    seedProductQueryCache(queryClient, product, role, viewAsRole);
+    seedProductQueryCache(queryClient, product, role, viewAsRoles);
     goToPath(`/tienda/producto/${product.id}`);
   };
 
@@ -587,14 +587,14 @@ export function SiteSearchForm({
                             </SuggestionSectionHeading>
                           </li>
                           <li role="presentation">
-                            <ul className="grid grid-cols-1 gap-0 sm:grid-cols-2">
+                            <ul className="grid grid-cols-1 gap-0">
                               {group.products.map(({ product, suggestionIndex }) => {
                                 const isActive = suggestionIndex === activeIndex;
                                 return (
                                   <li
                                     key={product.id}
                                     role="presentation"
-                                    className="min-w-0 odd:sm:border-r odd:sm:border-border/40"
+                                    className="min-w-0"
                                   >
                                     <SearchProductSuggestionRow
                                       product={product}

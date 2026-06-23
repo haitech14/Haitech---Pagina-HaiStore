@@ -104,6 +104,7 @@ export interface CreateStoreOrderPayload {
     quantity: number;
     unitPriceUsd: number;
     imageUrl?: string | null;
+    category?: string | null;
   }>;
   currency?: 'USD' | 'PEN';
   paymentMethod?: string | null;
@@ -111,4 +112,5 @@ export interface CreateStoreOrderPayload {
   status?: string;
   notes?: string | null;
   exchangeRate?: number;
+  couponCode?: string | null;
 }

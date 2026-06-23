@@ -14,7 +14,6 @@ import { ProductDetailConsumables } from '@/components/product-detail/product-de
 import { ProductDetailConsumablesStrip } from '@/components/product-detail/product-detail-consumables-strip';
 import { ProductDetailDescription } from '@/components/product-detail/product-detail-description';
 import { ProductDetailDescriptionPanel } from '@/components/product-detail/product-detail-description-panel';
-import { ProductDetailDescriptionVisual } from '@/components/product-detail/product-detail-description-visual';
 import { ProductDetailOptionalProducts, type PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
 import { ProductDetailConfigureEquipment } from '@/components/product-detail/product-detail-configure-equipment';
 import type { EquipmentRentalEstimate } from '@/components/product-detail/product-detail-rental-configurator';
@@ -33,10 +32,17 @@ import {
   resolveEquipmentConfigSteps,
 } from '@/lib/equipment-config-catalog';
 import {
+  mergeConsumableTonerOptions,
+  resolveConfigureTonerCards,
+  type ConfigureTonerCard,
+} from '@/lib/product-configure-toner';
+import {
   buildInitialEquipmentSelection,
   computeEquipmentExtrasPen,
   resolveSelectedEquipmentOptions,
+  selectHeroTonerCard,
 } from '@/lib/equipment-config-selection';
+import { resolveIncludedTonerImage } from '@/lib/product-configure-accessory';
 import { resolveFrequentlyBoughtItems } from '@/lib/product-compatible-toners';
 import { resolveEquipmentComparison } from '@/lib/product-equipment-comparison';
 import {
@@ -162,19 +168,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     detail.descriptionContent?.paragraphs.join(' ') ??
     detail.bullets.slice(0, 2).join(' ');
 
-  const equipmentSteps = useMemo(
-    () => resolveEquipmentConfigSteps(detail.equipmentConfigSteps, catalogProducts, product),
-    [detail.equipmentConfigSteps, catalogProducts, product],
-  );
-
-  const comparison = useMemo(
-    () =>
-      detail.isPrinterEquipment
-        ? resolveEquipmentComparison(product, catalogProducts, detail.specs)
-        : null,
-    [detail.isPrinterEquipment, product, catalogProducts, detail.specs],
-  );
-
   const consumableGroups = useMemo(
     () =>
       catalogProducts.length > 0
@@ -183,6 +176,23 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
           ? consumableGroupsFromApi
           : resolveEquipmentConsumables(product, catalogProducts),
     [catalogProducts, product, consumableGroupsFromApi],
+  );
+
+  const equipmentSteps = useMemo(
+    () =>
+      mergeConsumableTonerOptions(
+        resolveEquipmentConfigSteps(detail.equipmentConfigSteps, catalogProducts, product),
+        consumableGroups,
+      ),
+    [detail.equipmentConfigSteps, catalogProducts, product, consumableGroups],
+  );
+
+  const comparison = useMemo(
+    () =>
+      detail.isPrinterEquipment
+        ? resolveEquipmentComparison(product, catalogProducts, detail.specs)
+        : null,
+    [detail.isPrinterEquipment, product, catalogProducts, detail.specs],
   );
 
   const showConsumablesTab = detail.isPrinterEquipment;
@@ -246,6 +256,37 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [equipmentSteps, equipmentSelection],
   );
 
+  const tonerStep = useMemo(
+    () => equipmentSteps.find((step) => step.id === 'toner'),
+    [equipmentSteps],
+  );
+
+  const includedToner = useMemo(
+    () => tonerStep?.options.find((option) => option.included) ?? tonerStep?.options[0] ?? null,
+    [tonerStep],
+  );
+
+  const purchasableTonerCards = useMemo(
+    () =>
+      resolveConfigureTonerCards(
+        tonerStep,
+        consumableGroups,
+        resolveIncludedTonerImage(includedToner?.image),
+        catalogProducts,
+      ),
+    [catalogProducts, consumableGroups, includedToner?.image, tonerStep],
+  );
+
+  const handleHeroTonerToggle = useCallback(
+    (card: ConfigureTonerCard) => {
+      if (!tonerStep) return;
+      setEquipmentSelection((current) =>
+        selectHeroTonerCard(current, tonerStep, card.optionId),
+      );
+    },
+    [tonerStep],
+  );
+
   const equipmentConfiguration = useMemo<CartConfigurationLine | undefined>(() => {
     if (selectedEquipmentOptions.length === 0) return undefined;
     return {
@@ -261,6 +302,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     detail.isPrinterEquipment &&
     (maintenancePlans.length > 0 ||
       equipmentSteps.some((step) => step.id === 'toner') ||
+      equipmentSteps.some((step) =>
+        step.options.some((option) =>
+          ['casetera-250', 'casetera-500', 'gabinete', 'estabilizador-2000w', 'router-wifi', 'garantia-2y'].includes(
+            option.id,
+          ),
+        ),
+      ) ||
       frequentlyBought.length > 0);
 
   const handlePurchaseModeChange = useCallback((mode: PurchaseMode) => {
@@ -295,6 +343,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
       onEquipmentSelectionChange={setEquipmentSelection}
       frequentlyBought={frequentlyBought}
       catalogProducts={catalogProducts}
+      consumableGroups={consumableGroups}
       purchaseMode={purchaseMode}
       onPurchaseModeChange={handlePurchaseModeChange}
       onRentalEstimateChange={setRentalEstimate}
@@ -319,6 +368,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               showOriginalBadge={showOriginalBadge}
               brandLabel={detail.brandLabel}
             />
+            {configureEquipmentSection}
           </div>
 
           <ProductDetailHeroInfo
@@ -327,7 +377,9 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
             showCompareAction={comparison != null}
             onCompareClick={scrollToComparison}
             onQuoteClick={() => setQuoteOpen(true)}
-            afterPurchaseMode={configureEquipmentSection}
+            tonerCards={purchasableTonerCards}
+            selectedTonerOptionIds={equipmentSelection.toner ?? new Set<string>()}
+            onTonerToggle={handleHeroTonerToggle}
           />
 
           <div className="hidden lg:block">
@@ -415,15 +467,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   <ProductDetailDescription
                     content={detail.descriptionContent}
                     omitPanelSummary
-                    afterBody={
-                      detail.descriptionVisual ? (
-                        <ProductDetailDescriptionVisual
-                          visual={detail.descriptionVisual}
-                          variant="bar"
-                          className="mt-2"
-                        />
-                      ) : null
-                    }
                   />
 
 

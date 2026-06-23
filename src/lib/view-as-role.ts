@@ -12,11 +12,11 @@ export const VIEW_AS_ROLE_OPTIONS: readonly { value: UserRole; label: string }[]
 ];
 
 export function applyViewAsPriceToProduct(product: Product, viewRole: string): Product {
-  if (!product.prices) return product;
-  const prices = ensureFullPrices(product.prices);
+  const prices = ensureFullPrices(product.prices ?? { public: product.price });
   const priceRole = resolvePriceRole(viewRole);
   return {
     ...product,
+    prices,
     price: prices[priceRole] ?? product.price,
     price_role: priceRole,
   };
@@ -24,4 +24,17 @@ export function applyViewAsPriceToProduct(product: Product, viewRole: string): P
 
 export function applyViewAsPriceToProducts(products: Product[], viewRole: string): Product[] {
   return products.map((product) => applyViewAsPriceToProduct(product, viewRole));
+}
+
+export function isPreviewingAsRoles(roles: readonly UserRole[]): boolean {
+  return roles.length > 0;
+}
+
+/** Solo transforma el producto cuando hay un único rol de vista previa. */
+export function shouldApplyViewAsPriceTransform(roles: readonly UserRole[]): boolean {
+  return roles.length === 1;
+}
+
+export function viewAsRolesQueryKey(roles: readonly UserRole[]): string {
+  return [...roles].sort().join(',');
 }

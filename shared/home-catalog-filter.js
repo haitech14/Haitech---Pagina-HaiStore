@@ -2,8 +2,10 @@
 
 import {
   productQualifiesAsNuevaEquipment,
+  productQualifiesAsRemanufacturadaEquipment,
   productQualifiesAsSeminuevaEquipment,
 } from './inventory-product-name.js';
+import { isHomeCarouselExcludedProduct } from './home-excluded-products.js';
 
 export const PRODUCT_CONDITIONS = ['originales', 'compatibles', 'remanufacturados', 'partes'];
 
@@ -245,6 +247,18 @@ function productMatchesEquipmentCondition(product, condition) {
   if (/\bseminueva\b/i.test(name)) {
     return condition === 'compatibles';
   }
+  if (/\bremanufacturad/i.test(name)) {
+    return condition === 'remanufacturados';
+  }
+  if (productQualifiesAsNuevaEquipment(product)) {
+    return condition === 'originales';
+  }
+  if (productQualifiesAsRemanufacturadaEquipment(product)) {
+    return condition === 'remanufacturados';
+  }
+  if (productQualifiesAsSeminuevaEquipment(product)) {
+    return condition === 'compatibles';
+  }
 
   const categoryHint =
     product.category != null ? inferProductConditionFromText(product.category) : null;
@@ -252,15 +266,12 @@ function productMatchesEquipmentCondition(product, condition) {
 
   const haystack = productHaystack(product);
 
-  if (condition === 'remanufacturados') return hasRemanufactured(haystack);
+  if (condition === 'remanufacturados') return false;
   if (condition === 'compatibles') {
-    return (
-      productQualifiesAsSeminuevaEquipment(product) ||
-      (hasCompatible(haystack) && !hasRemanufactured(haystack))
-    );
+    return hasCompatible(haystack) && !hasRemanufactured(haystack);
   }
   if (condition === 'originales') {
-    return productQualifiesAsNuevaEquipment(product);
+    return hasOriginal(haystack);
   }
   return false;
 }
@@ -333,6 +344,7 @@ export function filterStoreProductsForHomeSection(
 ) {
   return [...products]
     .filter((product) => {
+      if (isHomeCarouselExcludedProduct(product)) return false;
       if (family === 'repuestos' && isPrinterEquipmentProduct(product)) {
         return false;
       }

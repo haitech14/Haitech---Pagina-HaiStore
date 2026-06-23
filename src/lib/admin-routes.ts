@@ -13,6 +13,7 @@ export const ADMIN_ROUTES = {
   CRM_MURAL: '/admin/crm/mural',
   CRM_CLIENTES: '/admin/crm/clientes',
   MARKETING: '/admin/marketing',
+  MARKETING_COUPONS: '/admin/marketing/cupones',
   REPORTS: '/admin/reportes',
   SETTINGS: '/admin/configuracion',
   SETTINGS_GENERAL: '/admin/configuracion/general',

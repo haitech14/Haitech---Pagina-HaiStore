@@ -94,6 +94,27 @@ function extractModelTokens(compactText) {
   return matches.map((token) => token.toLowerCase());
 }
 
+/** Evita que «305» coincida con «3050» (p. ej. RTX 3050). */
+function numericTermMatchesModelToken(term, token) {
+  if (!term || !token || !/^\d+$/.test(term)) return false;
+  if (token === term) return true;
+
+  if (token.startsWith(term)) {
+    const next = token.charAt(term.length);
+    return !next || !/\d/.test(next);
+  }
+
+  if (term.startsWith(token) && token.length >= 3) return true;
+
+  const idx = token.indexOf(term);
+  if (idx === -1) return false;
+  const before = idx > 0 ? token.charAt(idx - 1) : '';
+  const after = token.charAt(idx + term.length);
+  if (before && /\d/.test(before)) return false;
+  if (after && /\d/.test(after)) return false;
+  return true;
+}
+
 function termMatchesHaystack(
   term,
   haystack,
@@ -102,11 +123,20 @@ function termMatchesHaystack(
   { allowFuzzy = true } = {},
 ) {
   if (!term) return true;
-  if (haystack.includes(term) || haystackCompact.includes(term)) return true;
+
+  const isNumericTerm = /^\d+$/.test(term);
+
+  if (!isNumericTerm && (haystack.includes(term) || haystackCompact.includes(term))) {
+    return true;
+  }
 
   if (/\d/.test(term)) {
     const tokens = modelTokens ?? extractModelTokens(haystackCompact);
     for (const token of tokens) {
+      if (isNumericTerm) {
+        if (numericTermMatchesModelToken(term, token)) return true;
+        continue;
+      }
       if (token.includes(term) || term.includes(token)) {
         if (Math.min(token.length, term.length) >= 3) return true;
       }
@@ -114,6 +144,10 @@ function termMatchesHaystack(
         if (Math.min(token.length, term.length) >= 3) return true;
       }
     }
+  }
+
+  if (!isNumericTerm && (haystack.includes(term) || haystackCompact.includes(term))) {
+    return true;
   }
 
   if (!allowFuzzy) return false;
@@ -136,6 +170,14 @@ function getNamePrimarySegment(name) {
   return normalized.slice(0, cut).trim();
 }
 
+function isNumericModelSearchQuery(query) {
+  const compact = compactSearchText(query);
+  const terms = searchTerms(query);
+  if (/^\d{2,}[a-z0-9]*$/i.test(compact)) return true;
+  if (terms.length === 1 && /^\d{2,}[a-z0-9]*$/i.test(terms[0])) return true;
+  return false;
+}
+
 function looksLikeEquipmentModelSearch(query) {
   const normalized = normalizeCatalogSearchText(query);
   const compact = compactSearchText(query);
@@ -147,7 +189,27 @@ function looksLikeEquipmentModelSearch(query) {
     terms.some((term) => /\d/.test(term)) ||
     EQUIPMENT_MODEL_PATTERN.test(query) ||
     /\d{2,}[a-z]?/.test(compact);
-  return (hasBrand && hasModelToken) || EQUIPMENT_MODEL_PATTERN.test(normalized);
+  return (
+    (hasBrand && hasModelToken) ||
+    EQUIPMENT_MODEL_PATTERN.test(normalized) ||
+    isNumericModelSearchQuery(query)
+  );
+}
+
+function isUnrelatedCategoryForPrinterModelSearch(product) {
+  const haystack = normalizeCatalogSearchText(
+    `${product.category ?? ''} ${product.name ?? ''} ${product.brand ?? ''}`,
+  );
+  return /computadora|laptop|notebook|\bnb\b|vga|tarjeta de video|rtx|gamer|tarjeta grafica|grafica/.test(
+    haystack,
+  );
+}
+
+function productHasNumericModelTokenMatch(product, compactQuery) {
+  if (!/^\d+$/.test(compactQuery)) return false;
+  const nameCompact = compactSearchText(product.name ?? '');
+  const tokens = extractModelTokens(nameCompact);
+  return tokens.some((token) => numericTermMatchesModelToken(compactQuery, token));
 }
 
 function isConsumableOrPartProduct(product) {
@@ -180,6 +242,7 @@ export function scoreProductSearchRelevance(product, query) {
   if (terms.length === 0 || compactQuery.length < 3) return 0;
 
   const equipmentIntent = looksLikeEquipmentModelSearch(query);
+  const numericModelSearch = isNumericModelSearchQuery(query);
 
   const name = normalizeCatalogSearchText(product.name ?? '');
   const primaryName = getNamePrimarySegment(product.name ?? '');
@@ -220,15 +283,28 @@ export function scoreProductSearchRelevance(product, query) {
   }
 
   if (category.includes('multifuncional') || category.includes('impresora')) {
-    score += 6_000;
+    score += equipmentIntent ? 10_000 : 6_000;
   }
 
   if (category.includes('multifuncionales nuevas') || category.includes('impresoras laser nuevas')) {
     score += equipmentIntent ? 12_000 : 4_000;
   }
 
+  if (numericModelSearch && isPrinterEquipmentProduct(product)) {
+    if (productHasNumericModelTokenMatch(product, compactQuery)) {
+      score += 55_000;
+    }
+    if (primaryCompact.includes(compactQuery) || nameCompact.includes(compactQuery)) {
+      score += 20_000;
+    }
+  }
+
   if (equipmentIntent && isConsumableOrPartProduct(product)) {
-    score -= 28_000;
+    score -= numericModelSearch ? 45_000 : 28_000;
+  }
+
+  if (numericModelSearch && isUnrelatedCategoryForPrinterModelSearch(product)) {
+    score -= 90_000;
   }
 
   const termsOnlyAfterSeparator =
@@ -279,7 +355,28 @@ export function compareProductSearchRelevance(a, b, query) {
   return (a.name ?? '').localeCompare(b.name ?? '', 'es');
 }
 
-export function sortProductsBySearchRelevance(products, query) {
+function partitionSearchResultsByEquipmentIntent(products, query) {
+  if (!looksLikeEquipmentModelSearch(query)) return null;
+
+  const equipment = [];
+  const rest = [];
+  for (const product of products) {
+    if (isPrinterEquipmentProduct(product)) {
+      equipment.push(product);
+    } else {
+      rest.push(product);
+    }
+  }
+
+  if (equipment.length === 0) return null;
+
+  return {
+    equipment: sortScoredProductsByRelevance(equipment, query),
+    rest: sortScoredProductsByRelevance(rest, query),
+  };
+}
+
+function sortScoredProductsByRelevance(products, query) {
   if (products.length <= 1) return [...products];
 
   const scored = products.map((product) => ({
@@ -295,24 +392,19 @@ export function sortProductsBySearchRelevance(products, query) {
   return scored.map((entry) => entry.product);
 }
 
+export function sortProductsBySearchRelevance(products, query) {
+  const partitioned = partitionSearchResultsByEquipmentIntent(products, query);
+  if (partitioned) {
+    return [...partitioned.equipment, ...partitioned.rest];
+  }
+  return sortScoredProductsByRelevance(products, query);
+}
+
 /** Devuelve los mejores `limit` resultados sin ordenar el resto del array. */
 export function takeTopProductsBySearchRelevance(products, query, limit) {
   const safeLimit = Math.max(Number(limit) || 1, 1);
-  if (products.length <= safeLimit) {
-    return sortProductsBySearchRelevance(products, query);
-  }
-
-  const scored = products.map((product) => ({
-    product,
-    score: scoreProductSearchRelevance(product, query),
-  }));
-
-  scored.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return (a.product.name ?? '').localeCompare(b.product.name ?? '', 'es');
-  });
-
-  return scored.slice(0, safeLimit).map((entry) => entry.product);
+  const sorted = sortProductsBySearchRelevance(products, query);
+  return sorted.slice(0, safeLimit);
 }
 
 export function productMatchesSearchQuery(product, query) {
@@ -325,7 +417,11 @@ export function productMatchesSearchQuery(product, query) {
 
   const { haystack, haystackCompact, modelTokens } = resolveProductHaystackFields(product);
 
-  if (haystack.includes(normalizedQuery) || haystackCompact.includes(compactQuery)) {
+  const hasNumericOnlyTerms = terms.length > 0 && terms.every((term) => /^\d+$/.test(term));
+  if (
+    !hasNumericOnlyTerms &&
+    (haystack.includes(normalizedQuery) || haystackCompact.includes(compactQuery))
+  ) {
     return true;
   }
 

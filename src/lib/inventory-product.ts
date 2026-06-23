@@ -4,6 +4,8 @@ import { normalizeAttributes } from '@/lib/inventory-attributes';
 import { sanitizeStoredProductMedia } from '@/lib/product-media-sanitize';
 import {
   isImageMediaUrl,
+  isVideoMediaUrl,
+  isYoutubeMediaUrl,
   normalizeYoutubeMediaUrl,
 } from '@/lib/product-media';
 import { normalizeAttachments } from '@/lib/inventory-attachments';
@@ -292,6 +294,34 @@ export function getProductMediaUrls(product: InventoryProduct): string[] {
     urls.push(url);
   }
   return urls;
+}
+
+export function getProductVideoUrl(product: InventoryProduct): string | null {
+  return getProductMediaUrls(product).find((url) => isVideoMediaUrl(url) || isYoutubeMediaUrl(url)) ?? null;
+}
+
+function stripVideoUrlsFromProduct(
+  product: InventoryProduct,
+): Pick<InventoryProduct, 'image_url' | 'gallery'> {
+  const { image_url, gallery } = normalizeProductGalleryFields(product.image_url, product.gallery);
+  const nextGallery = gallery.filter((url) => !isVideoMediaUrl(url) && !isYoutubeMediaUrl(url));
+  const nextMain =
+    image_url && (isVideoMediaUrl(image_url) || isYoutubeMediaUrl(image_url))
+      ? (nextGallery.find((url) => isImageMediaUrl(url)) ?? null)
+      : image_url;
+
+  return normalizeProductGalleryFields(nextMain, nextGallery);
+}
+
+export function setProductVideoUrl(
+  product: InventoryProduct,
+  videoUrl: string | null,
+): Pick<InventoryProduct, 'image_url' | 'gallery'> {
+  const cleared = stripVideoUrlsFromProduct(product);
+  if (!videoUrl?.trim()) {
+    return cleared;
+  }
+  return appendGalleryUrlsToProduct({ ...product, ...cleared }, [videoUrl.trim()]);
 }
 
 /** Lee y comprime una imagen para uso web en inventario (~1200px, WebP). */

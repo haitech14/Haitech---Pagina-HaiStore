@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { ForumDiscussionsPanel } from '@/components/forum/forum-discussions-panel';
+import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import { useForumCategories, useForumThreads } from '@/hooks/use-forum';
 import type { ForumSortValue } from '@/types/forum';
 
@@ -18,8 +19,8 @@ export function ForumCategoryPage() {
 
   useEffect(() => {
     document.title = category
-      ? `${category.name} | Foro HaiStore`
-      : 'Categoría | Foro HaiStore';
+      ? `${category.name} | ${FORUM_TITLE_SUFFIX}`
+      : `Categoría | ${FORUM_TITLE_SUFFIX}`;
   }, [category]);
 
   return (

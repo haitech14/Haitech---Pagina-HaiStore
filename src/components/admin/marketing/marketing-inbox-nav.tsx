@@ -1,16 +1,19 @@
 import { useState, type Dispatch, type SetStateAction } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ChevronDown,
   ChevronRight,
   Inbox,
   Radio,
   Settings,
+  Tag,
   Tags,
   Users,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { MARKETING_INBOX_NAV } from '@/data/marketing-inbox-mock';
+import { ADMIN_ROUTES } from '@/lib/admin-routes';
 import { cn } from '@/lib/utils';
 import type { MarketingNavIcon, MarketingNavItem } from '@/types/marketing-inbox';
 
@@ -56,7 +59,17 @@ export function MarketingInboxNav({
           />
         ))}
       </div>
-      <div className="border-t border-border p-2">
+      <div className="space-y-1 border-t border-border p-2">
+        <Button
+          asChild
+          variant="ghost"
+          className="h-9 w-full justify-start gap-2 px-2 text-sm font-medium"
+        >
+          <Link to={ADMIN_ROUTES.MARKETING_COUPONS}>
+            <Tag className="size-4 shrink-0" aria-hidden="true" />
+            Cupones
+          </Link>
+        </Button>
         <Button
           type="button"
           variant="ghost"

@@ -12,6 +12,7 @@ import {
   type QuotePdfPreview,
 } from '@/components/product-detail/product-quote-pdf-viewer';
 import type { PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
+import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { useCart } from '@/context/cart-context';
 import {
   selectEquipmentOption,
@@ -28,9 +29,18 @@ import {
   resolveRecommendedConfigureAccessory,
   type ConfigureAccessoryItem,
 } from '@/lib/product-configure-accessory';
+import {
+  resolveConfigureEquipmentCards,
+  type ConfigureEquipmentCard,
+} from '@/lib/product-configure-equipment-cards';
+import {
+  resolveConfigureTonerCards,
+  type ConfigureTonerCard,
+} from '@/lib/product-configure-toner';
 import { ensureFullPrices } from '@/lib/roles';
 import { isColorPrinterEquipment } from '@/lib/build-product-detail';
 import { cn } from '@/lib/utils';
+import type { ConsumableGroup } from '@/lib/product-equipment-consumables';
 import type { EquipmentConfigStep, ProductComboItem, ProductDetailViewModel, RentalPlanOption } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
@@ -43,6 +53,7 @@ interface ProductDetailConfigureEquipmentProps {
   onEquipmentSelectionChange: (selection: EquipmentSelectionState) => void;
   frequentlyBought: ProductComboItem[];
   catalogProducts: Product[];
+  consumableGroups: ConsumableGroup[];
   onPurchaseModeChange: (mode: PurchaseMode) => void;
   purchaseMode: PurchaseMode;
   onRentalEstimateChange?: (estimate: EquipmentRentalEstimate) => void;
@@ -94,39 +105,124 @@ function MaintenancePlanCard({
   );
 }
 
-function TonerCard({
-  title,
-  name,
-  description,
-  image,
+function SelectableTonerCard({
+  card,
+  selected,
+  onToggle,
 }: {
-  title: string;
-  name: string;
-  description?: string;
-  image: string;
+  card: ConfigureTonerCard;
+  selected: boolean;
+  onToggle: () => void;
 }) {
   return (
-    <article className={cn(cardClass, 'items-center text-center')}>
-      <h3 className="w-full text-xs font-bold text-[#0f1f3d] sm:text-sm">{title}</h3>
+    <article
+      className={cn(
+        cardClass,
+        selected && 'border-red-600 ring-1 ring-red-600/30',
+      )}
+    >
+      <h3 className="text-xs font-bold text-[#0f1f3d] sm:text-sm">{card.title}</h3>
 
-      <div className="my-2 flex flex-1 items-center justify-center">
-        <img
-          src={image}
-          alt=""
-          loading="lazy"
-          className="max-h-14 w-auto max-w-full object-contain sm:max-h-16"
-        />
+      <div className="mt-2 flex flex-1 gap-2.5">
+        <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted/20 sm:size-14">
+          <ProductCardHoverImage
+            candidates={card.imageCandidates}
+            alt=""
+            className="size-full"
+            imageClassName="size-full object-contain p-0.5"
+          />
+        </div>
+
+        <div className="min-w-0 flex-1 text-left">
+          <p className="line-clamp-2 text-pretty text-[0.6875rem] font-bold leading-snug text-[#0f1f3d] sm:text-xs">
+            {card.name}
+          </p>
+          <p className="mt-0.5 text-sm font-bold text-red-600 sm:text-base">
+            S/ {formatPenAmount(card.pricePen)}
+          </p>
+          <p className="mt-0.5 line-clamp-2 text-[0.625rem] leading-snug text-muted-foreground sm:text-[0.6875rem]">
+            {card.description}
+          </p>
+        </div>
       </div>
 
-      <p className="line-clamp-2 text-pretty text-[0.6875rem] font-bold leading-snug text-[#0f1f3d] sm:text-xs">
-        {name}
-      </p>
+      <button
+        type="button"
+        aria-pressed={selected}
+        className={cn(
+          cardButtonClass,
+          selected
+            ? 'border-red-600 bg-red-50 text-red-700 hover:bg-red-100'
+            : 'inline-flex items-center justify-center gap-1',
+        )}
+        onClick={onToggle}
+      >
+        {selected ? 'Quitar del total' : 'Agregar al total'}
+        {!selected ? (
+          <Plus className="size-3.5 shrink-0 sm:size-4" strokeWidth={2.5} aria-hidden="true" />
+        ) : null}
+      </button>
+    </article>
+  );
+}
 
-      {description ? (
-        <p className="mt-1.5 line-clamp-2 text-[0.625rem] leading-snug text-muted-foreground sm:text-[0.6875rem]">
-          {description}
-        </p>
-      ) : null}
+function SelectableEquipmentCard({
+  card,
+  selected,
+  onToggle,
+}: {
+  card: ConfigureEquipmentCard;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <article
+      className={cn(
+        cardClass,
+        selected && 'border-red-600 ring-1 ring-red-600/30',
+      )}
+    >
+      <h3 className="text-xs font-bold text-[#0f1f3d] sm:text-sm">{card.title}</h3>
+
+      <div className="mt-2 flex flex-1 gap-2.5">
+        <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted/20 sm:size-14">
+          <img
+            src={card.image}
+            alt=""
+            loading="lazy"
+            className="size-full object-contain p-0.5"
+          />
+        </div>
+
+        <div className="min-w-0 flex-1 text-left">
+          <p className="line-clamp-2 text-pretty text-[0.6875rem] font-bold leading-snug text-[#0f1f3d] sm:text-xs">
+            {card.name}
+          </p>
+          <p className="mt-0.5 text-sm font-bold text-red-600 sm:text-base">
+            S/ {formatPenAmount(card.pricePen)}
+          </p>
+          <p className="mt-0.5 line-clamp-2 text-[0.625rem] leading-snug text-muted-foreground sm:text-[0.6875rem]">
+            {card.description}
+          </p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        aria-pressed={selected}
+        className={cn(
+          cardButtonClass,
+          selected
+            ? 'border-red-600 bg-red-50 text-red-700 hover:bg-red-100'
+            : 'inline-flex items-center justify-center gap-1',
+        )}
+        onClick={onToggle}
+      >
+        {selected ? 'Quitar del total' : 'Agregar al total'}
+        {!selected ? (
+          <Plus className="size-3.5 shrink-0 sm:size-4" strokeWidth={2.5} aria-hidden="true" />
+        ) : null}
+      </button>
     </article>
   );
 }
@@ -190,6 +286,7 @@ export function ProductDetailConfigureEquipment({
   onEquipmentSelectionChange,
   frequentlyBought,
   catalogProducts,
+  consumableGroups,
   onPurchaseModeChange,
   purchaseMode,
   onRentalEstimateChange,
@@ -243,8 +340,54 @@ export function ProductDetailConfigureEquipment({
   }, [isRentMode]);
 
   const tonerStep = equipmentSteps.find((step) => step.id === 'toner');
-  const includedToner =
-    tonerStep?.options.find((option) => option.included) ?? tonerStep?.options[0] ?? null;
+  const includedTonerImage = resolveIncludedTonerImage(
+    tonerStep?.options.find((option) => option.included)?.image ??
+      tonerStep?.options[0]?.image,
+  );
+
+  const purchasableTonerCards = useMemo(
+    () => resolveConfigureTonerCards(tonerStep, consumableGroups, includedTonerImage, catalogProducts),
+    [catalogProducts, consumableGroups, includedTonerImage, tonerStep],
+  );
+
+  const equipmentCards = useMemo(
+    () => resolveConfigureEquipmentCards(equipmentSteps),
+    [equipmentSteps],
+  );
+
+  const selectedTonerIds = equipmentSelection.toner ?? new Set<string>();
+
+  const handleToggleToner = (card: ConfigureTonerCard) => {
+    if (!tonerStep) return;
+    onEquipmentSelectionChange(
+      selectEquipmentOption(equipmentSelection, tonerStep, card.optionId),
+    );
+  };
+
+  const handleToggleEquipmentCard = (card: ConfigureEquipmentCard) => {
+    const step = equipmentSteps.find((entry) => entry.id === card.stepId);
+    if (!step) return;
+
+    const selectedIds = equipmentSelection[step.id] ?? new Set<string>();
+    const isSelected = selectedIds.has(card.optionId);
+
+    if (step.id === 'garantia' && isSelected) {
+      onEquipmentSelectionChange({
+        ...equipmentSelection,
+        garantia: new Set(['garantia-base']),
+      });
+      return;
+    }
+
+    onEquipmentSelectionChange(
+      selectEquipmentOption(equipmentSelection, step, card.optionId),
+    );
+  };
+
+  const isEquipmentCardSelected = (card: ConfigureEquipmentCard): boolean => {
+    const selectedIds = equipmentSelection[card.stepId] ?? new Set<string>();
+    return selectedIds.has(card.optionId);
+  };
 
   const recommendedAccessory = useMemo(
     () => resolveRecommendedConfigureAccessory(product, catalogProducts, frequentlyBought),
@@ -252,9 +395,14 @@ export function ProductDetailConfigureEquipment({
   );
 
   const showMaintenance = plans.length > 0;
-  const showToner = includedToner != null;
+  const showPurchasableToners = purchasableTonerCards.length > 0;
+  const showEquipmentCards = equipmentCards.length > 0;
   const showAccessory = recommendedAccessory != null;
-  const visibleCardCount = [showMaintenance, showToner, showAccessory].filter(Boolean).length;
+  const visibleCardCount =
+    purchasableTonerCards.length +
+    equipmentCards.length +
+    (showMaintenance ? 1 : 0) +
+    (showAccessory ? 1 : 0);
 
   const quote = useMemo(
     () =>
@@ -268,7 +416,7 @@ export function ProductDetailConfigureEquipment({
     [plans],
   );
 
-  if (!isRentMode && !showMaintenance && !showToner && !showAccessory) return null;
+  if (!isRentMode && !showMaintenance && !showPurchasableToners && !showEquipmentCards && !showAccessory) return null;
 
   const handleChoosePlan = () => {
     onPurchaseModeChange('rent');
@@ -398,16 +546,25 @@ export function ProductDetailConfigureEquipment({
             aria-roledescription={showCarouselControls ? 'carrusel' : undefined}
           >
             <ul className="flex touch-pan-y gap-2.5 sm:gap-3">
-              {showToner && includedToner ? (
-                <li className={carouselSlideClass}>
-                  <TonerCard
-                    title={tonerStep?.title ?? 'Tóner'}
-                    name={includedToner.name}
-                    {...(includedToner.description ? { description: includedToner.description } : {})}
-                    image={resolveIncludedTonerImage(includedToner.image)}
+              {purchasableTonerCards.map((card) => (
+                <li key={card.optionId} className={carouselSlideClass}>
+                  <SelectableTonerCard
+                    card={card}
+                    selected={selectedTonerIds.has(card.optionId)}
+                    onToggle={() => handleToggleToner(card)}
                   />
                 </li>
-              ) : null}
+              ))}
+
+              {equipmentCards.map((card) => (
+                <li key={`${card.stepId}-${card.optionId}`} className={carouselSlideClass}>
+                  <SelectableEquipmentCard
+                    card={card}
+                    selected={isEquipmentCardSelected(card)}
+                    onToggle={() => handleToggleEquipmentCard(card)}
+                  />
+                </li>
+              ))}
 
               {showMaintenance ? (
                 <li className={carouselSlideClass}>

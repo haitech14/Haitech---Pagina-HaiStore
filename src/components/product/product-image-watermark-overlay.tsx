@@ -10,14 +10,16 @@ interface ProductImageWatermarkOverlayProps {
   src: string;
   children: ReactNode;
   className?: string;
+  enabled?: boolean;
 }
 
 export function ProductImageWatermarkOverlay({
   src,
   children,
   className,
+  enabled = true,
 }: ProductImageWatermarkOverlayProps) {
-  if (!shouldShowProductImageWatermarkOverlay(src)) {
+  if (!enabled || !shouldShowProductImageWatermarkOverlay(src)) {
     return <>{children}</>;
   }
 
@@ -30,7 +32,7 @@ export function ProductImageWatermarkOverlay({
         aria-hidden="true"
         loading="lazy"
         decoding="async"
-        className="pointer-events-none absolute bottom-1 right-1 z-[1] w-[22%] min-w-[2.75rem] max-w-[5rem] select-none opacity-40 sm:bottom-1.5 sm:right-1.5 sm:max-w-[5.5rem]"
+        className="pointer-events-none absolute bottom-1 right-1 z-[1] w-[22%] min-w-[2.75rem] max-w-[5rem] select-none opacity-[0.14] sm:bottom-1.5 sm:right-1.5 sm:max-w-[5.5rem]"
       />
     </div>
   );

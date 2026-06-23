@@ -200,6 +200,21 @@ export function productQualifiesAsSeminuevaEquipment(product) {
   return category.includes('seminuevas');
 }
 
+export function isRemanufacturadaProductName(name) {
+  return /\bremanufacturad/i.test(String(name ?? '').trim());
+}
+
+/** Equipo remanufacturado: «remanufacturad» en el nombre o categoría de remanufacturadas. */
+export function productQualifiesAsRemanufacturadaEquipment(product) {
+  const name = String(product?.name ?? '').trim();
+  if (isSeminuevaProductName(name)) return false;
+  if (isRemanufacturadaProductName(name)) return true;
+  if (productQualifiesAsNuevaEquipment(product)) return false;
+  const category = String(product?.category ?? '').toLowerCase();
+  if (category.includes('seminuevas')) return false;
+  return category.includes('remanufacturadas') || category.includes('remanufacturados');
+}
+
 export function hasTonerColorCode(name) {
   return TONER_COLOR_CODE_PATTERN.test(String(name ?? '').trim());
 }

@@ -230,12 +230,17 @@ export function CategoryProductsTable({
   defaultCategory = null,
   bindOpenCreate,
 }: CategoryProductsTableProps) {
-  const { isAdmin, role, viewAsRole, effectiveRole } = useAuth();
+  const { isAdmin, role, viewAsRoles, effectiveRole } = useAuth();
   const catalogMap = useAdminInventoryCatalogMap();
-  const previewAsRole = Boolean(viewAsRole);
+  const previewAsRole = viewAsRoles.length > 0;
   const visiblePriceRoles = useMemo(
-    () => getCategoryTableVisiblePriceRoles(isAdmin && !previewAsRole, previewAsRole ? effectiveRole : role),
-    [isAdmin, previewAsRole, effectiveRole, role],
+    () =>
+      getCategoryTableVisiblePriceRoles(
+        isAdmin && !previewAsRole,
+        role,
+        previewAsRole ? viewAsRoles : undefined,
+      ),
+    [isAdmin, previewAsRole, viewAsRoles, role],
   );
   const discountPriceRole: PriceRole = isAdmin && !previewAsRole ? 'public' : resolvePriceRole(effectiveRole);
 
@@ -507,15 +512,16 @@ function CategoryProductTableRow({
 }
 
 export function CategoryProductsTableSkeleton({ rows = 8 }: { rows?: number }) {
-  const { isAdmin, role, viewAsRole, effectiveRole } = useAuth();
-  const previewAsRole = Boolean(viewAsRole);
+  const { isAdmin, role, viewAsRoles } = useAuth();
+  const previewAsRole = viewAsRoles.length > 0;
   const colSpan = useMemo(
     () =>
       countCategoryTableColumns(
         isAdmin && !previewAsRole,
-        previewAsRole ? effectiveRole : role,
+        role,
+        previewAsRole ? viewAsRoles : undefined,
       ),
-    [isAdmin, previewAsRole, effectiveRole, role],
+    [isAdmin, previewAsRole, viewAsRoles, role],
   );
 
   const minWidth = isAdmin ? '96rem' : '52rem';

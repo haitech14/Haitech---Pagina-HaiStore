@@ -4,7 +4,8 @@ import {
   RENTAL_BW_VARIABLE_COPY_COST_PEN,
   RENTAL_COLOR_BLACK_VARIABLE_COPY_COST_PEN,
   RENTAL_COLOR_VARIABLE_COPY_COST_PEN,
-  RENTAL_MIN_BILLABLE_PAGES,
+  RENTAL_DEFAULT_MONTHLY_PAGES,
+  RENTAL_EXCESS_COPY_COST_PEN,
 } from '@/lib/rental-calculator';
 import { cn, usdToPen } from '@/lib/utils';
 import type { RentalPlanOption } from '@/types/product-detail';
@@ -15,6 +16,7 @@ export interface EquipmentRentalEstimate {
   copyCostMonthlyPen: number;
   fixedFeeMonthlyPen: number;
   variableFeeMonthlyPen: number;
+  excessFeeMonthlyPen: number;
   blackVariableMonthlyPen: number;
   colorVariableMonthlyPen: number;
   isColorEquipment: boolean;
@@ -46,32 +48,58 @@ export function computeEquipmentRentalEstimate(input: {
   includeLaminator: boolean;
   includeGuillotine: boolean;
 }): EquipmentRentalEstimate {
-  const billablePages = Math.max(RENTAL_MIN_BILLABLE_PAGES, input.monthlyPages || 0);
+  const pages = Math.max(1, Math.floor(input.monthlyPages || RENTAL_DEFAULT_MONTHLY_PAGES));
   const quantity = Math.max(1, input.equipmentQuantity);
   const isColorEquipment = input.isColorEquipment === true;
+  const quotaBase = RENTAL_DEFAULT_MONTHLY_PAGES;
+  const basePages = Math.min(pages, quotaBase);
+  const excessPages = Math.max(0, pages - quotaBase);
 
-  const blackVariableMonthlyPen = isColorEquipment
-    ? billablePages * RENTAL_COLOR_BLACK_VARIABLE_COPY_COST_PEN * quantity
-    : billablePages * RENTAL_BW_VARIABLE_COPY_COST_PEN * quantity;
-  const colorVariableMonthlyPen = isColorEquipment
-    ? billablePages * RENTAL_COLOR_VARIABLE_COPY_COST_PEN * quantity
-    : 0;
-  const variableFeeMonthlyPen = blackVariableMonthlyPen + colorVariableMonthlyPen;
+  const productValuePen = usdToPen(input.equipmentBasePriceUsd);
   const fixedFeeMonthlyPen =
-    ((usdToPen(input.equipmentBasePriceUsd) * 0.2) / input.termMonths) * quantity;
+    Math.round(((productValuePen * 1.2) / input.termMonths) * quantity * 100) / 100;
+
+  let blackVariableMonthlyPen = 0;
+  let colorVariableMonthlyPen = 0;
+  let excessFeeMonthlyPen = 0;
+
+  if (isColorEquipment) {
+    const blackBase = basePages * RENTAL_COLOR_BLACK_VARIABLE_COPY_COST_PEN;
+    const blackExcess = excessPages * RENTAL_EXCESS_COPY_COST_PEN;
+    const colorBase = basePages * RENTAL_COLOR_VARIABLE_COPY_COST_PEN;
+    const colorExcess = excessPages * RENTAL_COLOR_VARIABLE_COPY_COST_PEN;
+    blackVariableMonthlyPen =
+      Math.round((blackBase + blackExcess) * quantity * 100) / 100;
+    colorVariableMonthlyPen =
+      Math.round((colorBase + colorExcess) * quantity * 100) / 100;
+    excessFeeMonthlyPen =
+      Math.round((blackExcess + colorExcess) * quantity * 100) / 100;
+  } else {
+    const baseVariable = basePages * RENTAL_BW_VARIABLE_COPY_COST_PEN;
+    const excessVariable = excessPages * RENTAL_EXCESS_COPY_COST_PEN;
+    blackVariableMonthlyPen =
+      Math.round((baseVariable + excessVariable) * quantity * 100) / 100;
+    excessFeeMonthlyPen = Math.round(excessVariable * quantity * 100) / 100;
+  }
+
+  const variableFeeMonthlyPen =
+    Math.round((blackVariableMonthlyPen + colorVariableMonthlyPen) * 100) / 100;
+  const estimatedMonthlyPen =
+    Math.round((fixedFeeMonthlyPen + variableFeeMonthlyPen) * 100) / 100;
 
   return {
-    billablePages,
+    billablePages: pages,
     copyCostMonthlyPen: variableFeeMonthlyPen,
     fixedFeeMonthlyPen,
     variableFeeMonthlyPen,
+    excessFeeMonthlyPen,
     blackVariableMonthlyPen,
     colorVariableMonthlyPen,
     isColorEquipment,
-    estimatedMonthlyPen: fixedFeeMonthlyPen + variableFeeMonthlyPen,
+    estimatedMonthlyPen,
     termMonths: input.termMonths,
     equipmentQuantity: quantity,
-    monthlyPages: input.monthlyPages,
+    monthlyPages: pages,
     hasExtraServices:
       input.includePaper ||
       input.includeOperator ||
@@ -100,7 +128,9 @@ export function ProductDetailRentalConfigurator({
 
   const rentalPageSuggestions = useMemo(
     () =>
-      Array.from(new Set([5000, ...rentalPlans.map((plan) => plan.pagesPerMonth)]))
+      Array.from(
+        new Set([RENTAL_DEFAULT_MONTHLY_PAGES, ...rentalPlans.map((plan) => plan.pagesPerMonth)]),
+      )
         .filter((pages) => pages > 0)
         .sort((a, b) => a - b),
     [rentalPlans],
@@ -154,10 +184,12 @@ export function ProductDetailRentalConfigurator({
           <span className="text-xs font-semibold text-foreground">Cantidad de impresiones / mes</span>
           <input
             type="number"
-            min={5000}
+            min={1}
             step={500}
             value={monthlyPages}
-            onChange={(event) => setMonthlyPages(Number(event.target.value) || 5000)}
+            onChange={(event) =>
+              setMonthlyPages(Math.max(1, Number(event.target.value) || RENTAL_DEFAULT_MONTHLY_PAGES))
+            }
             className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
           />
           {rentalPageSuggestions.length > 0 ? (
@@ -267,29 +299,65 @@ export function ProductDetailRentalConfigurator({
             {' + '}color{' '}
             <span className="font-semibold">S/ {RENTAL_COLOR_VARIABLE_COPY_COST_PEN}</span>
             {' × '}
-            <span className="font-semibold">{estimate.billablePages.toLocaleString('es-PE')}</span>{' '}
-            páginas (mínimo {RENTAL_MIN_BILLABLE_PAGES.toLocaleString('es-PE')}).
+            <span className="font-semibold">
+              {Math.min(estimate.billablePages, RENTAL_DEFAULT_MONTHLY_PAGES).toLocaleString('es-PE')}
+            </span>{' '}
+            páginas
+            {estimate.excessFeeMonthlyPen > 0 ? (
+              <>
+                {' + '}excedentes{' '}
+                <span className="font-semibold">
+                  S/{' '}
+                  {estimate.excessFeeMonthlyPen.toLocaleString('es-PE', {
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </>
+            ) : null}
+            .
           </p>
         ) : (
           <p>
-            Cuota variable mensual: negro{' '}
+            Cuota variable mensual:{' '}
             <span className="font-semibold">S/ {RENTAL_BW_VARIABLE_COPY_COST_PEN}</span>
             {' × '}
             <span className="font-semibold">{estimate.billablePages.toLocaleString('es-PE')}</span>{' '}
-            páginas (mínimo {RENTAL_MIN_BILLABLE_PAGES.toLocaleString('es-PE')}).
+            impresiones
+            {estimate.excessFeeMonthlyPen > 0 ? (
+              <>
+                {' '}
+                (incluye excedentes{' '}
+                <span className="font-semibold">
+                  S/{' '}
+                  {estimate.excessFeeMonthlyPen.toLocaleString('es-PE', {
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+                )
+              </>
+            ) : null}
+            .
           </p>
         )}
         <p className="mt-1">
-          Cuota fija mensual: <span className="font-semibold">precio del equipo x 20%</span> /{' '}
-          <span className="font-semibold">{estimate.termMonths} meses</span>.
+          Cuota fija mensual:{' '}
+          <span className="font-semibold">valor del equipo + 20% (×1,2)</span> ÷{' '}
+          <span className="font-semibold">{estimate.termMonths} meses</span> ={' '}
+          <span className="font-semibold">
+            S/{' '}
+            {estimate.fixedFeeMonthlyPen.toLocaleString('es-PE', { maximumFractionDigits: 2 })}
+          </span>
+          .
         </p>
         <p className="mt-1.5 font-semibold text-foreground">
-          Estimado mensual: S/{' '}
+          Total mensual: S/{' '}
           {estimate.estimatedMonthlyPen.toLocaleString('es-PE', { maximumFractionDigits: 2 })}
         </p>
         <p className="text-[0.6875rem] text-muted-foreground">
-          Incluye: cuota variable S/{' '}
+          Cuota variable S/{' '}
           {estimate.variableFeeMonthlyPen.toLocaleString('es-PE', { maximumFractionDigits: 2 })}
+          {' + '}cuota fija S/{' '}
+          {estimate.fixedFeeMonthlyPen.toLocaleString('es-PE', { maximumFractionDigits: 2 })}
           {estimate.isColorEquipment ? (
             <>
               {' '}
@@ -300,8 +368,7 @@ export function ProductDetailRentalConfigurator({
               )
             </>
           ) : null}
-          {' + '}cuota fija S/{' '}
-          {estimate.fixedFeeMonthlyPen.toLocaleString('es-PE', { maximumFractionDigits: 2 })}.
+          .
         </p>
         {estimate.hasExtraServices ? (
           <p className="mt-1 text-[0.6875rem] text-muted-foreground">

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
-import { applyViewAsPriceToProducts } from '@/lib/view-as-role';
+import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { Product } from '@/types/product';
 import type { CategorySortValue } from '@/components/category/category-catalog-toolbar';
 import type { ProductCondition } from '@/lib/product-condition';
@@ -62,7 +62,7 @@ async function fetchCategoryCatalog(params: UseCategoryCatalogParams): Promise<C
 }
 
 export function useCategoryCatalog(params: UseCategoryCatalogParams) {
-  const { role, viewAsRole, effectiveRole } = useAuth();
+  const { role, viewAsRoles, effectiveRole } = useAuth();
   const enabled = params.enabled !== false && params.labels.length > 0 && Boolean(params.slug);
 
   return useQuery({
@@ -82,7 +82,7 @@ export function useCategoryCatalog(params: UseCategoryCatalogParams) {
       params.page,
       params.limit,
       role,
-      viewAsRole,
+      viewAsRolesQueryKey(viewAsRoles),
     ],
     queryFn: () => fetchCategoryCatalog(params),
     enabled,
@@ -90,7 +90,7 @@ export function useCategoryCatalog(params: UseCategoryCatalogParams) {
     gcTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
     select: (payload) =>
-      viewAsRole
+      shouldApplyViewAsPriceTransform(viewAsRoles)
         ? {
             ...payload,
             products: applyViewAsPriceToProducts(payload.products, effectiveRole),

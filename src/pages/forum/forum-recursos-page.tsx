@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, ExternalLink, FileText } from 'lucide-react';
 
+import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
+
 const RESOURCES = [
   {
     title: 'Manuales Ricoh IM Series',
@@ -25,7 +27,7 @@ const RESOURCES = [
 
 export function ForumRecursosPage() {
   useEffect(() => {
-    document.title = 'Recursos | Foro HaiStore';
+    document.title = `Recursos | ${FORUM_TITLE_SUFFIX}`;
   }, []);
 
   return (

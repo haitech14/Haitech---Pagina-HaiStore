@@ -38,6 +38,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useCategoryCatalog } from '@/hooks/use-category-catalog';
 import { searchCatalogProducts } from '@/lib/catalog-search-api';
+import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import {
   findCategoryBySlug,
   findStoreSubcategoryBySlug,
@@ -166,7 +167,7 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
   const isDesktopNav = useIsDesktopNav();
   const filtersAsideRef = useRef<HTMLElement>(null);
   const openCreateProductRef = useRef<(() => void) | null>(null);
-  const { isAdmin } = useAuth();
+  const { isAdmin, viewAsRoles, effectiveRole } = useAuth();
 
   const bindOpenCreate = useCallback((openCreate: (() => void) | null) => {
     openCreateProductRef.current = openCreate;
@@ -219,7 +220,7 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
   });
 
   const { data: searchData, isLoading: searchLoading, isError: searchError } = useQuery({
-    queryKey: ['catalog-search', searchQuery, searchCategoryFilter],
+    queryKey: ['catalog-search', searchQuery, searchCategoryFilter, viewAsRolesQueryKey(viewAsRoles)],
     queryFn: () =>
       searchCatalogProducts(searchQuery, {
         categoryFilter: searchCategoryFilter,
@@ -228,6 +229,13 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
     enabled: isInventorySearch,
     staleTime: 30_000,
     placeholderData: (previous) => previous,
+    select: (payload) =>
+      shouldApplyViewAsPriceTransform(viewAsRoles)
+        ? {
+            ...payload,
+            products: applyViewAsPriceToProducts(payload.products, effectiveRole),
+          }
+        : payload,
   });
 
   const useServerCatalog = !isInventorySearch && !isRentalCategory && productLabels.length > 0;
@@ -382,6 +390,11 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
     if (catalogSearch.trim().length >= MIN_PRODUCT_SEARCH_LENGTH) {
       list = filterProductsBySearch(list, catalogSearch, { categoryFilter: 'all' });
     }
+
+    if (isInventorySearch) {
+      return list;
+    }
+
     return [...list].sort((a, b) => {
       if (sortBy === 'price-asc' && a.price !== b.price) return a.price - b.price;
       if (sortBy === 'price-desc' && a.price !== b.price) return b.price - a.price;
@@ -406,6 +419,7 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
     availablePriceRange.min,
     availablePriceRange.max,
     catalogSearch,
+    isInventorySearch,
   ]);
 
   useLayoutEffect(() => {

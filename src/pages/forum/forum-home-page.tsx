@@ -5,6 +5,7 @@ import { ForumCategoryGrid } from '@/components/forum/forum-category-grid';
 import { ForumDiscussionsPanel } from '@/components/forum/forum-discussions-panel';
 import { ForumHero } from '@/components/forum/forum-hero';
 import { ForumSidebar } from '@/components/forum/forum-sidebar';
+import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import {
   useFeaturedForumMembers,
   useForumCategories,
@@ -26,7 +27,7 @@ export function ForumHomePage() {
   const [categoryFilter, setCategoryFilter] = useState(categoryParam);
 
   useEffect(() => {
-    document.title = 'Foro HaiStore | Comunidad técnica';
+    document.title = `${FORUM_TITLE_SUFFIX} | Comunidad técnica`;
   }, []);
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { normalizeInventoryProduct, mergeInventoryProductPatch } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
-import { applyViewAsPriceToProducts } from '@/lib/view-as-role';
+import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct, Product } from '@/types/product';
 
@@ -17,18 +17,20 @@ export interface UseProductsOptions {
 }
 
 export function useProducts(options?: UseProductsOptions) {
-  const { role, viewAsRole, effectiveRole } = useAuth();
+  const { role, viewAsRoles, effectiveRole } = useAuth();
   const enabled = options?.enabled !== false;
 
   return useQuery({
-    queryKey: ['products', role, viewAsRole],
+    queryKey: ['products', role, viewAsRolesQueryKey(viewAsRoles)],
     queryFn: fetchProductsForRole,
     enabled,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
     select: (products) =>
-      viewAsRole ? applyViewAsPriceToProducts(products, effectiveRole) : products,
+      shouldApplyViewAsPriceTransform(viewAsRoles)
+        ? applyViewAsPriceToProducts(products, effectiveRole)
+        : products,
   });
 }
 

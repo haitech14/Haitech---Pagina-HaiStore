@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { ImageOff } from 'lucide-react';
 
 import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
+import { CatalogPreviewDualPriceBlock } from '@/components/product/catalog-preview-price-block';
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
+import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { formatHighlightProductTitle } from '@/lib/product-card-title';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { productPath } from '@/lib/product-path';
@@ -28,6 +30,7 @@ export function ProductHighlightCard({ product }: ProductHighlightCardProps) {
   const detailHref = productPath(product.id);
   const imageCandidates = useMemo(() => buildProductImageCandidates(product), [product]);
   const [quantity, setQuantity] = useState(1);
+  const displayPrice = useCatalogDisplayPrice(product);
 
   return (
     <article
@@ -96,11 +99,18 @@ export function ProductHighlightCard({ product }: ProductHighlightCardProps) {
             </h3>
           </Link>
 
-          <AdminRolePricesTooltip productId={product.id} displayUsd={product.price}>
-            <DualPrice
+          <AdminRolePricesTooltip productId={product.id} displayUsd={displayPrice.priceUsd}>
+            <CatalogPreviewDualPriceBlock
+              displayPrice={displayPrice}
               alwaysBoth
-              className="min-h-[1.25rem] whitespace-nowrap text-[0.8125rem] font-bold tabular-nums text-[#0f1f3d] sm:min-h-[1.375rem] sm:text-sm"
-              usd={product.price}
+              badgeClassName="mb-1"
+              children={(priceUsd) => (
+                <DualPrice
+                  alwaysBoth
+                  className="min-h-[1.25rem] whitespace-nowrap text-[0.8125rem] font-bold tabular-nums text-[#0f1f3d] sm:min-h-[1.375rem] sm:text-sm"
+                  usd={priceUsd}
+                />
+              )}
             />
           </AdminRolePricesTooltip>
         </div>
@@ -122,7 +132,7 @@ export function ProductHighlightCard({ product }: ProductHighlightCardProps) {
                 product={{
                   id: product.id,
                   name: product.name,
-                  priceUsd: product.price,
+                  priceUsd: displayPrice.priceUsd,
                   category: product.category,
                   brand: product.brand ?? null,
                 }}

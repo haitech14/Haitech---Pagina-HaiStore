@@ -1,8 +1,9 @@
 import { useMemo, type RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Headphones, Minus, Plus, Shield, ShoppingCart, Truck, Zap } from 'lucide-react';
+import { Minus, Plus, ShoppingCart, Zap } from 'lucide-react';
 
 import { AddToCartButton, isProductOutOfStock } from '@/components/cart/add-to-cart-button';
+import { ProductBulkDiscountIncentives } from '@/components/product-detail/product-bulk-discount-incentives';
 import { ProductBulkDiscountTable } from '@/components/product-detail/product-bulk-discount-table';
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
@@ -12,6 +13,7 @@ import { useCart } from '@/context/cart-context';
 import type { BulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { ensureFullPrices } from '@/lib/roles';
 import { isColorPrinterEquipment } from '@/lib/build-product-detail';
+import { computeEquipmentExtrasUsd } from '@/lib/equipment-config-selection';
 import { cn, penToUsd } from '@/lib/utils';
 import {
   computeEquipmentRentalEstimate,
@@ -85,6 +87,18 @@ export function ProductDetailPurchaseCard({
   const activeRentalEstimate = rentalEstimate ?? fallbackRentalEstimate;
 
   const offerUnitUsd = volumePricing.unitUsd;
+  const equipmentExtrasUsd = useMemo(
+    () =>
+      equipmentConfiguration
+        ? computeEquipmentExtrasUsd(equipmentConfiguration.options)
+        : 0,
+    [equipmentConfiguration],
+  );
+  const configuredUnitUsd = offerUnitUsd + equipmentExtrasUsd;
+  const displayTotalUsd =
+    quantity > 1 || hasVolumeDiscount
+      ? volumePricing.totalUsd + equipmentExtrasUsd * quantity
+      : configuredUnitUsd;
   const normalPriceUsd =
     detail.oldPricePen != null
       ? penToUsd(detail.oldPricePen)
@@ -130,6 +144,17 @@ export function ProductDetailPurchaseCard({
           usd={penToUsd(activeRentalEstimate.variableFeeMonthlyPen)}
           className="inline font-medium text-foreground"
         />
+        {activeRentalEstimate.excessFeeMonthlyPen > 0 ? (
+          <>
+            {' '}
+            (incl. excedentes{' '}
+            <DualPrice
+              usd={penToUsd(activeRentalEstimate.excessFeeMonthlyPen)}
+              className="inline font-medium text-foreground"
+            />
+            )
+          </>
+        ) : null}
         {activeRentalEstimate.isColorEquipment ? (
           <>
             {' '}
@@ -167,14 +192,26 @@ export function ProductDetailPurchaseCard({
         aria-live="polite"
         aria-atomic="true"
       >
-        <DualPrice usd={quantity > 1 ? volumePricing.totalUsd : offerUnitUsd} />
+        <DualPrice usd={displayTotalUsd} />
       </p>
       {quantity > 1 ? (
         <p className="mt-0.5 text-xs text-muted-foreground">
-          <DualPrice usd={offerUnitUsd} className="inline" /> por unidad · {quantity} ud.
+          <DualPrice usd={configuredUnitUsd} className="inline" /> por unidad · {quantity} ud.
+        </p>
+      ) : equipmentExtrasUsd > 0 ? (
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Equipo <DualPrice usd={offerUnitUsd} className="inline" />
+          {' + '}tóner <DualPrice usd={equipmentExtrasUsd} className="inline" />
         </p>
       ) : null}
       <p className="mt-0.5 text-[0.65rem] text-muted-foreground">IGV incluido</p>
+      {detail.bulkDiscountTiers.length > 0 ? (
+        <ProductBulkDiscountIncentives
+          product={product}
+          tiers={detail.bulkDiscountTiers}
+          className="mt-2"
+        />
+      ) : null}
       {showNormalPrice ? (
         <p className="mt-1 text-xs text-muted-foreground">
           Precio normal:{' '}
@@ -221,10 +258,9 @@ export function ProductDetailPurchaseCard({
           </div>
         ) : null}
 
-        <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold text-foreground">Cantidad</p>
+        <div className="mt-4 flex items-stretch gap-2.5">
           <div
-            className="flex h-11 items-stretch overflow-hidden rounded-lg border border-border bg-background"
+            className="flex h-11 w-[7.75rem] shrink-0 items-stretch overflow-hidden rounded-lg border border-border bg-background"
             role="group"
             aria-label="Cantidad"
           >
@@ -238,7 +274,7 @@ export function ProductDetailPurchaseCard({
               <Minus className="size-4" aria-hidden="true" />
             </button>
             <span
-              className="flex min-w-10 flex-1 items-center justify-center border-x border-border text-sm font-semibold text-foreground"
+              className="flex w-8 items-center justify-center border-x border-border text-sm font-semibold text-foreground"
               aria-live="polite"
               aria-atomic="true"
             >
@@ -254,20 +290,20 @@ export function ProductDetailPurchaseCard({
               <Plus className="size-4" aria-hidden="true" />
             </button>
           </div>
-        </div>
 
-        <div className="mt-4 flex flex-col gap-2.5">
           <AddToCartButton
             product={product}
             addOptions={cartAddOptions}
             size="lg"
             disabled={outOfStock}
-            className="h-11 min-h-11 w-full gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:ring-red-600"
+            className="h-11 min-h-11 min-w-0 flex-1 gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:ring-red-600"
           >
             <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
             Añadir al carrito
           </AddToCartButton>
+        </div>
 
+        <div className="mt-2.5 flex flex-col gap-2.5">
           <Button
             type="button"
             size="lg"
@@ -309,30 +345,6 @@ export function ProductDetailPurchaseCard({
             )}
           />
         </div>
-
-        <ul className="mt-5 space-y-3 border-t border-border/60 pt-4 text-xs leading-snug text-muted-foreground">
-          <li className="flex gap-2.5">
-            <Truck className="mt-0.5 size-4 shrink-0 text-red-600" aria-hidden="true" />
-            <div>
-              <p className="font-semibold text-foreground">Envío rápido</p>
-              <p>Entrega segura y rastreable a todo el país</p>
-            </div>
-          </li>
-          <li className="flex gap-2.5">
-            <Shield className="mt-0.5 size-4 shrink-0 text-red-600" aria-hidden="true" />
-            <div>
-              <p className="font-semibold text-foreground">Garantía oficial</p>
-              <p>12 meses de garantía {detail.brandLabel || 'del fabricante'}</p>
-            </div>
-          </li>
-          <li className="flex gap-2.5">
-            <Headphones className="mt-0.5 size-4 shrink-0 text-red-600" aria-hidden="true" />
-            <div>
-              <p className="font-semibold text-foreground">Soporte técnico</p>
-              <p>Asesoría pre y postventa especializada</p>
-            </div>
-          </li>
-        </ul>
       </div>
     </aside>
   );

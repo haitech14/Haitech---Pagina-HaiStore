@@ -1,6 +1,8 @@
 import {
+  isRemanufacturadaProductName,
   isSeminuevaProductName,
   productQualifiesAsNuevaEquipment,
+  productQualifiesAsRemanufacturadaEquipment,
   productQualifiesAsSeminuevaEquipment,
 } from '@/lib/inventory-product-name';
 import type { Product } from '@/types/product';
@@ -341,6 +343,18 @@ function productMatchesEquipmentCondition(
   if (isSeminuevaProductName(name)) {
     return condition === 'compatibles';
   }
+  if (isRemanufacturadaProductName(name)) {
+    return condition === 'remanufacturados';
+  }
+  if (productQualifiesAsNuevaEquipment(product)) {
+    return condition === 'originales';
+  }
+  if (productQualifiesAsRemanufacturadaEquipment(product)) {
+    return condition === 'remanufacturados';
+  }
+  if (productQualifiesAsSeminuevaEquipment(product)) {
+    return condition === 'compatibles';
+  }
 
   const categoryHint =
     product.category != null ? inferProductConditionFromText(product.category) : null;
@@ -351,18 +365,15 @@ function productMatchesEquipmentCondition(
   const haystack = productHaystack(product);
 
   if (condition === 'remanufacturados') {
-    return hasRemanufactured(haystack);
+    return false;
   }
 
   if (condition === 'compatibles') {
-    return (
-      productQualifiesAsSeminuevaEquipment(product) ||
-      (hasCompatible(haystack) && !hasRemanufactured(haystack))
-    );
+    return hasCompatible(haystack) && !hasRemanufactured(haystack);
   }
 
   if (condition === 'originales') {
-    return productQualifiesAsNuevaEquipment(product);
+    return hasOriginal(haystack);
   }
 
   return false;

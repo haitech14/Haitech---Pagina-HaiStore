@@ -10,6 +10,7 @@ export function shouldWatermarkProductImage(url) {
   if (typeof url !== 'string' || !url.trim()) return false;
   if (url.startsWith('data:image/')) return true;
   if (url.startsWith('/products/')) return true;
+  if (url.includes('/products/')) return true;
   return false;
 }
 
@@ -20,7 +21,8 @@ export function shouldWatermarkProductImage(url) {
  */
 export function shouldShowProductImageWatermarkOverlay(url) {
   if (typeof url !== 'string' || !url.trim()) return false;
-  return url.startsWith('data:image/');
+  if (!isProductImageWatermarkEnabled()) return false;
+  return shouldWatermarkProductImage(url);
 }
 
 /**

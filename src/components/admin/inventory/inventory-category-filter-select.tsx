@@ -46,12 +46,12 @@ export function InventoryCategoryFilterSelect({
       <SelectContent>
         <SelectItem value={ALL_INVENTORY_CATEGORIES}>Todas las categorías</SelectItem>
         {groups.map((group, groupIndex) => (
-          <Fragment key={group.label}>
+          <Fragment key={group.id}>
             {groupIndex > 0 ? <SelectSeparator /> : null}
             <SelectGroup>
               {group.options.map((option) => (
                 <SelectItem
-                  key={`${group.label}-${option.value}`}
+                  key={`${group.id}-${option.value}`}
                   value={option.value}
                   className={cn((option.depth ?? 0) === 0 && 'font-semibold')}
                 >

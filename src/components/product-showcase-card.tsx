@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { Star } from 'lucide-react';
 
 import { ProductCardOverlayActions } from '@/components/product/product-card-overlay-actions';
-import { ProductCardPricing } from '@/components/product/product-card-pricing';
+import { CatalogPreviewPriceBlock } from '@/components/product/catalog-preview-price-block';
 import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
+import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { useProductCompare } from '@/context/product-compare-context';
 import { useWishlist } from '@/context/wishlist-context';
 import { getCatalogProductById } from '@/lib/catalog-featured';
@@ -66,6 +67,15 @@ export function ProductShowcaseCard({
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const catalogProduct = getCatalogProductById(product.id);
+  const priceSource = useMemo(() => {
+    const prices = product.prices ?? catalogProduct?.prices;
+    return {
+      price: product.price,
+      ...(prices ? { prices } : {}),
+      ...(product.price_role ? { price_role: product.price_role } : {}),
+    };
+  }, [catalogProduct?.prices, product.price, product.price_role, product.prices]);
+  const displayPrice = useCatalogDisplayPrice(priceSource);
   const imageCandidates = useMemo(() => {
     return buildProductImageCandidates({
       id: product.id,
@@ -92,7 +102,7 @@ export function ProductShowcaseCard({
     id: product.id,
     name: product.name,
     description: catalogProduct?.description ?? null,
-    price: product.price,
+    price: displayPrice.priceUsd,
     currency: 'USD',
     image_url: product.image,
     stock,
@@ -168,10 +178,11 @@ export function ProductShowcaseCard({
           {!isFeatured ? <Rating rating={product.rating} reviews={product.reviews} /> : null}
 
           <div className={cn('relative z-[3] mt-auto pointer-events-auto', !isFeatured && 'pt-0.5')}>
-            <ProductCardPricing
+            <CatalogPreviewPriceBlock
               productId={product.id}
-              priceUsd={product.price}
+              displayPrice={displayPrice}
               featured={isFeatured}
+              badgeClassName="mb-1"
               {...(product.oldPrice != null ? { oldPriceUsd: product.oldPrice } : {})}
               {...(product.discount != null ? { discountPercent: product.discount } : {})}
             />

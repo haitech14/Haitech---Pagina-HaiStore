@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import { useForumEvents } from '@/hooks/use-forum';
 import { formatForumEventDate } from '@/lib/forum-utils';
 
@@ -8,7 +9,7 @@ export function ForumEventosPage() {
   const { data: events = [], isLoading } = useForumEvents();
 
   useEffect(() => {
-    document.title = 'Eventos | Foro HaiStore';
+    document.title = `Eventos | ${FORUM_TITLE_SUFFIX}`;
   }, []);
 
   return (

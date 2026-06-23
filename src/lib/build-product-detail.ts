@@ -26,9 +26,17 @@ import { DEFAULT_BULK_DISCOUNT_TIERS } from '@/lib/bulk-discount-tiers';
 import { normalizeAttributes } from '@/lib/inventory-attributes';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import {
+  CASETERA_250_PB1110_PRODUCT_ID,
+  CASETERA_500_PB1120_PRODUCT_ID,
+  CASETERA_500_PB1160_PRODUCT_ID,
+  ESTABILIZADOR_2KVA_PRODUCT_ID,
+  GABINETE_ALTO_TIPO_I_PRODUCT_ID,
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
   IM550F_ORIGINAL_TONER_PRODUCT_ID,
+  ROUTER_WIFI_PRODUCT_ID,
+  TALL_CABINET_IM430_PRODUCT_ID,
+  TALL_CABINET_IM550_PRODUCT_ID,
 } from '@/lib/equipment-config-catalog';
 import type {
   BulkDiscountTier,
@@ -46,13 +54,14 @@ import type {
 } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 import { productHasNuevoCornerBadge } from '@/lib/product-detail-badges';
-import { findTechnicalSheetAttachment } from '@/lib/inventory-attachments';
+import { findTechnicalSheetAttachment, findAttachmentByKind } from '@/lib/inventory-attachments';
 import { buildProductGalleryItems } from '@/lib/product-media';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
 import {
   heroBulletsToStored,
   highlightsToStoredFeatureBar,
   normalizeStorefrontHeroBullets,
+  resolveHeroBulletIcon,
   resolveStoredFeatureBar,
   resolveStoredHeroBullets,
 } from '@/lib/product-storefront-detail';
@@ -468,7 +477,7 @@ function buildDescriptionVisual(
       specs: heroSpecBullets
         .filter((bullet) => bullet.text?.trim())
         .map((bullet) => ({
-          icon: bullet.icon ?? Printer,
+          icon: resolveHeroBulletIcon(bullet),
           title: '',
           lines: [bullet.text!.trim()],
         })),
@@ -548,8 +557,6 @@ function buildDescriptionContent(product: Product, isPrinter: boolean, isSupply:
       { icon: Inbox, title: 'Gran capacidad', subtitle: 'Bandejas ampliadas para alto volumen' },
       { icon: Settings, title: 'Panel inteligente', subtitle: 'Operación intuitiva con pantalla táctil' },
       { icon: Cloud, title: 'Conectividad', subtitle: 'Impresión móvil y en la nube' },
-      { icon: Lock, title: 'Seguridad', subtitle: 'Protección de documentos y accesos' },
-      { icon: Leaf, title: 'Eficiencia energética', subtitle: 'Menor consumo sin sacrificar rendimiento' },
     ];
     return {
       overviewTitle: 'Diseñada para la productividad',
@@ -958,6 +965,63 @@ function buildComboItems(product: Product, isPrinter: boolean, isSupply: boolean
   ];
 }
 
+function buildAccessoryConfigOptions(product: Product): EquipmentConfigStep['options'] {
+  const options: EquipmentConfigStep['options'] = [];
+
+  if (!isImBnA4Sibling(product)) {
+    options.push({
+      id: 'casetera-250',
+      productId: CASETERA_250_PB1110_PRODUCT_ID,
+      name: 'Casetera 250 Hojas',
+      pricePen: 0,
+    });
+  }
+
+  const gabineteProductId = isImBnA4Sibling(product)
+    ? TALL_CABINET_IM550_PRODUCT_ID
+    : isIm430f(product)
+      ? TALL_CABINET_IM430_PRODUCT_ID
+      : GABINETE_ALTO_TIPO_I_PRODUCT_ID;
+
+  options.push(
+    {
+      id: 'casetera-500',
+      productId: isImBnA4Sibling(product)
+        ? CASETERA_500_PB1160_PRODUCT_ID
+        : CASETERA_500_PB1120_PRODUCT_ID,
+      name: 'Casetera 500 hojas',
+      pricePen: 0,
+    },
+    {
+      id: 'gabinete',
+      productId: gabineteProductId,
+      name: 'Gabinete',
+      pricePen: 0,
+    },
+    {
+      id: 'router-wifi',
+      productId: ROUTER_WIFI_PRODUCT_ID,
+      name: 'Router Wifi',
+      pricePen: 0,
+    },
+    {
+      id: 'tall-cabinet-u',
+      productId: gabineteProductId,
+      name: 'Tall Cabinet Type U',
+      description: 'Pedestal de piso',
+      pricePen: 0,
+    },
+    {
+      id: 'ocr-m13',
+      name: 'OCR Unit Type M13',
+      description: 'Reconocimiento PDF',
+      pricePen: 0,
+    },
+  );
+
+  return options;
+}
+
 function buildStarterTonerLabel(product: Product): string {
   const name = product.name;
   if (/IM\s*550F/i.test(name) || /IM\s*600F/i.test(name)) {
@@ -1053,27 +1117,7 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
       icon: Inbox,
       defaultSelected: true,
       selectionMode: 'multiple',
-      options: [
-        {
-          id: 'casetera-pb-1160',
-          name: 'Casetera PB 1160',
-          description: 'Código 418475',
-          sku: '418475',
-          pricePen: 0,
-        },
-        {
-          id: 'tall-cabinet-u',
-          name: 'Tall Cabinet Type U',
-          description: 'Pedestal de piso',
-          pricePen: 0,
-        },
-        {
-          id: 'ocr-m13',
-          name: 'OCR Unit Type M13',
-          description: 'Reconocimiento PDF',
-          pricePen: 0,
-        },
-      ],
+      options: buildAccessoryConfigOptions(product),
     },
     {
       id: 'estabilizador',
@@ -1087,9 +1131,9 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
       options: [
         {
           id: 'estabilizador-2000w',
-          name: 'Estabilizador Sólido 2000 Watts',
-          priceUsd: 150,
-          pricePen: usdToPen(150),
+          productId: ESTABILIZADOR_2KVA_PRODUCT_ID,
+          name: 'Estabilizador 2000 watts 220v',
+          pricePen: 0,
         },
       ],
     },
@@ -1226,7 +1270,10 @@ export function buildProductDetail(
   const heroSpecBullets = resolveStoredHeroBullets(
     product,
     buildHeroSpecBullets(product, specs, isPrinter),
-  );
+  ).map((bullet) => ({
+    ...bullet,
+    icon: resolveHeroBulletIcon(bullet),
+  }));
   const heroSpecTitle = buildHeroSpecTitle(product, isPrinter);
 
   const descriptionVisual = buildDescriptionVisual(product, specs, isPrinter, heroSpecBullets);
@@ -1243,6 +1290,8 @@ export function buildProductDetail(
   const fullPrices = ensureFullPrices(product.prices ?? { public: product.price });
   const technicalSheet = findTechnicalSheetAttachment(product);
   const technicalSheetUrl = technicalSheet?.url ?? null;
+  const manualAttachment = findAttachmentByKind(product, 'manual');
+  const driverAttachment = findAttachmentByKind(product, 'printer_driver');
   const wholesalePriceUsd = fullPrices.mayorista > 0 ? fullPrices.mayorista : null;
 
   return {
@@ -1274,14 +1323,40 @@ export function buildProductDetail(
     gallery: buildGallery(product),
     features: isSupply ? SUPPLY_FEATURES : isPrinter ? PRINTER_FEATURES : SUPPLY_FEATURES,
     resourceLinks: [
-      {
-        label: 'Ficha Técnica',
-        subtitle: 'PDF',
-        icon: FileText,
-        href: technicalSheetUrl ?? '#',
-      },
-      { label: 'Solicitar cotización', subtitle: 'PDF', icon: FileText, action: 'quote' },
-      { label: 'Manual de Usuario', subtitle: 'PDF', icon: BookOpen, href: '#' },
+      ...(technicalSheetUrl
+        ? [
+            {
+              label: 'Ficha Técnica',
+              subtitle: 'PDF',
+              icon: FileText,
+              href: technicalSheetUrl,
+              action: 'technical_sheet' as const,
+              fileName: technicalSheet?.file_name ?? 'ficha-tecnica.pdf',
+              ...(technicalSheet?.mime_type ? { mimeType: technicalSheet.mime_type } : {}),
+            },
+          ]
+        : []),
+      { label: 'Solicitar cotización', subtitle: 'PDF', icon: FileText, action: 'quote' as const },
+      ...(manualAttachment?.url
+        ? [
+            {
+              label: 'Manual de Usuario',
+              subtitle: 'PDF',
+              icon: BookOpen,
+              href: manualAttachment.url,
+            },
+          ]
+        : []),
+      ...(driverAttachment?.url
+        ? [
+            {
+              label: 'Driver',
+              subtitle: 'Descarga',
+              icon: FileText,
+              href: driverAttachment.url,
+            },
+          ]
+        : []),
     ],
     warrantyOptions: [
       { id: 'none', label: 'No incluir' },
@@ -1299,6 +1374,8 @@ export function buildProductDetail(
     oldPricePen: pricing.oldPricePen,
     discountPercent: pricing.discountPercent,
     technicalSheetUrl,
+    technicalSheetFileName: technicalSheet?.file_name ?? null,
+    technicalSheetMimeType: technicalSheet?.mime_type ?? null,
     wholesalePriceUsd,
   };
 }

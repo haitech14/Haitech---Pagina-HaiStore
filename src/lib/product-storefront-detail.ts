@@ -174,6 +174,24 @@ export function heroBulletsToDescriptionText(bullets: StoredHeroBullet[]): strin
     .join('\n');
 }
 
+function heroBulletTextForIconInference(bullet: ProductHeroSpecBullet): string {
+  if (bullet.text?.trim()) return bullet.text.trim();
+  if (bullet.label && bullet.value) return `${bullet.label} ${bullet.value}`;
+  if (bullet.parts?.length) {
+    return bullet.parts.map((part) => `${part.label} ${part.value}`).join(' ');
+  }
+  return '';
+}
+
+export function resolveHeroBulletIcon(bullet: ProductHeroSpecBullet): LucideIcon {
+  const { icon } = bullet;
+  if (icon) {
+    if (typeof icon === 'string') return resolveStorefrontIcon(icon);
+    return icon;
+  }
+  return resolveStorefrontIcon(inferIconForHeroLine(heroBulletTextForIconInference(bullet)));
+}
+
 export function inferIconForHeroLine(text: string): StorefrontIconKey {
   const normalized = text
     .toLowerCase()
@@ -181,8 +199,8 @@ export function inferIconForHeroLine(text: string): StorefrontIconKey {
     .replace(/\p{M}/gu, '');
 
   if (/regalo|toner|envio/.test(normalized)) return 'Gift';
-  if (/conectividad|wi-?fi|wifi|ethernet|usb|red\b/.test(normalized)) return 'Wifi';
-  if (/spdf|alimentador|doble\s*scan|escane/.test(normalized)) return 'ScanLine';
+  if (/conectividad|wi-?fi|wifi|ethernet|usb|red\b|lan\b/.test(normalized)) return 'Wifi';
+  if (/spdf|alimentador|doble\s*scan|escane|adf|estandar/.test(normalized)) return 'ScanLine';
   if (/formato|a4|a5|a6|carta|bypass/.test(normalized)) return 'FileText';
   if (/produccion|paginas|mes/.test(normalized)) return 'Gauge';
   if (/imprime|ppm/.test(normalized)) return 'Printer';

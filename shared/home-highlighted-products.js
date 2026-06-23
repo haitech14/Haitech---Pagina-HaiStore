@@ -1,3 +1,5 @@
+import { isHomeCarouselExcludedProduct } from './home-excluded-products.js';
+
 /** Orden de modelos en la fila «Lo más destacado» (IM 430F/550F/600F primero). */
 export const HOME_HIGHLIGHTED_MODEL_PATTERNS = [
   /\bim\s*430\s*f\b/i,
@@ -55,20 +57,21 @@ export function resolveHomeHighlightedRowProducts(
   inCategory,
   rowSize = HOME_HIGHLIGHTED_ROW_SIZE,
 ) {
-  if (!Array.isArray(inCategory) || inCategory.length === 0) return [];
+  const candidates = (inCategory ?? []).filter((product) => !isHomeCarouselExcludedProduct(product));
+  if (candidates.length === 0) return [];
 
   const usedIds = new Set();
   const ordered = [];
 
   for (const pattern of HOME_HIGHLIGHTED_MODEL_PATTERNS) {
-    const match = findProductForHighlightPattern(inCategory, pattern, usedIds);
+    const match = findProductForHighlightPattern(candidates, pattern, usedIds);
     if (!match) continue;
     usedIds.add(match.id);
     ordered.push(match);
   }
 
   if (ordered.length < rowSize) {
-    const remaining = inCategory
+    const remaining = candidates
       .filter((product) => !usedIds.has(product.id))
       .sort((a, b) => scoreHomeHighlightCandidate(b) - scoreHomeHighlightCandidate(a));
 

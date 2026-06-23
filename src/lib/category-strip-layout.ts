@@ -4,7 +4,7 @@ export const CATEGORY_STRIP_CARD_HEIGHT_CLASS =
 
 /** Altura del banner hero compacto (más grande que las tarjetas de categoría). */
 export const CATEGORY_STRIP_HERO_HEIGHT_CLASS =
-  'h-[14rem] sm:h-[20rem] md:h-[23rem] lg:h-[26rem] xl:h-[28rem]';
+  'h-[15.5rem] sm:h-[22rem] md:h-[25.5rem] lg:h-[28.5rem] xl:h-[30.5rem]';
 
 /** Padding vertical del hero compacto (pegado al nav y a categorías). */
 export const CATEGORY_STRIP_HERO_PADDING_CLASS = 'p-0';

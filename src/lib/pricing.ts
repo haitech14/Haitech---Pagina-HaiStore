@@ -19,6 +19,11 @@ export function getEffectivePrice(product: InventoryProduct, role: string): numb
 export function toPublicProduct(product: InventoryProduct, role: string): Product {
   const priceRole = resolvePriceRole(role);
   const prices = ensureFullPrices(product.prices);
+  const imageUrl = product.image_url ?? null;
+  const galleryUrls = Array.isArray(product.gallery)
+    ? product.gallery.filter((url) => typeof url === 'string' && url.trim().length > 0)
+    : [];
+
   return {
     id: product.id,
     name: product.name,
@@ -26,8 +31,13 @@ export function toPublicProduct(product: InventoryProduct, role: string): Produc
     price: getEffectivePrice(product, role),
     prices,
     currency: product.currency,
-    image_url: product.image_url,
-    gallery: product.gallery?.length ? [...product.gallery] : product.image_url ? [product.image_url] : [],
+    image_url: imageUrl,
+    gallery:
+      galleryUrls.length > 0
+        ? galleryUrls
+        : imageUrl
+          ? [imageUrl]
+          : [],
     stock: product.stock,
     category: product.category,
     brand: product.brand ?? null,

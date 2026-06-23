@@ -52,44 +52,31 @@ export function InventoryInventorySection({
     });
   };
 
+  const stockValue = list.length === 1 ? stock : principalQty;
+
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="inv-stock-total">Stock</Label>
-        <Input
-          id="inv-stock-total"
-          type="number"
-          min={0}
-          step={1}
-          inputMode="numeric"
-          className="h-10 bg-background"
-          value={stock}
-          onChange={(event) => applyStock(event.target.value, event.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="inv-stock-units">Unidades</Label>
-        <Input
-          id="inv-stock-units"
-          type="number"
-          min={0}
-          step={1}
-          inputMode="numeric"
-          className="h-10 bg-background"
-          value={list.length === 1 ? stock : principalQty}
-          onChange={(event) => {
-            const principal = Math.max(0, Math.floor(Number(event.target.value) || 0));
-            if (list.length === 1) {
-              applyStock(String(principal), String(principal));
-              return;
-            }
-            const otherQty = stock_by_warehouse
-              .filter((row) => row.warehouse_id !== defaultWarehouseId)
-              .reduce((sum, row) => sum + row.quantity, 0);
-            applyStock(String(principal + otherQty), String(principal));
-          }}
-        />
-      </div>
+    <div className="space-y-2 sm:max-w-xs">
+      <Label htmlFor="inv-stock-total">Stock (unidades)</Label>
+      <Input
+        id="inv-stock-total"
+        type="number"
+        min={0}
+        step={1}
+        inputMode="numeric"
+        className="h-10 bg-background"
+        value={stockValue}
+        onChange={(event) => {
+          const principal = Math.max(0, Math.floor(Number(event.target.value) || 0));
+          if (list.length === 1) {
+            applyStock(String(principal), String(principal));
+            return;
+          }
+          const otherQty = stock_by_warehouse
+            .filter((row) => row.warehouse_id !== defaultWarehouseId)
+            .reduce((sum, row) => sum + row.quantity, 0);
+          applyStock(String(principal + otherQty), String(principal));
+        }}
+      />
     </div>
   );
 }

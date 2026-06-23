@@ -37,7 +37,10 @@ function resolveAdminTopBarTitle(pathname: string, search: string): string {
   if (pathname.startsWith(ADMIN_ROUTES.SHIPPING)) return 'Envíos';
   if (pathname.startsWith(ADMIN_ROUTES.SERVICES)) return 'Servicios';
   if (pathname.startsWith(ADMIN_ROUTES.RENTALS)) return 'Alquileres y planes';
-  if (pathname.startsWith(ADMIN_ROUTES.MARKETING)) return 'Marketing';
+  if (pathname.startsWith(ADMIN_ROUTES.MARKETING)) {
+    if (pathname.startsWith(ADMIN_ROUTES.MARKETING_COUPONS)) return 'Cupones';
+    return 'Marketing';
+  }
   if (pathname === ADMIN_ROUTES.DASHBOARD) return 'Dashboard';
   return 'Panel administrativo';
 }

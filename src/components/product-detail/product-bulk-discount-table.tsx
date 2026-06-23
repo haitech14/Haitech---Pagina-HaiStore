@@ -45,14 +45,6 @@ export function ProductBulkDiscountTable({
   const floorPriceUsd = fullPrices.tecnico;
   const activeTier = resolveBulkDiscountTierForQuantity(quantity, tiers);
   const isNeutralHeader = embedded || purchaseEmbedded;
-  const tierForTwo = resolveBulkDiscountTierForQuantity(2, tiers);
-  const tierForThree = resolveBulkDiscountTierForQuantity(3, tiers);
-  const summaryTiers = [
-    tierForTwo ? { quantity: 2, tier: tierForTwo } : null,
-    tierForThree ? { quantity: 3, tier: tierForThree } : null,
-  ].filter(
-    (item): item is { quantity: number; tier: BulkDiscountTier } => item != null,
-  );
 
   return (
     <div
@@ -101,36 +93,12 @@ export function ProductBulkDiscountTable({
       </button>
 
       <div id={panelId} hidden={!open} className={cn(!open && 'hidden')}>
-        {summaryTiers.length > 0 ? (
-          <div className="border-t border-border/50 bg-muted/15 px-3 py-2 text-[0.6875rem] text-foreground sm:text-xs">
-            <p className="font-semibold">Precio final por cantidad:</p>
-            <p className="mt-0.5">
-              {summaryTiers.map(({ quantity: qty, tier }) => {
-                const effective = resolveEffectiveBulkDiscountTier(
-                  tier,
-                  basePriceUsd,
-                  floorPriceUsd,
-                );
-                return (
-                  <span key={qty} className="mr-3 inline-flex items-center gap-1">
-                    <span className="font-medium">{qty} unid.:</span>
-                    <DualPrice usd={effective.unitUsd} className="font-bold text-foreground" />
-                    <span className="text-muted-foreground">({effective.discount})</span>
-                  </span>
-                );
-              })}
-            </p>
-          </div>
-        ) : null}
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">Descuentos por volumen</caption>
           <thead className="bg-red-600 text-white">
             <tr>
               <th scope="col" className="px-3 py-2 text-[0.6875rem] font-bold sm:text-xs">
                 Cantidad
-              </th>
-              <th scope="col" className="px-3 py-2 text-[0.6875rem] font-bold sm:text-xs">
-                Descuento
               </th>
               <th scope="col" className="px-3 py-2 text-[0.6875rem] font-bold sm:text-xs">
                 Precio por unidad
@@ -155,21 +123,10 @@ export function ProductBulkDiscountTable({
                   )}
                 >
                   <td className="px-3 py-2 font-semibold">{tier.range}</td>
-                  <td className="px-3 py-2">
-                    <span
-                      className="inline-flex rounded-full bg-muted px-2 py-0.5 text-[0.6875rem] font-semibold text-foreground"
-                      title={
-                        effective.cappedByTecnico
-                          ? 'Descuento limitado al precio técnico'
-                          : undefined
-                      }
-                    >
-                      {effective.discount}
-                    </span>
-                  </td>
                   <td className="px-3 py-2 font-bold">
                     <DualPrice
                       usd={effective.unitUsd}
+                      alwaysBoth
                       className="text-xs font-bold text-foreground sm:text-[0.8125rem]"
                     />
                     <span className="sr-only">{effective.unitUsd} dólares por unidad</span>

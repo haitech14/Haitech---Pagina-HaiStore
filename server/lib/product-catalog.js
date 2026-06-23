@@ -126,6 +126,9 @@ const SUPABASE_CATALOG_LIST_COLUMNS = [
   'created_at',
 ].join(',');
 
+/** Columnas extra para ficha de producto (adjuntos viven en inventory_snapshot). */
+const SUPABASE_CATALOG_DETAIL_COLUMNS = `${SUPABASE_CATALOG_LIST_COLUMNS},inventory_snapshot`;
+
 const PUBLIC_CATALOG_CACHE_TTL_MS = 5 * 60 * 1000;
 const SEARCH_RESULT_CACHE_TTL_MS = 30 * 1000;
 const SEARCH_RESULT_CACHE_MAX = 256;
@@ -360,7 +363,7 @@ async function getFromSupabase(id, role) {
 
   const { data, error } = await supabase
     .from('products')
-    .select(SUPABASE_CATALOG_LIST_COLUMNS)
+    .select(SUPABASE_CATALOG_DETAIL_COLUMNS)
     .eq('id', id)
     .maybeSingle();
 
@@ -377,19 +380,7 @@ export async function getPublicProductById(id, role = 'public') {
   const normalizedId = String(id ?? '').trim();
   if (!normalizedId) return undefined;
 
-  const byId = publicCatalogById.get(role);
-  const catalogCached = publicCatalogCache.get(role);
-  const catalogFresh =
-    catalogCached && Date.now() - catalogCached.cachedAt < PUBLIC_CATALOG_CACHE_TTL_MS;
-
-  if (catalogFresh && byId?.has(normalizedId)) {
-    return byId.get(normalizedId);
-  }
-
-  if (catalogFresh && byId) {
-    return undefined;
-  }
-
+  // El detalle siempre usa DTO completo (adjuntos, galería, descripción); no el listado en caché.
   if (shouldPreferSupabaseCatalog()) {
     const fromDb = await getFromSupabase(normalizedId, role);
     if (fromDb !== null) {

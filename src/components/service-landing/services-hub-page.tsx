@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import { ServiceHubHeroBanners } from '@/components/service-landing/service-hub-hero-banners';
 import { ServiceLandingSection } from '@/components/service-landing/service-landing-section';
+import { formatPageTitle } from '@/data/site-meta';
 import type { ServiceLandingSlug } from '@/data/service-landings';
 import {
   DEFAULT_SERVICE_HUB_SECTION,
@@ -28,7 +29,7 @@ export function ServicesHubPage() {
 
   useEffect(() => {
     if (config) {
-      document.title = `Servicios — ${config.metaTitle} | HaiStore`;
+      document.title = formatPageTitle(`Servicios — ${config.metaTitle}`);
     }
   }, [config]);
 

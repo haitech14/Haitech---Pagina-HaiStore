@@ -10,6 +10,8 @@ import { productMatchesCategoryFilter } from '@/lib/inventory-categories';
 import { productToFeatured } from '@/lib/store-products';
 import type { Product } from '@/types/product';
 // @ts-expect-error módulo JS compartido sin declaración de tipos
+import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
+// @ts-expect-error módulo JS compartido sin declaración de tipos
 import { resolveHomeHighlightedRowProducts as resolveHighlightedRow } from '../../shared/home-highlighted-products.js';
 
 export { HOME_HIGHLIGHTED_ROW_SIZE, MIN_HOME_FEATURED };
@@ -53,7 +55,10 @@ export function resolveHomeFeaturedProducts(
 ): FeaturedProduct[] {
   if (!storeProducts?.length) return [];
 
-  const inStock = storeProducts.filter((product) => product.stock > 0 && product.price > 0);
+  const inStock = storeProducts.filter(
+    (product) =>
+      product.stock > 0 && product.price > 0 && !isHomeCarouselExcludedProduct(product),
+  );
   if (inStock.length < MIN_HOME_FEATURED) return [];
 
   const byId = new Map(inStock.map((product) => [product.id, product]));

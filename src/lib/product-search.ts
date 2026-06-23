@@ -99,25 +99,57 @@ export interface SearchProductCategoryGroup {
   products: Product[];
 }
 
-const SEARCH_CATEGORY_DISPLAY_ORDER: RegExp[] = [
-  /multifuncion|impresor|formato ancho|plotter|copiadora|esc[aá]ner|equipo/i,
-  /consumible|toner|t[oó]ner|suministro/i,
-  /repuesto/i,
-  /accesorio/i,
-];
+function normalizeSearchCategoryLabel(value: string): string {
+  return normalizeSearchText(value ?? '').trim().toLowerCase();
+}
+
+function isTonerCategory(category: string): boolean {
+  return /(toner|t[oó]ner)/i.test(category);
+}
 
 function getSearchCategorySortRank(category: string): number {
-  const index = SEARCH_CATEGORY_DISPLAY_ORDER.findIndex((pattern) => pattern.test(category));
-  return index === -1 ? SEARCH_CATEGORY_DISPLAY_ORDER.length : index;
+  const normalized = normalizeSearchCategoryLabel(category);
+  if (!normalized) return 999;
+
+  // Orden fijo solicitado:
+  // 1) Multifuncionales
+  // 2) Impresoras
+  // 3) Tóner originales
+  // 4) Tóner compatibles / repuestos
+  // 5) Repuestos / etc.
+  // 6) Accesorios / etc.
+  if (/multifuncion/.test(normalized)) return 0;
+  if (/impresor/.test(normalized)) return 1;
+
+  // Otros equipos (plotter/copiadora/escáner/etc) justo después de impresoras.
+  if (/(formato ancho|plotter|copiadora|esc[aá]ner|scanner|equipo)/.test(normalized)) return 2;
+
+  // Tóner: separar original vs compatible/repuesto.
+  if (isTonerCategory(normalized)) {
+    if (/(original|genuin|oem|oficial)/.test(normalized)) return 3;
+    if (/(compatible|compatibl|alternativ|gen[eé]ric|repuesto|remplazo|reemplazo)/.test(normalized))
+      return 4;
+    return 5;
+  }
+
+  // Consumibles (no tóner) antes que repuestos.
+  if (/(consumible|suministro|cartucho|tinta|drum|unidad|rodillo|filtro)/.test(normalized)) return 6;
+
+  if (/repuesto|refacci[oó]n|pieza/.test(normalized)) return 7;
+  if (/accesorio|cable|adaptador|bandeja|cassette|charola/.test(normalized)) return 8;
+
+  return 9;
 }
 
 /** Emoji por división de inventario (equipos primero en el orden de grupos). */
 export function getSearchCategoryEmoji(category: string): string {
-  const normalized = category.toLowerCase();
-  if (SEARCH_CATEGORY_DISPLAY_ORDER[0].test(normalized)) return '🖨️';
-  if (SEARCH_CATEGORY_DISPLAY_ORDER[1].test(normalized)) return '🧴';
-  if (SEARCH_CATEGORY_DISPLAY_ORDER[2].test(normalized)) return '🔧';
-  if (SEARCH_CATEGORY_DISPLAY_ORDER[3].test(normalized)) return '🔌';
+  const normalized = normalizeSearchCategoryLabel(category);
+  if (/multifuncion/.test(normalized)) return '🖨️';
+  if (/impresor/.test(normalized)) return '🖨️';
+  if (/(formato ancho|plotter|copiadora|esc[aá]ner|scanner|equipo)/.test(normalized)) return '🖨️';
+  if (isTonerCategory(normalized)) return '🧴';
+  if (/repuesto|refacci[oó]n|pieza/.test(normalized)) return '🔧';
+  if (/accesorio|cable|adaptador|bandeja|cassette|charola/.test(normalized)) return '🔌';
   return '📦';
 }
 

@@ -157,6 +157,13 @@ const AdminMarketingPage = lazyWithRetry(
     })),
   'marketing',
 );
+const AdminMarketingCuponesPage = lazyWithRetry(
+  () =>
+    import('@/pages/admin/AdminMarketingCuponesPage').then((m) => ({
+      default: m.AdminMarketingCuponesPage,
+    })),
+  'marketing-cupones',
+);
 const AdminConfiguracionLayout = lazyWithRetry(
   () =>
     import('@/pages/admin/AdminConfiguracionLayout').then((m) => ({
@@ -292,6 +299,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: 'marketing', element: withSuspense(<AdminMarketingPage />) },
+      { path: 'marketing/cupones', element: withSuspense(<AdminMarketingCuponesPage />) },
       { path: 'reportes', element: withSuspense(<AdminPlaceholder page="reportes" />) },
       {
         path: 'configuracion',

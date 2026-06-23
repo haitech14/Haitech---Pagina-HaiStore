@@ -10,6 +10,8 @@ import {
 } from '@/lib/product-condition';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import type { Product } from '@/types/product';
+// @ts-expect-error módulo JS compartido sin declaración de tipos
+import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
 
 export const FEATURED_CAROUSEL_LIMIT = 8;
 
@@ -21,6 +23,8 @@ export function productToFeatured(product: Product): FeaturedProduct {
     brand: product.brand ?? null,
     ...(product.attributes?.length ? { attributes: product.attributes } : {}),
     price: product.price,
+    ...(product.prices ? { prices: product.prices } : {}),
+    ...(product.price_role ? { price_role: product.price_role } : {}),
     image: resolveProductImageUrl(product),
     rating: 5,
     reviews: 0,
@@ -50,6 +54,7 @@ export function filterStoreProductsForHomeSection(
 ): FeaturedProduct[] {
   return [...products]
     .filter((product) => {
+      if (isHomeCarouselExcludedProduct(product)) return false;
       if (family === 'repuestos' && isPrinterEquipmentProduct(product)) {
         return false;
       }

@@ -15,6 +15,30 @@ export const IM550F_ORIGINAL_TONER_PRODUCT_ID = 'toner-418480';
 /** Tóner compatible IM 550 en inventario. */
 export const IM550F_COMPATIBLE_TONER_PRODUCT_ID = 'toner-compat-tc-im-550-intercopy';
 
+/** Casetera 250 hojas — PB1110 (IM 430F). */
+export const CASETERA_250_PB1110_PRODUCT_ID = 'ricoh-acc-418080';
+
+/** Casetera 500 hojas — PB1120 (IM 430F). */
+export const CASETERA_500_PB1120_PRODUCT_ID = 'ricoh-acc-418081';
+
+/** Casetera adicional — PB1160 (IM 550F / IM 600F). */
+export const CASETERA_500_PB1160_PRODUCT_ID = 'ricoh-acc-418475';
+
+/** Gabinete alto Tipo I (inventario HaiStore). */
+export const GABINETE_ALTO_TIPO_I_PRODUCT_ID = '080d0afc-1c8a-40f7-9c50-ad75be1700b3';
+
+/** Tall Cabinet IM 550F / IM 600F. */
+export const TALL_CABINET_IM550_PRODUCT_ID = 'ricoh-lp-1666-02';
+
+/** Tall Cabinet IM 430F. */
+export const TALL_CABINET_IM430_PRODUCT_ID = 'ricoh-lp-1607-00';
+
+/** Estabilizador sólido 2 KVA (~2000 W). */
+export const ESTABILIZADOR_2KVA_PRODUCT_ID = 'deltron-psstie2042';
+
+/** Router Wi-Fi gigabit. */
+export const ROUTER_WIFI_PRODUCT_ID = 'deltron-rtdldir-2150';
+
 interface OptionCatalogHint {
   keywords: string[];
   categories?: string[];
@@ -118,6 +142,26 @@ const OPTION_CATALOG_HINTS: Record<string, OptionCatalogHint> = {
     categories: ['Accesorios', 'Repuestos'],
     fallbackImage: '/categories/accesorios-impresoras.png',
   },
+  'casetera-250': {
+    keywords: ['418080', 'pb1110', 'pb 1110', '250', 'paper bank', 'casetera'],
+    categories: ['Accesorios', 'Repuestos', 'Repuestos Originales'],
+    fallbackImage: '/categories/accesorios-impresoras.png',
+  },
+  'casetera-500': {
+    keywords: ['418081', '418475', 'pb1120', 'pb1160', 'pb 1120', 'pb 1160', '500', 'paper bank', 'paper feed', 'casetera'],
+    categories: ['Accesorios', 'Repuestos', 'Repuestos Originales'],
+    fallbackImage: '/categories/repuestos.png',
+  },
+  gabinete: {
+    keywords: ['gabinete', 'tall cabinet', 'cabinet type', 'pedestal', 'mueble'],
+    categories: ['Accesorios', 'Repuestos', 'Repuestos Originales'],
+    fallbackImage: '/products/combo-gabinete-alto.webp',
+  },
+  'router-wifi': {
+    keywords: ['router', 'wi-fi', 'wifi', 'gigabit'],
+    categories: ['Soluciones de Negocio', 'Accesorios'],
+    fallbackImage: '/categories/soluciones-negocio.png',
+  },
   'tall-cabinet-u': {
     keywords: ['tall cabinet', 'cabinet type u', 'pedestal', 'cabinet'],
     categories: ['Accesorios', 'Repuestos'],
@@ -129,8 +173,8 @@ const OPTION_CATALOG_HINTS: Record<string, OptionCatalogHint> = {
     fallbackImage: '/categories/soluciones-negocio.png',
   },
   'estabilizador-2000w': {
-    keywords: ['estabilizador', '2000', 'solido', 'sólido', 'watts'],
-    categories: ['Accesorios', 'Repuestos', 'Suministros'],
+    keywords: ['estabilizador', '2000', '2kva', 'solido', 'sólido', 'watts', 'estb', '220'],
+    categories: ['Accesorios', 'Repuestos', 'Suministros', 'Soluciones de Negocio'],
     fallbackImage: '/categories/accesorios-impresoras.png',
   },
   'starter-kit': {
@@ -360,6 +404,12 @@ function mergeOptionFromCatalog(
       ? option.pricePen
       : usdToPen(resolvedPriceUsd);
 
+  const catalogModelName = match.name?.trim();
+  const resolvedDescription =
+    preferOptionName && catalogModelName
+      ? catalogModelName
+      : mergedDescription;
+
   return {
     ...option,
     productId: match.id,
@@ -375,7 +425,7 @@ function mergeOptionFromCatalog(
     ...(image ? { image } : {}),
     ...(option.included ? {} : { priceUsd: resolvedPriceUsd }),
     pricePen: resolvedPricePen,
-    ...(mergedDescription ? { description: mergedDescription } : {}),
+    ...(resolvedDescription ? { description: resolvedDescription } : {}),
   };
 }
 

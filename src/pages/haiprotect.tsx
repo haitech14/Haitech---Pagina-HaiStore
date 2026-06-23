@@ -7,6 +7,7 @@ import {
   HaiProtectPlanCards,
 } from '@/components/haiprotect/haiprotect-plan-cards';
 import { Button } from '@/components/ui/button';
+import { formatPageTitle } from '@/data/site-meta';
 import {
   HAIPROTECT_BENEFITS,
   formatHaiProtectPrice,
@@ -20,7 +21,7 @@ export function HaiProtectPage() {
   const [offeringId, setOfferingId] = useState<HaiProtectOfferingId>('mono-12m');
 
   useEffect(() => {
-    document.title = 'HaiProtect — Garantía extendida | HaiStore';
+    document.title = formatPageTitle('HaiProtect — Garantía extendida');
   }, []);
 
   const activeOffering = getHaiProtectOffering(offeringId);

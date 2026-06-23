@@ -51,10 +51,10 @@ export function InventorySelectField({
         <SelectContent className="max-h-72">
           {groups.length > 0
             ? groups.map((group) => (
-                <SelectGroup key={group.label}>
+                <SelectGroup key={group.id}>
                   <SelectLabel>{group.label}</SelectLabel>
                   {group.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem key={`${group.id}-${option.value}`} value={option.value}>
                       {option.label}
                     </SelectItem>
                   ))}

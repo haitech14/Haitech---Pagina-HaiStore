@@ -3,6 +3,10 @@ import { Link, Navigate } from 'react-router-dom';
 import { CheckCircle2, ShoppingBag } from 'lucide-react';
 
 import { HaitechClientForm } from '@/components/admin/shared/haitech-client-form';
+import {
+  CheckoutCouponField,
+  type AppliedCheckoutCoupon,
+} from '@/components/checkout/checkout-coupon-field';
 import { DualPrice } from '@/components/product-showcase-card';
 import { Button } from '@/components/ui/button';
 import {
@@ -43,6 +47,7 @@ export function CheckoutPage() {
   const [client, setClient] = useState(EMPTY_HAITECH_CLIENT);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId>('transferencia');
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCheckoutCoupon | null>(null);
   const [confirmedOrder, setConfirmedOrder] = useState<{ id: string; orderNumber: string | null } | null>(
     null,
   );
@@ -55,6 +60,19 @@ export function CheckoutPage() {
     () => company.bankAccountsText.split('\n').map((line) => line.trim()).filter(Boolean),
     [company.bankAccountsText],
   );
+
+  const couponLineItems = useMemo(
+    () =>
+      items.map((item) => ({
+        productId: item.product.id,
+        category: item.product.category,
+        lineTotalUsd: cartLineUnitUsd(item) * item.quantity,
+      })),
+    [items],
+  );
+
+  const discountUsd = appliedCoupon?.discountUsd ?? 0;
+  const totalAfterDiscount = Math.max(0, totalPrice - discountUsd);
 
   if (items.length === 0 && !confirmedOrder) {
     return <Navigate to="/tienda" replace />;
@@ -75,7 +93,13 @@ export function CheckoutPage() {
 
     try {
       const result = await checkoutOrder.mutateAsync(
-        buildCheckoutOrderPayload(items, haitechFormToClient(parsed.data), methodLabel, currency),
+        buildCheckoutOrderPayload(
+          items,
+          haitechFormToClient(parsed.data),
+          methodLabel,
+          currency,
+          appliedCoupon?.code,
+        ),
       );
       setConfirmedOrder({
         id: result.order.id,
@@ -186,10 +210,28 @@ export function CheckoutPage() {
                     );
                   })}
                 </ul>
+                <CheckoutCouponField
+                  subtotalUsd={totalPrice}
+                  customerEmail={client.email}
+                  lineItems={couponLineItems}
+                  applied={appliedCoupon}
+                  onAppliedChange={setAppliedCoupon}
+                />
+                {appliedCoupon && discountUsd > 0 ? (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Descuento ({appliedCoupon.code})</span>
+                    <span className="font-semibold text-primary">− <DualPrice usd={discountUsd} /></span>
+                  </div>
+                ) : null}
+                {appliedCoupon?.freeShipping ? (
+                  <p className="text-sm font-medium text-primary" role="status">
+                    Envío gratis incluido con tu cupón
+                  </p>
+                ) : null}
                 <div className="flex items-center justify-between border-t border-border pt-3">
                   <span className="text-sm font-medium text-muted-foreground">Total</span>
                   <span className="text-lg font-bold">
-                    <DualPrice usd={totalPrice} />
+                    <DualPrice usd={totalAfterDiscount} />
                   </span>
                 </div>
               </CardContent>

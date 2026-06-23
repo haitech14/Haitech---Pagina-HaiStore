@@ -10,21 +10,21 @@ export function ProductDetailSpecsTable({ specs, className }: ProductDetailSpecs
   if (specs.length === 0) return null;
 
   return (
-    <div className={cn('overflow-hidden rounded-lg border border-border/60', className)}>
-      <table className="w-full text-left text-sm">
+    <div className={cn('overflow-hidden rounded-lg border border-border bg-background', className)}>
+      <table className="w-full border-collapse text-left text-xs sm:text-sm">
         <tbody>
           {specs.map((row, index) => (
-            <tr
-              key={row.label}
-              className={cn(index % 2 === 0 ? 'bg-muted/30' : 'bg-white')}
-            >
+            <tr key={row.label} className={cn(index !== specs.length - 1 && 'border-b border-border/60')}>
               <th
                 scope="row"
-                className="w-[42%] px-4 py-2.5 font-semibold text-[#0f1f3d] sm:py-3"
+                className="w-[44%] px-4 py-2.5 align-top font-semibold text-foreground sm:py-3"
               >
                 {row.label}
               </th>
-              <td className="px-4 py-2.5 text-muted-foreground sm:py-3">{row.value}</td>
+              <td className="w-6 px-0 py-2.5 align-top text-center font-semibold text-muted-foreground sm:py-3">
+                :
+              </td>
+              <td className="px-4 py-2.5 align-top text-muted-foreground sm:py-3">{row.value}</td>
             </tr>
           ))}
         </tbody>

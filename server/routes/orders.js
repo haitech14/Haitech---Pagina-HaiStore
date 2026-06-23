@@ -419,7 +419,9 @@ ordersRouter.post('/checkout', async (req, res, next) => {
         message.includes('obligator') ||
         message.includes('No se pudo') ||
         message.includes('ítems') ||
-        message.includes('producto')
+        message.includes('producto') ||
+        message.includes('Cupón') ||
+        message.includes('cupón')
       ) {
         return res.status(400).json({ error: message });
       }

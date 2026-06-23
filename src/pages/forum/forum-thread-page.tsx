@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
@@ -17,7 +18,7 @@ export function ForumThreadPage() {
 
   useEffect(() => {
     if (data?.thread.title) {
-      document.title = `${data.thread.title} | Foro HaiStore`;
+      document.title = `${data.thread.title} | ${FORUM_TITLE_SUFFIX}`;
     }
   }, [data?.thread.title]);
 

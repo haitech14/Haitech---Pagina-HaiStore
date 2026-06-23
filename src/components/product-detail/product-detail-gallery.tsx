@@ -146,123 +146,123 @@ export function ProductDetailGallery({
 
   return (
     <div className="flex w-full flex-col">
-      <div className="flex w-full flex-row items-start gap-2 sm:gap-3">
-      <ul
-        className="flex w-14 shrink-0 flex-col gap-2 overflow-y-auto sm:w-[4.5rem] md:w-20 lg:max-h-[min(62vh,580px)] [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1"
-        aria-label={`Miniaturas de ${productName}`}
-      >
-        {galleryItems.map((item, index) => {
-          const isActive = index === safeIndex;
-          const isVideo = item.type === 'video' || item.type === 'video-file';
+      <div className="relative overflow-hidden rounded-lg border border-border/60 bg-white">
+        <div className="flex min-h-[260px] items-stretch sm:min-h-[320px] lg:min-h-[420px]">
+          <ul
+            className="flex w-[4.25rem] shrink-0 flex-col gap-2 overflow-y-auto border-r border-border/60 bg-muted/10 p-2 sm:w-20 md:w-24 lg:max-h-[min(62vh,580px)] [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1"
+            aria-label={`Miniaturas de ${productName}`}
+          >
+            {galleryItems.map((item, index) => {
+              const isActive = index === safeIndex;
+              const isVideo = item.type === 'video' || item.type === 'video-file';
 
-          return (
-            <li key={getItemKey(item)} className="shrink-0">
+              return (
+                <li key={getItemKey(item)} className="shrink-0">
+                  <button
+                    type="button"
+                    className={cn(
+                      'relative aspect-square w-full overflow-hidden rounded-md border-2 bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600',
+                      isActive ? 'border-red-600' : 'border-border/70 hover:border-border',
+                    )}
+                    onClick={() => setActiveIndex(index)}
+                    aria-label={
+                      isVideo
+                        ? `Ver vídeo ${index + 1} de ${productName}`
+                        : `Ver imagen ${index + 1} de ${productName}`
+                    }
+                    aria-current={isActive}
+                  >
+                    <ProductImageWatermarkOverlay
+                      src={item.type === 'image' ? item.src : ''}
+                      className="size-full"
+                    >
+                      <img
+                        src={getThumbnailSrc(item)}
+                        alt=""
+                        className="size-full object-cover"
+                        loading="lazy"
+                      />
+                    </ProductImageWatermarkOverlay>
+                    {isVideo ? (
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/35">
+                        <Play className="size-4 text-white" aria-hidden="true" />
+                      </span>
+                    ) : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="relative min-w-0 flex-1">
+            {showOriginalBadge ? (
+              <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-md bg-[#0f1f3d]/90 px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-wide text-white shadow-sm sm:left-4 sm:top-4 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:text-[0.65rem]">
+                <ShieldCheck className="size-3 shrink-0 sm:size-3.5" aria-hidden="true" />
+                <span>Original</span>
+                {brandLabel ? (
+                  <span className="font-bold tracking-normal">{brandLabel.toUpperCase()}</span>
+                ) : null}
+              </span>
+            ) : null}
+
+            {viewer3dUrl ? (
+              <a
+                href={viewer3dUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute right-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-white/95 px-3 text-xs font-medium text-[#0f1f3d] shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:right-4 sm:top-4"
+              >
+                <Box className="size-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                Ver en 3D
+              </a>
+            ) : null}
+
+            <div
+              className={cn(
+                'flex h-full min-h-[inherit] items-center justify-center bg-white p-3 sm:p-4 lg:p-5',
+              )}
+            >
+              {activeItem ? (
+                activeItem.type === 'image' ? (
+                  <button
+                    type="button"
+                    onClick={() => setLightboxOpen(true)}
+                    className="relative flex size-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+                    aria-label={`Ampliar imagen de ${productName}`}
+                  >
+                    <GalleryMainMedia
+                      item={activeItem}
+                      productName={productName}
+                      onImageError={() => setImageError(true)}
+                      imageError={imageError}
+                    />
+                  </button>
+                ) : (
+                  <div className="flex size-full items-center justify-center">
+                    <GalleryMainMedia
+                      item={activeItem}
+                      productName={productName}
+                      onImageError={() => setImageError(true)}
+                      imageError={imageError}
+                    />
+                  </div>
+                )
+              ) : null}
+            </div>
+
+            {activeImage ? (
               <button
                 type="button"
-                className={cn(
-                  'relative aspect-square w-full overflow-hidden rounded-md border-2 bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600',
-                  isActive ? 'border-red-600' : 'border-border/70 hover:border-border',
-                )}
-                onClick={() => setActiveIndex(index)}
-                aria-label={
-                  isVideo
-                    ? `Ver vídeo ${index + 1} de ${productName}`
-                    : `Ver imagen ${index + 1} de ${productName}`
-                }
-                aria-current={isActive}
+                onClick={() => setLightboxOpen(true)}
+                className="absolute bottom-3 right-3 flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-white/95 px-3 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:bg-white hover:text-[#0f1f3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:bottom-4 sm:right-4"
+                aria-label={`Ampliar imagen de ${productName}`}
               >
-                <ProductImageWatermarkOverlay
-                  src={item.type === 'image' ? item.src : ''}
-                  className="size-full"
-                >
-                  <img
-                    src={getThumbnailSrc(item)}
-                    alt=""
-                    className="size-full object-cover"
-                    loading="lazy"
-                  />
-                </ProductImageWatermarkOverlay>
-                {isVideo ? (
-                  <span className="absolute inset-0 flex items-center justify-center bg-black/35">
-                    <Play className="size-4 text-white" aria-hidden="true" />
-                  </span>
-                ) : null}
+                <ZoomIn className="size-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                Ampliar
               </button>
-            </li>
-          );
-        })}
-      </ul>
-
-      <div className="relative min-w-0 flex-1">
-        <div className="relative overflow-hidden rounded-lg border border-border/60 bg-white">
-          {showOriginalBadge ? (
-            <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-md bg-[#0f1f3d]/90 px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-wide text-white shadow-sm sm:left-4 sm:top-4 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:text-[0.65rem]">
-              <ShieldCheck className="size-3 shrink-0 sm:size-3.5" aria-hidden="true" />
-              <span>Original</span>
-              {brandLabel ? (
-                <span className="font-bold tracking-normal">{brandLabel.toUpperCase()}</span>
-              ) : null}
-            </span>
-          ) : null}
-
-          {viewer3dUrl ? (
-            <a
-              href={viewer3dUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute right-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-white/95 px-3 text-xs font-medium text-[#0f1f3d] shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:right-4 sm:top-4"
-            >
-              <Box className="size-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
-              Ver en 3D
-            </a>
-          ) : null}
-
-          <div
-            className={cn(
-              'flex min-h-[260px] items-center justify-center bg-white p-3 sm:min-h-[320px] sm:p-4 lg:min-h-[420px] lg:p-5',
-            )}
-          >
-            {activeItem ? (
-              activeItem.type === 'image' ? (
-                <button
-                  type="button"
-                  onClick={() => setLightboxOpen(true)}
-                  className="relative flex size-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
-                  aria-label={`Ampliar imagen de ${productName}`}
-                >
-                  <GalleryMainMedia
-                    item={activeItem}
-                    productName={productName}
-                    onImageError={() => setImageError(true)}
-                    imageError={imageError}
-                  />
-                </button>
-              ) : (
-                <div className="flex size-full items-center justify-center">
-                  <GalleryMainMedia
-                    item={activeItem}
-                    productName={productName}
-                    onImageError={() => setImageError(true)}
-                    imageError={imageError}
-                  />
-                </div>
-              )
             ) : null}
           </div>
-
-          {activeImage ? (
-            <button
-              type="button"
-              onClick={() => setLightboxOpen(true)}
-              className="absolute bottom-3 right-3 flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-white/95 px-3 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:bg-white hover:text-[#0f1f3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:bottom-4 sm:right-4"
-              aria-label={`Ampliar imagen de ${productName}`}
-            >
-              <ZoomIn className="size-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
-              Ampliar
-            </button>
-          ) : null}
         </div>
-      </div>
       </div>
 
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>

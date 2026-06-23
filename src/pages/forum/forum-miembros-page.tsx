@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Crown } from 'lucide-react';
 
+import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useForumMembers } from '@/hooks/use-forum';
 
@@ -9,7 +10,7 @@ export function ForumMiembrosPage() {
   const { data: members = [], isLoading } = useForumMembers();
 
   useEffect(() => {
-    document.title = 'Miembros | Foro HaiStore';
+    document.title = `Miembros | ${FORUM_TITLE_SUFFIX}`;
   }, []);
 
   return (

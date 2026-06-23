@@ -4,6 +4,8 @@ import { cn } from '@/lib/utils';
 
 interface RuletaCouponCardProps {
   premio: RuletaPremio;
+  /** Código canjeable en checkout (si aplica). */
+  couponCode?: string | null;
   /** Color de fondo detrás de las muescas del ticket (debe coincidir con el panel contenedor). */
   notchBackgroundClassName?: string;
   className?: string;
@@ -11,6 +13,7 @@ interface RuletaCouponCardProps {
 
 export function RuletaCouponCard({
   premio,
+  couponCode,
   notchBackgroundClassName = 'bg-card',
   className,
 }: RuletaCouponCardProps) {
@@ -70,9 +73,25 @@ export function RuletaCouponCard({
           </p>
         </div>
         <p className="max-w-[16rem] text-center text-sm leading-snug text-muted-foreground">
-          Válido por 48 a 72 horas. Te lo enviamos por correo.
+          {couponCode
+            ? 'Usa este código en el checkout antes de que expire.'
+            : 'Válido por 48 a 72 horas. Te lo enviamos por correo.'}
         </p>
       </div>
+
+      {couponCode ? (
+        <div
+          className="overflow-hidden border-t border-dashed border-primary/20 bg-background px-5 py-4 text-center"
+          aria-label={`Código del cupón: ${couponCode}`}
+        >
+          <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+            Tu código
+          </p>
+          <p className="mt-1 font-mono text-xl font-extrabold tracking-wider text-primary sm:text-2xl">
+            {couponCode}
+          </p>
+        </div>
+      ) : null}
 
       <div
         aria-hidden="true"

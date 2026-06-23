@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RuletaCouponCard } from '@/components/ruleta-coupon-card';
+import { isRuletaRedeemablePremio } from '@/config/ruleta-coupon-premios';
 import {
   computeRuletaSpinDeltaDeg,
   formatPremioLabel,
@@ -31,10 +32,12 @@ import {
   pickRandomPremioIndex,
   type RuletaPremio,
 } from '@/config/subscription-ruleta-premios';
+import { useCreateRuletaCoupon } from '@/hooks/use-discount-coupon';
 import { submitSupportTicket, SupportTicketError } from '@/lib/support-ticket';
 import { cn } from '@/lib/utils';
 
 const SESSION_KEY = 'subscription_popup_shown';
+const RULETA_COUPON_KEY = 'haistore_ruleta_coupon';
 const OPEN_DELAY_MS = 2000;
 /** Giro horario (hacia la derecha) en reposo. */
 const IDLE_STEP_DEG = 0.45;
@@ -102,7 +105,9 @@ export function SubscriptionPopup() {
   const [spinToken, setSpinToken] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [wonPremio, setWonPremio] = useState<RuletaPremio | null>(null);
+  const [wonCouponCode, setWonCouponCode] = useState<string | null>(null);
   const [winningIndex, setWinningIndex] = useState<number | null>(null);
+  const createRuletaCoupon = useCreateRuletaCoupon();
 
   const {
     register,
@@ -198,6 +203,7 @@ export function SubscriptionPopup() {
     setOpen(false);
     setPhase('idle');
     setWonPremio(null);
+    setWonCouponCode(null);
     setWinningIndex(null);
     setIsSpinAnimating(false);
     setSpinDeltaDeg(null);
@@ -264,6 +270,28 @@ export function SubscriptionPopup() {
         toast.warning('Modo demo HaiSupport', {
           description: 'El registro no llegó a soporte real. Configura HAISUPPORT_API_URL en el servidor.',
         });
+      }
+
+      if (isRuletaRedeemablePremio(premio.id)) {
+        try {
+          const couponResult = await createRuletaCoupon.mutateAsync({
+            premioId: premio.id,
+            email: values.email,
+            participantName: values.name,
+          });
+          if (couponResult.coupon?.code) {
+            setWonCouponCode(couponResult.coupon.code);
+            try {
+              sessionStorage.setItem(RULETA_COUPON_KEY, couponResult.coupon.code);
+            } catch {
+              /* storage no disponible */
+            }
+          }
+        } catch {
+          toast.message('Premio registrado', {
+            description: 'Tu cupón se enviará por correo en las próximas 48 a 72 horas.',
+          });
+        }
       }
 
       window.requestAnimationFrame(() => {
@@ -609,12 +637,21 @@ export function SubscriptionPopup() {
                   </div>
                   <RuletaCouponCard
                     premio={wonPremio}
+                    couponCode={wonCouponCode}
                     notchBackgroundClassName="bg-card"
                     className="w-full shadow-md"
                   />
                   <p className="max-w-sm text-center text-sm leading-relaxed text-muted-foreground">
-                    <Mail className="mb-0.5 inline size-4 text-primary" aria-hidden="true" />{' '}
-                    Te enviaremos el cupón a tu correo en las próximas 48 a 72 horas.
+                    {wonCouponCode ? (
+                      <>
+                        Copia el código y aplícalo en el checkout antes de que expire.
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="mb-0.5 inline size-4 text-primary" aria-hidden="true" />{' '}
+                        Te enviaremos el cupón a tu correo en las próximas 48 a 72 horas.
+                      </>
+                    )}
                   </p>
                   <Button
                     type="button"

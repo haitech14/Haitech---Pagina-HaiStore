@@ -1,6 +1,8 @@
 import {
   CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS,
 } from '@/data/catalog-format-spotlight';
+// @ts-expect-error módulo JS compartido sin declaración de tipos
+import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
 import { sortProductsByPublicPriceAsc } from '@/lib/inventory-product-order';
 import type { Product } from '@/types/product';
 
@@ -407,7 +409,8 @@ function mergeCrossListedIntoA4(a4: Product[], sourceProducts: readonly Product[
 export function buildCatalogFormatSections(
   products: readonly Product[],
 ): CatalogFormatSectionGroup[] {
-  const { bn, color } = splitProductsByCatalogColor(products);
+  const visibleProducts = products.filter((product) => !isHomeCarouselExcludedProduct(product));
+  const { bn, color } = splitProductsByCatalogColor(visibleProducts);
   const bnByPaper = splitProductsByPaperFormat(bn);
   const bnA4WithCrossList = mergeCrossListedIntoA4(bnByPaper.a4, bn);
   const colorByPaper = splitProductsByPaperFormat(color);

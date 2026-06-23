@@ -8,6 +8,7 @@ export function buildCheckoutOrderPayload(
   customer: HaitechClient,
   paymentMethod: string,
   currency: 'USD' | 'PEN',
+  couponCode?: string | null,
 ): CreateStoreOrderPayload {
   return {
     customer,
@@ -17,6 +18,7 @@ export function buildCheckoutOrderPayload(
       quantity: item.quantity,
       unitPriceUsd: cartLineUnitUsd(item),
       imageUrl: item.product.image_url ?? null,
+      category: item.product.category,
     })),
     currency,
     paymentMethod,
@@ -24,5 +26,6 @@ export function buildCheckoutOrderPayload(
     status: 'pending_payment',
     exchangeRate: getUsdToPenSaleRate(),
     notes: 'Pedido web — checkout',
+    couponCode: couponCode?.trim() || null,
   };
 }

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 
 import type { ProductDescriptionContent } from '@/types/product-detail';
-import { cn } from '@/lib/utils';
 
 interface ProductDetailDescriptionProps {
   content: ProductDescriptionContent;
@@ -23,11 +22,8 @@ export function ProductDetailDescription({
   const paragraphs = omitPanelSummary
     ? content.paragraphs.filter((paragraph) => !overviewParagraphs.includes(paragraph))
     : content.paragraphs;
-  const highlights = omitPanelSummary ? content.highlights.slice(4) : content.highlights;
-  const primaryHighlights = highlights.slice(0, 3);
-  const secondaryHighlights = highlights.slice(3);
   const hasYoutube = Boolean(content.youtubeVideoId);
-  const hasBody = paragraphs.length > 0 || hasYoutube || highlights.length > 0;
+  const hasBody = paragraphs.length > 0 || hasYoutube;
 
   if (!hasBody) {
     return null;
@@ -63,53 +59,6 @@ export function ProductDetailDescription({
       )}
 
       {afterBody}
-
-      {highlights.length > 0 && (
-        <div className="space-y-3">
-          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {primaryHighlights.map((highlight) => {
-              const Icon = highlight.icon;
-              return (
-                <li
-                  key={highlight.title}
-                  className="flex flex-col items-center rounded-xl border border-neutral-200 bg-white px-4 py-5 text-center"
-                >
-                  <span className="flex size-11 items-center justify-center rounded-full bg-neutral-100 text-neutral-500">
-                    <Icon className="size-5" strokeWidth={1.5} aria-hidden="true" />
-                  </span>
-                  <p className="mt-3 text-sm font-bold text-neutral-900">{highlight.title}</p>
-                  <p className="mt-1 text-xs leading-snug text-neutral-500">{highlight.subtitle}</p>
-                </li>
-              );
-            })}
-          </ul>
-
-          {secondaryHighlights.length > 0 && (
-            <ul
-              className={cn(
-                'grid grid-cols-1 gap-3',
-                secondaryHighlights.length === 2 && 'sm:mx-auto sm:max-w-2xl sm:grid-cols-2',
-              )}
-            >
-              {secondaryHighlights.map((highlight) => {
-                const Icon = highlight.icon;
-                return (
-                  <li
-                    key={highlight.title}
-                    className="flex flex-col items-center rounded-xl border border-neutral-200 bg-white px-4 py-5 text-center"
-                  >
-                    <span className="flex size-11 items-center justify-center rounded-full bg-neutral-100 text-neutral-500">
-                      <Icon className="size-5" strokeWidth={1.5} aria-hidden="true" />
-                    </span>
-                    <p className="mt-3 text-sm font-bold text-neutral-900">{highlight.title}</p>
-                    <p className="mt-1 text-xs leading-snug text-neutral-500">{highlight.subtitle}</p>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      )}
     </div>
   );
 }

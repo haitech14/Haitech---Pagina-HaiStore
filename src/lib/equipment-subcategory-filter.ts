@@ -1,5 +1,6 @@
 import {
   productQualifiesAsNuevaEquipment,
+  productQualifiesAsRemanufacturadaEquipment,
   productQualifiesAsSeminuevaEquipment,
 } from '@/lib/inventory-product-name';
 import type { Product } from '@/types/product';
@@ -14,7 +15,12 @@ const SEMINUEVAS_EQUIPMENT_SUBSLUGS = new Set([
   'impresoras-laser-seminuevas',
 ]);
 
-/** Filtra por condición real del equipo (nombre «NUEVA» / «seminueva») en subcategorías de equipos. */
+const REMANUFACTURADAS_EQUIPMENT_SUBSLUGS = new Set([
+  'multifuncionales-remanufacturadas',
+  'impresoras-laser-remanufacturadas',
+]);
+
+/** Filtra por condición real del equipo (nombre «NUEVA» / «seminueva» / «remanufacturad») en subcategorías. */
 export function applyEquipmentSubcategorySlugFilter<T extends Product>(
   products: readonly T[],
   subSlug: string | null | undefined,
@@ -25,6 +31,9 @@ export function applyEquipmentSubcategorySlugFilter<T extends Product>(
   }
   if (SEMINUEVAS_EQUIPMENT_SUBSLUGS.has(subSlug)) {
     return products.filter(productQualifiesAsSeminuevaEquipment);
+  }
+  if (REMANUFACTURADAS_EQUIPMENT_SUBSLUGS.has(subSlug)) {
+    return products.filter(productQualifiesAsRemanufacturadaEquipment);
   }
   return [...products];
 }

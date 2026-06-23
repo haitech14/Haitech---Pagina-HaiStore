@@ -42,16 +42,24 @@ export function selectEquipmentOption(
   return { ...selection, [step.id]: next };
 }
 
+/** Selección tipo radio en el hero: un tóner pagado a la vez; al deseleccionar queda sin selección. */
+export function selectHeroTonerCard(
+  selection: EquipmentSelectionState,
+  step: EquipmentConfigStep,
+  optionId: string,
+): EquipmentSelectionState {
+  const current = selection[step.id] ?? new Set<string>();
+
+  if (current.has(optionId)) {
+    return { ...selection, [step.id]: new Set<string>() };
+  }
+
+  return { ...selection, [step.id]: new Set([optionId]) };
+}
+
+/** Sin opciones preseleccionadas: el usuario agrega accesorios y tóner explícitamente. */
 export function buildInitialEquipmentSelection(steps: EquipmentConfigStep[]): EquipmentSelectionState {
-  return Object.fromEntries(
-    steps.map((step) => {
-      const defaults = step.options
-        .filter((option) => option.included)
-        .map((option) => option.id);
-      const fallback = step.options[0] ? [step.options[0].id] : [];
-      return [step.id, new Set(defaults.length > 0 ? defaults : fallback)];
-    }),
-  );
+  return Object.fromEntries(steps.map((step) => [step.id, new Set<string>()]));
 }
 
 export function resolveSelectedEquipmentOptions(

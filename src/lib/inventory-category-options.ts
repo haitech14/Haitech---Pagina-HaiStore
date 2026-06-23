@@ -12,6 +12,8 @@ export interface InventorySelectOption {
 }
 
 export interface InventoryCategorySelectGroup {
+  /** Identificador estable del grupo (slug de raíz u «orphans»). */
+  id: string;
   /** Etiqueta del grupo (categoría raíz o «Otras etiquetas»). */
   label: string;
   options: InventorySelectOption[];
@@ -78,21 +80,25 @@ export function buildCategorySelectGroups(
 
   const walk = (node: StoreCategoryTreeNode, depth: number) => {
     const children = node.children ?? [];
+    const options: InventorySelectOption[] = [];
+
     if (children.length === 0) {
-      const value = categoryInventoryLabel(node);
+      addOption(options, categoryInventoryLabel(node), depth);
+      if (options.length === 0) return;
       groups.push({
+        id: node.slug,
         label: node.name,
-        options: [{ value, label: indentLabel(depth, value), depth: 0 }],
+        options,
       });
       return;
     }
 
-    const options: InventorySelectOption[] = [];
     addOption(options, categoryInventoryLabel(node), 0);
     for (const flat of flattenCategoryTree(children, 0)) {
       addOption(options, categoryInventoryLabel(flat), flat.depth + 1);
     }
-    groups.push({ label: node.name, options });
+    if (options.length === 0) return;
+    groups.push({ id: node.slug, label: node.name, options });
   };
 
   for (const root of tree) {
@@ -109,7 +115,7 @@ export function buildCategorySelectGroups(
     addOption(orphanOptions, category.name, 1);
   }
   if (orphanOptions.length > 0) {
-    groups.push({ label: 'Otras etiquetas', options: orphanOptions });
+    groups.push({ id: 'orphans', label: 'Otras etiquetas', options: orphanOptions });
   }
 
   return groups;

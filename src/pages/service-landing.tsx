@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { ServiceLandingPageView } from '@/components/service-landing/service-landing-page';
+import { formatPageTitle } from '@/data/site-meta';
 import { getServiceLandingBySlug, type ServiceLandingSlug } from '@/data/service-landings';
 
 interface ServiceLandingRouteProps {
@@ -13,7 +14,7 @@ export function ServiceLandingRoute({ slug }: ServiceLandingRouteProps) {
 
   useEffect(() => {
     if (config) {
-      document.title = `${config.metaTitle} | HaiStore`;
+      document.title = formatPageTitle(config.metaTitle);
     }
   }, [config]);
 
