@@ -720,10 +720,11 @@ function stripBrandFromName(name: string, brand: string | null | undefined): str
     .trim();
 }
 
-/** Título en ficha: nombre del producto sin marca, en minúsculas. */
-function resolveDetailDisplayTitle(product: Product, brandLabel: string): string {
-  const withoutBrand = stripBrandFromName(product.name, brandLabel);
-  return (withoutBrand || product.name).toLowerCase();
+function resolveDetailDisplayTitle(product: Product): string {
+  // En storefront, el título debe respetar exactamente el nombre editado en inventario.
+  // (Evita forzar minúsculas / title-case / stripping agresivo que rompe copy de admin.)
+  const name = product.name?.trim();
+  return name || product.name;
 }
 
 function resolveDisplaySubtitle(product: Product, isPrinter: boolean, isSupply: boolean): string {
@@ -738,25 +739,6 @@ function resolveDisplaySubtitle(product: Product, isPrinter: boolean, isSupply: 
   }
   if (isSupply) return 'Consumible compatible de alta calidad';
   return product.category ?? 'Producto HaiStore';
-}
-
-function toHeroTitle(name: string): string {
-  return name
-    .split(/\s+/)
-    .map((word) => {
-      if (!word) return word;
-      const upper = word.toUpperCase();
-      if (
-        upper === 'IM' ||
-        upper === 'RICOH' ||
-        /^IM\d/.test(upper) ||
-        /^\d+[A-Z]?$/.test(upper)
-      ) {
-        return upper;
-      }
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join(' ');
 }
 
 function buildTagPills(
@@ -1257,7 +1239,7 @@ export function buildProductDetail(
   const heroLead = resolveHeroLead(product, isPrinter, isSupply);
   const heroDescription = resolveHeroDescription(product, isPrinter, isSupply);
 
-  const displayTitle = resolveDetailDisplayTitle(product, brandLabel);
+  const displayTitle = resolveDetailDisplayTitle(product);
 
   const specs = isIm430f(product)
     ? IM430F_SPECS
@@ -1281,7 +1263,8 @@ export function buildProductDetail(
 
   const showNuevo = productHasNuevoCornerBadge(product);
 
-  const heroTitle = toHeroTitle(product.name);
+  // Igual que displayTitle: mantener el formato editado en inventario.
+  const heroTitle = product.name?.trim() || product.name;
   const tagPills = buildTagPills(specs, isPrinter, showNuevo);
   const heroHighlights = buildHeroHighlights(specs, isPrinter);
 
