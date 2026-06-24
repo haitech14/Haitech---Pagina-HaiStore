@@ -17,6 +17,8 @@ import {
   appendGalleryVideosToProduct,
   appendYoutubeToProduct,
   prepareInventoryPayloadForApi,
+  readImageFile,
+  setProductMainMediaUrl,
 } from '@/lib/inventory-product';
 import {
   PRODUCT_ATTACHMENT_LABELS,
@@ -249,7 +251,25 @@ export function InventoryRowCells({
       }
     };
 
-    const handleUploadMain = (files: FileList) => persistUploadedFiles(files, 1);
+    const handleUploadMain = async (files: FileList) => {
+      const file = files[0];
+      if (!file) return;
+
+      setAddingGallery(true);
+      try {
+        const url = await readImageFile(file);
+        const media = setProductMainMediaUrl(product, url);
+        await saveMedia(media);
+        toast.success('Imagen principal guardada');
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : 'No se pudo guardar la imagen principal',
+        );
+        throw error;
+      } finally {
+        setAddingGallery(false);
+      }
+    };
     const handleAddGallery = (files: FileList) => persistUploadedFiles(files);
 
     const persistAttachment = async (kind: ProductAttachmentKind, file: File) => {

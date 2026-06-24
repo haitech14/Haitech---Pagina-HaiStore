@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/api';
+import { recordRecentlyViewedProduct } from '@/lib/recently-viewed-products';
 import type { Product } from '@/types/product';
 
 const STORAGE_KEY = 'haistore-product-views';
@@ -34,6 +35,7 @@ export function getLocalProductViewCount(productId: string): number {
 
 export function recordLocalProductView(productId: string) {
   if (!productId.trim()) return;
+  recordRecentlyViewedProduct(productId);
   const views = readLocalViews();
   views[productId] = (views[productId] ?? 0) + 1;
   writeLocalViews(views);

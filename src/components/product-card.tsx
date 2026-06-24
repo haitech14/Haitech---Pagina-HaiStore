@@ -7,7 +7,10 @@ import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { ProductCardHoverImage, PRODUCT_CARD_IMAGE_CLASS } from '@/components/product/product-card-hover-image';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
-import { buildProductImageCandidates, resolveProductCardHoverImage } from '@/lib/product-image-url';
+import {
+  buildProductCardImageCandidates,
+  resolveProductCardHoverImageFromProduct,
+} from '@/lib/product-card-images';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -23,8 +26,8 @@ interface ProductCardProps {
 export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
   const outOfStock = product.stock <= 0;
   const detailHref = productPath(product);
-  const imageCandidates = useMemo(() => buildProductImageCandidates(product), [product]);
-  const hoverImageSrc = useMemo(() => resolveProductCardHoverImage(product), [product]);
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(product), [product]);
+  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
   const displayPrice = useCatalogDisplayPrice(product);
 
   const cartActions = (
@@ -62,7 +65,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
               <span className="sr-only">Ver ficha de {product.name}</span>
             </Link>
             <div
-              className="flex aspect-square items-center justify-center rounded-lg bg-muted/50"
+              className="flex aspect-square items-center justify-center rounded-lg bg-muted/50 p-2.5 sm:p-3"
             >
               <ProductCardHoverImage
                 candidates={imageCandidates}
@@ -120,7 +123,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
               <span className="sr-only">Ver ficha de {product.name}</span>
             </Link>
             <div
-              className="flex aspect-[4/3] items-center justify-center rounded-lg bg-muted/50 sm:aspect-square"
+              className="flex aspect-[4/3] items-center justify-center rounded-lg bg-muted/50 p-2.5 sm:aspect-square sm:p-3"
             >
               <ProductCardHoverImage
                 candidates={imageCandidates}

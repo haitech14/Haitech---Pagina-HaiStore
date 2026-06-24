@@ -42,7 +42,7 @@ import {
   MERCHANDISING_UPSELL_STEP_ID,
   crossSellOptionId,
   resolveCrossSellConfigureCards,
-  resolveMerchandisingConfigureCards,
+  resolveUpsellConfigureCards,
   upsellOptionId,
   type MerchandisingConfigureCard,
 } from '@/lib/product-merchandising';
@@ -131,7 +131,9 @@ function SelectableTonerCard({
         selected && 'border-red-600 ring-1 ring-red-600/30',
       )}
     >
-      <h3 className="text-xs font-bold text-[#0f1f3d] sm:text-sm">{card.title}</h3>
+      <h3 className="line-clamp-2 text-pretty text-xs font-bold leading-snug text-[#0f1f3d] sm:text-sm">
+        {card.title}
+      </h3>
 
       <div className="mt-2 flex flex-1 gap-2.5">
         <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted/20 sm:size-14">
@@ -144,7 +146,7 @@ function SelectableTonerCard({
         </div>
 
         <div className="min-w-0 flex-1 text-left">
-          <p className="line-clamp-2 text-pretty text-[0.6875rem] font-bold leading-snug text-[#0f1f3d] sm:text-xs">
+          <p className="line-clamp-2 text-pretty text-[0.6875rem] leading-snug text-muted-foreground sm:text-xs">
             {card.name}
           </p>
           <TonerCardRolePrices prices={card.prices} className="mt-0.5" />
@@ -429,11 +431,10 @@ export function ProductDetailConfigureEquipment({
 
   const upsellCards = useMemo(
     () =>
-      resolveMerchandisingConfigureCards(product.upsell_product_ids, catalogProducts, {
-        title: 'Upselling',
+      resolveUpsellConfigureCards(product, catalogProducts, {
         excludeProductId: product.id,
       }),
-    [catalogProducts, product.id, product.upsell_product_ids],
+    [catalogProducts, product],
   );
 
   const crossSellCards = useMemo(

@@ -21,6 +21,7 @@ export function productToFeatured(product: Product): FeaturedProduct {
     name: product.name,
     category: product.category ?? '',
     brand: product.brand ?? null,
+    code: product.code ?? null,
     ...(product.attributes?.length ? { attributes: product.attributes } : {}),
     price: product.price,
     ...(product.prices ? { prices: product.prices } : {}),

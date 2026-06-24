@@ -71,7 +71,6 @@ export function ProductCardPricing({
           >
             <DualPrice
               usd={pricing.currentUsd}
-              alwaysBoth={featured}
               {...(featured ? { className: 'text-[#0f1f3d]' } : {})}
             />
           </AdminRolePricesTooltip>

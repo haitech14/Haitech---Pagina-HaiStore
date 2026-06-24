@@ -1,7 +1,9 @@
 import { formatYieldLabel } from '@/lib/product-cost-per-copy';
 import {
   isCrossSellEligibleProduct,
+  isTonerMerchandisingProduct,
   resolveKnownOriginalTonerProductId,
+  resolveKnownCompatibleTonerProductId,
   resolveTonerSupplyTypeFromProduct,
   normalizeMerchandisingProductIds,
 } from '@/lib/product-merchandising';
@@ -21,6 +23,56 @@ export type ConfigureTonerSupplyType = 'original' | 'compatible';
 
 interface TonerCardBuildOptions {
   allowZeroPrice?: boolean;
+  equipment?: Product;
+}
+
+function normalizeTonerModelToken(model: string): string {
+  return model.replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
+function extractRicohModelLabel(name: string): string | null {
+  const trimmed = name.trim();
+  const ricohMatch = trimmed.match(/\bRICOH\s+(IM\s*C?\s*\d{3,4}[A-Z]?)\b/i);
+  if (ricohMatch?.[1]) {
+    return `RICOH ${normalizeTonerModelToken(ricohMatch[1])}`;
+  }
+
+  const imMatch = trimmed.match(/\b(IM\s*C?\s*\d{3,4}[A-Z]?)\b/i);
+  if (imMatch?.[1]) {
+    return `RICOH ${normalizeTonerModelToken(imMatch[1])}`;
+  }
+
+  const mpMatch = trimmed.match(/\b(MP\s*[\w]+)\b/i);
+  if (mpMatch?.[1]) {
+    return `RICOH ${normalizeTonerModelToken(mpMatch[1])}`;
+  }
+
+  return null;
+}
+
+function resolveTonerEquipmentModelLabel(equipment?: Product, fallbackName?: string): string {
+  if (equipment) {
+    const fromEquipment = extractRicohModelLabel(equipment.name);
+    if (fromEquipment) return fromEquipment;
+  }
+
+  if (fallbackName) {
+    const fromName = extractRicohModelLabel(fallbackName);
+    if (fromName) return fromName;
+  }
+
+  const brand = equipment?.brand?.trim();
+  return brand ? brand.toUpperCase() : 'RICOH';
+}
+
+export function resolveConfigureTonerCardTitle(
+  supplyType: ConfigureTonerSupplyType,
+  equipment?: Product,
+  fallbackName?: string,
+): string {
+  const modelLabel = resolveTonerEquipmentModelLabel(equipment, fallbackName);
+  const kind = supplyType === 'original' ? 'Original' : 'Compatible';
+  return `Toner ${kind} ${modelLabel}`;
 }
 
 function shouldSkipZeroPriceCard(
@@ -106,6 +158,38 @@ function resolveTonerCardMedia(
 function isCompatibleOption(option: EquipmentConfigOption): boolean {
   const haystack = `${option.id} ${option.name}`.toLowerCase();
   return haystack.includes('compatible') || haystack.includes('alternativ');
+}
+
+function shouldOfferPurchasableTonerFromOption(option: EquipmentConfigOption): boolean {
+  if (!option.productId) return false;
+  if (!option.included) return true;
+  if (option.id === 'toner-inicio') return false;
+  return option.id.startsWith('toner-');
+}
+
+/** IDs de catálogo necesarios para resolver precios/imágenes del selector de tóner sin esperar al catálogo completo. */
+export function resolveTonerCatalogLookupIds(
+  equipment: Product,
+  equipmentConfigSteps: EquipmentConfigStep[],
+): string[] {
+  const ids = new Set<string>();
+  const tonerStep = equipmentConfigSteps.find((step) => step.id === 'toner');
+
+  for (const option of tonerStep?.options ?? []) {
+    if (option.productId) ids.add(option.productId);
+  }
+
+  const knownOriginalId = resolveKnownOriginalTonerProductId(equipment);
+  if (knownOriginalId) ids.add(knownOriginalId);
+
+  const knownCompatibleId = resolveKnownCompatibleTonerProductId(equipment);
+  if (knownCompatibleId) ids.add(knownCompatibleId);
+
+  for (const productId of normalizeMerchandisingProductIds(equipment.cross_sell_product_ids)) {
+    ids.add(productId);
+  }
+
+  return [...ids];
 }
 
 function consumableToOption(item: ConsumableItem, supplyType: ConfigureTonerSupplyType): EquipmentConfigOption {
@@ -296,10 +380,11 @@ function optionToCard(
   fallbackImage: string,
   buildOptions?: TonerCardBuildOptions,
 ): ConfigureTonerCard | null {
-  if (option.included || !option.productId) return null;
+  if (!shouldOfferPurchasableTonerFromOption(option)) return null;
+  const productId = option.productId!;
 
   const prices = resolveTonerProductPrices(
-    option.productId,
+    productId,
     catalog,
     option.priceUsd ?? penToUsd(option.pricePen),
   );
@@ -308,7 +393,7 @@ function optionToCard(
   if (shouldSkipZeroPriceCard(pricePen, priceUsd, buildOptions)) return null;
 
   const media = resolveTonerCardMedia(
-    option.productId,
+    productId,
     catalog,
     null,
     option.image,
@@ -317,9 +402,9 @@ function optionToCard(
 
   return {
     supplyType,
-    title: supplyType === 'original' ? 'Original' : 'Compatible',
+    title: resolveConfigureTonerCardTitle(supplyType, buildOptions?.equipment, option.name),
     optionId: option.id,
-    productId: option.productId,
+    productId,
     name: option.name,
     description: option.description?.trim() || 'Rendimiento según modelo',
     image: media.image,
@@ -354,7 +439,7 @@ function inventoryItemToCard(
 
   return {
     supplyType,
-    title: supplyType === 'original' ? 'Original' : 'Compatible',
+    title: resolveConfigureTonerCardTitle(supplyType, buildOptions?.equipment, item.name),
     optionId: option.id,
     productId: item.productId,
     name: item.name,
@@ -392,7 +477,7 @@ function catalogProductToTonerCard(
 
   return {
     supplyType,
-    title: supplyType === 'original' ? 'Original' : 'Compatible',
+    title: resolveConfigureTonerCardTitle(supplyType, buildOptions?.equipment, product.name),
     optionId,
     productId: product.id,
     name: product.name,
@@ -453,11 +538,17 @@ function buildCrossSellTonerCards(
 ): ConfigureTonerCard[] {
   const cards: ConfigureTonerCard[] = [];
   const seenProductIds = new Set<string>();
-  const buildOptions: TonerCardBuildOptions = { allowZeroPrice: true };
+  const buildOptions: TonerCardBuildOptions = { allowZeroPrice: true, equipment };
 
   for (const productId of normalizeMerchandisingProductIds(equipment.cross_sell_product_ids)) {
     const catalogProduct = catalog.find((row) => row.id === productId);
-    if (!catalogProduct || !isCrossSellEligibleProduct(catalogProduct)) continue;
+    if (
+      !catalogProduct ||
+      !isCrossSellEligibleProduct(catalogProduct) ||
+      !isTonerMerchandisingProduct(catalogProduct)
+    ) {
+      continue;
+    }
 
     const supplyType = resolveTonerSupplyTypeFromProduct(catalogProduct);
     pushUniqueTonerCard(
@@ -476,6 +567,64 @@ function buildCrossSellTonerCards(
   return cards;
 }
 
+function synthesizeKnownCompatibleOption(
+  knownCompatibleId: string,
+  tonerStep: EquipmentConfigStep,
+): EquipmentConfigOption {
+  const matchingOption = tonerStep.options.find(
+    (option) => option.productId === knownCompatibleId || isCompatibleOption(option),
+  );
+  if (matchingOption?.productId) {
+    return matchingOption;
+  }
+
+  return {
+    id: `toner-compatible-${knownCompatibleId}`,
+    productId: knownCompatibleId,
+    name: matchingOption?.name ?? 'Tóner compatible',
+    description: matchingOption?.description ?? 'Rendimiento según modelo',
+    pricePen: matchingOption?.pricePen ?? 0,
+    ...(matchingOption?.priceUsd != null ? { priceUsd: matchingOption.priceUsd } : {}),
+    ...(matchingOption?.image ? { image: matchingOption.image } : {}),
+  };
+}
+
+function synthesizeKnownOriginalOption(
+  knownOriginalId: string,
+  tonerStep: EquipmentConfigStep,
+): EquipmentConfigOption {
+  const matchingOption = tonerStep.options.find((option) => option.productId === knownOriginalId);
+  if (matchingOption && !matchingOption.included) {
+    return matchingOption;
+  }
+
+  const includedOriginal = tonerStep.options.find(
+    (option) => option.included && !isCompatibleOption(option),
+  );
+  const name = includedOriginal?.name
+    ? includedOriginal.name.replace(/\bde inicio\b|\(incluido[^)]*\)/gi, '').trim() ||
+      'Toner Original'
+    : matchingOption?.name ?? 'Toner Original';
+
+  return {
+    id: `toner-original-${knownOriginalId}`,
+    productId: knownOriginalId,
+    name,
+    description: matchingOption?.description ?? includedOriginal?.description ?? 'Cartucho original',
+    pricePen: matchingOption?.pricePen ?? includedOriginal?.pricePen ?? 0,
+    ...(matchingOption?.priceUsd != null
+      ? { priceUsd: matchingOption.priceUsd }
+      : includedOriginal?.priceUsd != null
+        ? { priceUsd: includedOriginal.priceUsd }
+        : {}),
+    ...(matchingOption?.image
+      ? { image: matchingOption.image }
+      : includedOriginal?.image
+        ? { image: includedOriginal.image }
+        : {}),
+  };
+}
+
 function resolveAutoConfigureTonerCards(
   tonerStep: EquipmentConfigStep,
   consumableGroups: ConsumableGroup[],
@@ -485,6 +634,7 @@ function resolveAutoConfigureTonerCards(
 ): ConfigureTonerCard[] {
   const cards: ConfigureTonerCard[] = [];
   const seenProductIds = new Set<string>();
+  const buildOptions: TonerCardBuildOptions = equipment ? { equipment } : {};
 
   const tonerGroup = consumableGroups.find((group) => group.id === 'toner');
   if (tonerGroup) {
@@ -496,14 +646,14 @@ function resolveAutoConfigureTonerCards(
       cards,
       seenProductIds,
       original[0]
-        ? inventoryItemToCard(tonerStep, original[0], 'original', catalog, fallbackImage)
+        ? inventoryItemToCard(tonerStep, original[0], 'original', catalog, fallbackImage, buildOptions)
         : null,
     );
     pushUniqueTonerCard(
       cards,
       seenProductIds,
       compatible[0]
-        ? inventoryItemToCard(tonerStep, compatible[0], 'compatible', catalog, fallbackImage)
+        ? inventoryItemToCard(tonerStep, compatible[0], 'compatible', catalog, fallbackImage, buildOptions)
         : null,
     );
   }
@@ -512,28 +662,27 @@ function resolveAutoConfigureTonerCards(
   const hasCompatible = () => cards.some((card) => card.supplyType === 'compatible');
 
   for (const option of tonerStep.options) {
-    if (!option.productId) continue;
+    if (!shouldOfferPurchasableTonerFromOption(option)) continue;
+
     const supplyType = isCompatibleOption(option) ? 'compatible' : 'original';
     if (supplyType === 'original' && hasOriginal()) continue;
     if (supplyType === 'compatible' && hasCompatible()) continue;
 
     const catalogProduct = catalog.find((row) => row.id === option.productId);
-    if (catalogProduct) {
+    if (catalogProduct && isCrossSellEligibleProduct(catalogProduct)) {
       pushUniqueTonerCard(
         cards,
         seenProductIds,
-        catalogProductToTonerCard(catalogProduct, supplyType, tonerStep, fallbackImage),
+        catalogProductToTonerCard(catalogProduct, supplyType, tonerStep, fallbackImage, buildOptions),
       );
       continue;
     }
 
-    if (!option.included) {
-      pushUniqueTonerCard(
-        cards,
-        seenProductIds,
-        optionToCard(option, supplyType, catalog, fallbackImage),
-      );
-    }
+    pushUniqueTonerCard(
+      cards,
+      seenProductIds,
+      optionToCard(option, supplyType, catalog, fallbackImage, buildOptions),
+    );
   }
 
   if (equipment && !hasOriginal()) {
@@ -544,7 +693,51 @@ function resolveAutoConfigureTonerCards(
         pushUniqueTonerCard(
           cards,
           seenProductIds,
-          catalogProductToTonerCard(catalogProduct, 'original', tonerStep, fallbackImage),
+          catalogProductToTonerCard(catalogProduct, 'original', tonerStep, fallbackImage, buildOptions),
+        );
+      } else {
+        pushUniqueTonerCard(
+          cards,
+          seenProductIds,
+          optionToCard(
+            synthesizeKnownOriginalOption(knownOriginalId, tonerStep),
+            'original',
+            catalog,
+            fallbackImage,
+            { ...buildOptions, allowZeroPrice: true },
+          ),
+        );
+      }
+    }
+  }
+
+  if (equipment && !hasCompatible()) {
+    const knownCompatibleId = resolveKnownCompatibleTonerProductId(equipment);
+    if (knownCompatibleId) {
+      const catalogProduct = catalog.find((row) => row.id === knownCompatibleId);
+      if (catalogProduct) {
+        pushUniqueTonerCard(
+          cards,
+          seenProductIds,
+          catalogProductToTonerCard(
+            catalogProduct,
+            'compatible',
+            tonerStep,
+            fallbackImage,
+            buildOptions,
+          ),
+        );
+      } else {
+        pushUniqueTonerCard(
+          cards,
+          seenProductIds,
+          optionToCard(
+            synthesizeKnownCompatibleOption(knownCompatibleId, tonerStep),
+            'compatible',
+            catalog,
+            fallbackImage,
+            { ...buildOptions, allowZeroPrice: true },
+          ),
         );
       }
     }
@@ -560,7 +753,7 @@ function resolveAutoConfigureTonerCards(
     pushUniqueTonerCard(
       cards,
       seenProductIds,
-      optionToCard(originalOption, 'original', catalog, fallbackImage),
+      optionToCard(originalOption, 'original', catalog, fallbackImage, buildOptions),
     );
   }
 
@@ -568,7 +761,7 @@ function resolveAutoConfigureTonerCards(
     pushUniqueTonerCard(
       cards,
       seenProductIds,
-      optionToCard(compatibleOption, 'compatible', catalog, fallbackImage),
+      optionToCard(compatibleOption, 'compatible', catalog, fallbackImage, buildOptions),
     );
   }
 
@@ -590,7 +783,9 @@ export function mergeCrossSellTonerOptions(
     const options = [...step.options];
     for (const productId of ids) {
       const product = catalog.find((row) => row.id === productId);
-      if (!product || !isCrossSellEligibleProduct(product)) continue;
+      if (!product || !isCrossSellEligibleProduct(product) || !isTonerMerchandisingProduct(product)) {
+        continue;
+      }
 
       const supplyType = resolveTonerSupplyTypeFromProduct(product);
       const optionId = `toner-${supplyType}-${productId}`;

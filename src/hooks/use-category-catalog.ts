@@ -45,7 +45,7 @@ async function fetchCategoryCatalog(params: UseCategoryCatalogParams): Promise<C
   query.set('slug', params.slug);
   if (params.subSlug) query.set('sub', params.subSlug);
   if (params.labels.length > 0) {
-    query.set('labels', params.labels.join(','));
+    query.set('labels', params.labels.join('|'));
   }
   if (params.condition) query.set('condition', params.condition);
   if (params.inStockOnly) query.set('inStock', '1');
@@ -70,7 +70,7 @@ export function useCategoryCatalog(params: UseCategoryCatalogParams) {
       CATEGORY_CATALOG_QUERY_KEY,
       params.slug,
       params.subSlug,
-      params.labels.join(','),
+      params.labels.join('|'),
       params.condition,
       params.inStockOnly,
       params.priceMin,

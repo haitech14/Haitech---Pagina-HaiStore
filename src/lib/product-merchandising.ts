@@ -2,6 +2,7 @@ import { ShoppingBag, TrendingUp } from 'lucide-react';
 
 import {
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
+  IM550F_COMPATIBLE_TONER_PRODUCT_ID,
   IM550F_ORIGINAL_TONER_PRODUCT_ID,
 } from '@/lib/equipment-config-catalog';
 import {
@@ -12,8 +13,12 @@ import {
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { ensureFullPrices, type ProductRolePrices } from '@/lib/roles';
 import { usdToPen } from '@/lib/utils';
-import type { InventoryProduct, Product } from '@/types/product';
+import type { InventoryProduct, MerchandisingOptionalProduct, Product } from '@/types/product';
 import type { EquipmentConfigOption, EquipmentConfigStep } from '@/types/product-detail';
+// @ts-expect-error módulo JS compartido sin declaración de tipos
+import { normalizeMerchandisingOptionalProducts } from '../../shared/merchandising-optional-product.js';
+
+export { normalizeMerchandisingOptionalProducts };
 
 export const MERCHANDISING_CROSS_SELL_STEP_ID = 'merchandising-cross-sell';
 export const MERCHANDISING_UPSELL_STEP_ID = 'merchandising-upsell';
@@ -76,6 +81,14 @@ export function resolveKnownOriginalTonerProductId(equipment: Product): string |
   const normalized = normalizeEquipmentName(equipment.name);
   if (/\bim\s*c\s*3000\b/.test(normalized) || /\bmp\s*c\s*3003\b/.test(normalized)) {
     return 'ricoh-toner-mp';
+  }
+
+  return null;
+}
+
+export function resolveKnownCompatibleTonerProductId(equipment: Product): string | null {
+  if (/\bim\s*550f\b/i.test(equipment.name) || /\bim\s*600f\b/i.test(equipment.name)) {
+    return IM550F_COMPATIBLE_TONER_PRODUCT_ID;
   }
 
   return null;
@@ -172,6 +185,8 @@ export interface MerchandisingConfigureCard {
   pricePen: number;
   priceUsd: number;
   prices: ProductRolePrices;
+  sku?: string;
+  optional?: boolean;
 }
 
 export function resolveMerchandisingConfigureCard(
@@ -224,6 +239,34 @@ export function resolveMerchandisingConfigureCards(
   return cards;
 }
 
+export function resolveOptionalMerchandisingConfigureCards(
+  items: MerchandisingOptionalProduct[] | undefined,
+  title = 'Opcional',
+): MerchandisingConfigureCard[] {
+  const normalized = normalizeMerchandisingOptionalProducts(items);
+  const cards: MerchandisingConfigureCard[] = [];
+
+  for (const item of normalized) {
+    const priceUsd = item.price_usd;
+    const image = item.image_url?.trim() || '/categories/repuestos.png';
+    cards.push({
+      productId: item.id,
+      title,
+      name: item.name,
+      description: item.description?.trim() || item.name,
+      image,
+      imageCandidates: image ? [image] : [],
+      pricePen: usdToPen(priceUsd),
+      priceUsd,
+      prices: ensureFullPrices({ public: priceUsd }),
+      ...(item.code ? { sku: item.code } : {}),
+      optional: true,
+    });
+  }
+
+  return cards;
+}
+
 /** Venta cruzada en «Configura tu equipo» (repuestos, accesorios, tambor, etc.; sin tóner). */
 export function resolveCrossSellConfigureCards(
   equipment: Product,
@@ -231,8 +274,6 @@ export function resolveCrossSellConfigureCards(
   options?: { excludeProductIds?: string[] },
 ): MerchandisingConfigureCard[] {
   const ids = normalizeMerchandisingProductIds(equipment.cross_sell_product_ids);
-  if (ids.length === 0) return [];
-
   const excluded = new Set(
     [equipment.id, ...(options?.excludeProductIds ?? [])].filter(Boolean),
   );
@@ -248,7 +289,31 @@ export function resolveCrossSellConfigureCards(
     if (card) cards.push(card);
   }
 
+  cards.push(
+    ...resolveOptionalMerchandisingConfigureCards(
+      equipment.cross_sell_optional_products,
+      'Venta cruzada',
+    ),
+  );
+
   return cards;
+}
+
+/** Upselling en «Configura tu equipo». */
+export function resolveUpsellConfigureCards(
+  equipment: Product,
+  catalog: Product[],
+  options?: { excludeProductId?: string },
+): MerchandisingConfigureCard[] {
+  const inventoryCards = resolveMerchandisingConfigureCards(equipment.upsell_product_ids, catalog, {
+    title: 'Upselling',
+    excludeProductId: options?.excludeProductId ?? equipment.id,
+  });
+  const optionalCards = resolveOptionalMerchandisingConfigureCards(
+    equipment.upsell_optional_products,
+    'Upselling',
+  );
+  return [...inventoryCards, ...optionalCards];
 }
 
 export function hasCrossSellConfigureCards(equipment: Product, catalog: Product[]): boolean {
@@ -267,6 +332,7 @@ function merchandisingCardToOption(
     pricePen: card.pricePen,
     priceUsd: card.priceUsd,
     image: card.image,
+    ...(card.sku ? { sku: card.sku } : {}),
   };
 }
 
@@ -276,7 +342,7 @@ export function mergeMerchandisingEquipmentSteps(
   equipment: Product,
   catalog: Product[],
 ): EquipmentConfigStep[] {
-  const upsellCards = resolveMerchandisingConfigureCards(equipment.upsell_product_ids, catalog, {
+  const upsellCards = resolveUpsellConfigureCards(equipment, catalog, {
     excludeProductId: equipment.id,
   });
   const crossSellCards = resolveCrossSellConfigureCards(equipment, catalog, {

@@ -13,7 +13,7 @@ export type ResolveProductImageOptions = {
   stockFallback?: boolean;
 };
 
-type ResolveProductImageInput = {
+export type ResolveProductImageInput = {
   image_url?: string | null;
   gallery?: string[] | null;
   id?: string;

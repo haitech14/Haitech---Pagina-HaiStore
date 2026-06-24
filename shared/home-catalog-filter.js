@@ -45,6 +45,8 @@ function productCategoryTags(product) {
 export function productMatchesCategoryFilter(product, filterValue) {
   if (filterValue === 'all') return true;
   const target = normalizeCategoryName(filterValue);
+  const raw = product.category?.trim();
+  if (raw && normalizeCategoryName(raw) === target) return true;
   return productCategoryTags(product).some((tag) => normalizeCategoryName(tag) === target);
 }
 

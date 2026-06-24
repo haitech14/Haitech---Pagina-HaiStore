@@ -1,5 +1,5 @@
 import type { DisplayCurrency } from '@/types/display-currency';
-import { formatPenFromUsdPrecise, formatUsd, penToUsd, usdToPen } from '@/lib/utils';
+import { formatPenFromUsd, formatUsd, penToUsd, usdToPen } from '@/lib/utils';
 
 export function getDisplayPriceVisibility(displayCurrency: DisplayCurrency) {
   return {
@@ -16,7 +16,7 @@ export function formatDisplayPriceFromUsd(
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
   if (showUsd) parts.push(formatUsd(usd));
-  if (showPen) parts.push(formatPenFromUsdPrecise(usd));
+  if (showPen) parts.push(formatPenFromUsd(usd));
   return parts.join(' · ');
 }
 

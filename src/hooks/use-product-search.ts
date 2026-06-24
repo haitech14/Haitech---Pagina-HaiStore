@@ -41,6 +41,7 @@ export function useProductSearch(
     enabled,
     staleTime: 30_000,
     gcTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
     placeholderData: (previous) => previous,
     select: (result) => {
       const products = Array.isArray(result?.products) ? result.products : [];

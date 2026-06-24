@@ -303,7 +303,7 @@ function parseIdList(raw) {
 productsRouter.get('/by-category', async (req, res, next) => {
   try {
     const role = await resolveRequestRole(req);
-    const labels = parseSectionIds(req.query.labels);
+    const labels = parseCategoryLabels(req.query.labels);
     const attributeKeys = parsePipeList(req.query.attrs);
     const result = await queryProductsByCategory({
       role,
@@ -331,6 +331,15 @@ productsRouter.get('/by-category', async (req, res, next) => {
 function parsePipeList(raw) {
   if (typeof raw !== 'string' || !raw.trim()) return [];
   return raw.split('|').map((entry) => entry.trim()).filter(Boolean);
+}
+
+/** Etiquetas de inventario (p. ej. «Toner, Toner Original») usan `|` para no partir por comas internas. */
+function parseCategoryLabels(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) return [];
+  if (raw.includes('|')) {
+    return [...new Set(parsePipeList(raw))];
+  }
+  return parseSectionIds(raw);
 }
 
 productsRouter.get('/by-ids', async (req, res, next) => {

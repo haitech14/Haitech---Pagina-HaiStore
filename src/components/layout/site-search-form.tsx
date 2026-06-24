@@ -57,7 +57,7 @@ const searchButtonClass =
 
 function SuggestionSectionHeading({ children }: { children: string }) {
   return (
-    <p className="border-b border-border/60 bg-muted/25 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+    <p className="border-b border-border/60 bg-muted/25 px-3 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:px-3.5">
       {children}
     </p>
   );
@@ -102,38 +102,38 @@ function SearchProductSuggestionRow({
         .filter(Boolean)
         .join(', ')}
       className={cn(
-        'flex min-h-[6.5rem] items-stretch gap-1 border-b border-border/40 bg-background transition-colors last:border-b-0 sm:min-h-[7rem]',
+        'flex items-stretch gap-0.5 border-b border-border/40 bg-background transition-colors last:border-b-0',
         isActive && 'bg-accent',
       )}
       onMouseEnter={onMouseEnter}
     >
       <button
         type="button"
-        className="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left text-sm hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-3.5 sm:px-4 sm:py-3"
+        className="flex min-w-0 flex-1 items-center gap-2 px-2.5 py-2 text-left text-sm hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2.5 sm:px-3"
         onClick={onNavigateProduct}
       >
         {imageUrl ? (
           <img
             src={imageUrl}
             alt=""
-            className="size-14 shrink-0 rounded-md border border-border/60 bg-muted object-contain p-1 sm:size-16"
+            className="size-10 shrink-0 rounded border border-border/60 bg-muted object-contain p-0.5 sm:size-11"
             loading="lazy"
           />
         ) : (
           <span
-            className="flex size-14 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/50 text-muted-foreground sm:size-16"
+            className="flex size-10 shrink-0 items-center justify-center rounded border border-border/60 bg-muted/50 text-muted-foreground sm:size-11"
             aria-hidden="true"
           >
-            <ImageOff className="size-5" strokeWidth={1.75} />
+            <ImageOff className="size-4" strokeWidth={1.75} />
           </span>
         )}
         <span className="min-w-0 flex-1">
-          <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground sm:text-[0.9375rem]">
+          <span className="line-clamp-1 text-sm font-medium leading-tight text-foreground">
             {product.name}
           </span>
-          <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs sm:text-[0.8125rem]">
+          <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0 text-xs text-muted-foreground">
             {code ? (
-              <span className="font-mono tracking-tight text-muted-foreground">{code}</span>
+              <span className="font-mono tracking-tight">{code}</span>
             ) : null}
             <span
               className={cn(
@@ -146,32 +146,32 @@ function SearchProductSuggestionRow({
           </span>
         </span>
         {showAdminPrices ? (
-          <span className="hidden shrink-0 space-y-1.5 text-right tabular-nums min-[480px]:block">
+          <span className="hidden shrink-0 space-y-0.5 text-right tabular-nums min-[480px]:block">
             <span className="block">
-              <span className="block text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+              <span className="block text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground">
                 Técnico
               </span>
-              <span className="block text-sm font-semibold text-foreground">
+              <span className="block text-xs font-semibold text-foreground">
                 {formatUsd(rolePrices.tecnico)}
               </span>
             </span>
             <span className="block">
-              <span className="block text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+              <span className="block text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground">
                 Público
               </span>
-              <span className="block text-sm font-semibold text-foreground">
+              <span className="block text-xs font-semibold text-foreground">
                 {formatUsd(rolePrices.public)}
               </span>
             </span>
           </span>
         ) : (
-          <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground sm:text-base">
+          <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
             {formatUsd(product.price)}
           </span>
         )}
       </button>
 
-      <div className="flex shrink-0 items-center border-l border-border/40 px-2 py-3 sm:px-2.5">
+      <div className="flex shrink-0 items-center border-l border-border/40 px-1.5 py-1.5 sm:px-2">
         <AddToCartButton
           product={product}
           addOptions={{ openDrawer: true }}
@@ -179,9 +179,9 @@ function SearchProductSuggestionRow({
           size="icon"
           variant="ghost"
           aria-label={`Añadir ${product.name} al carrito`}
-          className="size-10 min-h-10 shrink-0 rounded-md text-red-600 hover:bg-red-50 hover:text-red-600 focus-visible:ring-red-600 sm:size-11 sm:min-h-11"
+          className="size-11 min-h-11 min-w-11 shrink-0 rounded-md text-red-600 hover:bg-red-50 hover:text-red-600 focus-visible:ring-red-600"
         >
-          <ShoppingCart className="size-[1.125rem] sm:size-5" aria-hidden="true" />
+          <ShoppingCart className="size-[1.125rem]" aria-hidden="true" />
         </AddToCartButton>
       </div>
     </div>
@@ -246,7 +246,8 @@ export function SiteSearchForm({
 
   const productSuggestions = searchResult?.products ?? [];
   const totalMatches = searchResult?.total ?? 0;
-  const searchPending = searchEnabled && (searchLoading || searchFetching);
+  const isInitialSearchLoading = searchEnabled && searchLoading;
+  const isSearchRefreshing = searchEnabled && searchFetching && !searchLoading;
   const canLoadMoreProducts =
     productSuggestions.length > 0 &&
     productSuggestions.length < totalMatches &&
@@ -255,8 +256,6 @@ export function SiteSearchForm({
   useEffect(() => {
     setProductDisplayLimit(PRODUCT_SEARCH_INITIAL_VISIBLE);
   }, [trimmedDeferredQuery, categoryFilter]);
-
-  const showSuggestions = searchEnabled && !searchPending;
 
   const productGroups = useMemo(
     () => groupSearchProductsByCategory(productSuggestions, deferredQuery),
@@ -288,6 +287,8 @@ export function SiteSearchForm({
     ],
     [categorySuggestions, serviceSuggestions, groupedProductSuggestions],
   );
+
+  const showSuggestions = searchEnabled && (suggestions.length > 0 || !isInitialSearchLoading);
 
   useEffect(() => {
     if (!showSuggestions) {
@@ -381,7 +382,7 @@ export function SiteSearchForm({
 
   const placeholder = 'Buscar productos, categorías o marcas...';
 
-  const showPanel = panelOpen && (queryTooShort || showSuggestions || isSearchPending);
+  const showPanel = panelOpen && (queryTooShort || showSuggestions || isInitialSearchLoading || isSearchPending);
 
   return (
     <div ref={rootRef} className={cn('relative w-full', className)}>
@@ -474,12 +475,12 @@ export function SiteSearchForm({
           role="presentation"
         >
           {queryTooShort ? (
-            <p className="px-5 py-4 text-sm text-muted-foreground sm:text-base" role="status">
+            <p className="px-3 py-2.5 text-sm text-muted-foreground" role="status">
               Escribe al menos {MIN_PRODUCT_SEARCH_LENGTH} caracteres para buscar.
             </p>
-          ) : isSearchPending || searchPending ? (
+          ) : isInitialSearchLoading ? (
             <p
-              className="flex items-center gap-2 px-5 py-4 text-sm text-muted-foreground sm:text-base"
+              className="flex items-center gap-2 px-3 py-2.5 text-sm text-muted-foreground"
               role="status"
               aria-live="polite"
             >
@@ -487,12 +488,22 @@ export function SiteSearchForm({
               Buscando…
             </p>
           ) : suggestions.length === 0 ? (
-            <p className="px-5 py-4 text-sm text-muted-foreground sm:text-base" role="status">
+            <p className="px-3 py-2.5 text-sm text-muted-foreground" role="status">
               No hay resultados para «{trimmedDeferredQuery}». Prueba con otro término o revisa la
               ortografía.
             </p>
           ) : (
             <>
+              {isSearchRefreshing ? (
+                <p
+                  className="flex items-center gap-2 border-b border-border/60 bg-muted/20 px-3 py-1.5 text-xs text-muted-foreground"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+                  Actualizando resultados…
+                </p>
+              ) : null}
               <ul
                 id={listboxId}
                 role="listbox"
@@ -514,22 +525,22 @@ export function SiteSearchForm({
                             role="option"
                             aria-selected={isActive}
                             className={cn(
-                              'flex w-full items-center gap-3.5 px-4 py-3 text-left text-sm transition-colors sm:gap-4 sm:px-5 sm:py-3.5 sm:text-base',
+                              'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors',
                               isActive ? 'bg-accent' : 'hover:bg-muted/60',
                             )}
                             onMouseEnter={() => setActiveIndex(index)}
                             onClick={() => activateSuggestion(item)}
                           >
-                            <span className="flex size-12 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-foreground/70 sm:size-14">
+                            <span className="flex size-9 shrink-0 items-center justify-center rounded border border-border/60 bg-muted/40 text-foreground/70 sm:size-10">
                               <FolderOpen
-                                className="size-5 sm:size-[1.375rem]"
+                                className="size-4"
                                 strokeWidth={1.75}
                                 aria-hidden="true"
                               />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="block font-medium text-foreground">{item.name}</span>
-                              <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground sm:text-sm">
+                              <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                                 {item.subtitle}
                               </span>
                             </span>
@@ -556,18 +567,18 @@ export function SiteSearchForm({
                             role="option"
                             aria-selected={isActive}
                             className={cn(
-                              'flex w-full items-center gap-3.5 px-4 py-3 text-left text-sm transition-colors sm:gap-4 sm:px-5 sm:py-3.5 sm:text-base',
+                              'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors',
                               isActive ? 'bg-accent' : 'hover:bg-muted/60',
                             )}
                             onMouseEnter={() => setActiveIndex(suggestionIndex)}
                             onClick={() => activateSuggestion(item)}
                           >
-                            <span className="flex size-12 shrink-0 items-center justify-center rounded-md border border-border/60 bg-red-600/10 text-red-600 sm:size-14">
-                              <Wrench className="size-5 sm:size-[1.375rem]" strokeWidth={1.75} aria-hidden="true" />
+                            <span className="flex size-9 shrink-0 items-center justify-center rounded border border-border/60 bg-red-600/10 text-red-600 sm:size-10">
+                              <Wrench className="size-4" strokeWidth={1.75} aria-hidden="true" />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="block font-medium text-foreground">{item.name}</span>
-                              <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground sm:text-sm">
+                              <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                                 {item.subtitle}
                               </span>
                             </span>
@@ -617,11 +628,11 @@ export function SiteSearchForm({
                   : null}
               </ul>
               {canLoadMoreProducts || totalMatches > productSuggestions.length ? (
-                <div className="space-y-1 border-t border-border/80 bg-muted/10 px-4 py-3 sm:px-5 sm:py-3.5">
+                <div className="space-y-0.5 border-t border-border/80 bg-muted/10 px-3 py-2">
                   {canLoadMoreProducts ? (
                     <button
                       type="button"
-                      className="flex w-full items-center justify-center gap-2 rounded-md py-2.5 text-center text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:py-3 sm:text-base"
+                      className="flex w-full items-center justify-center gap-1.5 rounded-md py-2 text-center text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                       onClick={loadMoreProducts}
                     >
                       <Plus className="size-4" aria-hidden="true" />
@@ -631,7 +642,7 @@ export function SiteSearchForm({
                   {totalMatches > productSuggestions.length ? (
                     <button
                       type="button"
-                      className="w-full rounded-md py-2.5 text-center text-sm font-semibold text-[#0f1f3d] hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:py-3 sm:text-base"
+                      className="w-full rounded-md py-2 text-center text-sm font-semibold text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                       onClick={() => goToSearchResults(query, categoryFilter)}
                     >
                       Ver todos los resultados ({totalMatches})

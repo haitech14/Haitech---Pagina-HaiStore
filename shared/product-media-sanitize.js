@@ -3,7 +3,7 @@ import {
   isVideoMediaUrl,
   isYoutubeMediaUrl,
 } from './product-media.js';
-import { mergeDuplicateProductMediaUrls } from './product-media-dedupe.js';
+import { mergeDuplicateProductMediaUrls, productMediaCanonicalKey } from './product-media-dedupe.js';
 import { getAdditionalGalleryUrls } from './product-gallery.js';
 import {
   publicProductMediaPath,
@@ -27,8 +27,19 @@ function storedMediaUrls(product) {
   ]);
 }
 
+function isStoredMediaUrl(product, url) {
+  const key = productMediaCanonicalKey(url);
+  return storedMediaUrls(product).some(
+    (stored) => productMediaCanonicalKey(stored) === key,
+  );
+}
+
+function productMediaPathname(url) {
+  return String(url).split('?')[0].split('#')[0];
+}
+
 function productMediaFilenameStem(url) {
-  const match = String(url).match(/^\/products\/(.+)\.webp$/i);
+  const match = productMediaPathname(url).match(/^\/products\/(.+)\.webp$/i);
   return match ? match[1].toLowerCase() : null;
 }
 
@@ -69,10 +80,8 @@ export function isSyntheticProductMediaUrl(product, url) {
   if (typeof url !== 'string' || url.length === 0) return true;
   if (url.startsWith('data:')) return false;
 
-  const stored = storedMediaUrls(product);
-
   // Medios persistidos en inventario (subida del usuario o importación).
-  if (stored.includes(url)) {
+  if (isStoredMediaUrl(product, url)) {
     if (isCategoryStockImageUrl(url)) return true;
     if (isYoutubeMediaUrl(url) || isVideoMediaUrl(url)) return false;
     if (url.startsWith('/products/')) return !isOwnedProductMediaPath(product, url);
@@ -86,12 +95,15 @@ export function isSyntheticProductMediaUrl(product, url) {
 
   if (url.startsWith('/products/') && !isOwnedProductMediaPath(product, url)) return true;
 
+  const path = productMediaPathname(url);
   const id = sanitizeProductId(product?.id);
   const mainPath = id ? publicProductMediaPath(product.id) : null;
 
   if (id) {
-    if (mainPath && url === mainPath) return true;
-    if (new RegExp(`^/products/${id}-\\d+\\.webp$`, 'i').test(url)) return true;
+    if (mainPath && productMediaCanonicalKey(path) === productMediaCanonicalKey(mainPath)) {
+      return !isStoredMediaUrl(product, url);
+    }
+    if (new RegExp(`^/products/${id}-\\d+\\.webp$`, 'i').test(path)) return true;
   }
 
   return false;
@@ -119,7 +131,24 @@ export function sanitizeStoredProductMedia(product) {
     candidates.filter((url) => !isSyntheticProductMediaUrl(product, url)),
   );
   const images = authentic.filter(isImageMediaUrl);
-  const image_url = images[0] ?? null;
+  const explicitMain = typeof product?.image_url === 'string' ? product.image_url.trim() : null;
+  let image_url = null;
+
+  if (explicitMain && !isSyntheticProductMediaUrl(product, explicitMain)) {
+    if (authentic.includes(explicitMain)) {
+      image_url = explicitMain;
+    } else if (isImageMediaUrl(explicitMain)) {
+      const explicitKey = productMediaCanonicalKey(explicitMain);
+      image_url =
+        authentic.find(
+          (url) => isImageMediaUrl(url) && productMediaCanonicalKey(url) === explicitKey,
+        ) ?? null;
+    }
+  }
+
+  if (!image_url) {
+    image_url = images[0] ?? null;
+  }
 
   return {
     image_url,

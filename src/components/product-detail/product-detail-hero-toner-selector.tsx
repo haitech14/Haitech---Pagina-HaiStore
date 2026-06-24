@@ -3,19 +3,13 @@ import { TonerCardRolePrices } from '@/components/product-detail/product-detail-
 import { cn } from '@/lib/utils';
 import type { ConfigureTonerCard } from '@/lib/product-configure-toner';
 
+const TONER_SECTION_TITLE = 'Toner';
+
 interface ProductDetailHeroTonerSelectorProps {
   cards: ConfigureTonerCard[];
   selectedOptionIds: Set<string>;
   onToggle: (card: ConfigureTonerCard) => void;
   className?: string;
-}
-
-function resolveTonerSectionTitle(cards: ConfigureTonerCard[]): string {
-  const hasOriginal = cards.some((card) => card.supplyType === 'original');
-  const hasCompatible = cards.some((card) => card.supplyType === 'compatible');
-  if (hasOriginal && hasCompatible) return 'Tóner original y compatible RICOH';
-  if (hasOriginal) return 'Tóner original RICOH';
-  return 'Tóner compatible RICOH';
 }
 
 export function ProductDetailHeroTonerSelector({
@@ -29,11 +23,11 @@ export function ProductDetailHeroTonerSelector({
   return (
     <div className={cn('mt-3', className)}>
       <p className="text-sm font-semibold leading-snug text-[#0f1f3d]">
-        {resolveTonerSectionTitle(cards)}
+        {TONER_SECTION_TITLE}
       </p>
       <div
         role="group"
-        aria-label={resolveTonerSectionTitle(cards)}
+        aria-label={TONER_SECTION_TITLE}
         className="mt-2 flex flex-col gap-2 sm:flex-row sm:gap-2"
       >
         {cards.map((card) => {
@@ -60,8 +54,10 @@ export function ProductDetailHeroTonerSelector({
                 />
               </div>
               <span className="min-w-0 flex-1">
-                <span className="block text-xs font-bold text-[#0f1f3d]">{card.title}</span>
-                <span className="mt-0.5 block truncate text-[0.6875rem] leading-snug text-[#0f1f3d]/90">
+                <span className="block text-xs font-bold leading-snug text-[#0f1f3d] sm:text-sm">
+                  {card.title}
+                </span>
+                <span className="mt-0.5 block truncate text-[0.6875rem] leading-snug text-muted-foreground">
                   {card.name}
                 </span>
                 <TonerCardRolePrices prices={card.prices} />

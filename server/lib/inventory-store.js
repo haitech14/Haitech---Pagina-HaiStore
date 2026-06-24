@@ -24,6 +24,7 @@ import { normalizeVolumeRolePrices } from '../../shared/product-volume-role-pric
 import { normalizeCompatibleTonerProductFields } from '../../shared/compatible-toner.js';
 import { normalizeProductCode } from '../../shared/product-code-prefix.js';
 import { deriveProductSlug } from '../../shared/product-slug.js';
+import { normalizeMerchandisingOptionalProducts } from '../../shared/merchandising-optional-product.js';
 import { isBundleProduct, normalizeBundleComponents, syncInventoryBundleProducts } from './product-bundle.js';
 import { ensureFullPrices, resolvePriceRole } from './roles.js';
 import { shouldPreferSupabaseCatalog } from './catalog-source.js';
@@ -467,6 +468,9 @@ export async function writeInventory(data, options = {}) {
   void import('./product-catalog.js')
     .then(({ invalidatePublicCatalogCache }) => invalidatePublicCatalogCache())
     .catch(() => {});
+  void import('./home-catalog-bundle-snapshot.js')
+    .then(({ regenerateHomeBundleSnapshotQuiet }) => regenerateHomeBundleSnapshotQuiet())
+    .catch(() => {});
   const preferSupabase = shouldPreferSupabaseCatalog();
   const syncProductIds = Array.isArray(options.syncProductIds)
     ? [...new Set(options.syncProductIds.filter((id) => typeof id === 'string' && id.length > 0))]
@@ -568,6 +572,12 @@ export function toPublicProduct(product, role) {
     upsell_product_ids: Array.isArray(product.upsell_product_ids)
       ? product.upsell_product_ids.filter((id) => typeof id === 'string' && id.trim())
       : [],
+    cross_sell_optional_products: normalizeMerchandisingOptionalProducts(
+      product.cross_sell_optional_products,
+    ),
+    upsell_optional_products: normalizeMerchandisingOptionalProducts(
+      product.upsell_optional_products,
+    ),
   };
 }
 
@@ -672,6 +682,14 @@ export function normalizeProductInput(body, existing, warehouses) {
       bundle_components: body.bundle_components ?? existing?.bundle_components,
       cross_sell_product_ids: body.cross_sell_product_ids ?? existing?.cross_sell_product_ids,
       upsell_product_ids: body.upsell_product_ids ?? existing?.upsell_product_ids,
+      cross_sell_optional_products:
+        body.cross_sell_optional_products !== undefined
+          ? normalizeMerchandisingOptionalProducts(body.cross_sell_optional_products)
+          : existing?.cross_sell_optional_products,
+      upsell_optional_products:
+        body.upsell_optional_products !== undefined
+          ? normalizeMerchandisingOptionalProducts(body.upsell_optional_products)
+          : existing?.upsell_optional_products,
       volume_role_prices: body.volume_role_prices ?? existing?.volume_role_prices,
       created_at: existing?.created_at ?? new Date().toISOString(),
       sort_order:

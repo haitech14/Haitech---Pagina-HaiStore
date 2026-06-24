@@ -9,11 +9,13 @@ export function productMediaCanonicalKey(url) {
   const trimmed = String(url ?? '').trim();
   if (!trimmed) return '';
 
-  if (trimmed.startsWith('/products/') && RESPONSIVE_WIDTH_SUFFIX.test(trimmed)) {
-    return trimmed.replace(RESPONSIVE_WIDTH_SUFFIX, '.webp').toLowerCase();
+  const path = trimmed.split('?')[0].split('#')[0];
+
+  if (path.startsWith('/products/') && RESPONSIVE_WIDTH_SUFFIX.test(path)) {
+    return path.replace(RESPONSIVE_WIDTH_SUFFIX, '.webp').toLowerCase();
   }
 
-  return trimmed.toLowerCase();
+  return path.toLowerCase();
 }
 
 /** @param {string} url */

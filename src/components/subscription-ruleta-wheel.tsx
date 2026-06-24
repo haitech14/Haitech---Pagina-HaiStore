@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
+import { RotateCw } from 'lucide-react';
 
 import {
   getRuletaConicGradient,
@@ -38,6 +39,7 @@ interface SubscriptionRuletaWheelProps {
   highlightIndex?: number | null;
   onSpinComplete?: (finalRotationDeg: number) => void;
   className?: string;
+  isSpinning?: boolean;
 }
 
 /** Posición % desde el centro de la ruleta (= centro del hub «Ruleta del Color»). */
@@ -50,7 +52,10 @@ function polarPositionFromWheelCenter(angleDeg: number, radiusPercent: number) {
 }
 
 /** Mismo eje que el hub: centro geométrico de la ruleta. */
-const WHEEL_PIVOT_TRANSFORM = 'translate(-50%, -50%)';
+const WHEEL_PIVOT_TRANSFORM = 'translate3d(-50%, -50%, 0)';
+
+const SEGMENT_LABEL_SHADOW =
+  '0 1px 0 rgba(0,0,0,0.85), 1px 0 0 rgba(0,0,0,0.55), -1px 0 0 rgba(0,0,0,0.55)';
 
 export function SubscriptionRuletaWheel({
   diskRotation,
@@ -60,6 +65,7 @@ export function SubscriptionRuletaWheel({
   highlightIndex = null,
   onSpinComplete,
   className,
+  isSpinning = false,
 }: SubscriptionRuletaWheelProps) {
   const gradient = useMemo(() => getRuletaConicGradient(), []);
   const diskRef = useRef<HTMLDivElement>(null);
@@ -118,16 +124,16 @@ export function SubscriptionRuletaWheel({
   }, [isSpinAnimating, spinDeltaDeg, spinToken]);
 
   return (
-    <div className={cn('relative mx-auto w-full max-w-[430px] px-1 pb-6 pt-1', className)}>
-      <div className="relative mx-auto aspect-square w-full max-w-[392px]">
-        {/* Puntero dorado fijo */}
+    <div className={cn('relative mx-auto w-full max-w-[360px]', className)}>
+      <div className="relative mx-auto aspect-square w-full">
+        {/* Puntero rojo fijo */}
         <div
           aria-hidden="true"
-          className="absolute left-1/2 top-[-2px] z-30 -translate-x-1/2"
+          className="absolute left-1/2 top-0 z-30 -translate-x-1/2 -translate-y-1"
         >
           <div className="relative flex flex-col items-center">
-            <div className="size-0 border-x-[14px] border-b-[24px] border-x-transparent border-b-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.9)]" />
-            <div className="absolute top-[2px] size-0 border-x-[9px] border-b-[16px] border-x-transparent border-b-amber-200" />
+            <div className="size-0 border-x-[11px] border-b-[20px] border-x-transparent border-b-red-600 drop-shadow-[0_2px_6px_rgba(220,38,38,0.55)]" />
+            <div className="absolute top-[2px] size-0 border-x-[7px] border-b-[13px] border-x-transparent border-b-red-400" />
           </div>
         </div>
 
@@ -152,9 +158,9 @@ export function SubscriptionRuletaWheel({
         {/* Marco dorado exterior */}
         <div
           className={cn(
-            'absolute inset-0 rounded-full p-[11px]',
+            'absolute inset-0 rounded-full p-[10px]',
             'bg-gradient-to-b from-amber-200 via-yellow-500 to-amber-700',
-            'shadow-[0_0_28px_8px_rgba(251,191,36,0.35),0_0_52px_14px_rgba(251,191,36,0.28),inset_0_2px_4px_rgba(255,255,255,0.35)]',
+            'shadow-[0_0_32px_10px_rgba(251,191,36,0.4),0_0_60px_16px_rgba(251,191,36,0.22),inset_0_2px_4px_rgba(255,255,255,0.35)]',
           )}
         >
           <div className="relative size-full rounded-full bg-gradient-to-b from-amber-300/80 to-amber-800/90 p-[4px]">
@@ -192,29 +198,36 @@ export function SubscriptionRuletaWheel({
                       key={premio.id}
                       aria-hidden="true"
                       className={cn(
-                        'absolute flex w-[4.5rem] flex-col items-center justify-center sm:w-[5rem]',
-                        isWinner && 'z-20 scale-110 transition-transform duration-500',
+                        'absolute flex w-[4.75rem] flex-col items-center justify-center sm:w-[5.25rem]',
+                        isWinner && 'z-20 scale-105 transition-transform duration-500',
                       )}
                       style={{
                         left,
                         top,
-                        transform: `${WHEEL_PIVOT_TRANSFORM} rotate(${midAngle + 90}deg)`,
+                        transform: `${WHEEL_PIVOT_TRANSFORM} rotate(${Math.round(midAngle + 90)}deg)`,
+                        backfaceVisibility: 'hidden',
+                        WebkitFontSmoothing: 'antialiased',
                       }}
                     >
                       <Icon
                         className={cn(
-                          'size-6 shrink-0 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.65)] sm:size-7',
-                          isWinner &&
-                            'drop-shadow-[0_0_12px_rgba(255,255,255,0.95),0_0_20px_rgba(251,191,36,0.85)]',
+                          'size-7 shrink-0 text-white sm:size-8',
+                          isWinner && 'brightness-110',
                         )}
-                        strokeWidth={1.25}
+                        strokeWidth={2}
                         aria-hidden="true"
+                        style={{
+                          filter: 'drop-shadow(0 1px 0 rgba(0,0,0,0.75))',
+                        }}
                       />
-                      <span className="mt-0.5 w-full text-center leading-[1.08] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65),0_0_6px_rgba(0,0,0,0.35)]">
-                        <span className="block text-[0.56rem] font-normal uppercase tracking-tight sm:text-[0.64rem]">
+                      <span
+                        className="mt-0.5 w-full text-center leading-[1.1] text-white"
+                        style={{ textShadow: SEGMENT_LABEL_SHADOW }}
+                      >
+                        <span className="block text-[0.62rem] font-bold uppercase tracking-wide sm:text-[0.7rem]">
                           {premio.label}
                         </span>
-                        <span className="mt-0.5 block text-[0.5rem] font-normal uppercase sm:text-[0.58rem]">
+                        <span className="mt-0.5 block text-[0.56rem] font-semibold uppercase sm:text-[0.64rem]">
                           {premio.sublabel}
                         </span>
                       </span>
@@ -223,25 +236,27 @@ export function SubscriptionRuletaWheel({
                 })}
               </div>
 
-              {/* Centro fijo — eje de la ruleta (no gira con el disco) */}
+              {/* Centro fijo — decorativo «Girar ahora» */}
               <div
-                className="absolute left-1/2 top-1/2 z-10 flex aspect-square flex-col items-center justify-center gap-1.5 rounded-full border-[3px] border-amber-400 bg-white px-2.5 py-2.5 shadow-[0_4px_14px_rgba(0,0,0,0.25)] sm:px-3 sm:py-3"
+                className="absolute left-1/2 top-1/2 z-10 flex aspect-square flex-col items-center justify-center gap-1 rounded-full border-[3px] border-amber-400 bg-white px-2 py-2 shadow-[0_4px_18px_rgba(0,0,0,0.3)] sm:px-2.5 sm:py-2.5"
                 style={{
                   width: `${HUB_DIAMETER_PERCENT}%`,
                   height: `${HUB_DIAMETER_PERCENT}%`,
                   transform: WHEEL_PIVOT_TRANSFORM,
                 }}
               >
-                <p className="text-center text-[0.62rem] font-bold uppercase leading-[1.08] tracking-wide text-black sm:text-[0.74rem]">
-                  <span className="block">Ruleta</span>
-                  <span className="block">del Color</span>
+                <p className="text-center text-[0.58rem] font-extrabold uppercase leading-[1.05] tracking-wide text-neutral-900 sm:text-[0.68rem]">
+                  <span className="block">{isSpinning ? 'Girando' : 'Girar'}</span>
+                  <span className="block">{isSpinning ? '…' : 'ahora'}</span>
                 </p>
-                <div className="flex gap-1.5" aria-hidden="true">
-                  <span className="size-1.5 rounded-full bg-red-500" />
-                  <span className="size-1.5 rounded-full bg-yellow-400" />
-                  <span className="size-1.5 rounded-full bg-green-500" />
-                  <span className="size-1.5 rounded-full bg-blue-500" />
-                </div>
+                <RotateCw
+                  className={cn(
+                    'size-5 text-red-600 sm:size-6',
+                    isSpinning && 'animate-spin',
+                  )}
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
               </div>
             </div>
           </div>

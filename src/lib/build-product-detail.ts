@@ -533,12 +533,7 @@ const IM430F_DESCRIPTION: ProductDescriptionContent = {
     href: '/tienda',
   },
   featureCards: IM430F_FEATURE_CARDS,
-  paragraphs: [
-    'La RICOH IM 430F es una impresora multifuncional inteligente diseñada para oficinas que buscan productividad, velocidad y eficiencia. Ofrece hasta 45 ppm, pantalla Smart Operation Panel de 10.1" y conectividad móvil y en la nube para flujos de trabajo modernos.',
-    'Ideal para equipos que necesitan impresión, copiado, escaneo y fax en un solo equipo compacto, con calidad homogénea y control de costos operativos.',
-  ],
-  youtubeVideoId: 'zlmBXCWnR20',
-  youtubeTitle: 'Ricoh IM 430F | Productividad y eficiencia en una sola impresora multifuncional',
+  paragraphs: [],
   highlights: [
     { icon: Gauge, title: 'Alta velocidad', subtitle: 'Hasta 40 ppm color y B/N' },
     { icon: Inbox, title: 'Gran capacidad', subtitle: 'Hasta 4,700 hojas' },

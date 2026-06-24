@@ -4,9 +4,9 @@ import { ImageOff } from 'lucide-react';
 import { ProductCardImage } from '@/components/product/product-card-image';
 import { cn } from '@/lib/utils';
 
-/** Imagen de tarjeta: centrada, sin recorte y ligeramente ampliada para reducir márgenes blancos. */
+/** Imagen de tarjeta: ocupa el recuadro y se ve completa (sin recorte). */
 export const PRODUCT_CARD_IMAGE_CLASS =
-  'size-full object-contain object-center scale-[1.14] origin-center';
+  'h-full w-full object-contain object-center';
 
 interface ProductCardHoverImageProps {
   candidates: string[];
@@ -41,7 +41,7 @@ export function ProductCardHoverImage({
   useEffect(() => {
     setFailedIndices(new Set());
     setHoverFailed(false);
-  }, [candidates, hoverSrc]);
+  }, [candidates.join('|'), hoverSrc]);
 
   const displayIndex = useMemo(() => {
     for (let index = 0; index < candidates.length; index += 1) {
@@ -87,39 +87,41 @@ export function ProductCardHoverImage({
   const hasHover = hoverCapable && Boolean(resolvedHoverSrc);
 
   return (
-    <div
-      className={cn(
-        'group/image relative flex size-full items-center justify-center overflow-hidden',
-        className,
-      )}
-    >
-      <ProductCardImage
-        src={primarySrc}
-        alt={alt}
+    <div className={cn('group/image relative size-full min-h-0 min-w-0', className)}>
+      <div
         className={cn(
-          imageClassName,
+          'absolute inset-0 flex items-center justify-center',
           hasHover &&
             'transition-opacity duration-300 ease-out group-hover/image:opacity-0 motion-reduce:transition-none motion-reduce:group-hover/image:opacity-100',
         )}
-        onError={() => markFailed(displayIndex)}
-      />
-      {resolvedHoverSrc ? (
+      >
         <ProductCardImage
-          src={resolvedHoverSrc}
-          alt=""
-          aria-hidden="true"
-          className={cn(
-            imageClassName,
-            'pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 ease-out group-hover/image:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none',
-          )}
-          onError={() => {
-            if (hoverSrc && resolvedHoverSrc === hoverSrc) {
-              setHoverFailed(true);
-              return;
-            }
-            markFailed(fallbackHoverIndex);
-          }}
+          src={primarySrc}
+          alt={alt}
+          className={imageClassName}
+          onError={() => markFailed(displayIndex)}
         />
+      </div>
+      {resolvedHoverSrc ? (
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 ease-out group-hover/image:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none',
+          )}
+        >
+          <ProductCardImage
+            src={resolvedHoverSrc}
+            alt=""
+            aria-hidden="true"
+            className={imageClassName}
+            onError={() => {
+              if (hoverSrc && resolvedHoverSrc === hoverSrc) {
+                setHoverFailed(true);
+                return;
+              }
+              markFailed(fallbackHoverIndex);
+            }}
+          />
+        </div>
       ) : null}
     </div>
   );

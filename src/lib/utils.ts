@@ -13,11 +13,13 @@ export function formatCurrency(value: number, currency = 'EUR', locale = 'es-ES'
 }
 
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
+import { roundPenToNearestNine } from '@/lib/pen-pricing';
 
 export { DEFAULT_USD_TO_PEN, USD_TO_PEN } from '@/lib/exchange-rate';
 
 export function usdToPen(usd: number, rate = getUsdToPenSaleRate()): number {
-  return Math.round(usd * rate);
+  if (!Number.isFinite(usd) || usd <= 0 || rate <= 0) return 0;
+  return roundPenToNearestNine(usd * rate);
 }
 
 export function penToUsd(pen: number, rate = getUsdToPenSaleRate()): number {

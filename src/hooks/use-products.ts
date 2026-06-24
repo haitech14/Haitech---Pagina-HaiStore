@@ -36,14 +36,19 @@ export function useProducts(options?: UseProductsOptions) {
 
 async function fetchAdminInventory(): Promise<InventoryProduct[]> {
   const rows = await apiFetch<InventoryProduct[]>('/api/products/admin/all');
-  return rows.map((row) => {
+  const normalized: InventoryProduct[] = [];
+  for (const row of rows) {
     try {
-      return normalizeInventoryProduct(row, DEFAULT_WAREHOUSES);
+      normalized.push(normalizeInventoryProduct(row, DEFAULT_WAREHOUSES));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'dato inválido';
-      throw new Error(`Inventario con formato inválido (${row.id ?? 'sin id'}): ${message}`);
+      console.warn(`[inventario] producto omitido (${row.id ?? 'sin id'}): ${message}`);
     }
-  });
+  }
+  if (normalized.length === 0 && rows.length > 0) {
+    throw new Error('No se pudo normalizar ningún producto del inventario.');
+  }
+  return normalized;
 }
 
 export function useAdminInventory() {

@@ -1,6 +1,7 @@
 /** Quita extensión de imagen para construir rutas de variantes WebP. */
 export function imageBasePath(imagePath: string): string {
-  return imagePath.replace(/\.(png|jpe?g|webp|avif)$/i, '');
+  const path = imagePath.split('?')[0].split('#')[0];
+  return path.replace(/\.(png|jpe?g|webp|avif)$/i, '');
 }
 
 /** Variantes WebP del hero banner (fiestaspatriasbanner-768.webp, etc.). */
@@ -82,9 +83,11 @@ export function productDetailMainImageSources(imagePath: string) {
 /** True si la ruta admite variantes responsive generadas en build. */
 export function supportsResponsiveProductImage(imagePath: string): boolean {
   if (!imagePath || imagePath.startsWith('data:')) return false;
+  if (imagePath.includes('?')) return false;
+  const path = imagePath.split('?')[0].split('#')[0];
   return (
-    imagePath.startsWith('/products/') ||
-    imagePath.startsWith('/categories/') ||
-    imagePath.startsWith('/promo-cards/')
+    path.startsWith('/products/') ||
+    path.startsWith('/categories/') ||
+    path.startsWith('/promo-cards/')
   );
 }

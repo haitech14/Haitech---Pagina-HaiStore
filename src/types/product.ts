@@ -62,6 +62,20 @@ export interface Product {
   cross_sell_product_ids?: string[];
   /** Productos sugeridos en upselling (carrusel «Configura tu equipo»). */
   upsell_product_ids?: string[];
+  /** Complementos opcionales sin ficha en inventario (venta cruzada). */
+  cross_sell_optional_products?: MerchandisingOptionalProduct[];
+  /** Complementos opcionales sin ficha en inventario (upselling). */
+  upsell_optional_products?: MerchandisingOptionalProduct[];
+}
+
+/** Producto sugerido en merchandising que no existe en el inventario. */
+export interface MerchandisingOptionalProduct {
+  id: string;
+  name: string;
+  description?: string | null;
+  price_usd: number;
+  image_url?: string | null;
+  code?: string | null;
 }
 
 export interface InventorySupplier {
@@ -134,6 +148,10 @@ export interface InventoryProduct extends Omit<Product, 'price' | 'price_role' |
   cross_sell_product_ids?: string[];
   /** Upselling: IDs de productos en el carrusel «Configura tu equipo». */
   upsell_product_ids?: string[];
+  /** Venta cruzada opcional sin inventario. */
+  cross_sell_optional_products?: MerchandisingOptionalProduct[];
+  /** Upselling opcional sin inventario. */
+  upsell_optional_products?: MerchandisingOptionalProduct[];
   /** URLs de galería (la principal suele coincidir con image_url). */
   gallery: string[];
   prices: ProductRolePrices;

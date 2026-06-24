@@ -13,7 +13,7 @@ import { normalizeBundleComponents } from '@/lib/product-bundle';
 import { normalizeSuppliers, resolvePurchasePriceUsd } from '@/lib/inventory-suppliers';
 import { applyStockFields, DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { normalizeVolumeRolePrices } from '@/lib/product-volume-role-prices';
-import { normalizeMerchandisingProductIds } from '@/lib/product-merchandising';
+import { normalizeMerchandisingProductIds, normalizeMerchandisingOptionalProducts } from '@/lib/product-merchandising';
 import { normalizeProductGalleryFields, appendProductGalleryUrls, getAdditionalGalleryUrls } from '@/lib/product-gallery';
 import {
   MAX_PRODUCT_IMAGE_UPLOAD_BYTES,
@@ -148,6 +148,12 @@ export function normalizeInventoryProduct(
       bundle_components: normalizeBundleComponents(raw.bundle_components),
       cross_sell_product_ids: normalizeMerchandisingProductIds(raw.cross_sell_product_ids),
       upsell_product_ids: normalizeMerchandisingProductIds(raw.upsell_product_ids),
+      cross_sell_optional_products: normalizeMerchandisingOptionalProducts(
+        raw.cross_sell_optional_products,
+      ),
+      upsell_optional_products: normalizeMerchandisingOptionalProducts(
+        raw.upsell_optional_products,
+      ),
       purchase_price_usd: resolvePurchasePriceUsd(suppliers, fallbackPurchase),
       created_at: raw.created_at ?? new Date().toISOString(),
       sort_order: Number.isFinite(Number(raw.sort_order)) ? Number(raw.sort_order) : 0,
@@ -197,6 +203,12 @@ export function mergeInventoryProductPatch(
   }
   if (patch.upsell_product_ids !== undefined) {
     merged.upsell_product_ids = patch.upsell_product_ids;
+  }
+  if (patch.cross_sell_optional_products !== undefined) {
+    merged.cross_sell_optional_products = patch.cross_sell_optional_products;
+  }
+  if (patch.upsell_optional_products !== undefined) {
+    merged.upsell_optional_products = patch.upsell_optional_products;
   }
 
   return normalizeInventoryProduct(merged, warehouses);

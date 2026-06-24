@@ -30,15 +30,14 @@ export const DEFAULT_INVENTORY_COLUMN_ORDER: InventoryReorderableColumnId[] = [
   'product',
   'brand',
   'gramaje',
-  'installation',
   'media',
   'stock',
   'attributes',
   ...INVENTORY_PRICE_COLUMN_ORDER,
 ];
 
-const STORAGE_KEY = 'haistore-inventory-column-order-v9';
-const LEGACY_STORAGE_KEY = 'haistore-inventory-column-order-v8';
+const STORAGE_KEY = 'haistore-inventory-column-order-v10';
+const LEGACY_STORAGE_KEY = 'haistore-inventory-column-order-v9';
 
 const COLUMN_LABELS: Record<InventoryReorderableColumnId, string> = {
   media: 'Medios',
@@ -99,7 +98,7 @@ function isValidColumnId(value: string): value is InventoryReorderableColumnId {
 /** Convierte ids de columnas antiguas (foto/galería, subcategoría) al esquema fusionado. */
 function migrateLegacyColumnId(value: string): InventoryReorderableColumnId | null {
   if (value === 'photo' || value === 'gallery') return 'media';
-  if (value === 'subcategory' || value === 'description') return null;
+  if (value === 'subcategory' || value === 'description' || value === 'installation') return null;
   return isValidColumnId(value) ? value : null;
 }
 

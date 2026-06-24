@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom';
 
-import { ProductHighlightCard } from '@/components/product/product-highlight-card';
+import { ProductCarouselSection } from '@/components/product-carousel-section';
 import { HomeCatalogLoadError } from '@/components/home-catalog-load-error';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useHomeFeaturedProducts } from '@/hooks/use-home-featured-products';
-import { HOME_HIGHLIGHTED_ROW_SIZE, MIN_HOME_FEATURED } from '@/lib/home-featured-products';
-
-const PRODUCT_GRID_CLASS =
-  'grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5';
+import { useHomeHighlightedDisplay } from '@/hooks/use-home-highlighted-display';
+import { HOME_HIGHLIGHTED_ROW_SIZE, MIN_HOME_FEATURED } from '@/lib/home-highlighted-selection';
 
 export function HomeHighlightedSection() {
-  const { data: highlightedProducts = [], isLoading, isError, refetch, isFetching } =
-    useHomeFeaturedProducts();
+  const {
+    products: highlightedProducts,
+    subtitle,
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+  } = useHomeHighlightedDisplay();
 
   if (!isLoading && highlightedProducts.length < MIN_HOME_FEATURED) {
     return null;
@@ -28,13 +31,11 @@ export function HomeHighlightedSection() {
               </span>
               <h2
                 id="lo-mas-destacado-titulo"
-                className="text-balance text-xl font-bold tracking-tight text-red-600 sm:text-2xl"
+                className="text-balance text-xl font-bold tracking-tight text-foreground sm:text-2xl"
               >
                 Lo más destacado
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Equipos en stock con cotización inmediata
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
             </div>
             <Link
               to="/categoria/multifuncionales"
@@ -45,30 +46,25 @@ export function HomeHighlightedSection() {
           </div>
 
           {isError && highlightedProducts.length === 0 ? (
-            <HomeCatalogLoadError
-              onRetry={() => void refetch()}
-              isRetrying={isFetching}
-            />
+            <HomeCatalogLoadError onRetry={() => void refetch()} isRetrying={isFetching} />
           ) : isLoading && highlightedProducts.length === 0 ? (
-            <ul className={PRODUCT_GRID_CLASS}>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
               {Array.from({ length: HOME_HIGHLIGHTED_ROW_SIZE }).map((_, index) => (
-                <li key={index}>
-                  <div className="flex flex-col items-center gap-2 rounded-xl border border-border/50 bg-white p-2">
-                    <Skeleton className="aspect-square w-full bg-neutral-100" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                  </div>
-                </li>
+                <div key={index} className="flex flex-col gap-2 rounded-xl border border-border/50 bg-white p-2">
+                  <Skeleton className="aspect-square w-full bg-neutral-100" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
-            <ul className={PRODUCT_GRID_CLASS} role="list">
-              {highlightedProducts.map((product) => (
-                <li key={product.id} className="min-w-0">
-                  <ProductHighlightCard product={product} />
-                </li>
-              ))}
-            </ul>
+            <ProductCarouselSection
+              sectionId="lo-mas-destacado"
+              title="Lo más destacado"
+              products={highlightedProducts}
+              hideHeader
+              showNavArrows
+            />
           )}
         </div>
       </div>

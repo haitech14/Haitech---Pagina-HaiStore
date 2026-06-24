@@ -27,15 +27,26 @@ export function DualPrice({
 
   return (
     <span className={cn('inline-flex flex-wrap items-baseline gap-x-1.5', className)}>
-      {showUsd ? <span className={cn(strike, alwaysBoth && 'text-[#0f1f3d]')}>{formatUsd(usd)}</span> : null}
+      {showUsd ? (
+        <span
+          className={cn(
+            strike,
+            alwaysBoth ? 'text-[#0f1f3d]' : showPen ? 'text-foreground' : undefined,
+          )}
+        >
+          {formatUsd(usd)}
+        </span>
+      ) : null}
       {showUsd && showPen ? (
-        <span aria-hidden="true" className="font-normal text-red-600">
+        <span aria-hidden="true" className="font-normal text-muted-foreground">
           {' '}
-          -{' '}
+          ·{' '}
         </span>
       ) : null}
       {showPen ? (
-        <span className={cn(strike, alwaysBoth && 'text-red-600')}>{formatPenFromUsd(usd)}</span>
+        <span className={cn(strike, alwaysBoth || showUsd ? 'text-red-600' : undefined)}>
+          {formatPenFromUsd(usd)}
+        </span>
       ) : null}
     </span>
   );

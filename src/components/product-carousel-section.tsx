@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
@@ -74,11 +74,13 @@ export function ProductCarouselSection({
     };
   }, [emblaApi]);
 
+  const productIdsKey = useMemo(() => products.map((product) => product.id).join('|'), [products]);
+
   useEffect(() => {
     if (!emblaApi) return;
     emblaApi.reInit();
     emblaApi.scrollTo(0);
-  }, [emblaApi, products]);
+  }, [emblaApi, productIdsKey]);
 
   const showDots = scrollSnaps.length > 1;
   const showArrows = showNavArrows && products.length > 0;

@@ -32,6 +32,7 @@ import {
   mergeConsumableTonerOptions,
   mergeCrossSellTonerOptions,
   resolveConfigureTonerCards,
+  resolveTonerCatalogLookupIds,
   type ConfigureTonerCard,
 } from '@/lib/product-configure-toner';
 import {
@@ -51,6 +52,7 @@ import { useRentalPlans } from '@/hooks/use-rental-plans';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProductConsumables } from '@/hooks/use-product-consumables';
 import { useProducts } from '@/hooks/use-products';
+import { useProductsByIds } from '@/hooks/use-products-by-ids';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { cn } from '@/lib/utils';
 import type { CartConfigurationLine } from '@/types/product';
@@ -164,13 +166,30 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     () => buildProductDetail(product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers),
     [product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers],
   );
-  const { ref: catalogDeferRef, near: catalogNearViewport } = useNearViewport(
-    detail.isPrinterEquipment,
-  );
   const { ref: relatedDeferRef, near: relatedNearViewport } = useNearViewport(true);
   const { data: catalogProducts = [], isLoading: catalogLoading } = useProducts({
-    enabled: detail.isPrinterEquipment && catalogNearViewport,
+    enabled: detail.isPrinterEquipment,
   });
+  const tonerCatalogLookupIds = useMemo(
+    () =>
+      detail.isPrinterEquipment
+        ? resolveTonerCatalogLookupIds(product, detail.equipmentConfigSteps)
+        : [],
+    [detail.equipmentConfigSteps, detail.isPrinterEquipment, product],
+  );
+  const { data: tonerCatalogProducts = [] } = useProductsByIds(
+    tonerCatalogLookupIds,
+    detail.isPrinterEquipment && tonerCatalogLookupIds.length > 0,
+  );
+  const catalogForEquipment = useMemo(() => {
+    if (catalogProducts.length === 0) return tonerCatalogProducts;
+    if (tonerCatalogProducts.length === 0) return catalogProducts;
+    const merged = new Map(catalogProducts.map((row) => [row.id, row]));
+    for (const row of tonerCatalogProducts) {
+      if (!merged.has(row.id)) merged.set(row.id, row);
+    }
+    return [...merged.values()];
+  }, [catalogProducts, tonerCatalogProducts]);
   const { data: consumableGroupsFromApi = [] } = useProductConsumables(
     product.id,
     detail.isPrinterEquipment,
@@ -225,12 +244,12 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
   const consumableGroups = useMemo(
     () =>
-      catalogProducts.length > 0
-        ? resolveEquipmentConsumables(product, catalogProducts)
+      catalogForEquipment.length > 0
+        ? resolveEquipmentConsumables(product, catalogForEquipment)
         : consumableGroupsFromApi.length > 0
           ? consumableGroupsFromApi
-          : resolveEquipmentConsumables(product, catalogProducts),
-    [catalogProducts, product, consumableGroupsFromApi],
+          : resolveEquipmentConsumables(product, catalogForEquipment),
+    [catalogForEquipment, product, consumableGroupsFromApi],
   );
 
   const equipmentSteps = useMemo(
@@ -238,16 +257,16 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
       mergeMerchandisingEquipmentSteps(
         mergeCrossSellTonerOptions(
           mergeConsumableTonerOptions(
-            resolveEquipmentConfigSteps(detail.equipmentConfigSteps, catalogProducts, product),
+            resolveEquipmentConfigSteps(detail.equipmentConfigSteps, catalogForEquipment, product),
             consumableGroups,
           ),
           product,
-          catalogProducts,
+          catalogForEquipment,
         ),
         product,
-        catalogProducts,
+        catalogForEquipment,
       ),
-    [detail.equipmentConfigSteps, catalogProducts, product, consumableGroups],
+    [detail.equipmentConfigSteps, catalogForEquipment, product, consumableGroups],
   );
 
   const comparison = useMemo(
@@ -335,10 +354,10 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         tonerStep,
         consumableGroups,
         resolveIncludedTonerImage(includedToner?.image),
-        catalogProducts,
+        catalogForEquipment,
         product,
       ),
-    [catalogProducts, consumableGroups, includedToner?.image, product, tonerStep],
+    [catalogForEquipment, consumableGroups, includedToner?.image, product, tonerStep],
   );
 
   const handleHeroTonerToggle = useCallback(
@@ -374,6 +393,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         ),
       ) ||
       (product.upsell_product_ids?.length ?? 0) > 0 ||
+      (product.upsell_optional_products?.length ?? 0) > 0 ||
       hasCrossSellConfigureCards(product, catalogProducts) ||
       frequentlyBought.length > 0);
 
@@ -409,7 +429,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         equipmentSelection={equipmentSelection}
         onEquipmentSelectionChange={setEquipmentSelection}
         frequentlyBought={frequentlyBought}
-        catalogProducts={catalogProducts}
+        catalogProducts={catalogForEquipment}
         consumableGroups={consumableGroups}
         purchaseMode={purchaseMode}
         onPurchaseModeChange={handlePurchaseModeChange}
@@ -437,7 +457,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               showOriginalBadge={showOriginalBadge}
               brandLabel={detail.brandLabel}
             />
-            <div ref={catalogDeferRef} className="h-px w-full" aria-hidden="true" />
+            <div className="h-px w-full" aria-hidden="true" />
             {configureEquipmentSection}
           </div>
 

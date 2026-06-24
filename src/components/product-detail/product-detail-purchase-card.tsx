@@ -182,21 +182,17 @@ export function ProductDetailPurchaseCard({
       </p>
     </div>
   ) : (
-    <div>
-      <p className="text-xs font-semibold text-foreground">Oferta</p>
-      <p
-        className="mt-0.5 text-2xl font-bold leading-tight text-red-600 sm:text-[1.75rem]"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        <ProductDetailRolePriceLines
-          product={product}
-          quantity={quantity}
-          fullPrices={fullPrices}
-          bulkDiscountTiers={detail.bulkDiscountTiers}
-          equipmentExtrasUsd={equipmentExtrasUsd}
-        />
-      </p>
+      <div>
+        <p className="text-xs font-semibold text-foreground">Oferta</p>
+        <div className="mt-0.5" aria-live="polite" aria-atomic="true">
+          <ProductDetailRolePriceLines
+            product={product}
+            quantity={quantity}
+            fullPrices={fullPrices}
+            bulkDiscountTiers={detail.bulkDiscountTiers}
+            equipmentExtrasUsd={equipmentExtrasUsd}
+          />
+        </div>
       {quantity > 1 ? (
         <p className="mt-0.5 text-xs text-muted-foreground">
           <DualPrice usd={configuredUnitUsd} className="inline" /> por unidad · {quantity} ud.

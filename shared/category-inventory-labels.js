@@ -88,6 +88,16 @@ export const SUBCATEGORY_INVENTORY_LABELS = {
     'Impresoras Laser Remanufacturadas',
     'Impresoras Láser Remanufacturadas',
   ],
+  toner: ['Toner Original', 'Toner, Toner Original', 'Toner, Toner Originales'],
+  suministros: ['Suministros', 'Toner, Suministros'],
+  'toner-compatibles': [
+    'Toner Compatible',
+    'Toner, Toner Compatible',
+    'Toner Compatibles',
+    'Toner, Toner Compatibles',
+    'Toner Compatibles HaiPrint',
+    'Toner Compatibles Haitone',
+  ],
 };
 
 export function resolveSubcategoryInventoryLabels(subSlug) {

@@ -11,7 +11,7 @@ interface ViewAsRolePricesProps {
   compact?: boolean;
 }
 
-/** Precios apilados por rol en vista previa admin (multi-selección). */
+/** Precios por rol en fila: etiqueta a la izquierda, precio a la derecha. */
 export function ViewAsRolePrices({
   rolePrices,
   className,
@@ -26,15 +26,17 @@ export function ViewAsRolePrices({
         <li
           key={line.role}
           className={cn(
-            'flex min-w-0 flex-wrap items-baseline gap-x-1 gap-y-0',
+            'flex items-baseline justify-between gap-x-2',
             compact ? 'text-[0.625rem] leading-tight sm:text-[0.6875rem]' : 'text-[0.6875rem] sm:text-xs',
           )}
         >
-          <span className="shrink-0 font-semibold text-orange-800">{line.label}:</span>
+          <span className="shrink-0 font-semibold uppercase tracking-wide text-muted-foreground">
+            {line.label}
+          </span>
           <DualPrice
             usd={line.priceUsd}
             alwaysBoth={alwaysBoth}
-            className="min-w-0 font-bold tabular-nums text-foreground"
+            className="min-w-0 shrink-0 font-bold tabular-nums text-right"
           />
         </li>
       ))}

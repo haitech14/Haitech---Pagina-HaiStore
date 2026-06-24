@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star } from 'lucide-react';
 
+import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { ProductCardOverlayActions } from '@/components/product/product-card-overlay-actions';
 import { CatalogPreviewPriceBlock } from '@/components/product/catalog-preview-price-block';
 import { ProductCardTitle } from '@/components/product/product-card-title';
@@ -18,7 +19,11 @@ import { getCatalogProductById } from '@/lib/catalog-featured';
 import { featuredToWishlistItem } from '@/lib/wishlist-product';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { featuredToCompareItem } from '@/lib/compare-product';
-import { buildProductImageCandidates, resolveProductCardHoverImage } from '@/lib/product-image-url';
+import {
+  buildProductCardImageCandidates,
+  buildProductCardImageSource,
+  resolveProductCardHoverImageFromProduct,
+} from '@/lib/product-card-images';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -79,20 +84,17 @@ export function ProductShowcaseCard({
     };
   }, [catalogProduct?.prices, product.price, product.price_role, product.prices]);
   const displayPrice = useCatalogDisplayPrice(priceSource);
-  const imageSource = useMemo(
-    () => ({
-      id: product.id,
-      code: product.code ?? catalogProduct?.code ?? null,
-      name: product.name,
-      category: product.category,
-      brand: product.brand ?? catalogProduct?.brand ?? null,
-      image_url: product.image,
-      gallery: catalogProduct?.gallery ?? null,
-    }),
-    [catalogProduct, product],
-  );
-  const imageCandidates = useMemo(() => buildProductImageCandidates(imageSource), [imageSource]);
-  const hoverImageSrc = useMemo(() => resolveProductCardHoverImage(imageSource), [imageSource]);
+  const imageSource = useMemo(() => buildProductCardImageSource({
+    id: product.id,
+    code: product.code ?? catalogProduct?.code ?? null,
+    name: product.name,
+    category: product.category,
+    brand: product.brand ?? catalogProduct?.brand ?? null,
+    image_url: product.image ?? catalogProduct?.image_url ?? null,
+    gallery: catalogProduct?.gallery ?? null,
+  }), [catalogProduct, product]);
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
+  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(imageSource), [imageSource]);
   const compareSelected = isSelected(product.id);
   const wishlistSelected = isWishlisted(product.id);
   const badgeSource = {
@@ -104,6 +106,17 @@ export function ProductShowcaseCard({
     attributes: product.attributes ?? [],
   };
   const stock = catalogProduct?.stock ?? 10;
+  const outOfStock = isProductOutOfStock({
+    id: product.id,
+    name: product.name,
+    description: catalogProduct?.description ?? null,
+    price: displayPrice.priceUsd,
+    currency: 'USD',
+    image_url: product.image,
+    stock,
+    category: product.category,
+    created_at: catalogProduct?.created_at ?? new Date().toISOString(),
+  });
   const cartProduct: Product = {
     id: product.id,
     name: product.name,
@@ -139,7 +152,7 @@ export function ProductShowcaseCard({
             </Link>
             <div
               className={cn(
-                'flex items-center justify-center overflow-hidden',
+                'relative overflow-hidden',
                 isLargeImage
                   ? 'aspect-square p-0.5 sm:p-1'
                   : isFeatured
@@ -177,6 +190,7 @@ export function ProductShowcaseCard({
               product={badgeSource}
               brandTone={brandTone}
               variant={isFeatured ? 'featured' : 'card'}
+              {...(isFeatured ? { stock, outOfStock } : {})}
             />
           </Link>
 

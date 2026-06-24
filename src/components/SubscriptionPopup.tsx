@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowRight, Gift, Mail, PartyPopper, Phone, Shield, User, X } from 'lucide-react';
+import { ArrowRight, Clock, Gift, Mail, PartyPopper, Phone, Shield, Tag, User, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import {
@@ -321,7 +321,7 @@ export function SubscriptionPopup() {
       <DialogContent
         overlayClassName="z-[100] bg-black/60 backdrop-blur-sm"
         className={cn(
-          'z-[101] max-h-[95dvh] w-[calc(100%-1rem)] max-w-[960px] overflow-y-auto border-0 bg-[#F5F5F5] p-0',
+          'z-[101] max-h-[95dvh] w-[calc(100%-1rem)] max-w-[980px] overflow-y-auto border-0 bg-white p-0',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0',
           'data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95',
@@ -337,58 +337,80 @@ export function SubscriptionPopup() {
           if (phase === 'spinning' || phase === 'landed') event.preventDefault();
         }}
       >
-        <DialogTitle className="sr-only">Suscripción — Ruleta del Color</DialogTitle>
+        <DialogTitle className="sr-only">Gira y Gana — Ruleta promocional</DialogTitle>
 
-        <div className="relative flex flex-col md:flex-row">
-          {/* Columna izquierda — ruleta (~46%) */}
+        <div className="relative flex min-h-0 flex-col md:flex-row">
+          {/* Columna izquierda — ruleta */}
           <div
             className={cn(
-              'relative flex min-h-[380px] flex-col items-center justify-center overflow-hidden px-4 py-8 md:min-h-[520px] md:w-[46%] md:shrink-0 md:py-10',
-              'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900',
-              phase === 'landed' && 'md:w-[52%]',
-              (phase === 'spinning' || phase === 'landed') && 'md:min-h-[560px]',
+              'relative flex min-h-[420px] flex-col justify-between overflow-hidden px-5 py-6 md:min-h-[580px] md:w-[44%] md:shrink-0 md:px-6 md:py-8',
+              'bg-[#121212]',
+              phase === 'landed' && 'md:w-[48%]',
             )}
           >
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(220,38,38,0.22),transparent_42%)]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_82%_78%,rgba(37,99,235,0.18),transparent_45%)]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,rgba(34,197,94,0.12),transparent_50%)]"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(220,38,38,0.14),transparent_55%)]"
             />
 
-            <SubscriptionRuletaWheel
-              diskRotation={diskRotation}
-              isSpinAnimating={isSpinAnimating}
-              spinDeltaDeg={spinDeltaDeg}
-              spinToken={spinToken}
-              highlightIndex={showWheelHighlight ? winningIndex : null}
-              onSpinComplete={handleSpinComplete}
-              className="relative z-10"
-            />
+            <header className="relative z-10 flex items-start gap-3">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-red-600/40 bg-red-600/10 text-red-500">
+                <Gift className="size-5" strokeWidth={1.75} aria-hidden="true" />
+              </span>
+              <div>
+                <p className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+                  ¡Gira y Gana!
+                </p>
+                <p className="mt-0.5 text-sm text-neutral-400">
+                  Premios increíbles te esperan
+                </p>
+              </div>
+            </header>
 
-            {phase === 'landed' && wonPremio ? (
-              <p
-                className="relative z-10 mt-4 max-w-[18rem] animate-in fade-in slide-in-from-bottom-2 text-center text-sm font-semibold text-white duration-500 sm:text-base"
-                role="status"
-                aria-live="polite"
-              >
-                ¡Premio seleccionado!{' '}
-                <span className="block text-amber-300">{formatPremioLabel(wonPremio)}</span>
-              </p>
-            ) : null}
+            <div className="relative z-10 flex flex-1 flex-col items-center justify-center py-4">
+              <SubscriptionRuletaWheel
+                diskRotation={diskRotation}
+                isSpinAnimating={isSpinAnimating}
+                spinDeltaDeg={spinDeltaDeg}
+                spinToken={spinToken}
+                highlightIndex={showWheelHighlight ? winningIndex : null}
+                onSpinComplete={handleSpinComplete}
+                isSpinning={phase === 'spinning' || phase === 'submitting'}
+                className="w-full"
+              />
+
+              {phase === 'landed' && wonPremio ? (
+                <p
+                  className="mt-3 max-w-[18rem] animate-in fade-in slide-in-from-bottom-2 text-center text-sm font-semibold text-white duration-500"
+                  role="status"
+                  aria-live="polite"
+                >
+                  ¡Premio seleccionado!{' '}
+                  <span className="block text-amber-300">{formatPremioLabel(wonPremio)}</span>
+                </p>
+              ) : null}
+            </div>
+
+            <div className="relative z-10 rounded-xl border border-neutral-700/80 bg-neutral-900/90 px-4 py-3.5">
+              <div className="flex items-start gap-3">
+                <span className="relative flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-600/15 text-red-500">
+                  <Shield className="size-4" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-white">Tus datos están seguros con nosotros</p>
+                  <p className="mt-0.5 text-xs text-neutral-400">
+                    No compartimos tu información con terceros
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Columna derecha — formulario o estado de giro */}
+          {/* Columna derecha — formulario */}
           <div
             className={cn(
-              'relative flex-1 bg-[#F5F5F5] px-5 py-7 sm:px-8 sm:py-8',
-              phase === 'landed' && 'hidden md:flex md:max-w-[48%] md:flex-col md:justify-center',
+              'relative flex-1 bg-white px-5 py-7 sm:px-8 sm:py-9',
+              phase === 'landed' && 'hidden md:flex md:max-w-[52%] md:flex-col md:justify-center',
             )}
           >
             <button
@@ -417,23 +439,17 @@ export function SubscriptionPopup() {
               </div>
             ) : (
             <>
-            <div className="mb-6 flex items-start gap-3 pr-10">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-600/10 text-red-600">
-                <Gift className="size-5" aria-hidden="true" />
-              </span>
-              <div>
-                <h2
-                  id={titleId}
-                  className="text-lg font-bold leading-tight text-foreground sm:text-xl"
-                >
-                  ¡Suscríbete y obtén un giro en la{' '}
-                  <span className="text-red-600">Ruleta del Color</span>!
-                </h2>
-                <p className="mt-1.5 text-sm text-muted-foreground">
-                  Al registrarte participas por un giro en la{' '}
-                  <span className="font-medium text-red-600">Ruleta del Color</span>.
-                </p>
-              </div>
+            <div className="mb-7 pr-10">
+              <h2
+                id={titleId}
+                className="text-balance text-2xl font-bold tracking-tight text-neutral-900 sm:text-[1.75rem]"
+              >
+                Gana recompensas{' '}
+                <span className="font-bold text-red-600">exclusivas</span> al instante
+              </h2>
+              <p className="mt-2 text-sm text-neutral-500 sm:text-base">
+                Regístrate en segundos y obtén tu giro 🎉
+              </p>
             </div>
 
             <form
@@ -442,16 +458,18 @@ export function SubscriptionPopup() {
               noValidate
             >
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="sub-name">Nombre</Label>
+                <Label htmlFor="sub-name" className="text-sm font-semibold text-neutral-800">
+                  Nombre
+                </Label>
                 <div className="relative">
                   <User
-                    className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                    className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-400"
                     aria-hidden="true"
                   />
                   <Input
                     id="sub-name"
-                    placeholder="Nombre"
-                    className="h-11 pl-10"
+                    placeholder="Ingresa tu nombre"
+                    className="h-11 border-neutral-200 bg-neutral-50 pl-10"
                     disabled={isBusy}
                     aria-invalid={!!errors.name}
                     aria-describedby={errors.name ? 'sub-name-error' : undefined}
@@ -466,18 +484,20 @@ export function SubscriptionPopup() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="sub-email">E-mail</Label>
+                <Label htmlFor="sub-email" className="text-sm font-semibold text-neutral-800">
+                  E-mail
+                </Label>
                 <div className="relative">
                   <Mail
-                    className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                    className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-400"
                     aria-hidden="true"
                   />
                   <Input
                     id="sub-email"
                     type="email"
                     autoComplete="email"
-                    placeholder="E-mail"
-                    className="h-11 pl-10"
+                    placeholder="Ingresa tu e-mail"
+                    className="h-11 border-neutral-200 bg-neutral-50 pl-10"
                     disabled={isBusy}
                     aria-invalid={!!errors.email}
                     aria-describedby={errors.email ? 'sub-email-error' : undefined}
@@ -492,8 +512,10 @@ export function SubscriptionPopup() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="sub-phone">Celular</Label>
-                <div className="flex overflow-hidden rounded-lg border border-input shadow-sm focus-within:ring-2 focus-within:ring-ring">
+                <Label htmlFor="sub-phone" className="text-sm font-semibold text-neutral-800">
+                  Celular
+                </Label>
+                <div className="flex overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 shadow-sm focus-within:ring-2 focus-within:ring-red-600/30">
                   <Controller
                     name="country"
                     control={control}
@@ -504,7 +526,7 @@ export function SubscriptionPopup() {
                         disabled={isBusy}
                       >
                         <SelectTrigger
-                          className="h-11 w-[7.5rem] shrink-0 rounded-none border-0 border-r shadow-none focus:ring-0"
+                          className="h-11 w-[7.75rem] shrink-0 rounded-none border-0 border-r border-neutral-200 bg-neutral-50 shadow-none focus:ring-0"
                           aria-label="País del celular"
                         >
                           <SelectValue />
@@ -521,7 +543,7 @@ export function SubscriptionPopup() {
                   />
                   <div className="relative min-w-0 flex-1">
                     <Phone
-                      className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                      className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-400"
                       aria-hidden="true"
                     />
                     <Input
@@ -529,8 +551,8 @@ export function SubscriptionPopup() {
                       type="tel"
                       inputMode="numeric"
                       autoComplete="tel-national"
-                      placeholder="Celular"
-                      className="h-11 rounded-none border-0 pl-10 shadow-none focus-visible:ring-0"
+                      placeholder="Tu número de celular"
+                      className="h-11 rounded-none border-0 bg-neutral-50 pl-10 shadow-none focus-visible:ring-0"
                       disabled={isBusy}
                       {...register('phone')}
                     />
@@ -553,7 +575,7 @@ export function SubscriptionPopup() {
                     />
                   )}
                 />
-                <Label htmlFor="sub-terms" className="text-xs leading-snug text-muted-foreground">
+                <Label htmlFor="sub-terms" className="text-xs leading-snug text-neutral-600">
                   Acepto los{' '}
                   <Link to="/terminos" className="font-semibold text-red-600 hover:underline">
                     términos y condiciones
@@ -574,30 +596,44 @@ export function SubscriptionPopup() {
               <Button
                 type="submit"
                 disabled={isBusy}
-                className="h-12 w-full gap-2 bg-red-600 text-base font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
+                className="h-12 w-full gap-3 rounded-xl bg-red-600 font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
               >
                 {phase === 'submitting'
                   ? 'Registrando…'
                   : phase === 'spinning'
                     ? 'Girando la ruleta…'
-                    : 'Regístrate y gira la ruleta'}
-                <span className="flex size-6 items-center justify-center rounded-full bg-white/20">
+                    : 'Registrar y girar la ruleta'}
+                <span className="flex size-7 items-center justify-center rounded-full bg-white text-red-600">
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </span>
               </Button>
 
-              <div className="flex gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2.5 text-[0.7rem] leading-snug text-red-800">
-                <Shield className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                <p>
-                  *Premios sujetos a condiciones de la promoción. No acumulable con otras ofertas
-                  salvo indicación.
+              <div className="flex items-center gap-2.5 rounded-lg border border-red-100 bg-red-50 px-3.5 py-3 text-sm text-red-700">
+                <Clock className="size-4 shrink-0 text-red-600" aria-hidden="true" />
+                <p className="font-medium leading-snug">
+                  ¡Es por tiempo limitado! Cupón válido por 48 horas.
                 </p>
               </div>
 
-              <p className="flex items-center gap-2 text-[0.7rem] text-muted-foreground">
-                <Mail className="size-3.5 shrink-0 text-blue-500" aria-hidden="true" />
-                Cupón será enviado por correo y será válido por 48 a 72 horas.
-              </p>
+              <ul className="grid gap-3 pt-1 sm:grid-cols-3">
+                {[
+                  { icon: Tag, label: 'Ofertas exclusivas' },
+                  { icon: Gift, label: 'Premios al instante' },
+                  { icon: Shield, label: 'Compra 100% segura' },
+                ].map(({ icon: Icon, label }) => (
+                  <li
+                    key={label}
+                    className="flex flex-col items-center gap-2 rounded-xl bg-red-50/60 px-2 py-3 text-center"
+                  >
+                    <span className="flex size-9 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                      <Icon className="size-4" aria-hidden="true" />
+                    </span>
+                    <span className="text-[0.68rem] font-semibold leading-tight text-neutral-700 sm:text-xs">
+                      {label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </form>
             </>
             )}

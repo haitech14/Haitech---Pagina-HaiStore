@@ -2,24 +2,24 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ImageOff } from 'lucide-react';
 
-import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
-import { CatalogPreviewDualPriceBlock } from '@/components/product/catalog-preview-price-block';
+import { CatalogPreviewPriceBlock } from '@/components/product/catalog-preview-price-block';
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
-import { DualPrice } from '@/components/product/product-dual-price';
 import {
   PRODUCT_CARD_IMAGE_CLASS,
   ProductCardHoverImage,
 } from '@/components/product/product-card-hover-image';
+import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
-import { formatHighlightProductTitle } from '@/lib/product-card-title';
-import { buildProductImageCandidates, resolveProductCardHoverImage } from '@/lib/product-image-url';
+import { catalogRowToFeatured, getCatalogProductById } from '@/lib/catalog-featured';
+import {
+  buildProductCardImageCandidates,
+  resolveProductCardHoverImageFromProduct,
+} from '@/lib/product-card-images';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
-
-const HIGHLIGHT_TEXT = '#0f1f3d';
 
 const whatsappRevealClass =
   'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
@@ -31,10 +31,24 @@ interface ProductHighlightCardProps {
 export function ProductHighlightCard({ product }: ProductHighlightCardProps) {
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
-  const imageCandidates = useMemo(() => buildProductImageCandidates(product), [product]);
-  const hoverImageSrc = useMemo(() => resolveProductCardHoverImage(product), [product]);
+  const catalogProduct = getCatalogProductById(product.id);
+  const catalogFeatured = useMemo(
+    () => (catalogProduct ? catalogRowToFeatured(catalogProduct) : null),
+    [catalogProduct],
+  );
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(product), [product]);
+  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
   const [quantity, setQuantity] = useState(1);
   const displayPrice = useCatalogDisplayPrice(product);
+
+  const titleProduct = {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    brand: product.brand ?? catalogProduct?.brand ?? null,
+    code: product.code ?? catalogProduct?.code ?? null,
+    attributes: product.attributes ?? [],
+  };
 
   return (
     <article
@@ -45,23 +59,9 @@ export function ProductHighlightCard({ product }: ProductHighlightCardProps) {
     >
       <Link
         to={detailHref}
-        className="relative flex aspect-square w-full items-center justify-center overflow-hidden bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+        className="relative block aspect-square w-full overflow-hidden bg-white p-1 sm:p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
         aria-label={`Ver ficha de ${product.name}`}
       >
-        {!outOfStock ? (
-          <div className="pointer-events-none absolute left-1.5 top-1.5 z-10 sm:left-2 sm:top-2">
-            <span
-              className={cn(
-                'rounded-full px-2 py-0.5 text-[0.625rem] font-semibold leading-none shadow-sm sm:text-[0.6875rem]',
-                product.stock <= 3
-                  ? 'bg-amber-100 text-amber-900'
-                  : 'bg-emerald-100 text-emerald-800',
-              )}
-            >
-              {product.stock <= 3 ? 'Últimas unidades' : 'En stock'}
-            </span>
-          </div>
-        ) : null}
         <ProductCardHoverImage
           candidates={imageCandidates}
           hoverSrc={hoverImageSrc}
@@ -92,35 +92,28 @@ export function ProductHighlightCard({ product }: ProductHighlightCardProps) {
         />
       </Link>
 
-      <div className="flex min-h-0 flex-1 flex-col items-start px-2.5 pb-2.5 pt-0 text-left sm:px-3 sm:pb-3">
-        <div className="flex w-full flex-1 flex-col gap-1">
-          <Link
-            to={detailHref}
-            className="w-full rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
-          >
-            <h3
-              className="line-clamp-3 min-h-[2.75rem] w-full text-pretty text-xs font-bold normal-case leading-snug sm:min-h-[3.25rem] sm:text-[0.8125rem] sm:leading-snug"
-              style={{ color: HIGHLIGHT_TEXT }}
-            >
-              {formatHighlightProductTitle(product.name)}
-            </h3>
-          </Link>
+      <div className="flex min-h-0 flex-1 flex-col items-start gap-1 px-2.5 pb-2.5 pt-1 text-left sm:gap-1.5 sm:px-3 sm:pb-3 sm:pt-1.5">
+        <Link
+          to={detailHref}
+          className="w-full rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+        >
+          <ProductCardTitle
+            product={titleProduct}
+            variant="featured"
+            brandTone="accent"
+            stock={product.stock}
+            outOfStock={outOfStock}
+          />
+        </Link>
 
-          <AdminRolePricesTooltip productId={product.id} displayUsd={displayPrice.priceUsd}>
-            <CatalogPreviewDualPriceBlock
-              displayPrice={displayPrice}
-              alwaysBoth
-              badgeClassName="mb-1"
-              children={(priceUsd) => (
-                <DualPrice
-                  alwaysBoth
-                  className="min-h-[1.25rem] whitespace-nowrap text-[0.8125rem] font-bold tabular-nums text-[#0f1f3d] sm:min-h-[1.375rem] sm:text-sm"
-                  usd={priceUsd}
-                />
-              )}
-            />
-          </AdminRolePricesTooltip>
-        </div>
+        <CatalogPreviewPriceBlock
+          productId={product.id}
+          displayPrice={displayPrice}
+          featured
+          badgeClassName="mb-1"
+          {...(catalogFeatured?.oldPrice != null ? { oldPriceUsd: catalogFeatured.oldPrice } : {})}
+          {...(catalogFeatured?.discount != null ? { discountPercent: catalogFeatured.discount } : {})}
+        />
 
         <div className="mt-auto w-full pt-1.5 sm:pt-2">
           <ProductQuantityAddFooter

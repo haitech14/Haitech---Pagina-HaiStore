@@ -1,3 +1,4 @@
+import { isTonerMerchandisingProduct } from '@/lib/product-merchandising';
 import { ensureFullPrices } from '@/lib/roles';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
@@ -429,6 +430,18 @@ function mergeOptionFromCatalog(
   };
 }
 
+function resolveCatalogLinkedProduct(
+  option: EquipmentConfigOption,
+  catalog: Product[],
+  mainProduct: Product,
+): Product | undefined {
+  if (!option.productId) return undefined;
+  const linked = catalog.find(
+    (product) => product.id === option.productId && product.id !== mainProduct.id,
+  );
+  return linked;
+}
+
 function enrichOption(
   option: EquipmentConfigOption,
   catalog: Product[],
@@ -437,46 +450,53 @@ function enrichOption(
   const hint = OPTION_CATALOG_HINTS[option.id];
   let enriched = option;
 
-  if (option.productId) {
-    const linked = catalog.find(
-      (product) => product.id === option.productId && product.id !== mainProduct.id,
-    );
-    if (linked) {
-      enriched = mergeOptionFromCatalog(option, linked, { preferOptionName: true });
-    }
-  } else if (option.sku) {
-    const skuMatch = catalog.find(
-      (product) =>
-        product.id !== mainProduct.id &&
-        normalizeSearchText(product.code ?? '') === normalizeSearchText(option.sku ?? ''),
-    );
-    if (skuMatch) {
-      enriched = mergeOptionFromCatalog(option, skuMatch, {
-        preferOptionName: Boolean(option.name.trim()),
-      });
-    }
-  } else if (hint) {
-    const match = findCatalogProduct(catalog, hint, mainProduct);
-    if (match) {
-      enriched = mergeOptionFromCatalog(option, match, { preferOptionName: true });
-    }
+  const mergeFromCatalog = (match: Product) => {
+    enriched = mergeOptionFromCatalog(option, match, { preferOptionName: true });
+  };
+
+  const configuredProductId = option.productId?.trim();
+  const linkedByProductId = configuredProductId
+    ? resolveCatalogLinkedProduct(option, catalog, mainProduct)
+    : undefined;
+  if (linkedByProductId) {
+    mergeFromCatalog(linkedByProductId);
   }
 
-  if (
-    !enriched.image &&
-    !enriched.productId &&
-    (option.id === 'toner-compatible' || option.id === 'toner-inicio' || option.id.startsWith('toner-'))
-  ) {
-    const toner = findTonerForEquipment(catalog, mainProduct);
-    const tonerImage = toner ? resolveCatalogImage(toner) : undefined;
-    if (tonerImage) {
-      enriched = {
-        ...enriched,
-        image: tonerImage,
-        ...(option.id === 'toner-compatible' && !enriched.productId && toner
-          ? { productId: toner.id }
-          : {}),
-      };
+  if (!configuredProductId) {
+    if (option.sku) {
+      const skuMatch = catalog.find(
+        (product) =>
+          product.id !== mainProduct.id &&
+          normalizeSearchText(product.code ?? '') === normalizeSearchText(option.sku ?? ''),
+      );
+      if (skuMatch) {
+        mergeFromCatalog(skuMatch);
+      }
+    } else if (hint) {
+      const match = findCatalogProduct(catalog, hint, mainProduct);
+      if (match && (!option.id.startsWith('toner-') || isTonerMerchandisingProduct(match))) {
+        mergeFromCatalog(match);
+      }
+    }
+
+    const linkedAfterHints = resolveCatalogLinkedProduct(enriched, catalog, mainProduct);
+    if (
+      !linkedAfterHints &&
+      (option.id === 'toner-compatible' || option.id === 'toner-inicio' || option.id.startsWith('toner-'))
+    ) {
+      const toner = findTonerForEquipment(catalog, mainProduct);
+      if (
+        toner &&
+        option.id === 'toner-compatible' &&
+        isTonerMerchandisingProduct(toner)
+      ) {
+        mergeFromCatalog(toner);
+      }
+
+      const tonerImage = toner ? resolveCatalogImage(toner) : undefined;
+      if (tonerImage && !enriched.image) {
+        enriched = { ...enriched, image: tonerImage };
+      }
     }
   }
 

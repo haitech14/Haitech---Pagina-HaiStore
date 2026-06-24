@@ -24,7 +24,10 @@ import { ProductQuantityAddFooter } from '@/components/product/product-quantity-
 import { ViewAsRoleBadge } from '@/components/product/view-as-role-badge';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
-import { buildProductImageCandidates, resolveProductCardHoverImage } from '@/lib/product-image-url';
+import {
+  buildProductCardImageCandidates,
+  resolveProductCardHoverImageFromProduct,
+} from '@/lib/product-card-images';
 import { formatProductCardTitle } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
 import { productToWishlistItem } from '@/lib/wishlist-product';
@@ -173,8 +176,8 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
-  const imageCandidates = useMemo(() => buildProductImageCandidates(product), [product]);
-  const hoverImageSrc = useMemo(() => resolveProductCardHoverImage(product), [product]);
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(product), [product]);
+  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
   const wishlistSelected = isWishlisted(product.id);
   const displayTitle = formatProductCardTitle(product);
   const rating = getCatalogCardRating(product);
@@ -213,7 +216,7 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
 
         <Link
           to={detailHref}
-          className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-md bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+          className="relative block aspect-square w-full overflow-hidden rounded-md bg-muted/35 p-2.5 sm:p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
           aria-label={`Ver ficha de ${product.name}`}
         >
           <ProductCardHoverImage

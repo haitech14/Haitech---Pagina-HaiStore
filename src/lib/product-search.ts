@@ -11,8 +11,8 @@ import {
 } from '../../shared/catalog-search.js';
 
 export const MIN_PRODUCT_SEARCH_LENGTH = 3;
-export const PRODUCT_SEARCH_INITIAL_VISIBLE = 6;
-export const PRODUCT_SEARCH_LOAD_MORE_STEP = 6;
+export const PRODUCT_SEARCH_INITIAL_VISIBLE = 5;
+export const PRODUCT_SEARCH_LOAD_MORE_STEP = 5;
 export const PRODUCT_SEARCH_MAX_LIMIT = 24;
 /** @deprecated Usar PRODUCT_SEARCH_INITIAL_VISIBLE + paginación en el panel. */
 export const PRODUCT_SEARCH_SUGGESTION_LIMIT = PRODUCT_SEARCH_MAX_LIMIT;

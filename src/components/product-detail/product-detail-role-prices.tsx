@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { useAuth } from '@/context/auth-context';
+import { useDisplayCurrency } from '@/context/display-currency-context';
 import type { CatalogRolePriceLine } from '@/hooks/use-catalog-display-price';
 import { resolveCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
@@ -10,7 +11,6 @@ import { PRICE_ROLE_LABELS, type PriceRole, type ProductRolePrices } from '@/lib
 import { cn } from '@/lib/utils';
 import type { BulkDiscountTier } from '@/types/product-detail';
 import type { Product } from '@/types/product';
-
 interface ProductDetailRolePriceLinesProps {
   product: Pick<Product, 'id' | 'price' | 'prices' | 'price_role'>;
   quantity: number;
@@ -44,6 +44,16 @@ export function ProductDetailRolePriceLines({
   className,
 }: ProductDetailRolePriceLinesProps) {
   const { isAdmin, viewAsRoles, effectiveRole } = useAuth();
+  const { displayCurrency } = useDisplayCurrency();
+
+  const mainPriceClass = cn(
+    'text-2xl font-bold leading-tight tabular-nums sm:text-[1.75rem]',
+    displayCurrency === 'USD' ? 'text-foreground' : 'text-red-600',
+  );
+  const rolePriceClass = cn(
+    'text-xl font-bold leading-tight tabular-nums sm:text-2xl',
+    displayCurrency === 'USD' ? 'text-foreground' : 'text-red-600',
+  );
 
   const publicTotalUsd = useMemo(
     () =>
@@ -103,7 +113,6 @@ export function ProductDetailRolePriceLines({
     return (
       <ViewAsRolePrices
         rolePrices={viewAsTotals}
-        alwaysBoth
         className={cn('text-sm sm:text-base', className)}
       />
     );
@@ -113,38 +122,24 @@ export function ProductDetailRolePriceLines({
 
   if (showAdminBreakdown) {
     return (
-      <ul className={cn('space-y-1', className)} aria-label="Precios por rol">
-        <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <ul className={cn('space-y-2', className)} aria-label="Precios por rol">
+        <li className="flex flex-wrap items-baseline justify-between gap-x-2">
+          <span className="shrink-0 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
             {PRICE_ROLE_LABELS.tecnico}
           </span>
-          <DualPrice
-            usd={tecnicoTotalUsd}
-            alwaysBoth
-            className="text-xl font-bold leading-tight text-red-600 sm:text-2xl"
-          />
+          <DualPrice usd={tecnicoTotalUsd} className={rolePriceClass} />
         </li>
-        <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <li className="flex flex-wrap items-baseline justify-between gap-x-2">
+          <span className="shrink-0 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
             {PRICE_ROLE_LABELS.public}
           </span>
-          <DualPrice
-            usd={publicTotalUsd}
-            alwaysBoth
-            className="text-xl font-bold leading-tight text-red-600 sm:text-2xl"
-          />
+          <DualPrice usd={publicTotalUsd} className={rolePriceClass} />
         </li>
       </ul>
     );
   }
 
-  return (
-    <DualPrice
-      usd={visitorTotalUsd}
-      alwaysBoth
-      className="text-2xl font-bold leading-tight text-red-600 sm:text-[1.75rem]"
-    />
-  );
+  return <DualPrice usd={visitorTotalUsd} className={cn(mainPriceClass, className)} />;
 }
 
 interface TonerCardRolePricesProps {

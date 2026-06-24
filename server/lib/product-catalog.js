@@ -70,7 +70,11 @@ function rowToInventoryProduct(row) {
   let product;
 
   if (snapshot && typeof snapshot === 'object' && snapshot.id) {
-    product = migrateInventoryProduct(snapshot);
+    product = migrateInventoryProduct({
+      ...snapshot,
+      image_url: row.image_url ?? snapshot.image_url,
+      gallery: Array.isArray(row.gallery) ? row.gallery : snapshot.gallery,
+    });
   } else {
     const prices = ensureFullPrices(row.prices ?? { public: row.price ?? 0 });
     const gallery = Array.isArray(row.gallery)
