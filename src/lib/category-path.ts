@@ -3,7 +3,7 @@ export const CATEGORY_PRODUCTS_ID = 'categoria-productos';
 
 import type { ProductCondition } from '@/lib/product-condition';
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
+// @ts-ignore módulo JS compartido sin declaración de tipos
 import { MOST_VIEWED_OFFER_ATTR_KEY } from '../../shared/catalog-most-viewed-offers.js';
 
 function categoryQueryString(subSlug?: string | null, condition?: ProductCondition | null): string {

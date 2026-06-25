@@ -91,11 +91,9 @@ import {
   buildBrandFacets,
   buildCatalogFormatSections,
   buildCatalogSpecFilterTabs,
-  buildModelQuickFilters,
   CATALOG_SPEC_FILTER_TAB_KEYS,
   countProductsForAttributeKey,
   EXCLUDED_QUICK_ATTRIBUTE_KEYS,
-  getModeloEquipoChipLabel,
   getQuickFilterChipLabel,
   isModeloEquipoAttributeKey,
   isProduccionAttributeKey,
@@ -657,10 +655,6 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
     () => buildCatalogQuickFilters(slug, availableAttributes),
     [slug, availableAttributes],
   );
-  const modelQuickFilters = useMemo(
-    () => buildModelQuickFilters(availableAttributes),
-    [availableAttributes],
-  );
   const showProductionFilters = shouldShowProductionFilters(slug);
   const productionFiltersWithCounts = useMemo(
     () =>
@@ -681,16 +675,6 @@ export function CategoryPage({ catalogSlug }: CategoryPageProps = {}) {
           count: countProductsForAttributeKey(baseProducts, attr.key),
         })),
     [quickAttributeFilters, baseProducts],
-  );
-
-  const modelFilterChips = useMemo(
-    () =>
-      modelQuickFilters.map((attr) => ({
-        key: attr.key,
-        label: getModeloEquipoChipLabel(attr),
-        count: countProductsForAttributeKey(baseProducts, attr.key),
-      })),
-    [modelQuickFilters, baseProducts],
   );
 
   const productionFilterChips = useMemo(

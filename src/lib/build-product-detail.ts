@@ -541,7 +541,7 @@ const IM430F_DESCRIPTION: ProductDescriptionContent = {
   ],
 };
 
-function buildDescriptionContent(product: Product, isPrinter: boolean, isSupply: boolean): ProductDescriptionContent | null {
+function buildDescriptionContent(product: Product, isPrinter: boolean): ProductDescriptionContent | null {
   if (isIm430f(product)) return IM430F_DESCRIPTION;
 
   if (isPrinter) {
@@ -1141,9 +1141,11 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
   ];
 }
 
+type FeaturedDisplayMeta = Pick<FeaturedProduct, 'rating' | 'reviews' | 'isNew'>;
+
 function resolvePricing(
   product: Product,
-  featuredMeta?: FeaturedProduct,
+  featuredMeta?: FeaturedProduct | FeaturedDisplayMeta,
 ): {
   oldPricePen: number | null;
   discountPercent: number | null;
@@ -1151,7 +1153,7 @@ function resolvePricing(
 } {
   const pricePen = usdToPen(product.price);
 
-  if (featuredMeta?.oldPrice && featuredMeta.oldPrice > product.price) {
+  if (featuredMeta && 'oldPrice' in featuredMeta && typeof featuredMeta.oldPrice === 'number' && featuredMeta.oldPrice > product.price) {
     const oldPen = usdToPen(featuredMeta.oldPrice);
     const discount =
       featuredMeta.discount ?? Math.round((1 - product.price / featuredMeta.oldPrice) * 100);
@@ -1190,7 +1192,7 @@ function resolvePricing(
 
 export function buildProductDetail(
   product: Product,
-  featuredMeta?: FeaturedProduct,
+  featuredMeta?: FeaturedProduct | FeaturedDisplayMeta,
   rentalPlansFromApi: Array<{ pagesPerMonth: number; monthlyPricePen: number }> = [],
   bulkDiscountTiers: BulkDiscountTier[] = DEFAULT_BULK_DISCOUNT_TIERS,
 ): ProductDetailViewModel {
@@ -1281,7 +1283,7 @@ export function buildProductDetail(
     reviews: featuredMeta?.reviews ?? soldCountFromId(product.id) * 5 + 18,
     soldCount: soldCountFromId(product.id),
     bullets,
-    descriptionContent: buildDescriptionContent(product, isPrinter, isSupply),
+    descriptionContent: buildDescriptionContent(product, isPrinter),
     descriptionVisual,
     featureBar,
     specs,

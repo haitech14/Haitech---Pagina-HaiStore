@@ -1,9 +1,9 @@
 import {
   CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS,
 } from '@/data/catalog-format-spotlight';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
+// @ts-ignore módulo JS compartido sin declaración de tipos
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
+// @ts-ignore módulo JS compartido sin declaración de tipos
 import {
   MOST_VIEWED_OFFER_ATTR_KEY,
   productHasMostViewedOfferAttribute,

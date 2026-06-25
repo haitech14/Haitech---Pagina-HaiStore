@@ -143,7 +143,6 @@ function countProductsForLabels(labels: readonly string[]): number {
 
 function buildSubcategoryNodes(
   parentId: string,
-  parentSlug: string,
   entries: Array<{ slug: string; name: string; inventoryLabels: string[] }>,
 ): StoreCategoryTreeNode[] {
   return entries.map((entry, index) => ({
@@ -179,7 +178,7 @@ export function buildStaticStoreCategoryTree(): StoreCategoryTreeNode[] {
         image: category.image ?? null,
         tagline: category.tagline ?? null,
         productCount: countProductsForLabels(inventoryLabels),
-        children: buildSubcategoryNodes(id, category.slug, subEntries),
+        children: buildSubcategoryNodes(id, subEntries),
       };
     });
 }

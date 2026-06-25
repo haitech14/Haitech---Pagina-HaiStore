@@ -13,7 +13,10 @@ import type { ProductBreadcrumb } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
 export interface ProductSeoOptions {
-  featuredMeta?: FeaturedProduct | undefined;
+  featuredMeta?:
+    | FeaturedProduct
+    | Pick<FeaturedProduct, 'rating' | 'reviews' | 'isNew'>
+    | undefined;
 }
 
 export function buildProductSeoConfig(

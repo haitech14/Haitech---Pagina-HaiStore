@@ -90,7 +90,10 @@ type DetailTab =
 
 interface ProductDetailViewProps {
   product: Product;
-  featuredMeta?: FeaturedProduct | undefined;
+  featuredMeta?:
+    | FeaturedProduct
+    | Pick<FeaturedProduct, 'rating' | 'reviews' | 'isNew'>
+    | undefined;
 }
 
 const MOCK_REVIEWS = [
@@ -567,11 +570,11 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               purchaseMode={purchaseMode}
               onPurchaseModeChange={handlePurchaseModeChange}
               rentalEstimate={rentalEstimate}
-              maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen}
-              preparationType={showPreparationTypeSelector ? preparationType : undefined}
+              maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen ?? null}
               preparationSurchargeUsd={preparationSurchargeUsd}
               {...secondaryPurchaseActionProps}
               {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
+              {...(showPreparationTypeSelector ? { preparationType } : {})}
               onQuoteGenerated={setQuotePdfPreview}
             />
           </div>
@@ -589,11 +592,11 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
             purchaseMode={purchaseMode}
             onPurchaseModeChange={handlePurchaseModeChange}
             rentalEstimate={rentalEstimate}
-            maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen}
-            preparationType={showPreparationTypeSelector ? preparationType : undefined}
+            maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen ?? null}
             preparationSurchargeUsd={preparationSurchargeUsd}
             {...secondaryPurchaseActionProps}
             {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
+            {...(showPreparationTypeSelector ? { preparationType } : {})}
             onQuoteGenerated={setQuotePdfPreview}
           />
         </div>
@@ -871,10 +874,10 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         floorPriceUsd={fullPrices.tecnico}
         outOfStock={outOfStock}
         purchaseActionsRef={purchaseActionsRef}
-        preparationType={showPreparationTypeSelector ? preparationType : undefined}
         preparationSurchargeUsd={preparationSurchargeUsd}
         {...secondaryPurchaseActionProps}
         {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
+        {...(showPreparationTypeSelector ? { preparationType } : {})}
       />
 
       <ProductDetailSocialProofToast productName={product.name} />

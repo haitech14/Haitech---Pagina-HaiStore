@@ -5,7 +5,6 @@ import {
   Ruler,
   PackageOpen,
   Cog,
-  KeyRound,
   Laptop,
   Monitor,
   ScanLine,

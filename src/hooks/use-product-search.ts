@@ -4,7 +4,7 @@ import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { MIN_PRODUCT_SEARCH_LENGTH } from '@/lib/product-search';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
-import type { Product } from '@/types/product';
+import type { Product, UserRole } from '@/types/product';
 
 interface ProductSearchResponse {
   products: Product[];
@@ -32,7 +32,7 @@ export function prefetchProductSearch(
     categoryFilter?: string;
     limit?: number;
     role: string;
-    viewAsRoles: string[];
+    viewAsRoles: readonly UserRole[];
   },
 ) {
   const trimmed = options.query.trim();

@@ -71,7 +71,7 @@ export function ProductDetailPurchaseCard({
   preparationType,
   preparationSurchargeUsd = 0,
   showRentalAction = false,
-  onRentalClick,
+  onRentalClick: _onRentalClick,
   showMaintenancePlanAction = false,
   onMaintenancePlanClick,
 }: ProductDetailPurchaseCardProps) {
@@ -268,9 +268,9 @@ export function ProductDetailPurchaseCard({
             purchaseMode={purchaseMode}
             onPurchaseModeChange={onPurchaseModeChange}
             rentalPlans={detail.rentalPlans}
-            maintenancePlanMonthlyPen={maintenancePlanMonthlyPen}
+            maintenancePlanMonthlyPen={maintenancePlanMonthlyPen ?? null}
             showMaintenancePlan={showMaintenancePlanAction && Boolean(onMaintenancePlanClick)}
-            onMaintenancePlanClick={onMaintenancePlanClick}
+            {...(onMaintenancePlanClick ? { onMaintenancePlanClick } : {})}
             className="mb-3"
           />
         ) : null}

@@ -13,3 +13,4 @@ export function takeTopProductsBySearchRelevance(
   query: string,
   limit: number,
 ): Product[];
+export function productMatchesSearchQuery(product: Product, query: string): boolean;

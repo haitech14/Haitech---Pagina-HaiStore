@@ -8,7 +8,7 @@ import {
   MAIN_NAV_ROW_CLASS,
   mainNavLinkClass,
 } from '@/components/layout/main-nav-styles';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
+// @ts-ignore módulo JS compartido sin declaración de tipos
 import { MOST_VIEWED_OFFER_ATTR_KEY } from '../../../shared/catalog-most-viewed-offers.js';
 import { categoryLandingPath, storeMostViewedOffersPath } from '@/lib/category-path';
 import { prefetchCategoryPage } from '@/lib/prefetch-category-page';

@@ -762,14 +762,6 @@ function CategoryProductTableRow({
     if (!catalogEntry) return;
     setInlineEditor((prev) => (prev === 'attributes' ? null : 'attributes'));
   };
-  const openStockEdit = () => {
-    if (!catalogEntry) return;
-    onEdit(catalogEntry.product, 'stock');
-  };
-  const openPricesEdit = () => {
-    if (!catalogEntry) return;
-    onEdit(catalogEntry.product, 'prices');
-  };
 
   const editorColSpan = useMemo(
     () => countCategoryTableColumns(true, 'public'),
