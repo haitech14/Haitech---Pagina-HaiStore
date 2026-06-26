@@ -9,8 +9,8 @@ import { queryClient } from '@/providers';
 
 const HomePage = lazyWithRetry(() => import('@/pages/home').then((m) => ({ default: m.HomePage })), 'inicio');
 const StorePage = lazyWithRetry(() => import('@/pages/store').then((m) => ({ default: m.StorePage })), 'tienda');
-const CategoryPage = lazyWithRetry(
-  () => import('@/pages/category').then((m) => ({ default: m.CategoryPage })),
+const CategoryStorefrontPage = lazyWithRetry(
+  () => import('@/pages/category-storefront').then((m) => ({ default: m.CategoryStorefrontPage })),
   'categoría',
 );
 const LoginPage = lazyWithRetry(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })), 'login');
@@ -62,6 +62,18 @@ const ServiciosPage = lazyWithRetry(
   () => import('@/pages/servicios').then((m) => ({ default: m.ServiciosPage })),
   'servicios',
 );
+const SoftwarePage = lazyWithRetry(
+  () => import('@/pages/software').then((m) => ({ default: m.SoftwarePage })),
+  'software',
+);
+const SoftwareDetallePage = lazyWithRetry(
+  () => import('@/pages/software-detalle').then((m) => ({ default: m.SoftwareDetailPage })),
+  'software-detalle',
+);
+const ServicioDetallePage = lazyWithRetry(
+  () => import('@/pages/servicio-detalle').then((m) => ({ default: m.ServiceDetailPage })),
+  'servicio-detalle',
+);
 const HaiProtectPage = lazyWithRetry(
   () => import('@/pages/haiprotect').then((m) => ({ default: m.HaiProtectPage })),
   'haiprotect',
@@ -101,6 +113,18 @@ const ForumEventosPage = lazyWithRetry(
 const ForumRecursosPage = lazyWithRetry(
   () => import('@/pages/forum/forum-recursos-page').then((m) => ({ default: m.ForumRecursosPage })),
   'foro-recursos',
+);
+const ForumPreguntasPage = lazyWithRetry(
+  () => import('@/pages/forum/forum-preguntas-page').then((m) => ({ default: m.ForumPreguntasPage })),
+  'foro-preguntas',
+);
+const ForumTutorialesPage = lazyWithRetry(
+  () => import('@/pages/forum/forum-tutoriales-page').then((m) => ({ default: m.ForumTutorialesPage })),
+  'foro-tutoriales',
+);
+const ForumFirmwarePage = lazyWithRetry(
+  () => import('@/pages/forum/forum-firmware-page').then((m) => ({ default: m.ForumFirmwarePage })),
+  'foro-firmware',
 );
 
 const AdminLayout = lazyWithRetry(
@@ -347,20 +371,6 @@ export const router = createBrowserRouter([
   { path: '/panel/pedidos', element: <Navigate to="/admin/ventas" replace /> },
   { path: '/panel/ventas', element: <Navigate to="/admin/ventas" replace /> },
   {
-    path: '/foro',
-    element: withSuspense(<ForumLayout />),
-    children: [
-      { index: true, element: withSuspense(<ForumHomePage />) },
-      { path: 'tema/:slug', element: withSuspense(<ForumThreadPage />) },
-      { path: 'nuevo', element: withSuspense(<ForumNewThreadPage />) },
-      { path: 'categoria/:slug', element: withSuspense(<ForumCategoryPage />) },
-      { path: 'novedades', element: withSuspense(<ForumNovedadesPage />) },
-      { path: 'miembros', element: withSuspense(<ForumMiembrosPage />) },
-      { path: 'eventos', element: withSuspense(<ForumEventosPage />) },
-      { path: 'recursos', element: withSuspense(<ForumRecursosPage />) },
-    ],
-  },
-  {
     path: '/',
     element: <RootLayout />,
     children: [
@@ -369,10 +379,30 @@ export const router = createBrowserRouter([
         loader: () => prefetchHomeCatalog(queryClient),
         element: withSuspense(<HomePage />),
       },
+      {
+        path: 'foro',
+        element: withSuspense(<ForumLayout />),
+        children: [
+          { index: true, element: withSuspense(<ForumHomePage />) },
+          { path: 'tema/:slug', element: withSuspense(<ForumThreadPage />) },
+          { path: 'nuevo', element: withSuspense(<ForumNewThreadPage />) },
+          { path: 'categoria/:slug', element: withSuspense(<ForumCategoryPage />) },
+          { path: 'preguntas', element: withSuspense(<ForumPreguntasPage />) },
+          { path: 'tutoriales', element: withSuspense(<ForumTutorialesPage />) },
+          { path: 'firmware', element: withSuspense(<ForumFirmwarePage />) },
+          { path: 'novedades', element: withSuspense(<ForumNovedadesPage />) },
+          { path: 'miembros', element: withSuspense(<ForumMiembrosPage />) },
+          { path: 'eventos', element: withSuspense(<ForumEventosPage />) },
+          { path: 'recursos', element: withSuspense(<ForumRecursosPage />) },
+        ],
+      },
       { path: 'tienda', element: withSuspense(<StorePage />) },
       { path: 'servicios', element: withSuspense(<ServiciosPage />) },
+      { path: 'servicios/:slug', element: withSuspense(<ServicioDetallePage />) },
+      { path: 'software', element: withSuspense(<SoftwarePage />) },
+      { path: 'software/:slug', element: withSuspense(<SoftwareDetallePage />) },
       { path: 'haiprotect', element: withSuspense(<HaiProtectPage />) },
-      { path: 'alquiler', element: <Navigate to="/servicios" replace /> },
+      { path: 'alquiler', element: <Navigate to="/servicios?seccion=alquiler" replace /> },
       {
         path: 'servicio-tecnico',
         element: <Navigate to="/servicios?seccion=servicio-tecnico" replace />,
@@ -385,6 +415,10 @@ export const router = createBrowserRouter([
         path: 'servicios-corporativos',
         element: <Navigate to="/servicios?seccion=servicios-corporativos" replace />,
       },
+      {
+        path: 'categoria/software',
+        element: <Navigate to="/software" replace />,
+      },
       { path: 'categoria/:slug', loader: ({ params, request }) => {
           const url = new URL(request.url);
           const subSlug = url.searchParams.get('sub');
@@ -392,7 +426,7 @@ export const router = createBrowserRouter([
             slug: params.slug ?? '',
             subSlug,
           });
-        }, element: withSuspense(<CategoryPage />) },
+        }, element: withSuspense(<CategoryStorefrontPage />) },
       { path: 'tienda/producto/:id', element: withSuspense(<ProductDetailPage />) },
       { path: 'checkout', element: withSuspense(<CheckoutPage />) },
       { path: 'checkout/exito/:orderNumber', element: withSuspense(<CheckoutSuccessPage />) },

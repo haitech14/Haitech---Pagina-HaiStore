@@ -20,9 +20,9 @@ export const LANDING_CATEGORY_SEO = [
   },
   {
     slug: 'toner-suministros',
-    name: 'Tóner y suministros',
-    tagline: 'Consumibles originales y compatibles',
-    image: '/categories/toner.png',
+    name: 'Suministros',
+    tagline: 'Tóner original, remanufacturado y recargas',
+    image: '/categories/toner-suministros.png',
   },
   {
     slug: 'repuestos',

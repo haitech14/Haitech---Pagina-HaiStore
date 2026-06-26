@@ -22,7 +22,7 @@ export const serviciosCorporativosLanding: ServiceLandingConfig = {
   subtitle:
     'Soluciones complementarias para eventos, transformación digital y capacitación técnica.',
   bullets: ['Atención personalizada', 'Soluciones a medida', 'Soporte profesional'],
-  gridCols: 'three',
+  gridCols: 'four',
   cards: [
     {
       id: 'local-eventos',

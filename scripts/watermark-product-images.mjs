@@ -39,7 +39,12 @@ async function main() {
 
   const files = fs
     .readdirSync(productsDir)
-    .filter((name) => /\.(webp|png|jpe?g)$/i.test(name))
+    .filter((name) => {
+      if (!/\.(webp|png|jpe?g)$/i.test(name)) return false;
+      // Variantes responsive ya heredan la marca de la imagen base.
+      if (/-(256|512)\.(webp|png|jpe?g)$/i.test(name)) return false;
+      return true;
+    })
     .map((name) => path.join(productsDir, name));
 
   let updated = 0;

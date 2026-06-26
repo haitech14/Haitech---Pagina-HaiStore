@@ -55,6 +55,8 @@ interface CategoryCatalogToolbarProps {
   filtersActive?: boolean;
   /** Layout con sidebar fijo, chips activos y grilla de 5 columnas. */
   catalogSidebarLayout?: boolean;
+  /** Oculta búsqueda (va en cabecera del storefront) y simplifica la barra. */
+  storefrontMode?: boolean;
   activeFilterChips?: ActiveFilterChip[];
 }
 
@@ -87,6 +89,7 @@ export function CategoryCatalogToolbar({
   filtersActive = false,
   catalogSidebarLayout = false,
   activeFilterChips = [],
+  storefrontMode = false,
   endAction,
 }: CategoryCatalogToolbarProps) {
   const searchHint =
@@ -100,7 +103,14 @@ export function CategoryCatalogToolbar({
   };
 
   return (
-    <div className="mb-4 space-y-3 rounded-xl border border-border bg-card p-3 shadow-sm sm:p-4">
+    <div
+      className={cn(
+        'mb-4 space-y-3',
+        storefrontMode
+          ? ''
+          : 'rounded-xl border border-border bg-card p-3 shadow-sm sm:p-4',
+      )}
+    >
       {catalogSidebarLayout && activeFilterChips.length > 0 ? (
         <CategoryActiveFilterChips chips={activeFilterChips} />
       ) : null}
@@ -115,22 +125,43 @@ export function CategoryCatalogToolbar({
           </div>
         ) : null}
 
-        <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
-          <button
-            type="button"
-            aria-label="Filtros del catálogo"
-            aria-pressed={filtersPanelActive}
-            onClick={onToggleSidebarFilters}
-            className={cn(
-              iconButtonClass,
-              // En layout con sidebar fijo, el botón se oculta cuando el panel ya está abierto en desktop.
-              catalogSidebarLayout && filtersOpen && 'lg:hidden',
-              filtersPanelActive && 'border-red-600/30 bg-red-50 text-red-700',
-            )}
-          >
-            <SlidersHorizontal className="size-5" aria-hidden="true" />
-          </button>
+        <div
+          className={cn(
+            'flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2',
+            storefrontMode && 'justify-end',
+          )}
+        >
+          {!storefrontMode ? (
+            <button
+              type="button"
+              aria-label="Filtros del catálogo"
+              aria-pressed={filtersPanelActive}
+              onClick={onToggleSidebarFilters}
+              className={cn(
+                iconButtonClass,
+                catalogSidebarLayout && filtersOpen && 'lg:hidden',
+                filtersPanelActive && 'border-red-600/30 bg-red-50 text-red-700',
+              )}
+            >
+              <SlidersHorizontal className="size-5" aria-hidden="true" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              aria-label="Filtros del catálogo"
+              aria-pressed={filtersPanelActive}
+              onClick={onToggleSidebarFilters}
+              className={cn(
+                iconButtonClass,
+                'hidden lg:inline-flex',
+                filtersPanelActive && 'border-red-600/30 bg-red-50 text-red-700',
+              )}
+            >
+              <SlidersHorizontal className="size-5" aria-hidden="true" />
+            </button>
+          )}
 
+          {!storefrontMode ? (
           <div className="relative min-w-0 flex-1">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -152,6 +183,7 @@ export function CategoryCatalogToolbar({
               </p>
             ) : null}
           </div>
+          ) : null}
 
         <>
           <div
@@ -200,7 +232,7 @@ export function CategoryCatalogToolbar({
             </button>
           </div>
 
-          {viewMode === 'grid' ? (
+          {viewMode === 'grid' && !storefrontMode ? (
             <Popover>
               <PopoverTrigger asChild>
                 <button

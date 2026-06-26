@@ -69,10 +69,7 @@ export function ProductCardPricing({
             displayUsd={pricing.currentUsd}
             className={priceMainClass}
           >
-            <DualPrice
-              usd={pricing.currentUsd}
-              {...(featured ? { className: 'text-[#0f1f3d]' } : {})}
-            />
+            <DualPrice usd={pricing.currentUsd} />
           </AdminRolePricesTooltip>
         )}
       </div>

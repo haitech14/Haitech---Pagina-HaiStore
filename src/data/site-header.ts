@@ -18,6 +18,9 @@ export const HEADER_QUOTE_WHATSAPP_MESSAGE =
 export const HEADER_QUOTE_WHATSAPP_LINK = buildHaitechWhatsAppUrl(HEADER_QUOTE_WHATSAPP_MESSAGE);
 export const HEADER_QUOTE_WHATSAPP_LABEL = 'Cotizar por WhatsApp';
 
+export const HEADER_FORUM_LABEL = 'Foro';
+export const HEADER_FORUM_PATH = '/foro';
+
 export interface HeaderUtilityItem {
   id: string;
   label: string;

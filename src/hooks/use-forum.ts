@@ -4,13 +4,17 @@ import { apiFetch } from '@/lib/api';
 import type {
   ForumCategory,
   ForumEvent,
+  ForumFirmwareIndex,
   ForumLatestPost,
+  ForumManualItem,
   ForumMember,
   ForumPopularTopic,
   ForumReply,
+  ForumSolvedFilter,
   ForumSortValue,
   ForumStats,
   ForumThread,
+  ForumThreadKind,
 } from '@/types/forum';
 
 const forumKeys = {
@@ -20,6 +24,9 @@ const forumKeys = {
   threads: (params: Record<string, string | number | undefined>) =>
     [...forumKeys.all, 'threads', params] as const,
   thread: (slug: string) => [...forumKeys.all, 'thread', slug] as const,
+  firmware: (params: Record<string, string | number | undefined>) =>
+    [...forumKeys.all, 'firmware', params] as const,
+  manuals: () => [...forumKeys.all, 'manuals'] as const,
   popular: () => [...forumKeys.all, 'popular'] as const,
   featuredMembers: () => [...forumKeys.all, 'featured-members'] as const,
   members: () => [...forumKeys.all, 'members'] as const,
@@ -49,12 +56,16 @@ export function useForumCategories() {
 
 export function useForumThreads(options: {
   category?: string;
+  kind?: ForumThreadKind;
+  solved?: ForumSolvedFilter;
   sort?: ForumSortValue;
   q?: string;
   limit?: number;
 }) {
   const params = new URLSearchParams();
   if (options.category) params.set('category', options.category);
+  if (options.kind) params.set('kind', options.kind);
+  if (options.solved && options.solved !== 'all') params.set('solved', options.solved);
   if (options.sort) params.set('sort', options.sort);
   if (options.q?.trim()) params.set('q', options.q.trim());
   if (options.limit) params.set('limit', String(options.limit));
@@ -64,6 +75,8 @@ export function useForumThreads(options: {
   return useQuery({
     queryKey: forumKeys.threads({
       category: options.category,
+      kind: options.kind,
+      solved: options.solved,
       sort: options.sort,
       q: options.q,
       limit: options.limit,
@@ -83,6 +96,34 @@ export function useForumThread(slug: string | undefined) {
       apiFetch<{ thread: ForumThread; replies: ForumReply[] }>(`/api/forum/threads/${slug}`),
     enabled: Boolean(slug),
     staleTime: 10_000,
+  });
+}
+
+export function useForumFirmwareIndex(options: { q?: string; limit?: number } = {}) {
+  const params = new URLSearchParams();
+  if (options.q?.trim()) params.set('q', options.q.trim());
+  if (options.limit) params.set('limit', String(options.limit));
+
+  const queryString = params.toString();
+
+  return useQuery({
+    queryKey: forumKeys.firmware({ q: options.q, limit: options.limit }),
+    queryFn: () =>
+      apiFetch<ForumFirmwareIndex>(`/api/forum/firmware${queryString ? `?${queryString}` : ''}`),
+    staleTime: 30_000,
+  });
+}
+
+export function useForumManualsIndex(limit = 6) {
+  return useQuery({
+    queryKey: forumKeys.manuals(),
+    queryFn: async () => {
+      const data = await apiFetch<{ manuals: ForumManualItem[] }>(
+        `/api/forum/manuals?limit=${limit}`,
+      );
+      return data.manuals;
+    },
+    staleTime: 60_000,
   });
 }
 
@@ -160,6 +201,7 @@ export function useCreateForumThread() {
       title: string;
       body: string;
       tags?: string[];
+      kind?: ForumThreadKind;
     }) =>
       apiFetch<{ thread: ForumThread }>('/api/forum/threads', {
         method: 'POST',
@@ -178,6 +220,21 @@ export function useCreateForumReply(slug: string) {
       apiFetch<{ reply: ForumReply }>(`/api/forum/threads/${slug}/replies`, {
         method: 'POST',
         body: JSON.stringify({ body }),
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: forumKeys.thread(slug) });
+      void queryClient.invalidateQueries({ queryKey: forumKeys.all });
+    },
+  });
+}
+
+export function useMarkForumThreadSolved(slug: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (replyId: string) =>
+      apiFetch<{ thread: ForumThread }>(`/api/forum/threads/${slug}/solve`, {
+        method: 'POST',
+        body: JSON.stringify({ replyId }),
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: forumKeys.thread(slug) });

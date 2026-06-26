@@ -28,6 +28,6 @@ export interface ServiceLandingConfig {
   highlightBulletIndex?: number;
   cards: readonly ServiceLandingCard[];
   benefits: readonly ServiceLandingBenefit[];
-  /** Columnas del grid de tarjetas en desktop */
-  gridCols?: 'three' | 'two';
+  /** Tarjetas visibles por vista en desktop (carrusel) */
+  gridCols?: 'four' | 'two';
 }

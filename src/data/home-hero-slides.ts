@@ -64,6 +64,8 @@ export interface HomeHeroSlide {
   compactImageZoomClass?: string;
   /** Muestra botones flotantes sobre el banner compacto. */
   ctaOverlay?: boolean;
+  /** Evita variantes WebP inexistentes (p. ej. categorías sin -768/-1920). */
+  skipHeroWebpVariants?: boolean;
   sealTitle?: string;
   sealSubtitle?: string;
 }

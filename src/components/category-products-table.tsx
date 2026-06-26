@@ -13,6 +13,7 @@ import { CategoryTablePurchaseCell } from '@/components/category/category-table-
 import { CategoryTableRolePricing } from '@/components/category/category-table-role-pricing';
 import { Input } from '@/components/ui/input';
 import { InventoryStockStatusBar } from '@/components/inventory-stock-status-bar';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductConditionBadge } from '@/components/product/product-condition-badge';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
@@ -162,11 +163,10 @@ function ProductTableThumbnail({
       aria-label={`Ver ficha de ${product.name}`}
     >
       {src ? (
-        <img
+        <ProductCardImage
           src={src}
           alt=""
           className="size-full object-contain p-1.5 sm:p-2"
-          loading="lazy"
           onError={handleError}
         />
       ) : (

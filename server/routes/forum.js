@@ -4,9 +4,12 @@ import { resolveUserFromToken } from '../lib/auth-store.js';
 import {
   createForumReply,
   createForumThread,
+  markThreadSolved,
   readFeaturedMembers,
   readForumCategories,
   readForumEvents,
+  readForumFirmwareIndex,
+  readForumManualsIndex,
   readForumMembers,
   readForumStats,
   readForumThreadBySlug,
@@ -76,8 +79,12 @@ forumRouter.get('/threads', async (req, res, next) => {
     const limit = Math.min(Number(req.query.limit) || 20, 50);
     const offset = Math.max(Number(req.query.offset) || 0, 0);
     const sort = req.query.sort === 'popular' ? 'popular' : 'recent';
+    const solved =
+      req.query.solved === 'open' || req.query.solved === 'solved' ? req.query.solved : undefined;
     const result = await readForumThreads({
       categorySlug: typeof req.query.category === 'string' ? req.query.category : undefined,
+      kind: typeof req.query.kind === 'string' ? req.query.kind : undefined,
+      solved,
       sort,
       q: typeof req.query.q === 'string' ? req.query.q : undefined,
       limit,
@@ -101,7 +108,7 @@ forumRouter.get('/threads/:slug', async (req, res, next) => {
 
 forumRouter.post('/threads', requireSupabaseUser, async (req, res, next) => {
   try {
-    const { categorySlug, title, body, tags } = req.body ?? {};
+    const { categorySlug, title, body, tags, kind } = req.body ?? {};
     if (!categorySlug || !title?.trim() || !body?.trim()) {
       return res.status(400).json({ error: 'Categoría, título y contenido son obligatorios' });
     }
@@ -111,6 +118,7 @@ forumRouter.post('/threads', requireSupabaseUser, async (req, res, next) => {
       title: String(title),
       body: String(body),
       tags,
+      kind: typeof kind === 'string' ? kind : 'discussion',
     });
     res.status(201).json({ thread });
   } catch (error) {
@@ -178,6 +186,54 @@ forumRouter.get('/latest', async (_req, res, next) => {
 forumRouter.get('/pinned', async (_req, res, next) => {
   try {
     res.json({ threads: await readPinnedThreads() });
+  } catch (error) {
+    handleForumError(error, res, next);
+  }
+});
+
+forumRouter.get('/firmware', async (req, res, next) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 50, 100);
+    const threadLimit = Math.min(Number(req.query.threadLimit) || 15, 50);
+    const threadOffset = Math.max(Number(req.query.threadOffset) || 0, 0);
+    const result = await readForumFirmwareIndex({
+      q: typeof req.query.q === 'string' ? req.query.q : undefined,
+      limit,
+      threadLimit,
+      threadOffset,
+    });
+    res.json(result);
+  } catch (error) {
+    handleForumError(error, res, next);
+  }
+});
+
+forumRouter.get('/manuals', async (req, res, next) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 8, 20);
+    const result = await readForumManualsIndex({
+      q: typeof req.query.q === 'string' ? req.query.q : undefined,
+      limit,
+    });
+    res.json(result);
+  } catch (error) {
+    handleForumError(error, res, next);
+  }
+});
+
+forumRouter.post('/threads/:slug/solve', requireSupabaseUser, async (req, res, next) => {
+  try {
+    const { replyId } = req.body ?? {};
+    if (!replyId) {
+      return res.status(400).json({ error: 'replyId es obligatorio' });
+    }
+    const thread = await markThreadSolved({
+      threadSlug: req.params.slug,
+      replyId: String(replyId),
+      userId: req.user.id,
+      userEmail: req.user.email,
+    });
+    res.json({ thread });
   } catch (error) {
     handleForumError(error, res, next);
   }

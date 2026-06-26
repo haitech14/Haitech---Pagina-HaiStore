@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 
 import { ForumDiscussionRow } from '@/components/forum/forum-discussion-row';
+import { ForumSectionTitle } from '@/components/forum/forum-section-title';
 import {
   Select,
   SelectContent,
@@ -9,15 +10,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { ForumCategory, ForumSortValue, ForumThread } from '@/types/forum';
+import { cn } from '@/lib/utils';
+import type { ForumCategory, ForumThread, ForumThreadFilter } from '@/types/forum';
+
+const FILTER_TABS: { value: ForumThreadFilter; label: string }[] = [
+  { value: 'recent', label: 'Recientes' },
+  { value: 'unanswered', label: 'Sin respuesta' },
+  { value: 'popular', label: 'Más vistos' },
+];
 
 interface ForumDiscussionsPanelProps {
   threads: ForumThread[];
   categories: ForumCategory[];
   categoryFilter: string;
-  sort: ForumSortValue;
+  filter: ForumThreadFilter;
   onCategoryChange: (value: string) => void;
-  onSortChange: (value: ForumSortValue) => void;
+  onFilterChange: (value: ForumThreadFilter) => void;
   isLoading?: boolean;
 }
 
@@ -25,24 +33,19 @@ export function ForumDiscussionsPanel({
   threads,
   categories,
   categoryFilter,
-  sort,
+  filter,
   onCategoryChange,
-  onSortChange,
+  onFilterChange,
   isLoading,
 }: ForumDiscussionsPanelProps) {
   return (
-    <section
-      aria-labelledby="forum-discussions-title"
-      className="rounded-xl border border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))] p-4 sm:p-5"
-    >
-      <div className="flex flex-col gap-3 border-b border-[hsl(var(--forum-border))] pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 id="forum-discussions-title" className="text-lg font-bold">
-          Discusiones recientes
-        </h2>
-        <div className="flex flex-wrap gap-2">
+    <section aria-labelledby="forum-discussions-title">
+      <ForumSectionTitle
+        id="forum-discussions-title"
+        action={
           <Select value={categoryFilter || 'all'} onValueChange={onCategoryChange}>
             <SelectTrigger
-              className="h-10 min-w-[10rem] border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-bg))] text-[hsl(var(--forum-fg))]"
+              className="h-9 min-w-[10rem] border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))] text-sm"
               aria-label="Filtrar por categoría"
             >
               <SelectValue placeholder="Todas las categorías" />
@@ -56,43 +59,59 @@ export function ForumDiscussionsPanel({
               ))}
             </SelectContent>
           </Select>
-          <Select value={sort} onValueChange={(value) => onSortChange(value as ForumSortValue)}>
-            <SelectTrigger
-              className="h-10 min-w-[9rem] border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-bg))] text-[hsl(var(--forum-fg))]"
-              aria-label="Ordenar discusiones"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="recent">Más recientes</SelectItem>
-              <SelectItem value="popular">Más populares</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        }
+      >
+        Temas recientes
+      </ForumSectionTitle>
+
+      <div
+        className="mb-4 flex flex-wrap gap-2 border-b border-[hsl(var(--forum-border))] pb-3"
+        role="tablist"
+        aria-label="Filtrar temas"
+      >
+        {FILTER_TABS.map(({ value, label }) => (
+          <button
+            key={value}
+            type="button"
+            role="tab"
+            aria-selected={filter === value}
+            onClick={() => onFilterChange(value)}
+            className={cn(
+              'min-h-9 rounded-md px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--forum-accent))]',
+              filter === value
+                ? 'bg-[hsl(var(--forum-accent))] text-white'
+                : 'text-[hsl(var(--forum-muted))] hover:bg-[hsl(var(--forum-card))] hover:text-[hsl(var(--forum-fg))]',
+            )}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      {isLoading ? (
-        <p className="py-8 text-center text-sm text-[hsl(var(--forum-muted))]" role="status">
-          Cargando discusiones…
-        </p>
-      ) : threads.length === 0 ? (
-        <p className="py-8 text-center text-sm text-[hsl(var(--forum-muted))]" role="status">
-          No hay temas que coincidan con tu búsqueda.
-        </p>
-      ) : (
-        <div>{threads.map((thread) => (
-          <ForumDiscussionRow key={thread.id} thread={thread} />
-        ))}</div>
-      )}
+      <div className="rounded-xl border border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))] px-4 sm:px-5">
+        {isLoading ? (
+          <p className="py-10 text-center text-sm text-[hsl(var(--forum-muted))]" role="status">
+            Cargando temas…
+          </p>
+        ) : threads.length === 0 ? (
+          <p className="py-10 text-center text-sm text-[hsl(var(--forum-muted))]" role="status">
+            No hay temas que coincidan con tu búsqueda.
+          </p>
+        ) : (
+          threads.map((thread) => (
+            <ForumDiscussionRow key={thread.id} thread={thread} variant="home" />
+          ))
+        )}
 
-      <div className="pt-4 text-center">
-        <Link
-          to="/foro"
-          className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-[hsl(var(--forum-accent))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--forum-accent))]"
-        >
-          Ver más temas
-          <ChevronDown className="size-4" aria-hidden="true" />
-        </Link>
+        <div className="border-t border-[hsl(var(--forum-border))] py-4 text-center">
+          <Link
+            to="/foro"
+            className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-[hsl(var(--forum-accent))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--forum-accent))]"
+          >
+            Ver más temas
+            <ChevronDown className="size-4" aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </section>
   );

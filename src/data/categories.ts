@@ -128,10 +128,19 @@ export const categories: Category[] = [
   },
   {
     slug: 'soluciones-colaboracion',
-    name: 'Soluciones de Colaboración',
-    tagline: 'Videoconferencia y salas de reuniones inteligentes',
+    name: 'Pizarras Interactivas',
+    tagline: 'Pizarras interactivas IFPD y accesorios para salas de reunión',
     icon: Video,
     image: '/categories/soluciones-colaboracion.png',
+    inventoryCategories: ['Pizarras Interactivas'],
+  },
+  {
+    slug: 'equipamiento-videoconferencias',
+    name: 'Equipamiento para Videoconferencias',
+    tagline: 'Cámaras, altavoces y accesorios para salas de reunión',
+    icon: Video,
+    image: '/categories/soluciones-colaboracion.png',
+    inventoryCategories: ['Equipamiento para Videoconferencias'],
   },
   {
     slug: 'soluciones-negocio',

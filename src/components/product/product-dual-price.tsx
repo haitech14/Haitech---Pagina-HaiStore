@@ -28,12 +28,7 @@ export function DualPrice({
   return (
     <span className={cn('inline-flex flex-wrap items-baseline gap-x-1.5', className)}>
       {showUsd ? (
-        <span
-          className={cn(
-            strike,
-            alwaysBoth ? 'text-[#0f1f3d]' : showPen ? 'text-foreground' : undefined,
-          )}
-        >
+        <span className={cn(strike, 'text-foreground')}>
           {formatUsd(usd)}
         </span>
       ) : null}
@@ -44,7 +39,7 @@ export function DualPrice({
         </span>
       ) : null}
       {showPen ? (
-        <span className={cn(strike, alwaysBoth || showUsd ? 'text-red-600' : undefined)}>
+        <span className={cn(strike, showUsd ? 'text-red-600' : 'text-foreground')}>
           {formatPenFromUsd(usd)}
         </span>
       ) : null}

@@ -29,7 +29,7 @@ const HERO_META: Record<
     variant: 'support',
   },
   outsourcing: {
-    image: '/services/outsourcing/impresion.png',
+    image: '/services/hero/outsourcing-impresion.png',
     imageAlt: 'Flota de impresoras gestionada en outsourcing',
     variant: 'outsourcing',
   },

@@ -1,7 +1,6 @@
 import { ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
 import {
   getProductCardTitleContent,
-  PRODUCT_CARD_BRAND_ACCENT_CLASS,
   PRODUCT_CARD_BRAND_CLASS,
   PRODUCT_CARD_CODE_CLASS,
   PRODUCT_CARD_TITLE_CLAMP_CLASS,
@@ -13,7 +12,7 @@ import { cn } from '@/lib/utils';
 interface ProductCardTitleProps {
   product: ProductBadgeSource & { name: string; category?: string | null };
   className?: string;
-  /** Marca en rojo para vitrina de destacados. */
+  /** @deprecated El tono accent ya no altera el estilo; la marca siempre es gris. */
   brandTone?: 'default' | 'accent';
   /** Vista tabla de catálogo: tipografía compacta tipo hoja de cálculo. */
   variant?: 'card' | 'table' | 'featured';
@@ -37,7 +36,7 @@ function cardStockClass(outOfStock: boolean, stock: number): string {
 export function ProductCardTitle({
   product,
   className,
-  brandTone = 'default',
+  brandTone: _brandTone = 'default',
   variant = 'card',
   stock,
   outOfStock = false,
@@ -48,11 +47,7 @@ export function ProductCardTitle({
   const brandClass = cn(
     isTable
       ? 'truncate text-[0.65rem] font-normal uppercase tracking-wide text-muted-foreground sm:text-[0.7rem]'
-      : isFeatured
-        ? PRODUCT_CARD_BRAND_ACCENT_CLASS
-        : brandTone === 'accent'
-          ? PRODUCT_CARD_BRAND_ACCENT_CLASS
-          : PRODUCT_CARD_BRAND_CLASS,
+      : PRODUCT_CARD_BRAND_CLASS,
   );
   const titleClass = isTable
     ? 'line-clamp-2 text-[0.84rem] font-semibold leading-[1.25] text-foreground sm:text-[0.875rem]'

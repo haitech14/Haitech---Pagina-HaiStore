@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { CartQuoteDialog } from '@/components/cart/cart-quote-dialog';
 import { formatOrderQuantityHint, ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
 import { DualPrice } from '@/components/product-showcase-card';
@@ -15,8 +16,8 @@ import {
 import { useCart, cartLineUnitUsd } from '@/context/cart-context';
 import { getPaidEquipmentOptions } from '@/lib/equipment-config-selection';
 import { SEMINUEVA_PREPARATION_LABELS } from '@/lib/seminueva-preparation';
+import { resolveCartItemDetailPath } from '@/lib/service-to-cart';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
-import { productPath } from '@/lib/product-path';
 import { cn, formatUsd } from '@/lib/utils';
 
 export function ShoppingCartDrawer() {
@@ -70,6 +71,7 @@ export function ShoppingCartDrawer() {
                 const lineUnitUsd = cartLineUnitUsd(item);
                 const paidOptions = getPaidEquipmentOptions(configuration?.options ?? []);
                 const orderHint = formatOrderQuantityHint(product, quantity);
+                const detailPath = resolveCartItemDetailPath(product);
 
                 return (
                   <li
@@ -81,16 +83,15 @@ export function ShoppingCartDrawer() {
                   >
                     <div className="flex gap-3">
                       <Link
-                        to={productPath(product.id)}
+                        to={detailPath}
                         onClick={() => setCartOpen(false)}
                         className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted/60 p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         {imageUrl ? (
-                          <img
+                          <ProductCardImage
                             src={imageUrl}
                             alt=""
                             className="max-h-full max-w-full object-contain"
-                            loading="lazy"
                           />
                         ) : (
                           <span className="text-lg font-bold text-muted-foreground" aria-hidden="true">
@@ -101,7 +102,7 @@ export function ShoppingCartDrawer() {
 
                       <div className="min-w-0 flex-1">
                         <Link
-                          to={productPath(product.id)}
+                          to={detailPath}
                           onClick={() => setCartOpen(false)}
                           className="line-clamp-2 text-sm font-semibold leading-snug text-foreground hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >

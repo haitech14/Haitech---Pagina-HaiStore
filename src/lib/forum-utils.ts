@@ -53,8 +53,8 @@ export function formatForumEventDate(isoDate: string): { month: string; day: str
 
 export const FORUM_NAV_ITEMS = [
   { to: '/foro', label: 'Foros', end: true },
-  { to: '/foro/novedades', label: 'Novedades', end: true },
+  { to: '/foro/preguntas', label: 'Preguntas', end: true },
+  { to: '/foro/tutoriales', label: 'Tutoriales', end: true },
+  { to: '/foro/firmware', label: 'Firmware', end: true },
   { to: '/foro/miembros', label: 'Miembros', end: true },
-  { to: '/foro/eventos', label: 'Eventos', end: true },
-  { to: '/foro/recursos', label: 'Recursos', end: true },
 ] as const;

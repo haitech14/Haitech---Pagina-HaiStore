@@ -12,6 +12,7 @@ import {
 } from '@/components/product/product-card-hover-image';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { useProductCompare } from '@/context/product-compare-context';
 import { useWishlist } from '@/context/wishlist-context';
@@ -29,6 +30,9 @@ import { productPath } from '@/lib/product-path';
 import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
+
+const whatsappRevealClass =
+  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
 
 export { DualPrice } from '@/components/product/product-dual-price';
 
@@ -76,6 +80,7 @@ export function ProductShowcaseCard({
   const { isSelected, toggle } = useProductCompare();
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const catalogProduct = getCatalogProductById(product.id);
   const priceSource = useMemo(() => {
     const prices = product.prices ?? catalogProduct?.prices;
@@ -122,8 +127,27 @@ export function ProductShowcaseCard({
     image_url: product.image,
     stock,
     category: product.category,
+    brand: product.brand ?? catalogProduct?.brand ?? null,
+    code: product.code ?? catalogProduct?.code ?? null,
     created_at: catalogProduct?.created_at ?? new Date().toISOString(),
   };
+
+  const whatsAppButton = (
+    <ProductWhatsAppButton
+      stopPropagation
+      accent="outline"
+      label="Comprar por WhatsApp"
+      quantity={quantity}
+      product={{
+        id: product.id,
+        name: product.name,
+        priceUsd: displayPrice.priceUsd,
+        category: product.category,
+        brand: product.brand ?? catalogProduct?.brand ?? null,
+      }}
+      className="mt-1.5 h-11 min-h-11 w-full rounded-md px-2 text-[0.625rem] font-semibold normal-case tracking-normal sm:text-xs"
+    />
+  );
 
   const detailHref = productPath(product);
 
@@ -230,13 +254,25 @@ export function ProductShowcaseCard({
 
       {isFeatured ? (
         <div className="relative z-10 shrink-0 border-t border-border/40 px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
-          <ProductQuantityAddFooter product={cartProduct} />
+          <ProductQuantityAddFooter
+            product={cartProduct}
+            onQuantityChange={setQuantity}
+          />
+          <div className={whatsappRevealClass}>
+            <div className="min-h-0 overflow-hidden">{whatsAppButton}</div>
+          </div>
         </div>
       ) : (
         <div className="relative z-10 grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 pointer-events-none">
           <div className="min-h-0 overflow-hidden pointer-events-auto">
             <div className="border-t border-border/40 px-4 pb-3 pt-2">
-              <ProductQuantityAddFooter product={cartProduct} />
+              <ProductQuantityAddFooter
+                product={cartProduct}
+                onQuantityChange={setQuantity}
+              />
+              <div className={whatsappRevealClass}>
+                <div className="min-h-0 overflow-hidden">{whatsAppButton}</div>
+              </div>
             </div>
           </div>
         </div>

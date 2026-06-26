@@ -1,3 +1,7 @@
+export type ForumThreadKind = 'discussion' | 'question' | 'tutorial' | 'firmware';
+
+export type ForumSolvedFilter = 'open' | 'solved' | 'all';
+
 export interface ForumAuthor {
   id: string;
   name: string;
@@ -27,6 +31,9 @@ export interface ForumThread {
   title: string;
   body: string;
   tags: string[];
+  kind: ForumThreadKind;
+  isSolved: boolean;
+  acceptedReplyId: string | null;
   viewCount: number;
   replyCount: number;
   isPinned: boolean;
@@ -74,9 +81,39 @@ export interface ForumLatestPost {
   threadTitle: string;
 }
 
+export type ForumThreadFilter = 'recent' | 'unanswered' | 'popular';
+
+/** @deprecated Usar ForumThreadFilter en la home; se mantiene para páginas internas. */
 export type ForumSortValue = 'recent' | 'popular';
 
 export interface ForumMember extends ForumAuthor {
   joinedAt?: string;
   rank?: number;
+}
+
+export interface ForumFirmwareCatalogItem {
+  productId: string;
+  name: string;
+  slug: string | null;
+  brand: string | null;
+  category: string | null;
+  firmware: {
+    label: string;
+    url: string;
+    fileName: string | null;
+  };
+}
+
+export interface ForumFirmwareIndex {
+  catalog: ForumFirmwareCatalogItem[];
+  threads: ForumThread[];
+  threadsTotal: number;
+}
+
+export interface ForumManualItem {
+  productId: string;
+  name: string;
+  url: string;
+  fileName: string | null;
+  mimeType: string;
 }

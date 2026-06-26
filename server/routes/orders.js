@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { requireAdmin, requireAuth } from '../lib/auth-store.js';
 import { notifyHaiSupportChange } from '../lib/haisupport-sync.js';
+import { saveOrderPaymentProof } from '../lib/order-payment-proof.js';
 import { createStoreOrderFromBody, getStoreOrderByNumber } from '../lib/orders-store.js';
 import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 
@@ -14,6 +15,7 @@ const MY_ORDERS_SELECT = `
   payment_status,
   payment_method,
   payment_provider,
+  payment_metadata,
   currency,
   subtotal_usd,
   total_usd,
@@ -59,6 +61,83 @@ ordersRouter.get('/my', requireAuth, async (req, res, next) => {
 
     res.json({ orders: data ?? [], source: 'supabase' });
   } catch (error) {
+    next(error);
+  }
+});
+
+ordersRouter.post('/my/:orderId/payment-proof', requireAuth, async (req, res, next) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return res.status(503).json({ error: 'Supabase no configurado' });
+    }
+
+    const orderId = String(req.params.orderId ?? '').trim();
+    if (!orderId) {
+      return res.status(400).json({ error: 'Pedido no válido' });
+    }
+
+    const { data: order, error: readError } = await supabase
+      .from('store_orders')
+      .select('id, user_id, payment_metadata, payment_status')
+      .eq('id', orderId)
+      .maybeSingle();
+
+    if (readError || !order) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    if (!req.user?.id || order.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'No tienes permiso para adjuntar este comprobante' });
+    }
+
+    const proof = await saveOrderPaymentProof(orderId, req.body?.dataUrl, req.body?.fileName);
+    const existingMetadata =
+      order.payment_metadata && typeof order.payment_metadata === 'object'
+        ? order.payment_metadata
+        : {};
+
+    const paymentMetadata = {
+      ...existingMetadata,
+      payment_proof_url: proof.url,
+      payment_proof_file_name: proof.fileName,
+      payment_proof_uploaded_at: proof.uploadedAt,
+      payment_proof_mime_type: proof.mimeType,
+    };
+
+    const { error: updateError } = await supabase
+      .from('store_orders')
+      .update({
+        payment_metadata: paymentMetadata,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', orderId);
+
+    if (updateError) {
+      console.error('[orders] payment-proof update:', updateError.message);
+      return res.status(500).json({ error: 'No se pudo guardar el comprobante' });
+    }
+
+    notifyHaiSupportChange('orders', 'update', {
+      id: orderId,
+      payment_metadata: paymentMetadata,
+    });
+
+    res.json({
+      ok: true,
+      payment_proof_url: proof.url,
+      payment_proof_file_name: proof.fileName,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      if (
+        error.message.includes('Formato') ||
+        error.message.includes('Solo se permiten') ||
+        error.message.includes('no puede superar')
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+    }
     next(error);
   }
 });

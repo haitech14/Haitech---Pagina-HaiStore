@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, FolderOpen, ImageOff, Loader2, Plus, Search, ShoppingCart, Wrench } from 'lucide-react';
 
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { AddToCartButton, isProductOutOfStock, ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
 import { useAuth } from '@/context/auth-context';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
@@ -114,11 +115,10 @@ function SearchProductSuggestionRow({
         onClick={onNavigateProduct}
       >
         {imageUrl ? (
-          <img
+          <ProductCardImage
             src={imageUrl}
             alt=""
             className="size-10 shrink-0 rounded border border-border/60 bg-muted object-contain p-0.5 sm:size-11"
-            loading="lazy"
           />
         ) : (
           <span

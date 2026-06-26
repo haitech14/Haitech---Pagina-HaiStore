@@ -58,7 +58,8 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: devPort,
-    strictPort: false,
+    // Evita que Vite salte a 5174/5175 en silencio si el puerto está ocupado.
+    strictPort: true,
     // Permite acceder desde móvil/tablet por IP, hostname o Tailscale sin 403.
     allowedHosts: buildAllowedHosts(),
     // Proxy del API admin local (server/) durante el desarrollo.

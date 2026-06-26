@@ -1,3 +1,4 @@
+import { SITE_LOGO_ASSET_PATH } from '@/lib/site-logo-asset';
 import { DEFAULT_BULK_DISCOUNT_TIERS } from '@/lib/bulk-discount-tiers';
 import type { BulkDiscountTier } from '@/types/product-detail';
 
@@ -44,7 +45,7 @@ export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
   phone: '926 224 243 – 965 805 873',
   email: 'ventas@nbntecnologia.com',
   website: 'www.nbntecnologia.com',
-  logoUrl: '/logo.png',
+  logoUrl: SITE_LOGO_ASSET_PATH,
   quoteDocumentLabel: 'PROFORMA',
   quoteNumberPrefix: 'COT01',
   quoteNextNumber: 15,

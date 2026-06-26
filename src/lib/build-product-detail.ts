@@ -34,6 +34,9 @@ import {
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
   IM550F_ORIGINAL_TONER_PRODUCT_ID,
+  M320F_COMPATIBLE_TONER_PRODUCT_ID,
+  M320F_EQUIPMENT_PRODUCT_ID,
+  M320F_ORIGINAL_TONER_PRODUCT_ID,
   ROUTER_WIFI_PRODUCT_ID,
   TALL_CABINET_IM430_PRODUCT_ID,
   TALL_CABINET_IM550_PRODUCT_ID,
@@ -649,22 +652,30 @@ function isSupplyProduct(product: Product): boolean {
 }
 
 function isIm430f(product: Product): boolean {
+  if (isSupplyProduct(product)) return false;
   if (product.id === 'ricoh-im-430f') return true;
   return /\bim\s*430\s*f\b/i.test(product.name);
 }
 
 function isIm550f(product: Product): boolean {
+  if (isSupplyProduct(product)) return false;
   if (product.id === '328f41ef-d935-4807-85d0-e1db5bdf73fb') return true;
   return /\bim\s*550\s*f\b/i.test(product.name);
 }
 
 function isIm600f(product: Product): boolean {
+  if (isSupplyProduct(product)) return false;
   if (product.id === 'b32a43a1-09e4-49f6-8950-3639c9534700') return true;
   return /\bim\s*600\s*f\b/i.test(product.name);
 }
 
 function isImBnA4Sibling(product: Product): boolean {
   return isIm550f(product) || isIm600f(product);
+}
+
+function isM320f(product: Product): boolean {
+  if (product.id === M320F_EQUIPMENT_PRODUCT_ID) return true;
+  return /\bm\s*320\s*f\b/i.test(product.name);
 }
 
 const PRINTER_CATEGORY_PREFIX_PATTERN = /^(?:impresora\s+)?multifuncional(?:es)?\s+/i;
@@ -1026,7 +1037,31 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
           pricePen: 0,
         },
       ]
-    : isImBnA4Sibling(product)
+    : isM320f(product)
+      ? [
+          {
+            id: 'toner-inicio',
+            name: `Tóner de inicio (${starterToner})`,
+            description: 'Incluido con el equipo',
+            pricePen: 0,
+            included: true,
+          },
+          {
+            id: 'toner-original-m320f',
+            productId: M320F_ORIGINAL_TONER_PRODUCT_ID,
+            name: 'Toner Cartucho Original RICOH M 320F',
+            description: 'Cartucho original — Rend 5,600',
+            pricePen: 0,
+          },
+          {
+            id: 'toner-compatible-m320f',
+            productId: M320F_COMPATIBLE_TONER_PRODUCT_ID,
+            name: 'Toner cartucho compatible RICOH M 320F',
+            description: 'Rendimiento según modelo',
+            pricePen: 0,
+          },
+        ]
+      : isImBnA4Sibling(product)
       ? [
           {
             id: 'toner-ricoh-im-550f',
@@ -1060,7 +1095,7 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
           },
         ];
 
-  const tonerSubtitle = isImBnA4Sibling(product)
+  const tonerSubtitle = isImBnA4Sibling(product) || isM320f(product)
     ? 'Tóner original RICOH y compatibles'
     : 'Tóner de inicio y compatibles';
 

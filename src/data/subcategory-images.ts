@@ -25,6 +25,8 @@ const STOCK_BY_SLUG: Record<string, string> = {
   'impresoras-remanufacturadas': '/categories/subcategories/equipo-remanufacturado.png',
   'toner-compatibles': '/categories/toner-suministros.png',
   'toner-originales': '/categories/accesorios-impresoras.png',
+  'toner-remanufacturado': '/categories/toner-suministros.png',
+  'toner-recarga': '/categories/toner-suministros.png',
 };
 
 function slugPatternStockImage(slug: string): string | null {

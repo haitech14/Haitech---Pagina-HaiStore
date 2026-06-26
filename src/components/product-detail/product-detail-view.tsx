@@ -62,6 +62,7 @@ import {
   selectHeroTonerCard,
 } from '@/lib/equipment-config-selection';
 import { resolveIncludedTonerImage } from '@/lib/product-configure-accessory';
+import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { resolveFrequentlyBoughtItems } from '@/lib/product-compatible-toners';
 import { hasCrossSellConfigureCards, mergeMerchandisingEquipmentSteps } from '@/lib/product-merchandising';
 import { resolveEquipmentComparison } from '@/lib/product-equipment-comparison';
@@ -520,7 +521,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         onRentalEstimateChange={setRentalEstimate}
         purchaseActionsRef={purchaseActionsRef}
         layout="inline"
-        className="mt-4"
+        className="mt-0"
       />
     </Suspense>
   ) : null;
@@ -541,8 +542,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               showOriginalBadge={showOriginalBadge}
               brandLabel={detail.brandLabel}
             />
-            <div className="h-px w-full" aria-hidden="true" />
-            <div ref={configureSectionRef}>{configureEquipmentSection}</div>
           </div>
 
           <ProductDetailHeroInfo
@@ -557,6 +556,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
             showPreparationTypeSelector={showPreparationTypeSelector}
             preparationType={preparationType}
             onPreparationTypeChange={setPreparationType}
+            afterTonerSlot={
+              configureEquipmentSection ? (
+                <div ref={configureSectionRef} className="mt-3">
+                  {configureEquipmentSection}
+                </div>
+              ) : null
+            }
           />
 
           <div className="hidden lg:block">
@@ -880,7 +886,10 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         {...(showPreparationTypeSelector ? { preparationType } : {})}
       />
 
-      <ProductDetailSocialProofToast productName={product.name} />
+      <ProductDetailSocialProofToast
+        productName={product.name}
+        productImageUrl={resolveProductImageUrl(product, { stockFallback: true })}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
 
 import { amountToWordsEs } from '@/lib/amount-to-words-es';
+import { normalizePdfProductCode, pdfTableAmountColumnRight } from '@/lib/pdf-product-code';
 import { buildAbsoluteUrl } from '@/lib/site-url';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 
@@ -45,8 +46,9 @@ type LoadedImage = { dataUrl: string; width: number; height: number };
 
 const PAGE_W = 210;
 const MARGIN = 12;
-const PRIMARY: Rgb = [220, 38, 38];
+const PRIMARY: Rgb = [0, 0, 0];
 const LOGO_FALLBACK = '/logo.png';
+const imageCache = new Map<string, LoadedImage | null>();
 
 function formatPen(value: number): string {
   return `S/ ${value.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -72,23 +74,58 @@ function normalizeCompany(company: CompanySettings): CompanySettings {
   return { ...DEFAULT_COMPANY_SETTINGS, ...company };
 }
 
-async function loadLogo(company: CompanySettings): Promise<LoadedImage | null> {
-  const src = company.logoUrl?.trim() || LOGO_FALLBACK;
+async function loadLineImage(url: string | null | undefined): Promise<LoadedImage | null> {
+  const src = url?.trim();
+  if (!src) return null;
+  if (imageCache.has(src)) return imageCache.get(src) ?? null;
+
   try {
     const response = await fetch(src.startsWith('/') ? encodeURI(src) : src);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      imageCache.set(src, null);
+      return null;
+    }
     const blob = await response.blob();
     const dataUrl = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(new Error('logo read failed'));
+      reader.onerror = () => reject(new Error('image read failed'));
       reader.readAsDataURL(blob);
     });
     const image = await createImageBitmap(blob);
-    return { dataUrl, width: image.width, height: image.height };
+    const loaded = { dataUrl, width: image.width, height: image.height };
+    imageCache.set(src, loaded);
+    return loaded;
   } catch {
+    imageCache.set(src, null);
     return null;
   }
+}
+
+async function loadLogo(company: CompanySettings): Promise<LoadedImage | null> {
+  const candidates = [
+    company.logoUrl?.trim(),
+    LOGO_FALLBACK,
+    '/logoclaro.png',
+  ].filter(Boolean) as string[];
+  for (const src of candidates) {
+    try {
+      const response = await fetch(src.startsWith('/') ? encodeURI(src) : src);
+      if (!response.ok) continue;
+      const blob = await response.blob();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error('logo read failed'));
+        reader.readAsDataURL(blob);
+      });
+      const image = await createImageBitmap(blob);
+      return { dataUrl, width: image.width, height: image.height };
+    } catch {
+      // intentar siguiente candidato
+    }
+  }
+  return null;
 }
 
 function fitImage(
@@ -172,7 +209,15 @@ export async function buildStoreOrderPdf(
   const primarySoft = tintRgb(PRIMARY, 0.88);
   const primaryLight = tintRgb(PRIMARY, 0.94);
   const contentW = PAGE_W - MARGIN * 2;
-  const logo = await loadLogo(company);
+  const [logo, lineImages, qrDataUrl] = await Promise.all([
+    loadLogo(company),
+    Promise.all(input.lines.map((line) => loadLineImage(line.imageUrl))),
+    QRCode.toDataURL(trackingUrl, {
+      margin: 1,
+      width: 220,
+      color: { dark: '#000000', light: '#ffffff' },
+    }).catch(() => null),
+  ]);
 
   let y = MARGIN;
 
@@ -183,8 +228,12 @@ export async function buildStoreOrderPdf(
     addFittedImage(doc, logo, MARGIN + 2, y + 2, 34, 20);
   }
 
+  const badgeW = 48;
+  const badgeX = PAGE_W - MARGIN - badgeW;
+  const qrSize = 22;
+  const qrX = badgeX - qrSize - 4;
   const centerX = MARGIN + 42;
-  const centerW = 98;
+  const centerW = Math.max(58, qrX - centerX - 3);
   doc.setTextColor(...PRIMARY);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
@@ -199,8 +248,10 @@ export async function buildStoreOrderPdf(
     align: 'center',
   });
 
-  const badgeW = 48;
-  const badgeX = PAGE_W - MARGIN - badgeW;
+  if (qrDataUrl) {
+    doc.addImage(qrDataUrl, 'PNG', qrX, y + 1, qrSize, qrSize);
+  }
+
   doc.setFillColor(...PRIMARY);
   doc.roundedRect(badgeX, y, badgeW, 24, 2.5, 2.5, 'F');
   doc.setTextColor(255, 255, 255);
@@ -284,7 +335,9 @@ export async function buildStoreOrderPdf(
 
   const tableX = MARGIN;
   const tableW = contentW;
-  const col = { n: 8, code: 24, desc: 78, qty: 14, unit: 28, amount: 28 };
+  const col = { n: 8, code: 22, img: 16, desc: 64, qty: 14, unit: 28, amount: 28 };
+  const amountColRight = pdfTableAmountColumnRight(tableX, tableW);
+  const unitColRight = amountColRight - col.amount;
   const headerH = 8;
 
   doc.setFillColor(...PRIMARY);
@@ -298,13 +351,14 @@ export async function buildStoreOrderPdf(
   cx += col.n;
   doc.text('CÓDIGO', cx + 1, y + 5.2);
   cx += col.code;
+  doc.text('IMAGEN', cx + 1, y + 5.2);
+  cx += col.img;
   doc.text('DESCRIPCIÓN', cx + 1, y + 5.2);
   cx += col.desc;
   doc.text('CANT.', cx + 2, y + 5.2);
   cx += col.qty;
-  doc.text('P/U', cx + 4, y + 5.2);
-  cx += col.unit;
-  doc.text('IMPORTE', cx + 2, y + 5.2);
+  doc.text('P/U', unitColRight, y + 5.2, { align: 'right' });
+  doc.text('IMPORTE', amountColRight, y + 5.2, { align: 'right' });
 
   y += headerH;
   const rowH = 14;
@@ -324,9 +378,16 @@ export async function buildStoreOrderPdf(
     doc.text(String(index + 1), cx + 3, y + 8);
     cx += col.n;
 
-    doc.setFontSize(7);
-    doc.text(line.sku || '—', cx + 1, y + 8);
+    doc.setFontSize(6.4);
+    const codeLines = doc.splitTextToSize(normalizePdfProductCode(line.sku), col.code - 2);
+    doc.text(codeLines.slice(0, 2), cx + 1, y + 7);
     cx += col.code;
+
+    const lineImage = lineImages[index];
+    if (lineImage) {
+      addFittedImage(doc, lineImage, cx + 1, y + 1, col.img - 2, rowH - 2);
+    }
+    cx += col.img;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.2);
@@ -337,37 +398,35 @@ export async function buildStoreOrderPdf(
     doc.setFont('helvetica', 'bold');
     doc.text(String(quantity), cx + 4, y + 8);
     cx += col.qty;
-    doc.text(formatPen(line.unitPricePen), cx + 1, y + 8);
-    cx += col.unit;
-    doc.text(formatPen(lineTotal), cx + 1, y + 8);
+    doc.text(formatPen(line.unitPricePen), unitColRight, y + 8, { align: 'right' });
+    doc.text(formatPen(lineTotal), amountColRight, y + 8, { align: 'right' });
 
     y += rowH;
   });
 
   y += 4;
 
-  const totalsW = 62;
-  const totalsX = PAGE_W - MARGIN - totalsW;
+  const totalsLabelRight = unitColRight - 2;
   const gravada = Math.round((input.totalPen / 1.18) * 100) / 100;
   const igv = Math.round((input.totalPen - gravada) * 100) / 100;
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(55, 65, 81);
-  doc.text('GRAVADA:', totalsX, y + 4);
-  doc.text(formatPen(gravada), totalsX + totalsW, y + 4, { align: 'right' });
+  doc.text('GRAVADA:', totalsLabelRight, y + 4, { align: 'right' });
+  doc.text(formatPen(gravada), amountColRight, y + 4, { align: 'right' });
   y += 6.5;
-  doc.text('IGV 18.00 %:', totalsX, y + 4);
-  doc.text(formatPen(igv), totalsX + totalsW, y + 4, { align: 'right' });
+  doc.text('IGV 18.00 %:', totalsLabelRight, y + 4, { align: 'right' });
+  doc.text(formatPen(igv), amountColRight, y + 4, { align: 'right' });
   y += 7.5;
 
   doc.setFillColor(...PRIMARY);
-  doc.roundedRect(totalsX - 2, y, totalsW + 2, 8, 1.5, 1.5, 'F');
+  doc.roundedRect(amountColRight - col.amount - 2, y, col.amount + 4, 8, 1.5, 1.5, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
-  doc.text('TOTAL:', totalsX, y + 5.5);
-  doc.text(formatPen(input.totalPen), totalsX + totalsW, y + 5.5, { align: 'right' });
+  doc.text('TOTAL:', totalsLabelRight, y + 5.5, { align: 'right' });
+  doc.text(formatPen(input.totalPen), amountColRight, y + 5.5, { align: 'right' });
   y += 12;
 
   doc.setFillColor(...primaryLight);
@@ -409,18 +468,7 @@ export async function buildStoreOrderPdf(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.5);
   const footerText = `Orden de pedido ${input.orderNumber}. ${company.quoteFooterText} ${company.supportUrl}`;
-  doc.text(doc.splitTextToSize(footerText, PAGE_W - MARGIN * 2 - 34), MARGIN, 281 - barH + 5);
-
-  try {
-    const qrDataUrl = await QRCode.toDataURL(trackingUrl, {
-      margin: 0,
-      width: 180,
-      color: { dark: '#ffffff', light: '#00000000' },
-    });
-    doc.addImage(qrDataUrl, 'PNG', PAGE_W - MARGIN - 30, 281 - barH + 1, 28, 28);
-  } catch {
-    // QR opcional
-  }
+  doc.text(doc.splitTextToSize(footerText, PAGE_W - MARGIN * 2), MARGIN, 281 - barH + 5);
 
   const safeName = input.client.razonSocial.replace(/[^\w\s-]/g, '').trim().slice(0, 24);
   const filename = `orden-${input.orderNumber.replace(/\s+/g, '-')}-${safeName || 'cliente'}.pdf`.toLowerCase();

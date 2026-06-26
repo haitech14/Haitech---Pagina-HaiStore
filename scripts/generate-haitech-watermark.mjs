@@ -11,13 +11,13 @@ import sharp from 'sharp';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const INPUT_CANDIDATES = [
-  path.join(root, 'public', 'Logo Haitech.png'),
   path.join(root, 'public', 'logo.png'),
   path.join(root, 'public', 'logoclaro.png'),
 ];
 
 const OUTPUT = path.join(root, 'public', 'brand', 'haitech-watermark.png');
-const WATERMARK_OPACITY = 0.42;
+const WATERMARK_OPACITY = 0.55;
+const WATERMARK_GRAY = 150;
 
 function resolveInput() {
   for (const candidate of INPUT_CANDIDATES) {
@@ -36,12 +36,22 @@ async function main() {
 
   const pixels = new Uint8ClampedArray(data);
   for (let i = 0; i < pixels.length; i += 4) {
-    const brightness = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
-    if (brightness < 42) {
+    const r = pixels[i];
+    const g = pixels[i + 1];
+    const b = pixels[i + 2];
+    const a = pixels[i + 3];
+    const brightness = (r + g + b) / 3;
+    // Fondo claro del PNG de origen → transparente (conservar trazos oscuros del logo).
+    if (a < 8 || brightness > 200) {
       pixels[i + 3] = 0;
       continue;
     }
-    pixels[i + 3] = Math.round(pixels[i + 3] * WATERMARK_OPACITY);
+    // Gris medio suave: visible al inspeccionar, no a simple vista.
+    const alpha = Math.round(a * WATERMARK_OPACITY);
+    pixels[i] = WATERMARK_GRAY;
+    pixels[i + 1] = WATERMARK_GRAY;
+    pixels[i + 2] = WATERMARK_GRAY;
+    pixels[i + 3] = alpha;
   }
 
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });

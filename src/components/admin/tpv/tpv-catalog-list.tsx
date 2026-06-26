@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Package } from 'lucide-react';
 
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildInventoryCategoryOptions } from '@/lib/inventory-categories';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
@@ -86,11 +87,10 @@ function CatalogProductRow({
       >
         <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-white sm:size-[4.5rem]">
           {showImage ? (
-            <img
+            <ProductCardImage
               src={product.image_url!}
               alt=""
               className="max-h-full max-w-full object-contain p-1"
-              loading="lazy"
               onError={() => setImageError(true)}
             />
           ) : (

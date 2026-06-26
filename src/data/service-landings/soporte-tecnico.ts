@@ -1,6 +1,10 @@
 import {
   Calendar,
+  CircuitBoard,
+  Cpu,
+  GraduationCap,
   Headphones,
+  MonitorSmartphone,
   Package,
   Shield,
   ShieldCheck,
@@ -22,7 +26,7 @@ export const soporteTecnicoLanding: ServiceLandingConfig = {
   subtitle:
     'Atención técnica profesional para asegurar continuidad, rendimiento y respaldo en cada equipo.',
   bullets: ['Respuesta rápida', 'Cobertura integral', 'Planes flexibles'],
-  gridCols: 'three',
+  gridCols: 'four',
   cards: [
     {
       id: 'preventivo',
@@ -72,6 +76,42 @@ export const soporteTecnicoLanding: ServiceLandingConfig = {
       image: '/services/servicio-tecnico/garantia.png',
       imageAlt: 'Garantía extendida en equipos Ricoh',
       icon: ShieldCheck,
+    },
+    {
+      id: 'instalacion-config-capacitacion',
+      title: 'Instalación, Configuración y Capacitación',
+      description:
+        'Puesta en marcha del equipo, configuración de red e impresión y capacitación al personal de uso.',
+      image: '/services/servicio-tecnico/planes.png',
+      imageAlt: 'Técnico capacitando al personal en el uso del equipo',
+      icon: GraduationCap,
+    },
+    {
+      id: 'soporte-remoto',
+      title: 'Soporte y Configuración Remota',
+      description:
+        'Asistencia técnica a distancia para diagnóstico, configuración y resolución de incidencias.',
+      image: '/services/servicio-tecnico/preventivo.png',
+      imageAlt: 'Soporte técnico remoto en equipo de impresión',
+      icon: MonitorSmartphone,
+    },
+    {
+      id: 'actualizacion-firmware',
+      title: 'Servicio de Actualización de Firmware',
+      description:
+        'Actualización de firmware oficial con respaldo previo para mantener tu equipo al día.',
+      image: '/services/servicio-tecnico/general.png',
+      imageAlt: 'Actualización de firmware en fotocopiadora',
+      icon: Cpu,
+    },
+    {
+      id: 'reparacion-fuente-tarjetas',
+      title: 'Servicio de Reparación de Fuente y Tarjetas Electrónicas de Fotocopiadora',
+      description:
+        'Diagnóstico y reparación de fuente de poder y tarjetas electrónicas con piezas de cambio incluidas.',
+      image: '/services/servicio-tecnico/correctivo.png',
+      imageAlt: 'Reparación de tarjetas electrónicas en fotocopiadora',
+      icon: CircuitBoard,
     },
   ],
   benefits: [

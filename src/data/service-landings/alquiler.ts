@@ -24,7 +24,7 @@ export const alquilerLanding: ServiceLandingConfig = {
   subtitle: 'Equipos profesionales listos para impulsar tu productividad.',
   bullets: ['Entrega rápida', 'Soporte experto', 'Flexibilidad total'],
   highlightBulletIndex: 2,
-  gridCols: 'three',
+  gridCols: 'four',
   cards: [
     {
       id: 'laptops',

@@ -5,7 +5,7 @@ import { isSupabaseConfigured } from '@/lib/supabase-config';
 import { supabase } from '@/lib/supabase';
 
 const TABLE_QUERY_KEYS: Record<string, string[][]> = {
-  products: [['products'], ['admin-inventory']],
+  products: [['products'], ['admin-inventory'], ['product']],
   store_customers: [['admin-store-customers']],
   store_proformas: [['admin-proformas']],
   store_rental_plans: [['rental-plans']],
@@ -34,7 +34,10 @@ export function SupabaseRealtimeSync() {
           { event: '*', schema: 'public', table },
           () => {
             for (const queryKey of TABLE_QUERY_KEYS[table] ?? []) {
-              void queryClient.invalidateQueries({ queryKey });
+              void queryClient.invalidateQueries({
+                queryKey,
+                refetchType: 'active',
+              });
             }
           },
         )

@@ -9,7 +9,7 @@ import {
 export const DEFAULT_SITE_TITLE = 'Haitech - Tecnología que sí hace la diferencia';
 
 export const DEFAULT_SITE_DESCRIPTION =
-  'HAI TECH — Ricoh Alliance Partner. Multifuncionales, impresoras y suministros originales. Cotiza online, envío a todo el Perú y soporte técnico especializado.';
+  'HAITECH — Ricoh Alliance Partner. Multifuncionales, impresoras y suministros originales. Cotiza online, envío a todo el Perú y soporte técnico especializado.';
 
 export const DEFAULT_OG_IMAGE = '/categories/promonuevas-1.png';
 
@@ -53,7 +53,7 @@ export function buildCategoryMetaTitle(category, subcategoryName) {
     return `Impresoras Ricoh Láser en Perú | Haitech`;
   }
   if (slug === 'toner-suministros') {
-    return `Tóner y Suministros Ricoh Originales | Haitech`;
+    return `Suministros Ricoh Originales | Haitech`;
   }
   return `${section} | Comprar en Perú | Haitech`;
 }

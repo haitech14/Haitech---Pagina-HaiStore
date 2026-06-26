@@ -40,7 +40,7 @@ export function CheckoutPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: companySettings } = useCompanySettings();
-  const { items, totalPrice, clear } = useCart();
+  const { items, totalPrice, clear, removeItem } = useCart();
   const { displayCurrency } = useDisplayCurrency();
   const { state, actions, prefillClient } = useCheckoutFlow();
   const { accountClient, isLoading: accountClientLoading, isFromAccount } =
@@ -238,12 +238,21 @@ export function CheckoutPage() {
 
   const customerEmail = state.client.email?.trim();
 
+  const handleRemoveItem = (lineId: string) => {
+    removeItem(lineId);
+    if (state.appliedCoupon) {
+      actions.setCoupon(null);
+    }
+    setPendingOrder(null);
+  };
+
   const sidebar = (
     <CheckoutOrderSummary
       items={items}
       totalPrice={totalPrice}
       appliedCoupon={state.appliedCoupon}
       onCouponChange={state.step === 1 ? actions.setCoupon : () => {}}
+      onRemoveItem={handleRemoveItem}
       {...(customerEmail ? { customerEmail } : {})}
       compact={state.step !== 1}
     />
@@ -257,6 +266,7 @@ export function CheckoutPage() {
           totalPrice={totalPrice}
           appliedCoupon={state.appliedCoupon}
           onCouponChange={actions.setCoupon}
+          onRemoveItem={handleRemoveItem}
           onContinue={actions.nextStep}
         />
       ) : null}

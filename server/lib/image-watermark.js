@@ -7,19 +7,36 @@ import sharp from 'sharp';
 import {
   HAITECH_WATERMARK_PUBLIC_PATH,
   isProductImageWatermarkEnabled,
+  PRODUCT_IMAGE_WATERMARK_COMPOSITE_OPACITY,
   shouldWatermarkProductImage,
 } from '../../shared/product-image-watermark.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_ROOT = path.join(__dirname, '../../public');
 const WATERMARK_FILE = path.join(PUBLIC_ROOT, 'brand', 'haitech-watermark.png');
-const WATERMARK_FALLBACK = path.join(PUBLIC_ROOT, 'Logo Haitech.png');
+const WATERMARK_FALLBACK = path.join(PUBLIC_ROOT, 'logo.png');
 
 const MIN_EDGE_FOR_WATERMARK = 120;
-const WATERMARK_WIDTH_RATIO = 0.22;
-const WATERMARK_MAX_WIDTH = 260;
-const WATERMARK_MIN_WIDTH = 72;
+const WATERMARK_WIDTH_RATIO = 0.28;
+const WATERMARK_MAX_WIDTH = 280;
+const WATERMARK_MIN_WIDTH = 64;
 const WATERMARK_PADDING_RATIO = 0.025;
+
+async function withAlphaMultiplier(buffer, multiplier) {
+  if (multiplier >= 1) return buffer;
+
+  const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const pixels = new Uint8ClampedArray(data);
+  for (let i = 3; i < pixels.length; i += 4) {
+    pixels[i] = Math.round(pixels[i] * multiplier);
+  }
+
+  return sharp(Buffer.from(pixels), {
+    raw: { width: info.width, height: info.height, channels: 4 },
+  })
+    .png()
+    .toBuffer();
+}
 
 /** @type {Buffer | null} */
 let cachedWatermark = null;
@@ -112,17 +129,20 @@ export async function applyHaitechWatermark(imageBuffer, options = {}) {
     ),
   );
 
-  const resizedWatermark = await sharp(watermarkBuffer)
-    .resize({ width: targetWidth, withoutEnlargement: true })
-    .png()
-    .toBuffer();
+  const resizedWatermark = await withAlphaMultiplier(
+    await sharp(watermarkBuffer)
+      .resize({ width: targetWidth, withoutEnlargement: true })
+      .png()
+      .toBuffer(),
+    PRODUCT_IMAGE_WATERMARK_COMPOSITE_OPACITY,
+  );
 
   const wmMeta = await sharp(resizedWatermark).metadata();
   const wmWidth = wmMeta.width ?? targetWidth;
   const wmHeight = wmMeta.height ?? Math.round(targetWidth * 0.35);
   const padding = Math.max(8, Math.round(Math.min(width, height) * WATERMARK_PADDING_RATIO));
-  const left = Math.max(padding, width - wmWidth - padding);
-  const top = Math.max(padding, height - wmHeight - padding);
+  const left = Math.max(0, Math.round((width - wmWidth) / 2));
+  const top = Math.max(0, Math.round((height - wmHeight) / 2));
 
   return base
     .composite([

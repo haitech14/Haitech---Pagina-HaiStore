@@ -10,11 +10,10 @@ export const PRODUCT_CARD_TITLE_FEATURED_CLASS =
   'text-[0.8125rem] font-semibold leading-[1.2] text-foreground sm:text-[0.875rem]';
 
 export const PRODUCT_CARD_BRAND_CLASS =
-  'truncate text-[0.68rem] font-bold uppercase tracking-wide text-muted-foreground sm:text-[0.72rem]';
+  'truncate text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground sm:text-[0.625rem]';
 
-/** Marca en tarjetas de vitrina (rojo de marca, como el diseño de destacados). */
-export const PRODUCT_CARD_BRAND_ACCENT_CLASS =
-  'truncate text-[0.7rem] font-bold uppercase tracking-[0.05em] text-destructive antialiased sm:text-[0.75rem]';
+/** Alias de marca en vitrina destacada (mismo estilo gris compacto). */
+export const PRODUCT_CARD_BRAND_ACCENT_CLASS = PRODUCT_CARD_BRAND_CLASS;
 
 /** Código SKU / inventario junto a la marca. */
 export const PRODUCT_CARD_CODE_CLASS =

@@ -162,7 +162,7 @@ export function ProductDetailPurchaseCard({
     <div>
       <p className="text-xs font-semibold text-foreground">Total configurado</p>
       <p
-        className="mt-0.5 text-2xl font-bold leading-tight text-red-600 sm:text-[1.75rem]"
+        className="mt-0.5 text-2xl font-bold leading-tight text-foreground sm:text-[1.75rem]"
         aria-live="polite"
         aria-atomic="true"
       >

@@ -20,7 +20,7 @@ const DEFAULT_SETTINGS = {
   phone: '+51 915 149 290',
   email: 'ventas@haitech.com',
   website: 'www.haitech.com',
-  logoUrl: '/logoclaro.png',
+  logoUrl: '/logo.png',
   quoteDocumentLabel: 'PROFORMA',
   quoteNumberPrefix: 'COT01',
   quoteNextNumber: 15,

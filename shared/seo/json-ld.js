@@ -12,7 +12,7 @@ const ORGANIZATION = {
   '@type': 'Organization',
   name: 'Haitech',
   url: 'https://www.haitech.pe',
-  logo: 'https://www.haitech.pe/logo.ico',
+  logo: 'https://www.haitech.pe/Logo%20Haitech.png',
 };
 
 function availabilityUrl(stock) {
@@ -152,7 +152,7 @@ export function buildOrganizationJsonLd(siteOrigin) {
     '@context': 'https://schema.org',
     ...ORGANIZATION,
     url: buildAbsoluteUrl('/', siteOrigin),
-    logo: buildAbsoluteUrl('/logo.ico', siteOrigin),
+    logo: buildAbsoluteUrl('/logo.png', siteOrigin),
   };
 }
 

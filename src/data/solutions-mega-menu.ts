@@ -13,8 +13,8 @@ export const solutionsMegaMenuSectionMeta: Record<
   { label: string; description: string; icon: LucideIcon }
 > = {
   colaboracion: {
-    label: 'Colaboración',
-    description: 'Videoconferencia y salas de reuniones inteligentes.',
+    label: 'Pizarras Interactivas',
+    description: 'Pizarras IFPD 4K y soportes para salas de reunión.',
     icon: Video,
   },
   negocio: {
@@ -47,9 +47,9 @@ export const solutionsMegaMenuColaboracionColumnGroups: readonly MegaMenuStaticC
     image: colaboracionCategory.image ?? '/categories/soluciones-colaboracion.png',
     href: categoryLandingPath(colaboracionCategory.slug),
     links: [
-      { name: 'Salas de videoconferencia', href: categoryLandingPath(colaboracionCategory.slug) },
-      { name: 'Pantallas interactivas', href: categoryLandingPath(colaboracionCategory.slug) },
-      { name: 'Equipos de colaboración', href: categoryLandingPath(colaboracionCategory.slug) },
+      { name: 'Pizarras interactivas nuevas', href: categoryLandingPath(colaboracionCategory.slug) },
+      { name: 'Soportes de pared', href: categoryLandingPath(colaboracionCategory.slug) },
+      { name: 'Ver catálogo IFPD', href: categoryLandingPath(colaboracionCategory.slug) },
     ],
   },
 ];

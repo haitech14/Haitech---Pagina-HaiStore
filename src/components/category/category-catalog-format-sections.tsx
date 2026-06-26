@@ -13,6 +13,7 @@ interface CategoryCatalogFormatSectionsProps {
   sections: CatalogFormatSectionGroup[];
   gridColumns: CatalogGridColumns;
   sidebarOpen?: boolean;
+  gridClassName?: string;
   renderProduct: (product: Product) => ReactNode;
   className?: string;
 }
@@ -21,6 +22,7 @@ export function CategoryCatalogFormatSections({
   sections,
   gridColumns,
   sidebarOpen = false,
+  gridClassName,
   renderProduct,
   className,
 }: CategoryCatalogFormatSectionsProps) {
@@ -38,7 +40,7 @@ export function CategoryCatalogFormatSections({
 
   return (
     <div className={cn(className)}>
-      <div className={catalogGridClassName(gridColumns, sidebarOpen)}>
+      <div className={gridClassName ?? catalogGridClassName(gridColumns, sidebarOpen)}>
         {orderedProducts.map((product, index) => {
           const delayMs = Math.min(index * 55, 440);
           return (

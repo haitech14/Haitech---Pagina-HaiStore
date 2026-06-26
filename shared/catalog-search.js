@@ -95,24 +95,61 @@ function extractModelTokens(compactText) {
 }
 
 /** Evita que «305» coincida con «3050» (p. ej. RTX 3050). */
-function numericTermMatchesModelToken(term, token) {
-  if (!term || !token || !/^\d+$/.test(term)) return false;
-  if (token === term) return true;
+function numericPartMatches(termDigits, tokenDigits) {
+  if (!termDigits || !tokenDigits) return false;
+  if (termDigits === tokenDigits) return true;
 
-  if (token.startsWith(term)) {
-    const next = token.charAt(term.length);
+  if (tokenDigits.startsWith(termDigits)) {
+    const next = tokenDigits.charAt(termDigits.length);
     return !next || !/\d/.test(next);
   }
 
-  if (term.startsWith(token) && token.length >= 3) return true;
+  if (termDigits.startsWith(tokenDigits) && tokenDigits.length >= 3) return true;
 
-  const idx = token.indexOf(term);
+  const idx = tokenDigits.indexOf(termDigits);
   if (idx === -1) return false;
-  const before = idx > 0 ? token.charAt(idx - 1) : '';
-  const after = token.charAt(idx + term.length);
+  const before = idx > 0 ? tokenDigits.charAt(idx - 1) : '';
+  const after = tokenDigits.charAt(idx + termDigits.length);
   if (before && /\d/.test(before)) return false;
   if (after && /\d/.test(after)) return false;
   return true;
+}
+
+function numericTermMatchesModelToken(term, token) {
+  if (!term || !token || !/^\d+$/.test(term)) return false;
+  if (token === term) return true;
+  return numericPartMatches(term, token.replace(/^[a-z]+/i, ''));
+}
+
+/** Evita que «c6000» coincida con el token numérico «600» o «6000» sin prefijo de letras. */
+function alphanumModelTermMatchesToken(term, token) {
+  if (!term || !token) return false;
+  if (term === token) return true;
+
+  const termMatch = term.match(/^([a-z]{1,4})(\d.*)$/i);
+  const tokenMatch = token.match(/^([a-z]{1,4})(\d.*)$/i);
+
+  if (termMatch && tokenMatch) {
+    if (termMatch[1] !== tokenMatch[1]) return false;
+    return numericPartMatches(termMatch[2], tokenMatch[2]);
+  }
+
+  if (termMatch && !tokenMatch) {
+    return false;
+  }
+
+  if (!termMatch && tokenMatch) {
+    return numericTermMatchesModelToken(term, token);
+  }
+
+  if (term.includes(token) || token.includes(term)) {
+    const minLen = Math.min(term.length, token.length);
+    if (minLen < 3) return false;
+    if (term.length > token.length && /^\d+$/.test(token)) return false;
+    return true;
+  }
+
+  return false;
 }
 
 function termMatchesHaystack(
@@ -141,8 +178,15 @@ function termMatchesHaystack(
         if (numericTermMatchesModelToken(term, token)) return true;
         continue;
       }
+      if (isModelLikeSearchTerm(term)) {
+        if (alphanumModelTermMatchesToken(term, token)) return true;
+        continue;
+      }
       if (token.includes(term) || term.includes(token)) {
-        if (Math.min(token.length, term.length) >= 3) return true;
+        if (Math.min(token.length, term.length) >= 3) {
+          if (term.length > token.length && /^\d+$/.test(token)) continue;
+          return true;
+        }
       }
       if (token.startsWith(term) || term.startsWith(token)) {
         if (Math.min(token.length, term.length) >= 3) return true;
@@ -231,6 +275,37 @@ function buildModelQueryCompact(query) {
   const terms = searchTerms(query).filter((term) => !KNOWN_BRANDS.includes(term));
   const compact = compactSearchText(terms.join(''));
   return /\d/.test(compact) && compact.length >= 3 ? compact : '';
+}
+
+function requiresStrictModelMatch(query) {
+  if (!looksLikeEquipmentModelSearch(query)) return false;
+  const modelQueryCompact = buildModelQueryCompact(query);
+  return modelQueryCompact.length >= 4;
+}
+
+function productHasStrongModelMatch(product, query) {
+  const modelQueryCompact = buildModelQueryCompact(query);
+  if (!modelQueryCompact) return true;
+
+  if (scoreModelQueryMatch(product, modelQueryCompact) > 0) return true;
+
+  const nameCompact = compactSearchText(product.name ?? '');
+  const primaryCompact = compactSearchText(getNamePrimarySegment(product.name ?? ''));
+  const { haystackCompact } = resolveProductHaystackFields(product);
+
+  if (
+    compactIncludesBoundedModelTerm(nameCompact, modelQueryCompact) ||
+    compactIncludesBoundedModelTerm(primaryCompact, modelQueryCompact) ||
+    compactIncludesBoundedModelTerm(haystackCompact, modelQueryCompact)
+  ) {
+    return true;
+  }
+
+  if (nameCompact.startsWith(modelQueryCompact) || primaryCompact.startsWith(modelQueryCompact)) {
+    return true;
+  }
+
+  return false;
 }
 
 function compactIncludesBoundedModelTerm(haystackCompact, term) {
@@ -715,10 +790,15 @@ export function productMatchesSearchQuery(product, query) {
     !hasNumericOnlyTerms &&
     (haystack.includes(normalizedQuery) || haystackCompact.includes(compactQuery))
   ) {
-    return true;
+    return (
+      !requiresStrictModelMatch(query) || productHasStrongModelMatch(product, query)
+    );
   }
 
-  return terms.every((term) =>
+  const termsMatch = terms.every((term) =>
     termMatchesHaystack(term, haystack, haystackCompact, modelTokens, { allowFuzzy: false }),
   );
+  if (!termsMatch) return false;
+
+  return !requiresStrictModelMatch(query) || productHasStrongModelMatch(product, query);
 }

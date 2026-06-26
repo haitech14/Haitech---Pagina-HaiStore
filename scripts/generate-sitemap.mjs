@@ -19,6 +19,7 @@ const OUTPUT_PATH = path.join(__dirname, '../public/sitemap.xml');
 const CATEGORY_SUB_PATHS = {
   multifuncionales: ['sub=all', 'sub=nuevas', 'sub=seminuevas', 'sub=remanufacturadas'],
   impresoras: ['sub=all', 'sub=nuevas', 'sub=seminuevas'],
+  'toner-suministros': ['sub=toner-originales', 'sub=toner-remanufacturado', 'sub=toner-recarga'],
 };
 
 function escapeXml(value) {

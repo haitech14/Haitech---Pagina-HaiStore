@@ -17,11 +17,15 @@ export const LANDING_CATEGORY = {
   accesorios: 'Accesorios',
   escaneres: 'Escáneres',
   camaras: 'Cámaras',
-  solucionesColaboracion: 'Soluciones de Colaboración',
+  solucionesColaboracion: 'Pizarras Interactivas',
+  equipamientoVideoconferencias: 'Equipamiento para Videoconferencias',
   solucionesNegocio: 'Soluciones de Negocio',
   computadorasLaptop: 'Computadoras y Laptop',
   monitores: 'Monitores',
   alquiler: 'Alquiler',
+  software: 'Software',
+  antivirus: 'Antivirus',
+  inteligenciaArtificial: 'Inteligencia Artificial',
 };
 
 /** `Padre, Hijo` para inventario. */
@@ -57,6 +61,10 @@ const EXACT_CATEGORY_MAP = new Map([
   ['Plotter y Multifuncional de Planos', LANDING_CATEGORY.formatoAncho],
   ['Tóner y Suministros', landingInventoryCategory(LANDING_CATEGORY.toner, LANDING_CATEGORY.suministros)],
   ['Toner y suministros', landingInventoryCategory(LANDING_CATEGORY.toner, LANDING_CATEGORY.suministros)],
+  ['Antivirus', landingInventoryCategory(LANDING_CATEGORY.software, LANDING_CATEGORY.antivirus)],
+  ['Software, Antivirus', landingInventoryCategory(LANDING_CATEGORY.software, LANDING_CATEGORY.antivirus)],
+  ['Inteligencia Artificial', landingInventoryCategory(LANDING_CATEGORY.software, LANDING_CATEGORY.inteligenciaArtificial)],
+  ['Software, Inteligencia Artificial', landingInventoryCategory(LANDING_CATEGORY.software, LANDING_CATEGORY.inteligenciaArtificial)],
 ]);
 
 /**

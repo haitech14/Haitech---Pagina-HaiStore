@@ -12,9 +12,13 @@ import { cn } from '@/lib/utils';
 
 interface ProductDetailSocialProofToastProps {
   productName: string;
+  productImageUrl?: string | null;
 }
 
-export function ProductDetailSocialProofToast({ productName }: ProductDetailSocialProofToastProps) {
+export function ProductDetailSocialProofToast({
+  productName,
+  productImageUrl,
+}: ProductDetailSocialProofToastProps) {
   const bottomInset = useMobileBottomInset();
   const [message, setMessage] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
@@ -51,7 +55,7 @@ export function ProductDetailSocialProofToast({ productName }: ProductDetailSoci
       aria-live="polite"
       aria-atomic="true"
       className={cn(
-        'fixed left-3 z-30 max-w-[min(20rem,calc(100vw-1.5rem))] rounded-lg border border-border/80 bg-background/95 p-3 shadow-lg backdrop-blur-sm sm:left-4 lg:max-w-xs',
+        'fixed left-3 z-30 max-w-[min(22rem,calc(100vw-1.5rem))] rounded-xl border border-border/80 bg-background/95 p-2.5 shadow-lg backdrop-blur-sm sm:left-4 lg:max-w-sm',
         'motion-safe:transition-all motion-safe:duration-300',
         visible
           ? 'motion-safe:translate-y-0 opacity-100'
@@ -61,14 +65,26 @@ export function ProductDetailSocialProofToast({ productName }: ProductDetailSoci
         bottom: `calc(0.75rem + ${bottomInset}px + env(safe-area-inset-bottom, 0px))`,
       }}
     >
-      <div className="flex items-start gap-2.5">
-        <span
-          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-600/10 text-red-600"
-          aria-hidden="true"
-        >
-          <ShoppingBag className="size-4" strokeWidth={1.75} />
-        </span>
-        <p className="text-sm leading-snug text-foreground">
+      <div className="flex items-center gap-3">
+        {productImageUrl ? (
+          <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/70 bg-muted/50 p-1.5">
+            <img
+              src={productImageUrl}
+              alt=""
+              className="max-h-full max-w-full object-contain"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        ) : (
+          <span
+            className="flex size-14 shrink-0 items-center justify-center rounded-lg border border-red-600/15 bg-red-600/10 text-red-600"
+            aria-hidden="true"
+          >
+            <ShoppingBag className="size-5" strokeWidth={1.75} />
+          </span>
+        )}
+        <p className="min-w-0 flex-1 text-sm leading-snug text-foreground">
           <span className="font-medium">{message}</span>
         </p>
       </div>

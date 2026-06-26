@@ -1,4 +1,4 @@
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Trash2 } from 'lucide-react';
 
 import { CheckoutCouponField, type AppliedCheckoutCoupon } from '@/components/checkout/checkout-coupon-field';
 import { DualPrice } from '@/components/product-showcase-card';
@@ -15,6 +15,7 @@ interface CheckoutOrderSummaryProps {
   totalPrice: number;
   appliedCoupon: AppliedCheckoutCoupon | null;
   onCouponChange: (coupon: AppliedCheckoutCoupon | null) => void;
+  onRemoveItem?: (lineId: string) => void;
   customerEmail?: string;
   compact?: boolean;
 }
@@ -24,6 +25,7 @@ export function CheckoutOrderSummary({
   totalPrice,
   appliedCoupon,
   onCouponChange,
+  onRemoveItem,
   customerEmail,
   compact = false,
 }: CheckoutOrderSummaryProps) {
@@ -74,6 +76,18 @@ export function CheckoutOrderSummary({
                     <DualPrice usd={lineUsd} />
                   </p>
                 </div>
+                {onRemoveItem ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-9 shrink-0 self-start text-muted-foreground hover:text-destructive"
+                    aria-label={`Eliminar ${item.product.name} del pedido`}
+                    onClick={() => onRemoveItem(item.lineId)}
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                  </Button>
+                ) : null}
               </li>
             );
           })}
@@ -120,6 +134,7 @@ interface CheckoutStepSummaryProps {
   totalPrice: number;
   appliedCoupon: AppliedCheckoutCoupon | null;
   onCouponChange: (coupon: AppliedCheckoutCoupon | null) => void;
+  onRemoveItem?: (lineId: string) => void;
   onContinue: () => void;
 }
 
@@ -128,6 +143,7 @@ export function CheckoutStepSummary({
   totalPrice,
   appliedCoupon,
   onCouponChange,
+  onRemoveItem,
   onContinue,
 }: CheckoutStepSummaryProps) {
   return (
@@ -137,6 +153,7 @@ export function CheckoutStepSummary({
         totalPrice={totalPrice}
         appliedCoupon={appliedCoupon}
         onCouponChange={onCouponChange}
+        onRemoveItem={onRemoveItem}
       />
       <Button
         type="button"

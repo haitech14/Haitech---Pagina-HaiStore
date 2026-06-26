@@ -4,12 +4,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
 import { CartProvider } from '@/context/cart-context';
+import { ServicesQuoteProvider } from '@/context/services-quote-context';
+import { SoftwareQuoteProvider } from '@/context/software-quote-context';
 import { AuthProvider } from '@/context/auth-context';
 import { DisplayCurrencyProvider } from '@/context/display-currency-context';
 import { ExchangeRateSync } from '@/context/exchange-rate-context';
 import { ProductCompareProvider } from '@/context/product-compare-context';
 import { WishlistProvider } from '@/context/wishlist-context';
 import { SupabaseRealtimeSync } from '@/components/supabase-realtime-sync';
+import { ProductQuerySync } from '@/components/product-query-sync';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,16 +28,21 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <SupabaseRealtimeSync />
+      <ProductQuerySync />
       <ExchangeRateSync />
       <AuthProvider>
         <DisplayCurrencyProvider>
           <CartProvider>
+            <ServicesQuoteProvider>
+            <SoftwareQuoteProvider>
             <WishlistProvider>
               <ProductCompareProvider>
                 {children}
                 <Toaster richColors closeButton position="top-center" />
               </ProductCompareProvider>
             </WishlistProvider>
+            </SoftwareQuoteProvider>
+            </ServicesQuoteProvider>
           </CartProvider>
         </DisplayCurrencyProvider>
       </AuthProvider>

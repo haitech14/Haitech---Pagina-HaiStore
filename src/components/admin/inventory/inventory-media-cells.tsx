@@ -19,6 +19,7 @@ import {
 } from '@/lib/product-media-upload-limits';
 import { getProductMediaUrls } from '@/lib/inventory-product';
 import { isImageMediaUrl, mediaPreviewUrl } from '@/lib/product-media';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -57,7 +58,7 @@ function Thumb({ src, alt, className }: { src: string; alt: string; className?: 
         className,
       )}
     >
-      <img src={src} alt={alt} className="size-full object-cover" loading="lazy" />
+      <ProductCardImage src={src} alt={alt} className="size-full object-cover" />
     </div>
   );
 }

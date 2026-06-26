@@ -1,563 +1,1258 @@
 {
   "products": [
     {
-      "id": "ricoh-im-430f",
-      "code": "423509",
-      "name": "Impresora Multifuncional NUEVA RICOH IM 430F",
-      "description": "Multifuncional monocromática A4, 40 ppm, panel táctil 10.1\".",
-      "currency": "USD",
-      "stock": 24,
-      "category": "Multifuncionales Nuevas",
-      "brand": "Ricoh",
-      "image_url": "/products/ricoh-im-430f.webp",
-      "gallery": [
-        "/products/ricoh-im-430f.webp",
-        "/products/ricoh-im-430f-2.webp",
-        "/products/ricoh-im-430f-3.webp"
-      ],
-      "purchase_price_usd": 825,
-      "created_at": "2026-05-15T00:00:00.000Z",
-      "prices": {
-        "public": 1099,
-        "corporativo": 1012,
-        "tecnico": 919,
-        "mayorista": 899,
-        "distribuidor": 959,
-        "vip": 825
-      }
-    },
-    {
-      "id": "bfb264b8-70dc-4ad4-9686-2df02df8c75e",
-      "code": "M-320F",
-      "name": "Impresora Multifuncional B/N Nueva RICOH M 320F",
-      "description": "Multifuncional monocromática A4 Ricoh M 320F.",
-      "currency": "USD",
-      "stock": 5,
-      "category": "Multifuncionales Nuevas",
-      "brand": "Ricoh",
-      "image_url": "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp",
-      "gallery": [
-        "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp",
-        "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e-256.webp",
-        "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e-512.webp"
-      ],
-      "purchase_price_usd": 720,
-      "created_at": "2026-06-25T00:00:00.000Z",
-      "prices": {
-        "public": 999,
-        "tecnico": 899,
-        "mayorista": 879,
-        "distribuidor": 929
-      }
-    },
-    {
-      "id": "ab878d89-61e0-4e51-a941-03455e1da407",
-      "code": "MP-305+",
-      "name": "Impresora Multifuncional B/N Nueva RICOH MP 305+",
-      "description": "Multifuncional monocromática A4 Ricoh MP 305+.",
+      "id": "03b408ff-0b06-4ec5-90ed-94dcb40fd67c",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C300F",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
       "currency": "USD",
       "stock": 3,
-      "category": "Multifuncionales Nuevas",
+      "category": "Multifuncionales Seminuevas",
       "brand": "Ricoh",
-      "image_url": "/products/ab878d89-61e0-4e51-a941-03455e1da407.webp",
+      "image_url": "/products/03b408ff-0b06-4ec5-90ed-94dcb40fd67c.webp",
       "gallery": [
-        "/products/ab878d89-61e0-4e51-a941-03455e1da407.webp",
-        "/products/ab878d89-61e0-4e51-a941-03455e1da407-256.webp",
-        "/products/ab878d89-61e0-4e51-a941-03455e1da407-512.webp"
+        "/products/03b408ff-0b06-4ec5-90ed-94dcb40fd67c.webp",
+        "/products/03b408ff-0b06-4ec5-90ed-94dcb40fd67c-256.webp",
+        "/products/03b408ff-0b06-4ec5-90ed-94dcb40fd67c-512.webp"
       ],
-      "purchase_price_usd": 610,
-      "created_at": "2026-06-25T00:00:00.000Z",
       "prices": {
-        "public": 899,
-        "tecnico": 829,
-        "mayorista": 809,
-        "distribuidor": 859
-      }
+        "public": 699,
+        "tecnico": 499,
+        "mayorista": 480,
+        "distribuidor": 549
+      },
+      "created_at": "2026-06-23T16:03:20.453Z",
+      "code": "DD5EFA367",
+      "sort_order": 5,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c300f-94dcb40fd67c",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "30 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "Papel A4",
+          "subtitle": "Formato estándar oficina"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Printer",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 30 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A4, A5, A6 Bypass Formato A4-Carta"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
     },
     {
-      "id": "ricoh-im-c3000",
-      "name": "RICOH IM C3000",
-      "description": "Multifuncional a color láser A3 para oficinas de alto volumen.",
+      "id": "06fdba17-ae3d-4bd0-8206-1de6b868a8b9",
+      "name": "Impresora Multifuncional Seminueva Ricoh SP 5210F 220V",
       "currency": "USD",
-      "stock": 8,
-      "category": "Multifuncionales",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
-      "image_url": null,
-      "created_at": "2026-05-10T00:00:00.000Z",
+      "image_url": "/products/06fdba17-ae3d-4bd0-8206-1de6b868a8b9.webp",
+      "gallery": [
+        "/products/06fdba17-ae3d-4bd0-8206-1de6b868a8b9.webp",
+        "/products/06fdba17-ae3d-4bd0-8206-1de6b868a8b9-256.webp",
+        "/products/06fdba17-ae3d-4bd0-8206-1de6b868a8b9-512.webp"
+      ],
       "prices": {
-        "public": 2599,
-        "corporativo": 2391,
-        "tecnico": 2287,
-        "mayorista": 2209,
-        "distribuidor": 2027,
-        "vip": 1871
-      }
+        "public": 349,
+        "tecnico": 119,
+        "mayorista": 90,
+        "distribuidor": 159
+      },
+      "created_at": "2026-06-16T08:21:07.318Z",
+      "code": "RICOHSP5210",
+      "sort_order": 1307,
+      "slug": "impresora-multifuncional-seminueva-ricoh-sp-5210f-220v-1de6b868a8b9"
     },
     {
-      "id": "ricoh-sp-330dn",
-      "name": "RICOH SP 330DN",
-      "description": "Impresora láser monocromática con dúplex automático y red.",
+      "id": "07f8da66-9ecf-427b-b92e-d31edd4989c3",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C4504 220V",
       "currency": "USD",
-      "stock": 14,
-      "category": "Impresoras",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
-      "image_url": null,
-      "created_at": "2026-05-08T00:00:00.000Z",
+      "image_url": "/products/07f8da66-9ecf-427b-b92e-d31edd4989c3.webp",
+      "gallery": [
+        "/products/07f8da66-9ecf-427b-b92e-d31edd4989c3.webp",
+        "/products/07f8da66-9ecf-427b-b92e-d31edd4989c3-256.webp",
+        "/products/07f8da66-9ecf-427b-b92e-d31edd4989c3-512.webp"
+      ],
       "prices": {
-        "public": 399,
-        "corporativo": 367,
-        "tecnico": 351,
-        "mayorista": 339,
-        "distribuidor": 311,
-        "vip": 287
-      }
+        "public": 1249,
+        "tecnico": 759,
+        "mayorista": 659,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-16T07:40:19.190Z",
+      "code": "418276-CPNV9C-CPQZO0-CPT-CP15RQ",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1168,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c4504-220v-d31edd4989c3"
     },
     {
-      "id": "konica-bizhub-c300i",
-      "name": "Konica Minolta bizhub C300i",
-      "description": "Multifuncional inteligente con conectividad cloud y seguridad.",
-      "currency": "USD",
-      "stock": 6,
-      "category": "Multifuncionales",
-      "brand": "Konica Minolta",
-      "image_url": null,
-      "created_at": "2026-05-05T00:00:00.000Z",
-      "prices": {
-        "public": 3299,
-        "corporativo": 3035,
-        "tecnico": 2903,
-        "mayorista": 2804,
-        "distribuidor": 2573,
-        "vip": 2375
-      }
-    },
-    {
-      "id": "canon-ir-advance",
-      "name": "Canon imageRUNNER ADVANCE C5535i",
-      "description": "Multifuncional a color de producción media-alta.",
-      "currency": "USD",
-      "stock": 5,
-      "category": "Multifuncionales",
-      "brand": "Canon",
-      "image_url": null,
-      "created_at": "2026-05-01T00:00:00.000Z",
-      "prices": {
-        "public": 4399,
-        "corporativo": 4047,
-        "tecnico": 3871,
-        "mayorista": 3739,
-        "distribuidor": 3431,
-        "vip": 3167
-      }
-    },
-    {
-      "id": "canon-lbp226dw",
-      "name": "Canon imageCLASS LBP226dw",
-      "description": "Impresora láser Wi-Fi con impresión dúplex automática.",
-      "currency": "USD",
-      "stock": 20,
-      "category": "Impresoras",
-      "brand": "Canon",
-      "image_url": null,
-      "created_at": "2026-04-28T00:00:00.000Z",
-      "prices": {
-        "public": 289,
-        "corporativo": 266,
-        "tecnico": 254,
-        "mayorista": 246,
-        "distribuidor": 225,
-        "vip": 208
-      }
-    },
-    {
-      "id": "epson-ecotank-l6290",
-      "name": "Epson EcoTank L6290",
-      "description": "Multifuncional de tanque de tinta con ADF y fax.",
-      "currency": "USD",
-      "stock": 16,
-      "category": "Multifuncionales",
-      "brand": "Epson",
-      "image_url": null,
-      "created_at": "2026-04-22T00:00:00.000Z",
-      "prices": {
-        "public": 469,
-        "corporativo": 431,
-        "tecnico": 413,
-        "mayorista": 399,
-        "distribuidor": 366,
-        "vip": 338
-      }
-    },
-    {
-      "id": "epson-workforce-pro",
-      "name": "Epson WorkForce Pro WF-C5790",
-      "description": "Inkjet empresarial de bajo costo por página.",
-      "currency": "USD",
-      "stock": 10,
-      "category": "Impresoras",
-      "brand": "Epson",
-      "image_url": null,
-      "created_at": "2026-04-18T00:00:00.000Z",
-      "prices": {
-        "public": 719,
-        "corporativo": 661,
-        "tecnico": 633,
-        "mayorista": 611,
-        "distribuidor": 561,
-        "vip": 518
-      }
-    },
-    {
-      "id": "hp-laserjet-m234",
-      "name": "HP LaserJet Pro M234dw",
-      "description": "Láser monocromática con Wi-Fi y app HP Smart.",
-      "currency": "USD",
-      "stock": 28,
-      "category": "Impresoras",
-      "brand": "HP",
-      "image_url": null,
-      "created_at": "2026-04-12T00:00:00.000Z",
-      "prices": {
-        "public": 259,
-        "corporativo": 238,
-        "tecnico": 228,
-        "mayorista": 220,
-        "distribuidor": 202,
-        "vip": 186
-      }
-    },
-    {
-      "id": "hp-toner-58a",
-      "name": "HP 58A Tóner Original",
-      "description": "Cartucho de tóner negro original HP 58A (CF258A).",
-      "currency": "USD",
-      "stock": 52,
-      "category": "Tóner y Suministros",
-      "brand": "HP",
-      "image_url": null,
-      "created_at": "2026-04-08T00:00:00.000Z",
-      "prices": {
-        "public": 92,
-        "corporativo": 85,
-        "tecnico": 81,
-        "mayorista": 78,
-        "distribuidor": 72,
-        "vip": 66
-      }
-    },
-    {
-      "id": "kyocera-ecosys-m5526",
-      "name": "Kyocera ECOSYS M5526cdw",
-      "description": "Multifuncional color con tambor de larga duración.",
-      "currency": "USD",
-      "stock": 11,
-      "category": "Multifuncionales",
-      "brand": "Kyocera",
-      "image_url": null,
-      "created_at": "2026-04-02T00:00:00.000Z",
-      "prices": {
-        "public": 619,
-        "corporativo": 569,
-        "tecnico": 545,
-        "mayorista": 526,
-        "distribuidor": 483,
-        "vip": 446
-      }
-    },
-    {
-      "id": "lexmark-ms431dn",
-      "name": "Lexmark MS431dn",
-      "description": "Impresora láser monocromática de red con dúplex.",
-      "currency": "USD",
-      "stock": 13,
-      "category": "Impresoras",
-      "brand": "Lexmark",
-      "image_url": null,
-      "created_at": "2026-03-25T00:00:00.000Z",
-      "prices": {
-        "public": 339,
-        "corporativo": 312,
-        "tecnico": 298,
-        "mayorista": 288,
-        "distribuidor": 264,
-        "vip": 244
-      }
-    },
-    {
-      "id": "oki-c332dn",
-      "name": "OKI C332dn",
-      "description": "Impresora LED a color compacta para equipos pequeños.",
-      "currency": "USD",
-      "stock": 8,
-      "category": "Impresoras",
-      "brand": "OKI",
-      "image_url": null,
-      "created_at": "2026-03-18T00:00:00.000Z",
-      "prices": {
-        "public": 429,
-        "corporativo": 395,
-        "tecnico": 378,
-        "mayorista": 365,
-        "distribuidor": 335,
-        "vip": 309
-      }
-    },
-    {
-      "id": "pantum-m7100dw",
-      "name": "PANTUM M7100DW",
-      "description": "Multifuncional láser monocromática de alto valor.",
-      "currency": "USD",
-      "stock": 22,
-      "category": "Multifuncionales",
-      "brand": "Pantum",
-      "image_url": null,
-      "created_at": "2026-03-10T00:00:00.000Z",
-      "prices": {
-        "public": 209,
-        "corporativo": 192,
-        "tecnico": 184,
-        "mayorista": 178,
-        "distribuidor": 163,
-        "vip": 150
-      }
-    },
-    {
-      "id": "colortrac-scanner",
-      "name": "Colortrac SmartLF SC 42",
-      "description": "Escáner de formato ancho para planos, CAD y GIS.",
-      "currency": "USD",
-      "stock": 4,
-      "category": "Formato Ancho",
-      "brand": "Colortrac",
-      "image_url": null,
-      "created_at": "2026-03-01T00:00:00.000Z",
-      "prices": {
-        "public": 3999,
-        "corporativo": 3679,
-        "tecnico": 3519,
-        "mayorista": 3399,
-        "distribuidor": 3119,
-        "vip": 2879
-      }
-    },
-    {
-      "id": "ricoh-toner-mp",
-      "name": "RICOH MP C3003 Tóner Negro",
-      "description": "Tóner original Ricoh para serie MP C3003 / IM C3000.",
-      "currency": "USD",
-      "stock": 38,
-      "category": "Tóner y Suministros",
-      "brand": "Ricoh",
-      "image_url": null,
-      "created_at": "2026-02-20T00:00:00.000Z",
-      "prices": {
-        "public": 98,
-        "corporativo": 90,
-        "tecnico": 86,
-        "mayorista": 83,
-        "distribuidor": 76,
-        "vip": 71
-      }
-    },
-    {
-      "id": "ricoh-drum-unit",
-      "name": "RICOH Unidad de tambor IM C3000",
-      "description": "Unidad de imagen original para IM C3000 / C4000.",
-      "currency": "USD",
-      "stock": 15,
-      "category": "Repuestos",
-      "brand": "Ricoh",
-      "image_url": null,
-      "created_at": "2026-02-10T00:00:00.000Z",
-      "prices": {
-        "public": 185,
-        "corporativo": 170,
-        "tecnico": 163,
-        "mayorista": 157,
-        "distribuidor": 144,
-        "vip": 133
-      }
-    },
-    {
-      "id": "toner-ricoh-c6003-cyan",
-      "code": "TONERC6003CY",
-      "name": "Toner Ricoh MP C6003 C4503 841849 Cyan Compatible",
-      "description": "Tóner cyan compatible de alto rendimiento para Ricoh MP C6003 / C4503.",
-      "currency": "USD",
-      "stock": 45,
-      "category": "Suministros",
-      "brand": "Ricoh",
-      "image_url": "/categories/toner-suministros.png",
-      "gallery": ["/categories/toner-suministros.png"],
-      "compare_at_price_usd": 80.81,
-      "purchase_price_usd": 28.99,
-      "created_at": "2026-06-01T00:00:00.000Z",
-      "prices": {
-        "public": 40.27,
-        "corporativo": 37,
-        "tecnico": 35,
-        "mayorista": 34,
-        "distribuidor": 31,
-        "vip": 29
-      }
-    },
-    {
-      "id": "sony-wh1000xm5",
-      "code": "SONYWH1000XM5",
-      "name": "Sony WH-1000XM5",
-      "description": "Auriculares inalámbricos con cancelación de ruido líder en su categoría.",
-      "currency": "USD",
-      "stock": 18,
-      "category": "Audio",
-      "brand": "Sony",
-      "image_url": "/products/sony-wh1000xm5.png",
-      "gallery": ["/products/sony-wh1000xm5.png"],
-      "compare_at_price_usd": 349.99,
-      "purchase_price_usd": 215.99,
-      "created_at": "2026-06-01T00:00:00.000Z",
-      "prices": {
-        "public": 299.99,
-        "corporativo": 276,
-        "tecnico": 264,
-        "mayorista": 255,
-        "distribuidor": 234,
-        "vip": 216
-      }
-    },
-    {
-      "id": "macbook-air-m13",
-      "code": "MBAIRM313",
-      "name": "MacBook Air M3 13\"",
-      "description": "Laptop ultraligera con chip Apple M3, 13 pulgadas.",
-      "currency": "USD",
-      "stock": 9,
-      "category": "Laptops",
-      "brand": "Apple",
-      "image_url": "/products/macbook-air-m13.png",
-      "gallery": ["/products/macbook-air-m13.png"],
-      "is_new": true,
-      "purchase_price_usd": 790.8,
-      "created_at": "2026-06-01T00:00:00.000Z",
-      "prices": {
-        "public": 1099,
-        "corporativo": 1011,
-        "tecnico": 967,
-        "mayorista": 934,
-        "distribuidor": 857,
-        "vip": 791
-      }
-    },
-    {
-      "id": "iphone-15-pro",
-      "code": "IPHONE15P256",
-      "name": "iPhone 15 Pro 256GB",
-      "description": "Smartphone premium con chip A17 Pro y cámara avanzada.",
-      "currency": "USD",
-      "stock": 14,
-      "category": "Smartphones",
-      "brand": "Apple",
-      "image_url": "/products/iphone-15-pro.png",
-      "gallery": ["/products/iphone-15-pro.png"],
-      "compare_at_price_usd": 1229,
-      "purchase_price_usd": 790.8,
-      "created_at": "2026-06-01T00:00:00.000Z",
-      "prices": {
-        "public": 1099,
-        "corporativo": 1011,
-        "tecnico": 967,
-        "mayorista": 934,
-        "distribuidor": 857,
-        "vip": 791
-      }
-    },
-    {
-      "id": "apple-watch-9",
-      "code": "APPLEWATCH9",
-      "name": "Apple Watch Series 9",
-      "description": "Smartwatch con pantalla Always-On y chip S9.",
-      "currency": "USD",
-      "stock": 20,
-      "category": "Smartwatches",
-      "brand": "Apple",
-      "image_url": "/products/apple-watch-9.png",
-      "gallery": ["/products/apple-watch-9.png"],
-      "is_new": true,
-      "purchase_price_usd": 287.28,
-      "created_at": "2026-06-01T00:00:00.000Z",
-      "prices": {
-        "public": 399,
-        "corporativo": 367,
-        "tecnico": 351,
-        "mayorista": 339,
-        "distribuidor": 311,
-        "vip": 287
-      }
-    },
-    {
-      "id": "galaxy-buds2-pro",
-      "code": "GALAXYBUDS2P",
-      "name": "Samsung Galaxy Buds2 Pro",
-      "description": "Auriculares true wireless con audio Hi-Fi y ANC.",
-      "currency": "USD",
-      "stock": 25,
-      "category": "Audio",
-      "brand": "Samsung",
-      "image_url": "/products/galaxy-buds2-pro.png",
-      "gallery": ["/products/galaxy-buds2-pro.png"],
-      "compare_at_price_usd": 199.99,
-      "purchase_price_usd": 115.19,
-      "created_at": "2026-06-01T00:00:00.000Z",
-      "prices": {
-        "public": 159.99,
-        "corporativo": 147,
-        "tecnico": 141,
-        "mayorista": 136,
-        "distribuidor": 125,
-        "vip": 115
-      }
-    },
-    {
-      "id": "mochila-techpro",
-      "code": "MOCHILATECHPRO",
-      "name": "Mochila TechPro",
-      "description": "Mochila para laptop con compartimentos acolchados y USB.",
-      "currency": "USD",
-      "stock": 30,
-      "category": "Accesorios",
-      "brand": "TechPro",
-      "image_url": "/products/mochila-techpro.png",
-      "gallery": ["/products/mochila-techpro.png"],
-      "purchase_price_usd": 35.99,
-      "created_at": "2026-06-01T00:00:00.000Z",
-      "prices": {
-        "public": 49.99,
-        "corporativo": 46,
-        "tecnico": 44,
-        "mayorista": 42,
-        "distribuidor": 39,
-        "vip": 36
-      }
-    },
-    {
-      "id": "419078",
-      "code": "419078",
-      "name": "Toner Cartucho Original RICOH IM 430F (Rend 14,500)",
-      "description": "Cartucho original negro — Rend 14,500 páginas al 5% — IM-430F / P-502 / IM-430F TL",
+      "id": "0aea108a-acd2-4ddd-af29-b2265097813c",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 3000",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 30,000 páginas al mes\nRegalo: 01 Toner de Inicio y Envío Gratis",
       "currency": "USD",
       "stock": 0,
-      "category": "Toner Original",
+      "category": "Multifuncionales Nuevas",
       "brand": "Ricoh",
-      "image_url": "/products/toner-419078.webp",
-      "gallery": ["/products/toner-419078.webp"],
-      "purchase_price_usd": 52.9,
-      "created_at": "2026-06-24T00:00:00.000Z",
+      "image_url": "/products/0aea108a-acd2-4ddd-af29-b2265097813c.webp",
+      "gallery": [
+        "/products/0aea108a-acd2-4ddd-af29-b2265097813c.webp",
+        "/products/0aea108a-acd2-4ddd-af29-b2265097813c-256.webp",
+        "/products/0aea108a-acd2-4ddd-af29-b2265097813c-512.webp"
+      ],
       "prices": {
-        "public": 82.9,
-        "tecnico": 69.9,
-        "mayorista": 66.9,
-        "distribuidor": 61.9,
-        "vip": 57.9
-      }
+        "public": 4490,
+        "tecnico": 4049,
+        "mayorista": 3999,
+        "distribuidor": 4099
+      },
+      "created_at": "2026-06-01T08:38:35.615Z",
+      "code": "418844",
+      "attributes": [
+        {
+          "id": "d60c5290-3ac3-4671-b5ed-7ec00c4cb4ac",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "68a3c4b2-274a-476b-9272-566c1093cb34",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "706e7b0a-8040-4192-8295-1756940cddf0",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "2394d92b-0086-4762-9b15-b409ddd3837d",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "870e8013-c4e2-42af-a8df-73846fa59686",
+          "name": "Modelo de equipo",
+          "value": "IM-3000"
+        },
+        {
+          "id": "4263c217-39a2-477b-89b9-847cae33d015",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842124]\nCoste instalación — Compra: $64.26 | Mayorista: $74.78 | Técnico: $78.52 | Público: $86.37\nPaquete instalado — Compra: $2596.90 | Mayorista: $2978.90 | Técnico: $3127.90 | Público: $3440.90"
+        }
+      ],
+      "sort_order": 1033,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-3000-b2265097813c",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "40 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "A3",
+          "subtitle": "Formato de impresión"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "ADF",
+          "subtitle": "Alimentador de documentos estándar"
+        },
+        {
+          "icon": "Printer",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 40 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "Estándar"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A3"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ],
+      "cross_sell_product_ids": [
+        "5c413c22-a7e1-422a-af81-ed8948d6705a"
+      ]
+    },
+    {
+      "id": "12402a94-70d2-4d3b-8953-bf29f119fbf4",
+      "name": "Impresora Multifuncional Seminueva CANON imageRUNNER ADVANCE DXC3835I 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Canon",
+      "image_url": "/products/12402a94-70d2-4d3b-8953-bf29f119fbf4.webp",
+      "gallery": [
+        "/products/12402a94-70d2-4d3b-8953-bf29f119fbf4.webp",
+        "/products/12402a94-70d2-4d3b-8953-bf29f119fbf4-256.webp",
+        "/products/12402a94-70d2-4d3b-8953-bf29f119fbf4-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:51.610Z",
+      "code": "EQ-CANONIRADXC3835I110V",
+      "sort_order": 1996,
+      "slug": "impresora-multifuncional-seminueva-canon-imagerunner-advance-dxc3835i-110v-bf29f"
+    },
+    {
+      "id": "15ee65ab-6565-44c4-974e-ff5ba68b0c26",
+      "name": "Impresora Multifuncional NUEVA RICOH IM C3010",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/15ee65ab-6565-44c4-974e-ff5ba68b0c26.webp",
+      "gallery": [
+        "/products/15ee65ab-6565-44c4-974e-ff5ba68b0c26.webp",
+        "/products/15ee65ab-6565-44c4-974e-ff5ba68b0c26-256.webp",
+        "/products/15ee65ab-6565-44c4-974e-ff5ba68b0c26-512.webp"
+      ],
+      "prices": {
+        "public": 9499,
+        "tecnico": 8949,
+        "mayorista": 8850,
+        "distribuidor": 8999
+      },
+      "created_at": "2026-06-01T09:12:51.709Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQE4C",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "44acdd82-b040-4712-b095-71d7c7893b71",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "b9be9024-e9e5-4541-9422-62f44e49fd91",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "2dfa7ac6-af1f-4191-a953-c98bbb387d5f",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1022,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c3010-ff5ba68b0c26"
+    },
+    {
+      "id": "189620fe-a5e5-4526-a399-8aa6a308bd1d",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 430F 220V",
+      "description": "Multifuncional monocromática A4, 40 ppm, panel táctil 10.1\".",
+      "currency": "USD",
+      "stock": 63,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/189620fe-a5e5-4526-a399-8aa6a308bd1d.webp",
+      "gallery": [
+        "/products/189620fe-a5e5-4526-a399-8aa6a308bd1d.webp",
+        "/products/189620fe-a5e5-4526-a399-8aa6a308bd1d-256.webp",
+        "/products/189620fe-a5e5-4526-a399-8aa6a308bd1d-512.webp"
+      ],
+      "prices": {
+        "public": 499,
+        "tecnico": 229,
+        "mayorista": 199,
+        "distribuidor": 279
+      },
+      "created_at": "2026-06-02T06:52:50.922Z",
+      "code": "423509-CP66P6",
+      "attributes": [
+        {
+          "id": "0d74fabd-a78d-4a63-b232-26998ea5e553",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "fbec26fe-b0c6-465f-bb29-1bd8c885f588",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "e6166bc8-a811-41e5-888b-0b40da66261f",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "65a93575-3c5a-4967-ba05-60471790689a",
+          "name": "Alimentador (ADF)",
+          "value": "Doble Scan"
+        }
+      ],
+      "sort_order": 1006,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-430f-220v-8aa6a308bd1d"
+    },
+    {
+      "id": "18d27357-57ca-4059-960e-41521f29c013",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C307 220V",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/18d27357-57ca-4059-960e-41521f29c013.webp",
+      "gallery": [
+        "/products/18d27357-57ca-4059-960e-41521f29c013.webp",
+        "/products/18d27357-57ca-4059-960e-41521f29c013-256.webp",
+        "/products/18d27357-57ca-4059-960e-41521f29c013-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 399,
+        "mayorista": 450,
+        "distribuidor": 519
+      },
+      "created_at": "2026-06-16T08:14:44.373Z",
+      "code": "418569-SN",
+      "attributes": [
+        {
+          "id": "4e43128b-3bf4-4806-bdc6-ec1b584f910c",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "466abc30-29d4-4322-a045-fbca6d554582",
+          "name": "Formato papel",
+          "value": "A4"
+        }
+      ],
+      "sort_order": 1155,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c307-220v-41521f29c013",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "30 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "Papel A4",
+          "subtitle": "Formato estándar oficina"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Printer",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 40 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "Impresión, copia, escaneo, fax"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A4, A5, A6 Bypass Formato A4-Carta"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: Toner Original de Inicio 8,000 páginas y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "196857c6-738b-4162-90aa-50dee575bcd8",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 2500",
+      "currency": "USD",
+      "stock": 8,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/196857c6-738b-4162-90aa-50dee575bcd8.webp",
+      "gallery": [
+        "/products/196857c6-738b-4162-90aa-50dee575bcd8.webp",
+        "/products/196857c6-738b-4162-90aa-50dee575bcd8-256.webp",
+        "/products/196857c6-738b-4162-90aa-50dee575bcd8-512.webp"
+      ],
+      "prices": {
+        "public": 4199,
+        "tecnico": 3699,
+        "mayorista": 3599,
+        "distribuidor": 3759
+      },
+      "created_at": "2026-06-01T08:35:58.675Z",
+      "code": "418843",
+      "attributes": [
+        {
+          "id": "a1e7f8f2-2278-458b-8229-04ee05a83950",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "fd7006d2-21af-497e-86af-7bf3bdf17e85",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "d7e804a4-c04a-4ebf-9f41-fdd55c131544",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "6aa189b2-67f2-49a3-a853-ff25ded7d38a",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "a3bb492b-5459-482c-9b75-0a8343b3b69d",
+          "name": "Modelo de equipo",
+          "value": "IM-2500"
+        },
+        {
+          "id": "33c77566-edda-4dd0-a954-967e95f4a3e0",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842124]\nCoste instalación — Compra: $64.26 | Mayorista: $74.78 | Técnico: $78.52 | Público: $86.37\nPaquete instalado — Compra: $2116.90 | Mayorista: $2440.90 | Técnico: $2562.90 | Público: $2818.90"
+        }
+      ],
+      "sort_order": 1019,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-2500-50dee575bcd8"
+    },
+    {
+      "id": "21e2cbd5-f6e7-4b44-93db-ca736ea8727b",
+      "name": "Impresora Multifuncional NUEVA RICOH IM C2510",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/21e2cbd5-f6e7-4b44-93db-ca736ea8727b.webp",
+      "gallery": [
+        "/products/21e2cbd5-f6e7-4b44-93db-ca736ea8727b.webp",
+        "/products/21e2cbd5-f6e7-4b44-93db-ca736ea8727b-256.webp",
+        "/products/21e2cbd5-f6e7-4b44-93db-ca736ea8727b-512.webp"
+      ],
+      "prices": {
+        "public": 6299,
+        "tecnico": 5889,
+        "mayorista": 5700,
+        "distribuidor": 5949
+      },
+      "created_at": "2026-06-01T09:11:10.488Z",
+      "code": "418843-CP8Y1I-CPO80O",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "89cd0099-73cc-4f8d-b066-115a76458e8c",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "3977430f-ad8e-4932-819a-cb140b0f4428",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "29d41260-f796-4e3c-9aef-9e39c77c86c2",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1021,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c2510-ca736ea8727b"
+    },
+    {
+      "id": "228ec58c-6758-4206-934d-392d9e6e89c9",
+      "name": "Impresora Multifuncional Seminueva CANON imageRUNNER ADVANCE DXC7780I 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Canon",
+      "image_url": "/products/228ec58c-6758-4206-934d-392d9e6e89c9.webp",
+      "gallery": [
+        "/products/228ec58c-6758-4206-934d-392d9e6e89c9.webp",
+        "/products/228ec58c-6758-4206-934d-392d9e6e89c9-256.webp",
+        "/products/228ec58c-6758-4206-934d-392d9e6e89c9-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:51.612Z",
+      "code": "EQ-CANONIRADXC7780I110V",
+      "sort_order": 1997,
+      "slug": "impresora-multifuncional-seminueva-canon-imagerunner-advance-dxc7780i-110v-392d9"
+    },
+    {
+      "id": "25492474-791c-4c73-ab51-a5fd1f20fb5a",
+      "name": "Impresora Multifuncional NUEVA RICOH PRO C7500",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/25492474-791c-4c73-ab51-a5fd1f20fb5a.webp",
+      "gallery": [
+        "/products/25492474-791c-4c73-ab51-a5fd1f20fb5a.webp",
+        "/products/25492474-791c-4c73-ab51-a5fd1f20fb5a-256.webp",
+        "/products/25492474-791c-4c73-ab51-a5fd1f20fb5a-512.webp"
+      ],
+      "prices": {
+        "public": 95900,
+        "tecnico": 92900,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "created_at": "2026-06-01T21:06:13.682Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQ-CP7SC1",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "979ff37e-63ac-4544-a240-9b2704610f64",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "c9b68f3c-3824-4b00-b642-4bfed1344ca2",
+          "name": "Producción",
+          "value": "Producción (200,000 a 500,000 páginas aprox)"
+        },
+        {
+          "id": "a67fbf7a-396b-4fb9-b7de-69fc00447d2f",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1030,
+      "slug": "impresora-multifuncional-nueva-ricoh-pro-c7500-a5fd1f20fb5a"
+    },
+    {
+      "id": "2ae814f0-ec1e-41cb-b557-20ebe3a31094",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C2004 220V",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/2ae814f0-ec1e-41cb-b557-20ebe3a31094.webp",
+      "gallery": [
+        "/products/2ae814f0-ec1e-41cb-b557-20ebe3a31094.webp",
+        "/products/2ae814f0-ec1e-41cb-b557-20ebe3a31094-256.webp",
+        "/products/2ae814f0-ec1e-41cb-b557-20ebe3a31094-512.webp"
+      ],
+      "prices": {
+        "public": 1099,
+        "tecnico": 639,
+        "mayorista": 619,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-16T07:35:45.133Z",
+      "code": "418276-CPNV9C-CPQZO0-CPT-CPVAB1",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1170,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c2004-220v-20ebe3a31094"
+    },
+    {
+      "id": "2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 550F 220V",
+      "currency": "USD",
+      "stock": 3,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp",
+      "gallery": [
+        "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp",
+        "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2-256.webp",
+        "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2-512.webp"
+      ],
+      "prices": {
+        "public": 649,
+        "tecnico": 419,
+        "mayorista": 380,
+        "distribuidor": 449
+      },
+      "created_at": "2026-06-02T06:55:02.531Z",
+      "code": "418460-CP908Y",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "5e2d4868-75d7-4ad4-a2cc-8b43a62ad06b",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "3e73c1d6-7169-4fee-af66-ff2a6ccb5e6a",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "4e22552e-16de-4df2-9006-d37c691627a7",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1008,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-550f-220v-51b4c98fe9d2"
+    },
+    {
+      "id": "328f41ef-d935-4807-85d0-e1db5bdf73fb",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 550F",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "currency": "USD",
+      "stock": 50,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp",
+      "gallery": [
+        "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp",
+        "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb-2.webp",
+        "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb-3.webp",
+        "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb-256.webp",
+        "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb-512.webp"
+      ],
+      "prices": {
+        "public": 1799,
+        "tecnico": 1519,
+        "mayorista": 1499,
+        "distribuidor": 1159
+      },
+      "created_at": "2026-06-01T08:18:40.953Z",
+      "code": "418460",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "79695416-f61c-40c0-95ca-a90b608c98d9",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "2d2183cf-bbde-4fcd-98ff-8fe24c75aba5",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "d84431e9-4c44-48fb-b989-e2b479c21208",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "c2bfff29-00a9-4c43-870f-f4317aa14adc",
+          "name": "Modelo de equipo",
+          "value": "IM-550F"
+        },
+        {
+          "id": "b6b3f7f4-f0ca-44ad-ab95-9468389f7e62",
+          "name": "Instalación",
+          "value": "• STARTER TONER (incluido en el equipo)"
+        }
+      ],
+      "sort_order": 968,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-550f-e1db5bdf73fb",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "30 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "Papel A4",
+          "subtitle": "Formato estándar oficina"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Cloud",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 30 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A4, A5, A6 Bypass Formato A4-Carta"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "371c5e40-c823-4db1-b36c-895ae1fb53e1",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 501 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/371c5e40-c823-4db1-b36c-895ae1fb53e1.webp",
+      "gallery": [
+        "/products/371c5e40-c823-4db1-b36c-895ae1fb53e1.webp",
+        "/products/371c5e40-c823-4db1-b36c-895ae1fb53e1-256.webp",
+        "/products/371c5e40-c823-4db1-b36c-895ae1fb53e1-512.webp"
+      ],
+      "prices": {
+        "public": 549,
+        "tecnico": 259,
+        "mayorista": 249,
+        "distribuidor": 299
+      },
+      "created_at": "2026-06-02T06:51:00.851Z",
+      "code": "408535-CPNO1H-CPRE2V-CPU-CP3TRN",
+      "attributes": [
+        {
+          "id": "9de31613-fccd-49cf-811a-9936c208369f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "c0e6a6f2-faf4-4541-ac08-b72d0bf705b0",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "dd1715b1-f268-4a18-be2c-be7e2e8ac364",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "92bb722a-c1d0-4109-b99b-5e438f66fead",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        }
+      ],
+      "sort_order": 1057,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-501-220v-895ae1fb53e1"
+    },
+    {
+      "id": "384a11f3-fea9-4929-ae8d-5d6e831bcba7",
+      "name": "Impresora Multifuncional Seminueva CANON imageRUNNER ADVANCE C7580III 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Canon",
+      "image_url": "/products/384a11f3-fea9-4929-ae8d-5d6e831bcba7.webp",
+      "gallery": [
+        "/products/384a11f3-fea9-4929-ae8d-5d6e831bcba7.webp",
+        "/products/384a11f3-fea9-4929-ae8d-5d6e831bcba7-256.webp",
+        "/products/384a11f3-fea9-4929-ae8d-5d6e831bcba7-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:51.611Z",
+      "code": "EQ-CANONIRAC7580III110V",
+      "sort_order": 1993,
+      "slug": "impresora-multifuncional-seminueva-canon-imagerunner-advance-c7580iii-110v-5d6e8"
+    },
+    {
+      "id": "392c7321-0fc2-4b3b-b13b-2335d6fbe8d0",
+      "name": "Impresora Multifuncional NUEVA RICOH PRO 8410",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/392c7321-0fc2-4b3b-b13b-2335d6fbe8d0.webp",
+      "gallery": [
+        "/products/392c7321-0fc2-4b3b-b13b-2335d6fbe8d0.webp",
+        "/products/392c7321-0fc2-4b3b-b13b-2335d6fbe8d0-256.webp",
+        "/products/392c7321-0fc2-4b3b-b13b-2335d6fbe8d0-512.webp"
+      ],
+      "prices": {
+        "public": 49969,
+        "tecnico": 44800,
+        "mayorista": 32500,
+        "distribuidor": 44900
+      },
+      "created_at": "2026-06-01T20:38:40.987Z",
+      "code": "409662",
+      "attributes": [
+        {
+          "id": "8606f3d2-6b36-4b68-82de-f8a72f43b3c6",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "304f5281-9db0-4154-9714-e4947be5a633",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "7222a129-1b06-4cad-bb32-748b48865341",
+          "name": "Producción",
+          "value": "Producción (200,000 a 500,000 páginas aprox)"
+        },
+        {
+          "id": "cc99ca3a-940b-4903-8f23-fdf79d7d6ed6",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "a277f89d-b2d3-4f3f-9013-0a6432958289",
+          "name": "Modelo de equipo",
+          "value": "PRO-8410s"
+        },
+        {
+          "id": "d315d5a8-c4f2-4e22-870b-0d8eed030157",
+          "name": "Instalación",
+          "value": "• TONER [828711]\n• DEVEL BK - PRE - CHARGED\nCoste instalación — Compra: $76.12 | Mayorista: $88.58 | Técnico: $93.01 | Público: $102.31\nPaquete instalado — Compra: $35146.90 | Mayorista: $39490.90 | Técnico: $41464.90 | Público: $45611.90"
+        }
+      ],
+      "sort_order": 1050,
+      "slug": "impresora-multifuncional-nueva-ricoh-pro-8410-2335d6fbe8d0"
+    },
+    {
+      "id": "393e6e4b-e246-4a5b-b4ba-4a58fd4b8cce",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 402 (c/ unidad de imagen nueva) (copia) 220V",
+      "currency": "USD",
+      "stock": 32,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/393e6e4b-e246-4a5b-b4ba-4a58fd4b8cce.webp",
+      "gallery": [
+        "/products/393e6e4b-e246-4a5b-b4ba-4a58fd4b8cce.webp",
+        "/products/393e6e4b-e246-4a5b-b4ba-4a58fd4b8cce-256.webp",
+        "/products/393e6e4b-e246-4a5b-b4ba-4a58fd4b8cce-512.webp"
+      ],
+      "prices": {
+        "public": 399,
+        "tecnico": 159,
+        "mayorista": 149,
+        "distribuidor": 199
+      },
+      "created_at": "2026-06-02T06:43:31.145Z",
+      "code": "408535-CPNO1H-CPRE2V-CPU6RT",
+      "attributes": [
+        {
+          "id": "9de31613-fccd-49cf-811a-9936c208369f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "c0e6a6f2-faf4-4541-ac08-b72d0bf705b0",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "27f104e2-5af7-4337-996c-5bca6a68c438",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "e68bd4b5-734f-4710-8e5d-432dd0b42d35",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        }
+      ],
+      "sort_order": 1056,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-402-c-unidad-de-imagen-nueva-copia-2"
+    },
+    {
+      "id": "3ae7db52-6563-40c8-8436-d881a3eb283c",
+      "name": "Impresora Laser B/N NUEVA RICOH P 311",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Impresoras, Impresoras Láser Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/3ae7db52-6563-40c8-8436-d881a3eb283c.webp",
+      "gallery": [
+        "/products/3ae7db52-6563-40c8-8436-d881a3eb283c.webp",
+        "/products/3ae7db52-6563-40c8-8436-d881a3eb283c-256.webp",
+        "/products/3ae7db52-6563-40c8-8436-d881a3eb283c-512.webp"
+      ],
+      "prices": {
+        "public": 399,
+        "tecnico": 349,
+        "mayorista": 299,
+        "distribuidor": 379
+      },
+      "created_at": "2026-06-01T21:10:56.283Z",
+      "code": "408525",
+      "attributes": [
+        {
+          "id": "7a6d7fef-d254-4822-8dfd-002a59f3736b",
+          "name": "Modelo de equipo",
+          "value": "P-311"
+        },
+        {
+          "id": "eac02f75-02b2-4ea3-89f5-eb39702a7f38",
+          "name": "Instalación",
+          "value": "• STARTER TONER (incluido en el equipo)"
+        }
+      ],
+      "sort_order": 1059,
+      "slug": "impresora-laser-b-n-nueva-ricoh-p-311-d881a3eb283c"
+    },
+    {
+      "id": "3b84870c-dca1-4729-8dd4-8802cd0f3b3a",
+      "name": "Impresora Multifuncional NUEVA RICOH PRO 8420",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/3b84870c-dca1-4729-8dd4-8802cd0f3b3a.webp",
+      "gallery": [
+        "/products/3b84870c-dca1-4729-8dd4-8802cd0f3b3a.webp",
+        "/products/3b84870c-dca1-4729-8dd4-8802cd0f3b3a-256.webp",
+        "/products/3b84870c-dca1-4729-8dd4-8802cd0f3b3a-512.webp"
+      ],
+      "prices": {
+        "public": 65059,
+        "tecnico": 58500,
+        "mayorista": 55500,
+        "distribuidor": 62900
+      },
+      "created_at": "2026-06-01T20:40:17.903Z",
+      "code": "409689",
+      "attributes": [
+        {
+          "id": "8606f3d2-6b36-4b68-82de-f8a72f43b3c6",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "517349a8-ed1a-4821-b5f4-20e5f4cfd40c",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "ada7b968-87ea-44e1-96bd-1430cd6adf77",
+          "name": "Producción",
+          "value": "Producción (200,000 a 500,000 páginas aprox)"
+        },
+        {
+          "id": "5a83a427-a0d2-4863-aa2b-3e104dfb60d4",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "c4be600e-5a4c-4da1-aaff-d2c1d4a4ab4e",
+          "name": "Modelo de equipo",
+          "value": "PRO-8420s"
+        },
+        {
+          "id": "cd60b9fd-33f6-468f-a242-169894e6d632",
+          "name": "Instalación",
+          "value": "• TONER [828711]\n• DEVEL BK - PRE - CHARGED\nCoste instalación — Compra: $76.12 | Mayorista: $88.58 | Técnico: $93.01 | Público: $102.31\nPaquete instalado — Compra: $45739.90 | Mayorista: $51368.90 | Técnico: $53937.90 | Público: $59331.90"
+        }
+      ],
+      "sort_order": 1051,
+      "slug": "impresora-multifuncional-nueva-ricoh-pro-8420-8802cd0f3b3a"
+    },
+    {
+      "id": "3dd68e42-2f3a-467e-ae15-514800ef3c26",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 5054 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/3dd68e42-2f3a-467e-ae15-514800ef3c26.webp",
+      "gallery": [
+        "/products/3dd68e42-2f3a-467e-ae15-514800ef3c26.webp",
+        "/products/3dd68e42-2f3a-467e-ae15-514800ef3c26-256.webp",
+        "/products/3dd68e42-2f3a-467e-ae15-514800ef3c26-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.807Z",
+      "code": "EQ-RICOHMP5054110V",
+      "sort_order": 1982,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-5054-110v-514800ef3c26"
+    },
+    {
+      "id": "40c36a2a-794e-41aa-b075-d855c218bf6f",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 4000",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/40c36a2a-794e-41aa-b075-d855c218bf6f.webp",
+      "gallery": [
+        "/products/40c36a2a-794e-41aa-b075-d855c218bf6f.webp",
+        "/products/40c36a2a-794e-41aa-b075-d855c218bf6f-256.webp",
+        "/products/40c36a2a-794e-41aa-b075-d855c218bf6f-512.webp"
+      ],
+      "prices": {
+        "public": 6999,
+        "tecnico": 6399,
+        "mayorista": 6299,
+        "distribuidor": 6449
+      },
+      "created_at": "2026-06-01T08:40:38.946Z",
+      "code": "418846",
+      "attributes": [
+        {
+          "id": "ce798c02-bec9-4532-8a6e-d25ff785c169",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "a883d180-056e-462e-8525-22b92f48a7ea",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "0ffbe6be-8b6b-4f7c-8f10-e993a6a4f2f8",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "8b467f1e-a1f1-49e4-90df-eea20f28c53d",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "b6a55174-8809-4814-8b0d-cda875ef4d03",
+          "name": "Modelo de equipo",
+          "value": "IM-4000"
+        },
+        {
+          "id": "f916a01b-a2cb-46c3-98b0-a7977e03c17a",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842126]\nCoste instalación — Compra: $71.71 | Mayorista: $83.45 | Técnico: $87.63 | Público: $96.39\nPaquete instalado — Compra: $4482.90 | Mayorista: $5101.90 | Técnico: $5356.90 | Público: $5892.90"
+        }
+      ],
+      "sort_order": 1034,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-4000-d855c218bf6f"
+    },
+    {
+      "id": "4165ef6d-8d7f-4718-978a-a27d8006e1d6",
+      "name": "Impresora Multifuncional NUEVA RICOH PRO C5400",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/4165ef6d-8d7f-4718-978a-a27d8006e1d6.webp",
+      "gallery": [
+        "/products/4165ef6d-8d7f-4718-978a-a27d8006e1d6.webp",
+        "/products/4165ef6d-8d7f-4718-978a-a27d8006e1d6-256.webp",
+        "/products/4165ef6d-8d7f-4718-978a-a27d8006e1d6-512.webp"
+      ],
+      "prices": {
+        "public": 54199,
+        "tecnico": 48900,
+        "mayorista": 45800,
+        "distribuidor": 50800
+      },
+      "created_at": "2026-06-01T20:49:02.792Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQ-CPLOW8",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "43ee845f-2bae-489c-80d2-f5ee55a8e524",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "8736c03a-fa37-4d90-a011-cd918c031bf2",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "9251d583-1c3f-4f86-9f16-de8c5beaabac",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1025,
+      "slug": "impresora-multifuncional-nueva-ricoh-pro-c5400-a27d8006e1d6"
     },
     {
       "id": "418480",
@@ -582,7 +1277,2795 @@
         "mayorista": 107.9,
         "distribuidor": 99.9,
         "vip": 92.9
-      }
+      },
+      "slug": "418480"
+    },
+    {
+      "id": "419078",
+      "code": "419078",
+      "name": "Toner Cartucho Original RICOH IM 430F (Rend 14,500)",
+      "description": "Cartucho original negro — Rend 14,500 páginas al 5% — IM-430F / P-502 / IM-430F TL",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Toner Original",
+      "brand": "Ricoh",
+      "image_url": "/products/toner-419078.webp",
+      "gallery": [
+        "/products/toner-419078.webp"
+      ],
+      "purchase_price_usd": 52.9,
+      "created_at": "2026-06-24T00:00:00.000Z",
+      "prices": {
+        "public": 82.9,
+        "tecnico": 69.9,
+        "mayorista": 66.9,
+        "distribuidor": 61.9,
+        "vip": 57.9
+      },
+      "slug": "419078"
+    },
+    {
+      "id": "44413e3b-a3ef-4644-8eed-e550168ae9d8",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C3000 220V",
+      "currency": "USD",
+      "stock": 15,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/44413e3b-a3ef-4644-8eed-e550168ae9d8.webp",
+      "gallery": [
+        "/products/44413e3b-a3ef-4644-8eed-e550168ae9d8.webp",
+        "/products/44413e3b-a3ef-4644-8eed-e550168ae9d8-256.webp",
+        "/products/44413e3b-a3ef-4644-8eed-e550168ae9d8-512.webp"
+      ],
+      "prices": {
+        "public": 1199,
+        "tecnico": 739,
+        "mayorista": 680,
+        "distribuidor": 749
+      },
+      "created_at": "2026-06-16T07:29:59.040Z",
+      "code": "418276-CPNV9C",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1162,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c3000-220v-e550168ae9d8"
+    },
+    {
+      "id": "45207219-5a92-4c59-b95a-7e5fe66c4a2d",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C2504 220V",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/45207219-5a92-4c59-b95a-7e5fe66c4a2d.webp",
+      "gallery": [
+        "/products/45207219-5a92-4c59-b95a-7e5fe66c4a2d.webp",
+        "/products/45207219-5a92-4c59-b95a-7e5fe66c4a2d-256.webp",
+        "/products/45207219-5a92-4c59-b95a-7e5fe66c4a2d-512.webp"
+      ],
+      "prices": {
+        "public": 1099,
+        "tecnico": 649,
+        "mayorista": 619,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-16T07:34:08.974Z",
+      "code": "418276-CPNV9C-CPQZO0-CPT83X",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1165,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c2504-220v-7e5fe66c4a2d"
+    },
+    {
+      "id": "452b7860-4bc7-4b89-ba43-41e94158686d",
+      "name": "Impresora Multifuncional Seminueva RICOH SP 4510SF (c/ unidad de imagen nueva) 220V",
+      "currency": "USD",
+      "stock": 18,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/452b7860-4bc7-4b89-ba43-41e94158686d.webp",
+      "gallery": [
+        "/products/452b7860-4bc7-4b89-ba43-41e94158686d.webp",
+        "/products/452b7860-4bc7-4b89-ba43-41e94158686d-256.webp",
+        "/products/452b7860-4bc7-4b89-ba43-41e94158686d-512.webp"
+      ],
+      "prices": {
+        "public": 399,
+        "tecnico": 129,
+        "mayorista": 119,
+        "distribuidor": 199
+      },
+      "created_at": "2026-06-02T06:41:20.647Z",
+      "code": "408535-CPNO1H-CPRE2V",
+      "attributes": [
+        {
+          "id": "9de31613-fccd-49cf-811a-9936c208369f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "c0e6a6f2-faf4-4541-ac08-b72d0bf705b0",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "e837acd2-f553-47bc-9076-73cfb10c1546",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "555d031c-8a48-43df-bf3a-6bc8fcafb734",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        }
+      ],
+      "sort_order": 1054,
+      "slug": "impresora-multifuncional-seminueva-ricoh-sp-4510sf-c-unidad-de-imagen-nueva-220v"
+    },
+    {
+      "id": "46b85626-5927-4442-83ec-104c52e6a5e1",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 5055 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/46b85626-5927-4442-83ec-104c52e6a5e1.webp",
+      "gallery": [
+        "/products/46b85626-5927-4442-83ec-104c52e6a5e1.webp",
+        "/products/46b85626-5927-4442-83ec-104c52e6a5e1-256.webp",
+        "/products/46b85626-5927-4442-83ec-104c52e6a5e1-512.webp"
+      ],
+      "prices": {
+        "public": 1099,
+        "tecnico": 799,
+        "mayorista": 580,
+        "distribuidor": 899
+      },
+      "created_at": "2026-06-02T06:59:00.528Z",
+      "code": "418460-CP908Y-CPAPIN-CPC-CPE3W0",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "a92f5b49-1fab-47e9-b1af-3dacabb2c3b9",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "66fa29e8-d611-4980-afee-a762a061ea97",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "14331ce1-18ef-4996-a077-5102b8b18a7d",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1011,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-5055-220v-104c52e6a5e1"
+    },
+    {
+      "id": "481dbc77-436b-464d-b76f-930f7d79f4ff",
+      "name": "Impresora Multifuncional Nueva RICOH IM C320F",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/481dbc77-436b-464d-b76f-930f7d79f4ff.webp",
+      "gallery": [
+        "/products/481dbc77-436b-464d-b76f-930f7d79f4ff.webp",
+        "/products/481dbc77-436b-464d-b76f-930f7d79f4ff-2.webp",
+        "/products/481dbc77-436b-464d-b76f-930f7d79f4ff-256.webp",
+        "/products/481dbc77-436b-464d-b76f-930f7d79f4ff-512.webp"
+      ],
+      "prices": {
+        "public": 2190,
+        "tecnico": 1929,
+        "mayorista": 0,
+        "distribuidor": 1979
+      },
+      "created_at": "2026-06-01T08:55:53.977Z",
+      "code": "418787",
+      "attributes": [
+        {
+          "id": "17fa9b35-4963-4056-b5ed-f1dc410f5b8f",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "30dba258-918f-4945-8d2d-a8c9334e4301",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "88629afc-2123-47bd-91b6-6ebb7aefbd77",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "c47390e2-2578-4644-8c48-9596895fd3b5",
+          "name": "Alimentador (ADF)",
+          "value": "Doble Scan"
+        },
+        {
+          "id": "70dac5b3-f6fd-4f68-a596-6eb6b2d8be75",
+          "name": "Velocidad",
+          "value": "32 ppm"
+        }
+      ],
+      "sort_order": 1045,
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 32 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c320f-930f7d79f4ff",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "32 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "Papel A4",
+          "subtitle": "Formato estándar oficina"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Printer",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 32 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A4, A5, A6 Bypass Formato A4-Carta"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "4950b07c-50aa-4884-9e40-e7c9cd1362cb",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C300F 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/4950b07c-50aa-4884-9e40-e7c9cd1362cb.webp",
+      "gallery": [
+        "/products/4950b07c-50aa-4884-9e40-e7c9cd1362cb.webp",
+        "/products/4950b07c-50aa-4884-9e40-e7c9cd1362cb-2.webp",
+        "/products/4950b07c-50aa-4884-9e40-e7c9cd1362cb-256.webp",
+        "/products/4950b07c-50aa-4884-9e40-e7c9cd1362cb-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 469,
+        "mayorista": 450,
+        "distribuidor": 519
+      },
+      "created_at": "2026-06-05T20:30:41.113Z",
+      "code": "418569-SEMI",
+      "attributes": [
+        {
+          "id": "4e43128b-3bf4-4806-bdc6-ec1b584f910c",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "466abc30-29d4-4322-a045-fbca6d554582",
+          "name": "Formato papel",
+          "value": "A4"
+        }
+      ],
+      "sort_order": 1154,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c300f-220v-e7c9cd1362cb"
+    },
+    {
+      "id": "4acb10f2-20db-4df4-a0f0-c87daa90636c",
+      "name": "Impresora Multifuncional Seminueva RICOH M 370F 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/4acb10f2-20db-4df4-a0f0-c87daa90636c.webp",
+      "gallery": [
+        "/products/4acb10f2-20db-4df4-a0f0-c87daa90636c.webp",
+        "/products/4acb10f2-20db-4df4-a0f0-c87daa90636c-256.webp",
+        "/products/4acb10f2-20db-4df4-a0f0-c87daa90636c-512.webp"
+      ],
+      "prices": {
+        "public": 399,
+        "tecnico": 129,
+        "mayorista": 119,
+        "distribuidor": 169
+      },
+      "created_at": "2026-06-16T07:45:54.123Z",
+      "code": "408535-CPNO1H-CP8C7F",
+      "attributes": [
+        {
+          "id": "9de31613-fccd-49cf-811a-9936c208369f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "c0e6a6f2-faf4-4541-ac08-b72d0bf705b0",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "cf011925-47d7-4df1-ba81-92721279ed40",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "a2cf6a86-f7f3-4889-be4f-a473d51847af",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        }
+      ],
+      "sort_order": 1053,
+      "slug": "impresora-multifuncional-seminueva-ricoh-m-370f-220v-c87daa90636c"
+    },
+    {
+      "id": "520c1ae5-3136-4b72-aee2-941c70fe9f4d",
+      "name": "Impresora Multifuncional Seminueva RICOH PRO C5210 220V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/520c1ae5-3136-4b72-aee2-941c70fe9f4d.webp",
+      "gallery": [
+        "/products/520c1ae5-3136-4b72-aee2-941c70fe9f4d.webp",
+        "/products/520c1ae5-3136-4b72-aee2-941c70fe9f4d-256.webp",
+        "/products/520c1ae5-3136-4b72-aee2-941c70fe9f4d-512.webp"
+      ],
+      "prices": {
+        "public": 3699,
+        "tecnico": 2690,
+        "mayorista": 2500,
+        "distribuidor": 2890
+      },
+      "created_at": "2026-06-02T07:10:39.071Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQ-CPT2VZ",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "688d2a73-dda5-4d7a-87a4-bdcfc54f6a4e",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "bd21fa90-a4ce-4cbc-90b7-03d42c6528ec",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "6739322d-6bab-4e64-8007-fbecf1d2374f",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1028,
+      "slug": "impresora-multifuncional-seminueva-ricoh-pro-c5210-220v-941c70fe9f4d"
+    },
+    {
+      "id": "53969acd-7aa0-4aee-840d-73f3bcd5cbe1",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 401 (c/ unidad de imagen nueva) 220V",
+      "currency": "USD",
+      "stock": 21,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/53969acd-7aa0-4aee-840d-73f3bcd5cbe1.webp",
+      "gallery": [
+        "/products/53969acd-7aa0-4aee-840d-73f3bcd5cbe1.webp",
+        "/products/53969acd-7aa0-4aee-840d-73f3bcd5cbe1-256.webp",
+        "/products/53969acd-7aa0-4aee-840d-73f3bcd5cbe1-512.webp"
+      ],
+      "prices": {
+        "public": 399,
+        "tecnico": 129,
+        "mayorista": 119,
+        "distribuidor": 199
+      },
+      "created_at": "2026-06-16T08:12:09.331Z",
+      "code": "408535-CPNO1H-CPRE2V-CP63N7",
+      "attributes": [
+        {
+          "id": "9de31613-fccd-49cf-811a-9936c208369f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "c0e6a6f2-faf4-4541-ac08-b72d0bf705b0",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "e837acd2-f553-47bc-9076-73cfb10c1546",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "555d031c-8a48-43df-bf3a-6bc8fcafb734",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        }
+      ],
+      "sort_order": 1055,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-401-c-unidad-de-imagen-nueva-220v-73"
+    },
+    {
+      "id": "550c6815-7688-41f8-bb64-c362322d7f9d",
+      "name": "Impresora Multifuncional Seminueva RICOH SP C840DN 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/550c6815-7688-41f8-bb64-c362322d7f9d.webp",
+      "gallery": [
+        "/products/550c6815-7688-41f8-bb64-c362322d7f9d.webp",
+        "/products/550c6815-7688-41f8-bb64-c362322d7f9d-256.webp",
+        "/products/550c6815-7688-41f8-bb64-c362322d7f9d-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.787Z",
+      "code": "EQ-RICOHSPC840DN110V",
+      "sort_order": 1990,
+      "slug": "impresora-multifuncional-seminueva-ricoh-sp-c840dn-110v-c362322d7f9d"
+    },
+    {
+      "id": "5667a537-2ef8-4b25-b376-a61afe57ebf9",
+      "name": "Impresora Multifuncional Seminueva RICOH M 320F 220V",
+      "currency": "USD",
+      "stock": 6,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/5667a537-2ef8-4b25-b376-a61afe57ebf9.webp",
+      "gallery": [
+        "/products/5667a537-2ef8-4b25-b376-a61afe57ebf9.webp",
+        "/products/5667a537-2ef8-4b25-b376-a61afe57ebf9-256.webp",
+        "/products/5667a537-2ef8-4b25-b376-a61afe57ebf9-512.webp"
+      ],
+      "prices": {
+        "public": 399,
+        "tecnico": 129,
+        "mayorista": 119,
+        "distribuidor": 169
+      },
+      "created_at": "2026-06-02T06:38:26.934Z",
+      "code": "408535-CPNO1H",
+      "attributes": [
+        {
+          "id": "9de31613-fccd-49cf-811a-9936c208369f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "c0e6a6f2-faf4-4541-ac08-b72d0bf705b0",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "cf011925-47d7-4df1-ba81-92721279ed40",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "a2cf6a86-f7f3-4889-be4f-a473d51847af",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        }
+      ],
+      "sort_order": 1052,
+      "slug": "impresora-multifuncional-seminueva-ricoh-m-320f-220v-a61afe57ebf9"
+    },
+    {
+      "id": "58763abe-b3ad-4d63-8798-d116c1fb1dcb",
+      "name": "Impresora Multifuncional Seminueva RICOH M C250FW 220V",
+      "currency": "USD",
+      "stock": 4,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/58763abe-b3ad-4d63-8798-d116c1fb1dcb.webp",
+      "gallery": [
+        "/products/58763abe-b3ad-4d63-8798-d116c1fb1dcb.webp",
+        "/products/58763abe-b3ad-4d63-8798-d116c1fb1dcb-256.webp",
+        "/products/58763abe-b3ad-4d63-8798-d116c1fb1dcb-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 169,
+        "mayorista": 159,
+        "distribuidor": 519
+      },
+      "created_at": "2026-06-16T07:08:55.699Z",
+      "code": "418569-SEMI-CP02MU-CPWSGJ",
+      "attributes": [
+        {
+          "id": "e2a80231-5e24-4728-b107-2b1815cee5eb",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "636c5c91-49b5-4b01-83f4-90c801bc55a0",
+          "name": "Formato papel",
+          "value": "A4"
+        }
+      ],
+      "sort_order": 1159,
+      "slug": "impresora-multifuncional-seminueva-ricoh-m-c250fw-220v-d116c1fb1dcb"
+    },
+    {
+      "id": "5a142c47-521c-47af-92ec-dda8808907c9",
+      "name": "Impresora Multifuncional NUEVA RICOH IM C401F",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/5a142c47-521c-47af-92ec-dda8808907c9.webp",
+      "gallery": [
+        "/products/5a142c47-521c-47af-92ec-dda8808907c9.webp",
+        "/products/5a142c47-521c-47af-92ec-dda8808907c9-256.webp",
+        "/products/5a142c47-521c-47af-92ec-dda8808907c9-512.webp"
+      ],
+      "prices": {
+        "public": 2999,
+        "tecnico": 2690,
+        "mayorista": 2650,
+        "distribuidor": 2750
+      },
+      "created_at": "2026-06-01T08:57:37.016Z",
+      "code": "418787-CP04H4-CP4KU0-CP6SC8",
+      "attributes": [
+        {
+          "id": "e0dfdab6-6693-4eb0-a40b-8450d5e1d4ba",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "4059c889-6327-44a0-a1d2-db4fb9c8138b",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "770d971c-557a-4506-8de9-fdbf715c5382",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "253562e8-2808-4086-990d-263bb8ad7141",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1047,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c401f-dda8808907c9"
+    },
+    {
+      "id": "5c0405f3-d580-49de-97cf-17b4e4a70fac",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C3504 220V",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/5c0405f3-d580-49de-97cf-17b4e4a70fac.webp",
+      "gallery": [
+        "/products/5c0405f3-d580-49de-97cf-17b4e4a70fac.webp",
+        "/products/5c0405f3-d580-49de-97cf-17b4e4a70fac-256.webp",
+        "/products/5c0405f3-d580-49de-97cf-17b4e4a70fac-512.webp"
+      ],
+      "prices": {
+        "public": 1129,
+        "tecnico": 679,
+        "mayorista": 659,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-16T07:38:57.592Z",
+      "code": "418276-CPNV9C-CPQZO0-CPT-CPZET4",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1167,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c3504-220v-17b4e4a70fac"
+    },
+    {
+      "id": "5cf6bf56-253e-4e08-b98a-fb19484fae4f",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C4504EX 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/5cf6bf56-253e-4e08-b98a-fb19484fae4f.webp",
+      "gallery": [
+        "/products/5cf6bf56-253e-4e08-b98a-fb19484fae4f.webp",
+        "/products/5cf6bf56-253e-4e08-b98a-fb19484fae4f-256.webp",
+        "/products/5cf6bf56-253e-4e08-b98a-fb19484fae4f-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.777Z",
+      "code": "EQ-RICOHMPC4504EX110V",
+      "sort_order": 1986,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c4504ex-110v-fb19484fae4f"
+    },
+    {
+      "id": "5e0fed98-4185-4e1e-af94-373330e1afe0",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C3503 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/5e0fed98-4185-4e1e-af94-373330e1afe0.webp",
+      "gallery": [
+        "/products/5e0fed98-4185-4e1e-af94-373330e1afe0.webp",
+        "/products/5e0fed98-4185-4e1e-af94-373330e1afe0-256.webp",
+        "/products/5e0fed98-4185-4e1e-af94-373330e1afe0-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.770Z",
+      "code": "EQ-RICOHMPC3503110V",
+      "sort_order": 1985,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c3503-110v-373330e1afe0"
+    },
+    {
+      "id": "5faaa575-c210-4a85-af9a-4d1c526bda46",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C3004EX 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/5faaa575-c210-4a85-af9a-4d1c526bda46.webp",
+      "gallery": [
+        "/products/5faaa575-c210-4a85-af9a-4d1c526bda46.webp",
+        "/products/5faaa575-c210-4a85-af9a-4d1c526bda46-256.webp",
+        "/products/5faaa575-c210-4a85-af9a-4d1c526bda46-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.773Z",
+      "code": "EQ-RICOHMPC3004EX110V",
+      "sort_order": 1984,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c3004ex-110v-4d1c526bda46"
+    },
+    {
+      "id": "63c1beb6-9263-4680-87e2-141c72b44fd1",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 7000 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/63c1beb6-9263-4680-87e2-141c72b44fd1.webp",
+      "gallery": [
+        "/products/63c1beb6-9263-4680-87e2-141c72b44fd1.webp",
+        "/products/63c1beb6-9263-4680-87e2-141c72b44fd1-256.webp",
+        "/products/63c1beb6-9263-4680-87e2-141c72b44fd1-512.webp"
+      ],
+      "prices": {
+        "public": 2999,
+        "tecnico": 2690,
+        "mayorista": 2500,
+        "distribuidor": 2799
+      },
+      "created_at": "2026-06-02T07:03:21.792Z",
+      "code": "418779-CPJPHC",
+      "attributes": [
+        {
+          "id": "06120032-2561-48ea-b2c0-4d83541bbc14",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "52fc5a7e-b26a-4475-a6ae-5cc5117349f5",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "03e54068-e651-4a57-acb6-03a8c0a7f1c7",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "9c424b22-3bc4-4552-ae7e-ded1756835f8",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1038,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-7000-220v-141c72b44fd1"
+    },
+    {
+      "id": "647c7762-732c-427d-9e66-34670efb5b93",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C3500 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/647c7762-732c-427d-9e66-34670efb5b93.webp",
+      "gallery": [
+        "/products/647c7762-732c-427d-9e66-34670efb5b93.webp",
+        "/products/647c7762-732c-427d-9e66-34670efb5b93-256.webp",
+        "/products/647c7762-732c-427d-9e66-34670efb5b93-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.794Z",
+      "code": "EQ-RICOHIMC3500110V",
+      "sort_order": 1980,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c3500-110v-34670efb5b93"
+    },
+    {
+      "id": "6490d3d9-bfd0-4a48-82c4-dadca949c8f1",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C4500 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/6490d3d9-bfd0-4a48-82c4-dadca949c8f1.webp",
+      "gallery": [
+        "/products/6490d3d9-bfd0-4a48-82c4-dadca949c8f1.webp",
+        "/products/6490d3d9-bfd0-4a48-82c4-dadca949c8f1-256.webp",
+        "/products/6490d3d9-bfd0-4a48-82c4-dadca949c8f1-512.webp"
+      ],
+      "prices": {
+        "public": 1490,
+        "tecnico": 1149,
+        "mayorista": 1100,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-16T07:32:24.721Z",
+      "code": "418276-CPNV9C-CPQZO0",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1163,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c4500-220v-dadca949c8f1"
+    },
+    {
+      "id": "71289ec2-dbca-4780-b319-eb3d259fadb5",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 460F",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 46 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A3\nProducción mensual 50,000 páginas al mes\nRegalo: 01 Toner de Inicio 5,000 páginas y Envio Gratis",
+      "currency": "USD",
+      "stock": 11,
+      "category": "Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/71289ec2-dbca-4780-b319-eb3d259fadb5.webp",
+      "gallery": [
+        "/products/71289ec2-dbca-4780-b319-eb3d259fadb5.webp",
+        "/products/71289ec2-dbca-4780-b319-eb3d259fadb5-2.webp",
+        "/products/71289ec2-dbca-4780-b319-eb3d259fadb5-3.webp",
+        "/products/71289ec2-dbca-4780-b319-eb3d259fadb5-256.webp",
+        "/products/71289ec2-dbca-4780-b319-eb3d259fadb5-512.webp"
+      ],
+      "prices": {
+        "public": 1399,
+        "tecnico": 1119,
+        "mayorista": 1089,
+        "distribuidor": 1159
+      },
+      "created_at": "2026-06-01T08:16:16.367Z",
+      "code": "418491",
+      "attributes": [
+        {
+          "id": "d8e760c4-d538-49c0-ba27-304a314e5460",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "070453e4-0753-461e-a90d-f3b35fb93726",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "c842f4f5-f501-4fbc-8bc0-0f8a09f13614",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "c9b435d8-3827-44c1-bbcd-d2b98c94c1f7",
+          "name": "Alimentador (ADF)",
+          "value": "Doble Scan"
+        },
+        {
+          "id": "3d692a7b-bb7e-439d-b55a-08496eba0f67",
+          "name": "Modelo de equipo",
+          "value": "IM-430F"
+        },
+        {
+          "id": "dfdcd29a-3d40-4906-961d-7ca1ac8b3072",
+          "name": "Instalación",
+          "value": "• PRINT CARTRIDGE BK IM-430F [419078]\nCoste instalación — Compra: $46.50 | Mayorista: $54.12 | Técnico: $56.82 | Público: $62.51\nPaquete instalado — Compra: $875.90 | Mayorista: $1030.90 | Técnico: $1081.90 | Público: $1189.90"
+        }
+      ],
+      "sort_order": 1007,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-460f-eb3d259fadb5",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "40 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "A3",
+          "subtitle": "Formato de impresión"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Cloud",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 46 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A3"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "73ab69b8-602b-4203-a389-070ef7bb80b0",
+      "name": "Impresora Laser B/N NUEVA RICOH P 800",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Impresoras",
+      "brand": "Ricoh",
+      "image_url": "/products/73ab69b8-602b-4203-a389-070ef7bb80b0.webp",
+      "gallery": [
+        "/products/73ab69b8-602b-4203-a389-070ef7bb80b0.webp",
+        "/products/73ab69b8-602b-4203-a389-070ef7bb80b0-256.webp",
+        "/products/73ab69b8-602b-4203-a389-070ef7bb80b0-512.webp"
+      ],
+      "prices": {
+        "public": 989,
+        "tecnico": 899,
+        "mayorista": 839,
+        "distribuidor": 919
+      },
+      "created_at": "2026-06-01T21:14:40.203Z",
+      "code": "418471",
+      "attributes": [
+        {
+          "id": "20912b24-fac1-44f7-bfb4-91a4757dfe84",
+          "name": "Modelo de equipo",
+          "value": "P-800"
+        },
+        {
+          "id": "2979f40e-52d8-4a3b-b7a2-efb0983e1b5a",
+          "name": "Instalación",
+          "value": "• STARTER TONER 10K (incluido en el equipo)"
+        }
+      ],
+      "sort_order": 1061,
+      "slug": "impresora-laser-b-n-nueva-ricoh-p-800-070ef7bb80b0"
+    },
+    {
+      "id": "782caa77-dd8e-4b6d-9dab-37a8fa5b61e3",
+      "name": "Impresora Multifuncional NUEVA RICOH PRO C5410",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/782caa77-dd8e-4b6d-9dab-37a8fa5b61e3.webp",
+      "gallery": [
+        "/products/782caa77-dd8e-4b6d-9dab-37a8fa5b61e3.webp",
+        "/products/782caa77-dd8e-4b6d-9dab-37a8fa5b61e3-256.webp",
+        "/products/782caa77-dd8e-4b6d-9dab-37a8fa5b61e3-512.webp"
+      ],
+      "prices": {
+        "public": 65900,
+        "tecnico": 62900,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "created_at": "2026-06-01T20:48:37.315Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQ-CPL58J",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "4b0ea519-96aa-441d-8809-b848339a34cc",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "1475ba3b-3553-4d39-b881-2db990568860",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "d2fa8633-5234-4143-bbb8-84878221dd95",
+          "name": "Alimentador (ADF)",
+          "value": "Doble Scan"
+        }
+      ],
+      "sort_order": 1026,
+      "slug": "impresora-multifuncional-nueva-ricoh-pro-c5410-37a8fa5b61e3"
+    },
+    {
+      "id": "7c94d9c3-bf1f-49ee-a884-601f9b44ad1d",
+      "name": "Impresora Multifuncional Seminueva CANON imageRUNNER ADVANCE DXC3730I 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Canon",
+      "image_url": "/products/7c94d9c3-bf1f-49ee-a884-601f9b44ad1d.webp",
+      "gallery": [
+        "/products/7c94d9c3-bf1f-49ee-a884-601f9b44ad1d.webp",
+        "/products/7c94d9c3-bf1f-49ee-a884-601f9b44ad1d-256.webp",
+        "/products/7c94d9c3-bf1f-49ee-a884-601f9b44ad1d-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:51.609Z",
+      "code": "EQ-CANONIRADXC3730I110V",
+      "sort_order": 1995,
+      "slug": "impresora-multifuncional-seminueva-canon-imagerunner-advance-dxc3730i-110v-601f9"
+    },
+    {
+      "id": "82333527-b02f-4696-bd6a-f4c317c5675a",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 4054 220V",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/82333527-b02f-4696-bd6a-f4c317c5675a.webp",
+      "gallery": [
+        "/products/82333527-b02f-4696-bd6a-f4c317c5675a.webp",
+        "/products/82333527-b02f-4696-bd6a-f4c317c5675a-256.webp",
+        "/products/82333527-b02f-4696-bd6a-f4c317c5675a-512.webp"
+      ],
+      "prices": {
+        "public": 899,
+        "tecnico": 599,
+        "mayorista": 580,
+        "distribuidor": 649
+      },
+      "created_at": "2026-06-02T06:57:46.761Z",
+      "code": "418460-SN",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "a4afe34b-de86-401a-8663-dd2894855cfa",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "f35be19b-41ae-4bee-925b-07806fd8c4ce",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "796ec15b-1e7d-40a8-af85-83d05285c72e",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1009,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-4054-220v-f4c317c5675a",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "40 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "A3",
+          "subtitle": "Formato de impresión"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "ADF",
+          "subtitle": "Alimentador de documentos estándar"
+        },
+        {
+          "icon": "Cloud",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 40 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "Estándar"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A3"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 01 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "85a313f0-5b40-4325-979f-6d7a2c7d28e9",
+      "name": "Impresora Multifuncional Seminueva RICOH PRO C5200 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/85a313f0-5b40-4325-979f-6d7a2c7d28e9.webp",
+      "gallery": [
+        "/products/85a313f0-5b40-4325-979f-6d7a2c7d28e9.webp",
+        "/products/85a313f0-5b40-4325-979f-6d7a2c7d28e9-256.webp",
+        "/products/85a313f0-5b40-4325-979f-6d7a2c7d28e9-512.webp"
+      ],
+      "prices": {
+        "public": 3499,
+        "tecnico": 2150,
+        "mayorista": 1950,
+        "distribuidor": 2250
+      },
+      "created_at": "2026-06-02T07:08:31.483Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQ-CPQCFV",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "61ec88e8-0aa5-4733-8718-5d3ce9dcabe3",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "e954c2f9-ce47-40b1-8b5c-8144e463e0c9",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "3c2f1180-5504-453e-8375-26a506fa1ce5",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1027,
+      "slug": "impresora-multifuncional-seminueva-ricoh-pro-c5200-220v-6d7a2c7d28e9"
+    },
+    {
+      "id": "87bd0c8b-3b1c-436d-a2a3-7d59620406ef",
+      "name": "Impresora Multifuncional Seminueva RICOH M C251FW 220V",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/87bd0c8b-3b1c-436d-a2a3-7d59620406ef.webp",
+      "gallery": [
+        "/products/87bd0c8b-3b1c-436d-a2a3-7d59620406ef.webp",
+        "/products/87bd0c8b-3b1c-436d-a2a3-7d59620406ef-256.webp",
+        "/products/87bd0c8b-3b1c-436d-a2a3-7d59620406ef-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 179,
+        "mayorista": 159,
+        "distribuidor": 519
+      },
+      "created_at": "2026-06-06T14:22:40.470Z",
+      "code": "418569-SEMI-CP02MU",
+      "attributes": [
+        {
+          "id": "c2256a92-239b-43f6-8a41-127d5fd32aa7",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "2516ed41-c210-47b7-b86e-0cac45800cdd",
+          "name": "Formato papel",
+          "value": "A4"
+        }
+      ],
+      "sort_order": 1158,
+      "slug": "impresora-multifuncional-seminueva-ricoh-m-c251fw-220v-7d59620406ef"
+    },
+    {
+      "id": "8e90c732-c859-49a5-bbba-7cfa3ac12a9c",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 5000 220V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/8e90c732-c859-49a5-bbba-7cfa3ac12a9c.webp",
+      "gallery": [
+        "/products/8e90c732-c859-49a5-bbba-7cfa3ac12a9c.webp",
+        "/products/8e90c732-c859-49a5-bbba-7cfa3ac12a9c-256.webp",
+        "/products/8e90c732-c859-49a5-bbba-7cfa3ac12a9c-512.webp"
+      ],
+      "prices": {
+        "public": 1499,
+        "tecnico": 1159,
+        "mayorista": 1099,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-02T07:00:47.998Z",
+      "code": "418460-CP908Y-CPAPIN-CPC-CPGETA",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "6c0fe176-31a5-493b-b573-9c0c5bdc9c17",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "98277b2a-397c-40a8-ad75-796f223ea27a",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "b4d04aa4-26b4-419c-af26-127f8979a98e",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1017,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-5000-220v-7cfa3ac12a9c"
+    },
+    {
+      "id": "92070b52-ac0d-4bc1-94d3-d51e69091bb4",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C407 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/92070b52-ac0d-4bc1-94d3-d51e69091bb4.webp",
+      "gallery": [
+        "/products/92070b52-ac0d-4bc1-94d3-d51e69091bb4.webp",
+        "/products/92070b52-ac0d-4bc1-94d3-d51e69091bb4-256.webp",
+        "/products/92070b52-ac0d-4bc1-94d3-d51e69091bb4-512.webp"
+      ],
+      "prices": {
+        "public": 749,
+        "tecnico": 429,
+        "mayorista": 450,
+        "distribuidor": 519
+      },
+      "created_at": "2026-06-16T08:16:28.795Z",
+      "code": "418569-SEMI-CP9F9X-CPBNUJ",
+      "attributes": [
+        {
+          "id": "4e43128b-3bf4-4806-bdc6-ec1b584f910c",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "466abc30-29d4-4322-a045-fbca6d554582",
+          "name": "Formato papel",
+          "value": "A4"
+        }
+      ],
+      "sort_order": 1156,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c407-220v-d51e69091bb4"
+    },
+    {
+      "id": "97079efe-de43-4619-b3f2-950d323fa773",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 8000",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/97079efe-de43-4619-b3f2-950d323fa773.webp",
+      "gallery": [
+        "/products/97079efe-de43-4619-b3f2-950d323fa773.webp",
+        "/products/97079efe-de43-4619-b3f2-950d323fa773-256.webp",
+        "/products/97079efe-de43-4619-b3f2-950d323fa773-512.webp"
+      ],
+      "prices": {
+        "public": 19900,
+        "tecnico": 18900,
+        "mayorista": 18500,
+        "distribuidor": 12299
+      },
+      "created_at": "2026-06-01T08:48:40.396Z",
+      "code": "418782",
+      "attributes": [
+        {
+          "id": "16881d8f-61ab-4f46-91e5-16581bd22b9e",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "da101e2f-37a6-4647-b477-f30edb111bf1",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "fa3f63e5-fcc8-4944-87ec-7115f7c824b7",
+          "name": "Producción",
+          "value": "Producción (200,000 a 500,000 páginas aprox)"
+        },
+        {
+          "id": "fbfb4287-3eb6-494c-a0af-6a78a801878c",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "5c3ca343-7984-409a-ae15-7b4d28dbf4ed",
+          "name": "Modelo de equipo",
+          "value": "IM-8000"
+        },
+        {
+          "id": "fe9302f7-b05f-4914-860e-fd2ad7cb3cfe",
+          "name": "Instalación",
+          "value": "• TONER [841332]\n• Developer Type 24 Black [B0649645]\nCoste instalación — Compra: $146.07 | Mayorista: $169.99 | Técnico: $178.48 | Público: $196.34\nPaquete instalado — Compra: $13590.90 | Mayorista: $15386.90 | Técnico: $16155.90 | Público: $17771.90"
+        }
+      ],
+      "sort_order": 1041,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-8000-950d323fa773"
+    },
+    {
+      "id": "972b3c97-7620-4452-9888-840b15c9c77b",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 430FB 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/972b3c97-7620-4452-9888-840b15c9c77b.webp",
+      "gallery": [
+        "/products/972b3c97-7620-4452-9888-840b15c9c77b.webp",
+        "/products/972b3c97-7620-4452-9888-840b15c9c77b-256.webp",
+        "/products/972b3c97-7620-4452-9888-840b15c9c77b-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.803Z",
+      "code": "EQ-RICOHIM430FB110V",
+      "sort_order": 1977,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-430fb-110v-840b15c9c77b"
+    },
+    {
+      "id": "9b94a5c0-f07d-42d6-bf0a-0a08afb7812c",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 2555 220V",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/9b94a5c0-f07d-42d6-bf0a-0a08afb7812c.webp",
+      "gallery": [
+        "/products/9b94a5c0-f07d-42d6-bf0a-0a08afb7812c.webp",
+        "/products/9b94a5c0-f07d-42d6-bf0a-0a08afb7812c-256.webp",
+        "/products/9b94a5c0-f07d-42d6-bf0a-0a08afb7812c-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 449,
+        "mayorista": 580,
+        "distribuidor": 899
+      },
+      "created_at": "2026-06-16T08:10:04.860Z",
+      "code": "418460-CP908Y-CPAPIN-CPC-CP3FLO",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "a92f5b49-1fab-47e9-b1af-3dacabb2c3b9",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "66fa29e8-d611-4980-afee-a762a061ea97",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "14331ce1-18ef-4996-a077-5102b8b18a7d",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1016,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-2555-220v-0a08afb7812c"
+    },
+    {
+      "id": "9c65bcbd-3a13-41dd-81b1-95cb3256a7c1",
+      "name": "Impresora Multifuncional NUEVA RICOH IM C2010",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp",
+      "gallery": [
+        "/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp",
+        "/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1-256.webp",
+        "/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1-512.webp"
+      ],
+      "prices": {
+        "public": 4990,
+        "tecnico": 4590,
+        "mayorista": 4400,
+        "distribuidor": 4650
+      },
+      "created_at": "2026-06-01T08:59:17.718Z",
+      "code": "418843-CP8Y1I",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "59c05b1f-1886-43ce-beae-81777ae42563",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "2605888a-5709-4cce-99d4-be8ea8735f9e",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "44623182-7312-424a-9b5f-1f9dd0d9dfe0",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1020,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c2010-95cb3256a7c1"
+    },
+    {
+      "id": "9dc389e0-c7a0-47f4-8551-e536ffb0a80e",
+      "name": "Impresora Multifuncional NUEVA RICOH IM C6500",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/9dc389e0-c7a0-47f4-8551-e536ffb0a80e.webp",
+      "gallery": [
+        "/products/9dc389e0-c7a0-47f4-8551-e536ffb0a80e.webp",
+        "/products/9dc389e0-c7a0-47f4-8551-e536ffb0a80e-256.webp",
+        "/products/9dc389e0-c7a0-47f4-8551-e536ffb0a80e-512.webp"
+      ],
+      "prices": {
+        "public": 30299,
+        "tecnico": 29000,
+        "mayorista": 28000,
+        "distribuidor": 29500
+      },
+      "created_at": "2026-06-01T20:41:46.528Z",
+      "code": "418782-CPCC9S",
+      "attributes": [
+        {
+          "id": "16881d8f-61ab-4f46-91e5-16581bd22b9e",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "6a2f8c8d-919b-4903-9908-e6432602e27f",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "53dc78fc-99f9-4211-a9fa-97e86f537736",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "0bc8893e-6241-462f-91d9-94038d7ddd09",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1042,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c6500-e536ffb0a80e"
+    },
+    {
+      "id": "9e5c9612-9cc4-4c17-8d0e-2190a99235ca",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C5503SP 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/9e5c9612-9cc4-4c17-8d0e-2190a99235ca.webp",
+      "gallery": [
+        "/products/9e5c9612-9cc4-4c17-8d0e-2190a99235ca.webp",
+        "/products/9e5c9612-9cc4-4c17-8d0e-2190a99235ca-256.webp",
+        "/products/9e5c9612-9cc4-4c17-8d0e-2190a99235ca-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.772Z",
+      "code": "EQ-RICOHMPC5503SP110V",
+      "sort_order": 1987,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c5503sp-110v-2190a99235ca"
+    },
+    {
+      "id": "9e77a73a-753a-4e28-859b-68fe7cba5e0e",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C2500 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/9e77a73a-753a-4e28-859b-68fe7cba5e0e.webp",
+      "gallery": [
+        "/products/9e77a73a-753a-4e28-859b-68fe7cba5e0e.webp",
+        "/products/9e77a73a-753a-4e28-859b-68fe7cba5e0e-256.webp",
+        "/products/9e77a73a-753a-4e28-859b-68fe7cba5e0e-512.webp"
+      ],
+      "prices": {
+        "public": 1149,
+        "tecnico": 729,
+        "mayorista": 680,
+        "distribuidor": 749
+      },
+      "created_at": "2026-06-16T07:31:42.772Z",
+      "code": "418276-CPQ3AS",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1161,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c2500-220v-68fe7cba5e0e"
+    },
+    {
+      "id": "a06f19d6-1159-4733-856d-39488883e049",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C6004EX 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/a06f19d6-1159-4733-856d-39488883e049.webp",
+      "gallery": [
+        "/products/a06f19d6-1159-4733-856d-39488883e049.webp",
+        "/products/a06f19d6-1159-4733-856d-39488883e049-256.webp",
+        "/products/a06f19d6-1159-4733-856d-39488883e049-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.781Z",
+      "code": "EQ-RICOHMPC6004EX110V",
+      "sort_order": 1988,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c6004ex-110v-39488883e049"
+    },
+    {
+      "id": "a853cd99-17e7-445a-a6b2-4f527753db6f",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C400F 220V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales",
+      "brand": "Ricoh",
+      "image_url": "/products/a853cd99-17e7-445a-a6b2-4f527753db6f.webp",
+      "gallery": [
+        "/products/a853cd99-17e7-445a-a6b2-4f527753db6f.webp",
+        "/products/a853cd99-17e7-445a-a6b2-4f527753db6f-256.webp",
+        "/products/a853cd99-17e7-445a-a6b2-4f527753db6f-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 499,
+        "mayorista": 450,
+        "distribuidor": 519
+      },
+      "created_at": "2026-06-06T14:22:52.489Z",
+      "code": "418569-SEMI-CP0BWP",
+      "attributes": [
+        {
+          "id": "24896232-5e66-4fcb-9dd0-12071417225c",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "960c71de-feba-44c9-b94a-83ac6402e184",
+          "name": "Formato papel",
+          "value": "A4"
+        }
+      ],
+      "sort_order": 1199,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c400f-220v-4f527753db6f"
+    },
+    {
+      "id": "a9c74a93-3a15-42da-a9cf-33d59e2b1019",
+      "name": "Impresora Multifuncional NUEVA RICOH IM C4510",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/a9c74a93-3a15-42da-a9cf-33d59e2b1019.webp",
+      "gallery": [
+        "/products/a9c74a93-3a15-42da-a9cf-33d59e2b1019.webp",
+        "/products/a9c74a93-3a15-42da-a9cf-33d59e2b1019-256.webp",
+        "/products/a9c74a93-3a15-42da-a9cf-33d59e2b1019-512.webp"
+      ],
+      "prices": {
+        "public": 12490,
+        "tecnico": 11850,
+        "mayorista": 11700,
+        "distribuidor": 11899
+      },
+      "created_at": "2026-06-01T09:14:04.534Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQ-CPRYBA",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "b09b1354-e9d7-4378-8c23-44868458a11d",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "2f38942a-e49c-49da-9fbf-d5e3e03f0b97",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "172c62ca-686b-48e6-95b3-a1dbcba49031",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1024,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c4510-33d59e2b1019"
+    },
+    {
+      "id": "ab878d89-61e0-4e51-a941-03455e1da407",
+      "code": "MP-305+",
+      "name": "Impresora Multifuncional B/N Nueva RICOH MP 305+",
+      "description": "Multifuncional monocromática A4 Ricoh MP 305+.",
+      "currency": "USD",
+      "stock": 3,
+      "category": "Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ab878d89-61e0-4e51-a941-03455e1da407.webp",
+      "gallery": [
+        "/products/ab878d89-61e0-4e51-a941-03455e1da407.webp",
+        "/products/ab878d89-61e0-4e51-a941-03455e1da407-256.webp",
+        "/products/ab878d89-61e0-4e51-a941-03455e1da407-512.webp"
+      ],
+      "purchase_price_usd": 610,
+      "created_at": "2026-06-25T00:00:00.000Z",
+      "prices": {
+        "public": 1099,
+        "tecnico": 829,
+        "mayorista": 809,
+        "distribuidor": 859
+      },
+      "sort_order": 3,
+      "slug": "impresora-multifuncional-b-n-nueva-ricoh-mp-305-03455e1da407"
+    },
+    {
+      "id": "ad23e3ac-84c6-4a54-9d84-64bf6990c418",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 3055 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ad23e3ac-84c6-4a54-9d84-64bf6990c418.webp",
+      "gallery": [
+        "/products/ad23e3ac-84c6-4a54-9d84-64bf6990c418.webp",
+        "/products/ad23e3ac-84c6-4a54-9d84-64bf6990c418-256.webp",
+        "/products/ad23e3ac-84c6-4a54-9d84-64bf6990c418-512.webp"
+      ],
+      "prices": {
+        "public": 1099,
+        "tecnico": 499,
+        "mayorista": 580,
+        "distribuidor": 899
+      },
+      "created_at": "2026-06-16T08:11:14.926Z",
+      "code": "418460-CP908Y-CPAPIN-CPC-CP4XNY",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "a92f5b49-1fab-47e9-b1af-3dacabb2c3b9",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "66fa29e8-d611-4980-afee-a762a061ea97",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "14331ce1-18ef-4996-a077-5102b8b18a7d",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1013,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-3055-220v-64bf6990c418"
+    },
+    {
+      "id": "ad426356-30b8-4c6c-a55c-b40bb22a495b",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 6055 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ad426356-30b8-4c6c-a55c-b40bb22a495b.webp",
+      "gallery": [
+        "/products/ad426356-30b8-4c6c-a55c-b40bb22a495b.webp",
+        "/products/ad426356-30b8-4c6c-a55c-b40bb22a495b-256.webp",
+        "/products/ad426356-30b8-4c6c-a55c-b40bb22a495b-512.webp"
+      ],
+      "prices": {
+        "public": 1099,
+        "tecnico": 999,
+        "mayorista": 580,
+        "distribuidor": 899
+      },
+      "created_at": "2026-06-16T08:14:04.659Z",
+      "code": "418460-CP908Y-CPAPIN-CPC-CP8KMR",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "a92f5b49-1fab-47e9-b1af-3dacabb2c3b9",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "66fa29e8-d611-4980-afee-a762a061ea97",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "14331ce1-18ef-4996-a077-5102b8b18a7d",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1012,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-6055-220v-b40bb22a495b"
+    },
+    {
+      "id": "ae1904f7-4a13-4076-802a-4d917a8471aa",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 600F 110V",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 62 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ae1904f7-4a13-4076-802a-4d917a8471aa.webp",
+      "gallery": [
+        "/products/ae1904f7-4a13-4076-802a-4d917a8471aa.webp",
+        "/products/ae1904f7-4a13-4076-802a-4d917a8471aa-256.webp",
+        "/products/ae1904f7-4a13-4076-802a-4d917a8471aa-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 459,
+        "mayorista": 439,
+        "distribuidor": 499
+      },
+      "created_at": "2026-06-02T06:56:21.935Z",
+      "code": "418460-SN",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "03ceba5e-f9a5-4ce7-9718-f4e0ecc2ee72",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "982f4d66-5c12-44a8-ad86-e08d12c92295",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "d2d22e58-9857-4f63-84fc-26543c67c7b3",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1010,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-600f-110v-4d917a8471aa",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "30 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "Papel A4",
+          "subtitle": "Formato estándar oficina"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Printer",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 30 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A4, A5, A6 Bypass Formato A4-Carta"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "apple-watch-9",
+      "code": "APPLEWATCH9",
+      "name": "Apple Watch Series 9",
+      "description": "Smartwatch con pantalla Always-On y chip S9.",
+      "currency": "USD",
+      "stock": 20,
+      "category": "Smartwatches",
+      "brand": "Apple",
+      "image_url": "/products/apple-watch-9.png",
+      "gallery": [
+        "/products/apple-watch-9.png"
+      ],
+      "is_new": true,
+      "purchase_price_usd": 287.28,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 399,
+        "corporativo": 367,
+        "tecnico": 351,
+        "mayorista": 339,
+        "distribuidor": 311,
+        "vip": 287
+      },
+      "slug": "apple-watch-9"
+    },
+    {
+      "id": "b06406c6-945c-4107-89f4-c35de3a33544",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C2000 220V",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/b06406c6-945c-4107-89f4-c35de3a33544.webp",
+      "gallery": [
+        "/products/b06406c6-945c-4107-89f4-c35de3a33544.webp",
+        "/products/b06406c6-945c-4107-89f4-c35de3a33544-256.webp",
+        "/products/b06406c6-945c-4107-89f4-c35de3a33544-512.webp"
+      ],
+      "prices": {
+        "public": 1099,
+        "tecnico": 689,
+        "mayorista": 680,
+        "distribuidor": 749
+      },
+      "created_at": "2026-06-06T14:31:47.919Z",
+      "code": "418276",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1160,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c2000-220v-c35de3a33544"
+    },
+    {
+      "id": "b0811a6f-0f94-4bea-8804-3f7dd0d28a1c",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C400F 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/b0811a6f-0f94-4bea-8804-3f7dd0d28a1c.webp",
+      "gallery": [
+        "/products/b0811a6f-0f94-4bea-8804-3f7dd0d28a1c.webp",
+        "/products/b0811a6f-0f94-4bea-8804-3f7dd0d28a1c-256.webp",
+        "/products/b0811a6f-0f94-4bea-8804-3f7dd0d28a1c-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 469,
+        "mayorista": 450,
+        "distribuidor": 519
+      },
+      "created_at": "2026-06-16T07:48:30.401Z",
+      "code": "418569-SEMI-CPBOSH",
+      "attributes": [
+        {
+          "id": "4e43128b-3bf4-4806-bdc6-ec1b584f910c",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "466abc30-29d4-4322-a045-fbca6d554582",
+          "name": "Formato papel",
+          "value": "A4"
+        }
+      ],
+      "sort_order": 1157,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c400f-220v-3f7dd0d28a1c"
+    },
+    {
+      "id": "b32a43a1-09e4-49f6-8950-3639c9534700",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 600F",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/b32a43a1-09e4-49f6-8950-3639c9534700.webp",
+      "gallery": [
+        "/products/b32a43a1-09e4-49f6-8950-3639c9534700.webp",
+        "/products/b32a43a1-09e4-49f6-8950-3639c9534700-256.webp",
+        "/products/b32a43a1-09e4-49f6-8950-3639c9534700-512.webp"
+      ],
+      "prices": {
+        "public": 2099,
+        "tecnico": 1869,
+        "mayorista": 1829,
+        "distribuidor": 1899
+      },
+      "created_at": "2026-06-01T08:28:27.643Z",
+      "code": "418464",
+      "attributes": [
+        {
+          "id": "ec147b80-2991-48ae-a175-829f9e287c95",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "12e58189-576d-4607-a2aa-d557bd0dc4ca",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "d8735f09-77e8-46ef-9dbb-85cbc96c8b9e",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "4f1bc9b2-cbeb-4a20-954a-f60e11ed1792",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "60722f16-7251-43e1-befa-d26af373d47e",
+          "name": "Modelo de equipo",
+          "value": "IM-600F"
+        },
+        {
+          "id": "18c877a7-5a74-46de-8254-a0ea490bf9fb",
+          "name": "Instalación",
+          "value": "• STARTER TONER (incluido en el equipo)"
+        }
+      ],
+      "sort_order": 1018,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-600f-3639c9534700"
+    },
+    {
+      "id": "bb81d270-e97f-402e-a5e9-9862b1eb8c30",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C6503 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/bb81d270-e97f-402e-a5e9-9862b1eb8c30.webp",
+      "gallery": [
+        "/products/bb81d270-e97f-402e-a5e9-9862b1eb8c30.webp",
+        "/products/bb81d270-e97f-402e-a5e9-9862b1eb8c30-256.webp",
+        "/products/bb81d270-e97f-402e-a5e9-9862b1eb8c30-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.786Z",
+      "code": "EQ-RICOHMPC6503110V",
+      "sort_order": 1989,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c6503-110v-9862b1eb8c30"
+    },
+    {
+      "id": "bc83df1c-b980-428c-9e41-33c862c411be",
+      "name": "Impresora Multifuncional NUEVA RICOH PRO 8400",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/bc83df1c-b980-428c-9e41-33c862c411be.webp",
+      "gallery": [
+        "/products/bc83df1c-b980-428c-9e41-33c862c411be.webp",
+        "/products/bc83df1c-b980-428c-9e41-33c862c411be-256.webp",
+        "/products/bc83df1c-b980-428c-9e41-33c862c411be-512.webp"
+      ],
+      "prices": {
+        "public": 35179,
+        "tecnico": 33900,
+        "mayorista": 32500,
+        "distribuidor": 33990
+      },
+      "created_at": "2026-06-01T20:32:44.233Z",
+      "code": "409660",
+      "attributes": [
+        {
+          "id": "8606f3d2-6b36-4b68-82de-f8a72f43b3c6",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "3e6094af-ce23-45bb-8012-6cd89e9eff70",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "688b8fc6-8b51-4ecf-99d4-b0a9dc7c370a",
+          "name": "Producción",
+          "value": "Producción (200,000 a 500,000 páginas aprox)"
+        },
+        {
+          "id": "c2a543d5-7000-457a-a039-02d91d2bd8dd",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "8634446a-eaaa-4d02-8947-2506bb908e89",
+          "name": "Modelo de equipo",
+          "value": "PRO-8400s"
+        },
+        {
+          "id": "32892f54-9425-459a-8a66-0851e4b9f171",
+          "name": "Instalación",
+          "value": "• PRO TONER 8300s [828711]\n• DEVEL BK - PRE - CHARGED\nCoste instalación — Compra: $76.12 | Mayorista: $88.58 | Técnico: $93.01 | Público: $102.31\nPaquete instalado — Compra: $24898.90 | Mayorista: $27999.90 | Técnico: $29399.90 | Público: $32339.90"
+        }
+      ],
+      "sort_order": 1049,
+      "slug": "impresora-multifuncional-nueva-ricoh-pro-8400-33c862c411be"
+    },
+    {
+      "id": "bdf63599-9741-4b7b-9168-77d49b29def3",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 7503 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/bdf63599-9741-4b7b-9168-77d49b29def3.webp",
+      "gallery": [
+        "/products/bdf63599-9741-4b7b-9168-77d49b29def3.webp",
+        "/products/bdf63599-9741-4b7b-9168-77d49b29def3-256.webp",
+        "/products/bdf63599-9741-4b7b-9168-77d49b29def3-512.webp"
+      ],
+      "prices": {
+        "public": 2999,
+        "tecnico": 2599,
+        "mayorista": 2500,
+        "distribuidor": 2699
+      },
+      "created_at": "2026-06-02T07:05:22.694Z",
+      "code": "418779-CPJPHC-CPMARQ",
+      "attributes": [
+        {
+          "id": "06120032-2561-48ea-b2c0-4d83541bbc14",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "b8c6f27f-2991-43d9-b136-d5cda759241a",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "607364ce-72ae-4f8b-adb2-2e872116ce27",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "5cc63868-ae92-4b39-954f-4c092964ea3e",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1040,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-7503-220v-77d49b29def3"
+    },
+    {
+      "id": "be3457a0-76dd-4cf7-beca-31ad9aa7f541",
+      "name": "Impresora Laser B/N NUEVA RICOH P 801",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Impresoras, Impresoras Láser Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/be3457a0-76dd-4cf7-beca-31ad9aa7f541.webp",
+      "gallery": [
+        "/products/be3457a0-76dd-4cf7-beca-31ad9aa7f541.webp",
+        "/products/be3457a0-76dd-4cf7-beca-31ad9aa7f541-256.webp",
+        "/products/be3457a0-76dd-4cf7-beca-31ad9aa7f541-512.webp"
+      ],
+      "prices": {
+        "public": 1299,
+        "tecnico": 1199,
+        "mayorista": 1129,
+        "distribuidor": 1229
+      },
+      "created_at": "2026-06-01T21:18:42.458Z",
+      "code": "418474",
+      "attributes": [
+        {
+          "id": "cfe13a89-0f06-49bc-b9da-a29db037c474",
+          "name": "Modelo de equipo",
+          "value": "P-801"
+        },
+        {
+          "id": "9f7868d6-92db-4203-a44e-a5d9e329806e",
+          "name": "Instalación",
+          "value": "• STARTER TONER 11K (incluido en el equipo)"
+        }
+      ],
+      "sort_order": 1062,
+      "slug": "impresora-laser-b-n-nueva-ricoh-p-801-31ad9aa7f541"
+    },
+    {
+      "id": "bfb264b8-70dc-4ad4-9686-2df02df8c75e",
+      "code": "M-320F",
+      "name": "Impresora Multifuncional B/N Nueva RICOH M 320F",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp",
+      "gallery": [
+        "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp",
+        "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e-256.webp",
+        "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e-512.webp"
+      ],
+      "purchase_price_usd": 720,
+      "created_at": "2026-06-25T00:00:00.000Z",
+      "prices": {
+        "public": 549,
+        "tecnico": 419,
+        "mayorista": 409,
+        "distribuidor": 519
+      },
+      "sort_order": 1,
+      "slug": "impresora-multifuncional-b-n-nueva-ricoh-m-320f-2df02df8c75e",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "40 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "Papel A4",
+          "subtitle": "Formato estándar oficina"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Cloud",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 40 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A4, A5, A6 Bypass Formato A4-Carta"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "c0ad567a-6ad7-4857-a087-fd574a903a04",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 5000",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/c0ad567a-6ad7-4857-a087-fd574a903a04.webp",
+      "gallery": [
+        "/products/c0ad567a-6ad7-4857-a087-fd574a903a04.webp",
+        "/products/c0ad567a-6ad7-4857-a087-fd574a903a04-256.webp",
+        "/products/c0ad567a-6ad7-4857-a087-fd574a903a04-512.webp"
+      ],
+      "prices": {
+        "public": 7399,
+        "tecnico": 6899,
+        "mayorista": 6699,
+        "distribuidor": 6949
+      },
+      "created_at": "2026-06-01T08:41:50.054Z",
+      "code": "418847",
+      "attributes": [
+        {
+          "id": "efd966cb-41d6-4aaa-91d6-f758bf57957f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "b01f2685-ada5-40cb-945b-37f7aeb71c0c",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "f2dbe9ef-0906-44df-9f7c-e5ce6796738b",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "46d86429-8d63-4133-a825-e1435d0d72c8",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "3b9aaaa9-0833-4e85-a530-66fcced12d84",
+          "name": "Modelo de equipo",
+          "value": "IM-5000"
+        },
+        {
+          "id": "addfc2e6-2a96-4b37-8ab8-2a8bcd94a118",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842126]\nCoste instalación — Compra: $71.71 | Mayorista: $83.45 | Técnico: $87.63 | Público: $96.39\nPaquete instalado — Compra: $5136.90 | Mayorista: $5834.90 | Técnico: $6126.90 | Público: $6738.90"
+        }
+      ],
+      "sort_order": 1035,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-5000-fd574a903a04"
+    },
+    {
+      "id": "c3be1bb4-4943-4af6-b85e-03be836cc111",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 3555 220V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/c3be1bb4-4943-4af6-b85e-03be836cc111.webp",
+      "gallery": [
+        "/products/c3be1bb4-4943-4af6-b85e-03be836cc111.webp",
+        "/products/c3be1bb4-4943-4af6-b85e-03be836cc111-256.webp",
+        "/products/c3be1bb4-4943-4af6-b85e-03be836cc111-512.webp"
+      ],
+      "prices": {
+        "public": 1099,
+        "tecnico": 549,
+        "mayorista": 580,
+        "distribuidor": 899
+      },
+      "created_at": "2026-06-16T08:17:12.705Z",
+      "code": "418460-CP908Y-CPAPIN-CPC-CPCLQ9",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "a92f5b49-1fab-47e9-b1af-3dacabb2c3b9",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "66fa29e8-d611-4980-afee-a762a061ea97",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "14331ce1-18ef-4996-a077-5102b8b18a7d",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1014,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-3555-220v-03be836cc111"
+    },
+    {
+      "id": "c44519d7-f600-43e5-8c08-b51f56d88b03",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 7000",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/c44519d7-f600-43e5-8c08-b51f56d88b03.webp",
+      "gallery": [
+        "/products/c44519d7-f600-43e5-8c08-b51f56d88b03.webp",
+        "/products/c44519d7-f600-43e5-8c08-b51f56d88b03-256.webp",
+        "/products/c44519d7-f600-43e5-8c08-b51f56d88b03-512.webp"
+      ],
+      "prices": {
+        "public": 12890,
+        "tecnico": 12250,
+        "mayorista": 11890,
+        "distribuidor": 12299
+      },
+      "created_at": "2026-06-01T08:44:29.224Z",
+      "code": "418779",
+      "attributes": [
+        {
+          "id": "06120032-2561-48ea-b2c0-4d83541bbc14",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "7bee5bd0-e77c-468e-b866-71ce7fbd5540",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "c47d14eb-3db8-4d86-9bf1-c8367bec13c1",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "04a6b283-d92d-4f25-96c5-537e8a233c5b",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "e66631e7-c72e-4e83-a3f2-573ca0c4ef19",
+          "name": "Modelo de equipo",
+          "value": "IM-7000"
+        },
+        {
+          "id": "e24afb4b-ff92-42b9-86ae-6b8d8798ae37",
+          "name": "Instalación",
+          "value": "• TONER [841332]\n• Developer Type 24 Black [B0649645]\nCoste instalación — Compra: $146.07 | Mayorista: $169.99 | Técnico: $178.48 | Público: $196.34\nPaquete instalado — Compra: $11639.90 | Mayorista: $13198.90 | Técnico: $13858.90 | Público: $15244.90"
+        }
+      ],
+      "sort_order": 1037,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-7000-b51f56d88b03"
+    },
+    {
+      "id": "c54ea344-0162-42eb-96be-333014d14186",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C2500LT 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/c54ea344-0162-42eb-96be-333014d14186.webp",
+      "gallery": [
+        "/products/c54ea344-0162-42eb-96be-333014d14186.webp",
+        "/products/c54ea344-0162-42eb-96be-333014d14186-256.webp",
+        "/products/c54ea344-0162-42eb-96be-333014d14186-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.791Z",
+      "code": "EQ-RICOHIMC2500LT110V",
+      "sort_order": 1979,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c2500lt-110v-333014d14186"
+    },
+    {
+      "id": "c8b065b4-6988-47c3-9cec-a442bff708cf",
+      "name": "Impresora Multifuncional NUEVA RICOH IM C8000",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/c8b065b4-6988-47c3-9cec-a442bff708cf.webp",
+      "gallery": [
+        "/products/c8b065b4-6988-47c3-9cec-a442bff708cf.webp",
+        "/products/c8b065b4-6988-47c3-9cec-a442bff708cf-256.webp",
+        "/products/c8b065b4-6988-47c3-9cec-a442bff708cf-512.webp"
+      ],
+      "prices": {
+        "public": 37800,
+        "tecnico": 29000,
+        "mayorista": 28000,
+        "distribuidor": 29500
+      },
+      "created_at": "2026-06-01T20:46:29.469Z",
+      "code": "418782-CPCC9S-CPIEL9",
+      "attributes": [
+        {
+          "id": "16881d8f-61ab-4f46-91e5-16581bd22b9e",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "fc2871eb-e0f5-43d7-ae51-7f9be187c9d8",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "33c2253b-f348-4a1d-b596-70cae7e673fa",
+          "name": "Producción",
+          "value": "Producción (200,000 a 500,000 páginas aprox)"
+        },
+        {
+          "id": "d4f7b3c9-4ac2-4b77-80f2-c75f737c8912",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1043,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c8000-a442bff708cf"
+    },
+    {
+      "id": "ca111f25-e02f-4586-a3a9-5b8d0f95857e",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 430FTL 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ca111f25-e02f-4586-a3a9-5b8d0f95857e.webp",
+      "gallery": [
+        "/products/ca111f25-e02f-4586-a3a9-5b8d0f95857e.webp",
+        "/products/ca111f25-e02f-4586-a3a9-5b8d0f95857e-256.webp",
+        "/products/ca111f25-e02f-4586-a3a9-5b8d0f95857e-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.804Z",
+      "code": "EQ-RICOHIM430FTL110V",
+      "sort_order": 1978,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-430ftl-110v-5b8d0f95857e"
+    },
+    {
+      "id": "caf19a37-c3e7-4d5c-b3da-91aef5a5cd15",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C4500LT 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/caf19a37-c3e7-4d5c-b3da-91aef5a5cd15.webp",
+      "gallery": [
+        "/products/caf19a37-c3e7-4d5c-b3da-91aef5a5cd15.webp",
+        "/products/caf19a37-c3e7-4d5c-b3da-91aef5a5cd15-256.webp",
+        "/products/caf19a37-c3e7-4d5c-b3da-91aef5a5cd15-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.799Z",
+      "code": "EQ-RICOHIMC4500LT110V",
+      "sort_order": 1981,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c4500lt-110v-91aef5a5cd15"
+    },
+    {
+      "id": "canon-ir-advance",
+      "name": "Canon imageRUNNER ADVANCE C5535i",
+      "description": "Multifuncional a color de producción media-alta.",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Multifuncionales",
+      "brand": "Canon",
+      "image_url": "/products/canon-ir-advance.webp",
+      "created_at": "2026-05-01T00:00:00.000Z",
+      "prices": {
+        "public": 4399,
+        "corporativo": 4047,
+        "tecnico": 3871,
+        "mayorista": 3739,
+        "distribuidor": 3431,
+        "vip": 3167
+      },
+      "slug": "canon-ir-advance",
+      "gallery": [
+        "/products/canon-ir-advance.webp",
+        "/products/canon-ir-advance-256.webp",
+        "/products/canon-ir-advance-512.webp"
+      ]
+    },
+    {
+      "id": "canon-lbp226dw",
+      "name": "Canon imageCLASS LBP226dw",
+      "description": "Impresora láser Wi-Fi con impresión dúplex automática.",
+      "currency": "USD",
+      "stock": 20,
+      "category": "Impresoras",
+      "brand": "Canon",
+      "image_url": "/products/canon-lbp226dw.webp",
+      "created_at": "2026-04-28T00:00:00.000Z",
+      "prices": {
+        "public": 289,
+        "corporativo": 266,
+        "tecnico": 254,
+        "mayorista": 246,
+        "distribuidor": 225,
+        "vip": 208
+      },
+      "slug": "canon-lbp226dw",
+      "gallery": [
+        "/products/canon-lbp226dw.webp",
+        "/products/canon-lbp226dw-256.webp",
+        "/products/canon-lbp226dw-512.webp"
+      ]
+    },
+    {
+      "id": "cb1e47b2-d784-4bef-ae18-d4dae08723e4",
+      "name": "Impresora Multifuncional NUEVA RICOH M C320FW",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp",
+      "gallery": [
+        "/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp",
+        "/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4-256.webp",
+        "/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4-512.webp"
+      ],
+      "prices": {
+        "public": 1199,
+        "tecnico": 969,
+        "mayorista": 949,
+        "distribuidor": 1999
+      },
+      "created_at": "2026-06-01T08:52:26.152Z",
+      "code": "418787-CP04H4",
+      "attributes": [
+        {
+          "id": "c60b4193-9c00-4346-9c42-9bd8a6fc47bc",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "a4715679-e1d2-4e82-9671-90bfd70b58b8",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "6cb847b3-9900-417e-89a3-31f0096a303f",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "fbf4ba06-c794-410f-9d70-dee4c60728c4",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1046,
+      "slug": "impresora-multifuncional-nueva-ricoh-m-c320fw-d4dae08723e4"
+    },
+    {
+      "id": "cece2c48-e44a-4b93-a11a-7e8b244ad8ea",
+      "name": "Impresora Laser B/N NUEVA RICOH P 502",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Impresoras, Impresoras Láser Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/cece2c48-e44a-4b93-a11a-7e8b244ad8ea.webp",
+      "gallery": [
+        "/products/cece2c48-e44a-4b93-a11a-7e8b244ad8ea.webp",
+        "/products/cece2c48-e44a-4b93-a11a-7e8b244ad8ea-256.webp",
+        "/products/cece2c48-e44a-4b93-a11a-7e8b244ad8ea-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 629,
+        "mayorista": 599,
+        "distribuidor": 649
+      },
+      "created_at": "2026-06-01T21:12:11.852Z",
+      "code": "418495",
+      "attributes": [
+        {
+          "id": "620a3831-839f-488b-bb65-db25ed844b82",
+          "name": "Modelo de equipo",
+          "value": "P-502"
+        },
+        {
+          "id": "680abcbb-fad0-415e-bf3b-edd7d4c80946",
+          "name": "Instalación",
+          "value": "• STARTER TONER (incluido en el equipo)"
+        }
+      ],
+      "sort_order": 1060,
+      "slug": "impresora-laser-b-n-nueva-ricoh-p-502-7e8b244ad8ea"
+    },
+    {
+      "id": "colortrac-scanner",
+      "name": "Colortrac SmartLF SC 42",
+      "description": "Escáner de formato ancho para planos, CAD y GIS.",
+      "currency": "USD",
+      "stock": 4,
+      "category": "Formato Ancho",
+      "brand": "Colortrac",
+      "image_url": null,
+      "created_at": "2026-03-01T00:00:00.000Z",
+      "prices": {
+        "public": 3999,
+        "corporativo": 3679,
+        "tecnico": 3519,
+        "mayorista": 3399,
+        "distribuidor": 3119,
+        "vip": 2879
+      },
+      "slug": "colortrac-scanner"
     },
     {
       "id": "compat-tc-im-550-intercopy",
@@ -594,7 +4077,9 @@
       "category": "Toner, Toner Compatibles",
       "brand": "HaiPrint",
       "image_url": "/categories/toner-suministros.png",
-      "gallery": ["/categories/toner-suministros.png"],
+      "gallery": [
+        "/categories/toner-suministros.png"
+      ],
       "purchase_price_usd": 22.9,
       "created_at": "2026-06-24T00:00:00.000Z",
       "prices": {
@@ -603,7 +4088,1278 @@
         "mayorista": 31.9,
         "distribuidor": 29.9,
         "vip": 27.9
-      }
+      },
+      "slug": "compat-tc-im-550-intercopy"
+    },
+    {
+      "id": "d36419ae-6c63-423c-9bc7-eef07dcde222",
+      "name": "Impresora Multifuncional Seminueva CANON imageRUNNER ADVANCE DXC3725I 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Canon",
+      "image_url": "/products/d36419ae-6c63-423c-9bc7-eef07dcde222.webp",
+      "gallery": [
+        "/products/d36419ae-6c63-423c-9bc7-eef07dcde222.webp",
+        "/products/d36419ae-6c63-423c-9bc7-eef07dcde222-256.webp",
+        "/products/d36419ae-6c63-423c-9bc7-eef07dcde222-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:51.608Z",
+      "code": "EQ-CANONIRADXC3725I110V",
+      "sort_order": 1994,
+      "slug": "impresora-multifuncional-seminueva-canon-imagerunner-advance-dxc3725i-110v-eef07"
+    },
+    {
+      "id": "d3931df1-8564-4e5f-b8eb-b6e9759879a2",
+      "name": "Impresora Multifuncional Seminueva RICOH MP 4055 220V",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/d3931df1-8564-4e5f-b8eb-b6e9759879a2.webp",
+      "gallery": [
+        "/products/d3931df1-8564-4e5f-b8eb-b6e9759879a2.webp",
+        "/products/d3931df1-8564-4e5f-b8eb-b6e9759879a2-2.webp",
+        "/products/d3931df1-8564-4e5f-b8eb-b6e9759879a2-256.webp",
+        "/products/d3931df1-8564-4e5f-b8eb-b6e9759879a2-512.webp"
+      ],
+      "prices": {
+        "public": 1099,
+        "tecnico": 699,
+        "mayorista": 580,
+        "distribuidor": 899
+      },
+      "created_at": "2026-06-16T08:12:58.885Z",
+      "code": "418460-CP908Y-CPAPIN-CPC-CP75VP",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "a92f5b49-1fab-47e9-b1af-3dacabb2c3b9",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "66fa29e8-d611-4980-afee-a762a061ea97",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "14331ce1-18ef-4996-a077-5102b8b18a7d",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1015,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-4055-220v-b6e9759879a2",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "40 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "A3",
+          "subtitle": "Formato de impresión"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "ADF",
+          "subtitle": "Alimentador de documentos estándar"
+        },
+        {
+          "icon": "Printer",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 40 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "Estándar"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A3"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "d53b0f11-e996-4f06-8857-13fc8a6d9eb8",
+      "name": "Impresora Laser NUEVA RICOH P C600 220V",
+      "currency": "USD",
+      "stock": 9,
+      "category": "Impresoras, Impresoras Láser Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/d53b0f11-e996-4f06-8857-13fc8a6d9eb8.webp",
+      "gallery": [
+        "/products/d53b0f11-e996-4f06-8857-13fc8a6d9eb8.webp",
+        "/products/d53b0f11-e996-4f06-8857-13fc8a6d9eb8-256.webp",
+        "/products/d53b0f11-e996-4f06-8857-13fc8a6d9eb8-512.webp"
+      ],
+      "prices": {
+        "public": 2299,
+        "tecnico": 1999,
+        "mayorista": 1899,
+        "distribuidor": 2049
+      },
+      "created_at": "2026-06-01T20:58:27.942Z",
+      "code": "408535-CPXSYU",
+      "attributes": [
+        {
+          "id": "9de31613-fccd-49cf-811a-9936c208369f",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "bc05b7fd-91b2-4426-a8ad-ba6c73b240df",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "6ea173ba-7e01-49be-8e89-1a0bbfa016e1",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        }
+      ],
+      "sort_order": 1058,
+      "slug": "impresora-laser-nueva-ricoh-p-c600-220v-13fc8a6d9eb8"
+    },
+    {
+      "id": "d90459c7-33f6-4441-942c-0f2aa9532f2a",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C6000 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/d90459c7-33f6-4441-942c-0f2aa9532f2a.webp",
+      "gallery": [
+        "/products/d90459c7-33f6-4441-942c-0f2aa9532f2a.webp",
+        "/products/d90459c7-33f6-4441-942c-0f2aa9532f2a-256.webp",
+        "/products/d90459c7-33f6-4441-942c-0f2aa9532f2a-512.webp"
+      ],
+      "prices": {
+        "public": 1699,
+        "tecnico": 1399,
+        "mayorista": 1100,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-16T07:49:21.603Z",
+      "code": "418276-CPNV9C-CPQZO0-CPCSAR",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1164,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c6000-220v-0f2aa9532f2a"
+    },
+    {
+      "id": "d9e51be3-582d-4151-a7e5-168daf8a9aed",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C3003 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/d9e51be3-582d-4151-a7e5-168daf8a9aed.webp",
+      "gallery": [
+        "/products/d9e51be3-582d-4151-a7e5-168daf8a9aed.webp",
+        "/products/d9e51be3-582d-4151-a7e5-168daf8a9aed-256.webp",
+        "/products/d9e51be3-582d-4151-a7e5-168daf8a9aed-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:01.766Z",
+      "code": "EQ-RICOHMPC3003110V",
+      "sort_order": 1983,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c3003-110v-168daf8a9aed"
+    },
+    {
+      "id": "dd031da8-d2cd-4219-b582-c97514e144c9",
+      "name": "Impresora Laser B/N NUEVA RICOH P 502",
+      "currency": "USD",
+      "stock": 12,
+      "category": "Impresoras Laser Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/dd031da8-d2cd-4219-b582-c97514e144c9.webp",
+      "gallery": [
+        "/products/dd031da8-d2cd-4219-b582-c97514e144c9.webp",
+        "/products/dd031da8-d2cd-4219-b582-c97514e144c9-256.webp",
+        "/products/dd031da8-d2cd-4219-b582-c97514e144c9-512.webp"
+      ],
+      "prices": {
+        "public": 699,
+        "tecnico": 399,
+        "mayorista": 599,
+        "distribuidor": 649
+      },
+      "created_at": "2026-06-16T08:18:31.355Z",
+      "code": "418495-CPEAEZ",
+      "sort_order": 1101,
+      "slug": "impresora-laser-b-n-nueva-ricoh-p-502-c97514e144c9"
+    },
+    {
+      "id": "dd5efa36-73f6-4241-b2ad-6e74ef058733",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C400F",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "currency": "USD",
+      "stock": 3,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/dd5efa36-73f6-4241-b2ad-6e74ef058733.webp",
+      "gallery": [
+        "/products/dd5efa36-73f6-4241-b2ad-6e74ef058733.webp",
+        "/products/dd5efa36-73f6-4241-b2ad-6e74ef058733-256.webp",
+        "/products/dd5efa36-73f6-4241-b2ad-6e74ef058733-512.webp"
+      ],
+      "prices": {
+        "public": 749,
+        "tecnico": 499,
+        "mayorista": 480,
+        "distribuidor": 549
+      },
+      "created_at": "2026-06-05T20:36:44.520915+00:00",
+      "code": "DD5EFA",
+      "sort_order": 4,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c400f-6e74ef058733",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "40 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "Papel A4",
+          "subtitle": "Formato estándar oficina"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Printer",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 40 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A4, A5, A6 Bypass Formato A4-Carta"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "dfcc1b1c-100a-4cb4-80b1-c1e24e1d991a",
+      "name": "Impresora Multifuncional Seminueva SAVIN IM C4500 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Savin",
+      "image_url": "/products/dfcc1b1c-100a-4cb4-80b1-c1e24e1d991a.webp",
+      "gallery": [
+        "/products/dfcc1b1c-100a-4cb4-80b1-c1e24e1d991a.webp",
+        "/products/dfcc1b1c-100a-4cb4-80b1-c1e24e1d991a-256.webp",
+        "/products/dfcc1b1c-100a-4cb4-80b1-c1e24e1d991a-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:19.075Z",
+      "code": "EQ-SAVINIMC4500110V",
+      "sort_order": 1991,
+      "slug": "impresora-multifuncional-seminueva-savin-im-c4500-110v-c1e24e1d991a"
+    },
+    {
+      "id": "e1bffdf0-3515-468e-859a-990d1cb12561",
+      "name": "Impresora Multifuncional NUEVA RICOH IM C6010",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/e1bffdf0-3515-468e-859a-990d1cb12561.webp",
+      "gallery": [
+        "/products/e1bffdf0-3515-468e-859a-990d1cb12561.webp",
+        "/products/e1bffdf0-3515-468e-859a-990d1cb12561-256.webp",
+        "/products/e1bffdf0-3515-468e-859a-990d1cb12561-512.webp"
+      ],
+      "prices": {
+        "public": 14490,
+        "tecnico": 13619,
+        "mayorista": 13500,
+        "distribuidor": 13650
+      },
+      "created_at": "2026-06-01T09:15:07.082Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQ-CPTAKQ",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "e6d3bb2b-55b0-467f-beb2-a4d395e3775b",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "86017cbc-8fcf-4f12-a760-4d5a739b4f8b",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "ea313866-b8ea-404c-a70f-cf5e5f41f9a8",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1032,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c6010-990d1cb12561"
+    },
+    {
+      "id": "e43fbb0d-3fe1-47cc-815e-0e72854e9fce",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 6000",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/e43fbb0d-3fe1-47cc-815e-0e72854e9fce.webp",
+      "gallery": [
+        "/products/e43fbb0d-3fe1-47cc-815e-0e72854e9fce.webp",
+        "/products/e43fbb0d-3fe1-47cc-815e-0e72854e9fce-256.webp",
+        "/products/e43fbb0d-3fe1-47cc-815e-0e72854e9fce-512.webp"
+      ],
+      "prices": {
+        "public": 8999,
+        "tecnico": 8499,
+        "mayorista": 8299,
+        "distribuidor": 8549
+      },
+      "created_at": "2026-06-01T08:43:01.263Z",
+      "code": "418848",
+      "attributes": [
+        {
+          "id": "a86a55ae-bd62-4254-b2ba-890c9a873191",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "67a66cbd-78ec-4c46-8879-58c185f334b7",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "6dc9bb3d-91f4-4e7f-a3fd-4d24dcfeaded",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "1d89e95e-46dc-42e3-934d-75eb7c4d1835",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "80e59525-caa5-40ae-9372-322f1e0b8e0f",
+          "name": "Modelo de equipo",
+          "value": "IM-6000"
+        },
+        {
+          "id": "1b8818fa-8ce9-48f7-a77e-2f1dccd37c93",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842126]\nCoste instalación — Compra: $71.71 | Mayorista: $83.45 | Técnico: $87.63 | Público: $96.39\nPaquete instalado — Compra: $7423.90 | Mayorista: $8399.90 | Técnico: $8819.90 | Público: $9700.90"
+        }
+      ],
+      "sort_order": 1036,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-6000-0e72854e9fce"
+    },
+    {
+      "id": "e84445c7-784c-4899-8238-a11d613bfb03",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C6004 220V",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/e84445c7-784c-4899-8238-a11d613bfb03.webp",
+      "gallery": [
+        "/products/e84445c7-784c-4899-8238-a11d613bfb03.webp",
+        "/products/e84445c7-784c-4899-8238-a11d613bfb03-256.webp",
+        "/products/e84445c7-784c-4899-8238-a11d613bfb03-512.webp"
+      ],
+      "prices": {
+        "public": 1249,
+        "tecnico": 999,
+        "mayorista": 659,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-16T08:13:40.352Z",
+      "code": "418276-CPNV9C-CPQZO0-CPT-CP81VK",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1169,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c6004-220v-a11d613bfb03"
+    },
+    {
+      "id": "e8f574f7-c70c-44b6-8d28-95023f47f72d",
+      "name": "Impresora Multifuncional Seminueva RICOH IM C3000",
+      "description": "Copiadora, Impresora, Escaner y fax\nImprime hasta 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/e8f574f7-c70c-44b6-8d28-95023f47f72d.webp",
+      "gallery": [
+        "/products/e8f574f7-c70c-44b6-8d28-95023f47f72d.webp",
+        "/products/e8f574f7-c70c-44b6-8d28-95023f47f72d-256.webp",
+        "/products/e8f574f7-c70c-44b6-8d28-95023f47f72d-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 689,
+        "mayorista": 670,
+        "distribuidor": 759
+      },
+      "created_at": "2026-06-06T14:27:02.786003+00:00",
+      "code": "E8F574F7C7",
+      "sort_order": 2,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-c3000-95023f47f72d",
+      "storefront_feature_bar": [
+        {
+          "icon": "Printer",
+          "title": "4 en 1",
+          "subtitle": "Imprime, copia, escanea y faxea"
+        },
+        {
+          "icon": "Gauge",
+          "title": "40 ppm",
+          "subtitle": "Velocidad de impresión"
+        },
+        {
+          "icon": "Smartphone",
+          "title": "Pantalla táctil",
+          "subtitle": "Panel de operación"
+        },
+        {
+          "icon": "FileText",
+          "title": "Papel A4",
+          "subtitle": "Formato estándar oficina"
+        },
+        {
+          "icon": "ScanLine",
+          "title": "SPDF",
+          "subtitle": "Alimentador de originales doble scan"
+        },
+        {
+          "icon": "Printer",
+          "title": "Conectividad",
+          "subtitle": "Wi-Fi, Ethernet, USB"
+        }
+      ],
+      "storefront_hero_bullets": [
+        {
+          "icon": "Copy",
+          "text": "Copiadora, Impresora, Escaner y fax"
+        },
+        {
+          "icon": "Printer",
+          "text": "Imprime hasta 40 ppm"
+        },
+        {
+          "icon": "Wifi",
+          "text": "Conectividad: Wi-Fi, Ethernet, USB"
+        },
+        {
+          "icon": "ScanLine",
+          "text": "SPDF — Alimentador de originales doble scan"
+        },
+        {
+          "icon": "FileText",
+          "text": "Formato A4, A5, A6 Bypass Formato A4-Carta"
+        },
+        {
+          "icon": "Gauge",
+          "text": "Producción mensual 50,000 páginas al mes"
+        },
+        {
+          "icon": "Gift",
+          "text": "Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis"
+        }
+      ]
+    },
+    {
+      "id": "ea1888a3-470f-49dc-9625-cd43a8a6a7e4",
+      "name": "Impresora Multifuncional Seminueva CANON imageRUNNER ADVANCE C3525III 110V",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Canon",
+      "image_url": "/products/ea1888a3-470f-49dc-9625-cd43a8a6a7e4.webp",
+      "gallery": [
+        "/products/ea1888a3-470f-49dc-9625-cd43a8a6a7e4.webp",
+        "/products/ea1888a3-470f-49dc-9625-cd43a8a6a7e4-256.webp",
+        "/products/ea1888a3-470f-49dc-9625-cd43a8a6a7e4-512.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 879,
+        "mayorista": 849,
+        "distribuidor": 779
+      },
+      "created_at": "2026-06-20T16:02:51.607Z",
+      "code": "EQ-CANONIRAC3525III110V",
+      "sort_order": 1992,
+      "slug": "impresora-multifuncional-seminueva-canon-imagerunner-advance-c3525iii-110v-cd43a"
+    },
+    {
+      "id": "ec2eeb41-3af8-4f81-ab78-fa92ec052e04",
+      "name": "Impresora Multifuncional Seminueva RICOH MP C3004 220V",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ec2eeb41-3af8-4f81-ab78-fa92ec052e04.webp",
+      "gallery": [
+        "/products/ec2eeb41-3af8-4f81-ab78-fa92ec052e04.webp",
+        "/products/ec2eeb41-3af8-4f81-ab78-fa92ec052e04-256.webp",
+        "/products/ec2eeb41-3af8-4f81-ab78-fa92ec052e04-512.webp"
+      ],
+      "prices": {
+        "public": 1129,
+        "tecnico": 669,
+        "mayorista": 659,
+        "distribuidor": 1199
+      },
+      "created_at": "2026-06-16T07:36:57.239Z",
+      "code": "418276-CPNV9C-CPQZO0-CPT-CPWTXZ",
+      "attributes": [
+        {
+          "id": "e92130bc-b74e-4caf-a5cd-2842dfa62bcf",
+          "name": "Color",
+          "value": ""
+        },
+        {
+          "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
+          "name": "Formato papel",
+          "value": "A3"
+        }
+      ],
+      "sort_order": 1166,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-c3004-220v-fa92ec052e04"
+    },
+    {
+      "id": "epson-ecotank-l6290",
+      "name": "Epson EcoTank L6290",
+      "description": "Multifuncional de tanque de tinta con ADF y fax.",
+      "currency": "USD",
+      "stock": 16,
+      "category": "Multifuncionales",
+      "brand": "Epson",
+      "image_url": "/products/epson-ecotank-l6290.webp",
+      "created_at": "2026-04-22T00:00:00.000Z",
+      "prices": {
+        "public": 469,
+        "corporativo": 431,
+        "tecnico": 413,
+        "mayorista": 399,
+        "distribuidor": 366,
+        "vip": 338
+      },
+      "slug": "epson-ecotank-l6290",
+      "gallery": [
+        "/products/epson-ecotank-l6290.webp",
+        "/products/epson-ecotank-l6290-256.webp",
+        "/products/epson-ecotank-l6290-512.webp"
+      ]
+    },
+    {
+      "id": "epson-workforce-pro",
+      "name": "Epson WorkForce Pro WF-C5790",
+      "description": "Inkjet empresarial de bajo costo por página.",
+      "currency": "USD",
+      "stock": 10,
+      "category": "Impresoras",
+      "brand": "Epson",
+      "image_url": "/products/epson-workforce-pro.webp",
+      "created_at": "2026-04-18T00:00:00.000Z",
+      "prices": {
+        "public": 719,
+        "corporativo": 661,
+        "tecnico": 633,
+        "mayorista": 611,
+        "distribuidor": 561,
+        "vip": 518
+      },
+      "slug": "epson-workforce-pro",
+      "gallery": [
+        "/products/epson-workforce-pro.webp",
+        "/products/epson-workforce-pro-256.webp",
+        "/products/epson-workforce-pro-512.webp"
+      ]
+    },
+    {
+      "id": "f234141a-94a4-4f4b-a142-333e55c65585",
+      "name": "Impresora Multifuncional NUEVA RICOH PRO C9500",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/f234141a-94a4-4f4b-a142-333e55c65585.webp",
+      "gallery": [
+        "/products/f234141a-94a4-4f4b-a142-333e55c65585.webp",
+        "/products/f234141a-94a4-4f4b-a142-333e55c65585-256.webp",
+        "/products/f234141a-94a4-4f4b-a142-333e55c65585-512.webp"
+      ],
+      "prices": {
+        "public": 125900,
+        "tecnico": 122900,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "created_at": "2026-06-01T21:06:29.320Z",
+      "code": "418843-CP8Y1I-CPO80O-CPQ-CP84EG",
+      "attributes": [
+        {
+          "id": "7c471cb4-6925-43a8-a679-0435b4f4f7c3",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "c34634c9-3e71-436f-a0bf-5fddbfccde9c",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "73a95c63-700b-437c-ad13-6a9a6ebd13e0",
+          "name": "Producción",
+          "value": "Producción (200,000 a 500,000 páginas aprox)"
+        },
+        {
+          "id": "6ae85ccd-de26-406e-98c6-897f689f2edd",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ],
+      "sort_order": 1031,
+      "slug": "impresora-multifuncional-nueva-ricoh-pro-c9500-333e55c65585"
+    },
+    {
+      "id": "ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 9000",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2.webp",
+      "gallery": [
+        "/products/ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2.webp",
+        "/products/ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2-256.webp",
+        "/products/ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2-512.webp"
+      ],
+      "prices": {
+        "public": 26590,
+        "tecnico": 24800,
+        "mayorista": 24300,
+        "distribuidor": 24850
+      },
+      "created_at": "2026-06-01T08:48:55.122Z",
+      "code": "418787",
+      "attributes": [
+        {
+          "id": "bb3ccaaf-2757-49c7-9add-74230f8fa6e2",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "5dbd93a6-fd2f-4fdd-a209-d3168b1072ac",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "c3edb02d-19ce-40a1-8fdb-c4ef584cdf6e",
+          "name": "Producción",
+          "value": "Producción (200,000 a 500,000 páginas aprox)"
+        },
+        {
+          "id": "a3abec29-16b3-4c79-8948-6c740fd9a219",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "9dfff131-ad78-479f-9e0a-6ca0c65bdbaa",
+          "name": "Modelo de equipo",
+          "value": "IM-9000"
+        },
+        {
+          "id": "23528eba-906f-46e6-a38c-dc8a02143603",
+          "name": "Instalación",
+          "value": "• TONER [841332]\n• Developer Type 24 Black [B0649645]\nCoste instalación — Compra: $146.07 | Mayorista: $169.99 | Técnico: $178.48 | Público: $196.34\nPaquete instalado — Compra: $15792.90 | Mayorista: $17855.90 | Técnico: $18748.90 | Público: $20623.90"
+        }
+      ],
+      "sort_order": 1044,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-9000-9bcbfb9d39e2"
+    },
+    {
+      "id": "galaxy-buds2-pro",
+      "code": "GALAXYBUDS2P",
+      "name": "Samsung Galaxy Buds2 Pro",
+      "description": "Auriculares true wireless con audio Hi-Fi y ANC.",
+      "currency": "USD",
+      "stock": 25,
+      "category": "Audio",
+      "brand": "Samsung",
+      "image_url": "/products/galaxy-buds2-pro.png",
+      "gallery": [
+        "/products/galaxy-buds2-pro.png"
+      ],
+      "compare_at_price_usd": 199.99,
+      "purchase_price_usd": 115.19,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 159.99,
+        "corporativo": 147,
+        "tecnico": 141,
+        "mayorista": 136,
+        "distribuidor": 125,
+        "vip": 115
+      },
+      "slug": "galaxy-buds2-pro"
+    },
+    {
+      "id": "hp-laserjet-m234",
+      "name": "HP LaserJet Pro M234dw",
+      "description": "Láser monocromática con Wi-Fi y app HP Smart.",
+      "currency": "USD",
+      "stock": 28,
+      "category": "Impresoras",
+      "brand": "HP",
+      "image_url": "/products/hp-laserjet-m234.webp",
+      "created_at": "2026-04-12T00:00:00.000Z",
+      "prices": {
+        "public": 259,
+        "corporativo": 238,
+        "tecnico": 228,
+        "mayorista": 220,
+        "distribuidor": 202,
+        "vip": 186
+      },
+      "slug": "hp-laserjet-m234",
+      "gallery": [
+        "/products/hp-laserjet-m234.webp",
+        "/products/hp-laserjet-m234-256.webp",
+        "/products/hp-laserjet-m234-512.webp"
+      ]
+    },
+    {
+      "id": "hp-toner-58a",
+      "name": "HP 58A Tóner Original",
+      "description": "Cartucho de tóner negro original HP 58A (CF258A).",
+      "currency": "USD",
+      "stock": 52,
+      "category": "Tóner y Suministros",
+      "brand": "HP",
+      "image_url": null,
+      "created_at": "2026-04-08T00:00:00.000Z",
+      "prices": {
+        "public": 92,
+        "corporativo": 85,
+        "tecnico": 81,
+        "mayorista": 78,
+        "distribuidor": 72,
+        "vip": 66
+      },
+      "slug": "hp-toner-58a"
+    },
+    {
+      "id": "iphone-15-pro",
+      "code": "IPHONE15P256",
+      "name": "iPhone 15 Pro 256GB",
+      "description": "Smartphone premium con chip A17 Pro y cámara avanzada.",
+      "currency": "USD",
+      "stock": 14,
+      "category": "Smartphones",
+      "brand": "Apple",
+      "image_url": "/products/iphone-15-pro.png",
+      "gallery": [
+        "/products/iphone-15-pro.png"
+      ],
+      "compare_at_price_usd": 1229,
+      "purchase_price_usd": 790.8,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 1099,
+        "corporativo": 1011,
+        "tecnico": 967,
+        "mayorista": 934,
+        "distribuidor": 857,
+        "vip": 791
+      },
+      "slug": "iphone-15-pro"
+    },
+    {
+      "id": "konica-bizhub-c300i",
+      "name": "Konica Minolta bizhub C300i",
+      "description": "Multifuncional inteligente con conectividad cloud y seguridad.",
+      "currency": "USD",
+      "stock": 6,
+      "category": "Multifuncionales",
+      "brand": "Konica Minolta",
+      "image_url": "/products/konica-bizhub-c300i.webp",
+      "created_at": "2026-05-05T00:00:00.000Z",
+      "prices": {
+        "public": 3299,
+        "corporativo": 3035,
+        "tecnico": 2903,
+        "mayorista": 2804,
+        "distribuidor": 2573,
+        "vip": 2375
+      },
+      "slug": "konica-bizhub-c300i",
+      "gallery": [
+        "/products/konica-bizhub-c300i.webp",
+        "/products/konica-bizhub-c300i-256.webp",
+        "/products/konica-bizhub-c300i-512.webp"
+      ]
+    },
+    {
+      "id": "kyocera-ecosys-m5526",
+      "name": "Kyocera ECOSYS M5526cdw",
+      "description": "Multifuncional color con tambor de larga duración.",
+      "currency": "USD",
+      "stock": 11,
+      "category": "Multifuncionales",
+      "brand": "Kyocera",
+      "image_url": "/products/kyocera-ecosys-m5526.webp",
+      "created_at": "2026-04-02T00:00:00.000Z",
+      "prices": {
+        "public": 619,
+        "corporativo": 569,
+        "tecnico": 545,
+        "mayorista": 526,
+        "distribuidor": 483,
+        "vip": 446
+      },
+      "slug": "kyocera-ecosys-m5526",
+      "gallery": [
+        "/products/kyocera-ecosys-m5526.webp",
+        "/products/kyocera-ecosys-m5526-256.webp",
+        "/products/kyocera-ecosys-m5526-512.webp"
+      ]
+    },
+    {
+      "id": "lexmark-ms431dn",
+      "name": "Lexmark MS431dn",
+      "description": "Impresora láser monocromática de red con dúplex.",
+      "currency": "USD",
+      "stock": 13,
+      "category": "Impresoras",
+      "brand": "Lexmark",
+      "image_url": "/products/lexmark-ms431dn.webp",
+      "created_at": "2026-03-25T00:00:00.000Z",
+      "prices": {
+        "public": 339,
+        "corporativo": 312,
+        "tecnico": 298,
+        "mayorista": 288,
+        "distribuidor": 264,
+        "vip": 244
+      },
+      "slug": "lexmark-ms431dn",
+      "gallery": [
+        "/products/lexmark-ms431dn.webp",
+        "/products/lexmark-ms431dn-256.webp",
+        "/products/lexmark-ms431dn-512.webp"
+      ]
+    },
+    {
+      "id": "macbook-air-m13",
+      "code": "MBAIRM313",
+      "name": "MacBook Air M3 13\"",
+      "description": "Laptop ultraligera con chip Apple M3, 13 pulgadas.",
+      "currency": "USD",
+      "stock": 9,
+      "category": "Laptops",
+      "brand": "Apple",
+      "image_url": "/products/macbook-air-m13.png",
+      "gallery": [
+        "/products/macbook-air-m13.png"
+      ],
+      "is_new": true,
+      "purchase_price_usd": 790.8,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 1099,
+        "corporativo": 1011,
+        "tecnico": 967,
+        "mayorista": 934,
+        "distribuidor": 857,
+        "vip": 791
+      },
+      "slug": "macbook-air-m13"
+    },
+    {
+      "id": "mochila-techpro",
+      "code": "MOCHILATECHPRO",
+      "name": "Mochila TechPro",
+      "description": "Mochila para laptop con compartimentos acolchados y USB.",
+      "currency": "USD",
+      "stock": 30,
+      "category": "Accesorios",
+      "brand": "TechPro",
+      "image_url": "/products/mochila-techpro.png",
+      "gallery": [
+        "/products/mochila-techpro.png"
+      ],
+      "purchase_price_usd": 35.99,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 49.99,
+        "corporativo": 46,
+        "tecnico": 44,
+        "mayorista": 42,
+        "distribuidor": 39,
+        "vip": 36
+      },
+      "slug": "mochila-techpro"
+    },
+    {
+      "id": "oki-c332dn",
+      "name": "OKI C332dn",
+      "description": "Impresora LED a color compacta para equipos pequeños.",
+      "currency": "USD",
+      "stock": 8,
+      "category": "Impresoras",
+      "brand": "OKI",
+      "image_url": "/products/oki-c332dn.webp",
+      "created_at": "2026-03-18T00:00:00.000Z",
+      "prices": {
+        "public": 429,
+        "corporativo": 395,
+        "tecnico": 378,
+        "mayorista": 365,
+        "distribuidor": 335,
+        "vip": 309
+      },
+      "slug": "oki-c332dn",
+      "gallery": [
+        "/products/oki-c332dn.webp",
+        "/products/oki-c332dn-256.webp",
+        "/products/oki-c332dn-512.webp"
+      ]
+    },
+    {
+      "id": "pantum-m7100dw",
+      "name": "PANTUM M7100DW",
+      "description": "Multifuncional láser monocromática de alto valor.",
+      "currency": "USD",
+      "stock": 22,
+      "category": "Multifuncionales",
+      "brand": "Pantum",
+      "image_url": "/products/pantum-m7100dw.webp",
+      "created_at": "2026-03-10T00:00:00.000Z",
+      "prices": {
+        "public": 209,
+        "corporativo": 192,
+        "tecnico": 184,
+        "mayorista": 178,
+        "distribuidor": 163,
+        "vip": 150
+      },
+      "slug": "pantum-m7100dw",
+      "gallery": [
+        "/products/pantum-m7100dw.webp",
+        "/products/pantum-m7100dw-256.webp",
+        "/products/pantum-m7100dw-512.webp"
+      ]
+    },
+    {
+      "id": "ricoh-drum-unit",
+      "name": "RICOH Unidad de tambor IM C3000",
+      "description": "Unidad de imagen original para IM C3000 / C4000.",
+      "currency": "USD",
+      "stock": 15,
+      "category": "Repuestos",
+      "brand": "Ricoh",
+      "image_url": null,
+      "created_at": "2026-02-10T00:00:00.000Z",
+      "prices": {
+        "public": 185,
+        "corporativo": 170,
+        "tecnico": 163,
+        "mayorista": 157,
+        "distribuidor": 144,
+        "vip": 133
+      },
+      "slug": "ricoh-drum-unit"
+    },
+    {
+      "id": "ricoh-im-430f",
+      "code": "423509",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 430F",
+      "description": "Multifuncional monocromática A4, 40 ppm, panel táctil 10.1\".",
+      "currency": "USD",
+      "stock": 24,
+      "category": "Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ricoh-im-430f.webp",
+      "gallery": [
+        "/products/ricoh-im-430f.webp",
+        "/products/ricoh-im-430f-2.webp",
+        "/products/ricoh-im-430f-3.webp",
+        "/products/ricoh-im-430f-256.webp",
+        "/products/ricoh-im-430f-512.webp"
+      ],
+      "purchase_price_usd": 825,
+      "created_at": "2026-05-15T00:00:00.000Z",
+      "prices": {
+        "public": 1099,
+        "tecnico": 919,
+        "mayorista": 899,
+        "distribuidor": 959
+      },
+      "attributes": [
+        {
+          "id": "0d74fabd-a78d-4a63-b232-26998ea5e553",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "e193f707-0415-4b35-bfbb-cec664c5dd87",
+          "name": "Modelo de equipo",
+          "value": "IM-460F"
+        },
+        {
+          "id": "38079523-4624-4ab1-a701-cd8a04a72294",
+          "name": "Instalación",
+          "value": "• Print Cartridge IM 460H [842616]\nCoste instalación — Compra: $41.60 | Mayorista: $48.41 | Técnico: $50.83 | Público: $55.92\nPaquete instalado — Compra: $1057.90 | Mayorista: $1187.90 | Técnico: $1247.90 | Público: $1371.90"
+        }
+      ],
+      "sort_order": 477,
+      "slug": "ricoh-im-430f",
+      "cross_sell_product_ids": [
+        "419078"
+      ]
+    },
+    {
+      "id": "ricoh-im-c3000",
+      "name": "RICOH IM C3000",
+      "description": "Multifuncional a color láser A3 para oficinas de alto volumen.",
+      "currency": "USD",
+      "stock": 8,
+      "category": "Multifuncionales",
+      "brand": "Ricoh",
+      "image_url": "/products/ricoh-im-c3000.webp",
+      "created_at": "2026-05-10T00:00:00.000Z",
+      "prices": {
+        "public": 2599,
+        "corporativo": 2391,
+        "tecnico": 2287,
+        "mayorista": 2209,
+        "distribuidor": 2027,
+        "vip": 1871
+      },
+      "slug": "ricoh-im-c3000",
+      "gallery": [
+        "/products/ricoh-im-c3000.webp",
+        "/products/ricoh-im-c3000-256.webp",
+        "/products/ricoh-im-c3000-512.webp"
+      ]
+    },
+    {
+      "id": "ricoh-sp-330dn",
+      "name": "RICOH SP 330DN",
+      "description": "Impresora láser monocromática con dúplex automático y red.",
+      "currency": "USD",
+      "stock": 14,
+      "category": "Impresoras",
+      "brand": "Ricoh",
+      "image_url": "/products/ricoh-sp-330dn.webp",
+      "created_at": "2026-05-08T00:00:00.000Z",
+      "prices": {
+        "public": 399,
+        "corporativo": 367,
+        "tecnico": 351,
+        "mayorista": 339,
+        "distribuidor": 311,
+        "vip": 287
+      },
+      "slug": "ricoh-sp-330dn",
+      "gallery": [
+        "/products/ricoh-sp-330dn.webp",
+        "/products/ricoh-sp-330dn-256.webp",
+        "/products/ricoh-sp-330dn-512.webp"
+      ]
+    },
+    {
+      "id": "ricoh-toner-mp",
+      "name": "RICOH MP C3003 Tóner Negro",
+      "description": "Tóner original Ricoh para serie MP C3003 / IM C3000.",
+      "currency": "USD",
+      "stock": 38,
+      "category": "Tóner y Suministros",
+      "brand": "Ricoh",
+      "image_url": null,
+      "created_at": "2026-02-20T00:00:00.000Z",
+      "prices": {
+        "public": 98,
+        "corporativo": 90,
+        "tecnico": 86,
+        "mayorista": 83,
+        "distribuidor": 76,
+        "vip": 71
+      },
+      "slug": "ricoh-toner-mp"
+    },
+    {
+      "id": "sony-wh1000xm5",
+      "code": "SONYWH1000XM5",
+      "name": "Sony WH-1000XM5",
+      "description": "Auriculares inalámbricos con cancelación de ruido líder en su categoría.",
+      "currency": "USD",
+      "stock": 18,
+      "category": "Audio",
+      "brand": "Sony",
+      "image_url": "/products/sony-wh1000xm5.png",
+      "gallery": [
+        "/products/sony-wh1000xm5.png"
+      ],
+      "compare_at_price_usd": 349.99,
+      "purchase_price_usd": 215.99,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 299.99,
+        "corporativo": 276,
+        "tecnico": 264,
+        "mayorista": 255,
+        "distribuidor": 234,
+        "vip": 216
+      },
+      "slug": "sony-wh1000xm5"
+    },
+    {
+      "id": "toner-ricoh-c6003-cyan",
+      "code": "TONERC6003CY",
+      "name": "Toner Ricoh MP C6003 C4503 841849 Cyan Compatible",
+      "description": "Tóner cyan compatible de alto rendimiento para Ricoh MP C6003 / C4503.",
+      "currency": "USD",
+      "stock": 45,
+      "category": "Suministros",
+      "brand": "Ricoh",
+      "image_url": "/categories/toner-suministros.png",
+      "gallery": [
+        "/categories/toner-suministros.png"
+      ],
+      "compare_at_price_usd": 80.81,
+      "purchase_price_usd": 28.99,
+      "created_at": "2026-06-01T00:00:00.000Z",
+      "prices": {
+        "public": 40.27,
+        "corporativo": 37,
+        "tecnico": 35,
+        "mayorista": 34,
+        "distribuidor": 31,
+        "vip": 29
+      },
+      "slug": "toner-ricoh-c6003-cyan"
     }
   ]
 }

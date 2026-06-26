@@ -49,6 +49,18 @@ export function normalizeTonerColorProductName(name) {
   return `${base} ${suffix}`.replace(/\s{2,}/g, ' ').trim();
 }
 
+/** Normaliza «NUEVA» / «NUEVO» en equipos nuevos (no aplica si el título incluye «seminueva»). */
+export function formatNuevaProductName(name) {
+  const trimmed = String(name ?? '').trim();
+  if (!trimmed || /\bseminueva\b/i.test(trimmed)) return trimmed;
+
+  return trimmed
+    .replace(/\bNUEVA\b/g, 'Nueva')
+    .replace(/\bNUEVO\b/g, 'Nuevo')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 /** Normaliza «SEMINUEVA» y añade el sufijo «220V» en equipos seminuevos. */
 export function formatSeminuevaProductName(name) {
   const trimmed = String(name ?? '').trim();
@@ -167,9 +179,10 @@ export function moveParentheticalSuffixToEnd(name) {
   return `${base} ${parenSuffix}`.replace(/\s{2,}/g, ' ').trim();
 }
 
-/** Nombre de inventario/tienda: xref, PCDU/PCU, rendimiento, gramaje, color y seminueva. */
+/** Nombre de inventario/tienda: xref, PCDU/PCU, rendimiento, gramaje, color, nueva y seminueva. */
 export function formatInventoryProductName(name) {
   return formatSeminuevaProductName(
+    formatNuevaProductName(
     normalizeTonerColorProductName(
       moveParentheticalSuffixToEnd(
         moveRendSegmentsToSuffix(
@@ -181,6 +194,7 @@ export function formatInventoryProductName(name) {
         ),
       ),
     ),
+  ),
   );
 }
 
@@ -188,13 +202,13 @@ export function isSeminuevaProductName(name) {
   return /\bseminueva\b/i.test(String(name ?? '').trim());
 }
 
-/** Equipo nuevo en inventario: «NUEVA» en el nombre y sin «seminueva». */
+/** Equipo nuevo en inventario: «NUEVA» / «NUEVO» en el nombre y sin «seminueva». */
 export function productQualifiesAsNuevaEquipment(product) {
   const name = String(product?.name ?? '').trim();
   if (!name) return false;
   if (isSeminuevaProductName(name)) return false;
   if (/\bremanufacturad/i.test(name)) return false;
-  return /\bnueva\b/i.test(name);
+  return /\bnueva\b/i.test(name) || /\bnuevo\b/i.test(name);
 }
 
 /** Equipo seminuevo: «seminueva» en el nombre o categoría de seminuevas. */

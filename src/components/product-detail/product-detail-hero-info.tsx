@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { ProductDetailHeroActions } from '@/components/product-detail/product-detail-hero-actions';
 import { ProductDetailHeroTonerSelector } from '@/components/product-detail/product-detail-hero-toner-selector';
@@ -30,6 +31,7 @@ interface ProductDetailHeroInfoProps {
   showPreparationTypeSelector?: boolean;
   preparationType?: SeminuevaPreparationType;
   onPreparationTypeChange?: (value: SeminuevaPreparationType) => void;
+  afterTonerSlot?: ReactNode;
 }
 
 function isRegaloBullet(bullet: ProductHeroSpecBullet): boolean {
@@ -49,6 +51,7 @@ export function ProductDetailHeroInfo({
   showPreparationTypeSelector = false,
   preparationType = 'acondicionada',
   onPreparationTypeChange,
+  afterTonerSlot,
 }: ProductDetailHeroInfoProps) {
   const outOfStock = isProductOutOfStock(product);
   const brandLabel = resolveProductHeroBrand(product) ?? detail.brandLabel;
@@ -233,6 +236,8 @@ export function ProductDetailHeroInfo({
           <p className="mt-4 text-sm font-semibold leading-snug text-[#0f1f3d]">Toner Original RICOH</p>
         );
       })()}
+
+      {afterTonerSlot}
 
       <ProductDetailHeroActions
         technicalSheetUrl={detail.technicalSheetUrl}

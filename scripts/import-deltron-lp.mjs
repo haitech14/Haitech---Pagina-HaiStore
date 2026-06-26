@@ -42,7 +42,7 @@ const STORE_CATEGORY_LABEL_TARGETS = [
   { id: 'cat-computadoras-laptop', labels: ['Computadoras y Laptop'] },
   { id: 'cat-accesorios', labels: ['Accesorios'] },
   { id: 'cat-formato-ancho', labels: ['Formato Ancho'] },
-  { id: 'cat-soluciones-colaboracion', labels: ['Soluciones de Colaboración'] },
+  { id: 'cat-soluciones-colaboracion', labels: ['Pizarras Interactivas', 'Soluciones de Colaboración'] },
 ];
 
 async function ensureStoreCategoryLabels(categoryLabels) {

@@ -8,9 +8,8 @@ import {
   isDateInRange,
 } from '@/components/admin/AdminDateRangePicker';
 import { formatOrderTotal, mapStoreOrderStatusToBadge } from '@/lib/admin-order-status';
+import { useAdminInventory } from '@/hooks/use-products';
 import { apiFetch } from '@/lib/api';
-import { normalizeInventoryProduct } from '@/lib/inventory-product';
-import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import {
   inventoryCategoryParentLabel,
   mergeInventoryCategoryStockSnapshots,
@@ -31,18 +30,6 @@ async function fetchProfiles(): Promise<UserProfile[]> {
   } catch {
     return [];
   }
-}
-
-async function fetchAdminProducts(): Promise<InventoryProduct[]> {
-  const rows = await apiFetch<InventoryProduct[]>('/api/products/admin/all');
-  return rows.map((row) => {
-    try {
-      return normalizeInventoryProduct(row, DEFAULT_WAREHOUSES);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'dato inválido';
-      throw new Error(`Inventario con formato inválido (${row.id ?? 'sin id'}): ${message}`);
-    }
-  });
 }
 
 function toIsoDate(date: Date) {
@@ -126,12 +113,9 @@ export function useAdminProfiles() {
   });
 }
 
+/** Misma caché que `useAdminInventory` (evita queryFn duplicados en `admin-inventory`). */
 export function useAdminProductsQuery() {
-  return useQuery({
-    queryKey: ['admin-inventory'],
-    queryFn: fetchAdminProducts,
-    staleTime: 1000 * 30,
-  });
+  return useAdminInventory();
 }
 
 export function useAdminOrdersDashboard(range: AdminDateRange) {

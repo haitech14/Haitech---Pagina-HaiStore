@@ -42,6 +42,11 @@ const CATEGORY_SUB_PATHS = {
     { query: 'sub=nuevas', label: 'Nuevas' },
     { query: 'sub=seminuevas', label: 'Seminuevas' },
   ],
+  'toner-suministros': [
+    { query: 'sub=toner-originales', label: 'Toner Original' },
+    { query: 'sub=toner-remanufacturado', label: 'Toner Remanufacturado' },
+    { query: 'sub=toner-recarga', label: 'Recarga' },
+  ],
 };
 
 function isUuidSlug(value) {
@@ -167,6 +172,10 @@ async function main() {
       ...categoriesBySlug.multifuncionales,
     };
   }
+
+  routes['/categoria/toner-compatibles'] = {
+    redirectTo: '/categoria/toner-suministros',
+  };
 
   const snapshot = {
     version: 1,

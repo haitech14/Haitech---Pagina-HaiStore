@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 
 import {
   HAITECH_WATERMARK_SRC,
+  PRODUCT_IMAGE_WATERMARK_OVERLAY_CLASS,
+  PRODUCT_IMAGE_WATERMARK_OVERLAY_OPACITY,
   shouldShowProductImageWatermarkOverlay,
 } from '@/lib/product-image-watermark';
 import { cn } from '@/lib/utils';
@@ -32,7 +34,8 @@ export function ProductImageWatermarkOverlay({
         aria-hidden="true"
         loading="lazy"
         decoding="async"
-        className="pointer-events-none absolute bottom-1 right-1 z-[1] w-[22%] min-w-[2.75rem] max-w-[5rem] select-none opacity-[0.14] sm:bottom-1.5 sm:right-1.5 sm:max-w-[5.5rem]"
+        className={PRODUCT_IMAGE_WATERMARK_OVERLAY_CLASS}
+        style={{ opacity: PRODUCT_IMAGE_WATERMARK_OVERLAY_OPACITY }}
       />
     </div>
   );

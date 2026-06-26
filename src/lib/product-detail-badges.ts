@@ -59,11 +59,26 @@ export function isPrinterProduct(product: ProductBadgeSource): boolean {
   );
 }
 
+function isSupplyBadgeProduct(product: ProductBadgeSource): boolean {
+  const haystack = `${product.category ?? ''} ${product.name}`.toLowerCase();
+  return (
+    haystack.includes('toner') ||
+    haystack.includes('tóner') ||
+    haystack.includes('cartucho') ||
+    haystack.includes('suministro') ||
+    haystack.includes('repuesto') ||
+    haystack.includes('accesorio') ||
+    haystack.includes('consumible')
+  );
+}
+
 function isIm430f(product: ProductBadgeSource): boolean {
+  if (isSupplyBadgeProduct(product)) return false;
   return product.id === 'ricoh-im-430f' || product.name.toLowerCase().includes('im 430');
 }
 
 function isImBnA4Sibling(product: ProductBadgeSource): boolean {
+  if (isSupplyBadgeProduct(product)) return false;
   if (product.id === '328f41ef-d935-4807-85d0-e1db5bdf73fb') return true;
   if (product.id === 'b32a43a1-09e4-49f6-8950-3639c9534700') return true;
   return /\bim\s*550\s*f\b/i.test(product.name) || /\bim\s*600\s*f\b/i.test(product.name);

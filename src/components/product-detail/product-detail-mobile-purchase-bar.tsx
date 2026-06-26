@@ -188,7 +188,7 @@ export function ProductDetailMobilePurchaseBar({
         <ProductPurchaseBarThumbnail product={product} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs font-medium text-foreground sm:text-sm">{product.name}</p>
-          <p className="truncate text-base font-bold leading-tight text-red-600 sm:text-lg lg:text-xl">
+          <p className="truncate text-base font-bold leading-tight text-foreground sm:text-lg lg:text-xl">
             <DualPrice usd={totalUsd} />
           </p>
           {savingsMessage ? (

@@ -4,6 +4,7 @@ import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { normalizeInventoryProduct, mergeInventoryProductPatch } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
+import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct, Product } from '@/types/product';
@@ -72,10 +73,11 @@ export function useAdminInventory() {
 export function useInventoryMutations() {
   const queryClient = useQueryClient();
 
-  const invalidate = () => {
-    void queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
-    void queryClient.invalidateQueries({ queryKey: ['products'] });
-    void queryClient.invalidateQueries({ queryKey: ['warehouses'] });
+  const notifyCatalogChange = (options?: {
+    productId?: string;
+    inventoryProduct?: InventoryProduct;
+  }) => {
+    void notifyProductCatalogChanged(queryClient, options);
   };
 
   const createProduct = useMutation({
@@ -84,7 +86,9 @@ export function useInventoryMutations() {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    onSuccess: invalidate,
+    onSuccess: (created) => {
+      notifyCatalogChange({ productId: created.id, inventoryProduct: created });
+    },
   });
 
   const updateProduct = useMutation({
@@ -126,7 +130,7 @@ export function useInventoryMutations() {
           }
         }),
       );
-      void queryClient.invalidateQueries({ queryKey: ['products'] });
+      notifyCatalogChange({ productId: id, inventoryProduct: updated });
     },
   });
 
@@ -140,8 +144,7 @@ export function useInventoryMutations() {
       queryClient.setQueryData<Product[]>(['products'], (current) =>
         current?.filter((product) => product.id !== id),
       );
-      void queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
-      void queryClient.invalidateQueries({ queryKey: ['products'] });
+      notifyCatalogChange({ productId: id });
     },
   });
 
@@ -159,8 +162,7 @@ export function useInventoryMutations() {
       queryClient.setQueryData<Product[]>(['products'], (current) =>
         current?.filter((product) => !idSet.has(product.id)),
       );
-      void queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
-      void queryClient.invalidateQueries({ queryKey: ['products'] });
+      notifyCatalogChange();
     },
   });
 
@@ -170,7 +172,7 @@ export function useInventoryMutations() {
         method: 'PATCH',
         body: JSON.stringify({ ids, patch }),
       }),
-    onSuccess: invalidate,
+    onSuccess: () => notifyCatalogChange(),
   });
 
   const syncCatalog = useMutation({
@@ -182,7 +184,7 @@ export function useInventoryMutations() {
           body: JSON.stringify({ resetDeleted }),
         },
       ),
-    onSuccess: invalidate,
+    onSuccess: () => notifyCatalogChange(),
   });
 
   const bulkDuplicateProducts = useMutation({
@@ -191,7 +193,7 @@ export function useInventoryMutations() {
         method: 'POST',
         body: JSON.stringify({ ids }),
       }),
-    onSuccess: invalidate,
+    onSuccess: () => notifyCatalogChange(),
   });
 
   const reorderProducts = useMutation({
@@ -200,7 +202,7 @@ export function useInventoryMutations() {
         method: 'PUT',
         body: JSON.stringify({ orderedIds }),
       }),
-    onSuccess: invalidate,
+    onSuccess: () => notifyCatalogChange(),
   });
 
   return {

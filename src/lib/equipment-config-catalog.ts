@@ -16,6 +16,21 @@ export const IM550F_ORIGINAL_TONER_PRODUCT_ID = '418480';
 /** Tóner compatible IM 550 en inventario. */
 export const IM550F_COMPATIBLE_TONER_PRODUCT_ID = 'compat-tc-im-550-intercopy';
 
+/** Equipo M 320F en inventario. */
+export const M320F_EQUIPMENT_PRODUCT_ID = 'bfb264b8-70dc-4ad4-9686-2df02df8c75e';
+
+/** Equipo IM C320F (color A4) en inventario. */
+export const IM_C320F_EQUIPMENT_PRODUCT_ID = '481dbc77-436b-464d-b76f-930f7d79f4ff';
+
+/** Equipo M C320FW (color A4) en inventario. */
+export const MC320FW_EQUIPMENT_PRODUCT_ID = 'cb1e47b2-d784-4bef-ae18-d4dae08723e4';
+
+/** Tóner original M 320F / SP 3710 / P-311 en inventario (código 408284). */
+export const M320F_ORIGINAL_TONER_PRODUCT_ID = '408284';
+
+/** Tóner compatible M 320F en inventario. */
+export const M320F_COMPATIBLE_TONER_PRODUCT_ID = 'compat-tc-m-320f-haiprint';
+
 /** Casetera 250 hojas — PB1110 (IM 430F). */
 export const CASETERA_250_PB1110_PRODUCT_ID = 'ricoh-acc-418080';
 

@@ -27,8 +27,15 @@ export async function fetchProductById(id: string): Promise<Product | null> {
 export function useProduct(id: string | undefined) {
   const queryClient = useQueryClient();
   const { role, viewAsRoles, effectiveRole } = useAuth();
-  const featuredFallback = id ? getFeaturedProductById(id) : undefined;
-  const featuredMeta = id ? getFeaturedDisplayMeta(id) : undefined;
+  const catalogProductId = id ? getCatalogProductById(id)?.id : undefined;
+  const featuredFallback = id
+    ? getFeaturedProductById(id) ??
+      (catalogProductId ? getFeaturedProductById(catalogProductId) : undefined)
+    : undefined;
+  const featuredMeta = id
+    ? getFeaturedDisplayMeta(id) ??
+      (catalogProductId ? getFeaturedDisplayMeta(catalogProductId) : undefined)
+    : undefined;
 
   /** Solo reutiliza el listado si ya está en caché; no dispara /api/products en la ficha. */
   const { data: products } = useProducts({ enabled: false });

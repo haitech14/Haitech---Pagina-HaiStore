@@ -79,8 +79,8 @@ export function BrandLogoCard({
       ) : (
         <span
           className={cn(
-            'text-center text-[0.65rem] font-bold sm:text-xs',
-            isDark ? 'text-white/60 group-hover:text-white' : 'text-foreground/80',
+            'text-center text-[0.6rem] font-semibold sm:text-[0.625rem]',
+            isDark ? 'text-white/50 group-hover:text-white/70' : 'text-muted-foreground',
           )}
         >
           {name}

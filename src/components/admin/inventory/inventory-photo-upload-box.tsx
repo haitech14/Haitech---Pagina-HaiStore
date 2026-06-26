@@ -4,6 +4,7 @@ import { CloudUpload, Images, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { cn } from '@/lib/utils';
 import { PRODUCT_IMAGE_UPLOAD_HINT } from '@/lib/product-media-upload-limits';
 
@@ -102,7 +103,7 @@ export function InventoryPhotoPreview({
 }: InventoryPhotoPreviewProps) {
   return (
     <div className="relative mt-2 w-fit">
-      <img
+      <ProductCardImage
         src={src}
         alt={alt}
         className={cn(

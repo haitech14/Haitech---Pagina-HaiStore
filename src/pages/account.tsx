@@ -51,6 +51,8 @@ export function AccountPage() {
 
   const [orderPdfPreview, setOrderPdfPreview] = useState<QuotePdfPreview | null>(null);
   const [orderPdfLoading, setOrderPdfLoading] = useState(false);
+  const [, setCompletedOrderId] = useState<string | null>(null);
+  const [, setCompletedOrderPaymentStatus] = useState<string | null>(null);
   const autoOpenedRef = useRef(false);
 
   const orders = ordersPayload?.orders ?? [];
@@ -88,10 +90,16 @@ export function AccountPage() {
   );
 
   useEffect(() => {
-    const navState = location.state as { orderPdfPreview?: QuotePdfPreview } | null;
+    const navState = location.state as {
+      orderPdfPreview?: QuotePdfPreview;
+      orderId?: string;
+      paymentStatus?: string;
+    } | null;
     if (navState?.orderPdfPreview && !autoOpenedRef.current) {
       autoOpenedRef.current = true;
       setOrderPdfPreview(navState.orderPdfPreview);
+      setCompletedOrderId(navState.orderId ?? null);
+      setCompletedOrderPaymentStatus(navState.paymentStatus ?? null);
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -108,6 +116,8 @@ export function AccountPage() {
     if (!order) return;
 
     autoOpenedRef.current = true;
+    setCompletedOrderId(order.id);
+    setCompletedOrderPaymentStatus(order.payment_status);
     setOrderPdfLoading(true);
     void generateStoreOrderPdfPreviewFromOrder(order, company)
       .then((preview) => setOrderPdfPreview(preview))

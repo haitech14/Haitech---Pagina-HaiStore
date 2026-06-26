@@ -22,14 +22,14 @@ export const outsourcingLanding: ServiceLandingConfig = {
   subtitle:
     'Soluciones profesionales para optimizar operación, continuidad y seguridad tecnológica.',
   bullets: ['Atención dedicada', 'Cobertura operativa', 'Soporte especializado'],
-  gridCols: 'two',
+  gridCols: 'four',
   cards: [
     {
       id: 'impresion',
       title: 'Outsourcing de Impresión',
       description:
         'Gestión integral de impresión, equipos, insumos y soporte para reducir costos y mejorar productividad.',
-      image: '/services/outsourcing/impresion.png',
+      image: '/services/hero/outsourcing-impresion.png',
       imageAlt: 'Flota de impresoras en outsourcing',
       icon: Printer,
     },

@@ -1,19 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
+import { CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { ForumThreadKindBadge } from '@/components/forum/forum-thread-kind-badge';
 import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
-import { useCreateForumReply, useForumThread } from '@/hooks/use-forum';
+import { useCreateForumReply, useForumThread, useMarkForumThreadSolved } from '@/hooks/use-forum';
 import { formatForumRelativeTime } from '@/lib/forum-utils';
+import { cn } from '@/lib/utils';
 
 export function ForumThreadPage() {
   const { slug } = useParams<{ slug: string }>();
   const { user, authProvider } = useAuth();
   const { data, isLoading, isError } = useForumThread(slug);
   const createReply = useCreateForumReply(slug ?? '');
+  const markSolved = useMarkForumThreadSolved(slug ?? '');
   const [body, setBody] = useState('');
 
   useEffect(() => {
@@ -44,6 +48,12 @@ export function ForumThreadPage() {
   }
 
   const { thread, replies } = data;
+  const canReply = Boolean(user && authProvider === 'supabase');
+  const canMarkSolution =
+    canReply &&
+    thread.kind === 'question' &&
+    !thread.isSolved &&
+    user?.id === thread.author?.id;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -57,7 +67,14 @@ export function ForumThreadPage() {
     }
   };
 
-  const canReply = Boolean(user && authProvider === 'supabase');
+  const handleMarkSolution = async (replyId: string) => {
+    try {
+      await markSolved.mutateAsync(replyId);
+      toast.success('Respuesta marcada como solución');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo marcar la solución');
+    }
+  };
 
   return (
     <div className="container max-w-4xl px-4 py-8 sm:px-6">
@@ -70,6 +87,7 @@ export function ForumThreadPage() {
       </nav>
 
       <article className="rounded-xl border border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))] p-5 sm:p-6">
+        <ForumThreadKindBadge kind={thread.kind} isSolved={thread.isSolved} className="mb-3" />
         <h1 className="text-balance text-xl font-bold sm:text-2xl">{thread.title}</h1>
         <p className="mt-2 text-xs text-[hsl(var(--forum-muted))]">
           {thread.author?.name ?? 'Anónimo'} · {formatForumRelativeTime(thread.createdAt)} ·{' '}
@@ -96,17 +114,45 @@ export function ForumThreadPage() {
           Respuestas ({replies.length})
         </h2>
         <ul className="mt-4 space-y-4" role="list">
-          {replies.map((reply) => (
-            <li
-              key={reply.id}
-              className="rounded-xl border border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))] p-4"
-            >
-              <p className="text-xs text-[hsl(var(--forum-muted))]">
-                {reply.author?.name ?? 'Usuario'} · {formatForumRelativeTime(reply.createdAt)}
-              </p>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{reply.body}</p>
-            </li>
-          ))}
+          {replies.map((reply) => {
+            const isAccepted = thread.acceptedReplyId === reply.id;
+            return (
+              <li
+                key={reply.id}
+                className={cn(
+                  'rounded-xl border p-4',
+                  isAccepted
+                    ? 'border-emerald-500/40 bg-emerald-500/5'
+                    : 'border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))]',
+                )}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <p className="text-xs text-[hsl(var(--forum-muted))]">
+                    {reply.author?.name ?? 'Usuario'} · {formatForumRelativeTime(reply.createdAt)}
+                  </p>
+                  {isAccepted ? (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                      <CheckCircle2 className="size-3.5" aria-hidden="true" />
+                      Solución aceptada
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{reply.body}</p>
+                {canMarkSolution && !isAccepted ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={markSolved.isPending}
+                    onClick={() => void handleMarkSolution(reply.id)}
+                    className="mt-3 min-h-9 border-[hsl(var(--forum-border))] text-[hsl(var(--forum-accent))]"
+                  >
+                    Marcar como solución
+                  </Button>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
       </section>
 

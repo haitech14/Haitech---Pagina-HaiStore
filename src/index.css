@@ -64,13 +64,16 @@
   }
 
   .forum-shell {
-    --forum-bg: 0 0% 96.1%;
+    --forum-bg: 0 0% 97%;
     --forum-card: 0 0% 100%;
-    --forum-card-hover: 210 40% 96.1%;
-    --forum-fg: 222.2 84% 4.9%;
-    --forum-muted: 215.4 16.3% 46.9%;
-    --forum-border: 214.3 31.8% 91.4%;
-    --forum-accent: 217 91% 50%;
+    --forum-card-hover: 0 0% 96%;
+    --forum-fg: 0 0% 7%;
+    --forum-muted: 0 0% 42%;
+    --forum-border: 0 0% 88%;
+    --forum-accent: 0 72% 46%;
+    --forum-header: 0 0% 5%;
+    --forum-header-fg: 0 0% 98%;
+    --forum-header-muted: 0 0% 72%;
   }
 }
 

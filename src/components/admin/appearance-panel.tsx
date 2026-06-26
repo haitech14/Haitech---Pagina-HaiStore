@@ -88,7 +88,7 @@ export function AppearancePanel() {
             <Input
               id="appearance-logo"
               value={form.logoUrl.startsWith('data:') ? '' : form.logoUrl}
-              placeholder="/logoclaro.png"
+              placeholder="/logo.png"
               onChange={(event) => setForm((prev) => ({ ...prev, logoUrl: event.target.value }))}
             />
             <Input

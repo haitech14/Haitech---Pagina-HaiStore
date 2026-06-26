@@ -63,9 +63,9 @@ function CatalogCardPricing({ product }: { product: Product }) {
             <div className={cn('grid gap-2', showUsd && showPen ? 'grid-cols-2' : 'grid-cols-1')}>
               {showUsd ? (
                 <div className="min-w-0">
-                  <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-red-600/90">USD</p>
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground">USD</p>
                   <AdminRolePricesTooltip productId={product.id} displayUsd={pricing.currentUsd}>
-                    <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
+                    <p className="text-base font-bold tabular-nums leading-tight text-foreground xl:text-lg">
                       {formatUsd(pricing.currentUsd)}
                     </p>
                   </AdminRolePricesTooltip>
@@ -73,7 +73,7 @@ function CatalogCardPricing({ product }: { product: Product }) {
               ) : null}
               {showPen ? (
                 <div className={cn('min-w-0', showUsd && 'border-l border-border/50 pl-2')}>
-                  <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-red-600/90">PEN</p>
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground">PEN</p>
                   <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
                     {formatPenFromUsd(pricing.currentUsd)}
                   </p>

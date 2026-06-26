@@ -28,9 +28,10 @@ const whatsappRevealClass =
 
 interface ProductHighlightCardProps {
   product: Product;
+  variant?: 'default' | 'storefront';
 }
 
-export function ProductHighlightCard({ product }: ProductHighlightCardProps) {
+export function ProductHighlightCard({ product, variant = 'default' }: ProductHighlightCardProps) {
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
   const catalogProduct = getCatalogProductById(product.id);
@@ -59,8 +60,10 @@ export function ProductHighlightCard({ product }: ProductHighlightCardProps) {
   return (
     <article
       className={cn(
-        'group flex h-full flex-col overflow-hidden bg-white',
-        'rounded-xl border border-border/50 shadow-[0_1px_6px_rgba(15,31,61,0.06)]',
+        'group flex h-full flex-col overflow-hidden',
+        variant === 'storefront'
+          ? 'rounded-xl border border-border/70 bg-card shadow-sm transition-shadow hover:border-red-600/30 hover:shadow-md'
+          : 'rounded-xl border border-border/50 bg-white shadow-[0_1px_6px_rgba(15,31,61,0.06)]',
       )}
     >
       <Link

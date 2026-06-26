@@ -82,6 +82,38 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
     equipmentIds: ['328f41ef-d935-4807-85d0-e1db5bdf73fb', '2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2'],
     supplyType: 'compatible',
   },
+  {
+    id: 'compat-tc-m-320f-haiprint',
+    code: '901033',
+    name: 'Toner cartucho compatible RICOH M 320F / SP 3710 / P-311 HaiPrint',
+    description: 'Tóner compatible negro — Rendimiento según modelo — M-320F / SP-3710 / P-311',
+    category: CATEGORY_COMPATIBLE_TONER,
+    brand: 'HaiPrint',
+    image_url: '/categories/toner-suministros.png',
+    gallery: ['/categories/toner-suministros.png'],
+    attributes: [
+      { name: 'Modelo de equipo', value: 'M-320F / SP-3710 / P-311' },
+      { name: 'Color', value: 'Negro' },
+    ],
+    prices: {
+      public: roundSalePriceToNinety(39.5),
+      tecnico: roundSalePriceToNinety(33.5),
+      mayorista: roundSalePriceToNinety(31.9),
+      distribuidor: roundSalePriceToNinety(29.5),
+    },
+    purchase_price_usd: 22.9,
+    suppliers: [{ name: 'MICAMERB', purchase_price_usd: 22.9 }],
+    equipmentIds: ['bfb264b8-70dc-4ad4-9686-2df02df8c75e'],
+    supplyType: 'compatible',
+  },
+];
+
+/** Vincula tóneres ya existentes en inventario con equipos (sin reescribir el producto). */
+export const KNOWN_EQUIPMENT_TONER_CROSS_SELL = [
+  {
+    equipmentId: 'bfb264b8-70dc-4ad4-9686-2df02df8c75e',
+    tonerIds: ['408284', 'compat-tc-m-320f-haiprint'],
+  },
 ];
 
 /**
@@ -157,6 +189,28 @@ export function wireEquipmentTonerCrossSell(products) {
       }
 
       byId.set(equipmentId, equipment);
+    }
+  }
+
+  for (const link of KNOWN_EQUIPMENT_TONER_CROSS_SELL) {
+    const equipment = byId.get(link.equipmentId);
+    if (!equipment) continue;
+
+    const current = Array.isArray(equipment.cross_sell_product_ids)
+      ? [...equipment.cross_sell_product_ids]
+      : [];
+
+    let changed = false;
+    for (const tonerId of link.tonerIds ?? []) {
+      if (!tonerId || current.includes(tonerId)) continue;
+      current.unshift(tonerId);
+      changed = true;
+    }
+
+    if (changed) {
+      equipment.cross_sell_product_ids = current;
+      wired += 1;
+      byId.set(link.equipmentId, equipment);
     }
   }
 

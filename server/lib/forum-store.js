@@ -1,5 +1,9 @@
+import { hasAdminApiAccess } from './admin-access.js';
 import { shouldUseSharedSupabaseData } from './data-source.js';
+import { listProducts } from './product-catalog.js';
 import { getSupabaseAdmin } from './supabase-auth.js';
+
+export const FORUM_THREAD_KINDS = ['discussion', 'question', 'tutorial', 'firmware'];
 
 function ensureForumSupabase() {
   const supabase = getSupabaseAdmin();
@@ -64,6 +68,10 @@ function mapCategory(row) {
   };
 }
 
+function normalizeThreadKind(kind) {
+  return FORUM_THREAD_KINDS.includes(kind) ? kind : 'discussion';
+}
+
 function mapThread(row, category, author, lastReplyAuthor) {
   return {
     id: row.id,
@@ -71,6 +79,9 @@ function mapThread(row, category, author, lastReplyAuthor) {
     title: row.title,
     body: row.body,
     tags: row.tags ?? [],
+    kind: normalizeThreadKind(row.kind),
+    isSolved: Boolean(row.is_solved),
+    acceptedReplyId: row.accepted_reply_id ?? null,
     viewCount: row.view_count ?? 0,
     replyCount: row.reply_count ?? 0,
     isPinned: Boolean(row.is_pinned),
@@ -104,7 +115,7 @@ function mapEvent(row) {
 }
 
 const THREAD_SELECT = `
-  id, category_id, author_id, title, slug, body, tags,
+  id, category_id, author_id, title, slug, body, tags, kind, is_solved, accepted_reply_id,
   view_count, reply_count, is_pinned, last_reply_at, last_reply_by,
   created_at, updated_at,
   category:forum_categories ( id, slug, name, icon_key, accent_class ),
@@ -159,7 +170,7 @@ export async function readForumCategories() {
 
 export async function readForumThreads(options = {}) {
   const supabase = ensureForumSupabase();
-  const { categorySlug, sort = 'recent', q, limit = 20, offset = 0 } = options;
+  const { categorySlug, kind, solved, sort = 'recent', q, limit = 20, offset = 0 } = options;
 
   let query = supabase.from('forum_threads').select(THREAD_SELECT, { count: 'exact' });
 
@@ -171,6 +182,16 @@ export async function readForumThreads(options = {}) {
       .maybeSingle();
     if (!cat) return { threads: [], total: 0 };
     query = query.eq('category_id', cat.id);
+  }
+
+  if (kind && FORUM_THREAD_KINDS.includes(kind)) {
+    query = query.eq('kind', kind);
+  }
+
+  if (solved === 'open') {
+    query = query.eq('is_solved', false);
+  } else if (solved === 'solved') {
+    query = query.eq('is_solved', true);
   }
 
   if (q?.trim()) {
@@ -236,7 +257,7 @@ export async function readForumThreadBySlug(slug, { incrementViews = false } = {
   };
 }
 
-export async function createForumThread({ authorId, categorySlug, title, body, tags = [] }) {
+export async function createForumThread({ authorId, categorySlug, title, body, tags = [], kind = 'discussion' }) {
   const supabase = ensureForumSupabase();
 
   const { data: category, error: catError } = await supabase
@@ -249,6 +270,7 @@ export async function createForumThread({ authorId, categorySlug, title, body, t
     throw new Error('Categoría no encontrada');
   }
 
+  const threadKind = normalizeThreadKind(kind);
   const slug = await uniqueThreadSlug(supabase, title);
   const row = {
     category_id: category.id,
@@ -257,6 +279,8 @@ export async function createForumThread({ authorId, categorySlug, title, body, t
     slug,
     body: body.trim(),
     tags: Array.isArray(tags) ? tags.filter(Boolean).slice(0, 8) : [],
+    kind: threadKind,
+    is_solved: false,
   };
 
   const { data, error } = await supabase.from('forum_threads').insert(row).select(THREAD_SELECT).single();
@@ -400,6 +424,126 @@ export async function readForumMembers(limit = 30) {
     ...mapAuthor(row),
     joinedAt: row.created_at,
   }));
+}
+
+export async function markThreadSolved({ threadSlug, replyId, userId, userEmail }) {
+  const supabase = ensureForumSupabase();
+
+  const { data: thread, error: threadError } = await supabase
+    .from('forum_threads')
+    .select('id, author_id, kind, slug')
+    .eq('slug', threadSlug)
+    .maybeSingle();
+
+  if (threadError || !thread) throw new Error('Tema no encontrado');
+  if (thread.kind !== 'question') throw new Error('Solo las preguntas técnicas pueden marcarse como resueltas');
+
+  const isAuthor = thread.author_id === userId;
+  const isAdmin = hasAdminApiAccess({ email: userEmail });
+  if (!isAuthor && !isAdmin) {
+    throw new Error('Solo el autor del tema o un administrador puede marcar la solución');
+  }
+
+  const { data: reply, error: replyError } = await supabase
+    .from('forum_replies')
+    .select('id')
+    .eq('id', replyId)
+    .eq('thread_id', thread.id)
+    .maybeSingle();
+
+  if (replyError || !reply) throw new Error('Respuesta no encontrada en este tema');
+
+  const { data, error } = await supabase
+    .from('forum_threads')
+    .update({
+      is_solved: true,
+      accepted_reply_id: replyId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', thread.id)
+    .select(THREAD_SELECT)
+    .single();
+
+  if (error) throw new Error('No se pudo marcar la solución');
+
+  return mapThread(data, data.category, data.author, data.last_reply_author);
+}
+
+export async function readForumFirmwareIndex({ q, limit = 50, threadLimit = 15, threadOffset = 0 } = {}) {
+  const products = await listProducts({ role: 'public' });
+  const term = q?.trim().toLowerCase() ?? '';
+
+  const catalog = [];
+  for (const product of products) {
+    const firmwareAttachments = (product.attachments ?? []).filter((a) => a.kind === 'firmware');
+    if (firmwareAttachments.length === 0) continue;
+
+    const haystack = [product.name, product.brand, product.category, product.code]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    if (term && !haystack.includes(term)) continue;
+
+    for (const attachment of firmwareAttachments) {
+      catalog.push({
+        productId: product.id,
+        name: product.name,
+        slug: product.slug ?? null,
+        brand: product.brand ?? null,
+        category: product.category ?? null,
+        firmware: {
+          label: attachment.label ?? 'Firmware',
+          url: attachment.url,
+          fileName: attachment.file_name ?? null,
+        },
+      });
+    }
+  }
+
+  const threadsResult = await readForumThreads({
+    kind: 'firmware',
+    sort: 'recent',
+    q: term || undefined,
+    limit: threadLimit,
+    offset: threadOffset,
+  });
+
+  return {
+    catalog: catalog.slice(0, limit),
+    threads: threadsResult.threads,
+    threadsTotal: threadsResult.total,
+  };
+}
+
+export async function readForumManualsIndex({ q, limit = 8 } = {}) {
+  const products = await listProducts({ role: 'public' });
+  const term = q?.trim().toLowerCase() ?? '';
+
+  const manuals = [];
+  for (const product of products) {
+    const manualAttachments = (product.attachments ?? []).filter(
+      (a) => a.kind === 'manual' || a.kind === 'technical_sheet',
+    );
+    if (manualAttachments.length === 0) continue;
+
+    const haystack = [product.name, product.brand, product.category]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    if (term && !haystack.includes(term)) continue;
+
+    for (const attachment of manualAttachments) {
+      manuals.push({
+        productId: product.id,
+        name: `${product.name} — ${attachment.label ?? 'Manual'}`,
+        url: attachment.url,
+        fileName: attachment.file_name ?? null,
+        mimeType: attachment.mime_type ?? 'application/pdf',
+      });
+    }
+  }
+
+  return { manuals: manuals.slice(0, limit) };
 }
 
 export async function readPinnedThreads(limit = 10) {

@@ -40,6 +40,8 @@ import {
   mediaPreviewUrl,
   youtubeEmbedUrl,
 } from '@/lib/product-media';
+import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { cn } from '@/lib/utils';
 import type { InventoryProduct } from '@/types/product';
 
@@ -85,11 +87,16 @@ function MediaPreview({
   }
 
   return (
-    <img
+    <ProductImageWatermarkOverlay
       src={url}
-      alt={productName ? `Vista ampliada: ${productName}` : 'Vista ampliada'}
-      className="max-h-[min(70vh,42rem)] w-full object-contain pointer-events-none"
-    />
+      className="flex max-h-[min(70vh,42rem)] w-full items-center justify-center"
+    >
+      <img
+        src={url}
+        alt={productName ? `Vista ampliada: ${productName}` : 'Vista ampliada'}
+        className="max-h-[min(70vh,42rem)] w-full object-contain pointer-events-none"
+      />
+    </ProductImageWatermarkOverlay>
   );
 }
 
@@ -349,11 +356,10 @@ export function InventoryImagePreviewDialog({
                     aria-label="Ver medio en tamaño grande"
                     aria-current={current === url}
                   >
-                    <img
+                    <ProductCardImage
                       src={mediaPreviewUrl(url)}
                       alt=""
                       className="size-full object-cover"
-                      loading="lazy"
                     />
                     {!isImageMediaUrl(url) ? (
                       <span className="absolute inset-0 flex items-center justify-center bg-black/35">

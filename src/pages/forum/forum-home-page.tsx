@@ -1,29 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { ForumCategoryGrid } from '@/components/forum/forum-category-grid';
+import { ForumCategorySidebar } from '@/components/forum/forum-category-sidebar';
 import { ForumDiscussionsPanel } from '@/components/forum/forum-discussions-panel';
-import { ForumHero } from '@/components/forum/forum-hero';
 import { ForumSidebar } from '@/components/forum/forum-sidebar';
 import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import {
   useFeaturedForumMembers,
   useForumCategories,
-  useForumEvents,
-  useForumStats,
+  useForumManualsIndex,
   useForumThreads,
-  useLatestForumPosts,
-  usePopularForumTopics,
 } from '@/hooks/use-forum';
-import type { ForumSortValue } from '@/types/forum';
-
-const READ_STORAGE_KEY = 'haistore-forum-read-at';
+import type { ForumThread, ForumThreadFilter } from '@/types/forum';
 
 export function ForumHomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const q = searchParams.get('q') ?? '';
   const categoryParam = searchParams.get('categoria') ?? '';
-  const [sort, setSort] = useState<ForumSortValue>('recent');
+  const [filter, setFilter] = useState<ForumThreadFilter>('recent');
   const [categoryFilter, setCategoryFilter] = useState(categoryParam);
 
   useEffect(() => {
@@ -34,20 +28,23 @@ export function ForumHomePage() {
     setCategoryFilter(categoryParam);
   }, [categoryParam]);
 
-  const { data: stats } = useForumStats();
+  const sort = filter === 'popular' ? 'popular' : 'recent';
+
   const { data: categories = [] } = useForumCategories();
   const { data: threadsData, isLoading } = useForumThreads({
     ...(categoryFilter ? { category: categoryFilter } : {}),
     sort,
     ...(q ? { q } : {}),
-    limit: 15,
+    limit: 12,
   });
-  const { data: popularTopics = [] } = usePopularForumTopics();
   const { data: featuredMembers = [] } = useFeaturedForumMembers();
-  const { data: events = [] } = useForumEvents();
-  const { data: latestPosts = [] } = useLatestForumPosts();
+  const { data: manuals = [], isLoading: isManualsLoading } = useForumManualsIndex(5);
 
-  const threads = threadsData?.threads ?? [];
+  const threads = useMemo(() => {
+    const list = threadsData?.threads ?? [];
+    if (filter !== 'unanswered') return list;
+    return list.filter((thread: ForumThread) => thread.replyCount === 0);
+  }, [threadsData?.threads, filter]);
 
   const handleCategoryChange = useCallback(
     (value: string) => {
@@ -61,40 +58,27 @@ export function ForumHomePage() {
     [searchParams, setSearchParams],
   );
 
-  const handleMarkAllRead = useCallback(() => {
-    localStorage.setItem(READ_STORAGE_KEY, new Date().toISOString());
-  }, []);
-
-  const unreadNotice = useMemo(() => {
-    const lastRead = localStorage.getItem(READ_STORAGE_KEY);
-    if (!lastRead) return null;
-    return `Marcados como leídos · ${new Date(lastRead).toLocaleString('es-PE')}`;
-  }, []);
-
   return (
-    <div>
-      <ForumHero {...(stats ? { stats } : {})} onMarkAllRead={handleMarkAllRead} />
-      {unreadNotice ? (
-        <p className="container px-4 pt-2 text-xs text-[hsl(var(--forum-muted))] sm:px-6" role="status">
-          {unreadNotice}
-        </p>
-      ) : null}
-      <ForumCategoryGrid categories={categories} />
-      <div className="container grid gap-6 px-4 pb-10 sm:px-6 lg:grid-cols-[minmax(0,2fr)_minmax(17rem,1fr)] lg:gap-8">
-        <ForumDiscussionsPanel
-          threads={threads}
-          categories={categories}
-          categoryFilter={categoryFilter}
-          sort={sort}
-          onCategoryChange={handleCategoryChange}
-          onSortChange={setSort}
-          isLoading={isLoading}
-        />
+    <div className="container px-4 py-6 sm:px-6 sm:py-8">
+      <div className="grid gap-8 lg:grid-cols-[minmax(14rem,17rem)_minmax(0,1fr)_minmax(16rem,20rem)] lg:gap-6 xl:gap-8">
+        <ForumCategorySidebar />
+
+        <div className="min-w-0">
+          <ForumDiscussionsPanel
+            threads={threads}
+            categories={categories}
+            categoryFilter={categoryFilter}
+            filter={filter}
+            onCategoryChange={handleCategoryChange}
+            onFilterChange={setFilter}
+            isLoading={isLoading}
+          />
+        </div>
+
         <ForumSidebar
-          popularTopics={popularTopics}
           featuredMembers={featuredMembers}
-          events={events}
-          latestPosts={latestPosts}
+          manuals={manuals}
+          isManualsLoading={isManualsLoading}
         />
       </div>
     </div>

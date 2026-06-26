@@ -43,10 +43,11 @@ export function parseServiceHubSection(value: string | null | undefined): Servic
 
 export function serviceHubPath(section?: ServiceLandingSlug): string {
   const slug = section ?? DEFAULT_SERVICE_HUB_SECTION;
-  if (slug === DEFAULT_SERVICE_HUB_SECTION) {
-    return '/servicios';
-  }
   return `/servicios?seccion=${slug}`;
+}
+
+export function serviceDetailPathFromLanding(landingSlug: string, cardId: string): string {
+  return `/servicios/${landingSlug}-${cardId}`;
 }
 
 export function isServiceHubPath(pathname: string): boolean {

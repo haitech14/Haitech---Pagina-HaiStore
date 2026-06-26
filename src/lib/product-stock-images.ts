@@ -8,8 +8,8 @@ export const PRODUCT_MODEL_STOCK_IMAGES = [
   { pattern: /\bim\s*550\s*f\b/i, image: '/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp' },
   { pattern: /\bim\s*5000\b/i, image: '/categories/multifuncionales.png' },
   { pattern: /\bim\s*600\s*f\b/i, image: '/products/b32a43a1-09e4-49f6-8950-3639c9534700.webp' },
-  { pattern: /\bim\s*c320\s*f\b/i, image: '/categories/multifuncionales.png' },
-  { pattern: /\bm\s*c320\s*fw\b/i, image: '/categories/multifuncionales.png' },
+  { pattern: /\bim\s*c320\s*f\b/i, image: '/products/481dbc77-436b-464d-b76f-930f7d79f4ff.webp' },
+  { pattern: /\bm\s*c320\s*fw\b/i, image: '/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp' },
   // Equipos con IDs UUID en inventario (soporta "M-320F" / "MP-305+")
   { pattern: /\bm[-\s]*320[-\s]*f\b/i, image: '/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp' },
   { pattern: /\bmp[-\s]*305\s*\+?\b/i, image: '/products/ab878d89-61e0-4e51-a941-03455e1da407.webp' },

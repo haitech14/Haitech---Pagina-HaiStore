@@ -20,6 +20,7 @@ import {
   takeTopProductsBySearchRelevance,
 } from '../../shared/catalog-search.js';
 import { productMatchesCategoryFilter } from '../../shared/home-catalog-filter.js';
+import { excludeStoreSoftwareProducts } from '../../shared/store-software-products.js';
 import {
   findInventoryProductByLookupKey,
   resolveCanonicalProductId,
@@ -464,6 +465,8 @@ export async function searchPublicProducts({
   const allProducts = await listProducts({ role });
 
   let matched = allProducts.filter((product) => productMatchesSearchQuery(product, trimmed));
+
+  matched = excludeStoreSoftwareProducts(matched);
 
   if (normalizedCategory !== 'all') {
     matched = matched.filter((product) => productMatchesCategoryFilter(product, normalizedCategory));

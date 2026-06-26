@@ -2,6 +2,7 @@ import { jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
 
 import { amountToWordsEs } from '@/lib/amount-to-words-es';
+import { normalizePdfProductCode, pdfTableAmountColumnRight } from '@/lib/pdf-product-code';
 import { formatTpvMoney, tpvCurrencyLabel } from '@/lib/tpv-pricing';
 import { PRICE_ROLE_LABELS } from '@/types/product';
 import type { CompanySettings } from '@/types/company-settings';
@@ -195,6 +196,8 @@ export async function buildTpvDocumentPdf(
   const tableX = MARGIN;
   const tableW = contentW;
   const col = { n: 8, code: 24, desc: 78, qty: 14, unit: 28, amount: 28 };
+  const amountColRight = pdfTableAmountColumnRight(tableX, tableW);
+  const unitColRight = amountColRight - col.amount;
   const headerH = 8;
   const rowH = 10;
 
@@ -213,9 +216,8 @@ export async function buildTpvDocumentPdf(
     cx += col.desc;
     doc.text('CANT.', cx + 2, startY + 5.2);
     cx += col.qty;
-    doc.text('P/U', cx + 4, startY + 5.2);
-    cx += col.unit;
-    doc.text('IMPORTE', cx + 2, startY + 5.2);
+    doc.text('P/U', unitColRight, startY + 5.2, { align: 'right' });
+    doc.text('IMPORTE', amountColRight, startY + 5.2, { align: 'right' });
     return startY + headerH;
   };
 
@@ -239,7 +241,11 @@ export async function buildTpvDocumentPdf(
     doc.text(String(index + 1), cx + 2, y + 6.5);
     cx += col.n;
 
-    doc.text(line.sku || line.productId.slice(0, 12), cx + 1, y + 6.5);
+    const codeLines = doc.splitTextToSize(
+      normalizePdfProductCode(line.sku || line.productId, line.brand),
+      col.code - 2,
+    );
+    doc.text(codeLines.slice(0, 2), cx + 1, y + 5.5);
     cx += col.code;
 
     doc.setFont('helvetica', 'normal');
@@ -251,36 +257,35 @@ export async function buildTpvDocumentPdf(
     doc.setFont('helvetica', 'bold');
     doc.text(String(line.quantity), cx + 4, y + 6.5);
     cx += col.qty;
-    doc.text(formatLineAmount(line.unitPricePen, customer), cx + 1, y + 6.5);
-    cx += col.unit;
-    doc.text(formatLineAmount(line.unitPricePen * line.quantity, customer), cx + 1, y + 6.5);
+    doc.text(formatLineAmount(line.unitPricePen, customer), unitColRight, y + 6.5, { align: 'right' });
+    doc.text(formatLineAmount(line.unitPricePen * line.quantity, customer), amountColRight, y + 6.5, {
+      align: 'right',
+    });
 
     y += rowH;
   });
 
   y += 4;
 
-  const totalsW = 62;
-  const totalsX = PAGE_W - MARGIN - totalsW;
-  const totalsRowH = 6.5;
+  const totalsLabelRight = unitColRight - 2;
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(55, 65, 81);
-  doc.text('GRAVADA:', totalsX, y + 4);
-  doc.text(formatLineAmount(gravada, customer), totalsX + totalsW, y + 4, { align: 'right' });
-  y += totalsRowH;
-  doc.text('IGV 18.00 %:', totalsX, y + 4);
-  doc.text(formatLineAmount(igv, customer), totalsX + totalsW, y + 4, { align: 'right' });
-  y += totalsRowH + 1;
+  doc.text('GRAVADA:', totalsLabelRight, y + 4, { align: 'right' });
+  doc.text(formatLineAmount(gravada, customer), amountColRight, y + 4, { align: 'right' });
+  y += 6.5;
+  doc.text('IGV 18.00 %:', totalsLabelRight, y + 4, { align: 'right' });
+  doc.text(formatLineAmount(igv, customer), amountColRight, y + 4, { align: 'right' });
+  y += 7.5;
 
   doc.setFillColor(...primary);
-  doc.roundedRect(totalsX - 2, y, totalsW + 2, 8, 1.5, 1.5, 'F');
+  doc.roundedRect(amountColRight - col.amount - 2, y, col.amount + 4, 8, 1.5, 1.5, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
-  doc.text('TOTAL:', totalsX, y + 5.5);
-  doc.text(formatLineAmount(total, customer), totalsX + totalsW, y + 5.5, { align: 'right' });
+  doc.text('TOTAL:', totalsLabelRight, y + 5.5, { align: 'right' });
+  doc.text(formatLineAmount(total, customer), amountColRight, y + 5.5, { align: 'right' });
   y += 12;
 
   doc.setFillColor(...primaryLight);

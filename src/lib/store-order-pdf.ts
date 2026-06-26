@@ -1,5 +1,7 @@
 import { cartLineUnitUsd } from '@/context/cart-context';
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
+import { normalizePdfProductCode } from '@/lib/pdf-product-code';
+import { resolveProductHeroCode } from '@/lib/product-hero-meta';
 import {
   buildStoreOrderPdf,
   downloadStoreOrderPdf,
@@ -35,7 +37,9 @@ function mapCartLines(items: CartItem[]): StoreOrderPdfLine[] {
   const rate = getUsdToPenSaleRate();
   return items.map((item) => ({
     name: item.product.name,
-    sku: item.product.code ?? item.product.id,
+    sku:
+      resolveProductHeroCode(item.product) ??
+      normalizePdfProductCode(item.product.code?.trim() || item.product.id, item.product.brand),
     quantity: item.quantity,
     unitPricePen: Math.round(cartLineUnitUsd(item) * rate * 100) / 100,
     imageUrl: item.product.image_url,

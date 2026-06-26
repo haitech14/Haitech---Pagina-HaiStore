@@ -11,7 +11,9 @@ import { Button } from '@/components/ui/button';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { CatalogMobileAccordion } from '@/components/layout/catalog-mobile-accordion';
 import { HeaderActionStrip } from '@/components/layout/header-action-strip';
-import { HeaderCategoryNav, headerMainNavLinks } from '@/components/layout/header-category-nav';
+import { HeaderCategoryNav, forumHeaderNavLinks, headerMainNavLinks, isForumPath } from '@/components/layout/header-category-nav';
+import { HeaderForumButton } from '@/components/layout/header-forum-button';
+import { HeaderForumPublishButton } from '@/components/layout/header-forum-publish-button';
 import { HeaderQuoteWhatsAppButton } from '@/components/layout/header-quote-whatsapp-button';
 import { HeaderUtilityBar } from '@/components/layout/header-utility-bar';
 import {
@@ -81,6 +83,16 @@ export function Header() {
       document.body.style.overflow = previousOverflow;
     };
   }, [mobileOpen]);
+
+  const forumMode = isForumPath(location.pathname);
+  const mobileLinks: MainNavItem[] = forumMode
+    ? forumHeaderNavLinks.map((item) => ({
+        to: item.to,
+        label: item.label,
+        ...(item.end !== undefined ? { end: item.end } : {}),
+        ...(item.matchActive ? { matchActive: item.matchActive } : {}),
+      }))
+    : navItems;
 
   return (
     <header
@@ -169,11 +181,28 @@ export function Header() {
         <div className="border-t lg:hidden">
           <div className="container flex flex-col gap-4 py-4">
             <HeaderCurrencyControl className="w-full md:hidden" />
-            <CatalogMobileAccordion onNavigate={() => setMobileOpen(false)} />
-            <SolutionsMobileAccordion onNavigate={() => setMobileOpen(false)} />
-            <nav aria-label="Navegación móvil">
+            {!forumMode ? <CatalogMobileAccordion onNavigate={() => setMobileOpen(false)} /> : null}
+            {!forumMode ? <SolutionsMobileAccordion onNavigate={() => setMobileOpen(false)} /> : null}
+            <nav aria-label={forumMode ? 'Navegación móvil del foro' : 'Navegación móvil'}>
               <ul className="flex flex-col">
-                {[homeItem, ...navItems].map((item) => (
+                {!forumMode ? (
+                  <li>
+                    <NavLink
+                      to={homeItem.to}
+                      end={homeItem.end ?? false}
+                      onClick={() => setMobileOpen(false)}
+                      className={({ isActive }) =>
+                        cn(
+                          'block rounded-md px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent',
+                          isActive ? 'text-red-600' : 'text-foreground',
+                        )
+                      }
+                    >
+                      {homeItem.label}
+                    </NavLink>
+                  </li>
+                ) : null}
+                {mobileLinks.map((item) => (
                   <li key={item.label}>
                     <NavLink
                       {...mainNavLinkProps(item)}
@@ -191,7 +220,16 @@ export function Header() {
                 ))}
               </ul>
             </nav>
-            <HeaderQuoteWhatsAppButton className="min-h-11 w-full justify-center" />
+            <div className="flex flex-col gap-2 sm:flex-row">
+              {forumMode ? (
+                <HeaderForumPublishButton className="min-h-11 w-full justify-center sm:flex-1" />
+              ) : (
+                <>
+                  <HeaderForumButton className="min-h-11 w-full justify-center sm:flex-1" />
+                  <HeaderQuoteWhatsAppButton className="min-h-11 w-full justify-center sm:flex-1" />
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

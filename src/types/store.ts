@@ -89,6 +89,11 @@ export interface StoreOrder {
   payment_method?: string | null;
   payment_provider?: string | null;
   external_payment_id?: string | null;
+  payment_metadata?: {
+    payment_proof_url?: string | null;
+    payment_proof_file_name?: string | null;
+    payment_proof_uploaded_at?: string | null;
+  } | null;
   currency: string;
   subtotal_usd: number;
   tax_usd: number;

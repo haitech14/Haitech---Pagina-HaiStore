@@ -2,6 +2,7 @@ import catalogData from '@/data/inventory-catalog.json';
 import { productCategoryTags } from '@/lib/inventory-categories';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
+import { findProductBySlugOrId } from '@/lib/product-slug';
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { InventoryProduct } from '@/types/product';
 
@@ -109,5 +110,7 @@ export function getCatalogFeaturedByCategories(
 }
 
 export function getCatalogProductById(id: string): CatalogRow | undefined {
-  return getCatalogRows().find((row) => row.id === id);
+  const rows = getCatalogRows();
+  const match = findProductBySlugOrId(rows, id);
+  return match as CatalogRow | undefined;
 }

@@ -66,8 +66,27 @@ function HeroImageOnlyCtaOverlay() {
   );
 }
 
-function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: number }) {
-  const headingId = index === 0 ? 'hero-titulo' : `hero-titulo-${slide.id}`;
+function resolveHeroSingleAssetSources(slide: HomeHeroSlide) {
+  if (slide.skipHeroWebpVariants) {
+    return {
+      webpSrcSet: undefined,
+      fallbackSrc: slide.backgroundImage,
+      sizes: '100vw',
+    };
+  }
+  return heroSingleAssetSources(slide.backgroundImage);
+}
+
+function HeroSlideContent({
+  slide,
+  index,
+  sectionHeadingId = 'hero-titulo',
+}: {
+  slide: HomeHeroSlide;
+  index: number;
+  sectionHeadingId?: string;
+}) {
+  const headingId = index === 0 ? sectionHeadingId : `${sectionHeadingId}-${slide.id}`;
 
   if (slide.layout === 'dia-papa-home') {
     return (
@@ -96,7 +115,7 @@ function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: numbe
           const objectFit = slide.objectFit ?? 'cover';
           const heightClass = slide.compactMaxHeightClass ?? '';
           const fixedRowHeight = /\bh-\[/.test(heightClass);
-          const { webpSrcSet, fallbackSrc, sizes } = heroSingleAssetSources(slide.backgroundImage);
+          const { webpSrcSet, fallbackSrc, sizes } = resolveHeroSingleAssetSources(slide);
           const imageFrameClass = slide.compactImageFrameClass ?? CATEGORY_STRIP_HERO_IMAGE_FRAME_CLASS;
           const imageZoomClass = slide.compactImageZoomClass ?? CATEGORY_STRIP_HERO_IMAGE_ZOOM_CLASS;
           return (
@@ -114,7 +133,9 @@ function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: numbe
               }
             >
               <picture className={cn('block', imageFrameClass)}>
-                <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
+                {webpSrcSet ? (
+                  <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
+                ) : null}
                 <img
                   src={fallbackSrc}
                   width={imageWidth}
@@ -141,13 +162,15 @@ function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: numbe
         })()
       ) : (
         (() => {
-          const { webpSrcSet, fallbackSrc, sizes } = heroSingleAssetSources(slide.backgroundImage);
+          const { webpSrcSet, fallbackSrc, sizes } = resolveHeroSingleAssetSources(slide);
           return (
             <picture
               className="block w-full overflow-hidden"
               style={{ aspectRatio: `${imageWidth} / ${displayHeight}` }}
             >
-              <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
+              {webpSrcSet ? (
+                <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
+              ) : null}
               <img
                 src={fallbackSrc}
                 width={imageWidth}
@@ -374,11 +397,19 @@ function HeroSlideContent({ slide, index }: { slide: HomeHeroSlide; index: numbe
   );
 }
 
-export function HeroBanner() {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: homeHeroSlides.length > 1, align: 'start' });
+export function HeroBanner({
+  slides = homeHeroSlides,
+  headingId = 'hero-titulo',
+  autoplayIntervalMs = 7000,
+}: {
+  slides?: HomeHeroSlide[];
+  headingId?: string;
+  autoplayIntervalMs?: number;
+} = {}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: slides.length > 1, align: 'start' });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
-  const showCarouselControls = homeHeroSlides.length > 1;
+  const showCarouselControls = slides.length > 1;
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -404,7 +435,7 @@ export function HeroBanner() {
     const timer = window.setInterval(() => {
       if (document.hidden) return;
       emblaApi.scrollNext();
-    }, 7000);
+    }, autoplayIntervalMs);
 
     const onVisibility = () => {
       if (!document.hidden) emblaApi.reInit();
@@ -415,15 +446,15 @@ export function HeroBanner() {
       window.clearInterval(timer);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [emblaApi, autoplayPaused, showCarouselControls]);
+  }, [autoplayIntervalMs, emblaApi, autoplayPaused, showCarouselControls]);
 
   const pauseAutoplay = () => setAutoplayPaused(true);
 
-  if (homeHeroSlides.length === 0) return null;
+  if (slides.length === 0) return null;
 
   return (
     <section
-      aria-labelledby="hero-titulo"
+      aria-labelledby={headingId}
       aria-roledescription={showCarouselControls ? 'carrusel' : undefined}
       className="relative w-full leading-none"
       onMouseEnter={pauseAutoplay}
@@ -432,13 +463,17 @@ export function HeroBanner() {
       <div className="relative w-full">
         <div ref={emblaRef} className="overflow-hidden">
             <ul className="flex">
-              {homeHeroSlides.map((slide, index) => (
+              {slides.map((slide, index) => (
                 <li
                   key={slide.id}
                   className="relative min-w-0 flex-[0_0_100%]"
                   aria-hidden={selectedIndex !== index}
                 >
-                  <HeroSlideContent slide={slide} index={index} />
+                  <HeroSlideContent
+                    slide={slide}
+                    index={index}
+                    sectionHeadingId={headingId}
+                  />
                 </li>
               ))}
             </ul>

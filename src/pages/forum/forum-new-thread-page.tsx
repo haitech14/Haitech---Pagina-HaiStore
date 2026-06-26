@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
+import { FORUM_KIND_PLACEHOLDERS, FORUM_THREAD_KIND_OPTIONS } from '@/data/forum-pillars';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,13 +17,26 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
 import { useCreateForumThread, useForumCategories } from '@/hooks/use-forum';
+import type { ForumThreadKind } from '@/types/forum';
+
+const VALID_TIPOS = new Set<ForumThreadKind>(['discussion', 'question', 'tutorial', 'firmware']);
+
+function parseTipoParam(value: string | null): ForumThreadKind {
+  if (value && VALID_TIPOS.has(value as ForumThreadKind)) {
+    return value as ForumThreadKind;
+  }
+  return 'discussion';
+}
 
 export function ForumNewThreadPage() {
   const { user, authProvider, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const tipoParam = searchParams.get('tipo');
   const { data: categories = [] } = useForumCategories();
   const createThread = useCreateForumThread();
   const [categorySlug, setCategorySlug] = useState('');
+  const [kind, setKind] = useState<ForumThreadKind>(() => parseTipoParam(tipoParam));
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [tags, setTags] = useState('');
@@ -32,10 +46,21 @@ export function ForumNewThreadPage() {
   }, []);
 
   useEffect(() => {
+    setKind(parseTipoParam(tipoParam));
+  }, [tipoParam]);
+
+  useEffect(() => {
     if (!categorySlug && categories[0]) {
-      setCategorySlug(categories[0].slug);
+      const firmwareCat = categories.find((c) => c.slug === 'firmware');
+      if (kind === 'firmware' && firmwareCat) {
+        setCategorySlug(firmwareCat.slug);
+      } else {
+        setCategorySlug(categories[0].slug);
+      }
     }
-  }, [categories, categorySlug]);
+  }, [categories, categorySlug, kind]);
+
+  const placeholders = useMemo(() => FORUM_KIND_PLACEHOLDERS[kind], [kind]);
 
   if (!isLoading && (!user || authProvider !== 'supabase')) {
     return <Navigate to="/login" replace state={{ from: '/foro/nuevo' }} />;
@@ -50,6 +75,7 @@ export function ForumNewThreadPage() {
         categorySlug,
         title: title.trim(),
         body: body.trim(),
+        kind,
         tags: tags
           .split(',')
           .map((tag) => tag.trim())
@@ -71,10 +97,32 @@ export function ForumNewThreadPage() {
       </nav>
       <h1 className="text-2xl font-bold">Nuevo tema</h1>
       <p className="mt-2 text-sm text-[hsl(var(--forum-muted))]">
-        Comparte una consulta, guía o debate con la comunidad HaiStore.
+        Comparte una consulta, guía o nota de firmware con la comunidad HaiStore.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="thread-kind">Tipo de publicación</Label>
+          <Select
+            value={kind}
+            onValueChange={(value) => setKind(value as ForumThreadKind)}
+          >
+            <SelectTrigger
+              id="thread-kind"
+              className="border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))] text-[hsl(var(--forum-fg))]"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FORUM_THREAD_KIND_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="thread-category">Categoría</Label>
           <Select value={categorySlug} onValueChange={setCategorySlug} required>
@@ -102,6 +150,7 @@ export function ForumNewThreadPage() {
             onChange={(event) => setTitle(event.target.value)}
             required
             minLength={3}
+            placeholder={placeholders.title}
             className="border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))] text-[hsl(var(--forum-fg))]"
           />
         </div>
@@ -115,6 +164,7 @@ export function ForumNewThreadPage() {
             required
             minLength={10}
             rows={8}
+            placeholder={placeholders.body}
             className="border-[hsl(var(--forum-border))] bg-[hsl(var(--forum-card))] text-[hsl(var(--forum-fg))]"
           />
         </div>

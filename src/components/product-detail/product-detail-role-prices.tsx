@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { useAuth } from '@/context/auth-context';
-import { useDisplayCurrency } from '@/context/display-currency-context';
 import type { CatalogRolePriceLine } from '@/hooks/use-catalog-display-price';
 import { resolveCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
@@ -48,16 +47,10 @@ export function ProductDetailRolePriceLines({
   className,
 }: ProductDetailRolePriceLinesProps) {
   const { isAdmin, viewAsRoles, effectiveRole } = useAuth();
-  const { displayCurrency } = useDisplayCurrency();
 
-  const mainPriceClass = cn(
-    'text-2xl font-bold leading-tight tabular-nums sm:text-[1.75rem]',
-    displayCurrency === 'USD' ? 'text-foreground' : 'text-red-600',
-  );
-  const rolePriceClass = cn(
-    'text-xl font-bold leading-tight tabular-nums sm:text-2xl',
-    displayCurrency === 'USD' ? 'text-foreground' : 'text-red-600',
-  );
+  const mainPriceClass =
+    'text-2xl font-bold leading-tight tabular-nums text-foreground sm:text-[1.75rem]';
+  const rolePriceClass = 'text-xl font-bold leading-tight tabular-nums text-foreground sm:text-2xl';
 
   const publicTotalUsd = useMemo(
     () =>
@@ -174,18 +167,18 @@ export function TonerCardRolePrices({ prices, className }: TonerCardRolePricesPr
       <span className={cn('mt-0.5 block space-y-0.5', className)}>
         <span className="flex flex-wrap items-baseline gap-x-1.5 text-xs">
           <span className="font-semibold text-muted-foreground">{PRICE_ROLE_LABELS.tecnico}:</span>
-          <DualPrice usd={prices.tecnico} className="font-bold text-red-600" />
+          <DualPrice usd={prices.tecnico} className="font-bold text-foreground" />
         </span>
         <span className="flex flex-wrap items-baseline gap-x-1.5 text-xs sm:text-sm">
           <span className="font-semibold text-muted-foreground">{PRICE_ROLE_LABELS.public}:</span>
-          <DualPrice usd={prices.public} className="font-bold text-red-600" />
+          <DualPrice usd={prices.public} className="font-bold text-foreground" />
         </span>
       </span>
     );
   }
 
   return (
-    <span className={cn('mt-0.5 block text-xs font-bold text-red-600 sm:text-sm', className)}>
+    <span className={cn('mt-0.5 block text-xs font-bold text-foreground sm:text-sm', className)}>
       <DualPrice usd={prices.public} />
     </span>
   );

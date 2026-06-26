@@ -4,6 +4,9 @@ import {
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
   IM550F_ORIGINAL_TONER_PRODUCT_ID,
+  M320F_COMPATIBLE_TONER_PRODUCT_ID,
+  M320F_EQUIPMENT_PRODUCT_ID,
+  M320F_ORIGINAL_TONER_PRODUCT_ID,
 } from '@/lib/equipment-config-catalog';
 import {
   flattenConsumableGroupItems,
@@ -70,6 +73,10 @@ function normalizeEquipmentName(value: string): string {
 }
 
 export function resolveKnownOriginalTonerProductId(equipment: Product): string | null {
+  if (equipment.id === M320F_EQUIPMENT_PRODUCT_ID || /\bm\s*320\s*f\b/i.test(equipment.name)) {
+    return M320F_ORIGINAL_TONER_PRODUCT_ID;
+  }
+
   if (equipment.id === 'ricoh-im-430f' || /\bim\s*430f\b/i.test(equipment.name)) {
     return IM430F_ORIGINAL_TONER_PRODUCT_ID;
   }
@@ -87,6 +94,10 @@ export function resolveKnownOriginalTonerProductId(equipment: Product): string |
 }
 
 export function resolveKnownCompatibleTonerProductId(equipment: Product): string | null {
+  if (equipment.id === M320F_EQUIPMENT_PRODUCT_ID || /\bm\s*320\s*f\b/i.test(equipment.name)) {
+    return M320F_COMPATIBLE_TONER_PRODUCT_ID;
+  }
+
   if (/\bim\s*550f\b/i.test(equipment.name) || /\bim\s*600f\b/i.test(equipment.name)) {
     return IM550F_COMPATIBLE_TONER_PRODUCT_ID;
   }

@@ -30,7 +30,8 @@ export function ForumHero({ stats, onMarkAllRead }: ForumHeroProps) {
             ¡Bienvenido al Foro HaiStore!
           </h1>
           <p className="mt-2 max-w-2xl text-pretty text-sm text-[hsl(var(--forum-muted))] sm:text-base">
-            Tu comunidad de tecnología, impresión y conocimiento técnico Ricoh.
+            Soporte técnico Ricoh: resuelve dudas, aprende con tutoriales y encuentra firmware para tus
+            equipos.
           </p>
           <ul className="mt-4 flex flex-wrap gap-4 text-sm" aria-label="Estadísticas del foro">
             <li>

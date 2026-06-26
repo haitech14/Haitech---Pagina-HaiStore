@@ -5,6 +5,7 @@ import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { ProductAttributeBadges } from '@/components/product-attribute-badges';
 import { ProductCardPricing } from '@/components/product/product-card-pricing';
 import { ProductCardTitle } from '@/components/product/product-card-title';
+import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -75,11 +76,16 @@ export function ProductQuickViewDialog({
             {isLoading && !displayImage ? (
               <div className="aspect-square w-full max-w-[280px] animate-pulse rounded-lg bg-muted" />
             ) : displayImage ? (
-              <img
+              <ProductImageWatermarkOverlay
                 src={displayImage}
-                alt=""
-                className="max-h-64 w-full max-w-[320px] object-contain lg:max-h-[min(72vh,560px)] lg:max-w-none"
-              />
+                className="flex max-h-64 w-full max-w-[320px] items-center justify-center lg:max-h-[min(72vh,560px)] lg:max-w-none"
+              >
+                <img
+                  src={displayImage}
+                  alt=""
+                  className="max-h-64 w-full max-w-[320px] object-contain lg:max-h-[min(72vh,560px)] lg:max-w-none"
+                />
+              </ProductImageWatermarkOverlay>
             ) : (
               <span className="text-5xl font-bold text-muted-foreground" aria-hidden="true">
                 {displayName.charAt(0)}

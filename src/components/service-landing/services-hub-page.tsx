@@ -1,66 +1,53 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { ServiceHubHeroBanners } from '@/components/service-landing/service-hub-hero-banners';
-import { ServiceLandingSection } from '@/components/service-landing/service-landing-section';
-import { formatPageTitle } from '@/data/site-meta';
-import type { ServiceLandingSlug } from '@/data/service-landings';
-import {
-  DEFAULT_SERVICE_HUB_SECTION,
-  getServiceHubConfig,
-  parseServiceHubSection,
-} from '@/lib/service-hub';
+import { ServicesCatalogSection } from '@/components/services-storefront/services-catalog-section';
+import { ServicesCustomSolutionForm } from '@/components/services-storefront/services-custom-solution-form';
+import { ServicesStorefrontHero } from '@/components/services-storefront/services-storefront-hero';
+import { mapHubSectionToCategory, SERVICES_CATALOG_ID } from '@/data/services-catalog';
+import { useSeo } from '@/hooks/use-seo';
+import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
+import { parseServiceHubSection } from '@/lib/service-hub';
+import { buildAbsoluteUrl } from '@/lib/site-url';
+import { cn } from '@/lib/utils';
+
+const LANDING_SEO = {
+  title: 'Servicios empresariales',
+  description:
+    'Alquiler de equipos, soporte técnico, outsourcing de impresión y servicios corporativos para empresas en Perú.',
+};
 
 export function ServicesHubPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const activeSection = parseServiceHubSection(searchParams.get('seccion'));
-  const config = getServiceHubConfig(activeSection);
+  const [searchParams] = useSearchParams();
+  const section = parseServiceHubSection(searchParams.get('seccion'));
+  const initialCategory = mapHubSectionToCategory(section);
 
-  const selectSection = useCallback(
-    (section: ServiceLandingSlug) => {
-      if (section === DEFAULT_SERVICE_HUB_SECTION) {
-        setSearchParams({}, { replace: true });
-        return;
-      }
-      setSearchParams({ seccion: section }, { replace: true });
-    },
-    [setSearchParams],
-  );
+  useSeo({
+    title: LANDING_SEO.title,
+    description: LANDING_SEO.description,
+    canonical: buildAbsoluteUrl('/servicios'),
+    robots: 'index,follow',
+  });
 
   useEffect(() => {
-    if (config) {
-      document.title = formatPageTitle(`Servicios — ${config.metaTitle}`);
-    }
-  }, [config]);
+    if (!searchParams.has('seccion')) return;
 
-  if (!config) {
-    return null;
-  }
+    window.requestAnimationFrame(() => {
+      document.getElementById(SERVICES_CATALOG_ID)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  }, [searchParams]);
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-background pb-12 pt-8 sm:pb-16 sm:pt-10">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,hsl(var(--border)/0.35)_1px,transparent_0)] [background-size:24px_24px] opacity-60"
+    <div className={cn('services-storefront flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
+      <ServicesStorefrontHero />
+      <ServicesCatalogSection
+        initialCategory={initialCategory}
+        key={initialCategory ?? 'all'}
       />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-24 top-0 size-72 rounded-full bg-sky-100/60 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-24 top-32 size-80 rounded-full bg-indigo-100/50 blur-3xl"
-      />
-
-      <div className="container relative flex flex-col gap-8 sm:gap-10">
-        <ServiceHubHeroBanners
-          activeSection={activeSection}
-          onSelect={selectSection}
-          idPrefix="servicios-hub"
-        />
-
-        <ServiceLandingSection config={config} sectionIdPrefix="servicios-hub" />
-      </div>
+      <ServicesCustomSolutionForm />
     </div>
   );
 }

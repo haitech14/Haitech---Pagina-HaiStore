@@ -17,7 +17,8 @@ function listLanIps() {
 
 console.log('\n[HaiStore] URLs de desarrollo:\n');
 console.log(`  Local:   http://localhost:${webPort}`);
-console.log(`  API:     http://localhost:${apiPort} (proxy /api desde Vite)\n`);
+console.log(`  API:     http://localhost:${apiPort} (proxy /api desde Vite)`);
+console.log('  Stack:   npm run dev:all  (Vite + API admin)\n');
 
 const ips = listLanIps();
 if (ips.length === 0) {
@@ -30,4 +31,5 @@ if (ips.length === 0) {
   console.log('');
 }
 
-console.log('  Firewall Windows (opcional): npm run dev:lan  (como administrador)\n');
+console.log('  Firewall Windows (opcional): npm run dev:lan  (como administrador)');
+console.log(`  Si el puerto ${webPort} está ocupado, cierra el proceso anterior antes de reiniciar.\n`);

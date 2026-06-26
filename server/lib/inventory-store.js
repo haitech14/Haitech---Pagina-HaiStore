@@ -28,6 +28,7 @@ import {
 } from '../../shared/compatible-toner-product-code.js';
 import { normalizeProductCode } from '../../shared/product-code-prefix.js';
 import { deriveProductSlug } from '../../shared/product-slug.js';
+import { formatNuevaProductName } from '../../shared/inventory-product-name.js';
 import { normalizeMerchandisingOptionalProducts } from '../../shared/merchandising-optional-product.js';
 import { isBundleProduct, normalizeBundleComponents, syncInventoryBundleProducts } from './product-bundle.js';
 import { ensureFullPrices, resolvePriceRole } from './roles.js';
@@ -182,8 +183,11 @@ export function migrateInventoryProduct(product, warehouses = normalizeWarehouse
     ? Math.max(0, Math.floor(Number(normalizedToner.sort_order)))
     : undefined;
 
+  const name = formatNuevaProductName(String(normalizedToner.name ?? '').trim());
+
   const merged = {
     ...normalizedToner,
+    ...(name ? { name } : {}),
     ...(sort_order !== undefined ? { sort_order } : {}),
     bundle_components: normalizeBundleComponents(
       normalizedToner.bundle_components ?? product.bundle_components,

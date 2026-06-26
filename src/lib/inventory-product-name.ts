@@ -48,6 +48,18 @@ export function normalizeTonerColorProductName(name: string): string {
   return `${base} ${suffix}`.replace(/\s{2,}/g, ' ').trim();
 }
 
+/** Normaliza «NUEVA» / «NUEVO» en equipos nuevos (no aplica si el título incluye «seminueva»). */
+export function formatNuevaProductName(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed || /\bseminueva\b/i.test(trimmed)) return trimmed;
+
+  return trimmed
+    .replace(/\bNUEVA\b/g, 'Nueva')
+    .replace(/\bNUEVO\b/g, 'Nuevo')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 /** Normaliza «SEMINUEVA» y añade el sufijo «220V» en equipos seminuevos. */
 export function formatSeminuevaProductName(name: string): string {
   const trimmed = name.trim();
@@ -163,9 +175,10 @@ export function moveParentheticalSuffixToEnd(name: string): string {
   return `${base} ${parenSuffix}`.replace(/\s{2,}/g, ' ').trim();
 }
 
-/** Nombre de inventario/tienda: xref, PCDU/PCU, rendimiento, gramaje, color y seminueva. */
+/** Nombre de inventario/tienda: xref, PCDU/PCU, rendimiento, gramaje, color, nueva y seminueva. */
 export function formatInventoryProductName(name: string): string {
   return formatSeminuevaProductName(
+    formatNuevaProductName(
     normalizeTonerColorProductName(
       moveParentheticalSuffixToEnd(
         moveRendSegmentsToSuffix(
@@ -177,6 +190,7 @@ export function formatInventoryProductName(name: string): string {
         ),
       ),
     ),
+  ),
   );
 }
 

@@ -61,6 +61,24 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://www.haitech.pe/categoria/toner-suministros?sub=toner-originales</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/toner-suministros?sub=toner-remanufacturado</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/toner-suministros?sub=toner-recarga</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://www.haitech.pe/categoria/repuestos</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>
@@ -2941,16 +2959,16 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/tienda/producto/ricoh-lp-409630</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://www.haitech.pe/tienda/producto/ricoh-im-430f</loc>
     <lastmod>2026-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-lp-409630</loc>
+    <lastmod>2026-06-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/ricoh-lp-409627</loc>
@@ -6121,115 +6139,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-im-550f-220v-51b4c98fe9d2</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-im-600f-110v-4d917a8471aa</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-mp-4054-220v-f4c317c5675a</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-mp-5055-220v-104c52e6a5e1</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-mp-6055-220v-b40bb22a495b</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-mp-3055-220v-64bf6990c418</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-mp-3555-220v-03be836cc111</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-mp-4055-220v-b6e9759879a2</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-mp-2555-220v-0a08afb7812c</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-im-5000-220v-7cfa3ac12a9c</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-600f-3639c9534700</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-2500-50dee575bcd8</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-c2010-95cb3256a7c1</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-c2510-ca736ea8727b</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-c3010-ff5ba68b0c26</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-c4510-33d59e2b1019</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-pro-c5400-a27d8006e1d6</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-pro-c5410-37a8fa5b61e3</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-pro-c5200-220v-6d7a2c7d28e9</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -6237,24 +6147,6 @@
   <url>
     <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-pro-c5210-220v-941c70fe9f4d</loc>
     <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-de-planos-a0-ricoh-mp-cw2200-120v-aea317e0fb02</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-pro-c7500-a5fd1f20fb5a</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-pro-c9500-333e55c65585</loc>
-    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -6277,12 +6169,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-5000-fd574a903a04</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-6000-0e72854e9fce</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
@@ -6295,16 +6181,16 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-im-7000-220v-141c72b44fd1</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.haitech.pe/tienda/producto/ricoh-lp-af031103</loc>
     <lastmod>2026-06-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-600f-3639c9534700</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-mp-7503-220v-77d49b29def3</loc>
@@ -6313,31 +6199,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-8000-950d323fa773</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-c6500-e536ffb0a80e</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-c8000-a442bff708cf</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-m-c320fw-d4dae08723e4</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-c320f-930f7d79f4ff</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -6433,6 +6295,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-5000-fd574a903a04</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://www.haitech.pe/tienda/producto/342527</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>
@@ -6493,10 +6361,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-m-c320fw-d4dae08723e4</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://www.haitech.pe/tienda/producto/342067</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-nueva-ricoh-im-c320f-930f7d79f4ff</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/342069</loc>
@@ -7406,6 +7286,354 @@
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/406043</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/compat-tc-m-320f-haiprint</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/compat-tc-im-550-intercopy</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-8820</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-8290</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-70f</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-7700</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-7600</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-8270</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-8190</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-8040</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-800r</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-sv600</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-8170</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/ricoh-fi-8150</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-gab-im370-460</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-estab-2-5kva</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-estab-1-5kva</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-gab-im2010-6010</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-gab-imc2010-6010</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-drum-m400</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-gab-tipo-f</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-gab-tipo-u-739</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-gab-tipo-q-670</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-gab-tipo-q-1049</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-gab-tipo-u-830</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/accesorio-pb1100le</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/pizarra-a6510</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/pizarra-a8610</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/pizarra-a7510</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/pizarra-nearity-wall-347</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/pizarra-nearity-wall-tv-427</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/camara-theta-z1</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-lenovo-tp-t16-g3</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-apple-mbp16-m4pro-512</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-apple-mbp14-m4pro-512</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-apple-mba13-m4-256</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-apple-mba13-m2-256</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-apple-ipad-wifi-128-blue</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-apple-ipad-wifi-128-silver</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-dell-precision-3490-u7</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-lenovo-m70q-g5-i5</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-dell-latitude-3440-i5</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-hp-probook-450-g10</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/laptop-dell-optiplex-7010-micro</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/eset-nod32-licencia-12-meses</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/chatgpt-pro-perfil-1-mes</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/chatgpt-plus-perfil-1-mes</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/chatgpt-plus-perfil-3-meses</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/chatgpt-plus-cuenta-completa-1-mes</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/gemini-pro-perfil-1-anio</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/gemini-pro-cuenta-completa-1-anio</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/super-grok-perfil-1-mes</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/super-grok-cuenta-completa</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/microsoft-365-cuenta-completa-1-anio</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/microsoft-365-perfil-1-anio</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/windows-10-11-licencia-permanente</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/turnitin-reporte-plagio-ia</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/tienda/producto/nordvpn-surfshark-vpn-1-mes</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

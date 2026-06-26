@@ -58,7 +58,7 @@ export function ProductDetailHeroTonerSelector({
                   {card.title}
                 </span>
                 <span className="mt-0.5 block truncate text-[0.6875rem] leading-snug text-muted-foreground">
-                  {card.name}
+                  {card.code}
                 </span>
                 <TonerCardRolePrices prices={card.prices} />
               </span>
