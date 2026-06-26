@@ -14,13 +14,15 @@ import {
   productMatchesBrandFilter,
 } from '../../shared/catalog-brand-filter.js';
 import {
+  productMatchesCatalogAttributeFilters,
+} from '../../shared/catalog-attribute-filters.js';
+import {
   MOST_VIEWED_OFFER_ATTR_KEY,
   appendMostViewedOfferFacet,
   compareProductsByViewCount,
-  resolveCatalogAttributeKeys,
   resolveMostViewedOfferProductIds,
 } from '../../shared/catalog-most-viewed-offers.js';
-import { getCatalogRows } from '@/lib/catalog-featured';
+import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { dedupeCatalogProductsById } from '@/lib/category-catalog-filters';
 import { toPublicProduct } from '@/lib/pricing';
 import type { UseCategoryCatalogParams, CategoryCatalogResponse } from '@/hooks/use-category-catalog';
@@ -32,12 +34,12 @@ function productMatchesAttributeFilters(
   productionKey: string | null,
   offerIds: Set<string>,
 ): boolean {
-  const resolved = resolveCatalogAttributeKeys(product, offerIds);
-  if (attributeKeys.length > 0 && !attributeKeys.every((key) => resolved.has(key))) {
-    return false;
-  }
-  if (productionKey && !resolved.has(productionKey)) return false;
-  return true;
+  return productMatchesCatalogAttributeFilters(
+    product,
+    attributeKeys,
+    productionKey,
+    offerIds,
+  );
 }
 
 function compareProducts(sortBy: string, a: Product, b: Product): number {
@@ -105,15 +107,15 @@ function catalogFamilyForSlug(slug: string): string | null {
   return null;
 }
 
-/** Catálogo filtrado en cliente (inventory-catalog.json) cuando la API no responde. */
-export function queryCategoryCatalogClient(
+function queryCategoryCatalogFromRows(
   params: UseCategoryCatalogParams,
   role: string,
+  catalogRows: ReturnType<typeof getCatalogRows>,
 ): CategoryCatalogResponse {
   const slug = params.slug ?? '';
   const labels = params.labels ?? [];
   const catalogFamily = catalogFamilyForSlug(slug);
-  const allProducts = getCatalogRows().map((row) => toPublicProduct(row, role));
+  const allProducts = catalogRows.map((row) => toPublicProduct(row, role));
 
   let matched =
     labels.length > 0 ? filterByCategoryLabels(allProducts, labels, slug) : allProducts;
@@ -197,4 +199,21 @@ export function queryCategoryCatalogClient(
     limit: safeLimit,
     facets,
   };
+}
+
+/** Catálogo filtrado en cliente (inventory-index.json) cuando la API no responde. */
+export function queryCategoryCatalogClient(
+  params: UseCategoryCatalogParams,
+  role: string,
+): CategoryCatalogResponse {
+  return queryCategoryCatalogFromRows(params, role, getCatalogRows());
+}
+
+export async function queryCategoryCatalogClientAsync(
+  params: UseCategoryCatalogParams,
+  role: string,
+): Promise<CategoryCatalogResponse> {
+  const rows = getCatalogRows();
+  const catalogRows = rows.length > 0 ? rows : await loadCatalogIndex();
+  return queryCategoryCatalogFromRows(params, role, catalogRows);
 }

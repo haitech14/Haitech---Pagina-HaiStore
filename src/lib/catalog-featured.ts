@@ -1,4 +1,3 @@
-import catalogData from '@/data/inventory-catalog.json';
 import { productCategoryTags } from '@/lib/inventory-categories';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
@@ -17,9 +16,13 @@ type CatalogJsonRow = Partial<InventoryProduct> &
     is_new?: boolean;
   };
 
-/** Filas del JSON maestro normalizadas (incluye sort_order por defecto). */
-export function getCatalogRows(): CatalogRow[] {
-  return (catalogData.products as unknown as CatalogJsonRow[]).map((raw) => {
+export const INVENTORY_INDEX_URL = '/catalog/inventory-index.json';
+
+let catalogCache: CatalogRow[] | null = null;
+let catalogLoadPromise: Promise<CatalogRow[]> | null = null;
+
+function normalizeCatalogRows(rawProducts: CatalogJsonRow[]): CatalogRow[] {
+  return rawProducts.map((raw) => {
     const product = normalizeInventoryProduct(raw);
     const row: CatalogRow = { ...product };
     if (raw.compare_at_price_usd != null) {
@@ -30,6 +33,47 @@ export function getCatalogRows(): CatalogRow[] {
     }
     return row;
   });
+}
+
+async function fetchCatalogIndex(): Promise<CatalogRow[]> {
+  const response = await fetch(INVENTORY_INDEX_URL, {
+    cache: 'default',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`No se pudo cargar ${INVENTORY_INDEX_URL}`);
+  }
+  const payload = (await response.json()) as { products?: CatalogJsonRow[] };
+  return normalizeCatalogRows(payload.products ?? []);
+}
+
+/** Carga el índice slim desde CDN (con caché en memoria). */
+export async function loadCatalogIndex(): Promise<CatalogRow[]> {
+  if (catalogCache) return catalogCache;
+  if (!catalogLoadPromise) {
+    catalogLoadPromise = fetchCatalogIndex()
+      .then((rows) => {
+        catalogCache = rows;
+        return rows;
+      })
+      .catch((error) => {
+        catalogLoadPromise = null;
+        throw error;
+      });
+  }
+  return catalogLoadPromise;
+}
+
+/** Precarga en segundo plano (p. ej. loader de la home). */
+export function preloadCatalogIndex(): void {
+  void loadCatalogIndex().catch(() => {
+    /* fallback vía API */
+  });
+}
+
+/** Filas del índice en caché (vacío hasta que termine la precarga). */
+export function getCatalogRows(): CatalogRow[] {
+  return catalogCache ?? [];
 }
 
 export function normalizeCategoryName(value: string): string {
@@ -111,6 +155,12 @@ export function getCatalogFeaturedByCategories(
 
 export function getCatalogProductById(id: string): CatalogRow | undefined {
   const rows = getCatalogRows();
+  const match = findProductBySlugOrId(rows, id);
+  return match as CatalogRow | undefined;
+}
+
+export async function getCatalogProductByIdAsync(id: string): Promise<CatalogRow | undefined> {
+  const rows = await loadCatalogIndex();
   const match = findProductBySlugOrId(rows, id);
   return match as CatalogRow | undefined;
 }

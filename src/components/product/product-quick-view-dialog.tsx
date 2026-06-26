@@ -2,10 +2,9 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
-import { ProductAttributeBadges } from '@/components/product-attribute-badges';
 import { ProductCardPricing } from '@/components/product/product-card-pricing';
-import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
+import { ProductQuickViewBadges } from '@/components/product/product-quick-view-badges';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,8 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { useProduct } from '@/hooks/use-product';
 import { buildProductDetail } from '@/lib/build-product-detail';
+import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
 import type { FeaturedProduct } from '@/data/featured-products';
 
@@ -32,14 +33,6 @@ export function ProductQuickViewDialog({
 }: ProductQuickViewDialogProps) {
   const { product, isLoading } = useProduct(open ? snapshot?.id : undefined);
 
-  const displayName = product?.name ?? snapshot?.name ?? '';
-  const displayImage = product?.image_url ?? snapshot?.image ?? null;
-  const detailHref = product
-    ? productPath(product)
-    : snapshot
-      ? productPath({ id: snapshot.id, name: snapshot.name })
-      : '#';
-
   const badgeSource = product ?? {
     id: snapshot?.id ?? '',
     name: snapshot?.name ?? '',
@@ -48,6 +41,17 @@ export function ProductQuickViewDialog({
     code: snapshot?.code ?? null,
     attributes: snapshot?.attributes ?? [],
   };
+
+  const { brand, code, title } = getProductCardTitleContent(badgeSource);
+  const displayName = product?.name ?? snapshot?.name ?? title;
+  const displayImage = product?.image_url ?? snapshot?.image ?? null;
+  const categoryLabel = product?.category ?? snapshot?.category ?? null;
+
+  const detailHref = product
+    ? productPath(product)
+    : snapshot
+      ? productPath({ id: snapshot.id, name: snapshot.name })
+      : '#';
 
   const detail = useMemo(() => {
     if (!product) return null;
@@ -59,7 +63,16 @@ export function ProductQuickViewDialog({
     (detail?.bullets.length ? detail.bullets.join(' · ') : '') ||
     null;
 
-  const priceUsd = product?.price ?? snapshot?.price ?? 0;
+  const priceSource = useMemo(() => {
+    const prices = product?.prices ?? snapshot?.prices;
+    return {
+      price: product?.price ?? snapshot?.price ?? 0,
+      ...(prices ? { prices } : {}),
+      ...(snapshot?.price_role ? { price_role: snapshot.price_role } : {}),
+    };
+  }, [product, snapshot]);
+  const displayPrice = useCatalogDisplayPrice(priceSource);
+  const priceUsd = displayPrice.priceUsd;
   const oldPriceUsd = snapshot?.oldPrice ?? undefined;
   const discountPercent = snapshot?.discount ?? undefined;
 
@@ -72,7 +85,7 @@ export function ProductQuickViewDialog({
         </DialogHeader>
 
         <div className="grid max-h-[92vh] overflow-y-auto lg:max-h-[min(88vh,720px)] lg:grid-cols-[minmax(0,42%)_1fr] lg:overflow-hidden">
-          <div className="flex items-center justify-center bg-muted/40 p-6 lg:min-h-[min(88vh,720px)] lg:p-8">
+          <div className="flex items-center justify-center bg-muted/30 p-6 lg:min-h-[min(88vh,720px)] lg:p-8">
             {isLoading && !displayImage ? (
               <div className="aspect-square w-full max-w-[280px] animate-pulse rounded-lg bg-muted" />
             ) : displayImage ? (
@@ -83,7 +96,7 @@ export function ProductQuickViewDialog({
                 <img
                   src={displayImage}
                   alt=""
-                  className="max-h-64 w-full max-w-[320px] object-contain lg:max-h-[min(72vh,560px)] lg:max-w-none"
+                  className="max-h-64 w-full max-w-[320px] object-contain drop-shadow-md lg:max-h-[min(72vh,560px)] lg:max-w-none"
                 />
               </ProductImageWatermarkOverlay>
             ) : (
@@ -93,16 +106,25 @@ export function ProductQuickViewDialog({
             )}
           </div>
 
-          <div className="flex flex-col gap-4 overflow-y-auto border-t border-border p-5 sm:p-6 lg:border-l lg:border-t-0 lg:p-8">
-            {snapshot?.category || product?.category ? (
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {snapshot?.category ?? product?.category}
-              </p>
-            ) : null}
+          <div className="flex min-h-0 flex-col gap-4 overflow-y-auto border-t border-border p-5 sm:gap-5 sm:p-6 lg:border-l lg:border-t-0 lg:p-8">
+            <header className="space-y-1">
+              {categoryLabel ? (
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  {categoryLabel}
+                </p>
+              ) : null}
+              {brand ? (
+                <p className="text-xs font-bold uppercase tracking-wider text-primary">{brand}</p>
+              ) : null}
+              <h2 className="text-pretty text-lg font-bold leading-snug text-foreground sm:text-xl">
+                {title}
+              </h2>
+              {code ? (
+                <p className="font-mono text-xs font-medium text-muted-foreground">{code}</p>
+              ) : null}
+            </header>
 
-            <ProductCardTitle product={badgeSource} />
-
-            <ProductAttributeBadges product={badgeSource} />
+            <ProductQuickViewBadges product={badgeSource} />
 
             <ProductCardPricing
               productId={snapshot?.id ?? product?.id ?? ''}
@@ -113,12 +135,12 @@ export function ProductQuickViewDialog({
             />
 
             {descriptionText ? (
-              <div className="space-y-2 border-t border-border pt-4">
+              <section className="space-y-2 border-t border-border pt-4">
                 <h3 className="text-sm font-semibold text-foreground">Descripción</h3>
                 <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
                   {descriptionText}
                 </p>
-              </div>
+              </section>
             ) : isLoading ? (
               <div className="space-y-2 border-t border-border pt-4" role="status">
                 <div className="h-4 w-24 animate-pulse rounded bg-muted" />

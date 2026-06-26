@@ -3,6 +3,7 @@ import { useCallback, useMemo, useReducer } from 'react';
 import type { AppliedCheckoutCoupon } from '@/components/checkout/checkout-coupon-field';
 import type { CheckoutPaymentProvider, ManualPaymentMethodId } from '@/lib/build-checkout-session-payload';
 import { applyCheckoutClientPrefill } from '@/lib/checkout-account-client';
+import type { CheckoutPaymentCurrency } from '@/lib/checkout-totals';
 import { EMPTY_HAITECH_CLIENT, type HaitechClientFormValues } from '@/lib/haitech-client-schema';
 
 export type CheckoutStep = 1 | 2 | 3;
@@ -13,6 +14,7 @@ export interface CheckoutFlowState {
   appliedCoupon: AppliedCheckoutCoupon | null;
   paymentProvider: CheckoutPaymentProvider;
   manualMethod: ManualPaymentMethodId;
+  paymentCurrency: CheckoutPaymentCurrency;
   submitError: string | null;
   isSubmitting: boolean;
   completedOrderNumber: string | null;
@@ -26,6 +28,7 @@ type CheckoutFlowAction =
   | { type: 'SET_COUPON'; coupon: AppliedCheckoutCoupon | null }
   | { type: 'SET_PAYMENT_PROVIDER'; provider: CheckoutPaymentProvider }
   | { type: 'SET_MANUAL_METHOD'; method: ManualPaymentMethodId }
+  | { type: 'SET_PAYMENT_CURRENCY'; currency: CheckoutPaymentCurrency }
   | { type: 'SET_ERROR'; error: string | null }
   | { type: 'SET_SUBMITTING'; value: boolean }
   | { type: 'SET_COMPLETED'; orderNumber: string }
@@ -37,6 +40,7 @@ const initialState: CheckoutFlowState = {
   appliedCoupon: null,
   paymentProvider: 'manual',
   manualMethod: 'transferencia',
+  paymentCurrency: 'PEN',
   submitError: null,
   isSubmitting: false,
   completedOrderNumber: null,
@@ -58,6 +62,8 @@ function reducer(state: CheckoutFlowState, action: CheckoutFlowAction): Checkout
       return { ...state, paymentProvider: action.provider };
     case 'SET_MANUAL_METHOD':
       return { ...state, manualMethod: action.method };
+    case 'SET_PAYMENT_CURRENCY':
+      return { ...state, paymentCurrency: action.currency };
     case 'SET_ERROR':
       return { ...state, submitError: action.error };
     case 'SET_SUBMITTING':
@@ -91,6 +97,8 @@ export function useCheckoutFlow(initialClient?: Partial<HaitechClientFormValues>
         dispatch({ type: 'SET_PAYMENT_PROVIDER', provider }),
       setManualMethod: (method: ManualPaymentMethodId) =>
         dispatch({ type: 'SET_MANUAL_METHOD', method }),
+      setPaymentCurrency: (currency: CheckoutPaymentCurrency) =>
+        dispatch({ type: 'SET_PAYMENT_CURRENCY', currency }),
       setError: (error: string | null) => dispatch({ type: 'SET_ERROR', error }),
       setSubmitting: (value: boolean) => dispatch({ type: 'SET_SUBMITTING', value }),
       setCompleted: (orderNumber: string) => dispatch({ type: 'SET_COMPLETED', orderNumber }),

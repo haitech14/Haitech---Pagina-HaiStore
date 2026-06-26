@@ -22,10 +22,13 @@ import {
   productMatchesBrandFilter,
 } from '../../shared/catalog-brand-filter.js';
 import {
+  productMatchesCatalogAttributeFilters,
+  resolveProductCatalogAttributeKeys,
+} from '../../shared/catalog-attribute-filters.js';
+import {
   MOST_VIEWED_OFFER_ATTR_KEY,
   appendMostViewedOfferFacet,
   compareProductsByViewCount,
-  resolveCatalogAttributeKeys,
   resolveMostViewedOfferProductIds,
 } from '../../shared/catalog-most-viewed-offers.js';
 
@@ -34,12 +37,12 @@ function normalizeSearchText(value) {
 }
 
 function productMatchesAttributeFilters(product, attributeKeys, productionKey, offerIds) {
-  const resolved = resolveCatalogAttributeKeys(product, offerIds);
-  if (attributeKeys.length > 0 && !attributeKeys.every((key) => resolved.has(key))) {
-    return false;
-  }
-  if (productionKey && !resolved.has(productionKey)) return false;
-  return true;
+  return productMatchesCatalogAttributeFilters(
+    product,
+    attributeKeys,
+    productionKey,
+    offerIds,
+  );
 }
 
 function compareProducts(sortBy, a, b) {
@@ -102,6 +105,60 @@ function filterByCategoryLabels(products, labels, slug) {
   });
 }
 
+function productCategoryTags(product) {
+  const raw = String(product.category ?? '').trim();
+  if (!raw) return [];
+  if (raw.includes(',')) {
+    return raw
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+  return [raw];
+}
+
+function buildLabelProductIndex(products) {
+  const index = new Map();
+  for (const product of products) {
+    const keys = new Set(
+      productCategoryTags(product).map((tag) => normalizeSearchText(tag)).filter(Boolean),
+    );
+    const rawCategory = String(product.category ?? '').trim();
+    if (rawCategory) keys.add(normalizeSearchText(rawCategory));
+
+    for (const key of keys) {
+      if (!index.has(key)) index.set(key, []);
+      index.get(key).push(product);
+    }
+  }
+  return index;
+}
+
+function filterByCategoryLabelsIndexed(products, labels, slug, labelIndex) {
+  if (!labelIndex || labels.length === 0 || slug === 'impresoras' || slug === 'sin-categoria') {
+    return filterByCategoryLabels(products, labels, slug);
+  }
+
+  const candidateIds = new Set();
+  const candidates = [];
+  for (const label of labels) {
+    const bucket = labelIndex.get(normalizeSearchText(label)) ?? [];
+    for (const product of bucket) {
+      if (candidateIds.has(product.id)) continue;
+      candidateIds.add(product.id);
+      candidates.push(product);
+    }
+  }
+
+  return candidates.filter((product) => {
+    if (slug === 'repuestos' && isPrinterEquipmentProduct(product)) return false;
+    return labels.some((label) => productMatchesCategoryFilter(product, label));
+  });
+}
+
+/** @type {Map<string, Map<string, unknown[]>>} */
+const categoryLabelIndexCache = new Map();
+
 function dedupeProductsById(products) {
   const seen = new Set();
   const result = [];
@@ -116,7 +173,7 @@ function dedupeProductsById(products) {
 /**
  * Catálogo paginado por categoría con filtros server-side.
  */
-const CATEGORY_CATALOG_CACHE_TTL_MS = 60 * 1000;
+const CATEGORY_CATALOG_CACHE_TTL_MS = 5 * 60 * 1000;
 const CATEGORY_CATALOG_CACHE_MAX = 128;
 
 /** @type {Map<string, { payload: object; cachedAt: number }>} */
@@ -124,6 +181,7 @@ const categoryCatalogCache = new Map();
 
 export function invalidateCategoryCatalogCache() {
   categoryCatalogCache.clear();
+  categoryLabelIndexCache.clear();
 }
 
 function buildCategoryCatalogCacheKey(params) {
@@ -190,9 +248,15 @@ export async function queryProductsByCategory({
   const catalogFamily = catalogFamilyForSlug(slug);
   const allProducts = await loadPublicProducts(role);
 
+  let labelIndex = categoryLabelIndexCache.get(role);
+  if (!labelIndex) {
+    labelIndex = buildLabelProductIndex(allProducts);
+    categoryLabelIndexCache.set(role, labelIndex);
+  }
+
   let matched =
     safeLabels.length > 0
-      ? filterByCategoryLabels(allProducts, safeLabels, slug)
+      ? filterByCategoryLabelsIndexed(allProducts, safeLabels, slug, labelIndex)
       : allProducts;
 
   if (subSlug) {
@@ -307,14 +371,14 @@ export async function queryRelatedProducts({ id, role = 'public', limit = 8 } = 
     return { products: [] };
   }
 
-  const sourceKeys = resolveCatalogAttributeKeys(source);
+  const sourceKeys = resolveProductCatalogAttributeKeys(source);
   const formatoKey = [...sourceKeys].find((key) => key.startsWith('Formato papel::'));
 
   const related = allProducts
     .filter((product) => {
       if (product.id === id || !isPrinterEquipment(product)) return false;
       if (formatoKey) {
-        return resolveCatalogAttributeKeys(product).has(formatoKey);
+        return resolveProductCatalogAttributeKeys(product).has(formatoKey);
       }
       return product.category === source.category;
     })

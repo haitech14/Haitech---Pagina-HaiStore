@@ -85,21 +85,21 @@ async function fetchHomeCatalogBundleFromApi(): Promise<HomeCatalogBundleRespons
 
 /**
  * API con respaldo en snapshot estático y sessionStorage.
+ * Prioriza API; no vuelve a pedir el JSON estático si ya hay caché en sesión.
  */
 export async function fetchHomeCatalogBundle(): Promise<HomeCatalogBundleResponse> {
-  const staticBundle = await fetchStaticHomeCatalogBundle();
-
   try {
     const apiBundle = await fetchHomeCatalogBundleFromApi();
     storeHomeCatalogBundle(apiBundle);
     return apiBundle;
   } catch (error) {
+    const cached = readStoredHomeCatalogBundle();
+    if (cached) return cached;
+    const staticBundle = await fetchStaticHomeCatalogBundle();
     if (staticBundle) {
       storeHomeCatalogBundle(staticBundle);
       return staticBundle;
     }
-    const cached = readStoredHomeCatalogBundle();
-    if (cached) return cached;
     throw error;
   }
 }

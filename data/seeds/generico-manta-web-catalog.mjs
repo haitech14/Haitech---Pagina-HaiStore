@@ -1,0 +1,60 @@
+/** Catálogo de mantas web compatibles Genérico (jun 2026). */
+export const GENERICO_MANTA_WEB_CATALOG = [
+  // 40518d15 — grid 3×3
+  {
+    slug: 'di-450',
+    imageId: '40518d15',
+    grid: { col: 0, row: 0, cols: 3, rows: 3 },
+    title: 'MANTA WEB DI 450',
+    models: 'DI 450',
+    compatibleBrand: 'Konica Minolta',
+  },
+  {
+    slug: 'bh600',
+    imageId: '40518d15',
+    grid: { col: 1, row: 0, cols: 3, rows: 3 },
+    title: 'MANTA WEB BH600',
+    models: 'BH600',
+    compatibleBrand: 'Konica Minolta',
+  },
+  {
+    slug: 'bh-920',
+    imageId: '40518d15',
+    grid: { col: 2, row: 0, cols: 3, rows: 3 },
+    title: 'MANTA WEB BH 920',
+    models: 'BH 920',
+    compatibleBrand: 'Konica Minolta',
+  },
+  {
+    slug: 'irc-7260',
+    imageId: '40518d15',
+    grid: { col: 0, row: 1, cols: 3, rows: 3 },
+    title: 'MANTA WEB IRC 7260',
+    models: 'IRC 7260',
+    compatibleBrand: 'Canon',
+  },
+  {
+    slug: 'af-1060',
+    imageId: '40518d15',
+    grid: { col: 1, row: 1, cols: 3, rows: 3 },
+    title: 'MANTA WEB AF 1060',
+    models: 'AF 1060',
+    compatibleBrand: 'Canon',
+  },
+  {
+    slug: 'mp-4000',
+    imageId: '40518d15',
+    grid: { col: 2, row: 1, cols: 3, rows: 3 },
+    title: 'MANTA WEB MP 4000',
+    models: 'MP 4000',
+    compatibleBrand: 'Ricoh',
+  },
+  {
+    slug: 'mp-9000',
+    imageId: '40518d15',
+    grid: { col: 0, row: 2, cols: 3, rows: 3 },
+    title: 'MANTA WEB MP 9000',
+    models: 'MP 9000',
+    compatibleBrand: 'Ricoh',
+  },
+];

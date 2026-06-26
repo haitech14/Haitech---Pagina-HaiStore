@@ -9,6 +9,7 @@ import {
 } from './home-catalog-bundle.js';
 import { buildHomeCatalogSectionsFromProducts } from './home-catalog-sections.js';
 import { buildHomeFeaturedFromProducts } from './home-featured-products.js';
+import { slimHomeBundlePayload } from './home-bundle-slim.js';
 import { readInventory } from './inventory-store.js';
 import { HOME_HIGHLIGHTED_ROW_SIZE } from '../../shared/home-highlighted-products.js';
 
@@ -84,8 +85,7 @@ export async function writeHomeBundleSnapshot(bundle, meta = {}) {
     sectionsLimit: DEFAULT_SECTIONS_LIMIT,
     featuredCategorySlug: DEFAULT_FEATURED_CATEGORY,
     sectionIds: HOME_BUNDLE_SECTION_IDS,
-    featured: bundle.featured,
-    sections: bundle.sections,
+    ...slimHomeBundlePayload(bundle),
     ...meta,
   };
 

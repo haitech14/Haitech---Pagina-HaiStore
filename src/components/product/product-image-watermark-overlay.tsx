@@ -12,6 +12,7 @@ interface ProductImageWatermarkOverlayProps {
   src: string;
   children: ReactNode;
   className?: string;
+  watermarkClassName?: string;
   enabled?: boolean;
 }
 
@@ -19,6 +20,7 @@ export function ProductImageWatermarkOverlay({
   src,
   children,
   className,
+  watermarkClassName = PRODUCT_IMAGE_WATERMARK_OVERLAY_CLASS,
   enabled = true,
 }: ProductImageWatermarkOverlayProps) {
   if (!enabled || !shouldShowProductImageWatermarkOverlay(src)) {
@@ -34,7 +36,7 @@ export function ProductImageWatermarkOverlay({
         aria-hidden="true"
         loading="lazy"
         decoding="async"
-        className={PRODUCT_IMAGE_WATERMARK_OVERLAY_CLASS}
+        className={watermarkClassName}
         style={{ opacity: PRODUCT_IMAGE_WATERMARK_OVERLAY_OPACITY }}
       />
     </div>

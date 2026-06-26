@@ -1,8 +1,13 @@
 import * as React from 'react';
 
 import { apiFetch } from '@/lib/api';
-import { setDemoToken } from '@/lib/auth-storage';
-import type { AuthUser } from '@/lib/auth-storage';
+import {
+  clearStoredAuthSession,
+  readStoredAuthSession,
+  setDemoToken,
+  writeStoredAuthSession,
+  type AuthUser,
+} from '@/lib/auth-storage';
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/lib/supabase-config';
 import { canAccessAdminPanel, hasAdminApiAccess } from '@/lib/admin-access';
@@ -38,11 +43,14 @@ function mapSessionUser(
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<AuthUser | null>(null);
-  const [role, setRole] = React.useState<UserRole | 'public'>('public');
+  const storedSession = readStoredAuthSession();
+  const [user, setUser] = React.useState<AuthUser | null>(storedSession?.user ?? null);
+  const [role, setRole] = React.useState<UserRole | 'public'>(storedSession?.role ?? 'public');
   const [viewAsRoles, setViewAsRolesState] = React.useState<UserRole[]>(() => readViewAsRoles());
-  const [authProvider, setAuthProvider] = React.useState<'supabase' | 'demo' | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [authProvider, setAuthProvider] = React.useState<'supabase' | 'demo' | null>(
+    storedSession?.authProvider ?? null,
+  );
+  const [isLoading, setIsLoading] = React.useState(() => !storedSession);
 
   const toggleViewAsRole = React.useCallback((targetRole: UserRole) => {
     setViewAsRolesState((current) => {
@@ -64,7 +72,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const mapped = mapSessionUser(payload.user, payload.role);
       setUser(mapped.user);
       setRole(mapped.role);
-      setAuthProvider(payload.authProvider ?? null);
+      const provider = payload.authProvider ?? null;
+      setAuthProvider(provider);
+      if (mapped.user) {
+        writeStoredAuthSession({
+          user: mapped.user,
+          role: mapped.role,
+          authProvider: provider,
+        });
+      } else {
+        clearStoredAuthSession();
+      }
     },
     [],
   );

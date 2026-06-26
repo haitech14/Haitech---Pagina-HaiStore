@@ -1,4 +1,4 @@
-import { catalogRowToFeatured, getCatalogProductById, getCatalogRows } from '@/lib/catalog-featured';
+import { catalogRowToFeatured, getCatalogProductById, getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import type { Product, ProductAttribute, PriceRole, ProductRolePrices } from '@/types/product';
 
 export interface FeaturedProduct {
@@ -19,7 +19,7 @@ export interface FeaturedProduct {
   image: string | null;
 }
 
-/** Orden del carrusel en inicio (debe existir en inventory-catalog.json). */
+/** Orden del carrusel en inicio (debe existir en inventory-index.json). */
 export const FEATURED_PRODUCT_IDS: string[] = [
   'ricoh-im-430f',
   'bfb264b8-70dc-4ad4-9686-2df02df8c75e',
@@ -55,19 +55,45 @@ const FEATURED_META: Record<
   'hp-laserjet-m234': { rating: 4, reviews: 38 },
 };
 
-const catalogFeaturedProducts: FeaturedProduct[] = FEATURED_PRODUCT_IDS.map((id) => {
-  const row = getCatalogRows().find((product) => product.id === id);
-  if (!row) {
-    throw new Error(`Producto destacado "${id}" no está en inventory-catalog.json`);
+function buildFeaturedProductsFromRows(): FeaturedProduct[] {
+  return FEATURED_PRODUCT_IDS.map((id) => {
+    const row = getCatalogRows().find((product) => product.id === id);
+    if (!row) {
+      throw new Error(`Producto destacado "${id}" no está en inventory-index.json`);
+    }
+    return catalogRowToFeatured(row, FEATURED_META[id]);
+  });
+}
+
+let featuredProductsCache: FeaturedProduct[] | null = null;
+
+function resolveFeaturedProducts(): FeaturedProduct[] {
+  if (!featuredProductsCache) {
+    featuredProductsCache = buildFeaturedProductsFromRows();
   }
-  return catalogRowToFeatured(row, FEATURED_META[id]);
-});
+  return featuredProductsCache;
+}
 
 /** Respaldo estático si el API no está disponible. */
-export const featuredProducts: FeaturedProduct[] = catalogFeaturedProducts;
+export function getFeaturedProducts(): FeaturedProduct[] {
+  return resolveFeaturedProducts();
+}
+
+/** @deprecated Usar getFeaturedProducts() */
+export const featuredProducts: FeaturedProduct[] = [];
+
+export async function ensureFeaturedProductsLoaded(): Promise<FeaturedProduct[]> {
+  await loadCatalogIndex();
+  featuredProductsCache = buildFeaturedProductsFromRows();
+  return featuredProductsCache;
+}
 
 export function getFeaturedProductById(id: string): FeaturedProduct | undefined {
-  return catalogFeaturedProducts.find((product) => product.id === id);
+  try {
+    return resolveFeaturedProducts().find((product) => product.id === id);
+  } catch {
+    return undefined;
+  }
 }
 
 /** Solo metadatos de vitrina (sin precios del JSON estático). */

@@ -100,15 +100,26 @@ export async function createStoreOrderFromBody(body) {
     }
   }
 
-  const totalUsd = Math.max(0, Math.round((subtotalUsd - discountUsd) * 100) / 100);
-  const totalPen = Math.round(totalUsd * exchangeRate * 100) / 100;
-
-  const status = VALID_ORDER_STATUS.has(body.status) ? body.status : 'confirmed';
-  const paymentStatus = VALID_PAYMENT_STATUS.has(body.paymentStatus) ? body.paymentStatus : 'paid';
   const paymentProvider =
     typeof body.paymentProvider === 'string' && body.paymentProvider.trim()
       ? body.paymentProvider.trim()
       : null;
+
+  let totalUsd = Math.max(0, Math.round((subtotalUsd - discountUsd) * 100) / 100);
+  let cardSurchargeUsd = 0;
+  if (paymentProvider === 'culqi') {
+    cardSurchargeUsd = Math.round(totalUsd * 0.05 * 100) / 100;
+    totalUsd = Math.round((totalUsd + cardSurchargeUsd) * 100) / 100;
+    if (cardSurchargeUsd > 0) {
+      orderNotes = [orderNotes, `Recargo tarjeta 5%: $${cardSurchargeUsd.toFixed(2)}`]
+        .filter(Boolean)
+        .join(' — ');
+    }
+  }
+  const totalPen = Math.round(totalUsd * exchangeRate * 100) / 100;
+
+  const status = VALID_ORDER_STATUS.has(body.status) ? body.status : 'confirmed';
+  const paymentStatus = VALID_PAYMENT_STATUS.has(body.paymentStatus) ? body.paymentStatus : 'paid';
   const deductStock = body.deductStock !== false && paymentProvider !== 'culqi' && paymentProvider !== 'mercadopago';
   const deferCouponRedemption =
     body.deferCouponRedemption === true ||

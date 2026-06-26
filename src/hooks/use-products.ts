@@ -2,15 +2,26 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
+import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { normalizeInventoryProduct, mergeInventoryProductPatch } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
+import { toPublicProduct } from '@/lib/pricing';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct, Product } from '@/types/product';
 
-async function fetchProductsForRole(): Promise<Product[]> {
-  return apiFetch<Product[]>('/api/products');
+function catalogRowsToPublicProducts(rows: InventoryProduct[], role: string): Product[] {
+  return rows.map((row) => toPublicProduct(row, role));
+}
+
+export async function fetchProductsForRole(role = 'public'): Promise<Product[]> {
+  try {
+    return await apiFetch<Product[]>('/api/products');
+  } catch {
+    const rows = getCatalogRows().length > 0 ? getCatalogRows() : await loadCatalogIndex();
+    return catalogRowsToPublicProducts(rows, role);
+  }
 }
 
 export interface UseProductsOptions {
@@ -23,11 +34,17 @@ export function useProducts(options?: UseProductsOptions) {
 
   return useQuery({
     queryKey: ['products', role, viewAsRolesQueryKey(viewAsRoles)],
-    queryFn: fetchProductsForRole,
+    queryFn: () => fetchProductsForRole(role),
     enabled,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
+    placeholderData: (previous) => {
+      if (previous?.length) return previous;
+      const rows = getCatalogRows();
+      if (!rows.length) return undefined;
+      return catalogRowsToPublicProducts(rows, role);
+    },
     select: (products) =>
       shouldApplyViewAsPriceTransform(viewAsRoles)
         ? applyViewAsPriceToProducts(products, effectiveRole)

@@ -213,7 +213,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const isDesktopNav = useIsDesktopNav();
   const filtersAsideRef = useRef<HTMLElement>(null);
   const openCreateProductRef = useRef<(() => void) | null>(null);
-  const { isAdmin, viewAsRoles, effectiveRole } = useAuth();
+  const { isAdmin, role, viewAsRoles, effectiveRole } = useAuth();
 
   const bindOpenCreate = useCallback((openCreate: (() => void) | null) => {
     openCreateProductRef.current = openCreate;
@@ -279,11 +279,12 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   });
 
   const { data: searchData, isLoading: searchLoading, isError: searchError, isFetching: searchFetching, refetch: refetchSearch } = useQuery({
-    queryKey: ['catalog-search', searchQuery, searchCategoryFilter, viewAsRolesQueryKey(viewAsRoles)],
+    queryKey: ['catalog-search', searchQuery, searchCategoryFilter, role, viewAsRolesQueryKey(viewAsRoles)],
     queryFn: () =>
       searchCatalogProducts(searchQuery, {
         categoryFilter: searchCategoryFilter,
         limit: 100,
+        role,
       }),
     enabled: isInventorySearch,
     staleTime: 30_000,

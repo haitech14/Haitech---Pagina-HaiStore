@@ -10,46 +10,47 @@ const source = fs.existsSync(path.join(publicDir, 'favicon-source.png'))
   ? path.join(publicDir, 'favicon-source.png')
   : path.join(publicDir, 'logo.png');
 const bg = { r: 15, g: 23, b: 42, alpha: 1 };
+/** Margen interno para que el wordmark no toque los bordes del cuadrado. */
+const INSET_RATIO = 0.08;
 
 if (!fs.existsSync(source) || fs.statSync(source).size === 0) {
   throw new Error('Falta public/favicon-source.png o public/logo.png');
 }
 
-async function renderSmall(size) {
-  const resized = await sharp(source).resize({ height: size }).toBuffer();
-  const meta = await sharp(resized).metadata();
-  const width = Math.min(size, meta.width);
+async function renderIcon(size) {
+  const inner = Math.max(1, Math.round(size * (1 - INSET_RATIO * 2)));
+  const logo = await sharp(source)
+    .resize(inner, inner, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .toBuffer();
+  const meta = await sharp(logo).metadata();
+  const left = Math.round((size - meta.width) / 2);
+  const top = Math.round((size - meta.height) / 2);
 
-  return sharp(resized)
-    .extract({ left: 0, top: 0, width, height: size })
-    .extend({
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: Math.max(0, size - width),
+  return sharp({
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
       background: bg,
-    })
+    },
+  })
+    .composite([{ input: logo, left, top }])
     .png()
     .toBuffer();
 }
 
-async function renderFull(size) {
-  return sharp(source).resize(size, size, { fit: 'contain', background: bg }).png().toBuffer();
-}
-
 const outputs = [
-  { size: 16, name: 'favicon-16x16.png', small: true },
-  { size: 32, name: 'favicon-32x32.png', small: true },
-  { size: 48, name: 'favicon-48x48.png', small: true },
-  { size: 180, name: 'apple-touch-icon.png', small: false },
+  { size: 16, name: 'favicon-16x16.png' },
+  { size: 32, name: 'favicon-32x32.png' },
+  { size: 48, name: 'favicon-48x48.png' },
+  { size: 180, name: 'apple-touch-icon.png' },
 ];
 
-for (const { size, name, small } of outputs) {
-  const buffer = small ? await renderSmall(size) : await renderFull(size);
-  fs.writeFileSync(path.join(publicDir, name), buffer);
+for (const { size, name } of outputs) {
+  fs.writeFileSync(path.join(publicDir, name), await renderIcon(size));
 }
 
-const icoPngs = await Promise.all([16, 32, 48].map((size) => renderSmall(size)));
+const icoPngs = await Promise.all([16, 32, 48].map((size) => renderIcon(size)));
 
 try {
   const pngToIco = (await import('png-to-ico')).default;
@@ -57,6 +58,13 @@ try {
 } catch {
   fs.writeFileSync(path.join(publicDir, 'logo.ico'), icoPngs[1]);
 }
+
+const favicon32 = icoPngs[1];
+const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <image width="32" height="32" href="data:image/png;base64,${favicon32.toString('base64')}"/>
+</svg>
+`;
+fs.writeFileSync(path.join(publicDir, 'favicon.svg'), faviconSvg);
 
 // Variante clara para footer/PDF en fondos oscuros (mismo trazo, colores invertidos).
 if (source.endsWith('logo.png')) {

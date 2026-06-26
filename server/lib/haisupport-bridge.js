@@ -154,6 +154,16 @@ export async function ensureStoreCustomerFromHaitechClient(clientInput) {
       if (data) storeRow = data;
     }
 
+    const emailTrimmed = client.email?.trim();
+    if (!storeRow && emailTrimmed) {
+      const { data } = await supabase
+        .from('store_customers')
+        .select('*')
+        .eq('email', emailTrimmed)
+        .maybeSingle();
+      if (data) storeRow = data;
+    }
+
     const row = haitechClientToStoreCustomerRow(
       { ...client, storeCustomerId: storeRow?.id ?? client.storeCustomerId },
       storeRow?.id,
@@ -172,8 +182,35 @@ export async function ensureStoreCustomerFromHaitechClient(clientInput) {
       if (!row.id) row.id = randomUUID();
       row.created_at = new Date().toISOString();
       const { data, error } = await supabase.from('store_customers').insert(row).select('*').single();
-      if (error) throw new Error(`No se pudo crear el cliente: ${error.message}`);
-      storeRow = data;
+      if (error?.code === '23505' && emailTrimmed) {
+        const { data: existingByEmail } = await supabase
+          .from('store_customers')
+          .select('*')
+          .eq('email', emailTrimmed)
+          .maybeSingle();
+        if (existingByEmail?.id) {
+          const updateRow = haitechClientToStoreCustomerRow(
+            { ...client, storeCustomerId: existingByEmail.id },
+            existingByEmail.id,
+          );
+          const { data: updated, error: updateError } = await supabase
+            .from('store_customers')
+            .update(updateRow)
+            .eq('id', existingByEmail.id)
+            .select('*')
+            .single();
+          if (updateError) {
+            throw new Error(`No se pudo actualizar el cliente: ${updateError.message}`);
+          }
+          storeRow = updated;
+        } else {
+          throw new Error(`No se pudo crear el cliente: ${error.message}`);
+        }
+      } else if (error) {
+        throw new Error(`No se pudo crear el cliente: ${error.message}`);
+      } else {
+        storeRow = data;
+      }
     }
   } else {
     throw new Error('Supabase no configurado (SUPABASE_SERVICE_ROLE_KEY)');

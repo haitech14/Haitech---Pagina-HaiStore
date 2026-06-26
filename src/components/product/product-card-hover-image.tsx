@@ -17,6 +17,8 @@ interface ProductCardHoverImageProps {
   alt?: string;
   className?: string;
   imageClassName?: string;
+  overlayClassName?: string;
+  watermarkClassName?: string;
   placeholder?: ReactNode;
 }
 
@@ -27,6 +29,8 @@ export function ProductCardHoverImage({
   alt = '',
   className = 'size-full',
   imageClassName = PRODUCT_CARD_IMAGE_CLASS,
+  overlayClassName,
+  watermarkClassName,
   placeholder,
 }: ProductCardHoverImageProps) {
   const [failedIndices, setFailedIndices] = useState<Set<number>>(() => new Set());
@@ -108,6 +112,8 @@ export function ProductCardHoverImage({
           src={primarySrc}
           alt={alt}
           className={imageClassName}
+          {...(overlayClassName ? { overlayClassName } : {})}
+          {...(watermarkClassName ? { watermarkClassName } : {})}
           onError={() => markFailed(displayIndex)}
         />
       </div>
@@ -122,6 +128,8 @@ export function ProductCardHoverImage({
             alt=""
             aria-hidden="true"
             className={imageClassName}
+            {...(overlayClassName ? { overlayClassName } : {})}
+            {...(watermarkClassName ? { watermarkClassName } : {})}
             onError={() => {
               if (hoverSrc && resolvedHoverSrc === hoverSrc) {
                 setHoverFailed(true);

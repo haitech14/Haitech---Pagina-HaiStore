@@ -6,7 +6,7 @@ import {
 } from '@/hooks/use-category-catalog';
 import { getResponsiveCatalogPageSize } from '@/lib/catalog-product-pagination';
 import { findCategoryBySlug, resolveCategoryPageProductLabels } from '@/lib/category-product-labels';
-import { queryCategoryCatalogClient } from '@/lib/category-catalog-client';
+import { queryCategoryCatalogClient, queryCategoryCatalogClientAsync } from '@/lib/category-catalog-client';
 import {
   STORE_CATEGORIES_QUERY_KEY,
   fetchStoreCategoriesTreeWithFallback,
@@ -36,7 +36,7 @@ async function fetchCategoryCatalogWithFallback(
   try {
     return await fetchCategoryCatalog(params);
   } catch {
-    return queryCategoryCatalogClient(params, role);
+    return queryCategoryCatalogClientAsync(params, role);
   }
 }
 

@@ -421,6 +421,72 @@ function mergeMissingRepuestosCompatiblesCategory(categories) {
   ];
 }
 
+function mergeMissingUnidadesCompatiblesSubcategory(categories) {
+  const exists =
+    categories.some((row) => row.id === 'cat-unidades-compatibles') ||
+    categories.some((row) => row.slug === 'unidades-compatibles');
+  if (exists) return categories;
+
+  const parentExists =
+    categories.some((row) => row.id === 'cat-repuestos-compatibles') ||
+    categories.some((row) => row.slug === 'repuestos-compatibles');
+
+  const withParent = parentExists ? categories : mergeMissingRepuestosCompatiblesCategory(categories);
+  const siblings = withParent.filter((row) => row.parentId === 'cat-repuestos-compatibles');
+
+  return [
+    ...withParent,
+    normalizeCategory({
+      id: 'cat-unidades-compatibles',
+      name: 'Unidades Compatibles',
+      slug: 'unidades-compatibles',
+      parentId: 'cat-repuestos-compatibles',
+      sortOrder: siblings.length,
+      inventoryLabels: [
+        'Unidades Compatibles',
+        'Unidad Compatible',
+        'Repuestos Compatibles, Unidades Compatibles',
+        'Repuestos, Repuestos Compatibles, Unidades Compatibles',
+      ],
+      image: '/categories/repuestos.png',
+      tagline: 'Unidades de imagen compatibles',
+    }),
+  ];
+}
+
+function mergeMissingCilindrosCompatiblesSubcategory(categories) {
+  const exists =
+    categories.some((row) => row.id === 'cat-cilindros-compatibles') ||
+    categories.some((row) => row.slug === 'cilindros');
+  if (exists) return categories;
+
+  const parentExists =
+    categories.some((row) => row.id === 'cat-repuestos-compatibles') ||
+    categories.some((row) => row.slug === 'repuestos-compatibles');
+
+  const withParent = parentExists ? categories : mergeMissingRepuestosCompatiblesCategory(categories);
+  const siblings = withParent.filter((row) => row.parentId === 'cat-repuestos-compatibles');
+
+  return [
+    ...withParent,
+    normalizeCategory({
+      id: 'cat-cilindros-compatibles',
+      name: 'Cilindros',
+      slug: 'cilindros',
+      parentId: 'cat-repuestos-compatibles',
+      sortOrder: siblings.length,
+      inventoryLabels: [
+        'Cilindros',
+        'Cilindro Compatible',
+        'Repuestos Compatibles, Cilindros',
+        'Repuestos, Repuestos Compatibles, Cilindros',
+      ],
+      image: '/categories/repuestos.png',
+      tagline: 'Cilindros OPC compatibles Fuji',
+    }),
+  ];
+}
+
 export async function readStoreCategories() {
   await ensureCategoriesFile();
   const raw = await fs.readFile(categoriesPath(), 'utf-8');
@@ -443,6 +509,18 @@ export async function readStoreCategories() {
   const repuestosCompat = mergeMissingRepuestosCompatiblesCategory(categories);
   if (repuestosCompat !== categories) {
     categories = repuestosCompat;
+    needsWrite = true;
+  }
+
+  const unidadesCompat = mergeMissingUnidadesCompatiblesSubcategory(categories);
+  if (unidadesCompat !== categories) {
+    categories = unidadesCompat;
+    needsWrite = true;
+  }
+
+  const cilindrosCompat = mergeMissingCilindrosCompatiblesSubcategory(categories);
+  if (cilindrosCompat !== categories) {
+    categories = cilindrosCompat;
     needsWrite = true;
   }
 

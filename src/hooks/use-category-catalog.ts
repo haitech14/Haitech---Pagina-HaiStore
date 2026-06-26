@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
-import { queryCategoryCatalogClient } from '@/lib/category-catalog-client';
+import { queryCategoryCatalogClient, queryCategoryCatalogClientAsync } from '@/lib/category-catalog-client';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { Product } from '@/types/product';
 import type { CategorySortValue } from '@/components/category/category-catalog-toolbar';
@@ -99,7 +99,7 @@ async function fetchCategoryCatalogWithFallback(
   try {
     return await fetchCategoryCatalog(params);
   } catch {
-    return queryCategoryCatalogClient(params, role);
+    return queryCategoryCatalogClientAsync(params, role);
   }
 }
 

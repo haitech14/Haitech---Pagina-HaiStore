@@ -11,6 +11,7 @@ export const CATEGORY_COMPATIBLE_TONER_HAIPRINT_LEGACY = 'Toner Compatibles HaiP
 
 export const COMPATIBLE_TONER_INVENTORY_LABELS = [
   CATEGORY_COMPATIBLE_TONER,
+  'Toner Compatible',
   // Legacy / importaciones previas cuando el padre era "Toner y Suministros".
   'Toner y Suministros, Toner Compatible',
   // Variante cuando el padre se renombró a "Suministros".
@@ -56,6 +57,7 @@ export function appendHaiPrintProductSuffix(name) {
   const trimmed = replaceLegacyCompatibleTonerBrand(String(name ?? '').trim());
   if (!trimmed) return trimmed;
   if (/\bHaiPrint\b/i.test(trimmed)) return trimmed;
+  if (/\bIntercopy\b/i.test(trimmed)) return trimmed;
   return `${trimmed} ${COMPATIBLE_TONER_BRAND_SUFFIX}`;
 }
 
@@ -70,6 +72,10 @@ export function appendHaitoneProductSuffix(name) {
 export function normalizeCompatibleTonerProductFields(product) {
   if (!product || !isCompatibleTonerCategory(product.category)) {
     return product;
+  }
+
+  if (String(product.brand ?? '').trim().toLowerCase() === 'intercopy') {
+    return { ...product, category: 'Toner Compatible' };
   }
 
   const name = appendHaiPrintProductSuffix(product.name);

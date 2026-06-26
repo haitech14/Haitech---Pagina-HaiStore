@@ -22,7 +22,7 @@ import {
 } from '@/lib/inventory-stock-status';
 import { formatPenFromUsd } from '@/lib/utils';
 import type { AdminDashboardOrdersPayload, StoreOrder } from '@/types/store';
-import type { InventoryProduct, UserProfile } from '@/types/product';
+import type { UserProfile } from '@/types/product';
 
 async function fetchProfiles(): Promise<UserProfile[]> {
   try {

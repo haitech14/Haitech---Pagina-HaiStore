@@ -5,6 +5,7 @@ import { RootLayout } from '@/components/layout/root-layout';
 import { lazyWithRetry } from '@/lib/lazy-with-retry';
 import { prefetchHomeCatalog } from '@/lib/prefetch-home-catalog';
 import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
+import { prefetchStorePage } from '@/lib/prefetch-store-page';
 import { queryClient } from '@/providers';
 
 const HomePage = lazyWithRetry(() => import('@/pages/home').then((m) => ({ default: m.HomePage })), 'inicio');
@@ -396,7 +397,7 @@ export const router = createBrowserRouter([
           { path: 'recursos', element: withSuspense(<ForumRecursosPage />) },
         ],
       },
-      { path: 'tienda', element: withSuspense(<StorePage />) },
+      { path: 'tienda', element: withSuspense(<StorePage />), loader: () => prefetchStorePage(queryClient) },
       { path: 'servicios', element: withSuspense(<ServiciosPage />) },
       { path: 'servicios/:slug', element: withSuspense(<ServicioDetallePage />) },
       { path: 'software', element: withSuspense(<SoftwarePage />) },

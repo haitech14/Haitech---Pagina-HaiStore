@@ -32,30 +32,37 @@ async function fetchStaticStoreCategoriesTree(): Promise<StoreCategoryTreeNode[]
       headers: { Accept: 'application/json' },
     });
     if (!response.ok) return null;
-    const payload = (await response.json()) as StoreCategoryTreeNode[];
-    return Array.isArray(payload) ? payload : null;
+    const payload = (await response.json()) as StoreCategoryTreeNode[] | { tree?: StoreCategoryTreeNode[] };
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload.tree)) return payload.tree;
+    return null;
   } catch {
     return null;
   }
 }
 
 /**
- * API con respaldo en JSON estático, sessionStorage y árbol embebido.
+ * Snapshot estático primero; revalida contra API en segundo plano.
  */
 export async function fetchStoreCategoriesTreeWithFallback(): Promise<StoreCategoryTreeNode[]> {
   const staticTree = buildStaticStoreCategoryTree();
+  const snapshot = await fetchStaticStoreCategoriesTree();
+
+  if (snapshot?.length) {
+    storeCategoriesTree(snapshot);
+    void apiFetch<StoreCategoryTreeNode[]>('/api/categories')
+      .then((tree) => storeCategoriesTree(tree))
+      .catch(() => {
+        /* mantener snapshot */
+      });
+    return snapshot;
+  }
 
   try {
     const tree = await apiFetch<StoreCategoryTreeNode[]>('/api/categories');
     storeCategoriesTree(tree);
     return tree;
   } catch {
-    const snapshot = await fetchStaticStoreCategoriesTree();
-    if (snapshot?.length) {
-      storeCategoriesTree(snapshot);
-      return snapshot;
-    }
-
     const cached = readStoredStoreCategoriesTree();
     if (cached?.length) return cached;
 

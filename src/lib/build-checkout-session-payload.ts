@@ -31,7 +31,7 @@ export function buildCheckoutSessionPayload(
     paymentProvider === 'manual' && manualMethod
       ? manualPaymentLabel(manualMethod)
       : paymentProvider === 'culqi'
-        ? 'Tarjeta (Culqi)'
+        ? 'Tarjeta de crédito/débito (recargo 5%)'
         : paymentProvider === 'mercadopago'
           ? 'Mercado Pago'
           : 'Checkout web';

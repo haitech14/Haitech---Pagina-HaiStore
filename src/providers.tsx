@@ -11,7 +11,7 @@ import { DisplayCurrencyProvider } from '@/context/display-currency-context';
 import { ExchangeRateSync } from '@/context/exchange-rate-context';
 import { ProductCompareProvider } from '@/context/product-compare-context';
 import { WishlistProvider } from '@/context/wishlist-context';
-import { SupabaseRealtimeSync } from '@/components/supabase-realtime-sync';
+import { DeferredSupabaseRealtimeSync } from '@/components/deferred-supabase-realtime-sync';
 import { ProductQuerySync } from '@/components/product-query-sync';
 
 export const queryClient = new QueryClient({
@@ -27,7 +27,7 @@ export const queryClient = new QueryClient({
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <SupabaseRealtimeSync />
+      <DeferredSupabaseRealtimeSync />
       <ProductQuerySync />
       <ExchangeRateSync />
       <AuthProvider>

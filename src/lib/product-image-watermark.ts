@@ -4,6 +4,10 @@ export const HAITECH_WATERMARK_SRC = '/brand/haitech-watermark.png';
 export const PRODUCT_IMAGE_WATERMARK_OVERLAY_CLASS =
   'pointer-events-none absolute left-1/2 top-1/2 z-[2] w-[40%] min-w-[3rem] max-w-[9.5rem] -translate-x-1/2 -translate-y-1/2 select-none sm:max-w-[10rem]';
 
+/** Variante compacta para miniaturas de búsqueda y filas en vista lista. */
+export const PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS =
+  'pointer-events-none absolute left-1/2 top-1/2 z-[2] w-[45%] min-w-0 max-w-[1.75rem] -translate-x-1/2 -translate-y-1/2 select-none sm:max-w-[2rem]';
+
 /** Opacidad del overlay (mantener alineado con shared/product-image-watermark.js). */
 export const PRODUCT_IMAGE_WATERMARK_OVERLAY_OPACITY = 0.14;
 

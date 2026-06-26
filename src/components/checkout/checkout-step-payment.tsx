@@ -10,6 +10,7 @@ import {
   type CheckoutPaymentProvider,
   type ManualPaymentMethodId,
 } from '@/lib/build-checkout-session-payload';
+import type { CheckoutPaymentCurrency } from '@/lib/checkout-totals';
 import { cn } from '@/lib/utils';
 import type { CheckoutPaymentOptions } from '@/types/checkout';
 
@@ -19,9 +20,15 @@ const MANUAL_METHODS: Array<{ id: ManualPaymentMethodId; label: string }> = [
   { id: 'contra-entrega', label: 'Pago contra entrega (Lima)' },
 ];
 
+const PAYMENT_CURRENCIES: Array<{ id: CheckoutPaymentCurrency; label: string }> = [
+  { id: 'PEN', label: 'Soles (PEN)' },
+  { id: 'USD', label: 'Dólares (USD)' },
+];
+
 interface CheckoutStepPaymentProps {
   paymentProvider: CheckoutPaymentProvider;
   manualMethod: ManualPaymentMethodId;
+  paymentCurrency: CheckoutPaymentCurrency;
   paymentOptions: CheckoutPaymentOptions | undefined;
   email: string;
   totalPen: number;
@@ -30,8 +37,11 @@ interface CheckoutStepPaymentProps {
   error: string | null;
   onPaymentProviderChange: (provider: CheckoutPaymentProvider) => void;
   onManualMethodChange: (method: ManualPaymentMethodId) => void;
+  onPaymentCurrencyChange: (currency: CheckoutPaymentCurrency) => void;
   onBack: () => void;
   onConfirmManual: () => void;
+  onConfirmCard: () => void;
+  onEnsureOrderForCard: () => Promise<string | null>;
   onCulqiToken: (token: string) => void;
   onCulqiError: (message: string) => void;
   onMercadoPago: () => void;
@@ -40,6 +50,7 @@ interface CheckoutStepPaymentProps {
 export function CheckoutStepPayment({
   paymentProvider,
   manualMethod,
+  paymentCurrency,
   paymentOptions,
   email,
   totalPen,
@@ -48,24 +59,37 @@ export function CheckoutStepPayment({
   error,
   onPaymentProviderChange,
   onManualMethodChange,
+  onPaymentCurrencyChange,
   onBack,
   onConfirmManual,
+  onConfirmCard,
+  onEnsureOrderForCard,
   onCulqiToken,
   onCulqiError,
   onMercadoPago,
 }: CheckoutStepPaymentProps) {
+  const culqiEnabled = Boolean(paymentOptions?.culqi && paymentOptions.culqiPublicKey);
+
   const providerOptions = useMemo(() => {
     const options: Array<{ id: CheckoutPaymentProvider; label: string; enabled: boolean }> = [
       { id: 'manual', label: 'Pago manual', enabled: paymentOptions?.manual !== false },
-      { id: 'culqi', label: 'Tarjeta de crédito/débito', enabled: Boolean(paymentOptions?.culqi) },
       {
-        id: 'mercadopago',
-        label: 'Mercado Pago',
-        enabled: Boolean(paymentOptions?.mercadopago),
+        id: 'culqi',
+        label: 'Pago con Tarjeta de Crédito/Débito (Recargo 5%)',
+        enabled: true,
       },
     ];
+    if (paymentOptions?.mercadopago) {
+      options.push({ id: 'mercadopago', label: 'Mercado Pago', enabled: true });
+    }
     return options.filter((option) => option.enabled);
   }, [paymentOptions]);
+
+  const handleOpenCulqi = async () => {
+    const ensuredOrderNumber = orderNumber ?? (await onEnsureOrderForCard());
+    if (!ensuredOrderNumber || !paymentOptions?.culqiPublicKey) return;
+    return ensuredOrderNumber;
+  };
 
   return (
     <div className="space-y-4">
@@ -104,6 +128,41 @@ export function CheckoutStepPayment({
             </div>
           </fieldset>
 
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium text-foreground">
+              Moneda de pago
+            </legend>
+            <div className="grid grid-cols-2 gap-2">
+              {PAYMENT_CURRENCIES.map((currency) => {
+                const selected = paymentCurrency === currency.id;
+                return (
+                  <label
+                    key={currency.id}
+                    className={cn(
+                      'flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors',
+                      selected
+                        ? 'border-red-600 bg-red-50/60 text-foreground'
+                        : 'border-border text-muted-foreground hover:bg-muted/30',
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="payment-currency"
+                      value={currency.id}
+                      checked={selected}
+                      onChange={() => onPaymentCurrencyChange(currency.id)}
+                      className="sr-only"
+                    />
+                    {currency.label}
+                  </label>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              El total del resumen se mostrará priorizando la moneda seleccionada.
+            </p>
+          </fieldset>
+
           {paymentProvider === 'manual' ? (
             <div className="space-y-3">
               <fieldset>
@@ -137,16 +196,29 @@ export function CheckoutStepPayment({
             </div>
           ) : null}
 
-          {paymentProvider === 'culqi' && paymentOptions?.culqiPublicKey && orderNumber ? (
-            <CheckoutCulqiForm
-              publicKey={paymentOptions.culqiPublicKey}
-              email={email}
-              amountPen={totalPen}
-              orderNumber={orderNumber}
-              onToken={onCulqiToken}
-              onError={onCulqiError}
-              disabled={isSubmitting}
-            />
+          {paymentProvider === 'culqi' ? (
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground" role="note">
+                Se aplicará un recargo del 5% por pago con tarjeta. El total actualizado aparece en el
+                resumen del pedido.
+              </p>
+              {culqiEnabled && paymentOptions?.culqiPublicKey ? (
+                <CheckoutCulqiForm
+                  publicKey={paymentOptions.culqiPublicKey}
+                  email={email}
+                  amountPen={totalPen}
+                  orderNumber={orderNumber}
+                  onBeforeOpen={handleOpenCulqi}
+                  onToken={onCulqiToken}
+                  onError={onCulqiError}
+                  disabled={isSubmitting}
+                />
+              ) : (
+                <p className="text-xs text-muted-foreground" role="note">
+                  Un asesor te contactará para coordinar el pago con tarjeta y confirmar el pedido.
+                </p>
+              )}
+            </div>
           ) : null}
 
           {paymentProvider === 'mercadopago' ? (
@@ -183,6 +255,23 @@ export function CheckoutStepPayment({
               </>
             ) : (
               'Confirmar pedido'
+            )}
+          </Button>
+        ) : null}
+        {paymentProvider === 'culqi' && !culqiEnabled ? (
+          <Button
+            type="button"
+            onClick={onConfirmCard}
+            disabled={isSubmitting}
+            className="min-h-11 flex-1 bg-red-600 font-semibold hover:bg-red-500"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                Procesando…
+              </>
+            ) : (
+              'Confirmar pedido con tarjeta'
             )}
           </Button>
         ) : null}

@@ -65,7 +65,7 @@ interface CheckoutLayoutProps {
 export function CheckoutLayout({ currentStep, children, sidebar }: CheckoutLayoutProps) {
   return (
     <div className="container px-4 py-6 sm:py-8">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-7xl">
         <header className="mb-2">
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Finalizar compra</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -73,7 +73,7 @@ export function CheckoutLayout({ currentStep, children, sidebar }: CheckoutLayou
           </p>
         </header>
         <CheckoutProgressBar currentStep={currentStep} />
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:grid-cols-[minmax(0,1.15fr)_minmax(0,22rem)] lg:items-start">
           <div>{children}</div>
           {sidebar ? <aside className="lg:sticky lg:top-24">{sidebar}</aside> : null}
         </div>

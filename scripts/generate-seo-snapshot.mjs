@@ -1,5 +1,5 @@
 /**
- * Genera public/catalog/seo-snapshot.json para middleware y prerender SEO.
+ * Genera snapshots SEO fragmentados en public/catalog/seo-snapshot/ para el middleware.
  */
 import 'dotenv/config';
 import { existsSync } from 'node:fs';
@@ -28,7 +28,8 @@ import {
 import { buildAbsoluteUrl } from '../shared/site-origin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const OUTPUT_PATH = path.join(__dirname, '../public/catalog/seo-snapshot.json');
+const OUTPUT_DIR = path.join(__dirname, '../public/catalog/seo-snapshot');
+const LEGACY_OUTPUT_PATH = path.join(__dirname, '../public/catalog/seo-snapshot.json');
 
 const CATEGORY_SUB_PATHS = {
   multifuncionales: [
@@ -83,6 +84,20 @@ function topProductsForCategory(products, categorySlug, siteOrigin, limit = 10) 
     }));
 }
 
+function safeProductFileSlug(slug) {
+  return String(slug ?? 'product')
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 120);
+}
+
+async function writeJson(filePath, payload) {
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await writeFile(filePath, `${JSON.stringify(payload)}\n`, 'utf8');
+}
+
 async function main() {
   const siteOrigin = resolveSiteOrigin(process.env);
   const inventoryPath = getInventoryPath();
@@ -97,6 +112,7 @@ async function main() {
 
   const productsByLookup = {};
   const routes = {};
+  const productsDir = path.join(OUTPUT_DIR, 'products');
 
   for (const product of products) {
     const slug = deriveProductSlug(product);
@@ -109,6 +125,9 @@ async function main() {
       robots: 'index,follow',
     };
 
+    const fileSlug = safeProductFileSlug(slug);
+    await writeJson(path.join(productsDir, `${fileSlug}.json`), payload);
+
     const keys = new Set(
       [String(product.id ?? '').toLowerCase(), slug.toLowerCase(), String(product.slug ?? '').trim().toLowerCase()].filter(
         Boolean,
@@ -116,17 +135,18 @@ async function main() {
     );
 
     for (const key of keys) {
-      productsByLookup[key] = payload;
+      productsByLookup[key] = fileSlug;
     }
 
     const canonicalPath = buildProductPath(product);
-    routes[canonicalPath] = payload;
+    routes[canonicalPath] = { type: 'product', file: fileSlug };
 
     const legacyId = String(product.id ?? '').trim();
     if (legacyId && legacyId !== slug && isUuidSlug(legacyId)) {
       const legacyPath = `/tienda/producto/${encodeURIComponent(legacyId)}`;
       routes[legacyPath] = {
-        ...payload,
+        type: 'product',
+        file: fileSlug,
         redirectTo: canonicalPath,
       };
     }
@@ -143,19 +163,20 @@ async function main() {
       robots: 'index,follow',
     };
     categoriesBySlug[category.slug] = categoryPayload;
-    routes[`/categoria/${category.slug}`] = categoryPayload;
+    routes[`/categoria/${category.slug}`] = { type: 'category', slug: category.slug };
 
     const subPaths = CATEGORY_SUB_PATHS[category.slug];
     if (subPaths) {
       for (const sub of subPaths) {
         const pathKey = `/categoria/${category.slug}?${sub.query}`;
         routes[pathKey] = {
-          ...categoryPayload,
+          type: 'category',
+          slug: category.slug,
           title: `${category.name} ${sub.label} | Comprar en Perú | Haitech`,
         };
       }
     } else if (category.slug === 'multifuncionales') {
-      routes[`/categoria/${category.slug}?sub=all`] = categoryPayload;
+      routes[`/categoria/${category.slug}?sub=all`] = { type: 'category', slug: category.slug };
     }
   }
 
@@ -165,31 +186,34 @@ async function main() {
     jsonLd: buildHomeJsonLd(siteOrigin),
     robots: 'index,follow',
   };
-  routes['/'] = home;
+  routes['/'] = { type: 'home' };
 
   if (categoriesBySlug.multifuncionales) {
-    routes['/tienda'] = {
-      ...categoriesBySlug.multifuncionales,
-    };
+    routes['/tienda'] = { type: 'category', slug: 'multifuncionales' };
   }
 
   routes['/categoria/toner-compatibles'] = {
     redirectTo: '/categoria/toner-suministros',
   };
 
-  const snapshot = {
-    version: 1,
+  const manifest = {
+    version: 2,
     generatedAt: new Date().toISOString(),
     siteOrigin,
-    home,
-    categories: categoriesBySlug,
-    productsByLookup,
+    sharded: true,
     routes,
+    productsByLookup,
+    categories: Object.keys(categoriesBySlug),
   };
 
-  await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
-  await writeFile(OUTPUT_PATH, `${JSON.stringify(snapshot)}\n`, 'utf8');
-  console.log(`✓ SEO snapshot escrito en ${OUTPUT_PATH}`);
+  await writeJson(path.join(OUTPUT_DIR, 'home.json'), home);
+  await writeJson(path.join(OUTPUT_DIR, 'categories.json'), categoriesBySlug);
+  await writeJson(path.join(OUTPUT_DIR, 'routes.json'), routes);
+  await writeJson(path.join(OUTPUT_DIR, 'products-index.json'), productsByLookup);
+  await writeJson(path.join(OUTPUT_DIR, 'manifest.json'), manifest);
+  await writeJson(LEGACY_OUTPUT_PATH, manifest);
+
+  console.log(`✓ SEO snapshot fragmentado en ${OUTPUT_DIR}`);
   console.log(`  Productos: ${products.length} · Categorías: ${LANDING_CATEGORY_SEO.length}`);
 }
 

@@ -2,7 +2,9 @@ import { useQuery, type QueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
-import { MIN_PRODUCT_SEARCH_LENGTH } from '@/lib/product-search';
+import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
+import { MIN_PRODUCT_SEARCH_LENGTH, filterProductsBySearch } from '@/lib/product-search';
+import { toPublicProduct } from '@/lib/pricing';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { Product, UserRole } from '@/types/product';
 
@@ -11,10 +13,26 @@ interface ProductSearchResponse {
   total: number;
 }
 
+async function searchProductsFromCatalogIndex(
+  query: string,
+  categoryFilter: string,
+  limit: number,
+  role: string,
+): Promise<ProductSearchResponse> {
+  const rows = getCatalogRows().length > 0 ? getCatalogRows() : await loadCatalogIndex();
+  const products = rows.map((row) => toPublicProduct(row, role));
+  const matched = filterProductsBySearch(products, query, { categoryFilter });
+  return {
+    products: matched.slice(0, limit),
+    total: matched.length,
+  };
+}
+
 export async function fetchProductSearch(
   query: string,
   categoryFilter: string,
   limit: number,
+  role = 'public',
 ): Promise<ProductSearchResponse> {
   const params = new URLSearchParams();
   params.set('q', query);
@@ -22,7 +40,11 @@ export async function fetchProductSearch(
   if (categoryFilter && categoryFilter !== 'all') {
     params.set('cat', categoryFilter);
   }
-  return apiFetch<ProductSearchResponse>(`/api/products/search?${params.toString()}`);
+  try {
+    return await apiFetch<ProductSearchResponse>(`/api/products/search?${params.toString()}`);
+  } catch {
+    return searchProductsFromCatalogIndex(query, categoryFilter, limit, role);
+  }
 }
 
 export function prefetchProductSearch(
@@ -50,7 +72,7 @@ export function prefetchProductSearch(
       options.role,
       viewAsRolesQueryKey(options.viewAsRoles),
     ],
-    queryFn: () => fetchProductSearch(trimmed, categoryFilter, limit),
+    queryFn: () => fetchProductSearch(trimmed, categoryFilter, limit, options.role),
     staleTime: 120_000,
   });
 }
@@ -67,7 +89,7 @@ export function useProductSearch(
 
   return useQuery({
     queryKey: ['product-search', trimmed, categoryFilter, limit, role, viewAsRolesQueryKey(viewAsRoles)],
-    queryFn: () => fetchProductSearch(trimmed, categoryFilter, limit),
+    queryFn: () => fetchProductSearch(trimmed, categoryFilter, limit, role),
     enabled,
     staleTime: 120_000,
     gcTime: 1000 * 60 * 5,

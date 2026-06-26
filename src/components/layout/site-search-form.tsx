@@ -25,6 +25,7 @@ import {
   type SearchServiceSuggestion,
 } from '@/lib/product-search';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
+import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
 import { productPath } from '@/lib/product-path';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { ensureFullPrices } from '@/lib/roles';
@@ -118,7 +119,9 @@ function SearchProductSuggestionRow({
           <ProductCardImage
             src={imageUrl}
             alt=""
-            className="size-10 shrink-0 rounded border border-border/60 bg-muted object-contain p-0.5 sm:size-11"
+            className="size-full object-contain p-0.5"
+            overlayClassName="size-10 shrink-0 rounded border border-border/60 bg-muted sm:size-11"
+            watermarkClassName={PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS}
           />
         ) : (
           <span

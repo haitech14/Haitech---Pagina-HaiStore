@@ -100,6 +100,12 @@ export default defineConfig({
           if (id.includes('node_modules/embla-carousel')) {
             return 'embla';
           }
+          if (id.includes('node_modules/@supabase')) {
+            return 'supabase';
+          }
+          if (id.includes('node_modules/sonner')) {
+            return 'sonner';
+          }
         },
       },
     },

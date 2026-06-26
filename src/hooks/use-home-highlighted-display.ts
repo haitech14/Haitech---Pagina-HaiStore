@@ -27,8 +27,8 @@ export function useHomeHighlightedDisplay() {
     if (!query.data) {
       return {
         products: [] as FeaturedProduct[],
-        mode: 'random' as HomeHighlightedDisplayMode,
-        subtitle: homeHighlightedSubtitle('random'),
+        mode: 'empty' as HomeHighlightedDisplayMode,
+        subtitle: homeHighlightedSubtitle('empty'),
       };
     }
 

@@ -43,7 +43,8 @@ interface CheckoutCulqiFormProps {
   publicKey: string;
   email: string;
   amountPen: number;
-  orderNumber: string;
+  orderNumber: string | null;
+  onBeforeOpen?: () => Promise<string | null | void>;
   onToken: (token: string) => void;
   onError: (message: string) => void;
   disabled?: boolean;
@@ -54,15 +55,23 @@ export function CheckoutCulqiForm({
   email,
   amountPen,
   orderNumber,
+  onBeforeOpen,
   onToken,
   onError,
   disabled,
 }: CheckoutCulqiFormProps) {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
+  const [activeOrderNumber, setActiveOrderNumber] = useState(orderNumber);
   const callbackRef = useRef({ onToken, onError });
 
   callbackRef.current = { onToken, onError };
+
+  useEffect(() => {
+    if (orderNumber) {
+      setActiveOrderNumber(orderNumber);
+    }
+  }, [orderNumber]);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,7 +82,7 @@ export function CheckoutCulqiForm({
         window.Culqi.settings({
           title: 'Haitech',
           currency: 'PEN',
-          description: `Pedido ${orderNumber}`,
+          description: activeOrderNumber ? `Pedido ${activeOrderNumber}` : 'Pedido Haitech',
           amount: Math.round(amountPen * 100),
         });
         window.Culqi.options({
@@ -108,16 +117,29 @@ export function CheckoutCulqiForm({
     return () => {
       cancelled = true;
     };
-  }, [publicKey, amountPen, orderNumber, onError]);
+  }, [publicKey, amountPen, activeOrderNumber, onError]);
 
   const openCulqi = async () => {
     if (!window.Culqi || !ready) return;
     setLoading(true);
     try {
+      let resolvedOrderNumber = activeOrderNumber;
+      if (onBeforeOpen) {
+        const result = await onBeforeOpen();
+        if (result === null) return;
+        if (typeof result === 'string') {
+          resolvedOrderNumber = result;
+          setActiveOrderNumber(result);
+        }
+      }
+      if (!resolvedOrderNumber) {
+        onError('No se pudo preparar el pedido para el pago con tarjeta.');
+        return;
+      }
       window.Culqi.settings({
         title: 'Haitech',
         currency: 'PEN',
-        description: `Pedido ${orderNumber}`,
+        description: `Pedido ${resolvedOrderNumber}`,
         amount: Math.round(amountPen * 100),
         email,
       });

@@ -13,6 +13,7 @@ import {
   buildProductCardStoredImageCandidates,
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
+import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -81,6 +82,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
                 alt={product.name}
                 className="size-full"
                 imageClassName={PRODUCT_CARD_IMAGE_CLASS}
+                watermarkClassName={PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS}
                 placeholder={
                   <div className="flex flex-col items-center gap-1.5 text-center text-muted-foreground">
                     <ImageOff className="size-8 text-muted-foreground/70" aria-hidden="true" />

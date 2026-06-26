@@ -52,6 +52,52 @@ const SUBCATEGORY_INVENTORY_LABELS: Record<string, readonly string[]> = {
     'Toner Compatibles HaiPrint',
     'Toner Compatibles Haitone',
   ],
+  'rodillos-de-presion': [
+    'Rodillo de Presión',
+    'Rodillos de Presión',
+    'Repuestos Compatibles, Rodillo de Presión',
+    'Repuestos, Repuestos Compatibles, Rodillo de Presión',
+  ],
+  'ruedas-casetera': [
+    'Ruedas de Casetera',
+    'Rueda de Casetera',
+    'Repuestos Compatibles, Ruedas de Casetera',
+    'Repuestos, Repuestos Compatibles, Ruedas de Casetera',
+  ],
+  'engranaje-pinon': [
+    'Engranaje/Piñon',
+    'Engranaje',
+    'Piñon',
+    'Repuestos Compatibles, Engranaje/Piñon',
+    'Repuestos, Repuestos Compatibles, Engranaje/Piñon',
+  ],
+  bocinas: [
+    'Bocinas',
+    'Bocina',
+    'Repuestos Compatibles, Bocinas',
+    'Repuestos, Repuestos Compatibles, Bocinas',
+  ],
+  espiraladoras: [
+    'Espiraladoras',
+    'Espiraladora',
+    'Equipos de Oficina, Espiraladoras',
+  ],
+  anilladoras: [
+    'Anilladoras',
+    'Anilladora',
+    'Equipos de Oficina, Anilladoras',
+  ],
+  enmicadoras: [
+    'Enmicadoras',
+    'Enmicadora',
+    'Equipos de Oficina, Enmicadora',
+  ],
+  guillotinas: [
+    'Guillotinas',
+    'Guillotina',
+    'Equipos de Oficina, Guillotina',
+  ],
+  'equipos-de-oficina': ['Equipos de Oficina'],
 };
 
 function resolveSubcategoryInventoryLabels(subSlug: string): string[] {

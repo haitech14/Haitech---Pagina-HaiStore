@@ -48,6 +48,10 @@ const SECTION_INVENTORY_LABELS = {
     'Repuestos, Repuestos Originales',
     'Repuestos Compatibles',
     'Repuestos, Repuestos Compatibles',
+    'Unidades Compatibles',
+    'Unidad Compatible',
+    'Repuestos Compatibles, Unidades Compatibles',
+    'Repuestos, Repuestos Compatibles, Unidades Compatibles',
   ],
 };
 

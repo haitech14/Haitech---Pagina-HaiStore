@@ -13,21 +13,7 @@ import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-produc
 
 export const HOME_HIGHLIGHTED_DISPLAY_LIMIT = 10;
 
-export type HomeHighlightedDisplayMode = 'recent' | 'random';
-
-function shuffleArray<T>(items: readonly T[]): T[] {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const a = copy[i];
-    const b = copy[j];
-    if (a !== undefined && b !== undefined) {
-      copy[i] = b;
-      copy[j] = a;
-    }
-  }
-  return copy;
-}
+export type HomeHighlightedDisplayMode = 'recent' | 'empty';
 
 function isEligibleHighlightProduct(product: Product): boolean {
   return (
@@ -69,7 +55,7 @@ function featuredToPoolProduct(featured: FeaturedProduct): Product {
   return product;
 }
 
-/** Pool de multifuncionales en stock a partir del bundle de inicio. */
+/** Pool de productos en stock del bundle de inicio (todas las familias). */
 export function buildHomeHighlightedPool(bundle: HomeCatalogBundleResponse): Product[] {
   const byId = new Map<string, Product>();
 
@@ -79,9 +65,8 @@ export function buildHomeHighlightedPool(bundle: HomeCatalogBundleResponse): Pro
     }
   }
 
-  const multifuncionales = bundle.sections.find((section) => section.id === 'multifuncionales');
-  if (multifuncionales) {
-    for (const items of Object.values(multifuncionales.productsByCondition)) {
+  for (const section of bundle.sections) {
+    for (const items of Object.values(section.productsByCondition)) {
       for (const featured of items ?? []) {
         if (byId.has(featured.id)) continue;
         const product = featuredToPoolProduct(featured);
@@ -105,12 +90,11 @@ export function resolveHomeHighlightedDisplayProducts(
     recentIds?: string[];
   } = {},
 ): { products: Product[]; mode: HomeHighlightedDisplayMode } {
-  const eligible = pool.filter(isEligibleHighlightProduct);
-  if (eligible.length < MIN_HOME_FEATURED) {
-    return { products: [], mode: 'random' };
+  if (recentIds.length === 0) {
+    return { products: [], mode: 'empty' };
   }
 
-  const safeLimit = Math.min(Math.max(limit, MIN_HOME_FEATURED), eligible.length);
+  const eligible = pool.filter(isEligibleHighlightProduct);
   const byId = new Map(eligible.map((product) => [product.id, product]));
 
   const fromRecent: Product[] = [];
@@ -118,29 +102,21 @@ export function resolveHomeHighlightedDisplayProducts(
     const product = byId.get(id);
     if (!product) continue;
     fromRecent.push(product);
-    if (fromRecent.length >= safeLimit) break;
+    if (fromRecent.length >= limit) break;
   }
 
-  if (fromRecent.length > 0) {
-    const used = new Set(fromRecent.map((product) => product.id));
-    const filler = shuffleArray(eligible.filter((product) => !used.has(product.id)));
-    return {
-      products: [...fromRecent, ...filler].slice(0, safeLimit),
-      mode: 'recent',
-    };
+  if (fromRecent.length === 0) {
+    return { products: [], mode: 'empty' };
   }
 
-  return {
-    products: shuffleArray(eligible).slice(0, safeLimit),
-    mode: 'random',
-  };
+  return { products: fromRecent, mode: 'recent' };
 }
 
 export function homeHighlightedSubtitle(mode: HomeHighlightedDisplayMode): string {
   if (mode === 'recent') {
-    return 'Basado en tus últimas visitas y equipos disponibles';
+    return 'Retoma donde lo dejaste';
   }
-  return 'Equipos en stock con cotización inmediata';
+  return 'Cuando visites una ficha, la verás aquí para retomarla rápido';
 }
 
 export { HOME_HIGHLIGHTED_ROW_SIZE, MIN_HOME_FEATURED };

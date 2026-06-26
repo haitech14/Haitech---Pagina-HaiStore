@@ -16,6 +16,8 @@ export interface AddToCartOptions {
   volumeUnitPriceUsd?: number;
   /** Tipo de preparado en equipos seminuevos. */
   preparationType?: SeminuevaPreparationType;
+  /** ID de línea fijo (p. ej. add-ons de checkout vinculados al padre). */
+  fixedLineId?: string;
 }
 
 interface CartContextValue {
@@ -26,7 +28,11 @@ interface CartContextValue {
   /** Producto recién añadido (resaltado breve en el panel). */
   highlightProductId: string | null;
   addItem: (product: Product, options?: AddToCartOptions) => void;
-  updateQuantity: (lineId: string, quantity: number) => void;
+  updateQuantity: (
+    lineId: string,
+    quantity: number,
+    options?: { volumeUnitPriceUsd?: number | null },
+  ) => void;
   removeItem: (lineId: string) => void;
   clear: () => void;
   openCart: () => void;
@@ -83,17 +89,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setItems((prev) => {
         let next = prev;
 
-        const upsertLine = (targetProduct: Product, lineConfiguration?: CartConfigurationLine, lineQuantity = quantity) => {
+        const upsertLine = (
+          targetProduct: Product,
+          lineConfiguration?: CartConfigurationLine,
+          lineQuantity = quantity,
+          fixedLineId?: string,
+        ) => {
           const paidOptions = lineConfiguration
             ? getPaidEquipmentOptions(lineConfiguration.options)
             : [];
           const preparationType =
             targetProduct.id === product.id ? options?.preparationType : undefined;
-          const targetLineId = buildCartLineId(
-            targetProduct.id,
-            paidOptions,
-            preparationType,
-          );
+          const targetLineId =
+            fixedLineId ??
+            buildCartLineId(
+              targetProduct.id,
+              paidOptions,
+              preparationType,
+            );
           const existing = next.find((item) => item.lineId === targetLineId);
           if (existing) {
             next = next.map((item) =>
@@ -132,7 +145,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             ? { ...configuration, extrasPen: 0 }
             : configuration;
 
-        upsertLine(product, bundledConfiguration, quantity);
+        upsertLine(product, bundledConfiguration, quantity, options?.fixedLineId);
 
         accessoryProducts.forEach((accessory) => {
           upsertLine(accessory, undefined, quantity);
@@ -147,14 +160,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [flashHighlight],
   );
 
-  const updateQuantity = React.useCallback((lineId: string, quantity: number) => {
-    setItems((prev) => {
-      if (quantity <= 0) {
-        return prev.filter((item) => item.lineId !== lineId);
-      }
-      return prev.map((item) => (item.lineId === lineId ? { ...item, quantity } : item));
-    });
-  }, []);
+  const updateQuantity = React.useCallback(
+    (lineId: string, quantity: number, updateOptions?: { volumeUnitPriceUsd?: number | null }) => {
+      setItems((prev) => {
+        if (quantity <= 0) {
+          return prev.filter((item) => item.lineId !== lineId);
+        }
+        return prev.map((item) => {
+          if (item.lineId !== lineId) return item;
+          const next: CartItem = { ...item, quantity };
+          if (updateOptions && 'volumeUnitPriceUsd' in updateOptions) {
+            if (updateOptions.volumeUnitPriceUsd == null) {
+              const { volumeUnitPriceUsd: _removed, ...rest } = next;
+              return rest as CartItem;
+            }
+            next.volumeUnitPriceUsd = updateOptions.volumeUnitPriceUsd;
+          }
+          return next;
+        });
+      });
+    },
+    [],
+  );
 
   const removeItem = React.useCallback((lineId: string) => {
     setItems((prev) => prev.filter((item) => item.lineId !== lineId));
