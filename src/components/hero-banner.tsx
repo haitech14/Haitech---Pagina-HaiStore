@@ -434,7 +434,10 @@ export function HeroBanner({
 
   const handleWhatsAppSubmit = async (nextContact: WhatsAppContact) => {
     await saveContact(nextContact);
-    const opened = openHeroQuoteWhatsApp(nextContact, { campaign: whatsappCampaign });
+    const opened = openHeroQuoteWhatsApp(
+      nextContact,
+      whatsappCampaign ? { campaign: whatsappCampaign } : {},
+    );
     if (!opened) {
       throw new Error('No se pudo abrir WhatsApp. Inténtalo de nuevo.');
     }

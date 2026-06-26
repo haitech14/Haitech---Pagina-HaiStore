@@ -1,6 +1,6 @@
 import { categories } from '@/data/categories';
 import { megaMenuServiceLinks } from '@/data/mega-menu';
-import { productMatchesCategoryFilter, productMatchesCategoryFilterTree } from '@/lib/inventory-categories';
+import { productMatchesCategoryFilterTree } from '@/lib/inventory-categories';
 import type { Product } from '@/types/product';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 import { productMatchesCategorySlugFilter } from '../../shared/home-catalog-filter.js';
