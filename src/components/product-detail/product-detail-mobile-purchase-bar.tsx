@@ -212,7 +212,7 @@ export function ProductDetailMobilePurchaseBar({
           <Button
             type="button"
             onClick={handleBuyNow}
-            className="min-h-11 gap-1 rounded-md bg-[#0f1f3d] px-3 text-sm font-bold text-white hover:bg-[#0f1f3d]/90 lg:px-4"
+            className="min-h-11 gap-1 rounded-md bg-foreground px-3 text-sm font-bold text-white hover:bg-foreground/90 lg:px-4"
             aria-label="Comprar ahora"
           >
             <Zap className="size-4 shrink-0" aria-hidden="true" />

@@ -7,6 +7,7 @@ export const COMMON_ATTRIBUTE_NAMES = [
   'Velocidad',
   'Formato papel',
   'Producción',
+  'Volumen mensual',
   'Impresión dúplex',
   'Alimentador (ADF)',
   'Conectividad',

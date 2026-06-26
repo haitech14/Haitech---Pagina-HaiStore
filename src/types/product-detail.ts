@@ -188,6 +188,8 @@ export interface ProductDetailViewModel {
   descriptionVisual: ProductDescriptionVisual | null;
   /** Barra horizontal de highlights bajo el hero de ficha. */
   featureBar: ProductDescriptionHighlight[];
+  /** Píldoras compactas con icono bajo valoraciones (ppm, formato, ADF, etc.). */
+  specPills: ProductDescriptionHighlight[];
   specs: ProductSpecRow[];
   warrantyBullets: string[];
   gallery: ProductGalleryItem[];

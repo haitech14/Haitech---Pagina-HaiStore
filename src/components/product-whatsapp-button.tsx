@@ -17,6 +17,7 @@ import {
 } from '@/lib/generate-product-quote-from-contact';
 import { openProductWhatsAppChat, type ProductWhatsAppLineItem } from '@/lib/product-whatsapp-message';
 import { productPath } from '@/lib/product-path';
+import { buildAbsoluteUrl } from '@/lib/site-url';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { WhatsAppContact } from '@/lib/whatsapp-contact';
 import { cn } from '@/lib/utils';
@@ -56,10 +57,7 @@ export function ProductWhatsAppButton({
 
   const detailPath = product.id ? productPath(product.id) : null;
   const resolvedProductUrl =
-    product.productUrl ??
-    (typeof window !== 'undefined' && detailPath
-      ? `${window.location.origin}${detailPath}`
-      : null);
+    product.productUrl ?? (detailPath ? buildAbsoluteUrl(detailPath) : null);
   const lineItem: ProductWhatsAppLineItem = {
     ...product,
     ...(resolvedProductUrl ? { productUrl: resolvedProductUrl } : {}),
@@ -184,7 +182,7 @@ export function ProductWhatsAppButton({
       <WhatsAppContactDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        initial={contact}
+        initial={contact ?? undefined}
         isSubmitting={isSaving || isProcessing}
         onSubmit={handleSubmit}
       />

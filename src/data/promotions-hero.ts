@@ -37,7 +37,7 @@ export const promotionSlides: PromotionSlide[] = [
     badge: 'Soporte oficial',
     ctaLabel: 'Solicitar cotización',
     ctaHref: '/contacto',
-    image: '/promo-cards/technician-service.png',
+    image: '/promo-cards/technician-service.webp',
     imageAlt: 'Técnico de servicio para equipos de impresión',
   },
 ];

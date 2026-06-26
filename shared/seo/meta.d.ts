@@ -12,13 +12,15 @@ export function buildProductMetaDescription(product: {
   category?: string | null;
 }): string;
 export function buildCategoryMetaTitle(
-  category: { name: string },
+  category: { name: string; slug?: string },
   subcategoryName?: string,
+  subSlug?: string,
 ): string;
 export function buildCategoryMetaDescription(
-  category: { name: string; tagline?: string },
+  category: { name: string; tagline?: string; slug?: string },
   subcategoryName?: string,
   heroSubtitle?: string,
+  subSlug?: string,
 ): string;
 export function buildProductSeoRecord(
   product: Record<string, unknown>,

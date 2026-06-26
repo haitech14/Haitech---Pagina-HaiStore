@@ -3,6 +3,7 @@ import { megaMenuServiceLinks } from '@/data/mega-menu';
 import { productMatchesCategoryFilter, productMatchesCategoryFilterTree } from '@/lib/inventory-categories';
 import type { Product } from '@/types/product';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
+import { productMatchesCategorySlugFilter } from '../../shared/home-catalog-filter.js';
 import {
   compareProductSearchRelevance,
   normalizeCatalogSearchText,
@@ -236,7 +237,7 @@ export function filterProductsBySearch(
     list = list.filter((product) =>
       tree.length > 0
         ? productMatchesCategoryFilterTree(product, categoryFilter, tree)
-        : productMatchesCategoryFilter(product, categoryFilter),
+        : productMatchesCategorySlugFilter(product, categoryFilter),
     );
   }
 

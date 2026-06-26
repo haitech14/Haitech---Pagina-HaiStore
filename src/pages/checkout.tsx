@@ -26,6 +26,7 @@ import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useSeo } from '@/hooks/use-seo';
 import { buildCheckoutSessionPayload, manualPaymentLabel } from '@/lib/build-checkout-session-payload';
 import { calculateCheckoutTotals } from '@/lib/checkout-totals';
+import { resolveCheckoutShippingQuote } from '@/lib/checkout-shipping-options';
 import {
   buildOrderPdfInputFromCheckout,
   createStoreOrderPdfPreview,
@@ -60,14 +61,21 @@ export function CheckoutPage() {
   const prefilledRef = useRef(false);
 
   const discountUsd = state.appliedCoupon?.discountUsd ?? 0;
+  const freeShipping = Boolean(state.appliedCoupon?.freeShipping);
+  const shippingQuote = useMemo(
+    () => resolveCheckoutShippingQuote(state.client, { freeShipping }),
+    [state.client, freeShipping],
+  );
   const checkoutTotals = useMemo(
     () =>
       calculateCheckoutTotals({
         subtotalUsd: totalPrice,
         discountUsd,
         paymentProvider: state.paymentProvider,
+        shippingPen: shippingQuote?.pen ?? 0,
+        freeShipping,
       }),
-    [totalPrice, discountUsd, state.paymentProvider],
+    [totalPrice, discountUsd, state.paymentProvider, shippingQuote?.pen, freeShipping],
   );
 
   useEffect(() => {
@@ -345,6 +353,7 @@ export function CheckoutPage() {
         appliedCoupon={state.appliedCoupon}
         onCouponChange={() => {}}
         onRemoveItem={handleRemoveItem}
+        client={state.client}
         {...(customerEmail ? { customerEmail } : {})}
         compact
         {...(state.step === 3 && state.paymentProvider != null && state.paymentCurrency != null

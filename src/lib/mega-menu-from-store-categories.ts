@@ -1,8 +1,9 @@
 import type { LucideIcon } from 'lucide-react';
 
-import { landingMenuCategories } from '@/data/categories';
+import type { Category } from '@/data/categories';
 import { megaMenuImageForSlug } from '@/data/mega-menu';
 import { categoryLandingPath, categoryPath } from '@/lib/category-path';
+import { buildLandingMenuCategoriesFromTree } from '@/lib/landing-menu-categories';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 
 export interface MegaMenuLinkItem {
@@ -71,7 +72,7 @@ function imageForNode(node: StoreCategoryTreeNode, fallbackSlug?: string): strin
   );
 }
 
-function fallbackColumnGroupsForCategory(category: (typeof landingMenuCategories)[number]): MegaMenuColumnGroup[] {
+function fallbackColumnGroupsForCategory(category: Category): MegaMenuColumnGroup[] {
   const href = categoryLandingPath(category.slug);
   return [
     {
@@ -132,7 +133,8 @@ function collectColumnGroupsForCategory(node: StoreCategoryTreeNode): MegaMenuCo
 }
 
 export function buildLandingCatalogMegaMenu(tree: StoreCategoryTreeNode[]) {
-  const sidebarItems: LandingCatalogMenuSidebarItem[] = landingMenuCategories.map((category) => ({
+  const landingCategories = buildLandingMenuCategoriesFromTree(tree);
+  const sidebarItems: LandingCatalogMenuSidebarItem[] = landingCategories.map((category) => ({
     slug: category.slug,
     label: category.name,
     description: category.tagline,
@@ -140,7 +142,7 @@ export function buildLandingCatalogMegaMenu(tree: StoreCategoryTreeNode[]) {
   }));
 
   function getColumnGroups(categorySlug: string): MegaMenuColumnGroup[] {
-    const staticCategory = landingMenuCategories.find((category) => category.slug === categorySlug);
+    const staticCategory = landingCategories.find((category) => category.slug === categorySlug);
     const node = findNodeBySlug(tree, categorySlug);
 
     if (node) {

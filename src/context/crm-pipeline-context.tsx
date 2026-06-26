@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -16,7 +17,7 @@ import {
   type CrmResumenLeadMetrics,
 } from '@/lib/crm-lead-form';
 import { applyLeadStageChange } from '@/lib/crm-pipeline-stage-styles';
-import { loadCrmPipelineLeads, saveCrmPipelineLeads } from '@/lib/crm-pipeline-storage';
+import { loadCrmPipelineLeads, saveCrmPipelineLeads, CRM_PIPELINE_UPDATED_EVENT } from '@/lib/crm-pipeline-storage';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { CrmPipelineLead, CrmPipelineStageId } from '@/types/crm-pipeline';
 
@@ -39,9 +40,35 @@ export function CrmPipelineProvider({ children }: { children: ReactNode }) {
     companySettings?.usdToPenExchangeRate ?? DEFAULT_COMPANY_SETTINGS.usdToPenExchangeRate;
 
   const [leads, setLeads] = useState<CrmPipelineLead[]>(() => loadCrmPipelineLeads());
+  const skipNextPersistRef = useRef(false);
+
+  const reloadFromStorage = useCallback(() => {
+    skipNextPersistRef.current = true;
+    setLeads(loadCrmPipelineLeads());
+  }, []);
 
   useEffect(() => {
+    const onUpdated = () => reloadFromStorage();
+    window.addEventListener(CRM_PIPELINE_UPDATED_EVENT, onUpdated);
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === null || event.key.includes('crm-pipeline-leads')) {
+        reloadFromStorage();
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener(CRM_PIPELINE_UPDATED_EVENT, onUpdated);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, [reloadFromStorage]);
+
+  useEffect(() => {
+    if (skipNextPersistRef.current) {
+      skipNextPersistRef.current = false;
+      return;
+    }
     saveCrmPipelineLeads(leads);
+    window.dispatchEvent(new Event(CRM_PIPELINE_UPDATED_EVENT));
   }, [leads]);
 
   const kpis = useMemo(

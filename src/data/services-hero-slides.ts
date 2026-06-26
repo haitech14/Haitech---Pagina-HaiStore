@@ -19,7 +19,7 @@ export const servicesHeroSlides: HomeHeroSlide[] = [
   {
     ...SERVICES_HERO_COMPACT_SHARED,
     id: 'servicios-soporte-tecnico',
-    backgroundImage: '/promotions/promo-hero-servicio.png',
+    backgroundImage: '/promotions/promo-hero-servicio.webp',
     imageWidth: 1536,
     imageHeight: 1024,
     imageAlt:

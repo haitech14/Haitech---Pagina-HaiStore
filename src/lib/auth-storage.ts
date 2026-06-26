@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseSessionSafely } from '@/lib/supabase-auth-helpers';
+import { isSupabaseConfigured } from '@/lib/supabase-config';
 import type { UserRole } from '@/types/product';
 
 export interface AuthUser {
@@ -53,11 +54,16 @@ export function setDemoToken(token: string | null) {
 }
 
 export async function getAccessToken(): Promise<string | null> {
-  const { data } = await supabase.auth.getSession();
-  if (data.session?.access_token) return data.session.access_token;
   const demo = getDemoToken();
-  if (demo) return demo;
-  return null;
+
+  if (!isSupabaseConfigured()) {
+    return demo;
+  }
+
+  const session = await getSupabaseSessionSafely();
+  if (session?.access_token) return session.access_token;
+
+  return demo;
 }
 
 export async function authHeaders(): Promise<HeadersInit> {

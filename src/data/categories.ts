@@ -67,6 +67,21 @@ export const categories: Category[] = [
     image: '/categories/formato-ancho.png',
   },
   {
+    slug: 'toner-suministros',
+    name: 'Suministros',
+    tagline: 'Tóner original, remanufacturado y compatibles',
+    icon: PackageOpen,
+    image: '/categories/toner-suministros.png',
+    inventoryCategories: [
+      'Suministros',
+      'Toner y Suministros',
+      'Toner y suministros',
+      'Tóner y Suministros',
+      'Toner',
+      'Toner, Suministros',
+    ],
+  },
+  {
     slug: 'toner-compatibles',
     name: 'Tóner Compatible',
     tagline: 'Cartuchos compatibles y alternativos',
@@ -218,12 +233,46 @@ export const categories: Category[] = [
     tagline: 'Pantallas para oficina y productividad',
     icon: Monitor,
     image: '/categories/monitores.png',
+    inventoryCategories: ['Monitores'],
+  },
+  {
+    slug: 'tecnologia',
+    name: 'Tecnología y cómputo',
+    tagline: 'Equipos de cómputo, pantallas y accesorios',
+    icon: Laptop,
+    image: '/categories/computadoras-laptop.png',
+    inventoryCategories: ['Tecnología y cómputo'],
+  },
+  {
+    slug: 'software',
+    name: 'Software',
+    tagline: 'Soluciones de gestión documental y seguridad',
+    icon: Briefcase,
+    image: '/categories/soluciones-negocio.png',
+    inventoryCategories: ['Software'],
+  },
+  {
+    slug: 'equipos-de-oficina',
+    name: 'Equipos de Oficina',
+    tagline: 'Equipamiento para oficina y encuadernación',
+    icon: PackageOpen,
+    image: '/categories/repuestos.png',
+    inventoryCategories: [
+      'Equipos de Oficina',
+      'Equipos de Oficina, Espiraladoras',
+      'Espiraladoras',
+      'Espiraladora',
+      'Equipos de Oficina, Anilladoras',
+      'Anilladoras',
+      'Anilladora',
+      'Equipos de Oficina, Enmicadora',
+      'Enmicadoras',
+      'Enmicadora',
+      'Equipos de Oficina, Guillotina',
+      'Guillotinas',
+      'Guillotina',
+    ],
   },
 ];
 
-/** Categorías visibles en home («Explora nuestras categorías») y mega menú Productos. */
-const LANDING_MENU_HIDDEN_SLUGS = new Set<string>(['servicio-tecnico']);
-
-export const landingMenuCategories = categories.filter(
-  (category) => !LANDING_MENU_HIDDEN_SLUGS.has(category.slug),
-);
+/** Metadatos estáticos (iconos, etiquetas de inventario). La navegación se deriva del árbol de la Tienda. */

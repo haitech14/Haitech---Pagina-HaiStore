@@ -1,9 +1,7 @@
-import { History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { ProductCarouselSection } from '@/components/product-carousel-section';
 import { HomeCatalogLoadError } from '@/components/home-catalog-load-error';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useHomeHighlightedDisplay } from '@/hooks/use-home-highlighted-display';
 import { HOME_HIGHLIGHTED_ROW_SIZE } from '@/lib/home-highlighted-selection';
@@ -62,21 +60,9 @@ export function HomeHighlightedSection() {
               ))}
             </div>
           ) : isEmpty ? (
-            <div
-              className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/70 bg-muted/20 px-4 py-10 text-center sm:py-12"
-              role="status"
-            >
-              <History className="size-10 text-muted-foreground/50 sm:size-12" aria-hidden="true" />
-              <div className="max-w-sm space-y-1">
-                <p className="text-base font-semibold text-foreground">No te olvides llevártelo</p>
-                <p className="text-sm text-muted-foreground">
-                  Visita cualquier producto y lo guardaremos aquí para que lo retomes cuando quieras.
-                </p>
-              </div>
-              <Button asChild variant="outline" className="min-h-11">
-                <Link to="/tienda">Explorar productos</Link>
-              </Button>
-            </div>
+            <p className="rounded-xl border border-dashed border-border/70 bg-muted/20 px-4 py-8 text-center text-sm text-muted-foreground" role="status">
+              No hay productos disponibles para mostrar en este momento.
+            </p>
           ) : (
             <ProductCarouselSection
               sectionId="visto-recientemente"

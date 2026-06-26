@@ -1,3 +1,12 @@
+export const BRAND_FILTER_OPTIONS = [
+  { key: 'ricoh', label: 'RICOH' },
+  { key: 'canon', label: 'Canon' },
+  { key: 'pantum', label: 'Pantum' },
+  { key: 'hp', label: 'HP' },
+  { key: 'brother', label: 'Brother' },
+  { key: 'epson', label: 'Epson' },
+];
+
 export function normalizeCatalogBrandKey(brand) {
   const trimmed = String(brand ?? '').trim();
   if (!trimmed) return null;
@@ -8,6 +17,12 @@ export function getCatalogBrandLabel(brand) {
   const trimmed = String(brand ?? '').trim();
   if (!trimmed) return null;
   return trimmed;
+}
+
+export function findBrandFilterOption(brandKey) {
+  if (!brandKey) return null;
+  const normalized = normalizeCatalogBrandKey(brandKey);
+  return BRAND_FILTER_OPTIONS.find((option) => option.key === normalized) ?? null;
 }
 
 export function buildBrandFacets(products) {
@@ -22,6 +37,22 @@ export function buildBrandFacets(products) {
   return [...map.values()].sort(
     (a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'),
   );
+}
+
+/** Opciones fijas de marca con conteo sobre el catálogo visible. */
+export function buildBrandFilterOptions(products) {
+  const facetMap = new Map(
+    buildBrandFacets(products).map((facet) => [facet.key, facet.count]),
+  );
+  return BRAND_FILTER_OPTIONS.map(({ key, label }) => ({
+    key,
+    label,
+    count: facetMap.get(key) ?? 0,
+  }));
+}
+
+export function countProductsForBrandFilterKey(products, brandKey) {
+  return products.filter((product) => productMatchesBrandFilter(product, [brandKey])).length;
 }
 
 export function productMatchesBrandFilter(product, selectedBrandKeys) {

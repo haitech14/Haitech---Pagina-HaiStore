@@ -12,6 +12,11 @@ export const MAIN_NAV_CATEGORIES_BUTTON_CLASS = cn(
   'transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
 );
 
+export const MAIN_NAV_WHATSAPP_BUTTON_CLASS = cn(
+  'inline-flex shrink-0 items-center gap-2 rounded-lg bg-[#25D366] px-3.5 py-2 text-sm font-semibold text-white shadow-sm',
+  'transition-colors hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2',
+);
+
 export const MAIN_NAV_ICON_CLASS = 'size-4 shrink-0';
 
 export function mainNavLinkClass(isActive: boolean) {

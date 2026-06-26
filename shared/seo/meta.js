@@ -6,12 +6,52 @@ import {
   formatProductPageTitleSeo,
 } from './product-seo.js';
 
-export const DEFAULT_SITE_TITLE = 'Haitech - Tecnología que sí hace la diferencia';
+export const DEFAULT_SITE_TITLE =
+  'Fotocopiadoras e Impresoras Ricoh | Distribuidor Autorizado | Haitech';
 
 export const DEFAULT_SITE_DESCRIPTION =
-  'HAITECH — Ricoh Alliance Partner. Multifuncionales, impresoras y suministros originales. Cotiza online, envío a todo el Perú y soporte técnico especializado.';
+  'Distribuidor Autorizado Ricoh en Perú. Venta y alquiler de fotocopiadoras, multifuncionales, impresoras, tóner, tintas y repuestos. Envío a todo el país y soporte técnico.';
 
 export const DEFAULT_OG_IMAGE = '/categories/promonuevas-1.png';
+
+const ROOT_CATEGORY_TITLES = {
+  multifuncionales: 'Fotocopiadoras y Multifuncionales Ricoh | Venta | Haitech',
+  impresoras: 'Impresoras Láser Ricoh | Venta en Perú | Haitech',
+  'toner-suministros': 'Tóner, Tintas y Suministros Ricoh | Haitech',
+  repuestos: 'Repuestos Ricoh Originales y Compatibles | Haitech',
+  alquiler: 'Alquiler de Fotocopiadoras e Impresoras Ricoh | Haitech',
+  'formato-ancho': 'Plotters y Formato Ancho Ricoh | Haitech',
+  accesorios: 'Accesorios para Impresoras Ricoh | Haitech',
+  escaneres: 'Escáneres Ricoh | Digitalización | Haitech',
+  software: 'Software de Gestión Documental | Haitech',
+};
+
+const ROOT_CATEGORY_DESCRIPTIONS = {
+  multifuncionales:
+    'Fotocopiadoras y multifuncionales Ricoh nuevas, seminuevas y remanufacturadas. Venta con instalación, garantía y envío a todo el Perú. Distribuidor Autorizado.',
+  impresoras:
+    'Impresoras láser Ricoh para oficina. Equipos nuevos y seminuevos con asesoría HaiTech, Distribuidor Autorizado Ricoh. Venta y envío nacional.',
+  'toner-suministros':
+    'Tóner original y compatible, tintas, cartuchos y suministros Ricoh. Compra online con stock, asesoría técnica y envío a todo el Perú.',
+  repuestos:
+    'Repuestos originales y compatibles Ricoh: unidades de imagen, cilindros, fusores, rodillos y más. Distribuidor Autorizado con envío nacional.',
+  alquiler:
+    'Alquiler de fotocopiadoras e impresoras multifuncionales Ricoh para empresas. Planes mensuales con mantenimiento, tóner y soporte técnico.',
+  'formato-ancho':
+    'Plotters y equipos de formato ancho Ricoh para producción gráfica y planos. Cotiza con Distribuidor Autorizado Ricoh en Perú.',
+};
+
+const SUBCATEGORY_TITLE_OVERRIDES = {
+  'unidades-compatibles': 'Unidades Compatibles Ricoh | Repuestos | Haitech',
+  'repuestos-compatibles': 'Repuestos Compatibles Ricoh | Haitech',
+  'repuestos-originales': 'Repuestos Originales Ricoh | Haitech',
+  'toner-originales': 'Tóner Original Ricoh | Suministros | Haitech',
+  'toner-compatibles': 'Tóner Compatible Ricoh | Haitech',
+  'tintas-originales': 'Tintas Originales Ricoh | Haitech',
+  'tintas-compatibles': 'Tintas Compatibles | Haitech',
+  'multifuncionales-nuevas': 'Multifuncionales Ricoh Nuevas | Venta | Haitech',
+  'multifuncionales-seminuevas': 'Multifuncionales Ricoh Seminuevas | Haitech',
+};
 
 export function truncateMetaDescription(text, maxLength = 160) {
   const normalized = String(text ?? '')
@@ -43,40 +83,51 @@ export function buildProductMetaDescription(product) {
 /**
  * @param {{ slug: string, name: string, tagline?: string }} category
  */
-export function buildCategoryMetaTitle(category, subcategoryName) {
-  const section = subcategoryName?.trim() || category.name;
+export function buildCategoryMetaTitle(category, subcategoryName, subSlug) {
   const slug = category.slug ?? '';
-  if (slug === 'multifuncionales') {
-    return `Multifuncionales Ricoh Nuevas en Perú | Haitech`;
+  const sub = String(subSlug ?? '').trim();
+  const section = subcategoryName?.trim() || category.name;
+
+  if (sub && SUBCATEGORY_TITLE_OVERRIDES[sub]) {
+    return SUBCATEGORY_TITLE_OVERRIDES[sub];
   }
-  if (slug === 'impresoras') {
-    return `Impresoras Ricoh Láser en Perú | Haitech`;
+
+  if (sub && section) {
+    return `${section} Ricoh | ${category.name} | Haitech`;
   }
-  if (slug === 'toner-suministros') {
-    return `Suministros Ricoh Originales | Haitech`;
+
+  if (ROOT_CATEGORY_TITLES[slug]) {
+    return ROOT_CATEGORY_TITLES[slug];
   }
+
   return `${section} | Comprar en Perú | Haitech`;
 }
 
-export function buildCategoryMetaDescription(category, subcategoryName, heroSubtitle) {
+export function buildCategoryMetaDescription(category, subcategoryName, heroSubtitle, subSlug) {
   const section = subcategoryName?.trim() || category.name;
   const slug = category.slug ?? '';
+  const sub = String(subSlug ?? '').trim();
   const subtitle = heroSubtitle?.trim() || category.tagline?.trim();
 
-  if (slug === 'multifuncionales') {
+  if (slug && ROOT_CATEGORY_DESCRIPTIONS[slug] && !sub) {
+    return truncateMetaDescription(ROOT_CATEGORY_DESCRIPTIONS[slug]);
+  }
+
+  if (sub === 'unidades-compatibles') {
     return truncateMetaDescription(
-      'Multifuncionales Ricoh nuevas: IM 430F, IM 550F, IM C3000 y más. Impresión, copia, escaneo y fax. Cotiza online con envío a todo el Perú.',
+      'Unidades de imagen compatibles Ricoh e Intercopy. Repuestos con stock, precio competitivo y envío a todo el Perú. Distribuidor Autorizado HaiTech.',
     );
   }
-  if (slug === 'impresoras') {
+
+  if (sub === 'toner-compatibles' || sub === 'toner-originales') {
     return truncateMetaDescription(
-      'Impresoras láser Ricoh para oficina. Equipos nuevos y seminuevos con asesoría Haitech, Ricoh Alliance Partner. Envío a todo el Perú.',
+      `${section}: tóner y cartuchos Ricoh con asesoría técnica. Compra online con envío nacional. Distribuidor Autorizado en Perú.`,
     );
   }
 
   const base = subtitle
     ? `${section}: ${subtitle}`
-    : `Explora ${section} en Haitech. Equipos Ricoh y suministros originales con asesoría experta.`;
+    : `Explora ${section} en Haitech, Distribuidor Autorizado Ricoh. Equipos, tóner, tintas y repuestos con asesoría experta.`;
   return truncateMetaDescription(`${base} Cotiza online con envío a todo el Perú.`);
 }
 
@@ -104,7 +155,7 @@ export function buildProductSeoRecord(product, siteOrigin, breadcrumbs = []) {
 }
 
 export function buildCategorySeoRecord(category, siteOrigin, options = {}) {
-  const { subcategoryName, heroSubtitle, canonicalPath } = options;
+  const { subcategoryName, heroSubtitle, canonicalPath, subSlug } = options;
   const pathname =
     canonicalPath ??
     (category.slug === 'multifuncionales'
@@ -115,8 +166,13 @@ export function buildCategorySeoRecord(category, siteOrigin, options = {}) {
     slug: category.slug,
     pathname,
     canonical: buildAbsoluteUrl(pathname, siteOrigin),
-    title: buildCategoryMetaTitle(category, subcategoryName),
-    description: buildCategoryMetaDescription(category, subcategoryName, heroSubtitle),
+    title: buildCategoryMetaTitle(category, subcategoryName, subSlug),
+    description: buildCategoryMetaDescription(
+      category,
+      subcategoryName,
+      heroSubtitle,
+      subSlug,
+    ),
     image: resolveAbsoluteImageUrl(category.image ?? DEFAULT_OG_IMAGE, siteOrigin),
     imageAlt: subcategoryName || category.name,
     ogType: 'website',
@@ -127,9 +183,20 @@ export function buildHomeSeoRecord(siteOrigin) {
   return {
     pathname: '/',
     canonical: buildAbsoluteUrl('/', siteOrigin),
-    title: 'Haitech — Equipos Ricoh y suministros originales en Perú',
-    description:
-      'Ricoh Alliance Partner en Perú. Multifuncionales, impresoras láser, tóner original y repuestos. Cotiza online con envío a todo el país y soporte técnico especializado.',
+    title: DEFAULT_SITE_TITLE,
+    description: DEFAULT_SITE_DESCRIPTION,
+    image: resolveAbsoluteImageUrl(DEFAULT_OG_IMAGE, siteOrigin),
+    imageAlt: 'Haitech — Distribuidor Autorizado Ricoh en Perú',
+    ogType: 'website',
+  };
+}
+
+export function buildStaticPageSeoRecord(pathname, title, description, siteOrigin) {
+  return {
+    pathname,
+    canonical: buildAbsoluteUrl(pathname, siteOrigin),
+    title,
+    description: truncateMetaDescription(description),
     image: resolveAbsoluteImageUrl(DEFAULT_OG_IMAGE, siteOrigin),
     imageAlt: 'Haitech — equipos Ricoh y suministros',
     ogType: 'website',

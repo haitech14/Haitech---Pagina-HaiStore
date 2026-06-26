@@ -1,4 +1,7 @@
-export { CANON_BRAND, CATEGORY_CANON_MF_NUEVAS as CATEGORY_CANON_GRAN_FORMATO_NUEVAS } from './canon-multifuncionales.js';
+export { CANON_BRAND } from './canon-multifuncionales.js';
+
+/** Plotters y MFP de planos — paridad con categories.ts / category-inventory-labels.js */
+export const CATEGORY_CANON_GRAN_FORMATO_NUEVAS = 'Formato Ancho';
 
 export const CANON_GRAN_FORMATO_FEATURES = [
   'Color de alto impacto: Nueva tinta magenta',

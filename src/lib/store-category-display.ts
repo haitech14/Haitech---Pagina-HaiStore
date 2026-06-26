@@ -28,6 +28,56 @@ export function findStoreCategoryBySlug(
   return undefined;
 }
 
+/** Raíz del árbol que contiene `subSlug` (para navegar desde `/tienda`). */
+export function findRootCategorySlugForSubcategory(
+  nodes: StoreCategoryTreeNode[],
+  subSlug: string,
+): string | null {
+  for (const root of nodes) {
+    if (root.slug === subSlug) return root.slug;
+    if (findStoreCategoryBySlug(root.children ?? [], subSlug)) return root.slug;
+  }
+  return null;
+}
+
+/** Slugs de nodos ancestros que deben quedar expandidos para mostrar `subSlug`. */
+export function collectExpandedSlugsForSubcategory(
+  nodes: StoreCategoryTreeNode[],
+  activeCategorySlug: string,
+  subSlug: string | null,
+): Set<string> {
+  const expanded = new Set<string>();
+  if (!subSlug) {
+    if (activeCategorySlug) expanded.add(activeCategorySlug);
+    return expanded;
+  }
+
+  function walk(
+    node: StoreCategoryTreeNode,
+    ancestors: string[],
+  ): boolean {
+    if (node.slug === subSlug) {
+      for (const slug of ancestors) expanded.add(slug);
+      return true;
+    }
+    for (const child of node.children ?? []) {
+      if (walk(child as StoreCategoryTreeNode, [...ancestors, node.slug])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  for (const root of nodes) {
+    if (root.slug === activeCategorySlug || !activeCategorySlug) {
+      walk(root, []);
+    }
+  }
+
+  if (activeCategorySlug) expanded.add(activeCategorySlug);
+  return expanded;
+}
+
 export function collectInventoryLabels(category: StoreCategory): string[] {
   const labels = new Set<string>();
   for (const label of category.inventoryLabels ?? []) {

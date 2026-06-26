@@ -37,6 +37,7 @@ import { useAuth } from '@/context/auth-context';
 import { CUSTOMER_EDIT_ROLES } from '@/lib/customers-by-role';
 import { useCrmPipeline } from '@/context/crm-pipeline-context';
 import { createInitialCrmLeadForm } from '@/lib/crm-lead-customer-fill';
+import { createDraftLeadFromForm } from '@/lib/crm-lead-draft';
 import { createPipelineLeadFromForm, parseLeadCurrency, parseLeadValueAmount } from '@/lib/crm-lead-form';
 import { randomId } from '@/lib/random-id';
 import { formatLeadCreatedAt, formatLeadEquivalentHint } from '@/lib/crm-pipeline-utils';
@@ -133,7 +134,9 @@ interface CrmAddLeadDialogProps {
   onOpenChange: (open: boolean) => void;
   defaultStageId?: CrmPipelineStageId;
   editingLead?: CrmPipelineLead | null;
+  initialPrefill?: Partial<CrmNewLeadFormValues> | null;
   onSave: (lead: CrmPipelineLead, mode: 'create' | 'update') => void;
+  onSaveDraft?: (lead: CrmPipelineLead) => void;
 }
 
 export function CrmAddLeadDialog({
@@ -141,7 +144,9 @@ export function CrmAddLeadDialog({
   onOpenChange,
   defaultStageId = 'leads',
   editingLead = null,
+  initialPrefill = null,
   onSave,
+  onSaveDraft,
 }: CrmAddLeadDialogProps) {
   const { user } = useAuth();
   const { usdToPenRate } = useCrmPipeline();
@@ -181,10 +186,22 @@ export function CrmAddLeadDialog({
       });
     } else {
       persistRef.current = { mode: 'create', leadId: null };
-      setForm(createInitialCrmLeadForm(defaultStageId, ownerId, ownerLabel));
+      const base = createInitialCrmLeadForm(defaultStageId, ownerId, ownerLabel);
+      setForm(
+        initialPrefill
+          ? {
+              ...base,
+              ...initialPrefill,
+              lineItems: initialPrefill.lineItems ?? base.lineItems,
+              phones: initialPrefill.phones ?? base.phones,
+              emails: initialPrefill.emails ?? base.emails,
+              tasks: initialPrefill.tasks ?? base.tasks,
+            }
+          : base,
+      );
     }
     setError(null);
-  }, [open, editingLead, defaultStageId, ownerId, ownerLabel]);
+  }, [open, editingLead, defaultStageId, ownerId, ownerLabel, initialPrefill]);
 
   const notesLength = form.notes.length;
 
@@ -238,13 +255,36 @@ export function CrmAddLeadDialog({
       isSubmittingRef.current = false;
       return;
     }
-    onSave(lead, mode);
+    onSave({ ...lead, isDraft: false }, mode);
     isSubmittingRef.current = false;
     onOpenChange(false);
   };
 
+  const persistDraftIfNeeded = () => {
+    if (isSubmittingRef.current || !onSaveDraft) return;
+    const { mode, leadId } = persistRef.current;
+    if (mode === 'update' && editingLead && !editingLead.isDraft) return;
+
+    const resolvedId = leadId ?? editingLead?.id ?? randomId();
+    const formForSave = {
+      ...form,
+      stageId: editingLead?.stageId ?? form.stageId ?? defaultStageId,
+      ownerLabel,
+    };
+    const draft = createDraftLeadFromForm(formForSave, resolvedId, {
+      ...(editingLead?.createdAt ? { createdAt: editingLead.createdAt } : {}),
+      sellerName: ownerLabel,
+    });
+    if (draft) onSaveDraft(draft);
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen && open) persistDraftIfNeeded();
+    onOpenChange(nextOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="flex max-h-[min(92vh,900px)] w-[min(98vw,56rem)] max-w-[min(98vw,56rem)] flex-col gap-0 overflow-hidden p-0 sm:rounded-xl">
         <DialogHeader className="shrink-0 space-y-0 border-b px-6 py-4 text-left">
           <DialogTitle className="text-lg font-semibold">
@@ -716,7 +756,7 @@ export function CrmAddLeadDialog({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => handleOpenChange(false)}
               >
                 Cancelar
               </Button>

@@ -25,6 +25,9 @@ interface WhatsAppContactDialogProps {
   onSubmit: (contact: WhatsAppContact, options: WhatsAppContactSubmitOptions) => void | Promise<void>;
   isSubmitting?: boolean;
   showQuoteCheckbox?: boolean;
+  title?: string;
+  description?: string;
+  submitLabel?: string;
 }
 
 export function WhatsAppContactDialog({
@@ -34,6 +37,9 @@ export function WhatsAppContactDialog({
   onSubmit,
   isSubmitting = false,
   showQuoteCheckbox = true,
+  title = 'Comprar por WhatsApp',
+  description = 'Completa tus datos para enviar el mensaje con el producto y el precio a nuestro equipo de ventas.',
+  submitLabel = 'Enviar por WhatsApp',
 }: WhatsAppContactDialogProps) {
   const quoteCheckboxId = useId();
   const [name, setName] = useState('');
@@ -78,11 +84,8 @@ export function WhatsAppContactDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Comprar por WhatsApp</DialogTitle>
-          <DialogDescription>
-            Completa tus datos para enviar el mensaje con el producto y el precio a nuestro equipo de
-            ventas.
-          </DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         <form className="grid gap-4" onSubmit={(event) => void handleSubmit(event)} noValidate>
@@ -157,7 +160,7 @@ export function WhatsAppContactDialog({
                 ? generateQuote
                   ? 'Generando…'
                   : 'Abriendo…'
-                : 'Enviar por WhatsApp'}
+                : submitLabel}
             </Button>
           </DialogFooter>
         </form>

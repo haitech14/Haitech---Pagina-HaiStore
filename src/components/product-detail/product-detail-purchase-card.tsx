@@ -11,7 +11,7 @@ import {
   isProductOutOfStock,
   ON_REQUEST_PRODUCT_BUTTON_CLASS,
 } from '@/components/cart/add-to-cart-button';
-import { ProductBulkDiscountIncentives } from '@/components/product-detail/product-bulk-discount-incentives';
+import { ProductVolumeDiscountPromo } from '@/components/product/product-volume-discount-promo';
 import { ProductDetailRolePriceLines } from '@/components/product-detail/product-detail-role-prices';
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
@@ -278,9 +278,12 @@ export function ProductDetailPurchaseCard({
         {priceBlock}
 
         {detail.bulkDiscountTiers.length > 0 && !isRentMode ? (
-          <ProductBulkDiscountIncentives
+          <ProductVolumeDiscountPromo
             product={product}
+            quantity={quantity}
             tiers={detail.bulkDiscountTiers}
+            basePriceUsd={displayUsd + preparationSurchargeUsd}
+            floorPriceUsd={fullPrices.tecnico}
             className="mt-4"
           />
         ) : null}
@@ -346,7 +349,7 @@ export function ProductDetailPurchaseCard({
               size="lg"
               onClick={handleBuyNow}
               className={cn(
-                'h-11 min-h-11 gap-2 rounded-lg border-0 bg-[#0f1f3d] text-sm font-semibold text-white hover:bg-[#0f1f3d]/90 focus-visible:ring-[#0f1f3d]',
+                'h-11 min-h-11 gap-2 rounded-lg border-0 bg-foreground text-sm font-semibold text-white hover:bg-foreground/90 focus-visible:ring-foreground',
                 (showRentalAction || showMaintenancePlanAction) && 'min-w-0 flex-1',
                 !showRentalAction && !showMaintenancePlanAction && 'w-full',
               )}

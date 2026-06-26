@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Link, Navigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Plus, PanelLeftClose } from 'lucide-react';
 
 import { StoreCatalogHeader } from '@/components/store-storefront/store-catalog-header';
 import { storeCatalogCopy } from '@/data/store-landing';
 import { CatalogFilterOption } from '@/components/catalog-filter-option';
 import { CatalogFilterGroup } from '@/components/catalog-filter-group';
+import { CatalogFilterSection } from '@/components/catalog-filter-section';
 import { CatalogSidebarNav } from '@/components/catalog-sidebar-nav';
 import { CategoryCatalogFormatSections } from '@/components/category/category-catalog-format-sections';
 import {
@@ -43,6 +44,7 @@ import { useProducts } from '@/hooks/use-products';
 import { useSeo } from '@/hooks/use-seo';
 import { searchCatalogProducts } from '@/lib/catalog-search-api';
 import { buildCategorySeoConfig } from '@/lib/build-category-seo';
+import { getCategorySeoIntro } from '@/lib/category-seo-intro';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import {
   findCategoryBySlug,
@@ -51,10 +53,15 @@ import {
 } from '@/lib/category-product-labels';
 import {
   ALL_SUBCATEGORIES_QUERY,
+  findRootCategorySlugForSubcategory,
   findStoreCategoryBySlug,
   formatSubcategoryTabLabel,
   parseCategorySubSearchParam,
 } from '@/lib/store-category-display';
+import { categoryPath } from '@/lib/category-path';
+import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
+import { queryClient } from '@/providers';
+import { prepareCatalogCategoryTree } from '@/lib/catalog-category-tree';
 import { syncStoreCategoryTreeProductCounts } from '@/lib/store-category-product-counts';
 import { excludeStoreSoftwareProducts } from '@/lib/store-software-products';
 import type { ActiveFilterChip } from '@/components/category/category-active-filter-chips';
@@ -95,7 +102,7 @@ import {
 } from '@/lib/product-condition';
 import {
   buildCatalogQuickFilters,
-  buildBrandFacets,
+  buildBrandFilterOptions,
   buildCatalogFormatSections,
   buildCatalogSpecFilterTabs,
   CATALOG_SPEC_FILTER_TAB_KEYS,
@@ -106,6 +113,10 @@ import {
   isProduccionAttributeKey,
   isRendimientoAttributeKey,
   PRODUCTION_FILTER_OPTIONS,
+  SPEED_FILTER_OPTIONS,
+  countProductsForSpeedFilterKey,
+  productMatchesSpeedFilterKeys,
+  shouldShowSpeedFilters,
   productMatchesCatalogFilters,
   productMatchesBrandFilter,
   MOST_VIEWED_OFFER_ATTR_KEY,
@@ -157,6 +168,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const catalogSidebarLayout = isStoreAll ? true : shouldUseCatalogSidebarLayout(slug);
   const showCatalogSpecFilters = shouldShowCatalogSpecFilterTabs(slug);
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawSubSlug = searchParams.get('sub');
   const { subSlug, isAllSubcategoriesView } = parseCategorySubSearchParam(rawSubSlug);
@@ -183,9 +195,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     [allProducts, isStoreAll],
   );
   const sidebarCategoryTree = useMemo(() => {
-    if (!syncSidebarCountsFromCatalog) return categoryTree;
+    const preparedTree = prepareCatalogCategoryTree(categoryTree);
+    if (!syncSidebarCountsFromCatalog) return preparedTree;
     const productsForCounts = isStoreAll ? storeCatalogProducts : allProducts;
-    return syncStoreCategoryTreeProductCounts(categoryTree, productsForCounts);
+    return syncStoreCategoryTreeProductCounts(preparedTree, productsForCounts);
   }, [categoryTree, allProducts, storeCatalogProducts, isStoreAll, syncSidebarCountsFromCatalog]);
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>(() => {
     const raw = searchParams.get('attrs');
@@ -195,8 +208,13 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       .map((entry) => entry.trim())
       .filter(Boolean);
   });
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(() => {
+    const raw = searchParams.get('marca');
+    if (!raw?.trim()) return [];
+    return [raw.trim().toLowerCase()];
+  });
   const [selectedProduction, setSelectedProduction] = useState<string | null>(null);
+  const [selectedSpeeds, setSelectedSpeeds] = useState<string[]>([]);
   const [priceMin, setPriceMin] = useState<number | null>(null);
   const [priceMax, setPriceMax] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState<CategorySortValue>('price-asc');
@@ -248,7 +266,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const showFormatSectionsEarly =
     shouldShowCatalogSpecFilterTabs(slug) && viewMode === 'grid';
   const formatSectionFetchLimit = showFormatSectionsEarly
-    ? (isMobile ? 48 : CATALOG_FORMAT_SECTION_MAX)
+    ? CATALOG_FORMAT_SECTION_MAX
     : isTableView
       ? CATALOG_TABLE_VIEW_MAX
       : catalogPageSize;
@@ -272,6 +290,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     brandKeys: selectedBrands,
     attributeKeys: selectedAttributes,
     productionKey: selectedProduction,
+    speedKeys: selectedSpeeds,
     search: catalogSearch,
     sortBy,
     page: catalogFetchPage,
@@ -465,7 +484,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     if (useServerCatalog && catalogData?.facets?.brands) {
       return catalogData.facets.brands;
     }
-    return buildBrandFacets(baseProducts);
+    return buildBrandFilterOptions(baseProducts);
   }, [baseProducts, useServerCatalog, catalogData?.facets?.brands]);
 
   const availableAttributeKeys = useMemo(
@@ -475,8 +494,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   useEffect(() => {
     setSelectedAttributes([]);
-    setSelectedBrands([]);
+    const marcaFromUrl = searchParams.get('marca')?.trim().toLowerCase();
+    setSelectedBrands(marcaFromUrl ? [marcaFromUrl] : []);
     setSelectedProduction(null);
+    setSelectedSpeeds([]);
     setPriceMin(null);
     setPriceMax(null);
     setCatalogSearch('');
@@ -527,14 +548,14 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         productMatchesCondition(product, estadoFilter, catalogFamily),
       );
     }
-    if (selectedAttributes.length > 0 || selectedProduction) {
+    if (selectedAttributes.length > 0 || selectedProduction || selectedSpeeds.length > 0) {
       list = list.filter((product) =>
         productMatchesCatalogFilters(
           product,
           selectedAttributes,
           selectedProduction,
           facetCountProducts,
-        ),
+        ) && productMatchesSpeedFilterKeys(product, selectedSpeeds),
       );
     }
     if (selectedBrands.length > 0) {
@@ -574,6 +595,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     selectedAttributes,
     selectedBrands,
     selectedProduction,
+    selectedSpeeds,
     facetCountProducts,
     inStockOnly,
     priceMin,
@@ -617,7 +639,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const seoHasFilterParams = useMemo(() => {
     if (isInventorySearch) return true;
     if (selectedAttributes.length > 0) return true;
-    if (selectedProduction != null) return true;
+    if (selectedProduction != null || selectedSpeeds.length > 0) return true;
     if (selectedBrands.length > 0) return true;
     if (inStockOnly) return true;
     if (priceMin != null || priceMax != null) return true;
@@ -631,6 +653,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     isInventorySearch,
     selectedAttributes,
     selectedProduction,
+    selectedSpeeds,
     selectedBrands,
     inStockOnly,
     priceMin,
@@ -644,6 +667,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     return buildCategorySeoConfig({
       category,
       subcategoryName: activeSubcategory?.name ?? rentalSubcategory?.title ?? null,
+      subSlug: subSlug ?? null,
       heroSubtitle: categorySeoSubtitle,
       catalogSlug,
       isInventorySearch,
@@ -654,6 +678,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     category,
     activeSubcategory?.name,
     rentalSubcategory?.title,
+    subSlug,
     categorySeoSubtitle,
     catalogSlug,
     isInventorySearch,
@@ -671,12 +696,22 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     () => buildCatalogQuickFilters(slug, availableAttributes),
     [slug, availableAttributes],
   );
-  const showProductionFilters = shouldShowProductionFilters(slug);
+  const showProductionFilters = shouldShowProductionFilters(slug, isStoreAll);
+  const showSpeedFilters = shouldShowSpeedFilters(slug, isStoreAll);
   const productionFiltersWithCounts = useMemo(
     () =>
       PRODUCTION_FILTER_OPTIONS.map((option) => ({
         ...option,
         count: countProductsForAttributeKey(baseProducts, option.key),
+      })),
+    [baseProducts],
+  );
+
+  const speedFiltersWithCounts = useMemo(
+    () =>
+      SPEED_FILTER_OPTIONS.map((option) => ({
+        ...option,
+        count: countProductsForSpeedFilterKey(baseProducts, option.key),
       })),
     [baseProducts],
   );
@@ -705,12 +740,30 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   const selectSubcategory = useCallback(
     (nextSubSlug: string | null) => {
+      if (isStoreAll && nextSubSlug && categoryTree.length > 0) {
+        const rootSlug = findRootCategorySlugForSubcategory(categoryTree, nextSubSlug);
+        if (rootSlug) {
+          void navigate(categoryPath(rootSlug, nextSubSlug), { preventScrollReset: true });
+          return;
+        }
+      }
+
       const next = new URLSearchParams(searchParams);
       if (nextSubSlug) next.set('sub', nextSubSlug);
       else next.set('sub', ALL_SUBCATEGORIES_QUERY);
       setSearchParams(next, { replace: true, preventScrollReset: true });
     },
-    [searchParams, setSearchParams],
+    [searchParams, setSearchParams, isStoreAll, categoryTree, navigate],
+  );
+
+  const prefetchSubcategoryCatalog = useCallback(
+    (nextSubSlug: string) => {
+      if (isRentalCategory || isInventorySearch) return;
+      const targetSlug = slug ?? findRootCategorySlugForSubcategory(categoryTree, nextSubSlug);
+      if (!targetSlug) return;
+      void prefetchCategoryPage(queryClient, { slug: targetSlug, subSlug: nextSubSlug, role });
+    },
+    [slug, categoryTree, isRentalCategory, isInventorySearch, role],
   );
 
   const toggleAttribute = useCallback((key: string) => {
@@ -777,6 +830,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     selectedAttributes,
     selectedBrands,
     selectedProduction,
+    selectedSpeeds,
     sortBy,
     catalogSearch,
     inStockOnly,
@@ -825,6 +879,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     setSelectedAttributes([]);
     setSelectedBrands([]);
     setSelectedProduction(null);
+    setSelectedSpeeds([]);
     setInStockOnly(false);
     setPriceMin(null);
     setPriceMax(null);
@@ -846,6 +901,12 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   const toggleProduction = useCallback((key: string) => {
     setSelectedProduction((prev) => (prev === key ? null : key));
+  }, []);
+
+  const toggleSpeed = useCallback((key: string) => {
+    setSelectedSpeeds((prev) =>
+      prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key],
+    );
   }, []);
 
   const toggleCategoryFilters = useCallback(() => {
@@ -884,7 +945,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     rawSubSlug !== ALL_SUBCATEGORIES_QUERY &&
     storeCategory &&
     !activeSubcategory &&
-    !rentalSubcategory
+    !rentalSubcategory &&
+    !categoryTreeLoading
   ) {
     const catalogBasePath = catalogSlug ? '/tienda' : `/categoria/${slug}`;
     return <Navigate to={catalogBasePath} replace />;
@@ -898,7 +960,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const defaultCategoryForNewProduct =
     isStoreAll ? null : (activeSubcategory?.name ?? storeCategory?.name ?? category!.name ?? null);
   const hasBrandFilters = selectedBrands.length > 0;
-  const hasAttributeFilters = selectedAttributes.length > 0 || selectedProduction != null;
+  const hasAttributeFilters =
+    selectedAttributes.length > 0 || selectedProduction != null || selectedSpeeds.length > 0;
   const hasSearchFilter = catalogSearch.trim().length > 0;
   const hasSortFilter = sortBy !== 'price-asc';
   const hasPriceFilter =
@@ -914,8 +977,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const colorSpecFilterTabs = specFilterTabs.filter((tab) => tab.key.startsWith('Color::'));
 
   const filterSectionLabelClass = storefrontMode
-    ? 'text-sm font-bold text-foreground'
-    : 'text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground';
+    ? 'text-sm font-medium text-foreground'
+    : 'text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground';
 
   const categoryFiltersContent = (
     <>
@@ -948,17 +1011,19 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               subSlug={subSlug}
               allSubcategoriesSelected={isAllSubcategoriesView}
               onSelectSub={selectSubcategory}
+              onPrefetchSub={prefetchSubcategoryCatalog}
             />
           )}
         </div>
       </section>
 
       {catalogSidebarLayout && showCatalogSpecFilters && colorSpecFilterTabs.length > 0 ? (
-        <section aria-label="Color de impresión">
-          <h3 className={filterSectionLabelClass}>
-            Color
-          </h3>
-          <CatalogFilterGroup className="mt-1.5">
+        <CatalogFilterSection
+          title="Color"
+          labelClassName={filterSectionLabelClass}
+          openWhenActive={selectedSpecFilters.some((key) => key.startsWith('Color::'))}
+        >
+          <CatalogFilterGroup>
             {colorSpecFilterTabs.map((tab) => (
               <CatalogFilterOption
                 key={tab.key}
@@ -972,15 +1037,16 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               />
             ))}
           </CatalogFilterGroup>
-        </section>
+        </CatalogFilterSection>
       ) : null}
 
       {catalogSidebarLayout && showCatalogSpecFilters && formatSpecFilterTabs.length > 0 ? (
-        <section aria-label="Formato de papel">
-          <h3 className={filterSectionLabelClass}>
-            Formato
-          </h3>
-          <CatalogFilterGroup className="mt-1.5">
+        <CatalogFilterSection
+          title="Formato"
+          labelClassName={filterSectionLabelClass}
+          openWhenActive={selectedSpecFilters.some((key) => key.includes('Formato papel::'))}
+        >
+          <CatalogFilterGroup>
             {formatSpecFilterTabs.map((tab) => (
               <CatalogFilterOption
                 key={tab.key}
@@ -994,15 +1060,39 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               />
             ))}
           </CatalogFilterGroup>
-        </section>
+        </CatalogFilterSection>
+      ) : null}
+
+      {showSpeedFilters ? (
+        <CatalogFilterSection
+          title="Velocidad"
+          labelClassName={filterSectionLabelClass}
+          openWhenActive={selectedSpeeds.length > 0}
+        >
+          <CatalogFilterGroup>
+            {speedFiltersWithCounts.map((option) => (
+              <CatalogFilterOption
+                key={option.key}
+                id={`filter-speed-${option.key}`}
+                label={option.sidebarLabel}
+                count={option.count}
+                active={selectedSpeeds.includes(option.key)}
+                compact
+                disabled={option.count === 0}
+                onToggle={() => toggleSpeed(option.key)}
+              />
+            ))}
+          </CatalogFilterGroup>
+        </CatalogFilterSection>
       ) : null}
 
       {showProductionFilters ? (
-        <section aria-label="Producción mensual">
-          <h3 className={filterSectionLabelClass}>
-            {catalogSidebarLayout ? 'Producción/mes' : 'Producción'}
-          </h3>
-          <CatalogFilterGroup className="mt-1.5">
+        <CatalogFilterSection
+          title={catalogSidebarLayout ? 'Producción/mes' : 'Producción'}
+          labelClassName={filterSectionLabelClass}
+          openWhenActive={selectedProduction != null}
+        >
+          <CatalogFilterGroup>
             {!catalogSidebarLayout ? (
               <CatalogFilterOption
                 id="filter-produccion-all"
@@ -1028,13 +1118,16 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               />
             ))}
           </CatalogFilterGroup>
-        </section>
+        </CatalogFilterSection>
       ) : null}
 
       {storefrontMode || !catalogSidebarLayout ? (
-        <section aria-label="Disponibilidad">
-          <h3 className={filterSectionLabelClass}>Disponibilidad</h3>
-          <CatalogFilterGroup className="mt-1.5">
+        <CatalogFilterSection
+          title="Disponibilidad"
+          labelClassName={filterSectionLabelClass}
+          openWhenActive={inStockOnly}
+        >
+          <CatalogFilterGroup>
             <CatalogFilterOption
               id="filter-in-stock-only"
               label="Solo en stock"
@@ -1045,15 +1138,12 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               onToggle={() => setInStockOnly((prev) => !prev)}
             />
           </CatalogFilterGroup>
-        </section>
+        </CatalogFilterSection>
       ) : null}
 
       {!catalogSidebarLayout ? (
-        <section aria-label="Atributos del producto">
-          <h3 className={filterSectionLabelClass}>
-            Atributos
-          </h3>
-          <CatalogFilterGroup className="mt-1.5 max-h-48 overflow-y-auto">
+        <CatalogFilterSection title="Atributos" labelClassName={filterSectionLabelClass} openWhenActive={selectedAttributes.length > 0}>
+          <CatalogFilterGroup className="max-h-48 overflow-y-auto">
             {sidebarAttributeOptions.length === 0 ? (
               <p className="px-2.5 py-3 text-center text-xs text-muted-foreground">
                 Sin atributos en esta categoría.
@@ -1073,22 +1163,21 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               ))
             )}
           </CatalogFilterGroup>
-        </section>
+        </CatalogFilterSection>
       ) : null}
 
-      <section aria-label="Precio">
-        <h3
-          className={cn(
-            storefrontMode
-              ? filterSectionLabelClass
-              : 'font-semibold uppercase tracking-wider text-muted-foreground',
-            !storefrontMode && catalogSidebarLayout && 'text-[0.65rem] tracking-wider',
-            !storefrontMode && !catalogSidebarLayout && 'text-xs tracking-wide',
-          )}
-        >
-          Precio (USD)
-        </h3>
-        <div className={cn('space-y-3', catalogSidebarLayout ? 'mt-1.5' : 'mt-2')}>
+      <CatalogFilterSection
+        title="Precio (USD)"
+        labelClassName={cn(
+          storefrontMode
+            ? filterSectionLabelClass
+            : 'font-medium uppercase tracking-wider text-muted-foreground',
+          !storefrontMode && catalogSidebarLayout && 'text-[0.65rem] tracking-wider',
+          !storefrontMode && !catalogSidebarLayout && 'text-xs tracking-wide',
+        )}
+        openWhenActive={hasPriceFilter}
+      >
+        <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-center justify-start gap-1.5">
               <span className="font-medium">Mín:</span>
@@ -1129,14 +1218,15 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         <p className="mt-2 text-xs text-muted-foreground">
           Rango disponible: {availablePriceRange.min} - {availablePriceRange.max} USD
         </p>
-      </section>
+      </CatalogFilterSection>
 
       {mostViewedOfferFilter ? (
-        <section aria-label="Ofertas">
-          <h3 className={filterSectionLabelClass}>
-            Ofertas
-          </h3>
-          <CatalogFilterGroup className="mt-1.5">
+        <CatalogFilterSection
+          title="Ofertas"
+          labelClassName={filterSectionLabelClass}
+          openWhenActive={selectedAttributes.includes(MOST_VIEWED_OFFER_ATTR_KEY)}
+        >
+          <CatalogFilterGroup>
             <CatalogFilterOption
               id="filter-offer-most-viewed"
               label={mostViewedOfferFilter.label}
@@ -1147,30 +1237,29 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               onToggle={toggleMostViewedOffer}
             />
           </CatalogFilterGroup>
-        </section>
+        </CatalogFilterSection>
       ) : null}
 
-      {brandFilterOptions.length > 0 ? (
-        <section aria-label="Marcas">
-          <h3 className={filterSectionLabelClass}>
-            Marcas
-          </h3>
-          <CatalogFilterGroup className="mt-1.5 max-h-48 overflow-y-auto">
-            {brandFilterOptions.map((brand: { key: string; label: string; count: number }) => (
-              <CatalogFilterOption
-                key={brand.key}
-                id={`filter-brand-${brand.key}`}
-                label={brand.label}
-                count={brand.count}
-                active={selectedBrands.includes(brand.key)}
-                compact
-                disabled={brand.count === 0}
-                onToggle={() => toggleBrand(brand.key)}
-              />
-            ))}
-          </CatalogFilterGroup>
-        </section>
-      ) : null}
+      <CatalogFilterSection
+        title="Marca"
+        labelClassName={filterSectionLabelClass}
+        openWhenActive={selectedBrands.length > 0}
+      >
+        <CatalogFilterGroup className="max-h-48 overflow-y-auto">
+          {brandFilterOptions.map((brand: { key: string; label: string; count: number }) => (
+            <CatalogFilterOption
+              key={brand.key}
+              id={`filter-brand-${brand.key}`}
+              label={brand.label}
+              count={brand.count}
+              active={selectedBrands.includes(brand.key)}
+              compact
+              disabled={brand.count === 0}
+              onToggle={() => toggleBrand(brand.key)}
+            />
+          ))}
+        </CatalogFilterGroup>
+      </CatalogFilterSection>
 
       {hasSidebarFilters || hasAttributeFilters || hasBrandFilters || hasSearchFilter || hasSortFilter ? (
         <Button
@@ -1210,6 +1299,14 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         key: selectedProduction,
         label: productionOption?.sidebarLabel ?? 'Producción',
         onRemove: () => setSelectedProduction(null),
+      });
+    }
+    for (const speedKey of selectedSpeeds) {
+      const speedOption = speedFiltersWithCounts.find((option) => option.key === speedKey);
+      activeFilterChips.push({
+        key: speedKey,
+        label: speedOption?.sidebarLabel ?? 'Velocidad',
+        onRemove: () => toggleSpeed(speedKey),
       });
     }
     if (selectedAttributes.includes(MOST_VIEWED_OFFER_ATTR_KEY)) {
@@ -1255,8 +1352,14 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       />
     ) : null;
 
+  const categorySeoIntro = useMemo(
+    () => (slug && !isStoreAll ? getCategorySeoIntro(slug, subSlug) : null),
+    [slug, subSlug, isStoreAll],
+  );
+
   const catalogProductCount =
     useServerCatalog ? (catalogData?.total ?? filteredProducts.length) : filteredProducts.length;
+  const showCatalogRefresh = useServerCatalog && isCatalogFetching && !isLoading;
 
   return (
     <div
@@ -1283,6 +1386,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           <h1 id={CATEGORY_HERO_ID} className="sr-only">
             {pageTitle}
           </h1>
+
+          {categorySeoIntro ? (
+            <p className="sr-only">{categorySeoIntro}</p>
+          ) : null}
 
           {storefrontMode && showProductCatalog ? (
             <StoreCatalogHeader
@@ -1487,7 +1594,18 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                   </Button>
                 </div>
               ) : showProductCatalog ? (
-                <>
+                <div
+                  className={cn(
+                    'relative transition-opacity duration-150',
+                    showCatalogRefresh && 'opacity-60',
+                  )}
+                  aria-busy={showCatalogRefresh}
+                >
+                  {showCatalogRefresh ? (
+                    <p className="sr-only" role="status">
+                      Actualizando productos de la categoría…
+                    </p>
+                  ) : null}
                   {viewMode === 'list' ? (
                     <div className="flex flex-col gap-4">
                       {pagedCatalogProducts.map((product) => (
@@ -1531,7 +1649,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                       className="mt-6"
                     />
                   ) : null}
-                </>
+                </div>
               ) : null}
             </div>
           </div>

@@ -33,9 +33,50 @@ function addressFromBilling(billing) {
   return typeof raw === 'string' ? raw.trim() : '';
 }
 
+const CHECKOUT_COMPROBANTE_TYPES = new Set(['factura', 'boleta']);
+const CHECKOUT_DESTINO_ENVIO = new Set(['lima', 'provincia']);
+const CHECKOUT_LIMA_TRANSPORTE = new Set(['camioneta', 'minivan', 'motorizado']);
+const CHECKOUT_PROVINCIA_AGENCIAS = new Set(['olva', 'shalom', 'urbano']);
+const CHECKOUT_PROVINCIA_ENTREGA = new Set(['agencia', 'domicilio']);
+
+/** @param {Record<string, unknown> | null | undefined} billing */
+export function checkoutPreferencesFromBilling(billing) {
+  if (!billing || typeof billing !== 'object') return {};
+
+  /** @type {Record<string, string>} */
+  const prefs = {};
+  const tipo = billing.tipo_comprobante ?? billing.tipoComprobante;
+  if (typeof tipo === 'string' && CHECKOUT_COMPROBANTE_TYPES.has(tipo)) {
+    prefs.tipoComprobante = tipo;
+  }
+
+  const destino = billing.destino_envio ?? billing.destinoEnvio;
+  if (typeof destino === 'string' && CHECKOUT_DESTINO_ENVIO.has(destino)) {
+    prefs.destinoEnvio = destino;
+  }
+
+  const transporte = billing.transporte_lima ?? billing.transporteLima;
+  if (typeof transporte === 'string' && CHECKOUT_LIMA_TRANSPORTE.has(transporte)) {
+    prefs.transporteLima = transporte;
+  }
+
+  const agencia = billing.agencia_provincia ?? billing.agenciaProvincia;
+  if (typeof agencia === 'string' && CHECKOUT_PROVINCIA_AGENCIAS.has(agencia)) {
+    prefs.agenciaProvincia = agencia;
+  }
+
+  const modalidad = billing.modalidad_provincia ?? billing.modalidadProvincia;
+  if (typeof modalidad === 'string' && CHECKOUT_PROVINCIA_ENTREGA.has(modalidad)) {
+    prefs.modalidadProvincia = modalidad;
+  }
+
+  return prefs;
+}
+
 /** @param {Record<string, unknown>} row store_customers */
 export function storeCustomerRowToHaitechClient(row) {
   const billing = row.default_billing && typeof row.default_billing === 'object' ? row.default_billing : {};
+  const checkoutPrefs = checkoutPreferencesFromBilling(billing);
   const tipo =
     row.tipo_cliente && VALID_ROLES.has(String(row.tipo_cliente))
       ? String(row.tipo_cliente)
@@ -62,6 +103,7 @@ export function storeCustomerRowToHaitechClient(row) {
         : row.source === 'haisales'
           ? 'haisales'
           : 'haistore',
+    ...checkoutPrefs,
   };
 }
 

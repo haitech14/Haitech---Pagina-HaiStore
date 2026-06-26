@@ -24,7 +24,7 @@ const HERO_META: Record<
     variant: 'rental',
   },
   'servicio-tecnico': {
-    image: '/promotions/promo-hero-servicio.png',
+    image: '/promotions/promo-hero-servicio.webp',
     imageAlt: 'Técnico especializado en mantenimiento de equipos',
     variant: 'support',
   },

@@ -208,6 +208,7 @@ export function CheckoutSuccessModal({
                 </h2>
                 <p className="mb-2 text-sm text-muted-foreground">{order.paymentMethod}</p>
                 <CheckoutPaymentTotals
+                  items={order.items}
                   subtotalUsd={order.subtotalUsd}
                   discountUsd={order.discountUsd}
                   paymentProvider={order.paymentProvider}

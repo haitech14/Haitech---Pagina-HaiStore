@@ -1,24 +1,31 @@
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 
-import { AddToCartButton } from '@/components/cart/add-to-cart-button';
-import { ProductCardPricing } from '@/components/product/product-card-pricing';
-import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
-import { ProductQuickViewBadges } from '@/components/product/product-quick-view-badges';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ProductQuickViewActions } from '@/components/product/product-quick-view-actions';
+import { ProductVolumeDiscountPromo } from '@/components/product/product-volume-discount-promo';
+import { ProductQuickViewFeaturePills } from '@/components/product/product-quick-view-feature-pills';
+import { ProductQuickViewFooter } from '@/components/product/product-quick-view-footer';
+import { ProductQuickViewGallery } from '@/components/product/product-quick-view-gallery';
+import { ProductQuickViewPricingBox } from '@/components/product/product-quick-view-pricing-box';
+import { ProductQuickViewServiceCards } from '@/components/product/product-quick-view-service-cards';
+import { ProductAttributeBadges } from '@/components/product-attribute-badges';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { useProduct } from '@/hooks/use-product';
 import { buildProductDetail } from '@/lib/build-product-detail';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
+import {
+  resolveProductHeroBrand,
+  resolveProductHeroCode,
+} from '@/lib/product-hero-meta';
 import { productPath } from '@/lib/product-path';
 import type { FeaturedProduct } from '@/data/featured-products';
+import type { ProductGalleryItem } from '@/types/product-detail';
 
 interface ProductQuickViewDialogProps {
   snapshot: FeaturedProduct | null;
@@ -26,12 +33,22 @@ interface ProductQuickViewDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+function snapshotGalleryItems(image: string | null | undefined, name: string): ProductGalleryItem[] {
+  if (!image) return [];
+  return [{ type: 'image', src: image, alt: name }];
+}
+
 export function ProductQuickViewDialog({
   snapshot,
   open,
   onOpenChange,
 }: ProductQuickViewDialogProps) {
+  const [quantity, setQuantity] = useState(1);
   const { product, isLoading } = useProduct(open ? snapshot?.id : undefined);
+
+  useEffect(() => {
+    setQuantity(1);
+  }, [product?.id, snapshot?.id]);
 
   const badgeSource = product ?? {
     id: snapshot?.id ?? '',
@@ -42,25 +59,34 @@ export function ProductQuickViewDialog({
     attributes: snapshot?.attributes ?? [],
   };
 
-  const { brand, code, title } = getProductCardTitleContent(badgeSource);
-  const displayName = product?.name ?? snapshot?.name ?? title;
-  const displayImage = product?.image_url ?? snapshot?.image ?? null;
-  const categoryLabel = product?.category ?? snapshot?.category ?? null;
+  const detail = useMemo(() => {
+    if (!product) return null;
+    return buildProductDetail(product, snapshot ?? undefined, []);
+  }, [product, snapshot]);
 
+  const brand = resolveProductHeroBrand(badgeSource) ?? getProductCardTitleContent(badgeSource).brand;
+  const code = product
+    ? resolveProductHeroCode(product)
+    : getProductCardTitleContent(badgeSource).code;
+  const title = detail?.heroTitle ?? getProductCardTitleContent(badgeSource).title;
+  const categoryLabel = detail?.categoryLabel ?? snapshot?.category ?? product?.category ?? null;
+
+  const displayName = product?.name ?? snapshot?.name ?? title;
   const detailHref = product
     ? productPath(product)
     : snapshot
       ? productPath({ id: snapshot.id, name: snapshot.name })
       : '#';
 
-  const detail = useMemo(() => {
-    if (!product) return null;
-    return buildProductDetail(product, snapshot ?? undefined, []);
-  }, [product, snapshot]);
+  const galleryItems = useMemo(() => {
+    if (detail?.gallery.length) return detail.gallery;
+    return snapshotGalleryItems(product?.image_url ?? snapshot?.image, displayName);
+  }, [detail?.gallery, product?.image_url, snapshot?.image, displayName]);
 
   const descriptionText =
+    detail?.heroDescription?.trim() ||
     product?.description?.trim() ||
-    (detail?.bullets.length ? detail.bullets.join(' · ') : '') ||
+    (detail?.bullets.length ? detail.bullets.slice(0, 2).join(' ') : '') ||
     null;
 
   const priceSource = useMemo(() => {
@@ -75,99 +101,112 @@ export function ProductQuickViewDialog({
   const priceUsd = displayPrice.priceUsd;
   const oldPriceUsd = snapshot?.oldPrice ?? undefined;
   const discountPercent = snapshot?.discount ?? undefined;
+  const productId = snapshot?.id ?? product?.id ?? '';
+
+  const eyebrow = [categoryLabel, brand].filter(Boolean).join(' • ');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] max-w-[calc(100%-1rem)] gap-0 overflow-hidden p-0 sm:max-w-4xl lg:max-w-5xl">
-        <DialogHeader className="sr-only">
-          <DialogTitle>Vista rápida: {displayName}</DialogTitle>
-          <DialogDescription>Resumen del producto sin salir del listado.</DialogDescription>
-        </DialogHeader>
+      <DialogContent className="flex max-h-[94vh] max-w-[calc(100%-1rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-5xl lg:max-w-6xl">
+        <div className="flex items-center border-b border-border px-4 py-3 pr-12 sm:px-6">
+          <DialogTitle className="text-base font-semibold text-foreground sm:text-lg">
+            Vista rápida
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Resumen de {displayName} sin salir del listado.
+          </DialogDescription>
+        </div>
 
-        <div className="grid max-h-[92vh] overflow-y-auto lg:max-h-[min(88vh,720px)] lg:grid-cols-[minmax(0,42%)_1fr] lg:overflow-hidden">
-          <div className="flex items-center justify-center bg-muted/30 p-6 lg:min-h-[min(88vh,720px)] lg:p-8">
-            {isLoading && !displayImage ? (
-              <div className="aspect-square w-full max-w-[280px] animate-pulse rounded-lg bg-muted" />
-            ) : displayImage ? (
-              <ProductImageWatermarkOverlay
-                src={displayImage}
-                className="flex max-h-64 w-full max-w-[320px] items-center justify-center lg:max-h-[min(72vh,560px)] lg:max-w-none"
-              >
-                <img
-                  src={displayImage}
-                  alt=""
-                  className="max-h-64 w-full max-w-[320px] object-contain drop-shadow-md lg:max-h-[min(72vh,560px)] lg:max-w-none"
-                />
-              </ProductImageWatermarkOverlay>
-            ) : (
-              <span className="text-5xl font-bold text-muted-foreground" aria-hidden="true">
-                {displayName.charAt(0)}
-              </span>
-            )}
-          </div>
+        <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,44%)_1fr]">
+          <ProductQuickViewGallery
+            items={galleryItems}
+            productName={displayName}
+            className="border-b border-border lg:border-b-0 lg:border-r"
+          />
 
-          <div className="flex min-h-0 flex-col gap-4 overflow-y-auto border-t border-border p-5 sm:gap-5 sm:p-6 lg:border-l lg:border-t-0 lg:p-8">
-            <header className="space-y-1">
-              {categoryLabel ? (
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  {categoryLabel}
-                </p>
-              ) : null}
-              {brand ? (
-                <p className="text-xs font-bold uppercase tracking-wider text-primary">{brand}</p>
-              ) : null}
-              <h2 className="text-pretty text-lg font-bold leading-snug text-foreground sm:text-xl">
-                {title}
-              </h2>
-              {code ? (
-                <p className="font-mono text-xs font-medium text-muted-foreground">{code}</p>
-              ) : null}
-            </header>
+          <div className="flex min-h-0 flex-col overflow-hidden">
+            <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:space-y-5 sm:p-6">
+              <header className="space-y-2">
+                {eyebrow ? (
+                  <p className="text-[0.6875rem] font-bold uppercase tracking-wider text-primary sm:text-xs">
+                    {eyebrow}
+                  </p>
+                ) : null}
+                <h2 className="text-pretty text-lg font-bold leading-snug text-foreground sm:text-xl lg:text-2xl">
+                  {title}
+                </h2>
+                {code ? (
+                  <p className="text-sm text-muted-foreground">
+                    Código:{' '}
+                    <span className="font-mono font-medium text-foreground">{code}</span>
+                  </p>
+                ) : null}
+              </header>
 
-            <ProductQuickViewBadges product={badgeSource} />
+              {detail?.featureBar.length ? (
+                <ProductQuickViewFeaturePills items={detail.featureBar} />
+              ) : (
+                <ProductAttributeBadges product={badgeSource} hideBrand className="gap-1.5" />
+              )}
 
-            <ProductCardPricing
-              productId={snapshot?.id ?? product?.id ?? ''}
-              priceUsd={priceUsd}
-              featured
-              {...(oldPriceUsd != null ? { oldPriceUsd } : {})}
-              {...(discountPercent != null ? { discountPercent } : {})}
-            />
+              <ProductQuickViewPricingBox
+                productId={productId}
+                priceUsd={priceUsd}
+                {...(oldPriceUsd != null ? { oldPriceUsd } : {})}
+                {...(discountPercent != null ? { discountPercent } : {})}
+              />
 
-            {descriptionText ? (
-              <section className="space-y-2 border-t border-border pt-4">
-                <h3 className="text-sm font-semibold text-foreground">Descripción</h3>
-                <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
-                  {descriptionText}
-                </p>
-              </section>
-            ) : isLoading ? (
-              <div className="space-y-2 border-t border-border pt-4" role="status">
-                <div className="h-4 w-24 animate-pulse rounded bg-muted" />
-                <div className="h-16 w-full animate-pulse rounded bg-muted" />
-                <span className="sr-only">Cargando descripción…</span>
-              </div>
-            ) : null}
-
-            <div className="mt-auto flex flex-col gap-2 border-t border-border pt-4 sm:flex-row">
               {product ? (
-                <AddToCartButton
+                <ProductVolumeDiscountPromo
                   product={product}
-                  className="min-h-11 flex-1 bg-red-600 hover:bg-red-500"
+                  quantity={quantity}
+                  {...(detail?.bulkDiscountTiers ? { tiers: detail.bulkDiscountTiers } : {})}
+                  className="mt-1"
+                />
+              ) : null}
+
+              {product ? (
+                <ProductQuickViewActions
+                  product={product}
+                  detailHref={detailHref}
+                  onClose={() => onOpenChange(false)}
+                  quantity={quantity}
+                  onQuantityChange={setQuantity}
                 />
               ) : (
-                <Button type="button" className="min-h-11 flex-1" disabled>
-                  Añadir al carrito
-                </Button>
+                <div className="space-y-2" role="status">
+                  <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+                  <Button type="button" className="min-h-11 w-full" disabled>
+                    Comprar ahora
+                  </Button>
+                  <Button type="button" variant="outline" className="min-h-11 w-full" disabled>
+                    Añadir al carrito
+                  </Button>
+                  <span className="sr-only">Cargando acciones de compra…</span>
+                </div>
               )}
-              <Button type="button" variant="outline" className="min-h-11 flex-1" asChild>
-                <Link to={detailHref} onClick={() => onOpenChange(false)}>
-                  Ver ficha completa
-                </Link>
-              </Button>
+
+              {descriptionText ? (
+                <section className="space-y-2 border-t border-border pt-4">
+                  <h3 className="text-sm font-bold text-foreground">Descripción</h3>
+                  <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
+                    {descriptionText}
+                  </p>
+                </section>
+              ) : isLoading ? (
+                <div className="space-y-2 border-t border-border pt-4" role="status">
+                  <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                  <div className="h-14 w-full animate-pulse rounded bg-muted" />
+                  <span className="sr-only">Cargando descripción…</span>
+                </div>
+              ) : null}
+
+              <ProductQuickViewServiceCards />
             </div>
           </div>
         </div>
+
+        <ProductQuickViewFooter />
       </DialogContent>
     </Dialog>
   );

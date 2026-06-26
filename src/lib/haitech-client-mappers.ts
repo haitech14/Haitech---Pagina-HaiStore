@@ -1,4 +1,5 @@
 import type { HaitechClientFormValues } from '@/lib/haitech-client-schema';
+import { buildCheckoutShippingNotes } from '@/lib/checkout-shipping-options';
 import { storeCustomerToTpvCustomer } from '@/lib/tpv-customer';
 import type { HaitechClient } from '@/types/haitech-domain';
 import type { StoreCustomerSearchResult } from '@/types/store-customer';
@@ -22,6 +23,23 @@ export function searchResultToHaitechClient(row: StoreCustomerSearchResult): Hai
 }
 
 export function haitechFormToClient(values: HaitechClientFormValues): HaitechClient {
+  const shippingInput: Parameters<typeof buildCheckoutShippingNotes>[0] = {};
+  if (values.destinoEnvio) shippingInput.destinoEnvio = values.destinoEnvio;
+  if (values.transporteLima) shippingInput.transporteLima = values.transporteLima;
+  if (values.agenciaProvincia) shippingInput.agenciaProvincia = values.agenciaProvincia;
+  if (values.modalidadProvincia) shippingInput.modalidadProvincia = values.modalidadProvincia;
+  if (values.atencionEntrega?.trim()) shippingInput.atencionEntrega = values.atencionEntrega.trim();
+  if (values.dniEntrega?.trim()) shippingInput.dniEntrega = values.dniEntrega.trim();
+  if (values.ciudad?.trim()) shippingInput.ciudad = values.ciudad.trim();
+
+  const shippingNotes = buildCheckoutShippingNotes(shippingInput);
+  const baseNotes = values.notas?.trim() || '';
+  const notas = shippingNotes
+    ? baseNotes
+      ? `${baseNotes} | ${shippingNotes}`
+      : shippingNotes
+    : baseNotes || null;
+
   return {
     storeCustomerId: values.storeCustomerId ?? null,
     haisupportClientId: values.haisupportClientId ?? null,
@@ -33,7 +51,7 @@ export function haitechFormToClient(values: HaitechClientFormValues): HaitechCli
     ciudad: values.ciudad.trim(),
     tipoCliente: values.tipoCliente,
     email: values.email?.trim() || null,
-    notas: values.notas?.trim() || null,
+    notas,
     source: 'haistore',
   };
 }

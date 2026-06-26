@@ -1,16 +1,25 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/layout/header';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { ShoppingCartDrawer } from '@/components/cart/shopping-cart-drawer';
 import { ProductCompareTray } from '@/components/product/product-compare-tray';
+import { CrmLeadDialogProvider } from '@/context/crm-lead-dialog-context';
+import { CrmPipelineProvider } from '@/context/crm-pipeline-context';
+import { useAuth } from '@/context/auth-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
+import { canUseHaibot } from '@/lib/haibot-access';
 
 const HaibotFloatingMenu = lazy(() =>
   import('@/components/haibot/haibot-floating-menu').then((m) => ({
     default: m.HaibotFloatingMenu,
+  })),
+);
+const WhatsAppFloatingButton = lazy(() =>
+  import('@/components/layout/whatsapp-floating-button').then((m) => ({
+    default: m.WhatsAppFloatingButton,
   })),
 );
 const SubscriptionPopup = lazy(() =>
@@ -46,7 +55,11 @@ function useDeferredWidgetMount(delayMs = 2500) {
 }
 
 export function RootLayout() {
+  const { pathname } = useLocation();
+  const { user, role } = useAuth();
   const widgetsReady = useDeferredWidgetMount();
+  const showSubscriptionPopup = pathname !== '/';
+  const showHaibot = canUseHaibot(user, role);
 
   return (
     <MobileBottomInsetProvider>
@@ -62,8 +75,16 @@ export function RootLayout() {
       <SiteFooter />
       {widgetsReady ? (
         <Suspense fallback={null}>
-          <SubscriptionPopup />
-          <HaibotFloatingMenu />
+          {showSubscriptionPopup ? <SubscriptionPopup /> : null}
+          {showHaibot ? (
+            <CrmPipelineProvider>
+              <CrmLeadDialogProvider>
+                <HaibotFloatingMenu />
+              </CrmLeadDialogProvider>
+            </CrmPipelineProvider>
+          ) : (
+            <WhatsAppFloatingButton />
+          )}
         </Suspense>
       ) : null}
       <ShoppingCartDrawer />

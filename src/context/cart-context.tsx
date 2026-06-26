@@ -3,6 +3,10 @@ import * as React from 'react';
 import { getPaidEquipmentOptions } from '@/lib/equipment-config-selection';
 import { buildCartLineId, type SeminuevaPreparationType } from '@/lib/seminueva-preparation';
 import { clearStoredCart, readStoredCartItems, writeStoredCartItems } from '@/lib/cart-storage';
+import {
+  findCheckoutAddonLineIds,
+  parseCheckoutAddonLineId,
+} from '@/lib/checkout-multifuncional-addons';
 import type { CartConfigurationLine, CartItem, Product } from '@/types/product';
 
 export interface AddToCartOptions {
@@ -164,19 +168,42 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (lineId: string, quantity: number, updateOptions?: { volumeUnitPriceUsd?: number | null }) => {
       setItems((prev) => {
         if (quantity <= 0) {
-          return prev.filter((item) => item.lineId !== lineId);
+          const addonIds = parseCheckoutAddonLineId(lineId)
+            ? []
+            : findCheckoutAddonLineIds(
+                lineId,
+                prev.map((item) => item.lineId),
+              );
+          const toRemove = new Set([lineId, ...addonIds]);
+          return prev.filter((item) => !toRemove.has(item.lineId));
         }
+
+        const isParentLine = !parseCheckoutAddonLineId(lineId);
+        const addonLineIds = isParentLine
+          ? findCheckoutAddonLineIds(
+              lineId,
+              prev.map((item) => item.lineId),
+            )
+          : [];
+
         return prev.map((item) => {
-          if (item.lineId !== lineId) return item;
-          const next: CartItem = { ...item, quantity };
-          if (updateOptions && 'volumeUnitPriceUsd' in updateOptions) {
-            if (updateOptions.volumeUnitPriceUsd == null) {
-              const { volumeUnitPriceUsd: _removed, ...rest } = next;
-              return rest as CartItem;
+          if (item.lineId === lineId) {
+            const next: CartItem = { ...item, quantity };
+            if (updateOptions && 'volumeUnitPriceUsd' in updateOptions) {
+              if (updateOptions.volumeUnitPriceUsd == null) {
+                const { volumeUnitPriceUsd: _removed, ...rest } = next;
+                return rest as CartItem;
+              }
+              next.volumeUnitPriceUsd = updateOptions.volumeUnitPriceUsd;
             }
-            next.volumeUnitPriceUsd = updateOptions.volumeUnitPriceUsd;
+            return next;
           }
-          return next;
+
+          if (addonLineIds.includes(item.lineId)) {
+            return { ...item, quantity };
+          }
+
+          return item;
         });
       });
     },
@@ -184,7 +211,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const removeItem = React.useCallback((lineId: string) => {
-    setItems((prev) => prev.filter((item) => item.lineId !== lineId));
+    setItems((prev) => {
+      const addonIds = parseCheckoutAddonLineId(lineId)
+        ? []
+        : findCheckoutAddonLineIds(
+            lineId,
+            prev.map((item) => item.lineId),
+          );
+      const toRemove = new Set([lineId, ...addonIds]);
+      return prev.filter((item) => !toRemove.has(item.lineId));
+    });
   }, []);
 
   const clear = React.useCallback(() => {

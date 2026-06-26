@@ -1,8 +1,18 @@
 import { cn } from '@/lib/utils';
 import type { CheckoutStep } from '@/hooks/use-checkout-flow';
 
+/** Pasos 2–3: formulario + resumen lateral compacto. */
+export const CHECKOUT_TOTAL_COLUMN_CLASS =
+  'lg:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)] xl:grid-cols-[minmax(0,1fr)_26rem] 2xl:grid-cols-[minmax(0,1fr)_28rem]';
+
+/** Paso 1: carrito + total + upsells (columna derecha más ancha). */
+export const CHECKOUT_CART_STEP_GRID_CLASS =
+  'lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(26rem,1fr)] 2xl:grid-cols-[minmax(0,1fr)_min(100%,38rem)]';
+
+export const CHECKOUT_TOTALS_PRICE_CLASS =
+  'min-w-0 shrink text-right tabular-nums leading-snug';
 const STEPS: Array<{ step: CheckoutStep; label: string }> = [
-  { step: 1, label: 'Resumen' },
+  { step: 1, label: 'Carrito' },
   { step: 2, label: 'Envío' },
   { step: 3, label: 'Pago' },
 ];
@@ -65,7 +75,7 @@ interface CheckoutLayoutProps {
 export function CheckoutLayout({ currentStep, children, sidebar }: CheckoutLayoutProps) {
   return (
     <div className="container px-4 py-6 sm:py-8">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[88rem]">
         <header className="mb-2">
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Finalizar compra</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -73,9 +83,14 @@ export function CheckoutLayout({ currentStep, children, sidebar }: CheckoutLayou
           </p>
         </header>
         <CheckoutProgressBar currentStep={currentStep} />
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:grid-cols-[minmax(0,1.15fr)_minmax(0,22rem)] lg:items-start">
+        <div
+          className={cn(
+            'grid gap-6 lg:items-start',
+            sidebar ? CHECKOUT_TOTAL_COLUMN_CLASS : 'grid-cols-1',
+          )}
+        >
           <div>{children}</div>
-          {sidebar ? <aside className="lg:sticky lg:top-24">{sidebar}</aside> : null}
+          {sidebar ? <aside className="min-w-0 lg:sticky lg:top-24">{sidebar}</aside> : null}
         </div>
       </div>
     </div>

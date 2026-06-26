@@ -109,28 +109,19 @@ function prefetchCategoryFromNav(to: string) {
   void prefetchCategoryPage(queryClient, { slug: match[1] });
 }
 
-function navLinkProps(item: HeaderMainNavLink) {
-  if (!item.matchActive) {
-    return { to: item.to, end: item.end ?? false };
-  }
-
-  return {
-    to: item.to,
-    end: item.end ?? false,
-    isActive: (_match: unknown, location: { pathname: string; search: string }) =>
-      item.matchActive!(location),
-  };
-}
-
 function CategoryNavLink({ item }: { item: HeaderMainNavLink }) {
+  const location = useLocation();
   const prefetch = () => {
     prefetchCategoryFromNav(item.to);
   };
 
   return (
     <NavLink
-      {...navLinkProps(item)}
-      className={({ isActive }) => mainNavLinkClass(isActive)}
+      to={item.to}
+      end={item.end ?? false}
+      className={({ isActive }) =>
+        mainNavLinkClass(item.matchActive ? item.matchActive(location) : isActive)
+      }
       onMouseEnter={prefetch}
       onFocus={prefetch}
     >

@@ -5,6 +5,14 @@ export interface CheckoutAccountClientResponse {
   checkoutClient?: Partial<HaitechClientFormValues> | null;
 }
 
+const PROFILE_PREFERENCE_KEYS = [
+  'tipoComprobante',
+  'destinoEnvio',
+  'transporteLima',
+  'agenciaProvincia',
+  'modalidadProvincia',
+] as const satisfies ReadonlyArray<keyof HaitechClientFormValues>;
+
 /** Rellena solo campos vacíos del formulario con datos de cuenta. */
 export function applyCheckoutClientPrefill(
   current: HaitechClientFormValues,
@@ -29,6 +37,15 @@ export function applyCheckoutClientPrefill(
     next[key] = value;
   };
 
+  const assignIfProvided = <K extends keyof HaitechClientFormValues>(
+    key: K,
+    value: HaitechClientFormValues[K] | undefined | null,
+  ) => {
+    if (value === undefined || value === null) return;
+    if (typeof value === 'string' && !value.trim()) return;
+    next[key] = value;
+  };
+
   assignIfEmpty('storeCustomerId', partial.storeCustomerId ?? null);
   assignIfEmpty('haisupportClientId', partial.haisupportClientId ?? null);
   assignIfEmpty('nombre', partial.nombre);
@@ -39,6 +56,12 @@ export function applyCheckoutClientPrefill(
   assignIfEmpty('ciudad', partial.ciudad);
   assignIfEmpty('email', partial.email);
   assignIfEmpty('notas', partial.notas);
+  assignIfEmpty('atencionEntrega', partial.atencionEntrega);
+  assignIfEmpty('dniEntrega', partial.dniEntrega);
+
+  for (const key of PROFILE_PREFERENCE_KEYS) {
+    assignIfProvided(key, partial[key]);
+  }
 
   if (partial.tipoCliente && isPriceRole(partial.tipoCliente) && next.tipoCliente === 'public') {
     next.tipoCliente = partial.tipoCliente;
@@ -64,6 +87,13 @@ export function normalizeCheckoutAccountClient(
   if (raw.ciudad?.trim()) normalized.ciudad = raw.ciudad.trim();
   if (raw.email?.trim()) normalized.email = raw.email.trim();
   if (raw.notas?.trim()) normalized.notas = raw.notas.trim();
+  if (raw.atencionEntrega?.trim()) normalized.atencionEntrega = raw.atencionEntrega.trim();
+  if (raw.dniEntrega?.trim()) normalized.dniEntrega = raw.dniEntrega.trim();
+  if (raw.tipoComprobante) normalized.tipoComprobante = raw.tipoComprobante;
+  if (raw.destinoEnvio) normalized.destinoEnvio = raw.destinoEnvio;
+  if (raw.transporteLima) normalized.transporteLima = raw.transporteLima;
+  if (raw.agenciaProvincia) normalized.agenciaProvincia = raw.agenciaProvincia;
+  if (raw.modalidadProvincia) normalized.modalidadProvincia = raw.modalidadProvincia;
   if (raw.tipoCliente && isPriceRole(raw.tipoCliente)) {
     normalized.tipoCliente = raw.tipoCliente;
   }

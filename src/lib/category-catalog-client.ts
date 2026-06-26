@@ -10,7 +10,7 @@ import {
   sortProductsBySearchRelevance,
 } from '../../shared/catalog-search.js';
 import {
-  buildBrandFacets,
+  buildBrandFilterOptions,
   productMatchesBrandFilter,
 } from '../../shared/catalog-brand-filter.js';
 import {
@@ -22,6 +22,7 @@ import {
   compareProductsByViewCount,
   resolveMostViewedOfferProductIds,
 } from '../../shared/catalog-most-viewed-offers.js';
+import { productMatchesSpeedFilterKeys } from '../../shared/catalog-speed-filter.js';
 import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { dedupeCatalogProductsById } from '@/lib/category-catalog-filters';
 import { toPublicProduct } from '@/lib/pricing';
@@ -139,7 +140,7 @@ function queryCategoryCatalogFromRows(
 
   const facets = {
     attributes: appendMostViewedOfferFacet(buildAttributeFacets(facetBase), mostViewedOfferIds),
-    brands: buildBrandFacets(facetBase),
+    brands: buildBrandFilterOptions(facetBase),
     priceRange: buildPriceRange(facetBase),
   };
 
@@ -159,6 +160,10 @@ function queryCategoryCatalogFromRows(
         mostViewedOfferIds,
       ),
     );
+  }
+
+  if (params.speedKeys?.length) {
+    matched = matched.filter((product) => productMatchesSpeedFilterKeys(product, params.speedKeys!));
   }
 
   if ((params.brandKeys?.length ?? 0) > 0) {

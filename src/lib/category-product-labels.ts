@@ -139,7 +139,12 @@ function resolveSubcategoryLabels(
     (categoryTree.length > 0 ? findStoreCategoryBySlug(categoryTree, subSlug) : undefined);
 
   if (sub) {
-    return sub.inventoryLabels?.length ? [...sub.inventoryLabels] : [sub.name];
+    const treeLabels = sub.inventoryLabels?.length ? [...sub.inventoryLabels] : [sub.name];
+    const staticCategory = findCategoryBySlug(subSlug);
+    if (staticCategory) {
+      return [...new Set([...treeLabels, ...getCategoryProductLabels(staticCategory)])];
+    }
+    return treeLabels;
   }
 
   const staticLabels = resolveSubcategoryInventoryLabels(subSlug);

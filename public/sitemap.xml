@@ -7,25 +7,43 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://www.haitech.pe/categoria/multifuncionales?sub=multifuncionales-nuevas</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/multifuncionales?sub=multifuncionales-seminuevas</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/multifuncionales?sub=multifuncionales-remanufacturadas</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://www.haitech.pe/categoria/multifuncionales?sub=all</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/categoria/multifuncionales?sub=nuevas</loc>
+    <loc>https://www.haitech.pe/categoria/impresoras?sub=impresoras-laser-nuevas</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/categoria/multifuncionales?sub=seminuevas</loc>
+    <loc>https://www.haitech.pe/categoria/impresoras?sub=impresoras-laser-seminuevas</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/categoria/multifuncionales?sub=remanufacturadas</loc>
+    <loc>https://www.haitech.pe/categoria/impresoras?sub=impresoras-laser-remanufacturadas</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
@@ -37,25 +55,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/categoria/impresoras?sub=nuevas</loc>
-    <lastmod>2026-06-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/categoria/impresoras?sub=seminuevas</loc>
-    <lastmod>2026-06-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://www.haitech.pe/categoria/formato-ancho</loc>
-    <lastmod>2026-06-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/categoria/toner-suministros</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -73,7 +73,157 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://www.haitech.pe/categoria/toner-suministros?sub=tintas-originales</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://www.haitech.pe/categoria/toner-suministros?sub=toner-recarga</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/toner-suministros?sub=toner-compatibles</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/toner-suministros?sub=tintas-compatibles</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/toner-suministros</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=repuestos-originales</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=repuestos-compatibles</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=unidades-compatibles</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=cilindros</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=rodillos-de-calor</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=rodillos-de-presion</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=faja-fusora</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=cuchillas-de-cilindro</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=cuchillas-de-transferencia</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=barra-lubricadora</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=rodillo-de-esponja</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=faja-de-transferencia</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=almohadilla</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=manta-web</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=revelador</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=ruedas-casetera</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=engranaje-pinon</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=unas-fusor</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=bocinas</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=pinon-fusor</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/repuestos?sub=chip-toner</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
@@ -97,10 +247,64 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/categoria/alquiler</loc>
+    <loc>https://www.haitech.pe/categoria/software?sub=antivirus</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/categoria/software?sub=inteligencia-artificial</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/servicios</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/servicios?seccion=alquiler</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/servicios?seccion=servicio-tecnico</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/servicios?seccion=outsourcing</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/servicios?seccion=servicios-corporativos</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/servicios/alquiler-alquiler-mensual</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/servicios/servicio-tecnico-mantenimiento-preventivo</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.haitech.pe/servicios/outsourcing-outsourcing-impresion</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/repuesto-d0e12225</loc>
@@ -7993,18 +8197,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-im-430fb-110v-840b15c9c77b</loc>
-    <lastmod>2026-06-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-im-430ftl-110v-5b8d0f95857e</loc>
-    <lastmod>2026-06-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.haitech.pe/tienda/producto/impresora-multifuncional-seminueva-ricoh-im-c2500lt-110v-333014d14186</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -11740,25 +11932,25 @@
     <loc>https://www.haitech.pe/tienda/producto/tx-3200</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/tx-3200-mfp-z36</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/tx-4200</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/tx-4200-mfp-z36</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.haitech.pe/tienda/producto/c5140</loc>

@@ -71,6 +71,25 @@ export const CATEGORY_INVENTORY_LABELS = {
   camaras: ['Cámaras'],
   'computadoras-laptop': ['Computadoras y Laptop', 'Computadoras Laptop', 'Laptops'],
   alquiler: ['Alquiler'],
+  'soluciones-colaboracion': ['Pizarras Interactivas'],
+  'equipamiento-videoconferencias': ['Equipamiento para Videoconferencias'],
+  tecnologia: ['Tecnología y cómputo'],
+  monitores: ['Monitores'],
+  'equipos-de-oficina': [
+    'Equipos de Oficina',
+    'Equipos de Oficina, Espiraladoras',
+    'Espiraladoras',
+    'Espiraladora',
+    'Equipos de Oficina, Anilladoras',
+    'Anilladoras',
+    'Anilladora',
+    'Equipos de Oficina, Enmicadora',
+    'Enmicadoras',
+    'Enmicadora',
+    'Equipos de Oficina, Guillotina',
+    'Guillotinas',
+    'Guillotina',
+  ],
 };
 
 export function resolveStaticCategoryLabels(slug) {

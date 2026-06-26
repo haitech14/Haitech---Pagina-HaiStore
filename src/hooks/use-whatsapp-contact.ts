@@ -1,62 +1,88 @@
+import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
+import {
+  normalizeCheckoutAccountClient,
+  type CheckoutAccountClientResponse,
+} from '@/lib/checkout-account-client';
+import type { HaitechClientFormValues } from '@/lib/haitech-client-schema';
 import { apiFetch } from '@/lib/api';
 import {
-  isCompleteWhatsAppContact,
+  companyOrRucFromCheckoutParts,
+  mergeWhatsAppContactPrefill,
   readStoredWhatsAppContact,
   storeWhatsAppContact,
   type WhatsAppContact,
 } from '@/lib/whatsapp-contact';
 
-interface MeContactPayload {
-  contact: Partial<WhatsAppContact> & { source: 'account' | 'session' | 'guest' };
+function checkoutClientToWhatsAppContact(
+  client: Partial<HaitechClientFormValues> | null | undefined,
+): Partial<WhatsAppContact> {
+  if (!client) return {};
+
+  const name = client.nombreContacto?.trim() || client.nombre?.trim() || '';
+  const companyOrRuc = companyOrRucFromCheckoutParts(client.rucDni, client.nombre);
+  const city = client.ciudad?.trim() || '';
+
+  return {
+    ...(name ? { name } : {}),
+    ...(companyOrRuc ? { companyOrRuc } : {}),
+    ...(city ? { city } : {}),
+  };
 }
 
-async function fetchAccountContact(): Promise<WhatsAppContact | null> {
-  try {
-    const data = await apiFetch<MeContactPayload & { contact: { companyOrRuc?: string } }>(
-      '/api/customers/me',
-    );
-    if (isCompleteWhatsAppContact(data.contact)) {
-      return {
-        name: data.contact.name.trim(),
-        companyOrRuc: data.contact.companyOrRuc.trim(),
-        city: data.contact.city.trim(),
-      };
+function sessionFallbackContact(user: {
+  email?: string | null;
+  name?: string | null;
+}): Partial<WhatsAppContact> {
+  return {
+    name: user.name?.trim() ?? '',
+    companyOrRuc: '',
+    city: '',
+  };
+}
+
+async function fetchAccountContact(): Promise<WhatsAppContact> {
+  const data = await apiFetch<
+    CheckoutAccountClientResponse & {
+      contact?: Partial<WhatsAppContact> & { source?: string };
     }
-    const partial = data.contact;
-    if (partial.name?.trim() || partial.companyOrRuc?.trim() || partial.city?.trim()) {
-      return {
-        name: partial.name?.trim() ?? '',
-        companyOrRuc: partial.companyOrRuc?.trim() ?? '',
-        city: partial.city?.trim() ?? '',
-      };
-    }
-    return null;
-  } catch {
-    return null;
-  }
+  >('/api/customers/me');
+
+  const fromCheckout = checkoutClientToWhatsAppContact(
+    normalizeCheckoutAccountClient(data.checkoutClient),
+  );
+
+  return mergeWhatsAppContactPrefill(data.contact, fromCheckout);
 }
 
 export function useWhatsAppContact() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  const immediateFallback = useMemo(() => {
+    const stored = readStoredWhatsAppContact();
+    if (user) {
+      return mergeWhatsAppContactPrefill(sessionFallbackContact(user), stored);
+    }
+    return stored ?? { name: '', companyOrRuc: '', city: '' };
+  }, [user]);
+
   const query = useQuery({
     queryKey: ['whatsapp-contact', user?.email ?? 'guest'],
     queryFn: async () => {
       if (user) {
-        const account = await fetchAccountContact();
-        if (account) return account;
-        return {
-          name: user.name?.trim() ?? '',
-          companyOrRuc: '',
-          city: '',
-        } satisfies WhatsAppContact;
+        try {
+          const account = await fetchAccountContact();
+          return mergeWhatsAppContactPrefill(sessionFallbackContact(user), account);
+        } catch {
+          return immediateFallback;
+        }
       }
-      return readStoredWhatsAppContact();
+      return readStoredWhatsAppContact() ?? { name: '', companyOrRuc: '', city: '' };
     },
+    placeholderData: immediateFallback,
     staleTime: 60_000,
   });
 
@@ -81,8 +107,8 @@ export function useWhatsAppContact() {
   });
 
   return {
-    contact: query.data ?? null,
-    isLoading: query.isLoading,
+    contact: query.data ?? immediateFallback,
+    isLoading: query.isLoading && !query.isPlaceholderData,
     saveContact: saveMutation.mutateAsync,
     isSaving: saveMutation.isPending,
   };

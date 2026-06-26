@@ -8,6 +8,8 @@ export interface DualPriceProps {
   strikethrough?: boolean;
   /** Vitrina destacada: siempre USD y PEN con guion, como el diseño de referencia. */
   alwaysBoth?: boolean;
+  /** Apila USD y PEN en líneas separadas (sidebar checkout). */
+  stacked?: boolean;
 }
 
 /** Precio en USD, PEN o ambos según la moneda activa del header. */
@@ -16,6 +18,7 @@ export function DualPrice({
   className,
   strikethrough = false,
   alwaysBoth = false,
+  stacked = false,
 }: DualPriceProps) {
   const { displayCurrency } = useDisplayCurrency();
   const visibility = getDisplayPriceVisibility(displayCurrency);
@@ -24,6 +27,20 @@ export function DualPrice({
   const strike = strikethrough
     ? 'line-through decoration-muted-foreground decoration-solid'
     : undefined;
+
+  if (stacked && showUsd && showPen) {
+    return (
+      <span
+        className={cn(
+          'inline-flex flex-col items-end gap-0.5 text-right tabular-nums leading-tight',
+          className,
+        )}
+      >
+        <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>
+        <span className={cn(strike, 'text-red-600')}>{formatPenFromUsd(usd)}</span>
+      </span>
+    );
+  }
 
   return (
     <span className={cn('inline-flex flex-wrap items-baseline gap-x-1.5', className)}>

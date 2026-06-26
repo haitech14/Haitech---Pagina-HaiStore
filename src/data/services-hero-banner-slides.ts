@@ -44,9 +44,9 @@ export interface ServiceHeroBannerSlide {
 export const servicesHeroBannerSlides: ServiceHeroBannerSlide[] = [
   {
     id: 'servicios-soporte-tecnico',
-    image: '/services/hero/soporte-tecnico.png',
+    image: '/services/hero/soporte-tecnico.webp',
     imageAlt:
-      'Técnico especializado atendiendo una multifuncional Ricoh en oficina corporativa',
+      'Técnico especializado reparando una multifuncional en taller de servicio',
     badge: 'Respuesta ágil',
     badgeIcon: Zap,
     title: 'Servicio técnico',
@@ -61,7 +61,7 @@ export const servicesHeroBannerSlides: ServiceHeroBannerSlide[] = [
     ctaLabel: 'Ver soporte técnico',
     ctaIcon: ArrowRight,
     ctaHref: serviceHubPath('servicio-tecnico'),
-    objectPositionClass: 'object-[78%_center]',
+    objectPositionClass: 'object-center',
   },
   {
     id: 'servicios-alquiler',

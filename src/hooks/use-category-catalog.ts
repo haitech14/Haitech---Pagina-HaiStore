@@ -37,6 +37,7 @@ export interface UseCategoryCatalogParams {
   brandKeys?: string[];
   attributeKeys?: string[];
   productionKey?: string | null;
+  speedKeys?: string[];
   search?: string;
   sortBy?: CategorySortValue;
   page?: number;
@@ -61,6 +62,7 @@ export function buildCategoryCatalogQueryKey(
     params.brandKeys?.join('|'),
     params.attributeKeys?.join('|'),
     params.productionKey,
+    params.speedKeys?.join('|'),
     params.search,
     params.sortBy,
     params.page,
@@ -84,6 +86,7 @@ async function fetchCategoryCatalog(params: UseCategoryCatalogParams): Promise<C
   if (params.brandKeys?.length) query.set('brands', params.brandKeys.join('|'));
   if (params.attributeKeys?.length) query.set('attrs', params.attributeKeys.join('|'));
   if (params.productionKey) query.set('production', params.productionKey);
+  if (params.speedKeys?.length) query.set('speed', params.speedKeys.join('|'));
   if (params.search?.trim()) query.set('q', params.search.trim());
   if (params.sortBy) query.set('sort', params.sortBy);
   query.set('page', String(params.page ?? 1));
@@ -117,9 +120,17 @@ export function useCategoryCatalog(params: UseCategoryCatalogParams) {
     refetchOnWindowFocus: false,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8_000),
-    placeholderData: (previous) => {
-      if (previous) return previous;
+    placeholderData: (previousData, previousQuery) => {
       if (!enabled) return undefined;
+      const viewAsKey = viewAsRolesQueryKey(viewAsRoles);
+      const currentKey = buildCategoryCatalogQueryKey(params, role, viewAsKey);
+      if (previousData && previousQuery) {
+        const previousKey = previousQuery.queryKey as ReturnType<typeof buildCategoryCatalogQueryKey>;
+        const sameFilter =
+          previousKey.slice(0, 14).join('\0') === currentKey.slice(0, 14).join('\0') &&
+          previousKey.slice(16).join('\0') === currentKey.slice(16).join('\0');
+        if (sameFilter) return previousData;
+      }
       return queryCategoryCatalogClient(params, role);
     },
     select: (payload) =>

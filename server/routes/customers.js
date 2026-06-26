@@ -12,7 +12,11 @@ import {
 } from '../lib/haisupport-supabase.js';
 import { notifyHaiSupportChange } from '../lib/haisupport-sync.js';
 import { ensureStoreCustomerFromHaitechClient } from '../lib/haisupport-bridge.js';
-import { inboundPayloadToHaitechClient, storeCustomerRowToHaitechClient } from '../lib/haitech-mappers.js';
+import {
+  checkoutPreferencesFromBilling,
+  inboundPayloadToHaitechClient,
+  storeCustomerRowToHaitechClient,
+} from '../lib/haitech-mappers.js';
 import { resolvePriceRole } from '../lib/roles.js';
 import {
   importPersonaCustomerRows,
@@ -92,6 +96,10 @@ function checkoutClientFromSession(req, row) {
         ? mapped.tipoCliente
         : profileRole;
 
+    const billing =
+      row.default_billing && typeof row.default_billing === 'object' ? row.default_billing : {};
+    const checkoutPrefs = checkoutPreferencesFromBilling(billing);
+
     return {
       storeCustomerId: mapped.storeCustomerId,
       haisupportClientId: mapped.haisupportClientId,
@@ -104,6 +112,13 @@ function checkoutClientFromSession(req, row) {
       tipoCliente,
       email: mapped.email ?? sessionEmail,
       notas: mapped.notas ?? '',
+      tipoComprobante: checkoutPrefs.tipoComprobante ?? 'boleta',
+      destinoEnvio: checkoutPrefs.destinoEnvio ?? 'lima',
+      transporteLima: checkoutPrefs.transporteLima ?? null,
+      agenciaProvincia: checkoutPrefs.agenciaProvincia ?? null,
+      modalidadProvincia: checkoutPrefs.modalidadProvincia ?? null,
+      atencionEntrega: mapped.nombreContacto || '',
+      dniEntrega: mapped.rucDni?.length === 8 ? mapped.rucDni : '',
     };
   }
 

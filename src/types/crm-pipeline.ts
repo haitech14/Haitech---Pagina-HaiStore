@@ -40,6 +40,8 @@ export interface CrmPipelineLead {
   formSnapshot: CrmNewLeadFormValues;
   /** Tareas de seguimiento del lead. */
   tasks: CrmLeadTask[];
+  /** Guardado automático al cerrar el formulario sin confirmar. */
+  isDraft?: boolean;
 }
 
 export interface CrmPipelineKpis {

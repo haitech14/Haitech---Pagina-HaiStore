@@ -11,10 +11,14 @@ declare module '../../shared/home-catalog-filter.js' {
 }
 
 declare module '../../shared/catalog-brand-filter.js' {
+  export const BRAND_FILTER_OPTIONS: readonly { key: string; label: string }[];
   export const buildBrandFacets: (products: any[]) => { key: string; label: string; count: number }[];
+  export const buildBrandFilterOptions: (products: any[]) => { key: string; label: string; count: number }[];
+  export const countProductsForBrandFilterKey: (products: any[], brandKey: string) => number;
+  export const findBrandFilterOption: (brandKey: string | null | undefined) => { key: string; label: string } | null;
   export const productMatchesBrandFilter: (product: any, brandKeys: string[]) => boolean;
-  export const normalizeCatalogBrandKey: (value: string) => string;
-  export const getCatalogBrandLabel: (key: string) => string;
+  export const normalizeCatalogBrandKey: (value: string) => string | null;
+  export const getCatalogBrandLabel: (key: string) => string | null;
 }
 
 declare module '../../shared/catalog-most-viewed-offers.js' {

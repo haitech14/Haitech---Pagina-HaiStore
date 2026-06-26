@@ -18,7 +18,7 @@ import {
 import { normalizeCatalogSearchText } from '../../shared/catalog-search-normalize.js';
 import { findInventoryProductByLookupKey } from '../../shared/product-lookup.js';
 import {
-  buildBrandFacets,
+  buildBrandFilterOptions,
   productMatchesBrandFilter,
 } from '../../shared/catalog-brand-filter.js';
 import {
@@ -31,6 +31,7 @@ import {
   compareProductsByViewCount,
   resolveMostViewedOfferProductIds,
 } from '../../shared/catalog-most-viewed-offers.js';
+import { productMatchesSpeedFilterKeys } from '../../shared/catalog-speed-filter.js';
 
 function normalizeSearchText(value) {
   return normalizeCatalogSearchText(value);
@@ -197,6 +198,7 @@ function buildCategoryCatalogCacheKey(params) {
     brandKeys: params.brandKeys,
     attributeKeys: params.attributeKeys,
     productionKey: params.productionKey,
+    speedKeys: params.speedKeys,
     search: params.search,
     sortBy: params.sortBy,
     page: params.page,
@@ -216,6 +218,7 @@ export async function queryProductsByCategory({
   brandKeys = [],
   attributeKeys = [],
   productionKey = null,
+  speedKeys = [],
   search = '',
   sortBy = 'price-asc',
   page = 1,
@@ -233,6 +236,7 @@ export async function queryProductsByCategory({
     brandKeys,
     attributeKeys,
     productionKey,
+    speedKeys,
     search,
     sortBy,
     page,
@@ -276,7 +280,7 @@ export async function queryProductsByCategory({
 
   const facets = {
     attributes: appendMostViewedOfferFacet(buildAttributeFacets(facetBase), mostViewedOfferIds),
-    brands: buildBrandFacets(facetBase),
+    brands: buildBrandFilterOptions(facetBase),
     priceRange: buildPriceRange(facetBase),
   };
 
@@ -291,6 +295,10 @@ export async function queryProductsByCategory({
     matched = matched.filter((product) =>
       productMatchesAttributeFilters(product, attributeKeys, productionKey, mostViewedOfferIds),
     );
+  }
+
+  if (speedKeys.length > 0) {
+    matched = matched.filter((product) => productMatchesSpeedFilterKeys(product, speedKeys));
   }
 
   if (brandKeys.length > 0) {

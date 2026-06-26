@@ -205,7 +205,13 @@ export function resolveProductCatalogAttributeKeys(product) {
 
   if (!useSpecInference) return keys;
 
-  if (![...keys].some((key) => key.startsWith(`${FORMATO_PAPEL_ATTR}::`))) {
+  const formatoFromModel = inferFormatoPapelFromModel(product);
+  if (formatoFromModel) {
+    for (const key of [...keys]) {
+      if (key.startsWith(`${FORMATO_PAPEL_ATTR}::`)) keys.delete(key);
+    }
+    keys.add(attributeKey(FORMATO_PAPEL_ATTR, formatoFromModel));
+  } else if (![...keys].some((key) => key.startsWith(`${FORMATO_PAPEL_ATTR}::`))) {
     keys.add(attributeKey(FORMATO_PAPEL_ATTR, resolveFormatoPapel(product)));
   }
 

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Loader2, Tag, X } from 'lucide-react';
+import { useEffect, useId, useState } from 'react';
+import { ChevronDown, Loader2, Tag, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ interface CheckoutCouponFieldProps {
   lineItems: ValidateCouponLineItem[];
   applied: AppliedCheckoutCoupon | null;
   onAppliedChange: (coupon: AppliedCheckoutCoupon | null) => void;
+  collapsible?: boolean;
 }
 
 function readStoredCouponCode(): string {
@@ -50,15 +51,26 @@ export function CheckoutCouponField({
   lineItems,
   applied,
   onAppliedChange,
+  collapsible = false,
 }: CheckoutCouponFieldProps) {
   const validateCoupon = useValidateCoupon();
+  const panelId = useId();
+  const triggerId = useId();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const stored = readStoredCouponCode();
-    if (stored) setCode(stored);
-  }, []);
+    if (stored) {
+      setCode(stored);
+      if (collapsible) setExpanded(true);
+    }
+  }, [collapsible]);
+
+  useEffect(() => {
+    if (applied && collapsible) setExpanded(true);
+  }, [applied, collapsible]);
 
   const applyCoupon = async () => {
     setError(null);
@@ -102,15 +114,8 @@ export function CheckoutCouponField({
     onAppliedChange(null);
   };
 
-  return (
-    <div className="space-y-3 rounded-lg border border-border bg-muted/10 p-3">
-      <div className="flex items-center gap-2">
-        <Tag className="size-4 text-primary" aria-hidden="true" />
-        <Label htmlFor="checkout-coupon-code" className="text-sm font-semibold">
-          Cupón de descuento
-        </Label>
-      </div>
-
+  const couponBody = (
+    <>
       {applied ? (
         <div className="flex items-start justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2.5">
           <div className="min-w-0">
@@ -172,6 +177,71 @@ export function CheckoutCouponField({
           {error}
         </p>
       ) : null}
+    </>
+  );
+
+  if (collapsible) {
+    const triggerSubtitle = applied
+      ? `${applied.code} · ${
+          applied.discountUsd > 0
+            ? `− ${formatUsd(applied.discountUsd)}`
+            : applied.freeShipping
+              ? 'Envío gratis'
+              : applied.message
+        }`
+      : '¿Tienes un código promocional?';
+
+    return (
+      <div className="overflow-hidden rounded-lg border border-border bg-muted/10">
+        <button
+          type="button"
+          id={triggerId}
+          className="flex min-h-11 w-full items-center gap-2 px-3 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-expanded={expanded}
+          aria-controls={panelId}
+          onClick={() => setExpanded((current) => !current)}
+        >
+          <Tag className="size-4 shrink-0 text-primary" aria-hidden="true" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold text-foreground">Cupón de descuento</span>
+            {!expanded ? (
+              <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                {triggerSubtitle}
+              </span>
+            ) : null}
+          </span>
+          <ChevronDown
+            className={cn(
+              'size-4 shrink-0 text-muted-foreground transition-transform duration-200',
+              expanded && 'rotate-180',
+            )}
+            aria-hidden="true"
+          />
+        </button>
+
+        {expanded ? (
+          <div
+            id={panelId}
+            role="region"
+            aria-labelledby={triggerId}
+            className="space-y-3 border-t border-border px-3 py-3"
+          >
+            {couponBody}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 rounded-lg border border-border bg-muted/10 p-3">
+      <div className="flex items-center gap-2">
+        <Tag className="size-4 text-primary" aria-hidden="true" />
+        <Label htmlFor="checkout-coupon-code" className="text-sm font-semibold">
+          Cupón de descuento
+        </Label>
+      </div>
+      {couponBody}
     </div>
   );
 }

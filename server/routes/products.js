@@ -317,6 +317,7 @@ productsRouter.get('/by-category', async (req, res, next) => {
       brandKeys: parsePipeList(req.query.brands),
       attributeKeys,
       productionKey: typeof req.query.production === 'string' ? req.query.production : null,
+      speedKeys: parsePipeList(req.query.speed),
       search: typeof req.query.q === 'string' ? req.query.q : '',
       sortBy: typeof req.query.sort === 'string' ? req.query.sort : 'price-asc',
       page: req.query.page,

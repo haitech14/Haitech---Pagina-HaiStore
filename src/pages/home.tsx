@@ -2,13 +2,14 @@ import { useMemo } from 'react';
 
 import { CategoryStrip } from '@/components/category-strip';
 import { HeroBanner } from '@/components/hero-banner';
+import { HomeSeoIntro } from '@/components/home-seo-intro';
 import { HomeHighlightedSection } from '@/components/home-highlighted-section';
 import { HomeTrustStrip } from '@/components/home-trust-strip';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
 import { FooterBrandsSection } from '@/components/layout/footer-brands-section';
 import { useSeo } from '@/hooks/use-seo';
 import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
-import { buildOrganizationJsonLd, buildWebsiteJsonLd, DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE } from '@/lib/seo';
+import { buildHomeJsonLd, DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE } from '@/lib/seo';
 import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import { cn } from '@/lib/utils';
 
@@ -52,7 +53,7 @@ export function HomePage() {
       canonical: buildAbsoluteUrl('/'),
       ogType: 'website' as const,
       robots: 'index,follow' as const,
-      jsonLd: [buildWebsiteJsonLd(SITE_ORIGIN), buildOrganizationJsonLd(SITE_ORIGIN)],
+      jsonLd: buildHomeJsonLd(SITE_ORIGIN),
     }),
     [],
   );
@@ -62,6 +63,7 @@ export function HomePage() {
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <HeroBanner />
+      <HomeSeoIntro />
       <CategoryStrip />
       <HomeTrustStrip />
       <HomeHighlightedSection />

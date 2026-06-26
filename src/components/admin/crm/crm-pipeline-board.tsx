@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { CrmAddLeadDialog } from '@/components/admin/crm/crm-add-lead-dialog';
 import { CrmPipelineColumn } from '@/components/admin/crm/crm-pipeline-column';
 import { CrmPipelineKpiRow } from '@/components/admin/crm/crm-pipeline-kpi-row';
 import { CrmPipelineToolbar } from '@/components/admin/crm/crm-pipeline-toolbar';
+import { useCrmLeadDialog } from '@/context/crm-lead-dialog-context';
 import { useCrmPipeline } from '@/context/crm-pipeline-context';
 import { CRM_PIPELINE_STAGES } from '@/data/crm-pipeline-mock';
 import { groupLeadsByStage } from '@/lib/crm-pipeline-utils';
@@ -13,21 +13,19 @@ import type { CrmPipelineLead, CrmPipelineStageId } from '@/types/crm-pipeline';
 
 export function CrmPipelineBoard() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { leads, kpis, saveLead, deleteLead, duplicateLead, moveLead, usdToPenRate } =
-    useCrmPipeline();
+  const { leads, kpis, deleteLead, duplicateLead, moveLead, usdToPenRate } = useCrmPipeline();
+  const { openNewLead, openEditLead } = useCrmLeadDialog();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogStageId, setDialogStageId] = useState<CrmPipelineStageId>('leads');
-  const [editingLead, setEditingLead] = useState<CrmPipelineLead | null>(null);
   const [draggingLeadId, setDraggingLeadId] = useState<string | null>(null);
 
   const leadsByStage = useMemo(() => groupLeadsByStage(leads), [leads]);
 
-  const openCreateLead = useCallback((stageId: CrmPipelineStageId = 'leads') => {
-    setEditingLead(null);
-    setDialogStageId(stageId);
-    setDialogOpen(true);
-  }, []);
+  const openCreateLead = useCallback(
+    (stageId: CrmPipelineStageId = 'leads') => {
+      openNewLead({ stageId });
+    },
+    [openNewLead],
+  );
 
   useEffect(() => {
     if (searchParams.get('nuevo') !== '1') return;
@@ -36,21 +34,6 @@ export function CrmPipelineBoard() {
     next.delete('nuevo');
     setSearchParams(next, { replace: true });
   }, [openCreateLead, searchParams, setSearchParams]);
-
-  const openEditLead = useCallback((lead: CrmPipelineLead) => {
-    setEditingLead(lead);
-    setDialogStageId(lead.stageId);
-    setDialogOpen(true);
-  }, []);
-
-  const handleSaveLead = useCallback(
-    (lead: CrmPipelineLead, mode: 'create' | 'update') => {
-      saveLead(lead, mode);
-      setEditingLead(null);
-      toast.success(mode === 'create' ? 'Lead creado' : 'Lead actualizado');
-    },
-    [saveLead],
-  );
 
   const handleDeleteLead = useCallback(
     (lead: CrmPipelineLead) => {
@@ -98,17 +81,6 @@ export function CrmPipelineBoard() {
           />
         ))}
       </div>
-
-      <CrmAddLeadDialog
-        open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setEditingLead(null);
-        }}
-        defaultStageId={dialogStageId}
-        editingLead={editingLead}
-        onSave={handleSaveLead}
-      />
     </div>
   );
 }

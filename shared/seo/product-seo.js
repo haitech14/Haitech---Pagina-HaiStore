@@ -264,22 +264,38 @@ export function buildProductMetaDescriptionSeo(product, options = {}) {
     if (connectivity) specParts.push(connectivity.split(/[,/]/)[0]?.trim());
 
     const intro = model
-      ? `${resolveEquipmentTypeLabel(product)} RICOH ${model}: ${specParts.slice(0, 3).join(', ')}.`
-      : `${explicitIntro(product)} ${specParts.slice(0, 2).join(', ')}.`;
+      ? `${resolveEquipmentTypeLabel(product)} RICOH ${model} — fotocopiadora multifuncional: ${specParts.slice(0, 3).join(', ')}.`
+      : `${explicitIntro(product)} ${specParts.slice(0, 2).join(', ')}. Venta con garantía.`;
 
     const pricePart = penLabel ? ` Desde ${penLabel}.` : '';
     const tail = `${stockHint}. Cotiza online con envío a todo el Perú.`;
     return truncateMetaDescription(`${intro}${pricePart} ${tail}`);
   }
 
+  const categoryLower = String(product?.category ?? '').toLowerCase();
+  const nameLower = String(product?.name ?? '').toLowerCase();
+  const isTonerOrInk =
+    /toner|tóner|cartucho|tinta|ink|suministro|consumible/i.test(categoryLower) ||
+    /toner|tóner|cartucho|tinta/i.test(nameLower);
+  const isSparePart =
+    /repuesto|partes|unidad de imagen|cilindro|fusor|rodillo/i.test(categoryLower);
+
   const brand = product?.brand?.trim();
   const category = product?.category?.trim();
   const name = String(product?.name ?? 'Producto').trim();
   const qualifiers = [brand, category].filter(Boolean).join(' · ');
-  const intro = qualifiers ? `${name} (${qualifiers})` : name;
+  let intro = qualifiers ? `${name} (${qualifiers})` : name;
+
+  if (isTonerOrInk) {
+    const supplyKind = /tinta|ink/i.test(categoryLower + nameLower) ? 'tinta' : 'tóner';
+    intro = `${name} — ${supplyKind} Ricoh${brand ? ` ${brand}` : ''}. Repuesto original o compatible.`;
+  } else if (isSparePart) {
+    intro = `${name} — repuesto Ricoh${brand ? ` ${brand}` : ''} para impresoras y fotocopiadoras.`;
+  }
+
   const pricePart = penLabel ? ` Desde ${penLabel}.` : '';
   return truncateMetaDescription(
-    `${intro}.${pricePart} Compra con asesoría Haitech, Ricoh Alliance Partner. Envío a todo el Perú.`,
+    `${intro}${pricePart} Compra con Distribuidor Autorizado Ricoh HaiTech. Envío a todo el Perú.`,
   );
 }
 

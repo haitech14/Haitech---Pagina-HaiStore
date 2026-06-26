@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
-import { landingMenuCategories, type Category } from '@/data/categories';
+import type { Category } from '@/data/categories';
+import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { categoryLandingPath } from '@/lib/category-path';
+import { buildLandingMenuCategoriesFromTree } from '@/lib/landing-menu-categories';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { CATEGORY_STRIP_TRACK_WRAPPER_CLASS } from '@/lib/category-strip-layout';
 import { categoryImageSources } from '@/lib/responsive-image';
 import { cn } from '@/lib/utils';
-
-const categoryStripItems = landingMenuCategories;
 
 const CATEGORY_SLIDE_CLASS =
   'min-w-0 flex-[0_0_calc((100%-0.5rem)/2.5)] sm:flex-[0_0_calc((100%-0.75rem)/4)] md:flex-[0_0_calc((100%-1rem)/5)] lg:flex-[0_0_calc((100%-1.25rem)/6)] xl:flex-[0_0_calc((100%-1.25rem)/6)]';
@@ -73,6 +73,12 @@ function CategoryCard({ category, priority }: { category: Category; priority?: b
 }
 
 export function CategoryStrip() {
+  const { data: categoryTree = [] } = useStoreCategoriesTree();
+  const categoryStripItems = useMemo(
+    () => buildLandingMenuCategoriesFromTree(categoryTree),
+    [categoryTree],
+  );
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',

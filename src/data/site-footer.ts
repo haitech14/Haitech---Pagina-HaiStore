@@ -28,12 +28,14 @@ export const FOOTER_VALUE_PROPS: FooterValueProp[] = [
 
 export const FOOTER_NAV_LINKS: FooterLink[] = [
   { label: 'Inicio', href: '/' },
+  { label: 'Fotocopiadoras', href: categoryLandingPath('multifuncionales') },
   { label: 'Impresoras', href: categoryLandingPath('impresoras') },
-  { label: 'Alquiler de equipos', href: categoryLandingPath('alquiler') },
-  { label: 'Soluciones para empresas', href: categoryLandingPath('soluciones-negocio') },
+  { label: 'Tóner y tintas', href: categoryLandingPath('toner-suministros') },
+  { label: 'Repuestos', href: categoryLandingPath('repuestos') },
+  { label: 'Alquiler de equipos', href: serviceHubPath('alquiler') },
   { label: 'Servicio técnico', href: serviceHubPath('servicio-tecnico') },
+  { label: 'Descargas', href: '/descargas' },
   { label: 'Contacto', href: '/contacto' },
-  { label: 'Nosotros', href: '/contacto' },
   { label: 'Blog', href: '/foro' },
 ];
 

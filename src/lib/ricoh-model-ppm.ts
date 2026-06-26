@@ -1,7 +1,15 @@
 export {
+  formatMonthlyProductionLabel,
   formatPpmLabel,
+  inferMonthlyProductionLabelFromRicohModelName,
+  inferMonthlyProductionPagesFromRicohModelName,
   inferPpmDigitsFromRicohModelName,
   inferPpmLabelFromRicohModelName,
+  inferProduccionTierFromMonthlyPages,
+  inferProduccionTierFromRicohModelName,
+  inferRicohModelNumberBlock,
   isMultifuncionalNuevaOSeminueva,
+  isRicohImMpCatalogEquipment,
   resolveMultifuncionalVelocidadFromModel,
+  resolveRicohMonthlyProductionFromModel,
 } from '../../shared/ricoh-model-ppm.js';

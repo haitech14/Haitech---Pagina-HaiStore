@@ -11,6 +11,7 @@ import { SITE_ORIGIN } from '@/lib/site-url';
 export interface CategorySeoInput {
   category: Category;
   subcategoryName?: string | null;
+  subSlug?: string | null;
   heroSubtitle?: string | null;
   /** Ruta fija cuando la vista es `/tienda` (alias de multifuncionales). */
   catalogSlug?: string | undefined;
@@ -33,6 +34,7 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
   const {
     category,
     subcategoryName,
+    subSlug,
     heroSubtitle,
     catalogSlug,
     isInventorySearch,
@@ -58,11 +60,12 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
   const shouldNoIndex = Boolean(hasFilterParams && !catalogSlug);
 
   return {
-    title: buildCategoryMetaTitle(category, subcategoryName ?? undefined),
+    title: buildCategoryMetaTitle(category, subcategoryName ?? undefined, subSlug ?? undefined),
     description: buildCategoryMetaDescription(
       category,
       subcategoryName ?? undefined,
       heroSubtitle ?? undefined,
+      subSlug ?? undefined,
     ),
     canonical,
     image: resolveAbsoluteImageUrl(category.image ?? null, SITE_ORIGIN),

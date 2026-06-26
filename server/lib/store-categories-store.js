@@ -454,6 +454,27 @@ function mergeMissingUnidadesCompatiblesSubcategory(categories) {
   ];
 }
 
+const PIZARRAS_INTERACTIVAS_LABEL = 'Pizarras Interactivas';
+
+function mergeSolucionesColaboracionPizarraLabels(categories) {
+  const index = categories.findIndex(
+    (row) => row.slug === 'soluciones-colaboracion' || row.id === 'cat-soluciones-colaboracion',
+  );
+  if (index < 0) return categories;
+
+  const row = categories[index];
+  const labels = new Set(row.inventoryLabels ?? []);
+  if (labels.has(PIZARRAS_INTERACTIVAS_LABEL)) return categories;
+
+  labels.add(PIZARRAS_INTERACTIVAS_LABEL);
+  const next = [...categories];
+  next[index] = normalizeCategory({
+    ...row,
+    inventoryLabels: [...labels],
+  });
+  return next;
+}
+
 function mergeMissingCilindrosCompatiblesSubcategory(categories) {
   const exists =
     categories.some((row) => row.id === 'cat-cilindros-compatibles') ||
@@ -521,6 +542,12 @@ export async function readStoreCategories() {
   const cilindrosCompat = mergeMissingCilindrosCompatiblesSubcategory(categories);
   if (cilindrosCompat !== categories) {
     categories = cilindrosCompat;
+    needsWrite = true;
+  }
+
+  const pizarraLabels = mergeSolucionesColaboracionPizarraLabels(categories);
+  if (pizarraLabels !== categories) {
+    categories = pizarraLabels;
     needsWrite = true;
   }
 

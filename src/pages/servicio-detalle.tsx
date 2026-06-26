@@ -30,8 +30,9 @@ import {
 } from '@/data/services-catalog';
 import { useSeo } from '@/hooks/use-seo';
 import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
+import { buildServiceJsonLd } from '@/lib/seo';
 import type { ServiceCartInput } from '@/lib/service-to-cart';
-import { buildAbsoluteUrl } from '@/lib/site-url';
+import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 import type { ServiceContractType, ServicePlanId } from '@/types/services-catalog';
 import { cn } from '@/lib/utils';
@@ -56,10 +57,19 @@ export function ServiceDetailPage() {
   useSeo(
     item
       ? {
-          title: item.title,
+          title: `${item.title} | Haitech`,
           description: item.shortDescription,
           canonical: buildAbsoluteUrl(`/servicios/${item.slug}`),
           robots: 'index,follow',
+          jsonLd: buildServiceJsonLd(
+            {
+              pathname: `/servicios/${item.slug}`,
+              serviceName: item.title,
+              serviceType: getCategoryLabel(item.categoryId),
+              description: item.shortDescription,
+            },
+            SITE_ORIGIN,
+          ),
         }
       : {
           title: 'Servicio no encontrado',
@@ -204,3 +214,4 @@ export function ServiceDetailPage() {
     </div>
   );
 }
+

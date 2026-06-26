@@ -6,6 +6,7 @@ import { Icon } from '@mdi/react';
 import { mdiWhatsapp } from '@mdi/js';
 
 import { Button } from '@/components/ui/button';
+import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import {
   CATEGORY_STRIP_HERO_IMAGE_FRAME_CLASS,
   CATEGORY_STRIP_HERO_IMAGE_ZOOM_CLASS,
@@ -13,12 +14,14 @@ import {
 } from '@/lib/category-strip-layout';
 import { heroSingleAssetSources, categoryImageSources } from '@/lib/responsive-image';
 import {
-  HOME_HERO_WHATSAPP_LINK,
   HOME_HERO_WHATSAPP_NUMBER,
   TRUST_ICON_MAP,
   homeHeroSlides,
   type HomeHeroSlide,
 } from '@/data/home-hero-slides';
+import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
+import { isHeroWhatsAppHref, openHeroQuoteWhatsApp } from '@/lib/hero-whatsapp-message';
+import type { WhatsAppContact } from '@/lib/whatsapp-contact';
 import { cn } from '@/lib/utils';
 
 const DiaPapaHomeHero = lazy(() =>
@@ -36,7 +39,7 @@ function heroResponsiveSources(imagePath: string, baseWidth: number) {
   };
 }
 
-function HeroImageOnlyCtaOverlay() {
+function HeroImageOnlyCtaOverlay({ onWhatsAppClick }: { onWhatsAppClick: () => void }) {
   return (
     <div
       className={cn(
@@ -45,14 +48,13 @@ function HeroImageOnlyCtaOverlay() {
       )}
     >
       <Button
-        asChild
+        type="button"
         size="sm"
         className="pointer-events-auto min-h-10 gap-1.5 bg-[#25D366] px-4 text-sm font-semibold text-white shadow-md hover:bg-[#20bd5a] focus-visible:ring-[#25D366]"
+        onClick={onWhatsAppClick}
       >
-        <a href={HOME_HERO_WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
-          <Icon path={mdiWhatsapp} size={0.85} aria-hidden="true" />
-          Solicitar cotización
-        </a>
+        <Icon path={mdiWhatsapp} size={0.85} aria-hidden="true" />
+        Solicitar cotización
       </Button>
       <Button
         asChild
@@ -81,10 +83,12 @@ function HeroSlideContent({
   slide,
   index,
   sectionHeadingId = 'hero-titulo',
+  onWhatsAppClick,
 }: {
   slide: HomeHeroSlide;
   index: number;
   sectionHeadingId?: string;
+  onWhatsAppClick: (campaign?: string) => void;
 }) {
   const headingId = index === 0 ? sectionHeadingId : `${sectionHeadingId}-${slide.id}`;
 
@@ -105,8 +109,10 @@ function HeroSlideContent({
     const displayHeight = slide.imageHeight ?? 400;
     const href = slide.linkHref ?? '/tienda';
     const isExternal = href.startsWith('http');
+    const isWhatsAppLink = isHeroWhatsAppHref(href);
     const isPriority = index === 0;
     const showCtaOverlay = slide.compact === true && slide.ctaOverlay === true;
+    const openWhatsAppLead = () => onWhatsAppClick(slide.imageAlt ?? slide.id);
 
     const imageNode = slide.singleAsset ? (
       slide.compact ? (
@@ -219,6 +225,28 @@ function HeroSlideContent({
     const linkClassName =
       'block w-full leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
 
+    const renderImageLink = () => {
+      if (isWhatsAppLink) {
+        return (
+          <button type="button" onClick={openWhatsAppLead} className={cn(linkClassName, 'cursor-pointer')}>
+            {imageNode}
+          </button>
+        );
+      }
+      if (isExternal) {
+        return (
+          <a href={href} target="_blank" rel="noopener noreferrer" className={linkClassName}>
+            {imageNode}
+          </a>
+        );
+      }
+      return (
+        <Link to={href} className={linkClassName}>
+          {imageNode}
+        </Link>
+      );
+    };
+
     return (
       <div className="relative w-full overflow-hidden">
         <h1 id={headingId} className="sr-only">
@@ -226,25 +254,11 @@ function HeroSlideContent({
         </h1>
         {showCtaOverlay ? (
           <>
-            {isExternal ? (
-              <a href={href} target="_blank" rel="noopener noreferrer" className={linkClassName}>
-                {imageNode}
-              </a>
-            ) : (
-              <Link to={href} className={linkClassName}>
-                {imageNode}
-              </Link>
-            )}
-            <HeroImageOnlyCtaOverlay />
+            {renderImageLink()}
+            <HeroImageOnlyCtaOverlay onWhatsAppClick={openWhatsAppLead} />
           </>
-        ) : isExternal ? (
-          <a href={href} target="_blank" rel="noopener noreferrer" className={linkClassName}>
-            {imageNode}
-          </a>
         ) : (
-          <Link to={href} className={linkClassName}>
-            {imageNode}
-          </Link>
+          renderImageLink()
         )}
       </div>
     );
@@ -332,13 +346,12 @@ function HeroSlideContent({
         <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
           {slide.primaryCta?.kind === 'whatsapp' ? (
             <Button
-              asChild
+              type="button"
               className="h-10 rounded-md bg-[#25D366] px-4 text-sm font-semibold text-white shadow-[0_0_24px_rgba(37,211,102,0.35)] transition-all hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-black"
+              onClick={() => onWhatsAppClick(slide.imageAlt ?? slide.id)}
             >
-              <a href={HOME_HERO_WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
-                <Icon path={mdiWhatsapp} size={1} aria-hidden="true" />
-                Cotizar por WhatsApp · {HOME_HERO_WHATSAPP_NUMBER}
-              </a>
+              <Icon path={mdiWhatsapp} size={1} aria-hidden="true" />
+              Cotizar por WhatsApp · {HOME_HERO_WHATSAPP_NUMBER}
             </Button>
           ) : slide.primaryCta?.kind === 'link' ? (
             <Button
@@ -409,7 +422,23 @@ export function HeroBanner({
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: slides.length > 1, align: 'start' });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
+  const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
+  const [whatsappCampaign, setWhatsappCampaign] = useState<string | undefined>();
+  const { contact, saveContact, isSaving } = useWhatsAppContact();
   const showCarouselControls = slides.length > 1;
+
+  const openWhatsAppDialog = useCallback((campaign?: string) => {
+    setWhatsappCampaign(campaign);
+    setWhatsappDialogOpen(true);
+  }, []);
+
+  const handleWhatsAppSubmit = async (nextContact: WhatsAppContact) => {
+    await saveContact(nextContact);
+    const opened = openHeroQuoteWhatsApp(nextContact, { campaign: whatsappCampaign });
+    if (!opened) {
+      throw new Error('No se pudo abrir WhatsApp. Inténtalo de nuevo.');
+    }
+  };
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -473,6 +502,7 @@ export function HeroBanner({
                     slide={slide}
                     index={index}
                     sectionHeadingId={headingId}
+                    onWhatsAppClick={openWhatsAppDialog}
                   />
                 </li>
               ))}
@@ -506,6 +536,20 @@ export function HeroBanner({
           </>
           ) : null}
       </div>
+
+      <WhatsAppContactDialog
+        open={whatsappDialogOpen}
+        onOpenChange={setWhatsappDialogOpen}
+        initial={contact ?? undefined}
+        isSubmitting={isSaving}
+        showQuoteCheckbox={false}
+        title="Solicitar cotización"
+        description="Completa tus datos y te llevaremos a WhatsApp con el mensaje listo para enviar a nuestro equipo de ventas."
+        submitLabel="Continuar a WhatsApp"
+        onSubmit={async (nextContact) => {
+          await handleWhatsAppSubmit(nextContact);
+        }}
+      />
     </section>
   );
 }

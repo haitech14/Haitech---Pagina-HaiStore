@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
-import { ScrollReveal } from '@/components/ui/scroll-reveal';
 import { catalogGridClassName, type CatalogGridColumns } from '@/lib/category-grid-layout';
-import {
-  dedupeCatalogProductsById,
-  type CatalogFormatSectionGroup,
-} from '@/lib/category-catalog-filters';
+import type { CatalogFormatSectionGroup } from '@/lib/category-catalog-filters';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
+
+function formatProductCount(count: number): string {
+  return `${count} ${count === 1 ? 'producto' : 'productos'}`;
+}
 
 interface CategoryCatalogFormatSectionsProps {
   sections: CatalogFormatSectionGroup[];
@@ -26,30 +26,48 @@ export function CategoryCatalogFormatSections({
   renderProduct,
   className,
 }: CategoryCatalogFormatSectionsProps) {
-  const orderedProducts = dedupeCatalogProductsById(
-    sections
-      .map((section) => ({
-        ...section,
-        subsections: section.subsections.filter((subsection) => subsection.products.length > 0),
-      }))
-      .filter((section) => section.subsections.length > 0)
-      .flatMap((section) => section.subsections.flatMap((subsection) => subsection.products)),
-  );
+  const visibleSections = sections
+    .map((section) => ({
+      ...section,
+      subsections: section.subsections.filter((subsection) => subsection.products.length > 0),
+    }))
+    .filter((section) => section.subsections.length > 0);
 
-  if (orderedProducts.length === 0) return null;
+  if (visibleSections.length === 0) return null;
 
   return (
-    <div className={cn(className)}>
-      <div className={gridClassName ?? catalogGridClassName(gridColumns, sidebarOpen)}>
-        {orderedProducts.map((product, index) => {
-          const delayMs = Math.min(index * 55, 440);
-          return (
-            <ScrollReveal key={product.id} delayMs={delayMs} className="min-w-0">
-              {renderProduct(product)}
-            </ScrollReveal>
-          );
-        })}
-      </div>
+    <div className={cn('space-y-6 sm:space-y-8', className)}>
+      {visibleSections.map((section) => {
+        const sectionCount = section.subsections.reduce(
+          (total, item) => total + item.products.length,
+          0,
+        );
+
+        return (
+          <section key={section.id} aria-labelledby={`catalog-format-${section.id}`}>
+            <h2 id={`catalog-format-${section.id}`} className="sr-only">
+              {section.title} ({formatProductCount(sectionCount)})
+            </h2>
+
+            <div className="space-y-6 sm:space-y-8">
+              {section.subsections.map((subsection) => (
+                <div key={subsection.id} aria-labelledby={`catalog-format-${subsection.id}`}>
+                  <h3 id={`catalog-format-${subsection.id}`} className="sr-only">
+                    {section.title} {subsection.title} ({formatProductCount(subsection.products.length)})
+                  </h3>
+                  <div className={gridClassName ?? catalogGridClassName(gridColumns, sidebarOpen)}>
+                    {subsection.products.map((product) => (
+                      <div key={`${subsection.id}-${product.id}`} className="min-w-0">
+                        {renderProduct(product)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

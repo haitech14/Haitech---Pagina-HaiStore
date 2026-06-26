@@ -68,14 +68,31 @@ export interface CreatePipelineLeadMeta {
   sellerName?: string;
 }
 
+export interface CreatePipelineLeadOptions {
+  /** Permite crear con datos parciales (borrador). */
+  allowPartial?: boolean;
+}
+
 export function createPipelineLeadFromForm(
   values: CrmNewLeadFormValues,
   id: string,
   meta?: CreatePipelineLeadMeta,
+  options?: CreatePipelineLeadOptions,
 ): CrmPipelineLead | null {
   const contact = values.contactName.trim();
   const organization = values.organization.trim();
-  if (!contact && !organization && !values.title.trim()) return null;
+  const hasTitle = Boolean(values.title.trim());
+  if (!options?.allowPartial && !contact && !organization && !hasTitle) return null;
+  if (options?.allowPartial && !contact && !organization && !hasTitle) {
+    const hasOtherData =
+      values.notes.trim() ||
+      values.productName.trim() ||
+      values.valueAmount.trim() ||
+      (values.lineItems?.length ?? 0) > 0 ||
+      values.phones.some((phone) => phone.number.replace(/\D/g, '').length >= 6) ||
+      values.emails.some((email) => email.address.trim().includes('@'));
+    if (!hasOtherData) return null;
+  }
 
   const lineItems = values.lineItems ?? [];
   const linesTotal = computeLeadLinesTotal(lineItems);

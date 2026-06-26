@@ -164,20 +164,78 @@ export async function ensureStoreCustomerFromHaitechClient(clientInput) {
       if (data) storeRow = data;
     }
 
+    if (storeRow && emailTrimmed && storeRow.email !== emailTrimmed) {
+      const { data: emailOwner } = await supabase
+        .from('store_customers')
+        .select('*')
+        .eq('email', emailTrimmed)
+        .maybeSingle();
+      if (emailOwner?.id && emailOwner.id !== storeRow.id) {
+        storeRow = emailOwner;
+      }
+    }
+
     const row = haitechClientToStoreCustomerRow(
       { ...client, storeCustomerId: storeRow?.id ?? client.storeCustomerId },
       storeRow?.id,
     );
 
     if (storeRow?.id) {
+      const updateRow = { ...row };
+      if (
+        updateRow.email &&
+        updateRow.email !== storeRow.email &&
+        emailTrimmed &&
+        updateRow.email === emailTrimmed
+      ) {
+        const { data: emailConflict } = await supabase
+          .from('store_customers')
+          .select('id')
+          .eq('email', updateRow.email)
+          .neq('id', storeRow.id)
+          .maybeSingle();
+        if (emailConflict?.id) {
+          delete updateRow.email;
+        }
+      }
+
       const { data, error } = await supabase
         .from('store_customers')
-        .update(row)
+        .update(updateRow)
         .eq('id', storeRow.id)
         .select('*')
         .single();
-      if (error) throw new Error(`No se pudo actualizar el cliente: ${error.message}`);
-      storeRow = data;
+
+      if (error?.code === '23505' && emailTrimmed) {
+        const { data: existingByEmail } = await supabase
+          .from('store_customers')
+          .select('*')
+          .eq('email', emailTrimmed)
+          .maybeSingle();
+        if (existingByEmail?.id) {
+          const retryRow = haitechClientToStoreCustomerRow(
+            { ...client, storeCustomerId: existingByEmail.id },
+            existingByEmail.id,
+          );
+          delete retryRow.email;
+          const { data: updated, error: updateError } = await supabase
+            .from('store_customers')
+            .update(retryRow)
+            .eq('id', existingByEmail.id)
+            .select('*')
+            .single();
+          if (updateError) {
+            throw new Error(`No se pudo actualizar el cliente: ${updateError.message}`);
+          }
+          storeRow = updated;
+        } else {
+          throw new Error(`No se pudo actualizar el cliente: ${error.message}`);
+        }
+      } else if (error) {
+        throw new Error(`No se pudo actualizar el cliente: ${error.message}`);
+      } else {
+        storeRow = data;
+      }
     } else {
       if (!row.id) row.id = randomUUID();
       row.created_at = new Date().toISOString();

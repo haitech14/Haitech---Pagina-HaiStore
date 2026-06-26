@@ -1,4 +1,5 @@
 import { categories } from '@/data/categories';
+import { findCategoryBySlug, getCategoryProductLabels } from '@/lib/category-product-labels';
 import { normalizeCategoryName } from '@/lib/catalog-featured';
 import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
 import { nodeMatchesLabel } from '@/lib/inventory-product-category';
@@ -42,18 +43,34 @@ export function resolveCategoryFilterLabels(
   const flat = flattenCategoryTree(tree);
   const matches = flat.filter((node) => nodeMatchesLabel(node, trimmed));
 
-  if (matches.length === 0) return [trimmed];
+  if (matches.length === 0) {
+    const staticCategory = findCategoryBySlug(trimmed);
+    if (staticCategory) {
+      return [...getCategoryProductLabels(staticCategory)];
+    }
+    return [trimmed];
+  }
 
   const match = matches.reduce((best, node) => (node.depth >= best.depth ? node : best));
   const node = findNodeInTree(tree, match.id);
   if (!node) return [trimmed];
 
   if ((node.children?.length ?? 0) > 0) {
-    return collectInventoryLabels(node);
+    const treeLabels = collectInventoryLabels(node);
+    const staticCategory = findCategoryBySlug(node.slug);
+    if (staticCategory) {
+      return [...new Set([...treeLabels, ...getCategoryProductLabels(staticCategory)])];
+    }
+    return treeLabels;
   }
 
   const labels = (node.inventoryLabels ?? []).map((label) => label.trim()).filter(Boolean);
-  return labels.length > 0 ? [...new Set(labels)] : [trimmed];
+  const treeLabels = labels.length > 0 ? labels : [trimmed];
+  const staticCategory = findCategoryBySlug(node.slug);
+  if (staticCategory) {
+    return [...new Set([...treeLabels, ...getCategoryProductLabels(staticCategory)])];
+  }
+  return [...new Set(treeLabels)];
 }
 
 function findNodeInTree(

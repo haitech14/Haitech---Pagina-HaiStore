@@ -30,6 +30,12 @@ import {
 } from '@/lib/haibot-quick-actions';
 import { searchCatalogProducts } from '@/lib/catalog-search-api';
 import { cn } from '@/lib/utils';
+import type { Product } from '@/types/product';
+
+interface HaibotInventoryContext {
+  searchQuery: string;
+  products: Product[];
+}
 
 const SEARCH_MODE_LABELS: Record<HaibotSearchFocus, string> = {
   all: 'buscar',
@@ -100,6 +106,7 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
   const [isThinking, setIsThinking] = useState(false);
   const [searchFocus, setSearchFocus] = useState<HaibotSearchFocus | null>(null);
   const [activeWorkflow, setActiveWorkflow] = useState<HaibotWorkflowId | null>(null);
+  const [inventoryContext, setInventoryContext] = useState<HaibotInventoryContext | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -108,6 +115,7 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
     setIsThinking(false);
     setSearchFocus(null);
     setActiveWorkflow(null);
+    setInventoryContext(null);
   }, [open]);
 
   useEffect(() => {
@@ -128,6 +136,9 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
     if (search) {
       try {
         const { products: matches } = await searchCatalogProducts(search.query, { limit: 50 });
+        if (matches.length > 0) {
+          setInventoryContext({ searchQuery: search.query, products: matches.slice(0, 5) });
+        }
         return formatHaibotInventorySearchReply(search.query, matches, search.focus);
       } catch {
         return 'No pude consultar el inventario en este momento. Inténtalo de nuevo.';
@@ -321,7 +332,7 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
         ) : activeWorkflow === 'shipping' ? (
           <HaibotShippingWorkflow disabled={isThinking} />
         ) : activeWorkflow === 'sales' ? (
-          <HaibotSalesWorkflow onClose={onClose} />
+          <HaibotSalesWorkflow onClose={onClose} inventoryContext={inventoryContext} />
         ) : (
           <form id={formId} onSubmit={handleSubmit} className="flex items-end gap-2">
             <label htmlFor={`${formId}-input`} className="sr-only">

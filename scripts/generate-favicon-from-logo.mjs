@@ -9,9 +9,9 @@ const publicDir = path.join(root, 'public');
 const source = fs.existsSync(path.join(publicDir, 'favicon-source.png'))
   ? path.join(publicDir, 'favicon-source.png')
   : path.join(publicDir, 'logo.png');
-const bg = { r: 15, g: 23, b: 42, alpha: 1 };
-/** Margen interno para que el wordmark no toque los bordes del cuadrado. */
-const INSET_RATIO = 0.08;
+const bg = { r: 0, g: 0, b: 0, alpha: 1 };
+/** Margen interno para que el ícono no toque los bordes del cuadrado. */
+const INSET_RATIO = 0.06;
 
 if (!fs.existsSync(source) || fs.statSync(source).size === 0) {
   throw new Error('Falta public/favicon-source.png o public/logo.png');

@@ -25,6 +25,8 @@ export {
   buildOrganizationJsonLd,
   buildCategoryCollectionJsonLd,
   buildHomeJsonLd,
+  buildFaqPageJsonLd,
+  buildServiceJsonLd,
 } from '../../shared/seo/json-ld.js';
 
 export {

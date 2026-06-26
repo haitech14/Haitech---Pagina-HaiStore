@@ -48,17 +48,13 @@ const mobileNavItems: MainNavItem[] = headerMainNavLinks.map((item) => {
 
 const navItems: MainNavItem[] = mobileNavItems;
 
-function mainNavLinkProps(item: MainNavItem) {
-  if (!item.matchActive) {
-    return { to: item.to, end: item.end ?? false };
-  }
-
-  return {
-    to: item.to,
-    end: item.end ?? false,
-    isActive: (_match: unknown, location: { pathname: string; search: string }) =>
-      item.matchActive!(location),
-  };
+function resolveNavItemActive(
+  item: MainNavItem,
+  location: { pathname: string; search: string },
+  linkIsActive: boolean,
+): boolean {
+  if (item.matchActive) return item.matchActive(location);
+  return linkIsActive;
 }
 
 export function Header() {
@@ -205,12 +201,15 @@ export function Header() {
                 {mobileLinks.map((item) => (
                   <li key={item.label}>
                     <NavLink
-                      {...mainNavLinkProps(item)}
+                      to={item.to}
+                      end={item.end ?? false}
                       onClick={() => setMobileOpen(false)}
                       className={({ isActive }) =>
                         cn(
                           'block rounded-md px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent',
-                          isActive ? 'text-red-600' : 'text-foreground',
+                          resolveNavItemActive(item, location, isActive)
+                            ? 'text-red-600'
+                            : 'text-foreground',
                         )
                       }
                     >

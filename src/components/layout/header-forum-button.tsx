@@ -12,8 +12,8 @@ export function HeaderForumButton({ className }: HeaderForumButtonProps) {
     <Link
       to={HEADER_FORUM_PATH}
       className={cn(
-        'inline-flex shrink-0 items-center rounded-lg bg-neutral-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm',
-        'transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2',
+        'inline-flex shrink-0 items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-neutral-900',
+        'transition-colors hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2',
         className,
       )}
     >

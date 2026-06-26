@@ -38,7 +38,7 @@ export const promoCards: PromoCard[] = [
     variant: 'light-service',
     title: 'Servicio técnico especializado',
     description: 'Diagnóstico, mantenimiento y reparaciones con garantía.',
-    image: '/promo-cards/technician-service.png',
+    image: '/promo-cards/technician-service.webp',
     imageAlt: 'Técnico especializado reparando equipo de impresión',
     buttonLabel: 'Agendar servicio',
     buttonVariant: 'navy',

@@ -206,7 +206,7 @@ export function ShoppingCartDrawer() {
               <div className="flex flex-col gap-2">
                 <Button asChild className="min-h-11 w-full bg-red-600 hover:bg-red-500">
                   <Link to="/checkout" onClick={() => setCartOpen(false)}>
-                    Ir al checkout
+                    Finalizar compra
                   </Link>
                 </Button>
                 <Button

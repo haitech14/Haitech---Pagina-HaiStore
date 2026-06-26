@@ -219,7 +219,7 @@ export function InventoryMediaCell({
     }
   };
 
-  const mainSlot = main ? (
+  const mainImageSlot = main ? (
     <button
       type="button"
       className={cn(thumbButtonClass, 'relative')}
@@ -233,6 +233,15 @@ export function InventoryMediaCell({
         </span>
       ) : null}
     </button>
+  ) : null;
+
+  const mainSlot = main ? (
+    <div className="flex flex-col items-center gap-0.5">
+      {mainImageSlot}
+      <p className="max-w-[7.5rem] text-center text-xs leading-none text-muted-foreground">
+        *Imagen Referencial
+      </p>
+    </div>
   ) : (
     <button
       type="button"

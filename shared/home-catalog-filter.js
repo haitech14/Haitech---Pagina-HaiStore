@@ -6,6 +6,7 @@ import {
   productQualifiesAsSeminuevaEquipment,
 } from './inventory-product-name.js';
 import { isHomeCarouselExcludedProduct } from './home-excluded-products.js';
+import { resolveStaticCategoryLabels, catalogFamilyForSlug } from './category-inventory-labels.js';
 
 export const PRODUCT_CONDITIONS = ['originales', 'compatibles', 'remanufacturados', 'partes'];
 
@@ -48,6 +49,24 @@ export function productMatchesCategoryFilter(product, filterValue) {
   const raw = product.category?.trim();
   if (raw && normalizeCategoryName(raw) === target) return true;
   return productCategoryTags(product).some((tag) => normalizeCategoryName(tag) === target);
+}
+
+/** Resuelve slug de categoría de tienda a etiquetas de inventario (paridad buscador / API). */
+export function productMatchesCategorySlugFilter(product, slug) {
+  const normalized = String(slug ?? '').trim();
+  if (!normalized || normalized === 'all') return true;
+
+  const family = catalogFamilyForSlug(normalized);
+  if (family) {
+    return productMatchesCatalogFamily(product, family);
+  }
+
+  const labels = resolveStaticCategoryLabels(normalized);
+  if (labels.length > 0) {
+    return labels.some((label) => productMatchesCategoryFilter(product, label));
+  }
+
+  return productMatchesCategoryFilter(product, normalized);
 }
 
 function categoryIndicatesFamily(category, family) {

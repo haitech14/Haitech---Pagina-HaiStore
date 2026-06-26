@@ -3,6 +3,8 @@ import * as React from 'react';
 import { apiFetch } from '@/lib/api';
 import {
   clearStoredAuthSession,
+  getAccessToken,
+  getDemoToken,
   readStoredAuthSession,
   setDemoToken,
   writeStoredAuthSession,
@@ -10,6 +12,7 @@ import {
 } from '@/lib/auth-storage';
 import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/lib/supabase-config';
+import { signInWithPasswordSafely, signOutSupabaseSafely } from '@/lib/supabase-auth-helpers';
 import { canAccessAdminPanel, hasAdminApiAccess } from '@/lib/admin-access';
 import { isUserRole, type UserRole } from '@/types/product';
 import { readViewAsRoles, writeViewAsRoles } from '@/lib/view-as-role-storage';
@@ -88,6 +91,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const refreshSession = React.useCallback(async () => {
+    const stored = readStoredAuthSession();
+    const tokenBefore = await getAccessToken();
+
+    if (!tokenBefore && !stored?.user) {
+      applyMe({ user: null, role: 'public', authProvider: null });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const me = await Promise.race([
         apiFetch<{
@@ -99,7 +111,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setTimeout(() => reject(new Error('auth-me-timeout')), 30_000);
         }),
       ]);
-      applyMe(me);
+
+      if (me.user) {
+        applyMe(me);
+        return;
+      }
+
+      const tokenAfter = await getAccessToken();
+      if (!tokenBefore && !tokenAfter) {
+        applyMe({ user: null, role: 'public', authProvider: null });
+        setDemoToken(null);
+        return;
+      }
+
+      if (tokenAfter) {
+        const retry = await apiFetch<{
+          user: AuthUser | null;
+          role: UserRole | 'public';
+          authProvider: 'supabase' | 'demo' | null;
+        }>('/api/auth/me');
+        if (retry.user) {
+          applyMe(retry);
+        } else if (stored?.user && tokenAfter === getDemoToken()) {
+          applyMe(stored);
+        }
+      } else if (stored?.user) {
+        applyMe({ user: null, role: 'public', authProvider: null });
+        setDemoToken(null);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : '';
       const keepSession =
@@ -134,7 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session) {
           void refreshSession();
-        } else if (!getDemoTokenExists()) {
+        } else if (!getDemoToken()) {
           applyMe({ user: null, role: 'public', authProvider: null });
         }
       });
@@ -152,10 +191,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setDemoToken(null);
 
       if (isSupabaseConfigured()) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: normalizedEmail,
-          password,
-        });
+        const { data, error } = await signInWithPasswordSafely(normalizedEmail, password);
 
         if (!error && data.session) {
           try {
@@ -164,11 +200,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             /* perfil puede crearse por trigger */
           }
           await refreshSession();
+          setIsLoading(false);
           return;
         }
-      }
 
-      await supabase.auth.signOut();
+        await signOutSupabaseSafely();
+      }
 
       let demo: { token: string; user: AuthUser };
       try {
@@ -178,12 +215,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       } catch (demoErr) {
         const message = demoErr instanceof Error ? demoErr.message : '';
-        if (message === 'Recurso no encontrado') {
+        const lower = message.toLowerCase();
+        if (
+          message === 'Recurso no encontrado' ||
+          message.includes('404') ||
+          lower.includes('failed to fetch') ||
+          lower.includes('networkerror') ||
+          message.includes('conexión') ||
+          message.includes('502') ||
+          message.includes('504')
+        ) {
           throw new Error(
             'No se pudo conectar con el servidor de autenticación. Ejecuta «npm run dev:all» o «npm run server» en otra terminal.',
           );
         }
-        if (message.includes('401') || message.toLowerCase().includes('credencial')) {
+        if (message.includes('401') || lower.includes('credencial') || lower.includes('incorrect')) {
           throw new Error('Correo o contraseña incorrectos.');
         }
         throw demoErr;
@@ -191,6 +237,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setDemoToken(demo.token);
       applyMe({ user: demo.user, role: demo.user.role, authProvider: 'demo' });
+      setIsLoading(false);
     },
     [applyMe, refreshSession],
   );
@@ -220,7 +267,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setDemoToken(null);
     setViewAsRolesState([]);
     writeViewAsRoles([]);
-    await supabase.auth.signOut();
+    await signOutSupabaseSafely();
     try {
       await apiFetch('/api/auth/logout', { method: 'POST' });
     } catch {
@@ -260,10 +307,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-function getDemoTokenExists() {
-  return Boolean(localStorage.getItem('haistore_demo_token'));
 }
 
 export function useAuth() {

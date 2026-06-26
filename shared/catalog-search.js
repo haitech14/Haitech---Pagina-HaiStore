@@ -89,9 +89,32 @@ function fuzzySubstringScore(needle, haystackCompact) {
   return best;
 }
 
+const EQUIPMENT_MODEL_PREFIX_PATTERN = /(?:^|[^a-z])(mp|im|sp|aficio)(\d{3,5})(\d{3})?(?:v)?(?=[^a-z]|$)/gi;
+
+function extractEquipmentModelTokens(compactText) {
+  const tokens = new Set();
+  for (const match of compactText.matchAll(EQUIPMENT_MODEL_PREFIX_PATTERN)) {
+    const [, prefix, modelDigits, voltageDigits] = match;
+    const prefixLower = prefix.toLowerCase();
+    tokens.add(`${prefixLower}${modelDigits}`);
+    tokens.add(modelDigits);
+    if (voltageDigits) {
+      tokens.add(`${prefixLower}${modelDigits}${voltageDigits}`);
+    }
+  }
+  return [...tokens];
+}
+
 function extractModelTokens(compactText) {
-  const matches = compactText.match(/[a-z]*\d+[a-z0-9]*/gi) ?? [];
-  return matches.map((token) => token.toLowerCase());
+  const tokens = new Set(extractEquipmentModelTokens(compactText));
+  for (const match of compactText.match(/[a-z]*\d+[a-z0-9]*/gi) ?? []) {
+    tokens.add(match.toLowerCase());
+  }
+  return [...tokens];
+}
+
+function isEquipmentVoltageSuffix(restDigits) {
+  return /^(?:220|110|100|240)(?:v)?$/i.test(restDigits);
 }
 
 /** Evita que «305» coincida con «3050» (p. ej. RTX 3050). */
@@ -100,8 +123,10 @@ function numericPartMatches(termDigits, tokenDigits) {
   if (termDigits === tokenDigits) return true;
 
   if (tokenDigits.startsWith(termDigits)) {
-    const next = tokenDigits.charAt(termDigits.length);
-    return !next || !/\d/.test(next);
+    const rest = tokenDigits.slice(termDigits.length);
+    if (!rest) return true;
+    if (!/\d/.test(rest.charAt(0))) return true;
+    return isEquipmentVoltageSuffix(rest);
   }
 
   if (termDigits.startsWith(tokenDigits) && tokenDigits.length >= 3) return true;
@@ -786,6 +811,15 @@ export function productMatchesSearchQuery(product, query) {
     if (idCompact && idCompact === compactQuery) return true;
     return false;
   }
+
+  if (
+    hasNumericOnlyTerms &&
+    requiresStrictModelMatch(query) &&
+    productHasStrongModelMatch(product, query)
+  ) {
+    return true;
+  }
+
   if (
     !hasNumericOnlyTerms &&
     (haystack.includes(normalizedQuery) || haystackCompact.includes(compactQuery))

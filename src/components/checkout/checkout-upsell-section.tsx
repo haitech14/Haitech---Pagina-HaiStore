@@ -2,8 +2,8 @@ import { useMemo, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { Gift } from 'lucide-react';
 
+import { CheckoutCartLinePricing } from '@/components/checkout/checkout-cart-line-pricing';
 import { AddToCartButton, getAddToCartLabel } from '@/components/cart/add-to-cart-button';
-import { DualPrice } from '@/components/product-showcase-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useHomeCatalogBundle } from '@/hooks/use-home-catalog-bundle';
 import { useProductRelated } from '@/hooks/use-product-related';
@@ -31,10 +31,10 @@ function CheckoutUpsellRow({ product }: { product: Product }) {
   const imageUrl = resolveProductImageUrl(product);
 
   return (
-    <li className="flex gap-3 rounded-lg border border-border/60 bg-muted/20 p-2">
+    <li className="flex gap-2 rounded-lg border border-border/60 bg-muted/20 p-2">
       <Link
         to={productPath(product)}
-        className="flex size-14 shrink-0 items-center justify-center rounded-md border border-border bg-background p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex size-11 shrink-0 items-center justify-center rounded-md border border-border bg-background p-0.5 sm:size-12"
         aria-label={`Ver ficha de ${product.name}`}
       >
         {imageUrl ? (
@@ -50,20 +50,26 @@ function CheckoutUpsellRow({ product }: { product: Product }) {
           </span>
         )}
       </Link>
-      <div className="min-w-0 flex-1">
-        <Link
-          to={productPath(product)}
-          className="line-clamp-2 text-sm font-semibold leading-snug text-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {product.name}
-        </Link>
-        <p className="mt-1 text-sm font-bold">
-          <DualPrice usd={displayPrice.priceUsd} />
-        </p>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+        <div className="min-w-0 flex-1">
+          <Link
+            to={productPath(product)}
+            className="line-clamp-2 text-xs font-semibold leading-snug text-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm sm:line-clamp-3"
+          >
+            {product.name}
+          </Link>
+          <CheckoutCartLinePricing
+            unitUsd={displayPrice.priceUsd}
+            quantity={1}
+            compact
+            showTotal={false}
+            className="mt-0.5"
+          />
+        </div>
         <AddToCartButton
           product={product}
           size="sm"
-          className="mt-2 h-8 min-h-8 w-full text-xs"
+          className="h-11 min-h-11 w-full shrink-0 text-xs sm:w-auto sm:min-w-[6.5rem]"
           addOptions={{ openDrawer: false }}
         >
           {getAddToCartLabel(product, 'short')}
@@ -139,8 +145,8 @@ export function CheckoutUpsellSection({ excludeProductIds }: CheckoutUpsellSecti
         </CardTitle>
         <p className="text-sm text-muted-foreground">{subtitle}</p>
       </CardHeader>
-      <CardContent>
-        <ul className="space-y-2" aria-label="Productos sugeridos">
+      <CardContent className="max-h-[min(24rem,45vh)] overflow-y-auto pr-0.5 [scrollbar-width:thin]">
+        <ul className="space-y-1.5" aria-label="Productos sugeridos">
           {suggestions.map((product) => (
             <CheckoutUpsellRow key={product.id} product={product} />
           ))}

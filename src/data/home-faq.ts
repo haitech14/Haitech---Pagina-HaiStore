@@ -29,9 +29,9 @@ export const HOME_FAQ_ITEMS: readonly HomeFaqItem[] = [
   },
   {
     id: 'delivery',
-    question: '¿Hacen delivery e instalación?',
+    question: '¿Hacen delivery e instalación de fotocopiadoras?',
     answer:
-      'Sí. Realizamos entregas en Lima Metropolitana y envíos a todo el Perú. Para multifuncionales y equipos de oficina ofrecemos instalación, configuración y puesta en marcha con nuestro equipo técnico.',
+      'Sí. Realizamos entregas en Lima Metropolitana y envíos a todo el Perú. Para multifuncionales e impresoras Ricoh ofrecemos instalación, configuración y puesta en marcha con nuestro equipo técnico.',
     icon: Truck,
   },
   {
@@ -43,7 +43,7 @@ export const HOME_FAQ_ITEMS: readonly HomeFaqItem[] = [
   },
   {
     id: 'soporte',
-    question: '¿Tienen soporte técnico?',
+    question: '¿Tienen soporte técnico para impresoras Ricoh?',
     answer:
       'Sí. Contamos con servicio técnico especializado: mantenimiento preventivo y correctivo, repuestos originales y compatibles, y atención presencial o remota para mantener tu flota operativa.',
     icon: Headphones,
@@ -57,9 +57,9 @@ export const HOME_FAQ_ITEMS: readonly HomeFaqItem[] = [
   },
   {
     id: 'cotizacion-empresa',
-    question: '¿Puedo cotizar para mi empresa?',
+    question: '¿Puedo cotizar tóner, repuestos o alquiler para mi empresa?',
     answer:
-      'Sí. Preparamos cotizaciones personalizadas para empresas, flotas de impresión, licitaciones y compras por volumen. Escríbenos por WhatsApp al 915 149 290 o desde la página de contacto.',
+      'Sí. Cotizamos venta y alquiler de fotocopiadoras, impresoras multifuncionales, tóner original, tintas y repuestos Ricoh con asesoría comercial para empresas en todo el Perú.',
     icon: ClipboardList,
   },
 ] as const;

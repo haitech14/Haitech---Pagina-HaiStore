@@ -16,3 +16,15 @@ export function buildCategoryCollectionJsonLd(
   topProducts?: Array<{ name: string; url: string }>,
 ): Array<Record<string, unknown>>;
 export function buildHomeJsonLd(siteOrigin: string): Array<Record<string, unknown>>;
+export function buildFaqPageJsonLd(
+  items?: Array<{ question: string; answer: string }>,
+): Record<string, unknown> | null;
+export function buildServiceJsonLd(
+  service: {
+    pathname: string;
+    serviceName: string;
+    serviceType: string;
+    description?: string;
+  },
+  siteOrigin: string,
+): Record<string, unknown>;

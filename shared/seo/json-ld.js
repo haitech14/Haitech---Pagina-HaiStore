@@ -1,5 +1,6 @@
 import { buildAbsoluteUrl } from '../site-origin.js';
 import { buildProductPath } from '../product-slug.js';
+import { HOME_FAQ_SEO_ITEMS } from './home-faq-data.js';
 import {
   extractProductModel,
   priceValidUntilSeo,
@@ -8,11 +9,31 @@ import {
   resolveSchemaItemCondition,
 } from './product-seo.js';
 
-const ORGANIZATION = {
-  '@type': 'Organization',
+const ORGANIZATION_CORE = {
+  '@type': ['Organization', 'LocalBusiness'],
   name: 'Haitech',
+  legalName: 'NBN TECNOLOGIA TOTAL S.A.C.',
+  alternateName: 'HaiTech',
   url: 'https://www.haitech.pe',
   logo: 'https://www.haitech.pe/Logo%20Haitech.png',
+  description:
+    'Distribuidor Autorizado Ricoh en Perú. Venta y alquiler de fotocopiadoras, multifuncionales, impresoras, tóner, tintas y repuestos con soporte técnico especializado.',
+  brand: { '@type': 'Brand', name: 'Ricoh' },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Av. Los Próceres 123',
+    addressLocality: 'San Isidro',
+    addressRegion: 'Lima',
+    addressCountry: 'PE',
+  },
+  telephone: '+51-915-149-290',
+  email: 'ventas@nbntecnologia.com',
+  areaServed: { '@type': 'Country', name: 'Perú' },
+  sameAs: [
+    'https://www.facebook.com/',
+    'https://www.instagram.com/',
+    'https://www.youtube.com/',
+  ],
 };
 
 function availabilityUrl(stock) {
@@ -30,7 +51,7 @@ function buildOffer(product, siteOrigin, url) {
     '@type': 'Offer',
     url,
     availability: availabilityUrl(stock),
-    seller: ORGANIZATION,
+    seller: { '@type': 'Organization', name: 'Haitech' },
     itemCondition: resolveSchemaItemCondition(product),
     priceValidUntil: validUntil,
   };
@@ -150,9 +171,53 @@ export function buildWebsiteJsonLd(siteOrigin) {
 export function buildOrganizationJsonLd(siteOrigin) {
   return {
     '@context': 'https://schema.org',
-    ...ORGANIZATION,
+    ...ORGANIZATION_CORE,
     url: buildAbsoluteUrl('/', siteOrigin),
     logo: buildAbsoluteUrl('/logo.png', siteOrigin),
+  };
+}
+
+/**
+ * @param {Array<{ question: string, answer: string }>} [items]
+ */
+export function buildFaqPageJsonLd(items = HOME_FAQ_SEO_ITEMS) {
+  const mainEntity = (items ?? [])
+    .filter((item) => item.question?.trim() && item.answer?.trim())
+    .map((item) => ({
+      '@type': 'Question',
+      name: item.question.trim(),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer.trim(),
+      },
+    }));
+
+  if (mainEntity.length === 0) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity,
+  };
+}
+
+/**
+ * @param {{ pathname: string, serviceName: string, serviceType: string, description?: string }} service
+ */
+export function buildServiceJsonLd(service, siteOrigin) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: service.serviceName,
+    serviceType: service.serviceType,
+    description: service.description,
+    provider: {
+      '@type': 'Organization',
+      name: 'Haitech',
+      url: buildAbsoluteUrl('/', siteOrigin),
+    },
+    areaServed: { '@type': 'Country', name: 'Perú' },
+    url: buildAbsoluteUrl(service.pathname, siteOrigin),
   };
 }
 
@@ -195,5 +260,8 @@ export function buildCategoryCollectionJsonLd(category, siteOrigin, topProducts 
 }
 
 export function buildHomeJsonLd(siteOrigin) {
-  return [buildWebsiteJsonLd(siteOrigin), buildOrganizationJsonLd(siteOrigin)];
+  const blocks = [buildWebsiteJsonLd(siteOrigin), buildOrganizationJsonLd(siteOrigin)];
+  const faq = buildFaqPageJsonLd();
+  if (faq) blocks.push(faq);
+  return blocks;
 }

@@ -8,7 +8,7 @@ import { serviceHubPath } from '@/lib/service-hub';
 import { buildHaibotWhatsAppUrl } from '@/lib/haibot-messages';
 import { cn } from '@/lib/utils';
 
-const TECH_SERVICE_IMAGE = '/promo-cards/technician-service.png';
+const TECH_SERVICE_IMAGE = '/promo-cards/technician-service.webp';
 const TECH_SERVICE_WHATSAPP_URL = buildHaibotWhatsAppUrl('schedule-service');
 
 const FEATURES = [
@@ -35,11 +35,11 @@ export function HomeTechnicalServiceBanner() {
                 alt="Técnico especializado reparando un equipo de impresión"
                 width={480}
                 height={360}
-                className="size-full object-cover object-[72%_center] lg:object-center"
+                className="size-full object-cover object-center"
                 loading="lazy"
               />
               <div
-                className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/90 via-white/25 to-transparent lg:from-white/70"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-transparent lg:from-white/25"
                 aria-hidden="true"
               />
             </div>

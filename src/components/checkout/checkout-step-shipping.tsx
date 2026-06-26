@@ -1,7 +1,6 @@
-import { HaitechClientForm } from '@/components/admin/shared/haitech-client-form';
+import { CheckoutBillingShippingForm } from '@/components/checkout/checkout-billing-shipping-form';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { haitechClientSchema, type HaitechClientFormValues } from '@/lib/haitech-client-schema';
+import { validateCheckoutClientForm, type HaitechClientFormValues } from '@/lib/haitech-client-schema';
 
 interface CheckoutStepShippingProps {
   client: HaitechClientFormValues;
@@ -20,60 +19,36 @@ export function CheckoutStepShipping({
   error,
   prefilledFromAccount = false,
 }: CheckoutStepShippingProps) {
+  const validationError = validateCheckoutClientForm(client);
+
   const handleContinue = () => {
-    const withEmail = { ...client, email: client.email?.trim() || '' };
-    const parsed = haitechClientSchema.safeParse(withEmail);
-    if (!parsed.success) {
-      return;
-    }
-    if (!parsed.data.email?.trim()) {
-      return;
-    }
+    if (validationError) return;
     onContinue();
   };
 
-  const parsed = haitechClientSchema.safeParse({
-    ...client,
-    email: client.email?.trim() || '',
-  });
-  const validationError =
-    !client.email?.trim()
-      ? 'El correo electrónico es obligatorio para confirmar tu pedido.'
-      : parsed.success
-        ? null
-        : (parsed.error.issues[0]?.message ?? 'Datos inválidos');
-
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Datos de facturación y envío</CardTitle>
-          <CardDescription>
-            Usaremos estos datos para la entrega y la confirmación del pedido.
-            {prefilledFromAccount ? (
-              <span className="mt-1 block text-emerald-700">
-                Datos cargados desde tu cuenta. Puedes editarlos antes de continuar.
-              </span>
-            ) : null}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <HaitechClientForm
-            value={client}
-            onChange={onClientChange}
-            idPrefix="checkout"
-            showEmail
-          />
-        </CardContent>
-      </Card>
+    <div className="space-y-5">
+      <header className="space-y-1">
+        <h2 className="text-xl font-bold text-foreground sm:text-2xl">Facturación y envío</h2>
+        <p className="text-sm text-muted-foreground">
+          Completa la información de facturación y entrega para continuar con el pago.
+        </p>
+      </header>
+
+      <CheckoutBillingShippingForm
+        value={client}
+        onChange={onClientChange}
+        idPrefix="checkout"
+        prefilledFromAccount={prefilledFromAccount}
+      />
 
       {error || validationError ? (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error ?? validationError}
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-col gap-3 pt-1 sm:flex-row">
         <Button type="button" variant="outline" onClick={onBack} className="min-h-11 flex-1">
           Volver
         </Button>
@@ -81,7 +56,7 @@ export function CheckoutStepShipping({
           type="button"
           onClick={handleContinue}
           disabled={Boolean(validationError)}
-          className="min-h-11 flex-1 bg-red-600 font-semibold hover:bg-red-500"
+          className="min-h-11 flex-1 bg-red-600 text-base font-semibold hover:bg-red-500"
         >
           Continuar al pago
         </Button>

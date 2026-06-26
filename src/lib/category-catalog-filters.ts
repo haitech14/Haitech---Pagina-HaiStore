@@ -204,9 +204,22 @@ export function getModeloEquipoChipLabel(attr: { key: string; label: string }): 
   return value || (attr.label.split(': ')[1] ?? attr.label);
 }
 
-export function shouldShowProductionFilters(slug: string | undefined): boolean {
-  return slug === 'multifuncionales' || slug === 'tienda';
+export function shouldShowProductionFilters(slug: string | undefined, isStoreAll = false): boolean {
+  return isStoreAll || slug === 'multifuncionales' || slug === 'impresoras';
 }
+
+export function shouldShowSpeedFilters(slug: string | undefined, isStoreAll = false): boolean {
+  return shouldShowCatalogSpecFilterTabs(slug) || isStoreAll;
+}
+
+export {
+  SPEED_FILTER_OPTIONS,
+  countProductsForSpeedFilterKey,
+  findSpeedFilterOption,
+  productMatchesSpeedFilterKey,
+  productMatchesSpeedFilterKeys,
+  resolveProductSpeedPpm,
+} from '../../shared/catalog-speed-filter.js';
 
 function productMatchesModelPatterns(product: Product, patterns: readonly RegExp[]): boolean {
   const haystack = `${product.name} ${product.code ?? ''} ${product.id}`;
@@ -406,7 +419,11 @@ export type CatalogBrandFilter = {
 };
 
 export {
+  BRAND_FILTER_OPTIONS,
   buildBrandFacets,
+  buildBrandFilterOptions,
+  countProductsForBrandFilterKey,
+  findBrandFilterOption,
   getCatalogBrandLabel,
   normalizeCatalogBrandKey,
   productMatchesBrandFilter,

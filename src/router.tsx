@@ -8,10 +8,14 @@ import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import { prefetchStorePage } from '@/lib/prefetch-store-page';
 import { queryClient } from '@/providers';
 
+const loadStoreModule = () => import('@/pages/store');
 const HomePage = lazyWithRetry(() => import('@/pages/home').then((m) => ({ default: m.HomePage })), 'inicio');
-const StorePage = lazyWithRetry(() => import('@/pages/store').then((m) => ({ default: m.StorePage })), 'tienda');
+const StorePage = lazyWithRetry(
+  () => loadStoreModule().then((m) => ({ default: m.StorePage })),
+  'tienda',
+);
 const CategoryStorefrontPage = lazyWithRetry(
-  () => import('@/pages/category-storefront').then((m) => ({ default: m.CategoryStorefrontPage })),
+  () => loadStoreModule().then((m) => ({ default: m.CategoryStorefrontPage })),
   'categoría',
 );
 const LoginPage = lazyWithRetry(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })), 'login');
@@ -22,6 +26,10 @@ const LoginRegisterPage = lazyWithRetry(
 const ContactPage = lazyWithRetry(
   () => import('@/pages/contact').then((m) => ({ default: m.ContactPage })),
   'contacto',
+);
+const DescargasPage = lazyWithRetry(
+  () => import('@/pages/descargas').then((m) => ({ default: m.DescargasPage })),
+  'descargas',
 );
 const CheckoutPage = lazyWithRetry(
   () => import('@/pages/checkout').then((m) => ({ default: m.CheckoutPage })),
@@ -436,6 +444,7 @@ export const router = createBrowserRouter([
         element: withSuspense(<CheckoutMercadoPagoReturnPage />),
       },
       { path: 'contacto', element: withSuspense(<ContactPage />) },
+      { path: 'descargas', element: withSuspense(<DescargasPage />) },
       { path: 'mi-cuenta', element: withSuspense(<AccountPage />) },
       { path: 'favoritos', element: withSuspense(<FavoritesPage />) },
       { path: 'terminos', element: withSuspense(<TermsPage />) },

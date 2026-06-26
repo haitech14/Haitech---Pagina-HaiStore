@@ -71,6 +71,31 @@ export function isCompleteWhatsAppContact(
   );
 }
 
+/** Combina fuentes de prellenado; los valores posteriores solo rellenan campos vacíos. */
+export function mergeWhatsAppContactPrefill(
+  ...sources: Array<Partial<WhatsAppContact> | null | undefined>
+): WhatsAppContact {
+  const merged: WhatsAppContact = { name: '', companyOrRuc: '', city: '' };
+
+  for (const source of sources) {
+    if (!source) continue;
+    if (!merged.name && source.name?.trim()) merged.name = source.name.trim();
+    if (!merged.companyOrRuc && source.companyOrRuc?.trim()) {
+      merged.companyOrRuc = source.companyOrRuc.trim();
+    }
+    if (!merged.city && source.city?.trim()) merged.city = source.city.trim();
+  }
+
+  return merged;
+}
+
+export function companyOrRucFromCheckoutParts(
+  rucDni?: string | null,
+  companyName?: string | null,
+): string {
+  return companyOrRucFromParts(companyName, rucDni);
+}
+
 export function parseCompanyOrRucForStorage(companyOrRuc: string): {
   companyName: string | null;
   taxId: string | null;

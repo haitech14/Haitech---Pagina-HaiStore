@@ -1,3 +1,4 @@
+import { useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 
@@ -121,36 +122,84 @@ function SparePartsTable({
   );
 }
 
-function TonerColumn({
-  title,
-  items,
-}: {
-  title: string;
-  items: ConsumableItem[];
-}) {
-  return (
-    <div className="min-w-0">
-      <h4 className="mb-3 border-b border-border/60 pb-2 text-sm font-bold text-[#0f1f3d]">
-        {title}
-      </h4>
-      {items.length > 0 ? (
-        <SparePartsTable items={items} isToner />
-      ) : (
-        <p className="rounded-lg border border-dashed border-border/60 px-3 py-4 text-sm text-muted-foreground">
-          Sin productos catalogados.
-        </p>
-      )}
-    </div>
-  );
-}
+type TonerSupplyType = 'original' | 'compatible';
 
-function TonerTwoColumnSection({ items }: { items: ConsumableItem[] }) {
+function TonerSupplyTypeSection({ items }: { items: ConsumableItem[] }) {
   const { original, compatible } = splitTonerItemsBySupplyType(items);
+  const tabListId = useId();
+  const originalPanelId = useId();
+  const compatiblePanelId = useId();
+  const [supplyType, setSupplyType] = useState<TonerSupplyType>(() =>
+    original.length > 0 ? 'original' : 'compatible',
+  );
+
+  const activeItems = supplyType === 'original' ? original : compatible;
+  const activePanelId = supplyType === 'original' ? originalPanelId : compatiblePanelId;
 
   return (
-    <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-5">
-      <TonerColumn title="Original" items={original} />
-      <TonerColumn title="Compatible" items={compatible} />
+    <div className="space-y-4">
+      <div
+        role="tablist"
+        aria-label="Tipo de tóner"
+        id={tabListId}
+        className="flex w-full gap-2 sm:max-w-md"
+      >
+        {(
+          [
+            { id: 'original' as const, label: 'Original', count: original.length },
+            { id: 'compatible' as const, label: 'Compatible', count: compatible.length },
+          ] as const
+        ).map((option) => {
+          const isActive = supplyType === option.id;
+          const panelId = option.id === 'original' ? originalPanelId : compatiblePanelId;
+
+          return (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              id={`${tabListId}-${option.id}`}
+              aria-selected={isActive}
+              aria-controls={panelId}
+              onClick={() => setSupplyType(option.id)}
+              className={cn(
+                'inline-flex min-h-10 flex-1 items-center justify-center rounded-lg border px-3 py-2 text-sm font-semibold transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
+                isActive
+                  ? 'border-red-600 bg-red-600 text-white shadow-[0_2px_8px_rgba(220,38,38,0.35)]'
+                  : 'border-border/80 bg-card text-foreground hover:border-border hover:bg-muted/40',
+              )}
+            >
+              {option.label}
+              {option.count > 0 ? (
+                <span
+                  className={cn(
+                    'ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[0.6875rem] font-bold leading-none',
+                    isActive ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground',
+                  )}
+                >
+                  {option.count}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+
+      <div
+        role="tabpanel"
+        id={activePanelId}
+        aria-labelledby={`${tabListId}-${supplyType}`}
+        className="w-full"
+      >
+        {activeItems.length > 0 ? (
+          <SparePartsTable items={activeItems} isToner />
+        ) : (
+          <p className="rounded-lg border border-dashed border-border/60 px-3 py-4 text-sm text-muted-foreground">
+            Sin productos catalogados.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -187,7 +236,7 @@ export function ProductDetailConsumables({ groups, className }: ProductDetailCon
 
           <div className="mt-4">
             {group.id === 'toner' ? (
-              <TonerTwoColumnSection items={group.items} />
+              <TonerSupplyTypeSection items={group.items} />
             ) : (
               <SparePartsTable items={group.items} isToner={false} />
             )}

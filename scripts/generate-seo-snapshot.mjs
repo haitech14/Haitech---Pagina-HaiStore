@@ -2,8 +2,8 @@
  * Genera snapshots SEO fragmentados en public/catalog/seo-snapshot/ para el middleware.
  */
 import 'dotenv/config';
-import { existsSync } from 'node:fs';
-import { writeFile, mkdir } from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
+import { writeFile, mkdir, readdir, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -11,44 +11,37 @@ import { getInventoryPath } from '../server/lib/server-paths.js';
 import { readInventory, toPublicProduct } from '../server/lib/inventory-store.js';
 import { resolveSiteOrigin } from '../shared/site-origin.js';
 import { deriveProductSlug, buildProductPath } from '../shared/product-slug.js';
+import { collectCategoryTreeUrls } from '../shared/seo/category-tree-urls.js';
 import {
   buildCategorySeoRecord,
   buildHomeSeoRecord,
   buildProductSeoRecord,
 } from '../shared/seo/meta.js';
 import {
+  buildBreadcrumbJsonLd,
   buildCategoryCollectionJsonLd,
   buildHomeJsonLd,
   buildProductJsonLd,
+  buildServiceJsonLd,
 } from '../shared/seo/json-ld.js';
 import {
   buildSimpleProductBreadcrumbs,
   LANDING_CATEGORY_SEO,
 } from '../shared/seo/landing-categories.js';
+import {
+  buildServiceSeoRecord,
+  SERVICE_SEO_ROUTES,
+} from '../shared/seo/service-routes.js';
 import { buildAbsoluteUrl } from '../shared/site-origin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = path.join(__dirname, '../public/catalog/seo-snapshot');
 const LEGACY_OUTPUT_PATH = path.join(__dirname, '../public/catalog/seo-snapshot.json');
+const CATEGORY_TREE_PATH = path.join(__dirname, '../public/catalog/store-categories-tree.json');
 
-const CATEGORY_SUB_PATHS = {
-  multifuncionales: [
-    { query: 'sub=all', label: 'Todas' },
-    { query: 'sub=nuevas', label: 'Nuevas' },
-    { query: 'sub=seminuevas', label: 'Seminuevas' },
-    { query: 'sub=remanufacturadas', label: 'Remanufacturadas' },
-  ],
-  impresoras: [
-    { query: 'sub=all', label: 'Todas' },
-    { query: 'sub=nuevas', label: 'Nuevas' },
-    { query: 'sub=seminuevas', label: 'Seminuevas' },
-  ],
-  'toner-suministros': [
-    { query: 'sub=toner-originales', label: 'Toner Original' },
-    { query: 'sub=toner-remanufacturado', label: 'Toner Remanufacturado' },
-    { query: 'sub=toner-recarga', label: 'Recarga' },
-  ],
-};
+const LANDING_BY_SLUG = Object.fromEntries(
+  LANDING_CATEGORY_SEO.map((category) => [category.slug, category]),
+);
 
 function isUuidSlug(value) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -93,9 +86,42 @@ function safeProductFileSlug(slug) {
     .slice(0, 120);
 }
 
+function loadCategoryTreeUrls() {
+  if (!existsSync(CATEGORY_TREE_PATH)) return [];
+  try {
+    const payload = JSON.parse(readFileSync(CATEGORY_TREE_PATH, 'utf8'));
+    return collectCategoryTreeUrls(payload.tree ?? []);
+  } catch {
+    return [];
+  }
+}
+
 async function writeJson(filePath, payload) {
   await mkdir(path.dirname(filePath), { recursive: true });
   await writeFile(filePath, `${JSON.stringify(payload)}\n`, 'utf8');
+}
+
+async function pruneStaleProductSnapshots(productsDir, activeFileSlugs) {
+  let entries;
+  try {
+    entries = await readdir(productsDir);
+  } catch {
+    return 0;
+  }
+  const keep = new Set(activeFileSlugs);
+  let removed = 0;
+  for (const name of entries) {
+    if (!name.endsWith('.json')) continue;
+    const slug = name.slice(0, -5);
+    if (keep.has(slug)) continue;
+    try {
+      await unlink(path.join(productsDir, name));
+      removed += 1;
+    } catch {
+      /* archivo bloqueado u omitido */
+    }
+  }
+  return removed;
 }
 
 async function main() {
@@ -152,6 +178,9 @@ async function main() {
     }
   }
 
+  const activeFileSlugs = [...new Set(Object.values(productsByLookup))];
+  const pruned = await pruneStaleProductSnapshots(productsDir, activeFileSlugs);
+
   const categoriesBySlug = {};
   for (const category of LANDING_CATEGORY_SEO) {
     const record = buildCategorySeoRecord(category, siteOrigin);
@@ -163,21 +192,51 @@ async function main() {
       robots: 'index,follow',
     };
     categoriesBySlug[category.slug] = categoryPayload;
-    routes[`/categoria/${category.slug}`] = { type: 'category', slug: category.slug };
+  }
 
-    const subPaths = CATEGORY_SUB_PATHS[category.slug];
-    if (subPaths) {
-      for (const sub of subPaths) {
-        const pathKey = `/categoria/${category.slug}?${sub.query}`;
-        routes[pathKey] = {
-          type: 'category',
-          slug: category.slug,
-          title: `${category.name} ${sub.label} | Comprar en Perú | Haitech`,
-        };
-      }
-    } else if (category.slug === 'multifuncionales') {
-      routes[`/categoria/${category.slug}?sub=all`] = { type: 'category', slug: category.slug };
+  for (const entry of loadCategoryTreeUrls()) {
+    const category = LANDING_BY_SLUG[entry.rootSlug];
+    if (!category) continue;
+
+    const record = buildCategorySeoRecord(category, siteOrigin, {
+      subcategoryName: entry.subName,
+      heroSubtitle: entry.tagline,
+      canonicalPath: entry.pathname,
+      subSlug: entry.subSlug || undefined,
+    });
+
+    const breadcrumbs = [
+      { label: 'Inicio', href: '/' },
+      { label: category.name, href: `/categoria/${category.slug}` },
+    ];
+    if (entry.subSlug && entry.subSlug !== 'all') {
+      breadcrumbs.push({ label: entry.subName, href: entry.pathname });
     }
+    const breadcrumbLd = buildBreadcrumbJsonLd(breadcrumbs, siteOrigin);
+
+    routes[entry.pathname] = {
+      type: 'category',
+      slug: category.slug,
+      title: record.title,
+      description: record.description,
+      jsonLd: breadcrumbLd ? [breadcrumbLd] : undefined,
+    };
+  }
+
+  for (const category of LANDING_CATEGORY_SEO) {
+    routes[`/categoria/${category.slug}`] = { type: 'category', slug: category.slug };
+  }
+
+  const servicesByPath = {};
+  for (const route of SERVICE_SEO_ROUTES) {
+    const record = buildServiceSeoRecord(route, siteOrigin, buildAbsoluteUrl);
+    const jsonLd = buildServiceJsonLd(route, siteOrigin);
+    servicesByPath[route.pathname] = {
+      ...record,
+      jsonLd,
+      robots: 'index,follow',
+    };
+    routes[route.pathname] = { type: 'service', pathname: route.pathname };
   }
 
   const homeRecord = buildHomeSeoRecord(siteOrigin);
@@ -204,17 +263,21 @@ async function main() {
     routes,
     productsByLookup,
     categories: Object.keys(categoriesBySlug),
+    services: Object.keys(servicesByPath),
   };
 
   await writeJson(path.join(OUTPUT_DIR, 'home.json'), home);
   await writeJson(path.join(OUTPUT_DIR, 'categories.json'), categoriesBySlug);
+  await writeJson(path.join(OUTPUT_DIR, 'services.json'), servicesByPath);
   await writeJson(path.join(OUTPUT_DIR, 'routes.json'), routes);
   await writeJson(path.join(OUTPUT_DIR, 'products-index.json'), productsByLookup);
   await writeJson(path.join(OUTPUT_DIR, 'manifest.json'), manifest);
   await writeJson(LEGACY_OUTPUT_PATH, manifest);
 
   console.log(`✓ SEO snapshot fragmentado en ${OUTPUT_DIR}`);
-  console.log(`  Productos: ${products.length} · Categorías: ${LANDING_CATEGORY_SEO.length}`);
+  console.log(
+    `  Productos: ${products.length} · Categorías: ${LANDING_CATEGORY_SEO.length} · Servicios: ${SERVICE_SEO_ROUTES.length}${pruned > 0 ? ` · Obsoletos eliminados: ${pruned}` : ''}`,
+  );
 }
 
 main().catch((error) => {

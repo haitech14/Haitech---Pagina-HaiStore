@@ -22,8 +22,18 @@ import {
 } from 'lucide-react';
 
 import type { FeaturedProduct } from '@/data/featured-products';
+import { inferColor } from '@/lib/category-catalog-filters';
 import { DEFAULT_BULK_DISCOUNT_TIERS } from '@/lib/bulk-discount-tiers';
 import { normalizeAttributes } from '@/lib/inventory-attributes';
+import {
+  inferPpmLabelFromRicohModelName,
+  resolveRicohMonthlyProductionFromModel,
+} from '@/lib/ricoh-model-ppm';
+import {
+  applyTitlePredominanceToSpecs,
+  resolveTitlePredominantPrinterFields,
+  shouldPreferTitleSyncedHeroBullets,
+} from '@/lib/product-title-spec-sync';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import {
   CASETERA_250_PB1110_PRODUCT_ID,
@@ -114,7 +124,7 @@ const IM_BN_A4_MONTHLY_PRODUCTION_BULLET: ProductHeroSpecBullet = {
 
 const IM_BN_A4_GIFT_BULLET: ProductHeroSpecBullet = {
   icon: Gift,
-  text: 'Regalo: 04 Toner de Inicio mínimo al 40% y Envío Gratis',
+  text: 'Regalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis',
 };
 
 const IM430F_HERO_LEAD = '';
@@ -124,6 +134,14 @@ const IM430F_HERO_DESCRIPTION = '';
 function resolvePrinterSpeedTitle(specs: ProductSpecRow[]): string {
   const speed = specValue(specs, 'velocidad') || '40 ppm';
   return speed.replace(/^hasta\s+/i, '').trim();
+}
+
+function resolvePrinterHeroSpeedBulletText(product: Product, specs: ProductSpecRow[]): string {
+  const speed = resolvePrinterSpeedTitle(specs);
+  if (shouldShowGiftBullet(product)) {
+    return `${speed} y escaneo de 180 ipm`;
+  }
+  return `Imprime hasta ${speed}`;
 }
 
 function resolveAdfFeatureBarTile(
@@ -178,6 +196,14 @@ function resolveAdfBulletText(product: Product, specs: ProductSpecRow[]): string
 }
 
 function resolveFormatBulletText(product: Product, specs: ProductSpecRow[]): string {
+  const titleSync = resolveTitlePredominantPrinterFields(product);
+  if (titleSync.active && titleSync.format) {
+    if (titleSync.format === 'A4') {
+      return IM_BN_A4_FORMAT_BULLET.text ?? 'Formato A4, A5, A6 Bypass Formato A4-Carta';
+    }
+    return `Formato ${titleSync.format}`;
+  }
+
   const format =
     specValue(specs, 'formato') || findProductAttribute(product, 'formato') || '';
   if (!format || format.toLowerCase().includes('a4')) {
@@ -196,6 +222,11 @@ function resolveMonthlyProductionBullet(
     return { icon: Gauge, text: `Producción mensual ${monthly}` };
   }
 
+  const fromModel = resolveRicohMonthlyProductionFromModel(product);
+  if (fromModel) {
+    return { icon: Gauge, text: `Producción mensual ${fromModel}` };
+  }
+
   if (/nuev/i.test(product.category ?? '')) {
     return IM_BN_A4_MONTHLY_PRODUCTION_BULLET;
   }
@@ -205,6 +236,75 @@ function resolveMonthlyProductionBullet(
 
 function shouldShowGiftBullet(product: Product): boolean {
   return /nuev/i.test(product.category ?? '') || isImBnA4Sibling(product);
+}
+
+function resolveAdfPillLabel(product: Product, specs: ProductSpecRow[]): string {
+  if (isImBnA4Sibling(product)) return 'ADF Doble Scan';
+
+  const adf = specValue(specs, 'adf') || findProductAttribute(product, 'alimentador', 'adf') || '';
+  if (/doble\s*scan/i.test(adf)) return 'ADF Doble Scan';
+  if (/est[aá]ndar/i.test(adf)) return 'ADF Estándar';
+  if (adf.trim()) return adf.trim();
+  return 'ADF Doble Scan';
+}
+
+function resolveFormatPillLabel(product: Product, specs: ProductSpecRow[]): string {
+  const titleSync = resolveTitlePredominantPrinterFields(product);
+  if (titleSync.active && titleSync.format) {
+    return titleSync.format === 'A4' ? 'Formato A4' : `Formato ${titleSync.format}`;
+  }
+
+  const format =
+    specValue(specs, 'formato') || findProductAttribute(product, 'formato') || 'A4';
+  if (format.toLowerCase().includes('a4')) return 'Formato A4';
+  return `Formato ${format}`;
+}
+
+function resolvePanelPillLabel(specs: ProductSpecRow[]): string | null {
+  const screen = specValue(specs, 'pantalla');
+  if (!screen) return null;
+
+  const inches = screen.match(/(\d+(?:[.,]\d+)?)\s*(?:pulgadas|"|inch)/i);
+  if (inches) {
+    return `Panel táctil ${inches[1]?.replace('.', ',')}"`;
+  }
+  if (/t[aá]ctil/i.test(screen)) return 'Panel táctil';
+  return shortenScreenLabel(screen);
+}
+
+function buildProductDetailSpecPills(
+  product: Product,
+  specs: ProductSpecRow[],
+  isPrinter: boolean,
+): ProductDescriptionHighlight[] {
+  if (!isPrinter) return [];
+
+  const titleSync = resolveTitlePredominantPrinterFields(product);
+  const colorLabel = titleSync.active
+    ? titleSync.color === 'Color'
+      ? 'Color'
+      : 'B/N'
+    : inferColor(product) === 'Color'
+      ? 'Color'
+      : 'B/N';
+
+  const pills: ProductDescriptionHighlight[] = [
+    { icon: Gauge, title: resolvePrinterSpeedTitle(specs), subtitle: '' },
+    { icon: FileText, title: resolveFormatPillLabel(product, specs), subtitle: '' },
+    { icon: ScanLine, title: resolveAdfPillLabel(product, specs), subtitle: '' },
+    {
+      icon: Printer,
+      title: colorLabel,
+      subtitle: '',
+    },
+  ];
+
+  const panel = resolvePanelPillLabel(specs);
+  if (panel) {
+    pills.push({ icon: Smartphone, title: panel, subtitle: '' });
+  }
+
+  return pills;
 }
 
 function buildPrinterFeatureBar(product: Product, specs: ProductSpecRow[]): ProductDescriptionHighlight[] {
@@ -241,7 +341,7 @@ function buildPrinterHeroSpecBullets(product: Product, specs: ProductSpecRow[]):
   const connectivity = specValue(specs, 'conectividad');
 
   bullets.push({ icon: Copy, text: 'Copiadora, Impresora, Escaner y fax' });
-  bullets.push({ icon: Printer, text: `Imprime hasta ${resolvePrinterSpeedTitle(specs)}` });
+  bullets.push({ icon: Printer, text: resolvePrinterHeroSpeedBulletText(product, specs) });
 
   if (connectivity) {
     bullets.push({ icon: Wifi, text: formatConnectivityBullet(connectivity) });
@@ -834,26 +934,40 @@ function buildGenericSpecs(product: Product, brandLabel: string, sku: string): P
 
 function buildPrinterSpecs(product: Product, brandLabel: string, sku: string): ProductSpecRow[] {
   const isBnA4 = isImBnA4Sibling(product);
-  const speedAttr = findProductAttribute(product, 'velocidad');
+  const titleSync = resolveTitlePredominantPrinterFields(product);
+  const speedAttr =
+    (titleSync.active ? titleSync.speed : null) ??
+    findProductAttribute(product, 'velocidad') ??
+    inferPpmLabelFromRicohModelName(product.name);
+  const volumeAttr =
+    (titleSync.active ? titleSync.volume : null) ??
+    findProductAttribute(product, 'volumen mensual', 'volumen') ??
+    resolveRicohMonthlyProductionFromModel(product);
   const adfAttr = findProductAttribute(product, 'alimentador', 'adf');
   const formatAttr = findProductAttribute(product, 'formato');
   const colorAttr = findProductAttribute(product, 'color');
   const connectivityAttr = findProductAttribute(product, 'conectividad');
-  const isColor = colorAttr?.toLowerCase().includes('color') ?? false;
+  const isColor = titleSync.active
+    ? titleSync.color === 'Color'
+    : colorAttr?.toLowerCase().includes('color') ?? false;
 
-  return [
+  const specs: ProductSpecRow[] = [
     {
       label: 'Velocidad',
       value: speedAttr ?? (isBnA4 ? '30 ppm' : '40 ppm'),
     },
+    ...(volumeAttr ? [{ label: 'Volumen mensual recomendado', value: volumeAttr }] : []),
     { label: 'Marca', value: brandLabel },
-    { label: 'Modelo', value: product.name },
+    { label: 'Modelo', value: product.name?.trim() || product.name },
     { label: 'Código', value: sku },
     { label: 'Categoría', value: product.category ?? 'Multifuncionales' },
     { label: 'Tipo', value: isColor ? 'Color' : 'Monocromática' },
     {
       label: 'Formatos',
-      value: formatAttr ?? (isBnA4 ? 'A4' : 'A4, oficio, sobres'),
+      value:
+        (titleSync.active ? titleSync.format : null) ??
+        formatAttr ??
+        (isBnA4 ? 'A4' : 'A4, oficio, sobres'),
     },
     {
       label: 'Conectividad',
@@ -869,6 +983,8 @@ function buildPrinterSpecs(product: Product, brandLabel: string, sku: string): P
         : []),
     { label: 'Garantía', value: '12 meses' },
   ];
+
+  return applyTitlePredominanceToSpecs(product, specs);
 }
 
 function buildComboItems(product: Product, isPrinter: boolean, isSupply: boolean): ProductComboItem[] {
@@ -1269,24 +1385,32 @@ export function buildProductDetail(
         ? buildPrinterSpecs(product, brandLabel, sku)
         : buildGenericSpecs(product, brandLabel, sku);
 
-  const heroSpecBullets = resolveStoredHeroBullets(
-    product,
-    buildHeroSpecBullets(product, specs, isPrinter),
-  ).map((bullet) => ({
-    ...bullet,
-    icon: resolveHeroBulletIcon(bullet),
-  }));
+  const syncedSpecs = isPrinter ? applyTitlePredominanceToSpecs(product, specs) : specs;
+
+  const generatedHeroBullets = buildHeroSpecBullets(product, syncedSpecs, isPrinter).map(
+    (bullet) => ({
+      ...bullet,
+      icon: resolveHeroBulletIcon(bullet),
+    }),
+  );
+  const heroSpecBullets = shouldPreferTitleSyncedHeroBullets(product)
+    ? generatedHeroBullets
+    : resolveStoredHeroBullets(product, generatedHeroBullets).map((bullet) => ({
+        ...bullet,
+        icon: resolveHeroBulletIcon(bullet),
+      }));
   const heroSpecTitle = buildHeroSpecTitle(product, isPrinter);
 
-  const descriptionVisual = buildDescriptionVisual(product, specs, isPrinter, heroSpecBullets);
-  const featureBar = resolveStoredFeatureBar(product, buildFeatureBar(product, specs, isPrinter));
+  const descriptionVisual = buildDescriptionVisual(product, syncedSpecs, isPrinter, heroSpecBullets);
+  const featureBar = resolveStoredFeatureBar(product, buildFeatureBar(product, syncedSpecs, isPrinter));
+  const specPills = buildProductDetailSpecPills(product, syncedSpecs, isPrinter);
 
   const showNuevo = productHasNuevoCornerBadge(product);
 
   // Igual que displayTitle: mantener el formato editado en inventario.
   const heroTitle = product.name?.trim() || product.name;
-  const tagPills = buildTagPills(specs, isPrinter, showNuevo);
-  const heroHighlights = buildHeroHighlights(specs, isPrinter);
+  const tagPills = buildTagPills(syncedSpecs, isPrinter, showNuevo);
+  const heroHighlights = buildHeroHighlights(syncedSpecs, isPrinter);
 
   const breadcrumbs = buildProductBreadcrumbs(product, displayTitle, []);
 
@@ -1321,7 +1445,8 @@ export function buildProductDetail(
     descriptionContent: buildDescriptionContent(product, isPrinter),
     descriptionVisual,
     featureBar,
-    specs,
+    specPills,
+    specs: syncedSpecs,
     warrantyBullets: WARRANTY_BULLETS,
     gallery: buildGallery(product),
     features: isSupply ? SUPPLY_FEATURES : isPrinter ? PRINTER_FEATURES : SUPPLY_FEATURES,

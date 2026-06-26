@@ -25,6 +25,17 @@ const PAYMENT_CURRENCIES: Array<{ id: CheckoutPaymentCurrency; label: string }> 
   { id: 'USD', label: 'Dólares (USD)' },
 ];
 
+type CardGateway = Extract<CheckoutPaymentProvider, 'culqi' | 'mercadopago'>;
+
+const CARD_GATEWAYS: Array<{ id: CardGateway; label: string }> = [
+  { id: 'culqi', label: 'Tarjeta con Culqi (recargo 5%)' },
+  { id: 'mercadopago', label: 'Mercado Pago' },
+];
+
+function isCardProvider(provider: CheckoutPaymentProvider): provider is CardGateway {
+  return provider === 'culqi' || provider === 'mercadopago';
+}
+
 interface CheckoutStepPaymentProps {
   paymentProvider: CheckoutPaymentProvider;
   manualMethod: ManualPaymentMethodId;
@@ -69,21 +80,44 @@ export function CheckoutStepPayment({
   onMercadoPago,
 }: CheckoutStepPaymentProps) {
   const culqiEnabled = Boolean(paymentOptions?.culqi && paymentOptions.culqiPublicKey);
+  const mercadoPagoEnabled = Boolean(paymentOptions?.mercadopago);
+  const cardPaymentSelected = isCardProvider(paymentProvider);
+
+  const availableCardGateways = useMemo(
+    () =>
+      CARD_GATEWAYS.filter((gateway) =>
+        gateway.id === 'culqi' ? culqiEnabled : mercadoPagoEnabled,
+      ),
+    [culqiEnabled, mercadoPagoEnabled],
+  );
 
   const providerOptions = useMemo(() => {
-    const options: Array<{ id: CheckoutPaymentProvider; label: string; enabled: boolean }> = [
+    const options: Array<{ id: 'manual' | 'card'; label: string; enabled: boolean }> = [
       { id: 'manual', label: 'Pago manual', enabled: paymentOptions?.manual !== false },
-      {
-        id: 'culqi',
-        label: 'Pago con Tarjeta de Crédito/Débito (Recargo 5%)',
-        enabled: true,
-      },
     ];
-    if (paymentOptions?.mercadopago) {
-      options.push({ id: 'mercadopago', label: 'Mercado Pago', enabled: true });
+    if (availableCardGateways.length > 0) {
+      options.push({
+        id: 'card',
+        label: 'Tarjeta de crédito / débito',
+        enabled: true,
+      });
     }
     return options.filter((option) => option.enabled);
-  }, [paymentOptions]);
+  }, [paymentOptions, availableCardGateways.length]);
+
+  const handleSelectPaymentGroup = (group: 'manual' | 'card') => {
+    if (group === 'manual') {
+      onPaymentProviderChange('manual');
+      return;
+    }
+
+    const preferredGateway =
+      availableCardGateways.find((gateway) => gateway.id === paymentProvider)?.id ??
+      availableCardGateways[0]?.id;
+    if (preferredGateway) {
+      onPaymentProviderChange(preferredGateway);
+    }
+  };
 
   const handleOpenCulqi = async () => {
     const ensuredOrderNumber = orderNumber ?? (await onEnsureOrderForCard());
@@ -102,7 +136,10 @@ export function CheckoutStepPayment({
             <legend className="sr-only">Seleccione forma de pago</legend>
             <div className="space-y-2">
               {providerOptions.map((option) => {
-                const selected = paymentProvider === option.id;
+                const selected =
+                  option.id === 'manual'
+                    ? paymentProvider === 'manual'
+                    : cardPaymentSelected;
                 return (
                   <label
                     key={option.id}
@@ -118,7 +155,7 @@ export function CheckoutStepPayment({
                       name="payment-provider"
                       value={option.id}
                       checked={selected}
-                      onChange={() => onPaymentProviderChange(option.id)}
+                      onChange={() => handleSelectPaymentGroup(option.id)}
                       className="size-4 accent-red-600"
                     />
                     <span className="font-medium">{option.label}</span>
@@ -127,6 +164,38 @@ export function CheckoutStepPayment({
               })}
             </div>
           </fieldset>
+
+          {cardPaymentSelected && availableCardGateways.length > 1 ? (
+            <fieldset>
+              <legend className="mb-2 text-sm font-medium text-foreground">
+                Pasarela de pago
+              </legend>
+              <div className="space-y-2">
+                {availableCardGateways.map((gateway) => {
+                  const selected = paymentProvider === gateway.id;
+                  return (
+                    <label
+                      key={gateway.id}
+                      className={cn(
+                        'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm',
+                        selected ? 'border-red-600/60 bg-muted/30' : 'border-border',
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="card-gateway"
+                        value={gateway.id}
+                        checked={selected}
+                        onChange={() => onPaymentProviderChange(gateway.id)}
+                        className="size-4 accent-red-600"
+                      />
+                      <span>{gateway.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+          ) : null}
 
           <fieldset>
             <legend className="mb-2 text-sm font-medium text-foreground">
@@ -196,37 +265,43 @@ export function CheckoutStepPayment({
             </div>
           ) : null}
 
-          {paymentProvider === 'culqi' ? (
+          {cardPaymentSelected ? (
             <div className="space-y-3">
-              <p className="text-xs text-muted-foreground" role="note">
-                Se aplicará un recargo del 5% por pago con tarjeta. El total actualizado aparece en el
-                resumen del pedido.
-              </p>
-              {culqiEnabled && paymentOptions?.culqiPublicKey ? (
-                <CheckoutCulqiForm
-                  publicKey={paymentOptions.culqiPublicKey}
-                  email={email}
-                  amountPen={totalPen}
-                  orderNumber={orderNumber}
-                  onBeforeOpen={handleOpenCulqi}
-                  onToken={onCulqiToken}
-                  onError={onCulqiError}
+              {paymentProvider === 'culqi' ? (
+                <>
+                  <p className="text-xs text-muted-foreground" role="note">
+                    Se aplicará un recargo del 5% por pago con tarjeta. El total actualizado aparece en
+                    el resumen del pedido.
+                  </p>
+                  {culqiEnabled && paymentOptions?.culqiPublicKey ? (
+                    <CheckoutCulqiForm
+                      publicKey={paymentOptions.culqiPublicKey}
+                      email={email}
+                      amountPen={totalPen}
+                      orderNumber={orderNumber}
+                      onBeforeOpen={handleOpenCulqi}
+                      onToken={onCulqiToken}
+                      onError={onCulqiError}
+                      disabled={isSubmitting}
+                    />
+                  ) : null}
+                </>
+              ) : null}
+
+              {paymentProvider === 'mercadopago' && mercadoPagoEnabled ? (
+                <CheckoutMercadoPagoButton
+                  onPay={onMercadoPago}
                   disabled={isSubmitting}
+                  loading={isSubmitting}
                 />
-              ) : (
+              ) : null}
+
+              {paymentProvider === 'culqi' && !culqiEnabled ? (
                 <p className="text-xs text-muted-foreground" role="note">
                   Un asesor te contactará para coordinar el pago con tarjeta y confirmar el pedido.
                 </p>
-              )}
+              ) : null}
             </div>
-          ) : null}
-
-          {paymentProvider === 'mercadopago' ? (
-            <CheckoutMercadoPagoButton
-              onPay={onMercadoPago}
-              disabled={isSubmitting}
-              loading={isSubmitting}
-            />
           ) : null}
         </CardContent>
       </Card>
@@ -258,7 +333,7 @@ export function CheckoutStepPayment({
             )}
           </Button>
         ) : null}
-        {paymentProvider === 'culqi' && !culqiEnabled ? (
+        {cardPaymentSelected && paymentProvider === 'culqi' && !culqiEnabled ? (
           <Button
             type="button"
             onClick={onConfirmCard}

@@ -19,7 +19,7 @@ import {
   productMatchesSearchQuery,
   takeTopProductsBySearchRelevance,
 } from '../../shared/catalog-search.js';
-import { productMatchesCategoryFilter } from '../../shared/home-catalog-filter.js';
+import { productMatchesCategorySlugFilter } from '../../shared/home-catalog-filter.js';
 import { excludeStoreSoftwareProducts } from '../../shared/store-software-products.js';
 import {
   findInventoryProductByLookupKey,
@@ -469,7 +469,7 @@ export async function searchPublicProducts({
   matched = excludeStoreSoftwareProducts(matched);
 
   if (normalizedCategory !== 'all') {
-    matched = matched.filter((product) => productMatchesCategoryFilter(product, normalizedCategory));
+    matched = matched.filter((product) => productMatchesCategorySlugFilter(product, normalizedCategory));
   }
 
   const total = matched.length;

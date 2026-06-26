@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { ServicesCatalogSection } from '@/components/services-storefront/services-catalog-section';
@@ -7,27 +7,53 @@ import { ServicesStorefrontHero } from '@/components/services-storefront/service
 import { mapHubSectionToCategory, SERVICES_CATALOG_ID } from '@/data/services-catalog';
 import { useSeo } from '@/hooks/use-seo';
 import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
+import { buildServiceJsonLd, DEFAULT_SITE_TITLE } from '@/lib/seo';
 import { parseServiceHubSection } from '@/lib/service-hub';
-import { buildAbsoluteUrl } from '@/lib/site-url';
+import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import { cn } from '@/lib/utils';
-
-const LANDING_SEO = {
-  title: 'Servicios empresariales',
-  description:
-    'Alquiler de equipos, soporte técnico, outsourcing de impresión y servicios corporativos para empresas en Perú.',
-};
+import { findServiceSeoRoute } from '@/lib/service-seo';
 
 export function ServicesHubPage() {
   const [searchParams] = useSearchParams();
   const section = parseServiceHubSection(searchParams.get('seccion'));
   const initialCategory = mapHubSectionToCategory(section);
 
-  useSeo({
-    title: LANDING_SEO.title,
-    description: LANDING_SEO.description,
-    canonical: buildAbsoluteUrl('/servicios'),
-    robots: 'index,follow',
-  });
+  const seoRoute = useMemo(() => {
+    const search = searchParams.toString();
+    const fromQuery = findServiceSeoRoute('/servicios', search);
+    if (fromQuery) return fromQuery;
+    return findServiceSeoRoute('/servicios');
+  }, [searchParams]);
+
+  const seoConfig = useMemo(() => {
+    if (!seoRoute) {
+      return {
+        title: DEFAULT_SITE_TITLE,
+        canonical: buildAbsoluteUrl('/servicios'),
+        robots: 'index,follow' as const,
+      };
+    }
+
+    const serviceLd = buildServiceJsonLd(
+      {
+        pathname: seoRoute.pathname,
+        serviceName: seoRoute.serviceName,
+        serviceType: seoRoute.serviceType,
+        description: seoRoute.description,
+      },
+      SITE_ORIGIN,
+    );
+
+    return {
+      title: seoRoute.title,
+      description: seoRoute.description,
+      canonical: buildAbsoluteUrl(seoRoute.pathname),
+      robots: 'index,follow' as const,
+      jsonLd: serviceLd,
+    };
+  }, [seoRoute]);
+
+  useSeo(seoConfig);
 
   useEffect(() => {
     if (!searchParams.has('seccion')) return;

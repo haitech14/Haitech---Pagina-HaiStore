@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 import { categoryPath } from '@/lib/category-path';
-import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
+import { ALL_SUBCATEGORIES_QUERY, collectExpandedSlugsForSubcategory } from '@/lib/store-category-display';
 import { cn } from '@/lib/utils';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 
@@ -71,18 +71,21 @@ interface CatalogSidebarNavProps {
   subSlug: string | null;
   allSubcategoriesSelected?: boolean;
   onSelectSub: (slug: string | null) => void;
+  onPrefetchSub?: (slug: string) => void;
 }
 
 function NestedSubcategoryList({
   nodes,
   subSlug,
   onSelectSub,
+  onPrefetchSub,
   parentName,
   depth = 0,
 }: {
   nodes: StoreCategoryTreeNode[];
   subSlug: string | null;
   onSelectSub: (slug: string | null) => void;
+  onPrefetchSub?: (slug: string) => void;
   parentName: string;
   depth?: number;
 }) {
@@ -100,6 +103,8 @@ function NestedSubcategoryList({
             <button
               type="button"
               onClick={() => onSelectSub(node.slug)}
+              onMouseEnter={() => onPrefetchSub?.(node.slug)}
+              onFocus={() => onPrefetchSub?.(node.slug)}
               className={subItemClass(active)}
               aria-current={active ? 'page' : undefined}
             >
@@ -111,6 +116,7 @@ function NestedSubcategoryList({
                 nodes={children}
                 subSlug={subSlug}
                 onSelectSub={onSelectSub}
+                {...(onPrefetchSub ? { onPrefetchSub } : {})}
                 parentName={node.name}
                 depth={depth + 1}
               />
@@ -128,18 +134,13 @@ export function CatalogSidebarNav({
   subSlug,
   allSubcategoriesSelected = false,
   onSelectSub,
+  onPrefetchSub,
 }: CatalogSidebarNavProps) {
   const navigate = useNavigate();
-  const initialExpandedSlugs = useMemo(() => {
-    const set = new Set<string>();
-    for (const node of categoryTree) {
-      const hasChildren = (node.children ?? []).length > 0;
-      if (hasChildren && node.slug === activeCategorySlug) {
-        set.add(node.slug);
-      }
-    }
-    return set;
-  }, [categoryTree, activeCategorySlug]);
+  const initialExpandedSlugs = useMemo(
+    () => collectExpandedSlugsForSubcategory(categoryTree, activeCategorySlug, subSlug),
+    [categoryTree, activeCategorySlug, subSlug],
+  );
 
   const [expandedSlugs, setExpandedSlugs] = useState<Set<string>>(initialExpandedSlugs);
 
@@ -245,6 +246,7 @@ export function CatalogSidebarNav({
                   nodes={children}
                   subSlug={subSlug}
                   onSelectSub={onSelectSub}
+                  {...(onPrefetchSub ? { onPrefetchSub } : {})}
                   parentName={root.name}
                 />
               </div>

@@ -1,7 +1,16 @@
 import { injectSeoIntoHtml } from './shared/seo/inject-html.js';
 
 export const config = {
-  matcher: ['/', '/tienda', '/tienda/producto/:path*', '/categoria/:path*'],
+  matcher: [
+    '/',
+    '/tienda',
+    '/tienda/producto/:path*',
+    '/categoria/:path*',
+    '/servicios',
+    '/servicios/:path*',
+    '/software/:path*',
+    '/soluciones/:path*',
+  ],
 };
 
 /** @type {Map<string, { payload: unknown; loadedAt: number }>} */
@@ -45,6 +54,15 @@ async function loadManifest(request) {
   return manifest;
 }
 
+function mergeCategorySeo(category, routeRef) {
+  if (!category) return null;
+  const merged = { ...category };
+  if (routeRef.title) merged.title = routeRef.title;
+  if (routeRef.description) merged.description = routeRef.description;
+  if (routeRef.jsonLd) merged.jsonLd = routeRef.jsonLd;
+  return merged;
+}
+
 async function resolveSeo(pathname, search, request) {
   const manifest = await loadManifest(request);
   if (!manifest) return null;
@@ -64,11 +82,12 @@ async function resolveSeo(pathname, search, request) {
   if (routeRef.type === 'category') {
     const categories = await fetchJson(request, '/catalog/seo-snapshot/categories.json');
     const category = categories?.[routeRef.slug];
-    if (!category) return null;
-    if (routeRef.title) {
-      return { ...category, title: routeRef.title };
-    }
-    return category;
+    return mergeCategorySeo(category, routeRef);
+  }
+
+  if (routeRef.type === 'service') {
+    const services = await fetchJson(request, '/catalog/seo-snapshot/services.json');
+    return services?.[routeRef.pathname] ?? services?.[routeKey] ?? null;
   }
 
   if (routeRef.type === 'product') {

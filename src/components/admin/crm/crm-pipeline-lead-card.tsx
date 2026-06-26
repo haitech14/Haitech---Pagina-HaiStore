@@ -163,9 +163,16 @@ export function CrmPipelineLeadCard({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-1">
-            <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
-              {lead.title}
-            </p>
+            <div className="min-w-0 flex-1">
+              <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
+                {lead.title}
+              </p>
+              {lead.isDraft ? (
+                <span className="mt-1 inline-flex rounded bg-amber-100 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-amber-900">
+                  Borrador
+                </span>
+              ) : null}
+            </div>
             <div className="flex shrink-0 items-center gap-0.5">
               <Button
                 type="button"

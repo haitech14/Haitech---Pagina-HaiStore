@@ -102,23 +102,26 @@ export function InventoryPhotoPreview({
   size = 'main',
 }: InventoryPhotoPreviewProps) {
   return (
-    <div className="relative mt-2 w-fit">
-      <ProductCardImage
-        src={src}
-        alt={alt}
-        className={cn(
-          'rounded-md border object-contain',
-          size === 'main' ? 'max-h-28 w-auto max-w-full' : 'size-16 object-cover',
-        )}
-      />
-      <button
-        type="button"
-        className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground focus-visible:ring-2 focus-visible:ring-ring"
-        aria-label="Quitar imagen"
-        onClick={onRemove}
-      >
-        <X className="size-3.5" aria-hidden="true" />
-      </button>
+    <div className="mt-2 w-fit">
+      <div className="relative">
+        <ProductCardImage
+          src={src}
+          alt={alt}
+          className={cn(
+            'rounded-md border object-contain',
+            size === 'main' ? 'max-h-28 w-auto max-w-full' : 'size-16 object-cover',
+          )}
+        />
+        <button
+          type="button"
+          className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Quitar imagen"
+          onClick={onRemove}
+        >
+          <X className="size-3.5" aria-hidden="true" />
+        </button>
+      </div>
+      <p className="mt-0.5 text-center text-xs text-muted-foreground">*Imagen Referencial</p>
     </div>
   );
 }
