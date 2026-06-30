@@ -130,6 +130,7 @@ export function ProductHighlightCard({ product, variant = 'default' }: ProductHi
           <ProductQuantityAddFooter
             product={product}
             size="sm"
+            showBuyNow
             onQuantityChange={setQuantity}
           />
 

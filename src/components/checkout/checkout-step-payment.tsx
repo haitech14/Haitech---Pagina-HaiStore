@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { CheckoutCulqiForm } from '@/components/checkout/checkout-culqi-form';
 import { CheckoutManualInstructions } from '@/components/checkout/checkout-manual-instructions';
 import { CheckoutMercadoPagoButton } from '@/components/checkout/checkout-mercadopago-button';
+import { CheckoutMobileActionBar } from '@/components/checkout/checkout-mobile-action-bar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -124,6 +125,48 @@ export function CheckoutStepPayment({
     if (!ensuredOrderNumber || !paymentOptions?.culqiPublicKey) return;
     return ensuredOrderNumber;
   };
+
+  const actionButtons = (
+    <>
+      <Button type="button" variant="outline" onClick={onBack} className="min-h-11 flex-1">
+        Volver
+      </Button>
+      {paymentProvider === 'manual' ? (
+        <Button
+          type="button"
+          onClick={onConfirmManual}
+          disabled={isSubmitting}
+          className="min-h-11 flex-1 bg-red-600 font-semibold hover:bg-red-500"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+              Procesando…
+            </>
+          ) : (
+            'Confirmar pedido'
+          )}
+        </Button>
+      ) : null}
+      {cardPaymentSelected && paymentProvider === 'culqi' && !culqiEnabled ? (
+        <Button
+          type="button"
+          onClick={onConfirmCard}
+          disabled={isSubmitting}
+          className="min-h-11 flex-1 bg-red-600 font-semibold hover:bg-red-500"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+              Procesando…
+            </>
+          ) : (
+            'Confirmar pedido con tarjeta'
+          )}
+        </Button>
+      ) : null}
+    </>
+  );
 
   return (
     <div className="space-y-4">
@@ -312,45 +355,11 @@ export function CheckoutStepPayment({
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button type="button" variant="outline" onClick={onBack} className="min-h-11 flex-1">
-          Volver
-        </Button>
-        {paymentProvider === 'manual' ? (
-          <Button
-            type="button"
-            onClick={onConfirmManual}
-            disabled={isSubmitting}
-            className="min-h-11 flex-1 bg-red-600 font-semibold hover:bg-red-500"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
-                Procesando…
-              </>
-            ) : (
-              'Confirmar pedido'
-            )}
-          </Button>
-        ) : null}
-        {cardPaymentSelected && paymentProvider === 'culqi' && !culqiEnabled ? (
-          <Button
-            type="button"
-            onClick={onConfirmCard}
-            disabled={isSubmitting}
-            className="min-h-11 flex-1 bg-red-600 font-semibold hover:bg-red-500"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
-                Procesando…
-              </>
-            ) : (
-              'Confirmar pedido con tarjeta'
-            )}
-          </Button>
-        ) : null}
-      </div>
+      <div className="hidden flex-col gap-2 sm:flex sm:flex-row">{actionButtons}</div>
+
+      <CheckoutMobileActionBar>
+        <div className="flex gap-2">{actionButtons}</div>
+      </CheckoutMobileActionBar>
     </div>
   );
 }

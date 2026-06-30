@@ -83,11 +83,22 @@ async function fetchHomeCatalogBundleFromApi(): Promise<HomeCatalogBundleRespons
   return apiFetch<HomeCatalogBundleResponse>(`/api/products/home-bundle?${params}`);
 }
 
-/**
- * API con respaldo en snapshot estático y sessionStorage.
- * Prioriza API; no vuelve a pedir el JSON estático si ya hay caché en sesión.
- */
-export async function fetchHomeCatalogBundle(): Promise<HomeCatalogBundleResponse> {
+/** Datos para pintar la home: snapshot / sessionStorage primero (sin esperar API). */
+export async function fetchHomeCatalogBundleForDisplay(): Promise<HomeCatalogBundleResponse> {
+  const cached = readStoredHomeCatalogBundle();
+  if (cached) return cached;
+
+  const staticBundle = await fetchStaticHomeCatalogBundle();
+  if (staticBundle) {
+    storeHomeCatalogBundle(staticBundle);
+    return staticBundle;
+  }
+
+  return fetchHomeCatalogBundleFromApi();
+}
+
+/** Revalidación en segundo plano contra la API. */
+export async function revalidateHomeCatalogBundle(): Promise<HomeCatalogBundleResponse> {
   try {
     const apiBundle = await fetchHomeCatalogBundleFromApi();
     storeHomeCatalogBundle(apiBundle);
@@ -102,6 +113,13 @@ export async function fetchHomeCatalogBundle(): Promise<HomeCatalogBundleRespons
     }
     throw error;
   }
+}
+
+/**
+ * Compat: muestra datos locales de inmediato; la revalidación API va en prefetch separado.
+ */
+export async function fetchHomeCatalogBundle(): Promise<HomeCatalogBundleResponse> {
+  return fetchHomeCatalogBundleForDisplay();
 }
 
 /** Precarga instantánea desde JSON estático (sin API). */

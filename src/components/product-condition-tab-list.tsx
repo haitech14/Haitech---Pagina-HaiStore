@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { BadgeCheck, Cog, Globe, Package, Recycle, Star, type LucideIcon } from 'lucide-react';
 
 import {
@@ -64,16 +65,45 @@ export function ProductConditionTabList({
   catalogFamily = null,
   conditions = PRODUCT_CONDITIONS,
 }: ProductConditionTabListProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollHint, setCanScrollHint] = useState(false);
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+
+    const update = () => {
+      setCanScrollHint(element.scrollWidth > element.clientWidth + element.scrollLeft + 4);
+    };
+
+    update();
+    element.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+
+    return () => {
+      element.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [conditions]);
+
   return (
-    <div
-      className={cn(
-        'flex max-w-full flex-nowrap items-center justify-start gap-1.5 overflow-x-auto lg:justify-end',
-        '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-        className,
-      )}
-      role="tablist"
-      aria-label={ariaLabel}
-    >
+    <div className="relative">
+      {canScrollHint ? (
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-8 bg-gradient-to-l from-background via-background/85 to-transparent lg:hidden"
+          aria-hidden="true"
+        />
+      ) : null}
+      <div
+        ref={scrollRef}
+        className={cn(
+          'flex max-w-full flex-nowrap items-center justify-start gap-1.5 overflow-x-auto lg:justify-end',
+          '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          className,
+        )}
+        role="tablist"
+        aria-label={ariaLabel}
+      >
       {conditions.map((condition) => {
         const count = counts?.[condition];
         const isActive = activeCondition === condition;
@@ -107,6 +137,7 @@ export function ProductConditionTabList({
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

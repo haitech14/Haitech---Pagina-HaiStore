@@ -43,7 +43,7 @@ export function CheckoutProgressBar({ currentStep }: CheckoutProgressBarProps) {
               </span>
               <span
                 className={cn(
-                  'hidden truncate text-sm font-medium sm:inline',
+                  'truncate text-[0.625rem] font-medium sm:text-sm',
                   active ? 'text-foreground' : 'text-muted-foreground',
                 )}
               >

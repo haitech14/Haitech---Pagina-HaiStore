@@ -1,4 +1,5 @@
 import { CheckoutBillingShippingForm } from '@/components/checkout/checkout-billing-shipping-form';
+import { CheckoutMobileActionBar } from '@/components/checkout/checkout-mobile-action-bar';
 import { Button } from '@/components/ui/button';
 import { validateCheckoutClientForm, type HaitechClientFormValues } from '@/lib/haitech-client-schema';
 
@@ -48,7 +49,7 @@ export function CheckoutStepShipping({
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-3 pt-1 sm:flex-row">
+      <div className="hidden flex-col gap-3 pt-1 sm:flex sm:flex-row">
         <Button type="button" variant="outline" onClick={onBack} className="min-h-11 flex-1">
           Volver
         </Button>
@@ -61,6 +62,22 @@ export function CheckoutStepShipping({
           Continuar al pago
         </Button>
       </div>
+
+      <CheckoutMobileActionBar>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={onBack} className="min-h-11 flex-1">
+            Volver
+          </Button>
+          <Button
+            type="button"
+            onClick={handleContinue}
+            disabled={Boolean(validationError)}
+            className="min-h-11 flex-1 bg-red-600 text-base font-semibold hover:bg-red-500"
+          >
+            Continuar al pago
+          </Button>
+        </div>
+      </CheckoutMobileActionBar>
     </div>
   );
 }

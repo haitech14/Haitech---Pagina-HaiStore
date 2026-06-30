@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
 
 import { promoCards, type PromoCard } from '@/data/business-solutions';
+import { ResponsiveStaticImage } from '@/components/ui/responsive-static-image';
 import { cn } from '@/lib/utils';
 
 function PromoCardButton({
@@ -102,10 +103,12 @@ function B2bPromoCard({ card }: { card: PromoCard }) {
         </div>
 
         <div className="relative flex items-end justify-center px-4 pb-0 pt-2 lg:absolute lg:inset-y-0 lg:right-0 lg:w-[48%] lg:px-0 lg:pt-0">
-          <img
+          <ResponsiveStaticImage
             src={card.image}
             alt={card.imageAlt}
+            variant="promo"
             className="max-h-44 w-auto object-contain object-bottom sm:max-h-52 lg:absolute lg:bottom-0 lg:right-0 lg:max-h-none lg:h-full lg:w-full lg:object-cover lg:object-right-bottom"
+            wrapperClassName="size-full"
             loading="lazy"
           />
         </div>
@@ -137,10 +140,12 @@ function ServicePromoCard({ card }: { card: PromoCard }) {
           className="pointer-events-none absolute inset-y-0 right-0 hidden w-[55%] bg-gradient-to-r from-white via-white/80 to-transparent lg:block"
         />
         <div className="relative h-44 shrink-0 sm:h-52 lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[58%]">
-          <img
+          <ResponsiveStaticImage
             src={card.image}
             alt={card.imageAlt}
+            variant="promo"
             className="size-full object-cover object-right"
+            wrapperClassName="size-full"
             loading="lazy"
           />
           <div
@@ -174,10 +179,12 @@ function OffersPromoCard({ card }: { card: PromoCard }) {
         </div>
 
         <div className="relative flex items-center justify-center px-4 pb-4 pt-2 lg:absolute lg:inset-y-0 lg:right-0 lg:w-[48%] lg:items-end lg:justify-end lg:p-0">
-          <img
+          <ResponsiveStaticImage
             src={card.image}
             alt={card.imageAlt}
+            variant="promo"
             className="max-h-40 w-auto object-contain sm:max-h-48 lg:absolute lg:bottom-0 lg:right-0 lg:max-h-none lg:h-full lg:w-full lg:object-cover lg:object-center"
+            wrapperClassName="size-full"
             loading="lazy"
           />
         </div>

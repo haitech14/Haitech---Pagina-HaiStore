@@ -12,6 +12,7 @@ import {
   buildHomeHighlightedPool,
   resolveHomeHighlightedDisplayProducts,
 } from '@/lib/home-highlighted-selection';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { productPath } from '@/lib/product-path';
 import {
@@ -38,7 +39,7 @@ function CheckoutUpsellRow({ product }: { product: Product }) {
         aria-label={`Ver ficha de ${product.name}`}
       >
         {imageUrl ? (
-          <img
+          <ProductCardImage
             src={imageUrl}
             alt=""
             className="max-h-full max-w-full object-contain"

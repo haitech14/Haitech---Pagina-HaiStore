@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth-context';
 import type { HomeCatalogSectionPayload } from '@/lib/home-catalog-bundle';
 import {
-  fetchHomeCatalogBundle,
+  fetchHomeCatalogBundleForDisplay,
   HOME_CATALOG_BUNDLE_QUERY_KEY,
   readStoredHomeCatalogBundle,
   type HomeCatalogBundleResponse,
@@ -103,7 +103,7 @@ export function useHomeCatalogBundle() {
 
   return useQuery({
     queryKey: [HOME_CATALOG_BUNDLE_QUERY_KEY, role, viewAsRolesQueryKey(viewAsRoles)],
-    queryFn: fetchHomeCatalogBundle,
+    queryFn: fetchHomeCatalogBundleForDisplay,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,

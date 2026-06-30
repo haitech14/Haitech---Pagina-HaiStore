@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
 import { CategoryStrip } from '@/components/category-strip';
+import { HomeCategoryShortcuts } from '@/components/home/home-category-shortcuts';
 import { HeroBanner } from '@/components/hero-banner';
-import { HomeSeoIntro } from '@/components/home-seo-intro';
 import { HomeHighlightedSection } from '@/components/home-highlighted-section';
 import { HomeTrustStrip } from '@/components/home-trust-strip';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
@@ -63,8 +63,8 @@ export function HomePage() {
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <HeroBanner />
-      <HomeSeoIntro />
       <CategoryStrip />
+      <HomeCategoryShortcuts />
       <HomeTrustStrip />
       <HomeHighlightedSection />
 

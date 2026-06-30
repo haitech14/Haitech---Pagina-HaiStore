@@ -6,6 +6,7 @@ import { Icon } from '@mdi/react';
 import { mdiWhatsapp } from '@mdi/js';
 
 import { Button } from '@/components/ui/button';
+import { CarouselDots } from '@/components/ui/carousel-dots';
 import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import {
   CATEGORY_STRIP_HERO_IMAGE_FRAME_CLASS,
@@ -421,6 +422,7 @@ export function HeroBanner({
 } = {}) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: slides.length > 1, align: 'start' });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
   const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
   const [whatsappCampaign, setWhatsappCampaign] = useState<string | undefined>();
@@ -445,17 +447,23 @@ export function HeroBanner({
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
 
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    const updateSnaps = () => setScrollSnaps(emblaApi.scrollSnapList());
+
+    updateSnaps();
     onSelect();
     emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', updateSnaps);
     emblaApi.on('reInit', onSelect);
 
     return () => {
       emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', updateSnaps);
       emblaApi.off('reInit', onSelect);
     };
   }, [emblaApi]);
@@ -539,6 +547,16 @@ export function HeroBanner({
           </>
           ) : null}
       </div>
+
+      {showCarouselControls ? (
+        <CarouselDots
+          count={scrollSnaps.length}
+          selectedIndex={selectedIndex}
+          onSelect={scrollTo}
+          ariaLabel="Slides del banner principal"
+          className="absolute inset-x-0 bottom-2 z-20 sm:bottom-3"
+        />
+      ) : null}
 
       <WhatsAppContactDialog
         open={whatsappDialogOpen}

@@ -10,6 +10,7 @@ import { buildLandingMenuCategoriesFromTree } from '@/lib/landing-menu-categorie
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { CATEGORY_STRIP_TRACK_WRAPPER_CLASS } from '@/lib/category-strip-layout';
 import { categoryImageSources } from '@/lib/responsive-image';
+import { CarouselDots } from '@/components/ui/carousel-dots';
 import { cn } from '@/lib/utils';
 
 const CATEGORY_SLIDE_CLASS =
@@ -88,9 +89,12 @@ export function CategoryStrip() {
   });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -98,6 +102,8 @@ export function CategoryStrip() {
     const update = () => {
       setCanScrollPrev(emblaApi.canScrollPrev());
       setCanScrollNext(emblaApi.canScrollNext());
+      setSelectedIndex(emblaApi.selectedScrollSnap());
+      setScrollSnaps(emblaApi.scrollSnapList());
     };
 
     update();
@@ -132,7 +138,13 @@ export function CategoryStrip() {
           </div>
         </header>
 
-        <div className={CATEGORY_STRIP_TRACK_WRAPPER_CLASS}>
+        <div className={cn(CATEGORY_STRIP_TRACK_WRAPPER_CLASS, 'relative')}>
+          {canScrollNext ? (
+            <div
+              className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-10 bg-gradient-to-l from-background via-background/80 to-transparent sm:hidden"
+              aria-hidden="true"
+            />
+          ) : null}
           <button
             type="button"
             onClick={scrollPrev}
@@ -166,6 +178,16 @@ export function CategoryStrip() {
             <ChevronRight className="size-5" aria-hidden="true" />
           </button>
         </div>
+
+        {scrollSnaps.length > 1 ? (
+          <CarouselDots
+            count={scrollSnaps.length}
+            selectedIndex={selectedIndex}
+            onSelect={scrollTo}
+            ariaLabel="Páginas del carrusel de categorías"
+            className="mt-3 sm:hidden"
+          />
+        ) : null}
       </div>
     </section>
   );

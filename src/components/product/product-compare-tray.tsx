@@ -1,6 +1,7 @@
 import { GitCompare, X } from 'lucide-react';
 
 import { ProductCompareDialog } from '@/components/product/product-compare-dialog';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { Button } from '@/components/ui/button';
 import { useProductCompare } from '@/context/product-compare-context';
 import { mobileBottomOffsetStyle, useMobileBottomInset } from '@/context/mobile-bottom-inset-context';
@@ -46,7 +47,7 @@ export function ProductCompareTray() {
               )}
             >
               {item.image ? (
-                <img
+                <ProductCardImage
                   src={item.image}
                   alt=""
                   className="h-16 w-full max-w-[5rem] object-contain sm:h-[4.5rem] sm:max-w-[5.5rem]"

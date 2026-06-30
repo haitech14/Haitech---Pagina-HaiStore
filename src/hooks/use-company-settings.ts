@@ -21,7 +21,7 @@ function normalizeCompanySettings(data: CompanySettings): CompanySettings {
   };
 }
 
-export function useCompanySettings() {
+export function useCompanySettings(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['company-settings'],
     queryFn: async () => {
@@ -33,6 +33,7 @@ export function useCompanySettings() {
       }
     },
     staleTime: 5 * 60 * 1000,
+    enabled: options?.enabled !== false,
   });
 }
 

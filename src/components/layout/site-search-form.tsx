@@ -9,6 +9,7 @@ import { useAuth } from '@/context/auth-context';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { prefetchProductSearch, useProductSearch } from '@/hooks/use-product-search';
+import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 import { categoryLandingPath } from '@/lib/category-path';
 import { seedProductQueryCache } from '@/lib/find-cached-product';
 import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
@@ -39,6 +40,10 @@ type SiteSearchFormProps = {
   onNavigate?: () => void;
   /** Barra segmentada (header) o campo único (móvil compacto). */
   variant?: 'segmented' | 'simple';
+  /** Enfoca el campo al montar (p. ej. sheet de búsqueda móvil). */
+  autoFocusInput?: boolean;
+  /** Muestra filtro de categoría encima del campo (variant simple). */
+  showCategoryFilter?: boolean;
 };
 
 type SearchSuggestionItem =
@@ -211,6 +216,8 @@ export function SiteSearchForm({
   className,
   onNavigate,
   variant = 'segmented',
+  autoFocusInput = false,
+  showCategoryFilter = false,
 }: SiteSearchFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -279,6 +286,12 @@ export function SiteSearchForm({
     setProductDisplayLimit(PRODUCT_SEARCH_INITIAL_VISIBLE);
   }, [trimmedDebouncedQuery, categoryFilter]);
 
+  useEffect(() => {
+    if (!autoFocusInput) return;
+    const timer = window.setTimeout(() => inputRef.current?.focus(), 100);
+    return () => window.clearTimeout(timer);
+  }, [autoFocusInput]);
+
   const productGroups = useMemo(
     () => groupSearchProductsByCategory(productSuggestions, debouncedQuery),
     [productSuggestions, debouncedQuery],
@@ -326,6 +339,7 @@ export function SiteSearchForm({
       serviceSuggestions.length > 0);
 
   const warmupSearch = useCallback(() => {
+    preloadCatalogIndexNow();
     void prefetchProductSearch(queryClient, {
       query: 'ricoh',
       categoryFilter,
@@ -434,6 +448,33 @@ export function SiteSearchForm({
 
   return (
     <div ref={rootRef} className={cn('relative w-full', className)}>
+      {variant === 'simple' && showCategoryFilter ? (
+        <div className="mb-2">
+          <label htmlFor={categoryFieldId} className="mb-1 block text-xs font-medium text-muted-foreground">
+            Categoría
+          </label>
+          <div className="relative">
+            <select
+              id={categoryFieldId}
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+              className="h-11 w-full appearance-none rounded-lg border border-border/80 bg-white py-0 pl-3 pr-9 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Filtrar por categoría"
+            >
+              {categoryOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+      ) : null}
       <form role="search" className={searchBarClass} onSubmit={handleSubmit}>
         <label htmlFor={inputFieldId} className="sr-only">
           Buscar en la tienda

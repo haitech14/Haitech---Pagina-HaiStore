@@ -146,13 +146,30 @@ async function optimizeProductImages() {
     const parsed = path.parse(inputPath);
     const needs256 = !fs.existsSync(`${parsed.dir}/${parsed.name}-256.webp`);
     const needs512 = !fs.existsSync(`${parsed.dir}/${parsed.name}-512.webp`);
-    if (!needs256 && !needs512) continue;
+    const needs1024 = !fs.existsSync(`${parsed.dir}/${parsed.name}-1024.webp`);
+    if (!needs256 && !needs512 && !needs1024) continue;
 
     console.log(`  ${file}`);
     const variants = [];
     if (needs256) variants.push({ suffix: '-256', width: 256 });
     if (needs512) variants.push({ suffix: '-512', width: 512 });
+    if (needs1024) variants.push({ suffix: '-1024', width: 1024 });
     await generateVariants(inputPath, variants);
+  }
+}
+
+async function optimizePromoCards() {
+  console.log('\n— Promo cards —');
+  const dir = path.join(PUBLIC, 'promo-cards');
+  if (!fs.existsSync(dir)) return;
+
+  const files = fs.readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f) && !/-\d+\.webp$/i.test(f));
+  for (const file of files) {
+    console.log(`  ${file}`);
+    await generateVariants(path.join(dir, file), [
+      { suffix: '-256', width: 256 },
+      { suffix: '-512', width: 512 },
+    ]);
   }
 }
 
@@ -162,5 +179,6 @@ await optimizeCategories();
 await optimizeClients();
 await optimizeRecommendations();
 await optimizeBrands();
+await optimizePromoCards();
 await optimizeProductImages();
 console.log('\nListo.');

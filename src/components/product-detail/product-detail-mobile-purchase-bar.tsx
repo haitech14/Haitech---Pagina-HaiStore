@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ImageOff, ShoppingCart, Zap } from 'lucide-react';
 
 import { AddToCartButton, getAddToCartLabel, hasOnRequestQuantity } from '@/components/cart/add-to-cart-button';
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { ProductCardImage } from '@/components/product/product-card-image';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
 import { cn } from '@/lib/utils';
 import {
   MOBILE_PURCHASE_BAR_HEIGHT_PX,
+  useMobileBottomNavInset,
   useSetMobileBottomInset,
 } from '@/context/mobile-bottom-inset-context';
 import type { CartConfigurationLine } from '@/types/product';
@@ -107,6 +109,7 @@ export function ProductDetailMobilePurchaseBar({
 }: ProductDetailMobilePurchaseBarProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const bottomNavInset = useMobileBottomNavInset();
   const [heroActionsVisible, setHeroActionsVisible] = useState(true);
 
   useEffect(() => {
@@ -178,10 +181,11 @@ export function ProductDetailMobilePurchaseBar({
   return (
     <div
       className={cn(
-        'fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 shadow-[0_-4px_20px_rgba(15,23,42,0.12)] backdrop-blur-sm transition-transform duration-200',
-        'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
+        'fixed inset-x-0 z-40 border-t border-border bg-background/95 p-3 shadow-[0_-4px_20px_rgba(15,23,42,0.12)] backdrop-blur-sm transition-transform duration-200',
+        bottomNavInset > 0 ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
         showBar ? 'translate-y-0' : 'pointer-events-none translate-y-full',
       )}
+      style={bottomNavInset > 0 ? { bottom: `${bottomNavInset}px` } : { bottom: 0 }}
       aria-hidden={!showBar}
     >
       <div className="container flex items-center gap-2.5 sm:gap-3">
@@ -207,8 +211,19 @@ export function ProductDetailMobilePurchaseBar({
             )}
           >
             <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-            <span className="sr-only sm:not-sr-only sm:inline lg:inline">{addToCartLabel}</span>
+            <span className="max-w-[4.5rem] truncate text-xs sm:max-w-none sm:text-sm">{addToCartLabel}</span>
           </AddToCartButton>
+          <ProductWhatsAppButton
+            className="size-11 shrink-0 rounded-md"
+            quantity={quantity}
+            product={{
+              id: product.id,
+              name: product.name,
+              priceUsd: volumePricing.unitUsd,
+              category: product.category,
+              brand: product.brand ?? null,
+            }}
+          />
           <Button
             type="button"
             onClick={handleBuyNow}

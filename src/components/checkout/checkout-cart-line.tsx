@@ -13,6 +13,7 @@ import {
   resolveCartLineVolumeDiscountSummary,
   resolveCartLineVolumeUnitUsd,
 } from '@/lib/checkout-cart-bulk-discount';
+import { ProductCardImage } from '@/components/product/product-card-image';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { cn } from '@/lib/utils';
 import type { CartItem } from '@/types/product';
@@ -68,9 +69,9 @@ export function CheckoutCartLine({
   return (
     <li className={cn('space-y-3 py-4 first:pt-0 last:pb-0 sm:space-y-3.5', className)}>
       <div className="flex gap-3 sm:gap-4">
-        <div className="flex size-16 shrink-0 items-center justify-center rounded-md border border-border bg-muted/40 p-1 sm:size-20">
+        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/40 p-1 sm:size-20">
           {imageUrl ? (
-            <img
+            <ProductCardImage
               src={imageUrl}
               alt=""
               className="max-h-full max-w-full object-contain"

@@ -1,16 +1,17 @@
 import type { QueryClient } from '@tanstack/react-query';
 
 import {
-  fetchHomeCatalogBundle,
+  fetchHomeCatalogBundleForDisplay,
   fetchHomeCatalogBundleInitial,
   HOME_CATALOG_BUNDLE_QUERY_KEY,
+  revalidateHomeCatalogBundle,
 } from '@/lib/home-catalog-bundle';
-import { preloadCatalogIndex } from '@/lib/catalog-featured';
+import { deferCatalogIndexPreload } from '@/lib/defer-catalog-index';
 import { viewAsRolesQueryKey } from '@/lib/view-as-role';
 
 /** Precarga snapshot estático y revalida contra la API en segundo plano (sin bloquear la ruta). */
 export async function prefetchHomeCatalog(queryClient: QueryClient) {
-  preloadCatalogIndex();
+  deferCatalogIndexPreload();
 
   const queryKey = [HOME_CATALOG_BUNDLE_QUERY_KEY, 'public', viewAsRolesQueryKey([])];
   const initial = await fetchHomeCatalogBundleInitial();
@@ -21,9 +22,9 @@ export async function prefetchHomeCatalog(queryClient: QueryClient) {
 
   void queryClient.prefetchQuery({
     queryKey,
-    queryFn: fetchHomeCatalogBundle,
+    queryFn: revalidateHomeCatalogBundle,
     staleTime: 1000 * 60 * 5,
   });
 
-  return initial;
+  return initial ?? (await fetchHomeCatalogBundleForDisplay());
 }

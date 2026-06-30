@@ -10,7 +10,15 @@ import { CrmLeadDialogProvider } from '@/context/crm-lead-dialog-context';
 import { CrmPipelineProvider } from '@/context/crm-pipeline-context';
 import { useAuth } from '@/context/auth-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
+import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { canUseHaibot } from '@/lib/haibot-access';
+import { cn } from '@/lib/utils';
+
+const MobileBottomNav = lazy(() =>
+  import('@/components/layout/mobile-bottom-nav').then((m) => ({
+    default: m.MobileBottomNav,
+  })),
+);
 
 const HaibotFloatingMenu = lazy(() =>
   import('@/components/haibot/haibot-floating-menu').then((m) => ({
@@ -60,6 +68,7 @@ export function RootLayout() {
   const widgetsReady = useDeferredWidgetMount();
   const showSubscriptionPopup = pathname !== '/';
   const showHaibot = canUseHaibot(user, role);
+  const showMobileBottomNav = shouldShowMobileBottomNav(pathname);
 
   return (
     <MobileBottomInsetProvider>
@@ -69,10 +78,20 @@ export function RootLayout() {
         Saltar al contenido
       </a>
       <Header />
-      <main id="contenido" className="flex-1">
+      <main
+        id="contenido"
+        className={cn(
+          'flex-1',
+          showMobileBottomNav &&
+            'pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0',
+        )}
+      >
         <Outlet />
       </main>
       <SiteFooter />
+      <Suspense fallback={null}>
+        <MobileBottomNav />
+      </Suspense>
       {widgetsReady ? (
         <Suspense fallback={null}>
           {showSubscriptionPopup ? <SubscriptionPopup /> : null}

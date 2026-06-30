@@ -3,6 +3,7 @@ import { ShoppingBag } from 'lucide-react';
 
 import { CheckoutCartLine } from '@/components/checkout/checkout-cart-line';
 import { CheckoutCouponField, type AppliedCheckoutCoupon } from '@/components/checkout/checkout-coupon-field';
+import { CheckoutMobileActionBar } from '@/components/checkout/checkout-mobile-action-bar';
 import { CheckoutPaymentTotals } from '@/components/checkout/checkout-payment-totals';
 import { CheckoutTotalsBreakdown } from '@/components/checkout/checkout-totals-breakdown';
 import { CheckoutTotalsRow } from '@/components/checkout/checkout-totals-row';
@@ -344,7 +345,7 @@ export function CheckoutStepSummary({
             <Button
               type="button"
               onClick={onContinue}
-              className="min-h-11 w-full bg-red-600 text-base font-semibold hover:bg-red-500"
+              className="hidden min-h-11 w-full bg-red-600 text-base font-semibold hover:bg-red-500 sm:inline-flex"
             >
               Continuar a envío
             </Button>
@@ -364,6 +365,24 @@ export function CheckoutStepSummary({
           <CheckoutUpsellSection excludeProductIds={cartProductIds} />
         </aside>
       </div>
+
+      <CheckoutMobileActionBar>
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted-foreground">Total estimado</p>
+            <p className="text-lg font-bold leading-tight">
+              <DualPrice usd={totalPrice - (appliedCoupon?.discountUsd ?? 0)} />
+            </p>
+          </div>
+          <Button
+            type="button"
+            onClick={onContinue}
+            className="min-h-11 shrink-0 bg-red-600 px-5 text-base font-semibold hover:bg-red-500"
+          >
+            Continuar
+          </Button>
+        </div>
+      </CheckoutMobileActionBar>
     </div>
   );
 }

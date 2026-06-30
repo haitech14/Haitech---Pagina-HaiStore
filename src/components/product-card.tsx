@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ImageOff, ShoppingCart } from 'lucide-react';
-import { AddToCartButton, getAddToCartLabel } from '@/components/cart/add-to-cart-button';
+import { ImageOff } from 'lucide-react';
 import { CatalogPreviewPriceBlock } from '@/components/product/catalog-preview-price-block';
 import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
+import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductCardHoverImage, PRODUCT_CARD_IMAGE_CLASS } from '@/components/product/product-card-hover-image';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import {
@@ -38,16 +38,12 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
   const displayPrice = useCatalogDisplayPrice(product);
 
   const cartActions = (
-    <div className="flex items-stretch gap-2">
-      <AddToCartButton
-        product={product}
-        className="min-h-11 flex-1 rounded-lg bg-red-600 px-2 text-xs font-semibold hover:bg-red-500 sm:min-w-[10.5rem] sm:text-sm lg:px-2.5"
-      >
-        <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-        {getAddToCartLabel(product)}
-      </AddToCartButton>
+    <div className="space-y-2">
+      <ProductQuantityAddFooter product={product} showBuyNow revealQuantityOnHover={false} />
       <ProductWhatsAppButton
-        className="size-11 shrink-0 rounded-lg"
+        accent="outline"
+        label="Comprar por WhatsApp"
+        className="h-11 min-h-11 w-full rounded-lg px-2 text-xs font-semibold"
         product={{
           id: product.id,
           name: product.name,

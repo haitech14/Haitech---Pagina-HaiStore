@@ -1,4 +1,20 @@
 /** Campos mínimos para tarjetas de producto en el snapshot de la home. */
+function pricingMetaFromProduct(product) {
+  const publicPrice = Number(product.prices?.public ?? product.price ?? 0);
+  const compareAt = product.compare_at_price_usd;
+  const meta = {};
+
+  if (product.is_new === true) {
+    meta.isNew = true;
+  }
+  if (compareAt != null && compareAt > publicPrice) {
+    meta.oldPrice = compareAt;
+    meta.discount = Math.round((1 - publicPrice / compareAt) * 100);
+  }
+
+  return meta;
+}
+
 export function slimHomeBundleProduct(product) {
   const prices = product.prices ?? { public: product.price ?? 0 };
   const publicPrice = Number(prices.public ?? product.price ?? 0);
@@ -31,12 +47,13 @@ export function slimHomeBundleProduct(product) {
     view_count: Number(product.view_count ?? 0),
     price_role: 'public',
     created_at: product.created_at ?? new Date(0).toISOString(),
+    ...pricingMetaFromProduct(product),
   };
 }
 
 export function slimHomeBundleFeaturedProduct(product) {
   const slim = slimHomeBundleProduct(product);
-  return {
+  const featured = {
     id: slim.id,
     name: slim.name,
     category: slim.category ?? '',
@@ -48,6 +65,12 @@ export function slimHomeBundleFeaturedProduct(product) {
     rating: 5,
     reviews: 0,
   };
+
+  if (slim.isNew) featured.isNew = true;
+  if (slim.oldPrice != null) featured.oldPrice = slim.oldPrice;
+  if (slim.discount != null) featured.discount = slim.discount;
+
+  return featured;
 }
 
 function isFeaturedShape(product) {

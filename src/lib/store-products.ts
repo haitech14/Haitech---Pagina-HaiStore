@@ -16,7 +16,7 @@ import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-produc
 export const FEATURED_CAROUSEL_LIMIT = 8;
 
 export function productToFeatured(product: Product): FeaturedProduct {
-  return {
+  const featured: FeaturedProduct = {
     id: product.id,
     name: product.name,
     category: product.category ?? '',
@@ -30,6 +30,25 @@ export function productToFeatured(product: Product): FeaturedProduct {
     rating: 5,
     reviews: 0,
   };
+
+  const row = product as Product & {
+    isNew?: boolean;
+    oldPrice?: number;
+    discount?: number;
+    is_new?: boolean;
+    compare_at_price_usd?: number;
+  };
+
+  if (row.isNew === true || row.is_new === true) {
+    featured.isNew = true;
+  }
+  const compareAt = row.oldPrice ?? row.compare_at_price_usd;
+  if (compareAt != null && compareAt > product.price) {
+    featured.oldPrice = compareAt;
+    featured.discount = row.discount ?? Math.round((1 - product.price / compareAt) * 100);
+  }
+
+  return featured;
 }
 
 export function filterStoreProductsByCategories(

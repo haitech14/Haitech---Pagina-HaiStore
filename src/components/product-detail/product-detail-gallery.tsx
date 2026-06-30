@@ -76,12 +76,18 @@ function GalleryResponsiveImage({
   onError?: () => void;
 }) {
   const [forcePlain, setForcePlain] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const responsive = supportsResponsiveProductImage(src) && !forcePlain;
   const sources = responsive
     ? variant === 'thumb'
       ? productDetailThumbnailSources(src)
       : productDetailMainImageSources(src)
     : null;
+
+  useEffect(() => {
+    setForcePlain(false);
+    setLoaded(false);
+  }, [src]);
 
   const handleError = () => {
     if (responsive) {
@@ -91,20 +97,23 @@ function GalleryResponsiveImage({
     onError?.();
   };
 
-  useEffect(() => {
-    setForcePlain(false);
-  }, [src]);
+  const imageClass = cn(
+    className,
+    'transition-opacity duration-300',
+    loaded ? 'opacity-100' : 'opacity-0',
+  );
 
   if (sources) {
     return (
-      <picture className="flex size-full items-center justify-center">
+      <picture className="flex size-full items-center justify-center bg-muted/40">
         <source type="image/webp" srcSet={sources.webpSrcSet} sizes={sizes ?? sources.sizes} />
         <img
           src={sources.fallbackSrc}
           alt={alt}
-          className={className}
+          className={imageClass}
           loading={loading}
           decoding="async"
+          onLoad={() => setLoaded(true)}
           onError={handleError}
         />
       </picture>
@@ -115,10 +124,11 @@ function GalleryResponsiveImage({
     <img
       src={src}
       alt={alt}
-      className={className}
+      className={cn(imageClass, 'bg-muted/40')}
       loading={loading}
       decoding="async"
-      onError={onError}
+      onLoad={() => setLoaded(true)}
+      onError={handleError}
     />
   );
 }

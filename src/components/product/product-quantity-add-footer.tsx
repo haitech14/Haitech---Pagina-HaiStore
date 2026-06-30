@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Minus, Plus, ShoppingCart, Zap } from 'lucide-react';
 
 import {
   AddToCartButton,
@@ -9,6 +10,8 @@ import {
   hasOnRequestQuantity,
   ON_REQUEST_PRODUCT_BUTTON_CLASS,
 } from '@/components/cart/add-to-cart-button';
+import { Button } from '@/components/ui/button';
+import { useCart } from '@/context/cart-context';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -19,6 +22,8 @@ interface ProductQuantityAddFooterProps {
   onQuantityChange?: (quantity: number) => void;
   /** Oculta el stepper hasta hover/focus en la tarjeta (`group`). */
   revealQuantityOnHover?: boolean;
+  /** Muestra botón «Comprar ahora» que lleva directo al checkout. */
+  showBuyNow?: boolean;
 }
 
 export function ProductQuantityAddFooter({
@@ -27,7 +32,10 @@ export function ProductQuantityAddFooter({
   size = 'md',
   onQuantityChange,
   revealQuantityOnHover = true,
+  showBuyNow = false,
 }: ProductQuantityAddFooterProps) {
+  const navigate = useNavigate();
+  const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const includesOnRequest = hasOnRequestQuantity(product, quantity);
   const orderHint = formatOrderQuantityHint(product, quantity);
@@ -55,6 +63,18 @@ export function ProductQuantityAddFooter({
     size === 'sm'
       ? 'h-7 min-h-7 min-w-0 flex-1 gap-1 rounded-md px-1.5 text-[0.625rem] font-semibold sm:h-8 sm:min-h-8 sm:px-2 sm:text-xs'
       : 'h-8 min-h-8 min-w-0 flex-1 gap-1.5 rounded-md px-2 text-xs font-semibold sm:h-9 sm:min-h-9 sm:text-sm';
+
+  const buyNowButtonClass =
+    size === 'sm'
+      ? 'h-7 min-h-7 shrink-0 gap-0.5 rounded-md px-2 text-[0.625rem] font-semibold sm:h-8 sm:min-h-8 sm:px-2.5 sm:text-xs'
+      : 'h-8 min-h-8 shrink-0 gap-1 rounded-md px-2.5 text-xs font-semibold sm:h-9 sm:min-h-9 sm:text-sm';
+
+  const handleBuyNow = () => {
+    addItem(product, { quantity, openDrawer: false });
+    navigate('/checkout');
+  };
+
+  const buyNowLabel = includesOnRequest ? 'Pedido' : 'Comprar';
 
   return (
     <div
@@ -125,8 +145,24 @@ export function ProductQuantityAddFooter({
         )}
       >
         {!includesOnRequest ? <ShoppingCart className="size-4 shrink-0" aria-hidden="true" /> : null}
-        {cartLabel}
+        {showBuyNow ? (
+          <span className="hidden min-[360px]:inline">{cartLabel}</span>
+        ) : (
+          cartLabel
+        )}
       </AddToCartButton>
+
+      {showBuyNow ? (
+        <Button
+          type="button"
+          onClick={handleBuyNow}
+          className={cn(buyNowButtonClass, 'bg-foreground text-white hover:bg-foreground/90')}
+          aria-label="Comprar ahora"
+        >
+          <Zap className="size-3.5 shrink-0 sm:size-4" aria-hidden="true" />
+          <span className="hidden min-[360px]:inline">{buyNowLabel}</span>
+        </Button>
+      ) : null}
     </div>
   );
 }

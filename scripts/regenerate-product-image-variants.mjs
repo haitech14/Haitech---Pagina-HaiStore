@@ -16,7 +16,7 @@ const WEBP_QUALITY = 82;
 
 function isBaseProductImage(name) {
   if (!/\.(webp|png|jpe?g)$/i.test(name)) return false;
-  if (/-(256|512)\.(webp|png|jpe?g)$/i.test(name)) return false;
+  if (/-(256|512|1024)\.(webp|png|jpe?g)$/i.test(name)) return false;
   return true;
 }
 
@@ -27,23 +27,30 @@ async function main() {
     .map((name) => path.join(productsDir, name));
 
   let updated = 0;
+  let failed = 0;
   for (const filePath of files) {
-    const parsed = path.parse(filePath);
-    const input = await fs.promises.readFile(filePath);
+    try {
+      const parsed = path.parse(filePath);
+      const input = await fs.promises.readFile(filePath);
 
-    for (const width of [256, 512]) {
-      const variantPath = path.join(parsed.dir, `${parsed.name}-${width}.webp`);
-      await sharp(input)
-        .resize(width, width, { fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: WEBP_QUALITY })
-        .toFile(variantPath);
+      for (const width of [256, 512, 1024]) {
+        const variantPath = path.join(parsed.dir, `${parsed.name}-${width}.webp`);
+        await sharp(input)
+          .resize(width, width, { fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: WEBP_QUALITY })
+          .toFile(variantPath);
+      }
+
+      updated += 1;
+      console.log(`✓ ${path.relative(root, filePath)}`);
+    } catch (error) {
+      failed += 1;
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`⚠ ${path.relative(root, filePath)}: ${message}`);
     }
-
-    updated += 1;
-    console.log(`✓ ${path.relative(root, filePath)}`);
   }
 
-  console.log(`\nVariantes regeneradas para ${updated} imagen(es) base.`);
+  console.log(`\nVariantes regeneradas para ${updated} imagen(es) base.${failed > 0 ? ` Omitidas: ${failed}.` : ''}`);
 }
 
 main().catch((error) => {

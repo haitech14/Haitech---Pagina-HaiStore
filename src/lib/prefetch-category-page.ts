@@ -14,6 +14,8 @@ import {
 import { buildStaticStoreCategoryTree } from '@/lib/static-store-category-tree';
 import { findStoreCategoryBySlug } from '@/lib/store-category-display';
 import { apiFetch } from '@/lib/api';
+import { getCatalogRows } from '@/lib/catalog-featured';
+import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 import type { CategoryCatalogResponse } from '@/hooks/use-category-catalog';
 
 async function fetchCategoryCatalog(params: UseCategoryCatalogParams): Promise<CategoryCatalogResponse> {
@@ -33,6 +35,17 @@ async function fetchCategoryCatalogWithFallback(
   params: UseCategoryCatalogParams,
   role: string,
 ): Promise<CategoryCatalogResponse> {
+  if (getCatalogRows().length > 0) {
+    return queryCategoryCatalogClient(params, role);
+  }
+
+  try {
+    const fromIndex = await queryCategoryCatalogClientAsync(params, role);
+    if (fromIndex.products.length > 0) return fromIndex;
+  } catch {
+    /* intentar API */
+  }
+
   try {
     return await fetchCategoryCatalog(params);
   } catch {
@@ -51,6 +64,8 @@ export async function prefetchCategoryPage(
   queryClient: QueryClient,
   { slug, subSlug = null, role = 'public' }: PrefetchCategoryPageOptions,
 ) {
+  preloadCatalogIndexNow();
+
   const category = findCategoryBySlug(slug);
   if (!category) return;
 

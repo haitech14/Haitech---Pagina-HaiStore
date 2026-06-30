@@ -19,6 +19,7 @@ const MAX_EDGE = 1200;
 const PRODUCT_CARD_VARIANTS = [
   { suffix: '-256', width: 256 },
   { suffix: '-512', width: 512 },
+  { suffix: '-1024', width: 1024 },
 ];
 
 export function getPublicProductsDir() {

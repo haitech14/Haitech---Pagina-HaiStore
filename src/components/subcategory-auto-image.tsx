@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Grid3x3, History, Package, Recycle, Sparkles, Tags } from 'lucide-react';
 
+import { ResponsiveStaticImage } from '@/components/ui/responsive-static-image';
 import {
   subcategoryInitials,
   subcategoryPalette,
@@ -49,10 +50,12 @@ export function SubcategoryAutoImage({
           className,
         )}
       >
-        <img
+        <ResponsiveStaticImage
           src={image!}
           alt=""
           className="size-full object-contain p-1.5"
+          wrapperClassName="size-full"
+          variant={image!.startsWith('/categories/') ? 'category' : 'product-card'}
           loading="lazy"
           onError={() => setHasError(true)}
         />

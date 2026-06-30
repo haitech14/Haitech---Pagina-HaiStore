@@ -10,6 +10,7 @@
     "build": "tsc -b && vite build",
     "prebuild": "node scripts/generate-home-bundle-snapshot.mjs && node scripts/generate-inventory-index-snapshot.mjs && node scripts/generate-seo-snapshot.mjs && node scripts/generate-store-categories-tree-snapshot.mjs && node scripts/generate-sitemap.mjs && node scripts/optimize-public-images.mjs",
     "optimize:images": "node scripts/optimize-public-images.mjs",
+    "regenerate:product-variants": "node scripts/regenerate-product-image-variants.mjs",
     "reprocess:product-images": "node scripts/reprocess-product-images.mjs",
     "watermark:generate": "node scripts/generate-haitech-watermark.mjs",
     "watermark:products": "node scripts/watermark-product-images.mjs",
@@ -122,6 +123,9 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@fontsource/anton": "^5.2.7",
+    "@fontsource/source-sans-3": "^5.2.9",
+    "@fontsource/space-grotesk": "^5.2.10",
     "@hookform/resolvers": "^5.4.0",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",

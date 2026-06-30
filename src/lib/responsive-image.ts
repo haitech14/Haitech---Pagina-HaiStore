@@ -51,6 +51,16 @@ export function brandLogoSources(imagePath: string) {
   };
 }
 
+/** Variantes WebP para promo cards. */
+export function promoCardImageSources(imagePath: string) {
+  const base = imageBasePath(imagePath);
+  return {
+    webpSrcSet: `${base}-256.webp 256w, ${base}-512.webp 512w`,
+    fallbackSrc: imagePath,
+    sizes: '(max-width: 640px) 45vw, 280px',
+  };
+}
+
 /** Variantes WebP para imágenes de producto en cards (~220px). */
 export function productCardImageSources(imagePath: string) {
   const base = imageBasePath(imagePath);

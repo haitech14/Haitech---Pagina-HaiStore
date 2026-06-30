@@ -256,6 +256,7 @@ export function ProductShowcaseCard({
         <div className="relative z-10 shrink-0 border-t border-border/40 px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
           <ProductQuantityAddFooter
             product={cartProduct}
+            showBuyNow
             onQuantityChange={setQuantity}
           />
           <div className={whatsappRevealClass}>
@@ -268,6 +269,7 @@ export function ProductShowcaseCard({
             <div className="border-t border-border/40 px-4 pb-3 pt-2">
               <ProductQuantityAddFooter
                 product={cartProduct}
+                showBuyNow
                 onQuantityChange={setQuantity}
               />
               <div className={whatsappRevealClass}>

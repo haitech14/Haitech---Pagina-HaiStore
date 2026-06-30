@@ -196,15 +196,15 @@ export function ShoppingCartDrawer() {
           )}
 
           {items.length > 0 ? (
-            <div className="border-t border-border bg-background px-5 py-4">
-              <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="sticky bottom-0 border-t border-border bg-background px-5 py-4 shadow-[0_-4px_16px_rgba(15,23,42,0.08)]">
+              <div className="mb-3 flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-muted-foreground">Subtotal</span>
                 <span className="text-lg font-bold">
                   <DualPrice usd={totalPrice} />
                 </span>
               </div>
               <div className="flex flex-col gap-2">
-                <Button asChild className="min-h-11 w-full bg-red-600 hover:bg-red-500">
+                <Button asChild size="lg" className="min-h-12 w-full bg-red-600 text-base font-bold hover:bg-red-500">
                   <Link to="/checkout" onClick={() => setCartOpen(false)}>
                     Finalizar compra
                   </Link>
@@ -218,19 +218,21 @@ export function ShoppingCartDrawer() {
                   <FileText className="size-4 shrink-0" aria-hidden="true" />
                   Generar cotización
                 </Button>
-                <Button asChild variant="outline" className="min-h-11 w-full">
-                  <Link to="/tienda" onClick={() => setCartOpen(false)}>
-                    Seguir comprando
-                  </Link>
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="min-h-11 text-sm text-muted-foreground"
-                  onClick={clear}
-                >
-                  Vaciar carrito
-                </Button>
+                <div className="flex gap-2">
+                  <Button asChild variant="ghost" className="min-h-10 flex-1 text-sm text-muted-foreground">
+                    <Link to="/tienda" onClick={() => setCartOpen(false)}>
+                      Seguir comprando
+                    </Link>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="min-h-10 flex-1 text-sm text-muted-foreground"
+                    onClick={clear}
+                  >
+                    Vaciar carrito
+                  </Button>
+                </div>
               </div>
             </div>
           ) : null}

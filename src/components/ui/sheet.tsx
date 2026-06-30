@@ -26,8 +26,11 @@ SheetOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { side?: 'left' | 'right' }
->(({ side = 'right', className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    side?: 'left' | 'right' | 'bottom';
+    hideClose?: boolean;
+  }
+>(({ side = 'right', hideClose = false, className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
     <DialogPrimitive.Content
@@ -38,15 +41,19 @@ const SheetContent = React.forwardRef<
           'inset-y-0 left-0 h-full w-3/4 max-w-sm border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
         side === 'right' &&
           'inset-y-0 right-0 h-full w-3/4 max-w-sm border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
+        side === 'bottom' &&
+          'inset-x-0 bottom-0 max-h-[92dvh] w-full rounded-t-2xl border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
         className,
       )}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-        <X className="size-4" />
-        <span className="sr-only">Cerrar</span>
-      </DialogPrimitive.Close>
+      {hideClose ? null : (
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <X className="size-4" />
+          <span className="sr-only">Cerrar</span>
+        </DialogPrimitive.Close>
+      )}
     </DialogPrimitive.Content>
   </SheetPortal>
 ));

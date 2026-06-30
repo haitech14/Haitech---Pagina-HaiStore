@@ -49,13 +49,11 @@ export function isProductImageWatermarkEnabled(): boolean {
   return import.meta.env.VITE_HAISTORE_DISABLE_WATERMARK !== '1';
 }
 
-/** Overlay en vitrina, inventario y admin. */
+/** Overlay en vitrina solo para previews locales (data:). Imágenes en /products/ ya llevan marca en servidor. */
 export function shouldShowProductImageWatermarkOverlay(url: string | null | undefined): boolean {
   if (!url?.trim()) return false;
   if (!isProductImageWatermarkEnabled()) return false;
   if (isDecorativeNonProductImageUrl(url)) return false;
   if (url.startsWith('data:image/')) return true;
-  if (url.startsWith('http://') || url.startsWith('https://')) return true;
-  if (url.startsWith('/')) return true;
   return false;
 }

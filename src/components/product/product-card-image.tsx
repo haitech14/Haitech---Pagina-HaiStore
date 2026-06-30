@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
 import {
   productCardImageSources,
@@ -33,12 +35,25 @@ export function ProductCardImage({
   imageVersion = null,
   onError,
 }: ProductCardImageProps) {
+  const [loaded, setLoaded] = useState(false);
   const responsive =
     supportsResponsiveProductImage(src) ? productCardImageSources(src) : null;
   const overlayWrapperClass = cn(
-    'flex min-h-0 min-w-0 items-center justify-center',
+    'relative flex min-h-0 min-w-0 items-center justify-center bg-muted/60',
     overlayClassName ?? 'h-full w-full',
   );
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [src, imageVersion]);
+
+  const imageClass = cn(
+    'block transition-opacity duration-300',
+    loaded ? 'opacity-100' : 'opacity-0',
+    className,
+  );
+
+  const handleLoad = () => setLoaded(true);
 
   if (responsive) {
     const webpSrcSet = responsive.webpSrcSet
@@ -60,9 +75,10 @@ export function ProductCardImage({
           <img
             src={withImageVersion(responsive.fallbackSrc, imageVersion)}
             alt={alt}
-            className={cn('block', className)}
+            className={imageClass}
             loading={loading}
             decoding="async"
+            onLoad={handleLoad}
             onError={onError}
           />
         </picture>
@@ -79,9 +95,10 @@ export function ProductCardImage({
       <img
         src={withImageVersion(src, imageVersion)}
         alt={alt}
-        className={cn('block', className)}
+        className={imageClass}
         loading={loading}
         decoding="async"
+        onLoad={handleLoad}
         onError={onError}
       />
     </ProductImageWatermarkOverlay>
