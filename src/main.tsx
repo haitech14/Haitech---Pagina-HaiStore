@@ -4,7 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from '@/App';
-import '@/fonts.css';
+import '@/fonts';
 import '@/index.css';
 import { registerServiceWorker } from '@/lib/register-service-worker';
 
