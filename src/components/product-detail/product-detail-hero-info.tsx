@@ -1,18 +1,16 @@
 import { Star } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import { ProductDetailHeroActions } from '@/components/product-detail/product-detail-hero-actions';
+import { ON_REQUEST_STOCK_BADGE_CLASS, isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { ProductDetailHeroSpecs } from '@/components/product-detail/product-detail-hero-specs';
 import { ProductDetailHeroTonerSelector } from '@/components/product-detail/product-detail-hero-toner-selector';
 import { ProductDetailPreparationTypeSelector } from '@/components/product-detail/product-detail-preparation-type-selector';
 import { ProductConditionBadge } from '@/components/product/product-condition-badge';
 import { ProductQuickViewFeaturePills } from '@/components/product/product-quick-view-feature-pills';
-import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import type { ConfigureTonerCard } from '@/lib/product-configure-toner';
 import {
   resolveProductEquipmentConditionLabel,
   resolveProductHeroBrand,
-  resolveProductHeroCode,
   resolveProductStockAvailability,
 } from '@/lib/product-hero-meta';
 import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
@@ -23,9 +21,6 @@ import type { Product } from '@/types/product';
 interface ProductDetailHeroInfoProps {
   product: Product;
   detail: ProductDetailViewModel;
-  onCompareClick?: () => void;
-  onQuoteClick?: () => void;
-  showCompareAction?: boolean;
   tonerCards?: ConfigureTonerCard[];
   selectedTonerOptionIds?: Set<string>;
   onTonerToggle?: (card: ConfigureTonerCard) => void;
@@ -38,9 +33,6 @@ interface ProductDetailHeroInfoProps {
 export function ProductDetailHeroInfo({
   product,
   detail,
-  onCompareClick,
-  onQuoteClick,
-  showCompareAction = false,
   tonerCards = [],
   selectedTonerOptionIds,
   onTonerToggle,
@@ -51,7 +43,6 @@ export function ProductDetailHeroInfo({
 }: ProductDetailHeroInfoProps) {
   const outOfStock = isProductOutOfStock(product);
   const brandLabel = resolveProductHeroBrand(product) ?? detail.brandLabel;
-  const productCode = resolveProductHeroCode(product) ?? detail.sku;
   const stockAvailability = resolveProductStockAvailability(product, outOfStock);
   const conditionLabel = resolveProductEquipmentConditionLabel(product);
   const displayRating = Number(detail.rating.toFixed(1));
@@ -59,22 +50,20 @@ export function ProductDetailHeroInfo({
 
   return (
     <div className="flex min-w-0 flex-col">
-      {brandLabel || conditionLabel ? (
-        <div className="flex w-full items-center gap-2">
-          {brandLabel ? (
-            <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              {brandLabel}
-            </p>
-          ) : null}
-          {conditionLabel ? (
-            <ProductConditionBadge label={conditionLabel} className="ml-auto" />
-          ) : null}
-        </div>
+      {brandLabel ? (
+        <p className="text-xs font-bold uppercase tracking-wider text-primary sm:text-sm">
+          {brandLabel}
+        </p>
       ) : null}
 
-      <h1 className="mt-1 text-pretty text-xl font-bold leading-snug text-[#0f1f3d] sm:text-2xl lg:text-[1.65rem] lg:leading-tight">
-        {detail.heroTitle ?? product.name}
-      </h1>
+      <div className="mt-1 flex items-start justify-between gap-3">
+        <h1 className="min-w-0 flex-1 text-pretty text-xl font-bold leading-snug text-[#0f1f3d] sm:text-2xl lg:text-[1.65rem] lg:leading-tight">
+          {detail.heroTitle ?? product.name}
+        </h1>
+        {conditionLabel ? (
+          <ProductConditionBadge label={conditionLabel} size="overlay" className="mt-0.5 shrink-0" />
+        ) : null}
+      </div>
 
       <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
         <div
@@ -100,28 +89,25 @@ export function ProductDetailHeroInfo({
         </div>
       </div>
 
-      {detail.specPills.length > 0 ? (
-        <ProductQuickViewFeaturePills items={detail.specPills} className="mt-3 w-full" />
-      ) : null}
-
-      <div className="mt-2 flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm">
-        {productCode ? (
-          <p className="text-muted-foreground">
-            Código: <span className="font-medium font-mono text-foreground">{productCode}</span>
-          </p>
-        ) : null}
+      <div className="mt-2">
         <span
           className={cn(
-            'inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold',
-            stockAvailability.tone === 'unavailable' &&
-              'border border-amber-400 bg-amber-100 text-amber-950',
+            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
+            stockAvailability.tone === 'unavailable' && ON_REQUEST_STOCK_BADGE_CLASS,
             stockAvailability.tone === 'low' && 'bg-amber-50 text-amber-800',
             stockAvailability.tone === 'available' && 'bg-emerald-50 text-emerald-700',
           )}
         >
+          {stockAvailability.tone === 'available' ? (
+            <span className="size-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
+          ) : null}
           {stockAvailability.label}
         </span>
       </div>
+
+      {detail.specPills.length > 0 ? (
+        <ProductQuickViewFeaturePills items={detail.specPills} className="mt-3 w-full" />
+      ) : null}
 
       <ProductDetailHeroSpecs bullets={detail.heroSpecBullets} pills={[]} />
 
@@ -166,16 +152,6 @@ export function ProductDetailHeroInfo({
       })()}
 
       {afterTonerSlot}
-
-      <ProductDetailHeroActions
-        technicalSheetUrl={detail.technicalSheetUrl}
-        technicalSheetFileName={detail.technicalSheetFileName}
-        technicalSheetMimeType={detail.technicalSheetMimeType}
-        {...(showCompareAction && onCompareClick ? { onCompareClick } : {})}
-        {...(onQuoteClick ? { onQuoteClick } : {})}
-        className="mt-4"
-        fullWidth
-      />
     </div>
   );
 }

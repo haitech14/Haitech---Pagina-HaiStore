@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { isProductOutOfStock, ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
+import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
@@ -16,7 +18,7 @@ import {
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import { formatProductCardTitle } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
-import { formatPenFromUsdDisplay } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
 const WHATSAPP_REVEAL_CLASS =
@@ -43,7 +45,8 @@ export function HomeLandingProductCard({
   const showBestSellerBadge = index === 0;
   const showDiscountBadge = pricing.discountPercent >= 5;
   const categoryLabel = product.category?.trim() || catalogProduct?.category?.trim() || null;
-  const priceCategory = product.category ?? catalogProduct?.category ?? null;
+  const code = product.code ?? catalogProduct?.code ?? null;
+  const stock = catalogProduct?.stock ?? 0;
   const displayTitle = formatProductCardTitle({
     id: product.id,
     name: product.name,
@@ -83,12 +86,13 @@ export function HomeLandingProductCard({
     price: displayPrice.priceUsd,
     currency: 'USD',
     image_url: product.image,
-    stock: catalogProduct?.stock ?? 10,
+    stock,
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
     code: product.code ?? catalogProduct?.code ?? null,
     created_at: catalogProduct?.created_at ?? new Date().toISOString(),
   };
+  const outOfStock = isProductOutOfStock(cartProduct);
 
   return (
     <article className="group flex h-full w-full flex-col overflow-hidden rounded-xl border border-border/50 bg-white shadow-[0_2px_14px_rgba(15,31,61,0.07)]">
@@ -105,7 +109,7 @@ export function HomeLandingProductCard({
           ) : null}
 
           {showDiscountBadge ? (
-            <span className="absolute right-2 top-2 z-[2] rounded bg-[#F3F4F6] px-1.5 py-0.5 text-[0.6875rem] font-semibold text-[#666666] sm:right-2.5 sm:top-2.5 sm:text-xs">
+            <span className="absolute right-2 top-2 z-[2] rounded bg-primary px-1.5 py-0.5 text-[0.6875rem] font-semibold text-primary-foreground sm:right-2.5 sm:top-2.5 sm:text-xs">
               -{pricing.discountPercent}%
             </span>
           ) : null}
@@ -140,14 +144,37 @@ export function HomeLandingProductCard({
           {categoryLabel ?? '\u00a0'}
         </p>
 
-        <div className="mt-2 flex min-h-[1.375rem] flex-wrap items-baseline gap-x-2 gap-y-0.5 sm:min-h-[1.5rem]">
-          <p className="text-base font-bold text-[#111111] sm:text-[1.0625rem]">
-            {formatPenFromUsdDisplay(pricing.currentUsd, priceCategory)}
-          </p>
-          {pricing.compareUsd > pricing.currentUsd ? (
-            <p className="text-[0.6875rem] font-normal text-[#888888] line-through sm:text-xs">
-              {formatPenFromUsdDisplay(pricing.compareUsd, priceCategory)}
+        <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
+          {code ? (
+            <p className="min-w-0 truncate font-mono text-[0.625rem] text-muted-foreground sm:text-[0.6875rem]">
+              {code}
             </p>
+          ) : (
+            <span className="min-w-0" aria-hidden="true" />
+          )}
+          <span
+            className={cn(
+              'shrink-0 rounded-md px-1.5 py-0.5 text-[0.625rem] font-semibold sm:text-[0.6875rem]',
+              outOfStock
+                ? ON_REQUEST_STOCK_BADGE_CLASS
+                : 'bg-emerald-50 font-semibold text-emerald-700',
+            )}
+          >
+            {outOfStock ? 'A pedido' : `${Math.max(0, Math.floor(stock))} unids.`}
+          </span>
+        </div>
+
+        <div className="mt-2 flex min-h-[1.375rem] flex-wrap items-baseline gap-x-2 gap-y-0.5 sm:min-h-[1.5rem]">
+          <DualPrice
+            usd={pricing.currentUsd}
+            className="text-base font-bold text-[#111111] sm:text-[1.0625rem]"
+          />
+          {pricing.compareUsd > pricing.currentUsd ? (
+            <DualPrice
+              usd={pricing.compareUsd}
+              strikethrough
+              className="text-[0.6875rem] font-normal text-[#888888] sm:text-xs"
+            />
           ) : null}
         </div>
 

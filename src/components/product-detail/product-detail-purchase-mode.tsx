@@ -59,6 +59,8 @@ interface ProductDetailPurchaseModeProps {
   maintenancePlanMonthlyPen?: number | null;
   showMaintenancePlan?: boolean;
   onMaintenancePlanClick?: () => void;
+  /** Muestra pestaña Alquilar aunque no haya planes cargados (equipos). */
+  showRentalTab?: boolean;
   className?: string;
 }
 
@@ -69,6 +71,7 @@ export function ProductDetailPurchaseMode({
   maintenancePlanMonthlyPen,
   showMaintenancePlan = false,
   onMaintenancePlanClick,
+  showRentalTab = false,
   className,
 }: ProductDetailPurchaseModeProps) {
   const minRentalPen = useMemo(() => {
@@ -78,23 +81,25 @@ export function ProductDetailPurchaseMode({
 
   const hasRentalPlans = rentalPlans.length > 0;
   const hasMaintenancePlan = showMaintenancePlan && (maintenancePlanMonthlyPen ?? 0) >= 0;
-  if (!hasRentalPlans && !hasMaintenancePlan) return null;
+  if (!hasRentalPlans && !hasMaintenancePlan && !showRentalTab) return null;
 
   const legendId = 'purchase-mode-legend';
-  const secondaryTitle = hasRentalPlans ? 'Alquiler' : 'Plan de Mantenimiento';
+  const secondaryTitle = hasRentalPlans || showRentalTab ? 'Alquilar' : 'Plan de Mantenimiento';
   const secondarySubtitle = hasRentalPlans
     ? minRentalPen != null
       ? `Desde S/ ${minRentalPen.toLocaleString('es-PE')}/mes`
       : 'Consultar planes'
-    : maintenancePlanMonthlyPen != null
-      ? `Desde S/ ${maintenancePlanMonthlyPen.toLocaleString('es-PE')}/mes`
-      : 'Cotización mensual';
-  const SecondaryIcon = hasRentalPlans ? CalendarClock : Wrench;
+    : showRentalTab
+      ? 'Desde S/ 150/mes'
+      : maintenancePlanMonthlyPen != null
+        ? `Desde S/ ${maintenancePlanMonthlyPen.toLocaleString('es-PE')}/mes`
+        : 'Cotización mensual';
+  const SecondaryIcon = hasRentalPlans || showRentalTab ? CalendarClock : Wrench;
 
   return (
     <fieldset className={cn('space-y-1.5 border-0 p-0', className)}>
       <legend id={legendId} className="text-xs font-semibold text-foreground sm:text-sm">
-        Elige tu opción
+        Elige cómo llevarlo
       </legend>
       <div
         role="radiogroup"
@@ -103,7 +108,7 @@ export function ProductDetailPurchaseMode({
       >
         <PurchaseModeCard
           selected={purchaseMode === 'buy'}
-          title="Compra"
+          title="Comprar"
           subtitle="Pago único"
           icon={ShoppingBag}
           onSelect={() => onPurchaseModeChange('buy')}
@@ -115,7 +120,7 @@ export function ProductDetailPurchaseMode({
           icon={SecondaryIcon}
           onSelect={() => {
             onPurchaseModeChange('rent');
-            if (!hasRentalPlans && onMaintenancePlanClick) {
+            if (!hasRentalPlans && !showRentalTab && onMaintenancePlanClick) {
               onMaintenancePlanClick();
             }
           }}

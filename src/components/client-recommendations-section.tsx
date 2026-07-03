@@ -22,13 +22,16 @@ const SLIDE_CLASS =
 const carouselArrowClass =
   'absolute top-[32%] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-white text-foreground shadow-md transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-35 sm:size-10';
 
-function StarRating() {
+function StarRating({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex justify-center gap-0.5" aria-label="5 estrellas">
       {Array.from({ length: 5 }).map((_, index) => (
         <Star
           key={index}
-          className="size-3 fill-red-600 text-red-600 sm:size-3.5"
+          className={cn(
+            'fill-red-600 text-red-600',
+            compact ? 'size-2.5 sm:size-3' : 'size-3 sm:size-3.5',
+          )}
           aria-hidden="true"
         />
       ))}
@@ -40,10 +43,12 @@ function RecommendationCard({
   item,
   onOpen,
   className,
+  compact = false,
 }: {
   item: ClientRecommendation;
   onOpen: (item: ClientRecommendation) => void;
   className?: string;
+  compact?: boolean;
 }) {
   return (
     <button
@@ -56,7 +61,12 @@ function RecommendationCard({
         className,
       )}
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+      <div
+        className={cn(
+          'relative overflow-hidden bg-muted',
+          compact ? 'aspect-[4/5] lg:aspect-[3/4]' : 'aspect-[4/5]',
+        )}
+      >
         {(() => {
           const { webpSrc, fallbackSrc } = recommendationImageSources(item.image);
           return (
@@ -65,8 +75,8 @@ function RecommendationCard({
               <img
                 src={fallbackSrc}
                 alt=""
-                width={320}
-                height={400}
+                width={compact ? 240 : 320}
+                height={compact ? 300 : 400}
                 className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                 loading="lazy"
               />
@@ -74,7 +84,12 @@ function RecommendationCard({
           );
         })()}
         <span
-          className="absolute left-3 top-3 flex size-8 items-center justify-center rounded-full bg-red-600 text-lg font-bold leading-none text-white shadow-md"
+          className={cn(
+            'absolute left-2.5 top-2.5 flex items-center justify-center rounded-full bg-red-600 font-bold leading-none text-white shadow-md',
+            compact
+              ? 'size-7 text-base lg:size-6 lg:text-sm'
+              : 'left-3 top-3 size-8 text-lg',
+          )}
           aria-hidden="true"
         >
           &ldquo;
@@ -92,15 +107,37 @@ function RecommendationCard({
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 px-3 pb-4 pt-3 sm:px-4 sm:pb-5 sm:pt-3.5">
-        <StarRating />
-        <h3 className="text-balance text-center text-xs font-bold leading-snug text-[#0f1f3d] sm:text-sm">
+      <div
+        className={cn(
+          'flex flex-1 flex-col gap-2',
+          compact ? 'px-2.5 pb-3 pt-2.5 lg:gap-1.5 lg:px-2 lg:pb-3 lg:pt-2' : 'px-3 pb-4 pt-3 sm:px-4 sm:pb-5 sm:pt-3.5',
+        )}
+      >
+        <StarRating compact={compact} />
+        <h3
+          className={cn(
+            'text-balance text-center font-bold leading-snug text-[#0f1f3d]',
+            compact ? 'text-[0.6875rem] lg:text-[0.65rem] xl:text-xs' : 'text-xs sm:text-sm',
+          )}
+        >
           {item.title}
         </h3>
-        <p className="line-clamp-4 flex-1 text-pretty text-center text-[0.6875rem] italic leading-relaxed text-muted-foreground sm:text-xs">
+        <p
+          className={cn(
+            'flex-1 text-pretty text-center italic leading-relaxed text-muted-foreground',
+            compact
+              ? 'line-clamp-3 text-[0.625rem] lg:text-[0.6rem] xl:text-[0.6875rem]'
+              : 'line-clamp-4 text-[0.6875rem] sm:text-xs',
+          )}
+        >
           &ldquo;{item.quote}&rdquo;
         </p>
-        <p className="text-center text-[0.6875rem] sm:text-xs">
+        <p
+          className={cn(
+            'text-center',
+            compact ? 'text-[0.625rem] lg:text-[0.6rem] xl:text-[0.6875rem]' : 'text-[0.6875rem] sm:text-xs',
+          )}
+        >
           <span className="font-bold text-[#0f1f3d]">{item.customerName}</span>
           <span className="text-muted-foreground"> · {item.customerCity}</span>
         </p>
@@ -217,10 +254,10 @@ export function ClientRecommendationsSection() {
           </p>
         </header>
 
-        <ul className="hidden gap-4 lg:grid lg:grid-cols-4">
+        <ul className="hidden gap-3 lg:grid lg:grid-cols-5 lg:gap-3 xl:gap-4">
           {clientRecommendations.map((item) => (
             <li key={item.id}>
-              <RecommendationCard item={item} onOpen={setLightboxItem} />
+              <RecommendationCard item={item} onOpen={setLightboxItem} compact />
             </li>
           ))}
         </ul>

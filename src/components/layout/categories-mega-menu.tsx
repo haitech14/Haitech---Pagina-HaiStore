@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildLandingCatalogMegaMenu } from '@/lib/mega-menu-from-store-categories';
+import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
 import { HeaderNavChevron } from '@/components/layout/header-nav-chevron';
 import {
   DARK_NAV_ICON_CLASS,
@@ -92,6 +93,7 @@ export function CategoriesMegaMenu({
   }, []);
 
   const openMenu = useCallback(() => {
+    prefetchStoreRoute();
     clearCloseTimer();
     updateMenuWidth();
     setOpen(true);

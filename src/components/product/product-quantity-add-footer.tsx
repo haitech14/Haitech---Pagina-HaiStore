@@ -89,6 +89,10 @@ export function ProductQuantityAddFooter({
 
   const buyNowLabel =
     buyNowLabelProp ?? (includesOnRequest ? 'Pedido' : 'Comprar');
+  const buyNowAriaLabel =
+    buyNowLabelProp === 'Reservar Ahora' || (buyNowLabelProp == null && includesOnRequest)
+      ? 'Reservar ahora'
+      : 'Comprar ahora';
   const showActionText = !showBuyNow || addLabel != null || buyNowLabelProp != null;
 
   return (
@@ -184,7 +188,7 @@ export function ProductQuantityAddFooter({
             buyNowButtonClass,
             buyNowButtonClassName ?? 'bg-foreground text-white hover:bg-foreground/90',
           )}
-          aria-label="Comprar ahora"
+          aria-label={buyNowAriaLabel}
         >
           <Zap className="size-3.5 shrink-0 sm:size-4" aria-hidden="true" />
           <span className={cn(!showActionText && 'hidden min-[360px]:inline')}>{buyNowLabel}</span>

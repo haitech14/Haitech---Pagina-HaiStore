@@ -1,12 +1,10 @@
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
 import { Headphones, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { Badge } from '@/components/ui/badge';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
-import { HEADER_ADVISOR_WHATSAPP_LINK, HEADER_SALES_PHONE_DISPLAY } from '@/data/site-header';
+import { HeaderStoreCurrencyExchangeBlock } from '@/components/layout/header-currency-control';
 import { cn } from '@/lib/utils';
 
 function HeaderDarkDivider() {
@@ -28,23 +26,7 @@ export function HeaderStoreDesktopActions({
 }: HeaderStoreDesktopActionsProps) {
   return (
     <div className={cn('hidden shrink-0 items-center lg:flex', className)}>
-      <a
-        href={HEADER_ADVISOR_WHATSAPP_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex shrink-0 items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1A]"
-      >
-        <span
-          className="flex size-8 items-center justify-center rounded-full bg-[#25D366]/15"
-          aria-hidden="true"
-        >
-          <Icon path={mdiWhatsapp} size={0.9} className="text-[#25D366]" />
-        </span>
-        <span className="min-w-0 leading-tight">
-          <span className="block text-sm font-semibold text-white">{HEADER_SALES_PHONE_DISPLAY}</span>
-          <span className="block text-[0.6875rem] text-white/65">Escríbenos por WhatsApp</span>
-        </span>
-      </a>
+      <HeaderStoreCurrencyExchangeBlock />
 
       <HeaderDarkDivider />
 

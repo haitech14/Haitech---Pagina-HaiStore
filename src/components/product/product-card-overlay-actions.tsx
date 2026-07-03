@@ -1,4 +1,4 @@
-import { Eye, GitCompare, Heart } from 'lucide-react';
+import { Eye, GitCompare, Heart, ShoppingCart } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -11,9 +11,14 @@ interface ProductCardOverlayActionsProps {
   isWishlisted?: boolean;
   /** Desplaza los iconos hacia abajo cuando hay badge de condición en la imagen. */
   withConditionBadge?: boolean;
+  /** Muestra los iconos solo al hover/focus de la tarjeta (`group`). */
+  revealOnHover?: boolean;
+  /** Segundo icono: comparar (por defecto) o añadir al carrito. */
+  secondaryAction?: 'compare' | 'buy';
   onWishlist?: () => void;
   onQuickView: () => void;
   onCompare: () => void;
+  onBuy?: () => void;
 }
 
 export function ProductCardOverlayActions({
@@ -21,15 +26,23 @@ export function ProductCardOverlayActions({
   isCompareSelected,
   isWishlisted = false,
   withConditionBadge = false,
+  revealOnHover = false,
+  secondaryAction = 'compare',
   onWishlist,
   onQuickView,
   onCompare,
+  onBuy,
 }: ProductCardOverlayActionsProps) {
   return (
     <div
       className={cn(
         'pointer-events-auto absolute right-3 z-10 flex flex-col gap-1.5',
         withConditionBadge ? 'top-10 sm:top-11' : 'top-3',
+        revealOnHover &&
+          cn(
+            'opacity-0 transition-opacity duration-200 ease-out motion-reduce:opacity-100 motion-reduce:transition-none',
+            'group-hover:opacity-100 group-focus-within:opacity-100 max-md:opacity-100',
+          ),
       )}
     >
       <button
@@ -56,6 +69,20 @@ export function ProductCardOverlayActions({
           aria-hidden="true"
         />
       </button>
+      {secondaryAction === 'buy' ? (
+        <button
+          type="button"
+          aria-label={`Añadir ${productName} al carrito`}
+          className={cn(overlayButtonClass, 'text-red-600 hover:bg-red-50')}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onBuy?.();
+          }}
+        >
+          <ShoppingCart className="size-4" aria-hidden="true" />
+        </button>
+      ) : null}
       <button
         type="button"
         aria-label={`Vista rápida de ${productName}`}
@@ -68,28 +95,30 @@ export function ProductCardOverlayActions({
       >
         <Eye className="size-4" aria-hidden="true" />
       </button>
-      <button
-        type="button"
-        aria-pressed={isCompareSelected}
-        aria-label={
-          isCompareSelected
-            ? `Quitar ${productName} del comparador`
-            : `Comparar ${productName}`
-        }
-        className={cn(
-          overlayButtonClass,
-          isCompareSelected
-            ? 'border-red-600 bg-red-50 text-red-600'
-            : 'text-neutral-700 hover:bg-neutral-50',
-        )}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          onCompare();
-        }}
-      >
-        <GitCompare className="size-4" aria-hidden="true" />
-      </button>
+      {secondaryAction === 'compare' ? (
+        <button
+          type="button"
+          aria-pressed={isCompareSelected}
+          aria-label={
+            isCompareSelected
+              ? `Quitar ${productName} del comparador`
+              : `Comparar ${productName}`
+          }
+          className={cn(
+            overlayButtonClass,
+            isCompareSelected
+              ? 'border-red-600 bg-red-50 text-red-600'
+              : 'text-neutral-700 hover:bg-neutral-50',
+          )}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onCompare();
+          }}
+        >
+          <GitCompare className="size-4" aria-hidden="true" />
+        </button>
+      ) : null}
     </div>
   );
 }

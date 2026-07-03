@@ -18,6 +18,7 @@ interface ProductDetailRolePriceLinesProps {
   equipmentExtrasUsd: number;
   preparationSurchargeUsd?: number;
   className?: string;
+  accentPrice?: boolean;
 }
 
 function computeRoleTotalUsd(
@@ -45,11 +46,14 @@ export function ProductDetailRolePriceLines({
   equipmentExtrasUsd,
   preparationSurchargeUsd = 0,
   className,
+  accentPrice = false,
 }: ProductDetailRolePriceLinesProps) {
   const { isAdmin, viewAsRoles, effectiveRole } = useAuth();
 
-  const mainPriceClass =
-    'text-2xl font-bold leading-tight tabular-nums text-foreground sm:text-[1.75rem]';
+  const mainPriceClass = cn(
+    'text-2xl font-bold leading-tight tabular-nums sm:text-[1.75rem]',
+    accentPrice ? 'text-red-600' : 'text-foreground',
+  );
   const rolePriceClass = 'text-xl font-bold leading-tight tabular-nums text-foreground sm:text-2xl';
 
   const publicTotalUsd = useMemo(
@@ -149,7 +153,12 @@ export function ProductDetailRolePriceLines({
     );
   }
 
-  return <DualPrice usd={visitorTotalUsd} className={cn(mainPriceClass, className)} />;
+  return (
+    <DualPrice
+      usd={visitorTotalUsd}
+      className={cn(mainPriceClass, accentPrice && '[&_span]:text-red-600', className)}
+    />
+  );
 }
 
 interface TonerCardRolePricesProps {

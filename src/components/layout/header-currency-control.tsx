@@ -195,11 +195,19 @@ export function HeaderCurrencySymbolToggle({ className }: { className?: string }
   );
 }
 
-function CartExchangeRateText({ saleRate }: { saleRate: number }) {
+function CartExchangeRateText({
+  saleRate,
+  dark = false,
+}: {
+  saleRate: number;
+  dark?: boolean;
+}) {
   return (
     <>
       <span className="font-medium">T.C.</span>{' '}
-      <span className="font-semibold text-foreground">S/ {formatExchangeRate(saleRate)}</span>
+      <span className={cn('font-semibold', dark ? 'text-white/80' : 'text-foreground')}>
+        S/ {formatExchangeRate(saleRate)}
+      </span>
     </>
   );
 }
@@ -288,11 +296,13 @@ function AdminExchangeRateEditor({
   saleRate,
   purchaseRate,
   compact = false,
+  dark = false,
 }: {
   className?: string;
   saleRate: number;
   purchaseRate: number;
   compact?: boolean;
+  dark?: boolean;
 }) {
   const { data: settings } = useCompanySettings();
   const mutation = useCompanySettingsMutation();
@@ -344,20 +354,34 @@ function AdminExchangeRateEditor({
           className={cn(
             'flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded text-right text-xs tabular-nums leading-tight',
             compact
-              ? 'text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1 focus-visible:ring-offset-background'
+              ? dark
+                ? 'text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1A1A1A]'
+                : 'text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1 focus-visible:ring-offset-background'
               : 'text-neutral-400 transition-colors hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1 focus-visible:ring-offset-black',
             className,
           )}
         >
           <span>
             {compact ? (
-              <CartExchangeRateText saleRate={saleRate} />
+              <>
+                <span className={cn('font-medium', dark ? 'text-white/55' : '')}>T.C.</span>{' '}
+                <span className={cn('font-semibold', dark ? 'text-white/90' : 'text-foreground')}>
+                  S/ {formatExchangeRate(saleRate)}
+                </span>
+              </>
             ) : (
               <ExchangeRateText saleRate={saleRate} purchaseRate={purchaseRate} />
             )}
           </span>
           <Pencil
-            className={cn('size-3 shrink-0', compact ? 'text-muted-foreground' : 'text-neutral-500')}
+            className={cn(
+              'size-3 shrink-0',
+              compact
+                ? dark
+                  ? 'text-white/45'
+                  : 'text-muted-foreground'
+                : 'text-neutral-500',
+            )}
             aria-hidden="true"
           />
         </button>
@@ -416,6 +440,76 @@ function AdminExchangeRateEditor({
         </form>
       </PopoverContent>
     </Popover>
+  );
+}
+
+/** Moneda + T.C. Venta compacto en el header oscuro de la tienda. */
+export function HeaderStoreCurrencyExchangeBlock({ className }: { className?: string }) {
+  const { saleRate, purchaseRate } = useSystemExchangeRates();
+  const { displayCurrency, setDisplayCurrency } = useDisplayCurrency();
+  const { isAdmin } = useAuth();
+
+  const symbolOptions: { id: DisplayCurrency; label: string; ariaLabel: string }[] = [
+    { id: 'USD', label: '$', ariaLabel: 'Mostrar precios en dólares' },
+    { id: 'PEN', label: 'S/', ariaLabel: 'Mostrar precios en soles' },
+    { id: 'BOTH', label: '$S/', ariaLabel: 'Mostrar precios en dólares y soles' },
+  ];
+
+  return (
+    <div
+      className={cn(
+        'inline-flex shrink-0 items-center gap-2 rounded-lg px-2 py-1.5',
+        className,
+      )}
+    >
+      <div
+        role="group"
+        aria-label="Moneda de visualización"
+        className="inline-flex shrink-0 items-center rounded-md border border-white/20 bg-white/10 p-0.5"
+      >
+        {symbolOptions.map((option) => {
+          const isActive = displayCurrency === option.id;
+          return (
+            <button
+              key={option.id}
+              type="button"
+              aria-pressed={isActive}
+              aria-label={option.ariaLabel}
+              onClick={() => setDisplayCurrency(option.id)}
+              className={cn(
+                'min-h-5 min-w-5 rounded px-1 text-[0.6rem] font-semibold leading-none tabular-nums transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1A1A1A]',
+                isActive
+                  ? 'bg-[#E30613] text-white shadow-sm'
+                  : 'text-white/70 hover:bg-white/10 hover:text-white',
+              )}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <span className="mx-px h-4 w-px bg-white/15" aria-hidden="true" />
+
+      {isAdmin ? (
+        <AdminExchangeRateEditor
+          saleRate={saleRate}
+          purchaseRate={purchaseRate}
+          compact
+          dark
+          className="text-xs"
+        />
+      ) : (
+        <p
+          className="whitespace-nowrap text-xs tabular-nums text-white/70"
+          aria-label="Tipo de cambio de venta"
+        >
+          <span className="font-medium">T.C.</span>{' '}
+          <span className="font-semibold text-white/90">S/ {formatExchangeRate(saleRate)}</span>
+        </p>
+      )}
+    </div>
   );
 }
 

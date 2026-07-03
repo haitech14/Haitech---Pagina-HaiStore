@@ -84,14 +84,14 @@ export function resolveProductStockAvailability(
 
   if (quantity <= 3) {
     return {
-      label: `Últimas unidades · ${quantity} unids.`,
+      label: `Últimas unidades · ${quantity} unidades`,
       tone: 'low',
       quantity,
     };
   }
 
   return {
-    label: `En stock · ${quantity} unids.`,
+    label: `En stock · ${quantity} unidades`,
     tone: 'available',
     quantity,
   };

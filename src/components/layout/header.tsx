@@ -25,6 +25,7 @@ import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { cn, formatPenFromUsd } from '@/lib/utils';
+import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
 
 const HEADER_DARK_CLASS = 'bg-[#1A1A1A]';
 
@@ -194,6 +195,8 @@ export function Header() {
                       to={item.to}
                       end={item.end ?? false}
                       onClick={() => setMobileOpen(false)}
+                      onMouseEnter={item.to === '/tienda' ? prefetchStoreRouteFromEvent : undefined}
+                      onFocus={item.to === '/tienda' ? prefetchStoreRouteFromEvent : undefined}
                       className={({ isActive }) =>
                         cn(
                           'block rounded-md px-3 py-2.5 text-sm font-normal transition-colors',

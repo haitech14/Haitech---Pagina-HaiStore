@@ -110,24 +110,36 @@ export function ProductDetailMobilePurchaseBar({
   const navigate = useNavigate();
   const { addItem } = useCart();
   const bottomNavInset = useMobileBottomNavInset();
-  const [heroActionsVisible, setHeroActionsVisible] = useState(true);
+  const [showBar, setShowBar] = useState(false);
 
   useEffect(() => {
     const target = purchaseActionsRef.current;
     if (!target) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setHeroActionsVisible(entry?.isIntersecting ?? false);
-      },
-      { root: null, rootMargin: '0px', threshold: 0.15 },
-    );
+    const updateVisibility = () => {
+      const rect = target.getBoundingClientRect();
+      // Solo mostrar cuando el usuario ya pasó la tarjeta de compra (quedó arriba del viewport).
+      setShowBar(rect.bottom <= 0);
+    };
 
+    updateVisibility();
+
+    const observer = new IntersectionObserver(updateVisibility, {
+      root: null,
+      rootMargin: '0px',
+      threshold: [0, 0.01, 0.25, 0.5, 1],
+    });
     observer.observe(target);
-    return () => observer.disconnect();
-  }, [purchaseActionsRef]);
 
-  const showBar = !heroActionsVisible;
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    window.addEventListener('resize', updateVisibility);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', updateVisibility);
+      window.removeEventListener('resize', updateVisibility);
+    };
+  }, [purchaseActionsRef]);
   useSetMobileBottomInset(showBar ? MOBILE_PURCHASE_BAR_HEIGHT_PX : 0);
   const hasVolumeDiscount = volumePricing.tier != null && volumePricing.savingsUsd > 0.001;
   const hasCustomUnitPrice = hasVolumeDiscount || preparationSurchargeUsd > 0;
@@ -181,12 +193,16 @@ export function ProductDetailMobilePurchaseBar({
   return (
     <div
       className={cn(
-        'fixed inset-x-0 z-40 border-t border-border bg-background/95 p-3 shadow-[0_-4px_20px_rgba(15,23,42,0.12)] backdrop-blur-sm transition-transform duration-200',
+        'fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 shadow-[0_-4px_20px_rgba(15,23,42,0.12)] backdrop-blur-sm transition-[transform,opacity] duration-200',
         bottomNavInset > 0 ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
-        showBar ? 'translate-y-0' : 'pointer-events-none translate-y-full',
+        showBar
+          ? 'translate-y-0 opacity-100'
+          : 'pointer-events-none translate-y-full opacity-0',
       )}
-      style={bottomNavInset > 0 ? { bottom: `${bottomNavInset}px` } : { bottom: 0 }}
+      style={bottomNavInset > 0 ? { bottom: `${bottomNavInset}px` } : undefined}
       aria-hidden={!showBar}
+      role="complementary"
+      aria-label="Acciones rápidas de compra"
     >
       <div className="container flex items-center gap-2.5 sm:gap-3">
         <ProductPurchaseBarThumbnail product={product} />

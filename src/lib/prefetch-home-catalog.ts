@@ -7,11 +7,13 @@ import {
   revalidateHomeCatalogBundle,
 } from '@/lib/home-catalog-bundle';
 import { deferCatalogIndexPreload } from '@/lib/defer-catalog-index';
+import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
 import { viewAsRolesQueryKey } from '@/lib/view-as-role';
 
 /** Precarga snapshot estático y revalida contra la API en segundo plano (sin bloquear la ruta). */
 export async function prefetchHomeCatalog(queryClient: QueryClient) {
-  deferCatalogIndexPreload();
+  deferCatalogIndexPreload(1200);
+  prefetchStoreRoute(queryClient);
 
   const queryKey = [HOME_CATALOG_BUNDLE_QUERY_KEY, 'public', viewAsRolesQueryKey([])];
   const initial = await fetchHomeCatalogBundleInitial();

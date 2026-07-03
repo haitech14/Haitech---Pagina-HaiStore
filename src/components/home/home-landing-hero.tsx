@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
 import { ShoppingCart, Star } from 'lucide-react';
 
 import { HomeTrustStrip } from '@/components/home-trust-strip';
+import { StorePrefetchLink } from '@/components/store-prefetch-link';
 import { Button } from '@/components/ui/button';
 import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
@@ -80,10 +80,10 @@ export function HomeLandingHero() {
                     asChild
                     className="min-h-10 gap-1.5 rounded-lg bg-[#E30613] px-5 text-sm font-medium text-white shadow-[0_6px_16px_rgba(227,6,19,0.22)] hover:bg-[#c90511]"
                   >
-                    <Link to="/tienda">
+                    <StorePrefetchLink to="/tienda">
                       <ShoppingCart className="size-3.5" aria-hidden="true" />
                       Comprar ahora
-                    </Link>
+                    </StorePrefetchLink>
                   </Button>
                   <Button
                     type="button"

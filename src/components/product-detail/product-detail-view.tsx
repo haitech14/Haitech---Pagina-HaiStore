@@ -492,14 +492,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const heroGridClass =
     'grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(260px,320px)] lg:items-start lg:gap-5 xl:gap-6';
 
-  const scrollToComparison = () => {
-    if (comparison) {
-      comparisonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-    setActiveTab('description');
-  };
-
   const showOriginalBadge =
     /ricoh/i.test(detail.brandLabel) &&
     (/original/i.test(product.name) || /original/i.test(product.category ?? ''));
@@ -547,9 +539,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
           <ProductDetailHeroInfo
             product={product}
             detail={detail}
-            showCompareAction={comparison != null}
-            onCompareClick={scrollToComparison}
-            onQuoteClick={() => setQuoteOpen(true)}
             tonerCards={purchasableTonerCards}
             selectedTonerOptionIds={equipmentSelection.toner ?? new Set<string>()}
             onTonerToggle={handleHeroTonerToggle}
@@ -578,6 +567,8 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               rentalEstimate={rentalEstimate}
               maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen ?? null}
               preparationSurchargeUsd={preparationSurchargeUsd}
+              showRentalTab={detail.isPrinterEquipment}
+              onQuoteClick={() => setQuoteOpen(true)}
               {...secondaryPurchaseActionProps}
               {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
               {...(showPreparationTypeSelector ? { preparationType } : {})}
@@ -600,6 +591,8 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
             rentalEstimate={rentalEstimate}
             maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen ?? null}
             preparationSurchargeUsd={preparationSurchargeUsd}
+            showRentalTab={detail.isPrinterEquipment}
+            onQuoteClick={() => setQuoteOpen(true)}
             {...secondaryPurchaseActionProps}
             {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
             {...(showPreparationTypeSelector ? { preparationType } : {})}

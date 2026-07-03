@@ -54,7 +54,7 @@ export const ON_REQUEST_PRODUCT_BUTTON_CLASS =
   'border border-foreground bg-foreground text-background shadow-none hover:bg-foreground/90 hover:text-background focus-visible:ring-ring';
 
 export const ON_REQUEST_STOCK_BADGE_CLASS =
-  'rounded-md border border-foreground/15 bg-foreground px-1.5 py-0.5 font-semibold text-background';
+  'rounded-md border border-border bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground';
 
 export function getAddToCartLabel(
   product: Product,

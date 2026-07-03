@@ -1,16 +1,14 @@
 import { useMemo, type RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Minus, Plus, ShoppingCart, Zap } from 'lucide-react';
+import { FileText, Minus, Plus, ShoppingCart } from 'lucide-react';
 
 import {
-  AddToCartButton,
   adjustProductQuantity,
   formatOrderQuantityHint,
-  getAddToCartLabel,
   hasOnRequestQuantity,
   isProductOutOfStock,
-  ON_REQUEST_PRODUCT_BUTTON_CLASS,
 } from '@/components/cart/add-to-cart-button';
+import { ProductDetailPurchaseCardTrust } from '@/components/product-detail/product-detail-purchase-card-trust';
 import { ProductVolumeDiscountPromo } from '@/components/product/product-volume-discount-promo';
 import { ProductDetailRolePriceLines } from '@/components/product-detail/product-detail-role-prices';
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
@@ -22,7 +20,7 @@ import type { BulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { ensureFullPrices } from '@/lib/roles';
 import { isColorPrinterEquipment } from '@/lib/build-product-detail';
 import { computeEquipmentExtrasUsd } from '@/lib/equipment-config-selection';
-import { cn, penToUsd } from '@/lib/utils';
+import { penToUsd } from '@/lib/utils';
 import {
   computeEquipmentRentalEstimate,
   type EquipmentRentalEstimate,
@@ -53,6 +51,8 @@ interface ProductDetailPurchaseCardProps {
   onRentalClick?: () => void;
   showMaintenancePlanAction?: boolean;
   onMaintenancePlanClick?: () => void;
+  onQuoteClick?: () => void;
+  showRentalTab?: boolean;
 }
 
 export function ProductDetailPurchaseCard({
@@ -70,10 +70,12 @@ export function ProductDetailPurchaseCard({
   maintenancePlanMonthlyPen,
   preparationType,
   preparationSurchargeUsd = 0,
-  showRentalAction = false,
+  showRentalAction: _showRentalAction = false,
   onRentalClick: _onRentalClick,
   showMaintenancePlanAction = false,
   onMaintenancePlanClick,
+  onQuoteClick,
+  showRentalTab = false,
 }: ProductDetailPurchaseCardProps) {
   const { addItem } = useCart();
   const navigate = useNavigate();
@@ -155,8 +157,7 @@ export function ProductDetailPurchaseCard({
     navigate('/checkout');
   };
 
-  const addToCartLabel = getAddToCartLabel(product, 'default', quantity);
-  const buyNowLabel = includesOnRequest ? 'Comprar a pedido' : 'Comprar ahora';
+  const buyNowLabel = includesOnRequest ? 'Reservar ahora' : 'Comprar ahora';
 
   const priceBlock = isRentMode && activeRentalEstimate ? (
     <div>
@@ -217,8 +218,7 @@ export function ProductDetailPurchaseCard({
     </div>
   ) : (
       <div>
-        <p className="text-xs font-semibold text-foreground">Oferta</p>
-        <div className="mt-0.5" aria-live="polite" aria-atomic="true">
+        <div aria-live="polite" aria-atomic="true">
           <ProductDetailRolePriceLines
             product={product}
             quantity={quantity}
@@ -226,6 +226,7 @@ export function ProductDetailPurchaseCard({
             bulkDiscountTiers={detail.bulkDiscountTiers}
             equipmentExtrasUsd={equipmentExtrasUsd}
             preparationSurchargeUsd={preparationSurchargeUsd}
+            accentPrice
           />
         </div>
       {quantity > 1 ? (
@@ -238,7 +239,7 @@ export function ProductDetailPurchaseCard({
           {' + '}tóner <DualPrice usd={equipmentExtrasUsd} className="inline" />
         </p>
       ) : null}
-      <p className="mt-0.5 text-xs text-muted-foreground">IGV incluido</p>
+      <p className="mt-1 text-xs text-muted-foreground">IGV incluido</p>
       {showNormalPrice ? (
         <p className="mt-1 text-xs text-muted-foreground">
           Precio normal:{' '}
@@ -270,8 +271,9 @@ export function ProductDetailPurchaseCard({
             rentalPlans={detail.rentalPlans}
             maintenancePlanMonthlyPen={maintenancePlanMonthlyPen ?? null}
             showMaintenancePlan={showMaintenancePlanAction && Boolean(onMaintenancePlanClick)}
+            showRentalTab={showRentalTab}
             {...(onMaintenancePlanClick ? { onMaintenancePlanClick } : {})}
-            className="mb-3"
+            className="mb-4"
           />
         ) : null}
 
@@ -288,9 +290,9 @@ export function ProductDetailPurchaseCard({
           />
         ) : null}
 
-        <div className="mt-4 flex items-stretch gap-2.5">
+        <div className="mt-4">
           <div
-            className="flex h-11 w-[7.75rem] shrink-0 items-stretch overflow-hidden rounded-lg border border-border bg-background"
+            className="mx-auto flex h-11 w-full max-w-[8.5rem] items-stretch overflow-hidden rounded-lg border border-border bg-background"
             role="group"
             aria-label="Cantidad"
           >
@@ -304,7 +306,7 @@ export function ProductDetailPurchaseCard({
               <Minus className="size-4" aria-hidden="true" />
             </button>
             <span
-              className="flex w-8 items-center justify-center border-x border-border text-sm font-semibold text-foreground"
+              className="flex flex-1 items-center justify-center border-x border-border text-sm font-semibold text-foreground"
               aria-live="polite"
               aria-atomic="true"
               title={orderHint ?? undefined}
@@ -320,65 +322,18 @@ export function ProductDetailPurchaseCard({
               <Plus className="size-4" aria-hidden="true" />
             </button>
           </div>
-
-          <AddToCartButton
-            product={product}
-            addOptions={cartAddOptions}
-            size="lg"
-            className={cn(
-              'h-11 min-h-11 min-w-0 flex-1 gap-2 rounded-lg text-sm font-semibold shadow-sm disabled:opacity-50',
-              includesOnRequest
-                ? ON_REQUEST_PRODUCT_BUTTON_CLASS
-                : 'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
-            )}
-          >
-            <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-            {addToCartLabel}
-          </AddToCartButton>
         </div>
 
-        <div className="mt-2.5 flex flex-col gap-2.5">
-          <div
-            className={cn(
-              'flex gap-2.5',
-              (showRentalAction || showMaintenancePlanAction) && 'flex-col sm:flex-row',
-            )}
+        <div className="mt-3 flex flex-col gap-2.5">
+          <Button
+            type="button"
+            size="lg"
+            onClick={handleBuyNow}
+            className="h-11 min-h-11 w-full gap-2 rounded-lg border-0 bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
           >
-            <Button
-              type="button"
-              size="lg"
-              onClick={handleBuyNow}
-              className={cn(
-                'h-11 min-h-11 gap-2 rounded-lg border-0 bg-foreground text-sm font-semibold text-white hover:bg-foreground/90 focus-visible:ring-foreground',
-                (showRentalAction || showMaintenancePlanAction) && 'min-w-0 flex-1',
-                !showRentalAction && !showMaintenancePlanAction && 'w-full',
-              )}
-            >
-              <Zap className="size-4 shrink-0" aria-hidden="true" />
-              {buyNowLabel}
-            </Button>
-
-            {showMaintenancePlanAction && onMaintenancePlanClick ? (
-              <Button
-                type="button"
-                size="lg"
-                variant="outline"
-                onClick={onMaintenancePlanClick}
-                className="h-11 min-h-11 min-w-0 flex-1 gap-2 rounded-lg border-border px-2.5 text-xs font-semibold leading-tight sm:px-4 sm:text-sm"
-              >
-                Solicitar Plan de Mantenimiento
-              </Button>
-            ) : null}
-          </div>
-
-          {includesOnRequest ? (
-            <p className="text-center text-xs text-muted-foreground">
-              {orderHint}
-              {outOfStock
-                ? ' · confirmamos plazo al procesar tu pedido.'
-                : ' · el excedente se confirma al procesar tu pedido.'}
-            </p>
-          ) : null}
+            <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+            {buyNowLabel}
+          </Button>
 
           <ProductWhatsAppButton
             stopPropagation={false}
@@ -405,11 +360,45 @@ export function ProductDetailPurchaseCard({
               ...(equipmentConfiguration ? { equipmentConfiguration } : {}),
             }}
             {...(onQuoteGenerated ? { onQuoteGenerated } : {})}
-            className={cn(
-              'h-11 min-h-11 w-full gap-2 rounded-lg border-0 bg-emerald-600 text-sm font-semibold text-white hover:bg-emerald-500 focus-visible:ring-emerald-600',
-            )}
+            className="h-11 min-h-11 w-full gap-2 rounded-lg border-0 bg-emerald-600 text-sm font-semibold text-white hover:bg-emerald-500 focus-visible:ring-emerald-600"
           />
+
+          {onQuoteClick ? (
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              onClick={onQuoteClick}
+              className="h-11 min-h-11 w-full gap-2 rounded-lg border-red-600 text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:ring-red-600"
+            >
+              <FileText className="size-4 shrink-0" aria-hidden="true" />
+              Solicitar cotización
+            </Button>
+          ) : null}
+
+          {showMaintenancePlanAction && onMaintenancePlanClick ? (
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              onClick={onMaintenancePlanClick}
+              className="h-11 min-h-11 w-full gap-2 rounded-lg border-border px-2.5 text-xs font-semibold leading-tight sm:text-sm"
+            >
+              Solicitar Plan de Mantenimiento
+            </Button>
+          ) : null}
+
+          {includesOnRequest ? (
+            <p className="text-center text-xs text-muted-foreground">
+              {orderHint}
+              {outOfStock
+                ? ' · confirmamos plazo al procesar tu pedido.'
+                : ' · el excedente se confirma al procesar tu pedido.'}
+            </p>
+          ) : null}
         </div>
+
+        <ProductDetailPurchaseCardTrust className="mt-4" />
       </div>
     </aside>
   );

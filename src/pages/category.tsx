@@ -197,7 +197,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     return null;
   }, [searchCategoryFilter, isStoreAll, subSlug, isAllSubcategoriesView, categoryTree]);
   const syncSidebarCountsFromCatalog = !isInventorySearch && !isRentalCategory;
-  const { data: allProductsData } = useProducts({ enabled: syncSidebarCountsFromCatalog });
+  const { data: allProductsData, isFetching: productsFetching, isPending: productsPending } =
+    useProducts({ enabled: syncSidebarCountsFromCatalog });
   const allProducts = allProductsData ?? EMPTY_PRODUCT_LIST;
   const storeCatalogProducts = useMemo(
     () => (isStoreAll ? excludeStoreSoftwareProducts(allProducts) : allProducts),
@@ -352,7 +353,13 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     : isStoreAll
       ? storeCatalogProducts
       : (catalogData?.products ?? EMPTY_PRODUCT_LIST);
-  const isLoading = isInventorySearch ? searchLoading : catalogLoading;
+  const storeAwaitingProducts =
+    isStoreAll && allProducts.length === 0 && (productsPending || productsFetching);
+  const isLoading = isInventorySearch
+    ? searchLoading
+    : isStoreAll
+      ? storeAwaitingProducts || (categoryTreeLoading && categoryTree.length === 0)
+      : catalogLoading;
   const isError = isInventorySearch ? searchError : catalogError;
   const isCatalogFetching = isInventorySearch ? searchFetching : catalogFetching;
   const refetchCatalogProducts = isInventorySearch ? refetchSearch : refetchCatalog;
