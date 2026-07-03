@@ -1,35 +1,50 @@
 import { HOME_TRUST_BENEFITS } from '@/data/home-trust-benefits';
+import { cn } from '@/lib/utils';
 
-export function HomeTrustStrip() {
+type HomeTrustStripProps = {
+  /** Integrado al hero — barra blanca superpuesta al borde inferior. */
+  embedded?: boolean;
+};
+
+export function HomeTrustStrip({ embedded = false }: HomeTrustStripProps) {
   return (
-    <section aria-label="Beneficios y garantías HaiStore">
-      <div className="container pb-4 sm:pb-5">
-        <div className="rounded-2xl border border-border/60 bg-white px-4 py-5 shadow-[0_2px_12px_rgba(15,31,61,0.06)] sm:px-6 sm:py-6">
-          <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4 lg:gap-4">
-            {HOME_TRUST_BENEFITS.map((benefit) => {
-              const Icon = benefit.icon;
-              return (
-                <li key={benefit.id} className="flex items-start gap-3 sm:gap-3.5">
-                  <span
-                    className="flex size-10 shrink-0 items-center justify-center text-muted-foreground sm:size-11"
-                    aria-hidden="true"
-                  >
-                    <Icon className="size-5 sm:size-[1.35rem]" strokeWidth={1.75} />
-                  </span>
+    <section
+      aria-label="Beneficios y garantías HaiStore"
+      className={cn(
+        !embedded && 'container py-0 pb-3 pt-4 sm:pb-4 sm:pt-5',
+        embedded &&
+          'pointer-events-auto absolute bottom-1 left-1/2 z-30 w-[min(100%-2rem,82%)] max-w-5xl -translate-x-1/2 translate-y-[46%] sm:bottom-1.5 lg:bottom-2',
+      )}
+    >
+      <div
+        className={cn(
+          'border border-border/60 bg-white px-4 py-3 shadow-[0_12px_40px_rgba(15,31,61,0.12)] sm:px-5 sm:py-3.5',
+          embedded ? 'rounded-t-2xl rounded-b-2xl lg:rounded-[1.75rem]' : 'rounded-2xl lg:rounded-[1.25rem]',
+        )}
+      >
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border/50">
+          {HOME_TRUST_BENEFITS.map((benefit) => {
+            const Icon = benefit.icon;
+            return (
+              <li
+                key={benefit.id}
+                className="flex items-center gap-2.5 px-0 sm:px-1 lg:gap-3 lg:px-5 lg:first:pl-0 lg:last:pr-0"
+              >
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center text-[#E30613] sm:size-10"
+                  aria-hidden="true"
+                >
+                  <Icon className="size-5 sm:size-[1.375rem]" strokeWidth={1.75} />
+                </span>
 
-                  <div className="min-w-0 flex-1 pt-0.5">
-                    <p className="text-pretty text-sm font-bold leading-snug text-[#0f1f3d] sm:text-[0.9375rem]">
-                      {benefit.title}
-                    </p>
-                    <p className="mt-0.5 text-pretty text-xs leading-snug text-muted-foreground sm:text-sm">
-                      {benefit.description}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+                <p className="min-w-0 text-pretty text-xs leading-snug sm:text-[0.8125rem]">
+                  <span className="font-hero font-bold text-[#111111]">{benefit.title}</span>{' '}
+                  <span className="font-normal text-[#666666]">{benefit.description}</span>
+                </p>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );

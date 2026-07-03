@@ -11,11 +11,11 @@ import {
 
 const ORGANIZATION_CORE = {
   '@type': ['Organization', 'LocalBusiness'],
-  name: 'Haitech',
+  name: 'HaiStore',
   legalName: 'NBN TECNOLOGIA TOTAL S.A.C.',
-  alternateName: 'HaiTech',
+  alternateName: ['HaiTech', 'HAITECH'],
   url: 'https://www.haitech.pe',
-  logo: 'https://www.haitech.pe/Logo%20Haitech.png',
+  logo: 'https://www.haitech.pe/logo.png',
   description:
     'Distribuidor Autorizado Ricoh en Perú. Venta y alquiler de fotocopiadoras, multifuncionales, impresoras, tóner, tintas y repuestos con soporte técnico especializado.',
   brand: { '@type': 'Brand', name: 'Ricoh' },
@@ -51,7 +51,7 @@ function buildOffer(product, siteOrigin, url) {
     '@type': 'Offer',
     url,
     availability: availabilityUrl(stock),
-    seller: { '@type': 'Organization', name: 'Haitech' },
+    seller: { '@type': 'Organization', name: 'HaiStore' },
     itemCondition: resolveSchemaItemCondition(product),
     priceValidUntil: validUntil,
   };
@@ -158,7 +158,7 @@ export function buildWebsiteJsonLd(siteOrigin) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Haitech',
+    name: 'HaiStore',
     url: buildAbsoluteUrl('/', siteOrigin),
     potentialAction: {
       '@type': 'SearchAction',
@@ -213,7 +213,7 @@ export function buildServiceJsonLd(service, siteOrigin) {
     description: service.description,
     provider: {
       '@type': 'Organization',
-      name: 'Haitech',
+      name: 'HaiStore',
       url: buildAbsoluteUrl('/', siteOrigin),
     },
     areaServed: { '@type': 'Country', name: 'Perú' },
@@ -246,7 +246,7 @@ export function buildCategoryCollectionJsonLd(category, siteOrigin, topProducts 
     blocks.push({
       '@context': 'https://schema.org',
       '@type': 'ItemList',
-      name: `${category.name} — Haitech`,
+      name: `${category.name} — HaiStore`,
       itemListElement: topProducts.slice(0, 10).map((item, index) => ({
         '@type': 'ListItem',
         position: index + 1,

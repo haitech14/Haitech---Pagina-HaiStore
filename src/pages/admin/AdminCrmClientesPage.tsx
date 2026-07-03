@@ -1,5 +1,5 @@
-import { RegisteredCustomersPanel } from '@/components/admin/registered-customers-panel';
+import { AdminClientesDashboard } from '@/components/admin/clientes/admin-clientes-dashboard';
 
 export function AdminCrmClientesPage() {
-  return <RegisteredCustomersPanel variant="page" />;
+  return <AdminClientesDashboard />;
 }

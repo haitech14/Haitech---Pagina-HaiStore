@@ -22,8 +22,16 @@ interface ProductQuantityAddFooterProps {
   onQuantityChange?: (quantity: number) => void;
   /** Oculta el stepper hasta hover/focus en la tarjeta (`group`). */
   revealQuantityOnHover?: boolean;
+  /** No muestra el selector de cantidad (siempre agrega 1 unidad). */
+  hideQuantity?: boolean;
   /** Muestra botón «Comprar ahora» que lleva directo al checkout. */
   showBuyNow?: boolean;
+  /** Etiqueta del botón de carrito (p. ej. «Agregar al carrito»). */
+  addLabel?: string;
+  /** Etiqueta del botón de compra directa (p. ej. «Compr»). */
+  buyNowLabel?: string;
+  addButtonClassName?: string;
+  buyNowButtonClassName?: string;
 }
 
 export function ProductQuantityAddFooter({
@@ -32,14 +40,19 @@ export function ProductQuantityAddFooter({
   size = 'md',
   onQuantityChange,
   revealQuantityOnHover = true,
+  hideQuantity = false,
   showBuyNow = false,
+  addLabel,
+  buyNowLabel: buyNowLabelProp,
+  addButtonClassName,
+  buyNowButtonClassName,
 }: ProductQuantityAddFooterProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const includesOnRequest = hasOnRequestQuantity(product, quantity);
   const orderHint = formatOrderQuantityHint(product, quantity);
-  const cartLabel = getAddToCartLabel(product, 'short', quantity);
+  const cartLabel = addLabel ?? getAddToCartLabel(product, 'short', quantity);
 
   const adjustQuantity = (delta: number) => {
     setQuantity((current) => {
@@ -74,65 +87,71 @@ export function ProductQuantityAddFooter({
     navigate('/checkout');
   };
 
-  const buyNowLabel = includesOnRequest ? 'Pedido' : 'Comprar';
+  const buyNowLabel =
+    buyNowLabelProp ?? (includesOnRequest ? 'Pedido' : 'Comprar');
+  const showActionText = !showBuyNow || addLabel != null || buyNowLabelProp != null;
 
   return (
     <div
       className={cn(
         'flex w-full shrink-0 items-stretch',
-        revealQuantityOnHover
-          ? 'gap-0 transition-[gap] duration-200 ease-out group-hover:gap-1.5 group-focus-within:gap-1.5 sm:group-hover:gap-2 max-md:gap-1.5 motion-reduce:transition-none'
-          : 'gap-1.5 sm:gap-2',
+        hideQuantity
+          ? 'gap-1.5 sm:gap-2'
+          : revealQuantityOnHover
+            ? 'gap-0 transition-[gap] duration-200 ease-out group-hover:gap-1.5 group-focus-within:gap-1.5 sm:group-hover:gap-2 max-md:gap-1.5 motion-reduce:transition-none'
+            : 'gap-1.5 sm:gap-2',
         className,
       )}
     >
-      <div
-        className={cn(
-          'flex shrink-0 items-center rounded-md border bg-white',
-          revealQuantityOnHover
-            ? cn(
-                'max-w-0 overflow-hidden border-transparent opacity-0',
-                'transition-[max-width,opacity,border-color] duration-200 ease-out motion-reduce:transition-none',
-                'group-hover:max-w-[7.5rem] group-hover:border-border group-hover:opacity-100',
-                'group-focus-within:max-w-[7.5rem] group-focus-within:border-border group-focus-within:opacity-100',
-                'focus-within:max-w-[7.5rem] focus-within:border-border focus-within:opacity-100',
-                'max-md:max-w-[7.5rem] max-md:border-border max-md:opacity-100',
-              )
-            : 'border-border',
-        )}
-        role="group"
-        aria-label={
-          orderHint
-            ? `Cantidad de ${product.name}: ${quantity} (${orderHint})`
-            : `Cantidad de ${product.name}`
-        }
-      >
-        <button
-          type="button"
-          onClick={() => adjustQuantity(-1)}
-          disabled={quantity <= 1}
-          aria-label="Disminuir cantidad"
-          className={qtyButtonClass}
+      {hideQuantity ? null : (
+        <div
+          className={cn(
+            'flex shrink-0 items-center rounded-md border bg-white',
+            revealQuantityOnHover
+              ? cn(
+                  'max-w-0 overflow-hidden border-transparent opacity-0',
+                  'transition-[max-width,opacity,border-color] duration-200 ease-out motion-reduce:transition-none',
+                  'group-hover:max-w-[7.5rem] group-hover:border-border group-hover:opacity-100',
+                  'group-focus-within:max-w-[7.5rem] group-focus-within:border-border group-focus-within:opacity-100',
+                  'focus-within:max-w-[7.5rem] focus-within:border-border focus-within:opacity-100',
+                  'max-md:max-w-[7.5rem] max-md:border-border max-md:opacity-100',
+                )
+              : 'border-border',
+          )}
+          role="group"
+          aria-label={
+            orderHint
+              ? `Cantidad de ${product.name}: ${quantity} (${orderHint})`
+              : `Cantidad de ${product.name}`
+          }
         >
-          <Minus className="size-3.5" aria-hidden="true" />
-        </button>
-        <span
-          className={qtyValueClass}
-          aria-live="polite"
-          aria-atomic="true"
-          title={orderHint ?? undefined}
-        >
-          {quantity}
-        </span>
-        <button
-          type="button"
-          onClick={() => adjustQuantity(1)}
-          aria-label="Aumentar cantidad"
-          className={qtyButtonClass}
-        >
-          <Plus className="size-3.5" aria-hidden="true" />
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => adjustQuantity(-1)}
+            disabled={quantity <= 1}
+            aria-label="Disminuir cantidad"
+            className={qtyButtonClass}
+          >
+            <Minus className="size-3.5" aria-hidden="true" />
+          </button>
+          <span
+            className={qtyValueClass}
+            aria-live="polite"
+            aria-atomic="true"
+            title={orderHint ?? undefined}
+          >
+            {quantity}
+          </span>
+          <button
+            type="button"
+            onClick={() => adjustQuantity(1)}
+            aria-label="Aumentar cantidad"
+            className={qtyButtonClass}
+          >
+            <Plus className="size-3.5" aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
       <AddToCartButton
         product={product}
@@ -140,13 +159,18 @@ export function ProductQuantityAddFooter({
         className={cn(
           addButtonClass,
           includesOnRequest
-            ? ON_REQUEST_PRODUCT_BUTTON_CLASS
-            : 'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
+            ? (addButtonClassName ?? ON_REQUEST_PRODUCT_BUTTON_CLASS)
+            : cn(
+                'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
+                addButtonClassName,
+              ),
         )}
       >
-        {!includesOnRequest ? <ShoppingCart className="size-4 shrink-0" aria-hidden="true" /> : null}
+        {!includesOnRequest || showBuyNow ? (
+          <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+        ) : null}
         {showBuyNow ? (
-          <span className="hidden min-[360px]:inline">{cartLabel}</span>
+          <span className={cn(!showActionText && 'hidden min-[360px]:inline')}>{cartLabel}</span>
         ) : (
           cartLabel
         )}
@@ -156,11 +180,14 @@ export function ProductQuantityAddFooter({
         <Button
           type="button"
           onClick={handleBuyNow}
-          className={cn(buyNowButtonClass, 'bg-foreground text-white hover:bg-foreground/90')}
+          className={cn(
+            buyNowButtonClass,
+            buyNowButtonClassName ?? 'bg-foreground text-white hover:bg-foreground/90',
+          )}
           aria-label="Comprar ahora"
         >
           <Zap className="size-3.5 shrink-0 sm:size-4" aria-hidden="true" />
-          <span className="hidden min-[360px]:inline">{buyNowLabel}</span>
+          <span className={cn(!showActionText && 'hidden min-[360px]:inline')}>{buyNowLabel}</span>
         </Button>
       ) : null}
     </div>

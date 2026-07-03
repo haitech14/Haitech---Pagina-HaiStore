@@ -10,9 +10,15 @@ import { cn } from '@/lib/utils';
 interface PromotionsHeroBannerProps {
   /** Sin contenedor externo (dentro del layout del inicio). */
   embedded?: boolean;
+  /** Carrusel compacto para cabecera de catálogo / tienda. */
+  variant?: 'default' | 'compact';
 }
 
-export function PromotionsHeroBanner({ embedded = false }: PromotionsHeroBannerProps) {
+export function PromotionsHeroBanner({
+  embedded = false,
+  variant = 'default',
+}: PromotionsHeroBannerProps) {
+  const isCompact = variant === 'compact';
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
@@ -50,12 +56,15 @@ export function PromotionsHeroBanner({ embedded = false }: PromotionsHeroBannerP
 
   return (
     <section
-      aria-label="Promociones destacadas"
-      className={cn(!embedded && 'bg-background')}
+      aria-label="Promociones del mes"
+      className={cn(!embedded && !isCompact && 'bg-background')}
     >
-      <div className={cn(!embedded && 'container py-4 sm:py-5')}>
+      <div className={cn(!embedded && !isCompact && 'container py-4 sm:py-5')}>
         <div
-          className="relative overflow-hidden rounded-2xl border border-border shadow-sm"
+          className={cn(
+            'relative overflow-hidden border border-border shadow-sm',
+            isCompact ? 'rounded-xl' : 'rounded-2xl',
+          )}
           onMouseEnter={pauseAutoplay}
           onFocus={pauseAutoplay}
         >
@@ -67,7 +76,14 @@ export function PromotionsHeroBanner({ embedded = false }: PromotionsHeroBannerP
                   className="relative min-w-0 flex-[0_0_100%]"
                   aria-hidden={selectedIndex !== index}
                 >
-                  <div className="relative flex min-h-[168px] flex-col justify-end sm:min-h-[212px] lg:min-h-[248px]">
+                  <div
+                    className={cn(
+                      'relative flex flex-col justify-end',
+                      isCompact
+                        ? 'min-h-[9.5rem] sm:min-h-[11.5rem] md:min-h-[12.5rem]'
+                        : 'min-h-[168px] sm:min-h-[212px] lg:min-h-[248px]',
+                    )}
+                  >
                     <img
                       src={slide.image}
                       alt=""
@@ -80,25 +96,60 @@ export function PromotionsHeroBanner({ embedded = false }: PromotionsHeroBannerP
                       aria-hidden="true"
                     />
 
-                    <div className="relative z-10 flex max-w-xl flex-col gap-2 p-4 sm:gap-2.5 sm:p-6 lg:p-7">
-                      {slide.badge && (
-                        <span className="inline-flex w-fit rounded-md bg-red-600 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white sm:px-2.5 sm:py-1 sm:text-xs">
-                          {slide.badge}
-                        </span>
+                    <div
+                      className={cn(
+                        'relative z-10 flex flex-col',
+                        isCompact
+                          ? 'gap-2 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:p-5 md:p-6'
+                          : 'max-w-xl gap-2 p-4 sm:gap-2.5 sm:p-6 lg:p-7',
                       )}
-                      <h2 className="text-balance text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-3xl">
-                        {slide.title}
-                      </h2>
-                      <p className="text-pretty text-xs leading-snug text-white/85 sm:text-sm">
-                        {slide.subtitle}
-                      </p>
-                      <div className="pt-0.5">
+                    >
+                      <div className={cn(isCompact && 'min-w-0 flex-1')}>
+                        {slide.badge ? (
+                          <span
+                            className={cn(
+                              'inline-flex w-fit rounded-md bg-red-600 font-bold uppercase tracking-wide text-white',
+                              isCompact
+                                ? 'px-2 py-0.5 text-[0.6rem] sm:text-[0.65rem]'
+                                : 'px-2 py-0.5 text-[0.65rem] sm:px-2.5 sm:py-1 sm:text-xs',
+                            )}
+                          >
+                            {slide.badge}
+                          </span>
+                        ) : null}
+                        <h2
+                          className={cn(
+                            'text-balance font-bold tracking-tight text-white',
+                            isCompact
+                              ? 'mt-1 text-base leading-snug sm:text-lg md:text-xl'
+                              : 'text-xl sm:text-2xl lg:text-3xl',
+                          )}
+                        >
+                          {slide.title}
+                        </h2>
+                        <p
+                          className={cn(
+                            'text-pretty text-white/85',
+                            isCompact
+                              ? 'mt-1 line-clamp-2 text-xs leading-snug sm:line-clamp-2 sm:text-sm'
+                              : 'text-xs leading-snug sm:text-sm',
+                          )}
+                        >
+                          {slide.subtitle}
+                        </p>
+                      </div>
+                      <div className={cn(isCompact ? 'shrink-0' : 'pt-0.5')}>
                         <Button
                           asChild
-                          className="h-10 gap-2 rounded-lg bg-red-600 px-5 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
+                          className={cn(
+                            'gap-2 rounded-lg bg-red-600 font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600',
+                            isCompact
+                              ? 'h-9 px-4 text-xs sm:h-10 sm:px-5 sm:text-sm'
+                              : 'h-10 px-5 text-sm',
+                          )}
                         >
                           <Link to={slide.ctaHref}>
-                            <ShoppingCart className="size-4" aria-hidden="true" />
+                            <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
                             {slide.ctaLabel}
                           </Link>
                         </Button>
@@ -118,7 +169,12 @@ export function PromotionsHeroBanner({ embedded = false }: PromotionsHeroBannerP
               scrollPrev();
             }}
             aria-label="Promoción anterior"
-            className="absolute left-2 top-1/2 z-20 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:flex"
+            className={cn(
+              'absolute left-2 top-1/2 z-20 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600',
+              isCompact
+                ? 'hidden size-8 sm:flex'
+                : 'hidden size-10 sm:flex',
+            )}
           >
             <ChevronLeft className="size-5" aria-hidden="true" />
           </button>
@@ -129,13 +185,23 @@ export function PromotionsHeroBanner({ embedded = false }: PromotionsHeroBannerP
               scrollNext();
             }}
             aria-label="Siguiente promoción"
-            className="absolute right-2 top-1/2 z-20 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:flex"
+            className={cn(
+              'absolute right-2 top-1/2 z-20 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600',
+              isCompact
+                ? 'hidden size-8 sm:flex'
+                : 'hidden size-10 sm:flex',
+            )}
           >
             <ChevronRight className="size-5" aria-hidden="true" />
           </button>
 
           <div
-            className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-2 sm:bottom-4"
+            className={cn(
+              'absolute z-20 flex gap-2',
+              isCompact
+                ? 'bottom-2 right-2 sm:bottom-2.5 sm:right-2.5'
+                : 'bottom-3 left-1/2 -translate-x-1/2 sm:bottom-4',
+            )}
             role="tablist"
             aria-label="Seleccionar promoción"
           >
@@ -151,7 +217,8 @@ export function PromotionsHeroBanner({ embedded = false }: PromotionsHeroBannerP
                   scrollTo(index);
                 }}
                 className={cn(
-                  'size-2.5 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+                  'rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+                  isCompact ? 'size-2' : 'size-2.5',
                   selectedIndex === index ? 'bg-red-600' : 'bg-white/50 hover:bg-white/80',
                 )}
               />

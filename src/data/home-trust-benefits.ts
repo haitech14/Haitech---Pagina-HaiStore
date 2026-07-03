@@ -1,4 +1,4 @@
-import { BadgeCheck, Headphones, ShieldCheck, Truck, type LucideIcon } from 'lucide-react';
+import { Headphones, ShieldCheck, Truck, Users, type LucideIcon } from 'lucide-react';
 
 export interface HomeTrustBenefit {
   id: string;
@@ -9,27 +9,27 @@ export interface HomeTrustBenefit {
 
 export const HOME_TRUST_BENEFITS: HomeTrustBenefit[] = [
   {
-    id: 'originales',
-    title: 'Equipos 100% originales',
-    description: 'Garantía y respaldo oficial Ricoh',
-    icon: ShieldCheck,
-  },
-  {
     id: 'envios',
-    title: 'Envíos a todo el país',
-    description: 'Rápido y seguro',
+    title: 'Envíos rápidos',
+    description: 'A todo el país en 24/48 hs.',
     icon: Truck,
   },
   {
     id: 'soporte',
-    title: 'Soporte técnico especializado',
-    description: 'Te acompañamos siempre',
+    title: 'Soporte técnico',
+    description: 'Especialistas siempre listos',
     icon: Headphones,
   },
   {
-    id: 'compra-segura',
-    title: 'Compra segura',
-    description: 'Cotiza y compra con confianza',
-    icon: BadgeCheck,
+    id: 'garantia',
+    title: 'Garantía asegurada',
+    description: 'Equipos y repuestos originales',
+    icon: ShieldCheck,
+  },
+  {
+    id: 'atencion',
+    title: 'Atención personalizada',
+    description: 'Asesoramiento a medida',
+    icon: Users,
   },
 ];

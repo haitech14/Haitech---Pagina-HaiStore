@@ -23,6 +23,15 @@ export function roundPenToNearestNine(pen: number): number {
   return best;
 }
 
+/** Tóner y repuestos mantienen precio con centavos; el resto usa redondeo al 9. */
+export function isTonerOrRepuestosCategory(category: string | null | undefined): boolean {
+  const normalized = (category ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  return /toner|repuesto/.test(normalized);
+}
+
 /**
  * Redondeo comercial en soles: centésimas que terminan en 9 (segundo decimal = 9).
  * Ej.: 33.30 → 33.29; 10.04 → 10.09; 10.09 (ya termina en 9) se mantiene.

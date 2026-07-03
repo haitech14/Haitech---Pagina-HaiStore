@@ -21,6 +21,10 @@ export function resolveProductCardPricing(
 ): ProductCardPricing {
   const price = Math.max(0, currentUsd);
 
+  if (price <= 0) {
+    return { currentUsd: 0, compareUsd: 0, discountPercent: 0 };
+  }
+
   if (existing?.oldPrice != null && existing.oldPrice > price) {
     const compareUsd = existing.oldPrice;
     const discountPercent =

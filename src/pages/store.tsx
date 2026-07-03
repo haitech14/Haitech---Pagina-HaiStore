@@ -20,7 +20,7 @@ export function StorePage() {
   });
 
   return (
-    <div className={cn('store-storefront flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
+    <div className={cn('store-storefront home-landing-sans flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <CategoryPage storefrontMode />
     </div>
   );
@@ -29,7 +29,7 @@ export function StorePage() {
 /** Catálogo de categoría con el mismo layout storefront que `/tienda`. */
 export function CategoryStorefrontPage() {
   return (
-    <div className={cn('store-storefront flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
+    <div className={cn('store-storefront home-landing-sans flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <CategoryPage storefrontMode />
     </div>
   );

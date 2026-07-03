@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Plus, PanelLeftClose } from 'lucide-react';
+import { Link, Navigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { Plus, PanelLeftClose, SlidersHorizontal } from 'lucide-react';
 
 import { StoreCatalogHeader } from '@/components/store-storefront/store-catalog-header';
+import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
+import { StoreCatalogViewControls } from '@/components/store-storefront/store-catalog-view-controls';
+import { PromotionsHeroBanner } from '@/components/promotions-hero-banner';
 import { storeCatalogCopy } from '@/data/store-landing';
 import { CatalogFilterOption } from '@/components/catalog-filter-option';
 import { CatalogFilterGroup } from '@/components/catalog-filter-group';
@@ -53,12 +56,12 @@ import {
 } from '@/lib/category-product-labels';
 import {
   ALL_SUBCATEGORIES_QUERY,
+  collectInventoryLabels,
   findRootCategorySlugForSubcategory,
   findStoreCategoryBySlug,
   formatSubcategoryTabLabel,
   parseCategorySubSearchParam,
 } from '@/lib/store-category-display';
-import { categoryPath } from '@/lib/category-path';
 import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import { queryClient } from '@/providers';
 import { prepareCatalogCategoryTree } from '@/lib/catalog-category-tree';
@@ -168,7 +171,6 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const catalogSidebarLayout = isStoreAll ? true : shouldUseCatalogSidebarLayout(slug);
   const showCatalogSpecFilters = shouldShowCatalogSpecFilterTabs(slug);
   const location = useLocation();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawSubSlug = searchParams.get('sub');
   const { subSlug, isAllSubcategoriesView } = parseCategorySubSearchParam(rawSubSlug);
@@ -187,6 +189,13 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     refetch: refetchCategoryTree,
   } = useStoreCategoriesTree();
   const categoryTree = categoryTreeData ?? EMPTY_STORE_CATEGORY_TREE;
+  const storeFilterCategorySlug = useMemo(() => {
+    if (searchCategoryFilter !== 'all') return searchCategoryFilter;
+    if (isStoreAll && subSlug && !isAllSubcategoriesView && categoryTree.length > 0) {
+      return findRootCategorySlugForSubcategory(categoryTree, subSlug);
+    }
+    return null;
+  }, [searchCategoryFilter, isStoreAll, subSlug, isAllSubcategoriesView, categoryTree]);
   const syncSidebarCountsFromCatalog = !isInventorySearch && !isRentalCategory;
   const { data: allProductsData } = useProducts({ enabled: syncSidebarCountsFromCatalog });
   const allProducts = allProductsData ?? EMPTY_PRODUCT_LIST;
@@ -241,6 +250,26 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     () => (slug ? findStoreCategoryBySlug(categoryTree, slug) : undefined),
     [categoryTree, slug],
   );
+
+  const storeFilterCategory = useMemo(
+    () =>
+      storeFilterCategorySlug
+        ? findStoreCategoryBySlug(categoryTree, storeFilterCategorySlug)
+        : undefined,
+    [categoryTree, storeFilterCategorySlug],
+  );
+
+  const storeFilterSubcategory = useMemo(
+    () =>
+      storeFilterCategory && subSlug
+        ? findStoreSubcategoryBySlug(storeFilterCategory, subSlug)
+        : undefined,
+    [storeFilterCategory, subSlug],
+  );
+
+  const sidebarActiveCategorySlug = isStoreAll
+    ? (storeFilterCategorySlug ?? '')
+    : (slug ?? '');
 
   const rentalSubcategory = useMemo(
     () => (subSlug && slug === RENTAL_PARENT_SLUG ? findRentalCategoryBySlug(subSlug) : undefined),
@@ -344,7 +373,25 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     }
 
     if (isStoreAll) {
-      return products;
+      if (!storeFilterCategorySlug || !categoryTree.length) {
+        return products;
+      }
+      const activeStoreCategory = findStoreCategoryBySlug(categoryTree, storeFilterCategorySlug);
+      if (!activeStoreCategory) return products;
+
+      let labels = collectInventoryLabels(activeStoreCategory);
+      if (subSlug && !isAllSubcategoriesView) {
+        const sub = findStoreSubcategoryBySlug(activeStoreCategory, subSlug);
+        if (sub) labels = collectInventoryLabels(sub);
+      }
+
+      let list = products.filter((product) =>
+        labels.some((label) => productMatchesCategoryFilter(product, label)),
+      );
+      if (subSlug && !isAllSubcategoriesView) {
+        list = applyEquipmentSubcategorySlugFilter(list, subSlug);
+      }
+      return list;
     }
 
     if (useServerCatalog) {
@@ -374,6 +421,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     categoryTree,
     slug,
     subSlug,
+    storeFilterCategorySlug,
+    isAllSubcategoriesView,
   ]);
 
   const facetCountProducts = useMemo(() => {
@@ -738,32 +787,54 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     [productionFiltersWithCounts],
   );
 
-  const selectSubcategory = useCallback(
-    (nextSubSlug: string | null) => {
-      if (isStoreAll && nextSubSlug && categoryTree.length > 0) {
-        const rootSlug = findRootCategorySlugForSubcategory(categoryTree, nextSubSlug);
-        if (rootSlug) {
-          void navigate(categoryPath(rootSlug, nextSubSlug), { preventScrollReset: true });
-          return;
-        }
-      }
-
+  const selectRootCategory = useCallback(
+    (rootSlug: string | null) => {
       const next = new URLSearchParams(searchParams);
-      if (nextSubSlug) next.set('sub', nextSubSlug);
-      else next.set('sub', ALL_SUBCATEGORIES_QUERY);
+      if (rootSlug) {
+        next.set('cat', rootSlug);
+        next.set('sub', ALL_SUBCATEGORIES_QUERY);
+      } else {
+        next.delete('cat');
+        next.delete('sub');
+      }
+      setCatalogPage(1);
       setSearchParams(next, { replace: true, preventScrollReset: true });
     },
-    [searchParams, setSearchParams, isStoreAll, categoryTree, navigate],
+    [searchParams, setSearchParams],
+  );
+
+  const selectSubcategory = useCallback(
+    (nextSubSlug: string | null) => {
+      const next = new URLSearchParams(searchParams);
+      if (isStoreAll) {
+        if (nextSubSlug) {
+          const rootSlug =
+            storeFilterCategorySlug ??
+            findRootCategorySlugForSubcategory(categoryTree, nextSubSlug);
+          if (rootSlug) next.set('cat', rootSlug);
+          next.set('sub', nextSubSlug);
+        } else {
+          next.set('sub', ALL_SUBCATEGORIES_QUERY);
+        }
+      } else if (nextSubSlug) {
+        next.set('sub', nextSubSlug);
+      } else {
+        next.set('sub', ALL_SUBCATEGORIES_QUERY);
+      }
+      setCatalogPage(1);
+      setSearchParams(next, { replace: true, preventScrollReset: true });
+    },
+    [searchParams, setSearchParams, isStoreAll, categoryTree, storeFilterCategorySlug],
   );
 
   const prefetchSubcategoryCatalog = useCallback(
     (nextSubSlug: string) => {
-      if (isRentalCategory || isInventorySearch) return;
+      if (isStoreAll || isRentalCategory || isInventorySearch) return;
       const targetSlug = slug ?? findRootCategorySlugForSubcategory(categoryTree, nextSubSlug);
       if (!targetSlug) return;
       void prefetchCategoryPage(queryClient, { slug: targetSlug, subSlug: nextSubSlug, role });
     },
-    [slug, categoryTree, isRentalCategory, isInventorySearch, role],
+    [slug, categoryTree, isStoreAll, isRentalCategory, isInventorySearch, role],
   );
 
   const toggleAttribute = useCallback((key: string) => {
@@ -808,7 +879,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     ? filteredProducts
     : getCatalogPageSlice(paginationProducts, safeCatalogPage, catalogPageSize);
 
-  const catalogSidebarOpen = filtersPanelOpen && isDesktopNav;
+  const catalogSidebarOpen = storefrontMode
+    ? isDesktopNav
+    : filtersPanelOpen && isDesktopNav;
 
   const closeFiltersPanel = useCallback(() => {
     setFiltersPanelOpen(false);
@@ -827,6 +900,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }, [
     slug,
     subSlug,
+    searchCategoryFilter,
     selectedAttributes,
     selectedBrands,
     selectedProduction,
@@ -910,6 +984,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }, []);
 
   const toggleCategoryFilters = useCallback(() => {
+    if (storefrontMode && isDesktopNav) {
+      return;
+    }
     if (isDesktopNav) {
       setFiltersPanelOpen((open) => {
         const next = !open;
@@ -919,7 +996,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       return;
     }
     setFiltersSheetOpen(true);
-  }, [catalogSidebarLayout, isDesktopNav]);
+  }, [storefrontMode, isDesktopNav]);
 
   if (!isStoreAll && (!slug || !category)) {
     return <Navigate to="/" replace />;
@@ -955,7 +1032,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const pageTitle = isInventorySearch
     ? `Resultados para «${searchQuery}»`
     : isStoreAll
-      ? 'Todo el catálogo'
+      ? (storeFilterSubcategory?.name ?? storeFilterCategory?.name ?? 'Todo el catálogo')
       : (rentalSubcategory?.title ?? activeSubcategory?.name ?? category!.name);
   const defaultCategoryForNewProduct =
     isStoreAll ? null : (activeSubcategory?.name ?? storeCategory?.name ?? category!.name ?? null);
@@ -968,6 +1045,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     (priceMin != null && priceMin !== availablePriceRange.min) ||
     (priceMax != null && priceMax !== availablePriceRange.max);
   const hasSidebarFilters =
+    storeFilterCategorySlug != null ||
     (rawSubSlug != null && rawSubSlug !== ALL_SUBCATEGORIES_QUERY) ||
     hasPriceFilter ||
     hasBrandFilters ||
@@ -1007,9 +1085,11 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           ) : (
             <CatalogSidebarNav
               categoryTree={sidebarCategoryTree}
-              activeCategorySlug={slug ?? ''}
+              activeCategorySlug={sidebarActiveCategorySlug}
               subSlug={subSlug}
               allSubcategoriesSelected={isAllSubcategoriesView}
+              filterInPlace={isStoreAll}
+              onSelectRoot={selectRootCategory}
               onSelectSub={selectSubcategory}
               onPrefetchSub={prefetchSubcategoryCatalog}
             />
@@ -1276,11 +1356,24 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   );
 
   const activeFilterChips: ActiveFilterChip[] = [];
-  if (catalogSidebarLayout && activeSubcategory && storeCategory) {
+  const chipSubcategory = isStoreAll ? storeFilterSubcategory : activeSubcategory;
+  const chipCategory = isStoreAll ? storeFilterCategory : storeCategory;
+  if (catalogSidebarLayout && chipSubcategory && chipCategory) {
     activeFilterChips.push({
-      key: `sub:${activeSubcategory.slug}`,
-      label: formatSubcategoryTabLabel(activeSubcategory.name, storeCategory.name),
+      key: `sub:${chipSubcategory.slug}`,
+      label: formatSubcategoryTabLabel(chipSubcategory.name, chipCategory.name),
       onRemove: () => selectSubcategory(null),
+    });
+  } else if (
+    catalogSidebarLayout &&
+    isStoreAll &&
+    storeFilterCategory &&
+    isAllSubcategoriesView
+  ) {
+    activeFilterChips.push({
+      key: `cat:${storeFilterCategory.slug}`,
+      label: storeFilterCategory.name,
+      onRemove: () => selectRootCategory(null),
     });
   }
   if (catalogSidebarLayout) {
@@ -1360,6 +1453,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const catalogProductCount =
     useServerCatalog ? (catalogData?.total ?? filteredProducts.length) : filteredProducts.length;
   const showCatalogRefresh = useServerCatalog && isCatalogFetching && !isLoading;
+  const catalogUsesSidebarGrid =
+    showProductCatalog && (storefrontMode ? isDesktopNav : filtersPanelOpen && isDesktopNav);
 
   return (
     <div
@@ -1373,7 +1468,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         aria-labelledby={storefrontMode ? 'tienda-catalogo-titulo' : 'productos-categoria-titulo'}
         className={cn(
           storefrontMode
-            ? 'scroll-mt-20 bg-muted/30 py-8 sm:py-10'
+            ? 'scroll-mt-20 bg-muted/30 py-6 sm:py-8'
             : 'scroll-mt-28 sm:scroll-mt-32',
         )}
       >
@@ -1392,26 +1487,44 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           ) : null}
 
           {storefrontMode && showProductCatalog ? (
-            <StoreCatalogHeader
-              productCount={catalogProductCount}
-              searchQuery={catalogSearch}
-              onSearchQueryChange={setCatalogSearch}
-              onOpenFilters={() => setFiltersSheetOpen(true)}
-              eyebrow={isStoreAll ? storeCatalogCopy.eyebrow : (category?.name ?? 'Catálogo')}
-              title={isStoreAll ? storeCatalogCopy.title : pageTitle}
-              searchPlaceholder={
-                isStoreAll ? storeCatalogCopy.searchPlaceholder : `Buscar en ${pageTitle}…`
-              }
-            />
+            <>
+              <PromotionsHeroBanner embedded variant="compact" />
+              <StoreCatalogHeader
+                productCount={catalogProductCount}
+                searchQuery={catalogSearch}
+                onSearchQueryChange={setCatalogSearch}
+                {...(isStoreAll ? {} : { eyebrow: category?.name ?? 'Catálogo' })}
+                title={isStoreAll ? storeCatalogCopy.title : pageTitle}
+                searchPlaceholder={
+                  isStoreAll ? storeCatalogCopy.searchPlaceholder : `Buscar en ${pageTitle}…`
+                }
+                viewControls={
+                  <StoreCatalogViewControls
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    gridColumns={gridColumns}
+                    onGridColumnsChange={setGridColumns}
+                    sortBy={sortBy}
+                    onSortChange={setSortBy}
+                    filtersActive={
+                      filtersPanelOpen ||
+                      filtersSheetOpen ||
+                      hasAttributeFilters ||
+                      hasBrandFilters ||
+                      hasPriceFilter ||
+                      inStockOnly
+                    }
+                    onToggleFilters={toggleCategoryFilters}
+                  />
+                }
+              />
+            </>
           ) : null}
 
           <div
             className={cn(
               'grid gap-5 lg:gap-6',
-              showProductCatalog &&
-                (storefrontMode
-                  ? filtersPanelOpen
-                  : filtersPanelOpen && isDesktopNav)
+              catalogUsesSidebarGrid
                 ? storefrontMode
                   ? 'lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)]'
                   : 'lg:grid-cols-[minmax(13.5rem,15.5rem)_minmax(0,1fr)]'
@@ -1425,9 +1538,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                   'hidden h-fit lg:sticky lg:top-24 lg:block',
                   storefrontMode
                     ? 'rounded-xl border border-border/70 bg-card p-4 shadow-sm'
-                    : 'rounded-lg border bg-card p-3 shadow-sm',
-                  !storefrontMode && !filtersPanelOpen && 'lg:hidden',
-                  storefrontMode && !filtersPanelOpen && 'lg:hidden',
+                    : cn(
+                        'rounded-lg border bg-card p-3 shadow-sm',
+                        !filtersPanelOpen && 'lg:hidden',
+                      ),
                 )}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -1440,16 +1554,23 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                   >
                     Filtros
                   </h2>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
-                    aria-label="Contraer panel de filtros"
-                    onClick={closeFiltersPanel}
-                  >
-                    <PanelLeftClose className="size-4" aria-hidden="true" />
-                  </Button>
+                  {storefrontMode ? (
+                    <SlidersHorizontal
+                      className="size-4 shrink-0 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
+                      aria-label="Contraer panel de filtros"
+                      onClick={closeFiltersPanel}
+                    >
+                      <PanelLeftClose className="size-4" aria-hidden="true" />
+                    </Button>
+                  )}
                 </div>
                 <div
                   id="category-filters-panel"
@@ -1618,22 +1739,23 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                       gridColumns={gridColumns}
                       sidebarOpen={catalogSidebarOpen}
                       gridClassName={catalogGridClassName(gridColumns, catalogSidebarOpen)}
-                      renderProduct={(product) => (
-                        <ProductHighlightCard
-                          product={product}
-                          variant={storefrontMode ? 'storefront' : 'default'}
-                        />
-                      )}
+                      renderProduct={(product) =>
+                        storefrontMode ? (
+                          <StoreCatalogProductCard product={product} />
+                        ) : (
+                          <ProductHighlightCard product={product} />
+                        )
+                      }
                     />
                   ) : (
                     <div className={catalogGridClassName(gridColumns, catalogSidebarOpen)}>
-                      {pagedCatalogProducts.map((product) => (
-                        <ProductHighlightCard
-                          key={product.id}
-                          product={product}
-                          variant={storefrontMode ? 'storefront' : 'default'}
-                        />
-                      ))}
+                      {pagedCatalogProducts.map((product) =>
+                        storefrontMode ? (
+                          <StoreCatalogProductCard key={product.id} product={product} />
+                        ) : (
+                          <ProductHighlightCard key={product.id} product={product} />
+                        ),
+                      )}
                     </div>
                   )}
 

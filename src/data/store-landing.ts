@@ -1,5 +1,6 @@
 export const storeCatalogCopy = {
   eyebrow: 'Catálogo',
   title: 'Productos disponibles',
-  searchPlaceholder: 'Buscar productos…',
+  searchPlaceholder: 'Buscar productos...',
+  monthlyPromotionsLabel: 'Promociones del mes',
 };

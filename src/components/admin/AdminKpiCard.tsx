@@ -1,4 +1,5 @@
-import { Line, LineChart, ResponsiveContainer } from 'recharts';
+import type { LucideIcon } from 'lucide-react';
+import { TrendingDown, TrendingUp } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -8,7 +9,8 @@ interface AdminKpiCardProps {
   subtitle?: string;
   trend?: number | null;
   trendLabel?: string;
-  sparkline?: Array<{ value: number }>;
+  icon: LucideIcon;
+  iconClassName?: string;
   className?: string;
 }
 
@@ -23,7 +25,8 @@ export function AdminKpiCard({
   subtitle,
   trend,
   trendLabel = 'vs periodo anterior',
-  sparkline = [],
+  icon: Icon,
+  iconClassName = 'bg-blue-50 text-blue-600',
   className,
 }: AdminKpiCardProps) {
   const trendPositive = trend !== null && trend !== undefined && trend >= 0;
@@ -32,43 +35,52 @@ export function AdminKpiCard({
   return (
     <article
       className={cn(
-        'rounded-xl border border-border/80 bg-card p-5 shadow-sm',
+        'relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 shadow-sm',
         className,
       )}
     >
-      <p className="text-sm font-medium text-muted-foreground">{title}</p>
-      <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{value}</p>
-      {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
-      <div className="mt-3 flex items-end justify-between gap-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="mt-2 text-[1.75rem] font-bold leading-none tracking-tight text-foreground">
+            {value}
+          </p>
+          {subtitle ? <p className="mt-1.5 text-xs text-muted-foreground">{subtitle}</p> : null}
+        </div>
+        <span
+          className={cn(
+            'flex size-11 shrink-0 items-center justify-center rounded-xl',
+            iconClassName,
+          )}
+          aria-hidden="true"
+        >
+          <Icon className="size-5" />
+        </span>
+      </div>
+
+      <div className="mt-4 flex items-center gap-1.5">
         {hasTrend ? (
-          <span
-            className={cn(
-              'inline-flex rounded-full px-2 py-0.5 text-xs font-semibold',
-              trendPositive
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-red-100 text-red-700',
+          <>
+            {trendPositive ? (
+              <TrendingUp className="size-4 text-emerald-600" aria-hidden="true" />
+            ) : (
+              <TrendingDown className="size-4 text-red-600" aria-hidden="true" />
             )}
-          >
-            {formatTrend(trend)} {trendLabel}
-          </span>
+            <span
+              className={cn(
+                'text-sm font-semibold',
+                trendPositive ? 'text-emerald-600' : 'text-red-600',
+              )}
+            >
+              {formatTrend(trend)}
+            </span>
+          </>
         ) : (
           <span className="text-xs text-muted-foreground">{trendLabel}</span>
         )}
-        {sparkline.length > 0 && (
-          <div className="h-12 w-24" aria-hidden="true">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={sparkline}>
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="hsl(var(--admin-accent))"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
+        {hasTrend ? (
+          <span className="text-xs text-muted-foreground">{trendLabel}</span>
+        ) : null}
       </div>
     </article>
   );

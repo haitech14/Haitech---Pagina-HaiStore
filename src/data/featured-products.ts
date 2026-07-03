@@ -27,13 +27,11 @@ export const FEATURED_PRODUCT_IDS: string[] = [
   'cb1e47b2-d784-4bef-ae18-d4dae08723e4',
   'ab878d89-61e0-4e51-a941-03455e1da407',
   '328f41ef-d935-4807-85d0-e1db5bdf73fb',
-  'ricoh-im-c3000',
-  'ricoh-sp-330dn',
-  'konica-bizhub-c300i',
-  'canon-ir-advance',
-  'toner-ricoh-c6003-cyan',
-  'ricoh-toner-mp',
-  'hp-laserjet-m234',
+  'e8f574f7-c70c-44b6-8d28-95023f47f72d',
+  '189620fe-a5e5-4526-a399-8aa6a308bd1d',
+  'dd5efa36-73f6-4241-b2ad-6e74ef058733',
+  '03b408ff-0b06-4ec5-90ed-94dcb40fd67c',
+  '71289ec2-dbca-4780-b319-eb3d259fadb5',
 ];
 
 const FEATURED_META: Record<
@@ -46,22 +44,18 @@ const FEATURED_META: Record<
   'cb1e47b2-d784-4bef-ae18-d4dae08723e4': { rating: 5, reviews: 11, isNew: true },
   'ab878d89-61e0-4e51-a941-03455e1da407': { rating: 5, reviews: 9, isNew: true },
   '328f41ef-d935-4807-85d0-e1db5bdf73fb': { rating: 5, reviews: 22, isNew: true },
-  'ricoh-im-c3000': { rating: 5, reviews: 36 },
-  'ricoh-sp-330dn': { rating: 5, reviews: 52 },
-  'konica-bizhub-c300i': { rating: 5, reviews: 29 },
-  'canon-ir-advance': { rating: 5, reviews: 41 },
-  'toner-ricoh-c6003-cyan': { rating: 5, reviews: 94 },
-  'ricoh-toner-mp': { rating: 5, reviews: 67 },
-  'hp-laserjet-m234': { rating: 4, reviews: 38 },
+  'e8f574f7-c70c-44b6-8d28-95023f47f72d': { rating: 5, reviews: 36 },
+  '189620fe-a5e5-4526-a399-8aa6a308bd1d': { rating: 5, reviews: 28 },
+  'dd5efa36-73f6-4241-b2ad-6e74ef058733': { rating: 5, reviews: 19 },
+  '03b408ff-0b06-4ec5-90ed-94dcb40fd67c': { rating: 5, reviews: 15, isNew: true },
+  '71289ec2-dbca-4780-b319-eb3d259fadb5': { rating: 4, reviews: 24 },
 };
 
 function buildFeaturedProductsFromRows(): FeaturedProduct[] {
-  return FEATURED_PRODUCT_IDS.map((id) => {
+  return FEATURED_PRODUCT_IDS.flatMap((id) => {
     const row = getCatalogRows().find((product) => product.id === id);
-    if (!row) {
-      throw new Error(`Producto destacado "${id}" no está en inventory-index.json`);
-    }
-    return catalogRowToFeatured(row, FEATURED_META[id]);
+    if (!row) return [];
+    return [catalogRowToFeatured(row, FEATURED_META[id])];
   });
 }
 
@@ -76,7 +70,11 @@ function resolveFeaturedProducts(): FeaturedProduct[] {
 
 /** Respaldo estático si el API no está disponible. */
 export function getFeaturedProducts(): FeaturedProduct[] {
-  return resolveFeaturedProducts();
+  try {
+    return resolveFeaturedProducts();
+  } catch {
+    return [];
+  }
 }
 
 /** @deprecated Usar getFeaturedProducts() */

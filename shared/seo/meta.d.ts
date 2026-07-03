@@ -1,3 +1,4 @@
+export const SITE_BRAND_NAME: string;
 export const DEFAULT_SITE_TITLE: string;
 export const DEFAULT_SITE_DESCRIPTION: string;
 export const DEFAULT_OG_IMAGE: string;

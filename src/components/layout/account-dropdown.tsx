@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import {
   Check,
-  ChevronDown,
   ChevronRight,
   Eye,
   Headphones,
@@ -16,7 +15,11 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import {
+  headerDarkUtilityButtonClass,
+  headerIconActionButtonClass,
+  type HeaderActionTone,
+} from '@/components/layout/header-action-strip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,18 +72,18 @@ function AccountMenuRow({ icon: Icon, label, variant = 'default' }: AccountMenuR
   return (
     <span
       className={cn(
-        'flex w-full items-center gap-3 px-4 py-3 text-sm',
+        'flex w-full items-center gap-2 px-3 py-2 text-[0.8125rem]',
         isDanger ? 'text-red-600' : 'text-foreground',
       )}
     >
       <Icon
-        className={cn('size-[1.125rem] shrink-0', isDanger ? 'text-red-600' : 'text-muted-foreground')}
+        className={cn('size-4 shrink-0', isDanger ? 'text-red-600' : 'text-muted-foreground')}
         strokeWidth={1.75}
         aria-hidden="true"
       />
       <span className="flex-1 text-left font-medium">{label}</span>
       <ChevronRight
-        className={cn('size-4 shrink-0', isDanger ? 'text-red-500' : 'text-muted-foreground/60')}
+        className={cn('size-3.5 shrink-0', isDanger ? 'text-red-500' : 'text-muted-foreground/60')}
         aria-hidden="true"
       />
     </span>
@@ -89,34 +92,35 @@ function AccountMenuRow({ icon: Icon, label, variant = 'default' }: AccountMenuR
 
 function HaiPointsBanner({ points }: { points: number }) {
   return (
-    <div className="mx-3 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-xl bg-[#FFF0EB] px-3 py-3">
+    <div className="mx-2.5 flex w-[calc(100%-1.25rem)] items-center gap-2 rounded-lg bg-[#FFF0EB] px-2.5 py-2">
       <span
-        className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-600 shadow-sm"
+        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-600 shadow-sm"
         aria-hidden="true"
       >
-        <Star className="size-5 fill-white text-white" strokeWidth={0} />
+        <Star className="size-4 fill-white text-white" strokeWidth={0} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-bold text-foreground">Tus HaiPoints</span>
-        <span className="mt-0.5 block text-xs text-muted-foreground">
+        <span className="block text-xs font-bold text-foreground">Tus HaiPoints</span>
+        <span className="block text-[0.6875rem] leading-tight text-muted-foreground">
           Acumula puntos y obtén beneficios
         </span>
       </span>
       <span className="flex shrink-0 items-center gap-0.5">
-        <span className="text-sm font-bold text-red-600">
+        <span className="text-xs font-bold text-red-600">
           {points.toLocaleString('es-PE')} pts
         </span>
-        <ChevronRight className="size-4 text-red-600" aria-hidden="true" />
+        <ChevronRight className="size-3.5 text-red-600" aria-hidden="true" />
       </span>
     </div>
   );
 }
 
 interface AccountDropdownProps {
-  triggerVariant?: 'icon' | 'strip';
+  triggerVariant?: 'icon' | 'strip' | 'labeled';
+  tone?: HeaderActionTone;
 }
 
-export function AccountDropdown({ triggerVariant = 'icon' }: AccountDropdownProps) {
+export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: AccountDropdownProps) {
   const navigate = useNavigate();
   const {
     user,
@@ -144,51 +148,50 @@ export function AccountDropdown({ triggerVariant = 'icon' }: AccountDropdownProp
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        {triggerVariant === 'strip' ? (
-          <Button
-            variant="ghost"
-            className="h-9 min-h-9 shrink-0 gap-1.5 rounded-none px-3 text-sm font-medium normal-case tracking-normal text-foreground hover:bg-muted focus-visible:ring-inset"
-            aria-label={user ? `Menú de cuenta de ${displayName}` : 'Iniciar sesión o crear cuenta'}
-          >
-            <User className="size-4 shrink-0 text-foreground" strokeWidth={1.75} aria-hidden="true" />
-            <span>Mi cuenta</span>
-            <ChevronDown className="size-3.5 shrink-0 text-foreground" strokeWidth={1.75} aria-hidden="true" />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-11 shrink-0 sm:inline-flex"
-            aria-label={user ? `Menú de cuenta de ${displayName}` : 'Iniciar sesión o crear cuenta'}
-          >
-            <User className="size-5 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
-          </Button>
-        )}
+        <button
+          type="button"
+          className={
+            triggerVariant === 'labeled'
+              ? cn(headerDarkUtilityButtonClass(), 'px-2.5')
+              : headerIconActionButtonClass(tone, triggerVariant === 'strip' ? 'sm' : 'md')
+          }
+          aria-label={user ? `Menú de cuenta de ${displayName}` : 'Iniciar sesión o crear cuenta'}
+        >
+          <User
+            className={cn(
+              'shrink-0',
+              triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'size-4' : 'size-5',
+            )}
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
+          {triggerVariant === 'labeled' ? <span>Mi cuenta</span> : null}
+        </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         align="end"
-        sideOffset={12}
-        className="z-50 w-[min(100vw-2rem,20rem)] overflow-visible border-0 bg-transparent p-0 shadow-none"
+        sideOffset={8}
+        className="z-50 w-[min(100vw-2rem,17.5rem)] overflow-visible border-0 bg-transparent p-0 shadow-none"
       >
-        <div className="relative mt-2 overflow-hidden rounded-xl border border-border/80 bg-white shadow-lg">
+        <div className="relative mt-1.5 overflow-hidden rounded-lg border border-border/80 bg-white shadow-lg">
           <span
-            className="absolute -top-[7px] right-6 z-10 size-3.5 rotate-45 border-l border-t border-border/80 bg-white"
+            className="absolute -top-[6px] right-6 z-10 size-3 rotate-45 border-l border-t border-border/80 bg-white"
             aria-hidden="true"
           />
 
           {user ? (
             <>
-              <div className="px-4 py-4">
-                <div className="flex items-center gap-3">
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-muted">
-                    <User className="size-5 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
+              <div className="px-3 py-2.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
+                    <User className="size-4 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-foreground">Hola {displayName}</p>
+                    <p className="truncate text-[0.8125rem] font-bold text-foreground">Hola {displayName}</p>
                     <span
                       className={cn(
-                        'mt-1 inline-block rounded-md px-1.5 py-0.5 text-[0.65rem] font-semibold leading-none',
+                        'mt-0.5 inline-block rounded px-1.5 py-px text-[0.625rem] font-semibold leading-none',
                         previewingAsRole ? 'bg-orange-100 text-orange-800' : roleBadgeClass(user.role),
                       )}
                     >
@@ -214,7 +217,7 @@ export function AccountDropdown({ triggerVariant = 'icon' }: AccountDropdownProp
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="rounded-lg border-border/80 p-1 shadow-lg">
                     <DropdownMenuItem
-                      className="min-h-10 cursor-pointer justify-between gap-2 rounded-md px-3 py-2 text-sm font-medium focus:bg-muted/60"
+                      className="min-h-8 cursor-pointer justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium focus:bg-muted/60"
                       onSelect={(event) => {
                         event.preventDefault();
                         clearViewAsRoles();
@@ -230,7 +233,7 @@ export function AccountDropdown({ triggerVariant = 'icon' }: AccountDropdownProp
                       return (
                         <DropdownMenuItem
                           key={option.value}
-                          className="min-h-10 cursor-pointer justify-between gap-2 rounded-md px-3 py-2 text-sm focus:bg-muted/60"
+                          className="min-h-8 cursor-pointer justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs focus:bg-muted/60"
                           onSelect={(event) => {
                             event.preventDefault();
                             toggleViewAsRole(option.value);
@@ -248,13 +251,13 @@ export function AccountDropdown({ triggerVariant = 'icon' }: AccountDropdownProp
               )}
 
               <DropdownMenuItem
-                className="cursor-pointer rounded-none p-0 py-3 focus:bg-transparent data-[highlighted]:bg-transparent"
+                className="cursor-pointer rounded-none p-0 py-1.5 focus:bg-transparent data-[highlighted]:bg-transparent"
                 onSelect={() => goTo('/tienda')}
               >
                 <HaiPointsBanner points={getHaiPoints(user)} />
               </DropdownMenuItem>
 
-              <div className="py-1">
+              <div>
                 <DropdownMenuItem
                   className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
                   onSelect={() => goTo('/mi-cuenta')}

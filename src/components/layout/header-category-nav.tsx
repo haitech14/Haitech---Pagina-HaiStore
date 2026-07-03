@@ -1,93 +1,46 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
-import { HeaderForumButton } from '@/components/layout/header-forum-button';
+import { HeaderStoreDesktopActions } from '@/components/layout/header-store-desktop-actions';
 import { HeaderForumPublishButton } from '@/components/layout/header-forum-publish-button';
-import { HeaderQuoteWhatsAppButton } from '@/components/layout/header-quote-whatsapp-button';
+import { HeaderStoreUtilityBar } from '@/components/layout/header-store-utility-bar';
+import { MockupNavLink } from '@/components/layout/header-main-menu';
+import type { HeaderMainNavLink } from '@/components/layout/header-main-menu';
 import {
-  MAIN_NAV_BAR_CLASS,
-  MAIN_NAV_LINKS_ROW_CLASS,
-  MAIN_NAV_ROW_CLASS,
+  MAIN_NAV_LIGHT_BAR_CLASS,
+  darkNavSecondaryLinkClass,
   mainNavLinkClass,
 } from '@/components/layout/main-nav-styles';
+import { HeaderLogoLink } from '@/components/layout/site-logo';
+import { SiteSearchForm } from '@/components/layout/site-search-form';
+import { useCart } from '@/context/cart-context';
+import { useDisplayCurrency } from '@/context/display-currency-context';
 import { FORUM_HEADER_NAV } from '@/data/forum-home-layout';
-// @ts-ignore módulo JS compartido sin declaración de tipos
-import { MOST_VIEWED_OFFER_ATTR_KEY } from '../../../shared/catalog-most-viewed-offers.js';
-import { storeMostViewedOffersPath } from '@/lib/category-path';
-import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
-import { serviceHubPath } from '@/lib/service-hub';
-import { queryClient } from '@/providers';
-
-export type HeaderMainNavLink = {
-  id: string;
-  to: string;
-  label: string;
-  end?: boolean;
-  matchActive?: (location: { pathname: string; search: string }) => boolean;
-  badge?: {
-    label: string;
-    to: string;
-  };
-};
+import {
+  ABOUT_NAV_SUBMENU,
+  CONTACT_NAV_SUBMENU,
+  RENTALS_NAV_SUBMENU,
+} from '@/data/header-nav-submenus';
+import { formatPenFromUsd } from '@/lib/utils';
+export type { HeaderMainNavLink } from '@/components/layout/header-main-menu';
 
 export const headerMainNavLinks: HeaderMainNavLink[] = [
   {
-    id: 'tienda',
-    to: '/tienda',
-    label: 'Tienda',
-    matchActive: ({ pathname, search }) => {
-      if (pathname !== '/tienda' && !pathname.startsWith('/tienda/producto/')) return false;
-      const attrs = (new URLSearchParams(search).get('attrs') ?? '')
-        .split('|')
-        .map((entry) => entry.trim())
-        .filter(Boolean);
-      if (attrs.includes(MOST_VIEWED_OFFER_ATTR_KEY)) return false;
-      return pathname === '/tienda' || pathname.startsWith('/tienda/producto/');
-    },
+    id: RENTALS_NAV_SUBMENU.id,
+    to: RENTALS_NAV_SUBMENU.items[0]?.href ?? '/servicios?seccion=alquiler',
+    label: RENTALS_NAV_SUBMENU.label,
+    matchActive: RENTALS_NAV_SUBMENU.matchActive,
   },
   {
-    id: 'alquiler',
-    to: serviceHubPath('alquiler'),
-    label: 'Alquiler',
-    matchActive: ({ pathname, search }) => {
-      if (pathname === '/alquiler') return true;
-      if (pathname !== '/servicios') return false;
-      const seccion = new URLSearchParams(search).get('seccion');
-      return !seccion || seccion === 'alquiler';
-    },
+    id: ABOUT_NAV_SUBMENU.id,
+    to: ABOUT_NAV_SUBMENU.items[0]?.href ?? '/#clientes',
+    label: ABOUT_NAV_SUBMENU.label,
+    matchActive: ABOUT_NAV_SUBMENU.matchActive,
   },
   {
-    id: 'servicios',
-    to: serviceHubPath('servicio-tecnico'),
-    label: 'Servicios',
-    matchActive: ({ pathname, search }) => {
-      if (pathname.startsWith('/servicio-tecnico')) return true;
-      if (pathname.startsWith('/outsourcing')) return true;
-      if (pathname.startsWith('/servicios-corporativos')) return true;
-      if (pathname !== '/servicios') return false;
-      const seccion = new URLSearchParams(search).get('seccion');
-      return Boolean(seccion && seccion !== 'alquiler');
-    },
-  },
-  {
-    id: 'software',
-    to: '/software',
-    label: 'Software',
-    matchActive: ({ pathname }) =>
-      pathname === '/software' || pathname.startsWith('/software/'),
-  },
-  {
-    id: 'ofertas',
-    to: storeMostViewedOffersPath(),
-    label: 'Ofertas',
-    matchActive: ({ pathname, search }) => {
-      if (pathname !== '/tienda' && !pathname.startsWith('/tienda/producto/')) return false;
-      const attrs = (new URLSearchParams(search).get('attrs') ?? '')
-        .split('|')
-        .map((entry) => entry.trim())
-        .filter(Boolean);
-      return attrs.includes(MOST_VIEWED_OFFER_ATTR_KEY);
-    },
+    id: CONTACT_NAV_SUBMENU.id,
+    to: CONTACT_NAV_SUBMENU.items[0]?.href ?? '/contacto',
+    label: CONTACT_NAV_SUBMENU.label,
+    matchActive: CONTACT_NAV_SUBMENU.matchActive,
   },
 ];
 
@@ -96,74 +49,88 @@ export const forumHeaderNavLinks: HeaderMainNavLink[] = FORUM_HEADER_NAV.map((it
   to: item.to,
   label: item.label,
   end: item.end,
-  matchActive: (location: { pathname: string; search: string }) => item.matchActive(location),
+  matchActive: (location: { pathname: string; search: string; hash: string }) =>
+    item.matchActive(location),
 }));
 
 export function isForumPath(pathname: string): boolean {
   return pathname === '/foro' || pathname.startsWith('/foro/');
 }
 
-function prefetchCategoryFromNav(to: string) {
-  const match = to.match(/^\/categoria\/([^/?#]+)/);
-  if (!match?.[1]) return;
-  void prefetchCategoryPage(queryClient, { slug: match[1] });
-}
-
-function CategoryNavLink({ item }: { item: HeaderMainNavLink }) {
-  const location = useLocation();
-  const prefetch = () => {
-    prefetchCategoryFromNav(item.to);
-  };
-
+function HeaderBrandLogo() {
   return (
-    <NavLink
-      to={item.to}
-      end={item.end ?? false}
-      className={({ isActive }) =>
-        mainNavLinkClass(item.matchActive ? item.matchActive(location) : isActive)
-      }
-      onMouseEnter={prefetch}
-      onFocus={prefetch}
-    >
-      {item.label}
-    </NavLink>
+    <HeaderLogoLink heightClass="h-9 lg:h-10" width={176} height={39} loading="eager" />
   );
 }
 
 export function HeaderCategoryNav() {
   const { pathname } = useLocation();
+  const { totalItems, totalPrice, openCart } = useCart();
+  const { displayCurrency } = useDisplayCurrency();
+  const cartTotalAria =
+    displayCurrency === 'PEN'
+      ? `${formatPenFromUsd(totalPrice)}, tipo de cambio venta`
+      : `${totalPrice.toFixed(2)} dólares`;
   const forumMode = isForumPath(pathname);
   const navLinks = forumMode ? forumHeaderNavLinks : headerMainNavLinks;
+  const linkClassName = forumMode ? mainNavLinkClass : darkNavSecondaryLinkClass;
 
   return (
-    <nav aria-label={forumMode ? 'Menú del foro' : 'Menú principal'} className={MAIN_NAV_BAR_CLASS}>
-      <div className={MAIN_NAV_ROW_CLASS}>
-        <div className={MAIN_NAV_LINKS_ROW_CLASS}>
-          {!forumMode ? <CategoriesMegaMenu triggerVariant="categories-button" /> : null}
+    <>
+      <nav
+        aria-label={forumMode ? 'Menú del foro' : 'Barra superior de la tienda'}
+        className={forumMode ? MAIN_NAV_LIGHT_BAR_CLASS : 'hidden overflow-visible lg:block'}
+      >
+        {!forumMode ? (
+          <div className="container flex h-[4.5rem] items-center gap-4 overflow-visible py-3 xl:h-[4.875rem] xl:gap-5">
+            <div className="shrink-0">
+              <HeaderBrandLogo />
+            </div>
 
-          <ul className="flex min-w-0 items-center gap-5 sm:gap-6 lg:gap-7">
-            {navLinks.map((item) => (
-              <li key={item.id} className="flex shrink-0 items-center gap-2">
-                <CategoryNavLink item={item} />
-              </li>
-            ))}
-          </ul>
-        </div>
+            <div
+              id="header-store-search"
+              className="min-w-0 w-full max-w-[30rem] flex-1 ml-5 lg:ml-7 xl:ml-9 lg:max-w-[32rem] xl:max-w-[36rem]"
+            >
+              <SiteSearchForm
+                className="w-full"
+                variant="segmented"
+                size="dense"
+                showSearchIcons
+              />
+            </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          {forumMode ? (
-            <HeaderForumPublishButton />
-          ) : (
-            <>
-              <HeaderForumButton />
-              <HeaderQuoteWhatsAppButton />
-            </>
-          )}
-        </div>
-      </div>
-    </nav>
+            <div className="ml-auto flex shrink-0 items-center justify-end gap-3 xl:gap-4">
+              <HeaderStoreDesktopActions
+                cartCount={totalItems}
+                cartAriaLabel={`Carrito de compras, ${totalItems} artículos, total ${cartTotalAria}`}
+                onOpenCart={openCart}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="container flex h-14 items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-5 sm:gap-6 lg:gap-7">
+              <ul className="flex min-w-0 items-center gap-5 sm:gap-6 lg:gap-7">
+                {navLinks.map((item) => (
+                  <li key={item.id} className="shrink-0">
+                    <MockupNavLink item={item} linkClassName={linkClassName} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <HeaderForumPublishButton />
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {!forumMode ? <HeaderStoreUtilityBar /> : null}
+    </>
   );
 }
+
+export { HeaderMainMenu } from '@/components/layout/header-main-menu';
 
 /** @deprecated Usar headerMainNavLinks */
 export const mainNavItems = headerMainNavLinks;

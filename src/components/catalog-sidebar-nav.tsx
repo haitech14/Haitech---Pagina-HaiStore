@@ -70,6 +70,9 @@ interface CatalogSidebarNavProps {
   activeCategorySlug: string;
   subSlug: string | null;
   allSubcategoriesSelected?: boolean;
+  /** En `/tienda`: filtrar en la misma página sin navegar a `/categoria/...`. */
+  filterInPlace?: boolean;
+  onSelectRoot?: (slug: string | null) => void;
   onSelectSub: (slug: string | null) => void;
   onPrefetchSub?: (slug: string) => void;
 }
@@ -133,6 +136,8 @@ export function CatalogSidebarNav({
   activeCategorySlug,
   subSlug,
   allSubcategoriesSelected = false,
+  filterInPlace = false,
+  onSelectRoot,
   onSelectSub,
   onPrefetchSub,
 }: CatalogSidebarNavProps) {
@@ -176,47 +181,75 @@ export function CatalogSidebarNav({
           ? `${categoryPath(root.slug)}?sub=${ALL_SUBCATEGORIES_QUERY}`
           : categoryPath(root.slug);
 
+        const handleRootSelect = () => {
+          if (filterInPlace) {
+            if (isActiveCategory) {
+              onSelectRoot?.(null);
+              return;
+            }
+            onSelectRoot?.(root.slug);
+            if (hasChildren) {
+              setExpandedSlugs((prev) => new Set(prev).add(root.slug));
+            }
+            return;
+          }
+        };
+
+        const rootRowContent = (
+          <>
+            <span className="flex min-w-0 flex-1 items-center gap-1.5">
+              {hasChildren ? (
+                expanded ? (
+                  <ChevronDown
+                    className="size-3.5 shrink-0 text-red-600"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <ChevronRight
+                    className="size-3.5 shrink-0 text-muted-foreground/70"
+                    aria-hidden="true"
+                  />
+                )
+              ) : (
+                <span className="size-3.5 shrink-0" aria-hidden="true" />
+              )}
+              <span className="line-clamp-2 leading-snug">{root.name}</span>
+            </span>
+            <CategoryCount count={count} subdued={!isActiveCategory && count === 0} />
+          </>
+        );
+
         return (
           <div
             key={root.id}
             className={cn(index > 0 && 'border-t border-border/50')}
           >
             <div className="relative">
-              <Link
-                to={
-                  isActiveCategory ? cleanCategoryHref : cleanCategoryHref
-                }
-                className={rootItemClass(isActiveCategory, expanded)}
-                aria-current={rootActive ? 'page' : undefined}
-                aria-expanded={hasChildren ? expanded : undefined}
-                onClick={(event) => {
-                  if (!isActiveCategory) return;
-                  // Si haces click nuevamente en la categoría activa, retira el filtro de categoría
-                  // volviendo a "todo el catálogo" (sin filtros).
-                  event.preventDefault();
-                  navigate('/tienda', { replace: true, preventScrollReset: true });
-                }}
-              >
-                <span className="flex min-w-0 flex-1 items-center gap-1.5">
-                  {hasChildren ? (
-                    expanded ? (
-                      <ChevronDown
-                        className="size-3.5 shrink-0 text-red-600"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <ChevronRight
-                        className="size-3.5 shrink-0 text-muted-foreground/70"
-                        aria-hidden="true"
-                      />
-                    )
-                  ) : (
-                    <span className="size-3.5 shrink-0" aria-hidden="true" />
-                  )}
-                  <span className="line-clamp-2 leading-snug">{root.name}</span>
-                </span>
-                <CategoryCount count={count} subdued={!isActiveCategory && count === 0} />
-              </Link>
+              {filterInPlace ? (
+                <button
+                  type="button"
+                  className={rootItemClass(isActiveCategory, expanded)}
+                  aria-current={rootActive ? 'page' : undefined}
+                  aria-expanded={hasChildren ? expanded : undefined}
+                  onClick={handleRootSelect}
+                >
+                  {rootRowContent}
+                </button>
+              ) : (
+                <Link
+                  to={cleanCategoryHref}
+                  className={rootItemClass(isActiveCategory, expanded)}
+                  aria-current={rootActive ? 'page' : undefined}
+                  aria-expanded={hasChildren ? expanded : undefined}
+                  onClick={(event) => {
+                    if (!isActiveCategory) return;
+                    event.preventDefault();
+                    navigate('/tienda', { replace: true, preventScrollReset: true });
+                  }}
+                >
+                  {rootRowContent}
+                </Link>
+              )}
 
               {hasChildren ? (
                 <button

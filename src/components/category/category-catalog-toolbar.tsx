@@ -102,6 +102,15 @@ export function CategoryCatalogToolbar({
     onViewModeChange(mode);
   };
 
+  if (storefrontMode) {
+    if (!catalogSidebarLayout || activeFilterChips.length === 0) return null;
+    return (
+      <div className="mb-4">
+        <CategoryActiveFilterChips chips={activeFilterChips} />
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(

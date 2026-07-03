@@ -133,6 +133,24 @@ export const printerBrands: Brand[] = [
   },
 ];
 
+/** Marcas bajo el hero de la home (franja compacta). */
+export const HERO_PARTNER_BRAND_NAMES = [
+  'Ricoh',
+  'Canon',
+  'Epson',
+  'HP',
+  'Konica Minolta',
+  'Kyocera',
+  'Lexmark',
+  'Pantum',
+  'Oki',
+] as const;
+
+export const heroPartnerBrands: Brand[] = HERO_PARTNER_BRAND_NAMES.flatMap((name) => {
+  const brand = printerBrands.find((item) => item.name === name);
+  return brand ? [brand] : [];
+});
+
 /** Marcas del carrusel «Trabajamos con las mejores marcas» (home). */
 const FOOTER_PARTNER_BRAND_NAMES = [
   'Ricoh',

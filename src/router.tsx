@@ -223,6 +223,10 @@ const AdminConfiguracionSectionPage = lazyWithRetry(
     })),
   'configuración',
 );
+const AdminPedidosPage = lazyWithRetry(
+  () => import('@/pages/admin/AdminPedidosPage').then((m) => ({ default: m.AdminPedidosPage })),
+  'pedidos',
+);
 const AdminVentasPage = lazyWithRetry(
   () => import('@/pages/admin/AdminVentasPage').then((m) => ({ default: m.AdminVentasPage })),
   'ventas',
@@ -327,7 +331,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: withSuspense(<AdminDashboard />) },
       { path: 'ventas', element: withSuspense(<AdminVentasPage />) },
-      { path: 'pedidos', element: <Navigate to="/admin/ventas" replace /> },
+      { path: 'pedidos', element: withSuspense(<AdminPedidosPage />) },
       { path: 'productos', element: <Navigate to="/admin/inventario" replace /> },
       { path: 'inventario', element: withSuspense(<AdminInventarioPage />) },
       { path: 'album', element: withSuspense(<AdminAlbumPage />) },
@@ -377,7 +381,7 @@ export const router = createBrowserRouter([
     path: '/panel/configuracion',
     element: <Navigate to="/admin/configuracion/general" replace />,
   },
-  { path: '/panel/pedidos', element: <Navigate to="/admin/ventas" replace /> },
+  { path: '/panel/pedidos', element: <Navigate to="/admin/pedidos" replace /> },
   { path: '/panel/ventas', element: <Navigate to="/admin/ventas" replace /> },
   {
     path: '/',

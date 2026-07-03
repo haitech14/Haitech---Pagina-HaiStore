@@ -53,14 +53,14 @@ export function FooterBrandsSection() {
   }, [emblaApi]);
 
   return (
-    <section aria-labelledby="marcas-footer-titulo" className="py-5 sm:py-6">
+    <section aria-labelledby="marcas-footer-titulo" className="home-landing-sans py-5 sm:py-6">
       <div className="container">
         <header className="mb-5 text-center sm:mb-6">
           <div className="flex items-center justify-center gap-3 sm:gap-5">
             <span className="h-px w-10 bg-red-600/70 sm:w-16" aria-hidden="true" />
             <h2
               id="marcas-footer-titulo"
-              className="text-balance text-lg font-extrabold tracking-tight text-[#0f1f3d] sm:text-xl md:text-2xl"
+              className="home-section-title text-balance text-lg font-bold tracking-tight text-[#0f1f3d] sm:text-xl md:text-2xl"
             >
               Trabajamos con las mejores marcas
             </h2>

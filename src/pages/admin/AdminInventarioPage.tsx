@@ -1,5 +1,5 @@
-import { InventoryPanel } from '@/components/admin/inventory-panel';
+import { AdminInventarioDashboard } from '@/components/admin/inventario/admin-inventario-dashboard';
 
 export function AdminInventarioPage() {
-  return <InventoryPanel />;
+  return <AdminInventarioDashboard />;
 }

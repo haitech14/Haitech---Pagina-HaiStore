@@ -20,7 +20,7 @@ const MODEL_PATTERNS = [
   /\b(M\s*\d{3,4}[A-Z]?)\b/i,
 ];
 
-const SITE_SUFFIX = ' | Haitech';
+const SITE_SUFFIX = ' | HaiStore';
 
 export function usdToPenSeo(usd, rate = DEFAULT_USD_TO_PEN_SEO) {
   return Math.round(Number(usd) * rate);

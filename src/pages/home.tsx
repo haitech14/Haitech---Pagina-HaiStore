@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 
 import { CategoryStrip } from '@/components/category-strip';
-import { HomeCategoryShortcuts } from '@/components/home/home-category-shortcuts';
-import { HeroBanner } from '@/components/hero-banner';
-import { HomeHighlightedSection } from '@/components/home-highlighted-section';
-import { HomeTrustStrip } from '@/components/home-trust-strip';
+import { HomeBenefitsBlackBar } from '@/components/home/home-benefits-black-bar';
+import { HomeFeaturedProductsSection } from '@/components/home/home-featured-products-section';
+import { HomeLandingHero } from '@/components/home/home-landing-hero';
+import { HomeServiceRentalSection } from '@/components/home/home-service-rental-section';
+import { HomeTonerRepuestosBanner } from '@/components/home/home-toner-repuestos-banner';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
 import { FooterBrandsSection } from '@/components/layout/footer-brands-section';
 import { useSeo } from '@/hooks/use-seo';
@@ -13,16 +14,6 @@ import { buildHomeJsonLd, DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE } from '@
 import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import { cn } from '@/lib/utils';
 
-const HomeMultifunctionTabsSection = lazy(() =>
-  import('@/components/home-multifunction-tabs-section').then((m) => ({
-    default: m.HomeMultifunctionTabsSection,
-  })),
-);
-const HomeSuppliesSpareTabsSection = lazy(() =>
-  import('@/components/home-supplies-spare-tabs-section').then((m) => ({
-    default: m.HomeSuppliesSpareTabsSection,
-  })),
-);
 const ClientRecommendationsSection = lazy(() =>
   import('@/components/client-recommendations-section').then((m) => ({
     default: m.ClientRecommendationsSection,
@@ -33,16 +24,6 @@ const ClientsSection = lazy(() =>
 );
 const HomeFaqSection = lazy(() =>
   import('@/components/home-faq-section').then((m) => ({ default: m.HomeFaqSection })),
-);
-const HomeEquipmentAdvisorSection = lazy(() =>
-  import('@/components/home-equipment-advisor-section').then((m) => ({
-    default: m.HomeEquipmentAdvisorSection,
-  })),
-);
-const HomeTechnicalServiceBanner = lazy(() =>
-  import('@/components/home-technical-service-banner').then((m) => ({
-    default: m.HomeTechnicalServiceBanner,
-  })),
 );
 
 export function HomePage() {
@@ -62,23 +43,12 @@ export function HomePage() {
 
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
-      <HeroBanner />
+      <HomeLandingHero />
       <CategoryStrip />
-      <HomeCategoryShortcuts />
-      <HomeTrustStrip />
-      <HomeHighlightedSection />
-
-      <LazyHomeSection minHeight="260px">
-        <HomeMultifunctionTabsSection />
-      </LazyHomeSection>
-
-      <LazyHomeSection minHeight="260px">
-        <HomeSuppliesSpareTabsSection />
-      </LazyHomeSection>
-
-      <LazyHomeSection minHeight="220px">
-        <HomeTechnicalServiceBanner />
-      </LazyHomeSection>
+      <HomeFeaturedProductsSection />
+      <HomeBenefitsBlackBar />
+      <HomeServiceRentalSection />
+      <HomeTonerRepuestosBanner />
 
       <LazyHomeSection minHeight="120px">
         <FooterBrandsSection />
@@ -95,7 +65,6 @@ export function HomePage() {
       <LazyHomeSection minHeight="520px">
         <div className="bg-white">
           <HomeFaqSection />
-          <HomeEquipmentAdvisorSection />
         </div>
       </LazyHomeSection>
     </div>

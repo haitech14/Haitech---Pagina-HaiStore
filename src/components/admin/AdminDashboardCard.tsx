@@ -22,7 +22,7 @@ export function AdminDashboardCard({
   return (
     <section
       className={cn(
-        'rounded-xl border border-border/80 bg-card p-5 shadow-sm sm:p-6',
+        'rounded-xl border border-border/60 bg-card p-5 shadow-sm sm:p-6',
         className,
       )}
     >

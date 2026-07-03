@@ -120,7 +120,7 @@ export function HomeFaqSection() {
   });
 
   return (
-    <section aria-labelledby="faq-titulo" className="pt-8 sm:pt-10">
+    <section aria-labelledby="faq-titulo" className="home-landing-sans pt-8 sm:pt-10">
       <div className="container">
         <header className="mx-auto mb-6 max-w-3xl text-center sm:mb-8">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
@@ -133,7 +133,7 @@ export function HomeFaqSection() {
 
           <h2
             id="faq-titulo"
-            className="mt-3 text-balance text-2xl font-bold tracking-tight text-[#0f1f3d] sm:mt-4 sm:text-3xl lg:text-[2rem]"
+            className="home-section-title mt-3 text-balance text-2xl font-bold tracking-tight text-[#0f1f3d] sm:mt-4 sm:text-3xl lg:text-[2rem]"
           >
             Preguntas{' '}
             <span className="text-red-600">frecuentes</span>

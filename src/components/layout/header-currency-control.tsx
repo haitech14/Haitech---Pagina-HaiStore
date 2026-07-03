@@ -105,6 +105,52 @@ export function HeaderCurrencyControl({ className }: { className?: string }) {
   );
 }
 
+/** Selector $ / S/ / $S/ para header oscuro. */
+export function HeaderDarkCurrencyControl({ className }: { className?: string }) {
+  const { displayCurrency, setDisplayCurrency } = useDisplayCurrency();
+
+  const symbolOptions: { id: DisplayCurrency; label: string; ariaLabel: string }[] = [
+    { id: 'USD', label: '$', ariaLabel: 'Mostrar precios en dólares' },
+    { id: 'PEN', label: 'S/', ariaLabel: 'Mostrar precios en soles' },
+    { id: 'BOTH', label: '$S/', ariaLabel: 'Mostrar precios en dólares y soles' },
+  ];
+
+  return (
+    <div
+      className={cn('flex shrink-0 items-center gap-1.5', className)}
+      aria-label="Moneda de visualización"
+    >
+      <Coins className="size-4 shrink-0 text-white/80" aria-hidden="true" />
+      <div
+        role="group"
+        className="inline-flex shrink-0 items-center rounded-md border border-white/20 bg-white/10 p-0.5"
+      >
+        {symbolOptions.map((option) => {
+          const isActive = displayCurrency === option.id;
+          return (
+            <button
+              key={option.id}
+              type="button"
+              aria-pressed={isActive}
+              aria-label={option.ariaLabel}
+              onClick={() => setDisplayCurrency(option.id)}
+              className={cn(
+                'min-h-6 min-w-6 rounded px-1.5 text-[0.65rem] font-semibold leading-none tabular-nums transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1A1A1A]',
+                isActive
+                  ? 'bg-[#E30613] text-white shadow-sm'
+                  : 'text-white/70 hover:bg-white/10 hover:text-white',
+              )}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /** Selector $ / S/ / $S/ bajo el carrito. */
 export function HeaderCurrencySymbolToggle({ className }: { className?: string }) {
   const { displayCurrency, setDisplayCurrency } = useDisplayCurrency();

@@ -192,7 +192,7 @@ export function ClientRecommendationsSection() {
   return (
     <section
       aria-labelledby="clientes-recomiendan-titulo"
-      className="relative overflow-hidden py-8 sm:py-10"
+      className="home-landing-sans relative overflow-hidden py-8 sm:py-10"
     >
       <div className="container relative">
         <header className="mx-auto mb-6 max-w-3xl text-center sm:mb-8">
@@ -206,7 +206,7 @@ export function ClientRecommendationsSection() {
 
           <h2
             id="clientes-recomiendan-titulo"
-            className="mt-3 text-balance text-2xl font-bold tracking-tight text-[#0f1f3d] sm:mt-4 sm:text-3xl lg:text-[2rem]"
+            className="home-section-title mt-3 text-balance text-2xl font-bold tracking-tight text-[#0f1f3d] sm:mt-4 sm:text-3xl lg:text-[2rem]"
           >
             Nuestros clientes nos{' '}
             <span className="text-red-600">recomiendan</span>

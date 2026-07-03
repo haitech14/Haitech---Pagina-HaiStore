@@ -38,8 +38,12 @@ const ALL_CATEGORIES_VALUE = 'all';
 type SiteSearchFormProps = {
   className?: string;
   onNavigate?: () => void;
-  /** Barra segmentada (header) o campo único (móvil compacto). */
-  variant?: 'segmented' | 'simple';
+  /** Barra segmentada (header), campo único (móvil compacto) o compacto oscuro (nav mockup). */
+  variant?: 'segmented' | 'simple' | 'header-dark';
+  /** Altura del campo segmentado. */
+  size?: 'default' | 'compact' | 'dense';
+  /** Muestra iconos de lupa (izquierda del campo y botón de envío). */
+  showSearchIcons?: boolean;
   /** Enfoca el campo al montar (p. ej. sheet de búsqueda móvil). */
   autoFocusInput?: boolean;
   /** Muestra filtro de categoría encima del campo (variant simple). */
@@ -51,6 +55,15 @@ type SearchSuggestionItem =
   | SearchServiceSuggestion
   | { type: 'product'; product: Product };
 
+const headerDarkBarClass =
+  'flex w-full items-stretch overflow-hidden rounded-lg border border-white/30 bg-white shadow-sm transition-shadow focus-within:border-white/50 focus-within:ring-2 focus-within:ring-white/25';
+
+const headerDarkInputClass =
+  'h-9 w-full min-w-0 flex-1 border-0 bg-transparent py-0 pl-2.5 pr-2 text-[0.8125rem] text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-0';
+
+const headerDarkButtonClass =
+  'flex h-9 w-9 shrink-0 items-center justify-center border-0 bg-transparent text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset';
+
 const searchBarClass =
   'flex w-full items-stretch overflow-hidden rounded-lg border border-border/80 bg-white shadow-sm transition-shadow focus-within:border-border focus-within:ring-2 focus-within:ring-ring/20';
 
@@ -58,10 +71,43 @@ const categorySegmentClass =
   'h-11 min-w-[8rem] max-w-[10rem] appearance-none border-0 border-l border-border/80 bg-white py-0 pl-2.5 pr-8 text-sm text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:min-w-[9rem] sm:max-w-[11rem]';
 
 const searchInputClass =
+  'h-11 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-3 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:pl-3';
+
+const searchInputWithIconClass =
   'h-11 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-10 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:pl-10';
 
 const searchButtonClass =
   'flex h-11 w-11 shrink-0 items-center justify-center rounded-r-[calc(var(--radius)-1px)] border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
+
+const compactSearchBarClass =
+  'flex w-full items-stretch overflow-hidden rounded-md border border-border/80 bg-white shadow-sm transition-shadow focus-within:border-border focus-within:ring-2 focus-within:ring-ring/20';
+
+const compactCategorySegmentClass =
+  'h-9 min-w-[6.75rem] max-w-[8.5rem] appearance-none border-0 border-l border-border/80 bg-white py-0 pl-2 pr-7 text-xs text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset xl:min-w-[7.5rem] xl:max-w-[9rem]';
+
+const compactSearchInputClass =
+  'h-9 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-3 pr-2 text-[0.8125rem] text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset';
+
+const compactSearchInputWithIconClass =
+  'h-9 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-8 pr-2 text-[0.8125rem] text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset';
+
+const compactSearchButtonClass =
+  'flex h-9 w-9 shrink-0 items-center justify-center rounded-r-[calc(var(--radius)-1px)] border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
+
+const denseSearchBarClass =
+  'flex w-full max-w-full items-stretch overflow-hidden rounded-full border border-border/80 bg-white shadow-sm transition-shadow focus-within:border-border focus-within:ring-2 focus-within:ring-ring/20';
+
+const denseCategorySegmentClass =
+  'h-10 min-w-[5.75rem] max-w-[7.25rem] shrink-0 appearance-none border-0 border-l border-border/80 bg-white py-0 pl-2.5 pr-7 text-xs text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset xl:min-w-[6.25rem] xl:max-w-[8rem]';
+
+const denseSearchInputClass =
+  'h-10 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-3 pr-2 text-[0.8125rem] text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset';
+
+const denseSearchInputWithIconClass =
+  'h-10 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-8 pr-2 text-[0.8125rem] text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset';
+
+const denseSearchButtonClass =
+  'flex h-10 w-10 shrink-0 items-center justify-center rounded-r-full border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 function SuggestionSectionHeading({ children }: { children: string }) {
   return (
@@ -216,9 +262,14 @@ export function SiteSearchForm({
   className,
   onNavigate,
   variant = 'segmented',
+  size = 'default',
+  showSearchIcons = true,
   autoFocusInput = false,
   showCategoryFilter = false,
 }: SiteSearchFormProps) {
+  const isDense = variant === 'segmented' && size === 'dense';
+  const isCompact = variant === 'segmented' && (size === 'compact' || size === 'dense');
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { role, viewAsRoles } = useAuth();
@@ -241,7 +292,7 @@ export function SiteSearchForm({
 
   const categoryOptions = useMemo(() => {
     const fromTree = buildCategorySelectOptions(categoryTree);
-    return [{ value: ALL_CATEGORIES_VALUE, label: 'Todas las categorías' }, ...fromTree];
+    return [{ value: ALL_CATEGORIES_VALUE, label: 'Categorías' }, ...fromTree];
   }, [categoryTree]);
 
   const categorySuggestions = useMemo(
@@ -439,12 +490,51 @@ export function SiteSearchForm({
     }
   };
 
-  const placeholder = 'Buscar productos, categorías o marcas...';
+  const placeholder =
+    variant === 'header-dark' || isDense
+      ? 'Buscar productos...'
+      : 'Buscar productos, categorías o marcas...';
 
   const showSuggestionsList =
     !queryTooShort &&
     !showEmptyResults &&
     (suggestions.length > 0 || isProductsLoading);
+
+  const showLeadingIcon = showSearchIcons && variant === 'segmented';
+  const showSubmitIcon = showSearchIcons && variant === 'segmented';
+
+  const barClass =
+    variant === 'header-dark'
+      ? headerDarkBarClass
+      : isDense
+        ? denseSearchBarClass
+        : isCompact
+          ? compactSearchBarClass
+          : searchBarClass;
+  const inputClass =
+    variant === 'header-dark'
+      ? headerDarkInputClass
+      : isDense
+        ? showLeadingIcon
+          ? denseSearchInputWithIconClass
+          : denseSearchInputClass
+        : isCompact
+          ? showLeadingIcon
+            ? compactSearchInputWithIconClass
+            : compactSearchInputClass
+          : showLeadingIcon
+            ? searchInputWithIconClass
+            : searchInputClass;
+  const categoryClass = isDense
+    ? denseCategorySegmentClass
+    : isCompact
+      ? compactCategorySegmentClass
+      : categorySegmentClass;
+  const submitButtonClass = isDense
+    ? denseSearchButtonClass
+    : isCompact
+      ? compactSearchButtonClass
+      : searchButtonClass;
 
   return (
     <div ref={rootRef} className={cn('relative w-full', className)}>
@@ -475,14 +565,21 @@ export function SiteSearchForm({
           </div>
         </div>
       ) : null}
-      <form role="search" className={searchBarClass} onSubmit={handleSubmit}>
+      <form
+        role="search"
+        className={barClass}
+        onSubmit={handleSubmit}
+      >
         <label htmlFor={inputFieldId} className="sr-only">
           Buscar en la tienda
         </label>
         <div className="relative min-w-0 flex-1">
-          {variant === 'segmented' ? (
+          {showLeadingIcon ? (
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/70"
+              className={cn(
+                'pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted-foreground/70',
+                isCompact ? 'left-2.5 size-3.5' : 'left-3 size-4',
+              )}
               strokeWidth={1.75}
               aria-hidden="true"
             />
@@ -513,7 +610,10 @@ export function SiteSearchForm({
             placeholder={placeholder}
             autoComplete="off"
             enterKeyHint="search"
-            className={cn(searchInputClass, variant === 'simple' && 'pr-11')}
+            className={cn(
+              inputClass,
+              variant === 'simple' && 'pr-11',
+            )}
           />
           {variant === 'simple' ? (
             <Search
@@ -534,7 +634,7 @@ export function SiteSearchForm({
                 id={categoryFieldId}
                 value={categoryFilter}
                 onChange={(event) => setCategoryFilter(event.target.value)}
-                className={categorySegmentClass}
+                className={categoryClass}
                 aria-label="Filtrar por categoría"
               >
                 {categoryOptions.map((option) => (
@@ -550,10 +650,16 @@ export function SiteSearchForm({
               />
             </div>
 
-            <button type="submit" aria-label="Buscar" className={searchButtonClass}>
-              <Search className="size-4" strokeWidth={2} aria-hidden="true" />
-            </button>
+            {showSubmitIcon ? (
+              <button type="submit" aria-label="Buscar" className={submitButtonClass}>
+                <Search className={isCompact ? 'size-3.5' : 'size-4'} strokeWidth={2} aria-hidden="true" />
+              </button>
+            ) : null}
           </>
+        ) : variant === 'header-dark' ? (
+          <button type="submit" aria-label="Buscar" className={headerDarkButtonClass}>
+            <Search className="size-4" strokeWidth={2} aria-hidden="true" />
+          </button>
         ) : (
           <button type="submit" className="sr-only">
             Buscar

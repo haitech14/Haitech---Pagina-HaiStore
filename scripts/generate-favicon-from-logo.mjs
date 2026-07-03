@@ -6,37 +6,19 @@ import sharp from 'sharp';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = path.join(root, 'public');
-const source = fs.existsSync(path.join(publicDir, 'favicon-source.png'))
-  ? path.join(publicDir, 'favicon-source.png')
-  : path.join(publicDir, 'logo.png');
+const source = path.join(publicDir, 'logo.png');
 const bg = { r: 0, g: 0, b: 0, alpha: 1 };
-/** Margen interno para que el ícono no toque los bordes del cuadrado. */
-const INSET_RATIO = 0.06;
 
 if (!fs.existsSync(source) || fs.statSync(source).size === 0) {
-  throw new Error('Falta public/favicon-source.png o public/logo.png');
+  throw new Error('Falta public/logo.png');
 }
 
 async function renderIcon(size) {
-  const inner = Math.max(1, Math.round(size * (1 - INSET_RATIO * 2)));
   const logo = await sharp(source)
-    .resize(inner, inner, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .toBuffer();
-  const meta = await sharp(logo).metadata();
-  const left = Math.round((size - meta.width) / 2);
-  const top = Math.round((size - meta.height) / 2);
-
-  return sharp({
-    create: {
-      width: size,
-      height: size,
-      channels: 4,
-      background: bg,
-    },
-  })
-    .composite([{ input: logo, left, top }])
+    .resize(size, size, { fit: 'contain', background: bg })
     .png()
     .toBuffer();
+  return logo;
 }
 
 const outputs = [

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import { toast } from 'sonner';
 import {
   Copy,
+  FileSpreadsheet,
   Info,
   Layers,
   Pencil,
@@ -50,6 +51,7 @@ import {
   shouldShowInventoryEquipmentSections,
 } from '@/lib/inventory-equipment-sections';
 import { sortProductsByPublicPriceAsc } from '@/lib/inventory-product-order';
+import { exportInventoryProductsToExcel } from '@/lib/export-inventory-products-excel';
 import { cn } from '@/lib/utils';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct } from '@/types/product';
@@ -305,6 +307,28 @@ export function InventoryPanel() {
     }
   };
 
+  const handleExportExcel = () => {
+    const productsToExport =
+      batchMode && selectedCount > 0
+        ? filteredProducts.filter((product) => selectedIds.has(product.id))
+        : filteredProducts;
+
+    if (productsToExport.length === 0) {
+      toast.error('No hay productos para exportar con los filtros actuales');
+      return;
+    }
+
+    const exported = exportInventoryProductsToExcel(productsToExport);
+    if (!exported) {
+      toast.error('No se pudo generar el archivo Excel');
+      return;
+    }
+
+    toast.success(
+      `${productsToExport.length} producto${productsToExport.length === 1 ? '' : 's'} exportado${productsToExport.length === 1 ? '' : 's'} a Excel`,
+    );
+  };
+
   const colCount = columnOrder.length + 1 + (batchMode ? 1 : 0);
 
   const renderProductRow = (product: InventoryProduct) => {
@@ -472,6 +496,17 @@ export function InventoryPanel() {
             >
               <Layers className="size-4" aria-hidden="true" />
               Lotes
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleExportExcel}
+              disabled={isLoading || filteredProducts.length === 0}
+              className="h-10 gap-2"
+            >
+              <FileSpreadsheet className="size-4" aria-hidden="true" />
+              <span className="hidden xl:inline">Exportar Excel</span>
+              <span className="xl:hidden">Excel</span>
             </Button>
             <Button
               type="button"

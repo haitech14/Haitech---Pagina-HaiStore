@@ -4,7 +4,7 @@ import { apiFetch } from '@/lib/api';
 import type { Product } from '@/types/product';
 
 export const HOME_CATALOG_BUNDLE_QUERY_KEY = 'home-catalog-bundle';
-export const HOME_FEATURED_BUNDLE_LIMIT = 5;
+export const HOME_FEATURED_BUNDLE_LIMIT = 6;
 export const HOME_SECTIONS_BUNDLE_LIMIT = 10;
 export const HOME_BUNDLE_STATIC_URL = '/catalog/home-bundle.json';
 

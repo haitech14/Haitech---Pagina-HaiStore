@@ -224,7 +224,7 @@ export function CatalogMegaMenuPanel({
               </p>
             </div>
             <Link
-              to={categoryLandingPath(activeCategorySlug)}
+              to={activeItem?.viewAllHref ?? categoryLandingPath(activeCategorySlug)}
               onClick={onNavigate}
               className="inline-flex min-h-8 shrink-0 items-center gap-0.5 rounded-md px-1 text-[0.65rem] font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-xs"
             >

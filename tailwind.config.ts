@@ -14,6 +14,7 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
+        sans: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         heading: ['"Anton"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         hero: [
@@ -24,6 +25,7 @@ const config: Config = {
           'system-ui',
           'sans-serif',
         ],
+        landing: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         celebration: ['"Playfair Display"', 'Georgia', 'ui-serif', 'serif'],
       },
       colors: {

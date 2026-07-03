@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Menu, Search } from 'lucide-react';
+import { Bell, Menu, Search, Sun } from 'lucide-react';
 
+import { AdminCrmSubNav } from '@/components/admin/admin-crm-subnav';
+import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { AdminTopBarUserMenu } from '@/components/admin/admin-topbar-user-menu';
 import { Button } from '@/components/ui/button';
 import {
   CommandDialog,
@@ -13,9 +16,6 @@ import {
 } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { AdminDashboardToolbarActions } from '@/components/admin/admin-dashboard-toolbar-actions';
-import { AdminCrmSubNav } from '@/components/admin/admin-crm-subnav';
-import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { useAdminSidebar } from '@/context/admin-sidebar-context';
 import { useAdminProductsQuery, useAdminProfiles } from '@/hooks/use-admin-dashboard';
 import {
@@ -26,13 +26,16 @@ import {
 } from '@/lib/admin-routes';
 
 function resolveAdminTopBarTitle(pathname: string, search: string): string {
-  if (isAdminCatalogPath(pathname)) return 'Inventario';
-  if (isAdminCrmPath(pathname) || pathname.startsWith(ADMIN_ROUTES.CUSTOMERS)) {
-    return 'CRM';
-  }
+  if (isAdminCatalogPath(pathname)) return 'Catálogo';
+  if (isAdminCrmPath(pathname) || pathname.startsWith(ADMIN_ROUTES.CUSTOMERS)) return 'CRM';
   if (isAdminSettingsPath(pathname)) return 'Configuración';
-  if (pathname.startsWith(ADMIN_ROUTES.VENTAS) || pathname.startsWith('/admin/pedidos')) {
-    return search.includes('vista=tpv') || search.includes('nuevo=1') ? 'Nueva venta' : 'Ventas';
+  if (pathname.startsWith(ADMIN_ROUTES.PEDIDOS)) return 'Pedidos';
+  if (pathname.startsWith(ADMIN_ROUTES.VENTAS)) {
+    if (search.includes('vista=tpv') || search.includes('nuevo=1')) return 'Nueva venta';
+    if (search.includes('vista=cotizaciones')) return 'Cotizaciones';
+    if (search.includes('vista=devoluciones')) return 'Devoluciones';
+    if (search.includes('vista=listado') || search.includes('vista=historico')) return 'Histórico de ventas';
+    return 'Pedidos';
   }
   if (pathname.startsWith(ADMIN_ROUTES.SHIPPING)) return 'Envíos';
   if (pathname.startsWith(ADMIN_ROUTES.SERVICES)) return 'Servicios';
@@ -79,14 +82,14 @@ export function AdminTopBar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex min-h-12 items-center gap-2 border-b border-[hsl(var(--admin-topbar-border))] bg-[hsl(var(--admin-topbar-bg))] px-4 sm:min-h-14 sm:gap-3 sm:px-6">
+      <header className="sticky top-0 z-30 flex min-h-14 items-center gap-3 border-b border-[hsl(var(--admin-topbar-border))] bg-[hsl(var(--admin-topbar-bg))] px-4 sm:px-5">
         <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
           <SheetTrigger asChild>
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="shrink-0 lg:hidden"
               aria-label="Abrir menú del panel"
             >
               <Menu className="size-5" />
@@ -112,83 +115,60 @@ export function AdminTopBar() {
           <Menu className="size-5" aria-hidden="true" />
         </Button>
 
-        {isDashboard ? (
-          <>
-            <h1 className="shrink-0 text-lg font-bold tracking-tight text-foreground">Dashboard</h1>
-            <div className="flex min-w-0 flex-1 flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3">
-              <button
-                type="button"
-                className="min-w-0 flex-1 sm:max-w-xl"
-                onClick={() => setCommandOpen(true)}
-                aria-label="Abrir búsqueda global"
-              >
-                <div className="relative pointer-events-none">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    readOnly
-                    placeholder="Buscar pedidos, productos, clientes…"
-                    className="h-8 pl-9 text-sm"
-                    aria-hidden="true"
-                    tabIndex={-1}
-                  />
-                  <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border bg-muted px-1.5 text-[0.65rem] font-medium text-muted-foreground sm:inline">
-                    Ctrl+K
-                  </kbd>
-                </div>
-              </button>
-              <AdminDashboardToolbarActions className="shrink-0" />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-              {showCrmTabs ? (
-                <>
-                  <h1 className="shrink-0 text-lg font-bold tracking-tight text-foreground">CRM</h1>
-                  <AdminCrmSubNav variant="inline" />
-                </>
-              ) : (
-                <div className="min-w-0 flex-1">
-                  <h1 className="truncate text-lg font-semibold text-foreground">{title}</h1>
-                </div>
-              )}
-            </div>
+        {!isDashboard && !showCrmTabs ? (
+          <h1 className="hidden shrink-0 text-base font-semibold text-foreground sm:block">{title}</h1>
+        ) : null}
 
-            <div className="hidden max-w-md flex-1 md:block">
-              <button
-                type="button"
-                className="w-full"
-                onClick={() => setCommandOpen(true)}
-                aria-label="Abrir búsqueda global"
-              >
-                <div className="relative pointer-events-none">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    readOnly
-                    placeholder="Buscar pedidos, productos, clientes…"
-                    className="pl-9"
-                    aria-hidden="true"
-                    tabIndex={-1}
-                  />
-                  <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border bg-muted px-1.5 text-[0.65rem] font-medium text-muted-foreground sm:inline">
-                    Ctrl+K
-                  </kbd>
-                </div>
-              </button>
-            </div>
+        {showCrmTabs ? (
+          <div className="hidden min-w-0 items-center gap-3 sm:flex">
+            <h1 className="shrink-0 text-base font-semibold text-foreground">CRM</h1>
+            <AdminCrmSubNav variant="inline" />
+          </div>
+        ) : null}
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="relative md:hidden"
-              aria-label="Buscar"
-              onClick={() => setCommandOpen(true)}
-            >
-              <Search className="size-5" />
-            </Button>
-          </>
-        )}
+        <button
+          type="button"
+          className="min-w-0 flex-1 sm:max-w-md lg:max-w-xl"
+          onClick={() => setCommandOpen(true)}
+          aria-label="Abrir búsqueda global"
+        >
+          <div className="relative pointer-events-none">
+            <Search
+              className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              readOnly
+              placeholder="Buscar en el sistema…"
+              className="h-9 rounded-lg border-border/80 bg-muted/40 pl-9 text-sm shadow-none"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+          </div>
+        </button>
+
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-9 text-muted-foreground"
+            aria-label="Cambiar tema"
+          >
+            <Sun className="size-[1.125rem]" aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="relative size-9 text-muted-foreground"
+            aria-label="Notificaciones"
+          >
+            <Bell className="size-[1.125rem]" aria-hidden="true" />
+            <span className="absolute right-2 top-2 size-2 rounded-full bg-red-500 ring-2 ring-white" />
+          </Button>
+          <AdminTopBarUserMenu />
+        </div>
       </header>
 
       <CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>

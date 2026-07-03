@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   Copy,
   FileDown,
+  FileSpreadsheet,
   MessageCircle,
   Pencil,
   Search,
@@ -42,6 +43,10 @@ import {
   buildWhatsAppShareUrl,
 } from '@/lib/proforma-whatsapp-message';
 import { downloadProformaPdf } from '@/lib/regenerate-proforma-pdf';
+import {
+  exportImportedSalesToExcel,
+  exportUnifiedVentasToExcel,
+} from '@/lib/export-ventas-excel';
 import { formatTpvMoney } from '@/lib/tpv-pricing';
 import { importedSaleMatchesQuery } from '@/lib/ventas-report-columns';
 import { cn } from '@/lib/utils';
@@ -190,6 +195,7 @@ interface SalesUnifiedListPanelProps {
   onMonthChange: (month: string) => void;
   isLoading?: boolean;
   importedLoading?: boolean;
+  defaultTypeFilter?: RowType | typeof ALL_TYPES;
 }
 
 export function SalesUnifiedListPanel({
@@ -201,12 +207,13 @@ export function SalesUnifiedListPanel({
   onMonthChange,
   isLoading = false,
   importedLoading = false,
+  defaultTypeFilter = ALL_TYPES,
 }: SalesUnifiedListPanelProps) {
   const { data: companySettings } = useCompanySettings();
   const { updateProforma, deleteProforma } = useProformaMutations();
 
   const [query, setQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<RowType | typeof ALL_TYPES>(ALL_TYPES);
+  const [typeFilter, setTypeFilter] = useState<RowType | typeof ALL_TYPES>(defaultTypeFilter);
   const [statusFilter, setStatusFilter] = useState<ProformaFollowUpStatus | typeof ALL_STATUS>(
     ALL_STATUS,
   );
@@ -358,6 +365,47 @@ export function SalesUnifiedListPanel({
     void handleWhatsAppCopy(proforma);
   };
 
+  const handleExportExcel = () => {
+    const monthSuffix =
+      selectedMonth === ALL_IMPORTED_MONTHS ? 'todos' : selectedMonth.slice(0, 7);
+
+    if (showErpReportTable) {
+      if (filteredHistoricoDocs.length === 0) {
+        toast.error('No hay comprobantes para exportar con los filtros actuales');
+        return;
+      }
+
+      const exported = exportImportedSalesToExcel(
+        filteredHistoricoDocs,
+        `ventas-haisales-${monthSuffix}`,
+      );
+      if (!exported) {
+        toast.error('No se pudo generar el archivo Excel');
+        return;
+      }
+
+      toast.success(
+        `${filteredHistoricoDocs.length} comprobante${filteredHistoricoDocs.length === 1 ? '' : 's'} exportado${filteredHistoricoDocs.length === 1 ? '' : 's'} a Excel`,
+      );
+      return;
+    }
+
+    if (filtered.length === 0) {
+      toast.error('No hay registros para exportar con los filtros actuales');
+      return;
+    }
+
+    const exported = exportUnifiedVentasToExcel(filtered, `ventas-${monthSuffix}`);
+    if (!exported) {
+      toast.error('No se pudo generar el archivo Excel');
+      return;
+    }
+
+    toast.success(
+      `${filtered.length} registro${filtered.length === 1 ? '' : 's'} exportado${filtered.length === 1 ? '' : 's'} a Excel`,
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-3" role="status" aria-live="polite">
@@ -491,6 +539,20 @@ export function SalesUnifiedListPanel({
             </SelectContent>
           </Select>
         </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11 w-full gap-2 sm:w-auto"
+          onClick={handleExportExcel}
+          disabled={
+            showErpReportTable
+              ? filteredHistoricoDocs.length === 0
+              : filtered.length === 0
+          }
+        >
+          <FileSpreadsheet className="size-4" aria-hidden="true" />
+          Exportar Excel
+        </Button>
       </div>
 
       {showErpReportTable ? (

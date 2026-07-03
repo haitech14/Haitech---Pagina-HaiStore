@@ -2,6 +2,7 @@ import {
   DEFAULT_OG_IMAGE,
   DEFAULT_SITE_DESCRIPTION,
   DEFAULT_SITE_TITLE,
+  SITE_BRAND_NAME,
   resolveAbsoluteImageUrl,
 } from '../../shared/seo/meta.js';
 import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
@@ -9,6 +10,7 @@ import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 export {
   DEFAULT_SITE_DESCRIPTION,
   DEFAULT_SITE_TITLE,
+  SITE_BRAND_NAME,
   DEFAULT_OG_IMAGE,
   buildProductMetaDescription,
   buildCategoryMetaDescription,
@@ -133,7 +135,7 @@ export function applyPageSeo(config: PageSeoConfig) {
     description: config.description ?? DEFAULT_PAGE_SEO.description ?? '',
     canonical: config.canonical ?? DEFAULT_PAGE_SEO.canonical ?? buildAbsoluteUrl('/'),
     image: config.image ?? DEFAULT_PAGE_SEO.image ?? null,
-    imageAlt: config.imageAlt ?? DEFAULT_PAGE_SEO.imageAlt ?? 'Haitech',
+    imageAlt: config.imageAlt ?? DEFAULT_PAGE_SEO.imageAlt ?? SITE_BRAND_NAME,
     ogType: config.ogType ?? DEFAULT_PAGE_SEO.ogType ?? 'website',
     robots: config.robots ?? DEFAULT_PAGE_SEO.robots ?? 'index,follow',
     ...(config.ogProduct ? { ogProduct: config.ogProduct } : {}),
@@ -159,7 +161,7 @@ export function applyPageSeo(config: PageSeoConfig) {
   }
   upsertMeta(head, 'property', 'og:type', merged.ogType ?? 'website');
   upsertMeta(head, 'property', 'og:locale', 'es_PE');
-  upsertMeta(head, 'property', 'og:site_name', 'Haitech');
+  upsertMeta(head, 'property', 'og:site_name', SITE_BRAND_NAME);
 
   if (merged.image) {
     upsertMeta(head, 'property', 'og:image', merged.image);

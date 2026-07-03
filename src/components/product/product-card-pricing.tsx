@@ -81,7 +81,11 @@ export function ProductCardPricing({
             <DualPrice usd={pricing.compareUsd} strikethrough className="text-pretty" />
           )}
         </div>
-        <span className={cn(discountClass, 'shrink-0 text-right')}>{pricing.discountPercent}% DSCTO</span>
+        <span className={cn(discountClass, 'shrink-0 text-right')}>
+          {Number.isFinite(pricing.discountPercent) && pricing.discountPercent > 0
+            ? `${pricing.discountPercent}% DSCTO`
+            : null}
+        </span>
       </div>
     </div>
   );

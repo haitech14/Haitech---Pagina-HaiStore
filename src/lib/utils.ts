@@ -13,7 +13,7 @@ export function formatCurrency(value: number, currency = 'EUR', locale = 'es-ES'
 }
 
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
-import { roundPenToNearestNine } from '@/lib/pen-pricing';
+import { isTonerOrRepuestosCategory, roundPenToNearestNine } from '@/lib/pen-pricing';
 
 export { DEFAULT_USD_TO_PEN, USD_TO_PEN } from '@/lib/exchange-rate';
 
@@ -30,12 +30,24 @@ export function formatUsd(usd: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(usd);
 }
 
-export function formatPenFromUsd(usd: number): string {
+export function formatPenFromUsd(usd: number, rate = getUsdToPenSaleRate()): string {
   return new Intl.NumberFormat('es-PE', {
     style: 'currency',
     currency: 'PEN',
     maximumFractionDigits: 0,
-  }).format(usdToPen(usd));
+  }).format(usdToPen(usd, rate));
+}
+
+/** Vitrina: soles al 9 sin centavos; tóner y repuestos con 2 decimales. */
+export function formatPenFromUsdDisplay(
+  usd: number,
+  category?: string | null,
+  rate = getUsdToPenSaleRate(),
+): string {
+  if (isTonerOrRepuestosCategory(category)) {
+    return formatPenFromUsdPrecise(usd, rate);
+  }
+  return formatPenFromUsd(usd, rate);
 }
 
 /** Soles con decimales (tabla de inventario). */

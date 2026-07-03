@@ -11,6 +11,8 @@ import { formatOrderTotal, mapStoreOrderStatusToBadge } from '@/lib/admin-order-
 import { useAdminInventory } from '@/hooks/use-products';
 import { apiFetch } from '@/lib/api';
 import {
+  getInventoryStockStatus,
+  INVENTORY_LOW_STOCK_THRESHOLD,
   inventoryCategoryParentLabel,
   mergeInventoryCategoryStockSnapshots,
   normalizeStockQuantity,
@@ -194,6 +196,13 @@ export function useAdminDashboardKpis(range: AdminDateRange) {
             : null,
         sparkline: [] as { value: number }[],
       },
+      averageTicket: {
+        value: orderCount > 0 ? totalSales / orderCount : 0,
+        trend: calcTrendPercent(
+          orderCount > 0 ? totalSales / orderCount : 0,
+          prevOrderCount > 0 ? prevSales / prevOrderCount : 0,
+        ),
+      },
       productCount,
     },
   };
@@ -227,8 +236,21 @@ export function useAdminSalesTimeSeries(range: AdminDateRange) {
   const ordersQuery = useAdminOrdersDashboard(range);
   const previous = getPreviousPeriod(range);
   const allOrders = ordersQuery.data?.orders ?? [];
+  const rangedPaid = filterOrdersInRange(allOrders, range);
 
   const current = ordersQuery.data?.summary.salesByDay ?? [];
+  const ordersByDay = new Map<string, number>();
+  for (const order of rangedPaid) {
+    const key = order.created_at.slice(0, 10);
+    ordersByDay.set(key, (ordersByDay.get(key) ?? 0) + 1);
+  }
+
+  const combined = current.map((point) => ({
+    date: point.date,
+    sales: point.sales,
+    orders: ordersByDay.get(point.date) ?? 0,
+  }));
+
   const prevPaid = filterOrdersInRange(allOrders, previous);
   const prevMap = new Map<string, number>();
   for (const order of prevPaid) {
@@ -246,8 +268,8 @@ export function useAdminSalesTimeSeries(range: AdminDateRange) {
 
   return {
     isLoading: ordersQuery.isLoading,
-    hasData: current.some((point) => point.sales > 0),
-    current,
+    hasData: combined.some((point) => point.sales > 0 || point.orders > 0),
+    current: combined,
     previous: previousSeries,
   };
 }
@@ -291,6 +313,7 @@ export function useAdminRecentOrders() {
       id: order.order_number,
       customer,
       status: mapStoreOrderStatusToBadge(order.status) satisfies OrderStatus,
+      paymentStatus: order.payment_status,
       total: formatOrderTotal(Number(order.total_usd), order.total_pen, order.currency),
       date: order.created_at,
     };
@@ -366,5 +389,73 @@ export function useAdminInventoryByCategory(options?: { urgentLimit?: number }) 
     allCategories,
     hasMoreUrgentCategories: allCategories.length > urgentLimit,
     totalCategories: allCategories.length,
+  };
+}
+
+export function useAdminLowStockProducts(limit = 5) {
+  const productsQuery = useAdminProductsQuery();
+  const products = productsQuery.data ?? [];
+
+  const lowStock = products
+    .filter((product) => {
+      const status = getInventoryStockStatus(normalizeStockQuantity(product.stock));
+      return status === 'out' || status === 'low';
+    })
+    .sort((a, b) => normalizeStockQuantity(a.stock) - normalizeStockQuantity(b.stock))
+    .slice(0, limit)
+    .map((product) => ({
+      id: product.id,
+      name: product.name,
+      code: product.code,
+      stock: normalizeStockQuantity(product.stock),
+      image: product.image_url,
+      threshold: INVENTORY_LOW_STOCK_THRESHOLD,
+    }));
+
+  return {
+    isLoading: productsQuery.isLoading,
+    products: lowStock,
+    hasData: lowStock.length > 0,
+  };
+}
+
+function startOfToday() {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function endOfToday() {
+  const date = new Date();
+  date.setHours(23, 59, 59, 999);
+  return date;
+}
+
+export function useAdminDailySummary() {
+  const todayRange: AdminDateRange = { from: startOfToday(), to: endOfToday() };
+  const ordersQuery = useAdminOrdersDashboard(todayRange);
+  const profilesQuery = useAdminProfiles();
+  const productsQuery = useAdminProductsQuery();
+
+  const orders = ordersQuery.data?.orders ?? [];
+  const paidToday = filterOrdersInRange(orders, todayRange);
+  const salesToday = paidToday.reduce((sum, order) => sum + Number(order.total_usd), 0);
+  const unitsToday = paidToday.reduce(
+    (sum, order) => sum + (order.items?.reduce((itemSum, item) => itemSum + item.quantity, 0) ?? 0),
+    0,
+  );
+
+  const newCustomersToday = (profilesQuery.data ?? []).filter((profile) => {
+    const date = profileDate(profile);
+    return date && isDateInRange(date, todayRange);
+  }).length;
+
+  return {
+    isLoading: ordersQuery.isLoading || profilesQuery.isLoading,
+    sales: salesToday,
+    orders: paidToday.length,
+    newCustomers: newCustomersToday,
+    visits: productsQuery.data?.reduce((sum, product) => sum + (product.view_count ?? 0), 0) ?? 0,
+    unitsSold: unitsToday,
   };
 }

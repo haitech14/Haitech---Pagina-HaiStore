@@ -16,6 +16,7 @@ import {
   isAdminCatalogPath,
   isAdminServicesPath,
   isAdminSettingsPath,
+  ADMIN_ROUTES,
 } from '@/lib/admin-routes';
 
 function AdminLayoutShell() {
@@ -28,21 +29,35 @@ function AdminLayoutShell() {
   const showCatalogSubNav = isAdminCatalogPath(pathname);
   const showServicesSubNav = isAdminServicesPath(pathname);
   const showSettingsSubNav = isAdminSettingsPath(pathname);
+  const isDashboard = pathname === ADMIN_ROUTES.DASHBOARD;
+  const isInventarioMockup = pathname === ADMIN_ROUTES.INVENTORY;
+  const hideDesktopTopBar = isDashboard || isInventarioMockup;
 
   return (
-    <div className="flex min-h-dvh bg-slate-50">
-        <div className={cn('hidden shrink-0 lg:block', !sidebarOpen && 'lg:hidden')}>
+    <div className="flex min-h-dvh bg-[hsl(var(--admin-dashboard-bg))]">
+        <div
+          className={cn(
+            'hidden shrink-0 lg:sticky lg:top-0 lg:block lg:h-dvh',
+            !sidebarOpen && 'lg:hidden',
+          )}
+        >
           <AdminSidebar />
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="sticky top-0 z-30 bg-[hsl(var(--admin-topbar-bg))]">
+          <div className={cn('sticky top-0 z-30 bg-[hsl(var(--admin-topbar-bg))]', hideDesktopTopBar && 'lg:hidden')}>
             <AdminTopBar />
             <AdminApiStatusBanner />
-            {showCatalogSubNav && <AdminCatalogSubNav />}
+            {showCatalogSubNav && !isInventarioMockup && <AdminCatalogSubNav />}
             {showServicesSubNav && <AdminServicesSubNav />}
             {showSettingsSubNav && <AdminSettingsSubNav />}
           </div>
-          <main id="contenido" className="flex-1 overflow-x-hidden p-4 sm:p-6">
+          <main
+            id="contenido"
+            className={cn(
+              'flex-1 overflow-x-hidden',
+              hideDesktopTopBar ? 'p-4 sm:p-6 lg:p-8' : 'p-4 sm:p-6',
+            )}
+          >
             <Outlet />
           </main>
         </div>

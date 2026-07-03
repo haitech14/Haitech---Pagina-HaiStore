@@ -37,6 +37,14 @@ export interface LandingCatalogMenuSidebarItem {
   label: string;
   description: string;
   icon: LucideIcon;
+  viewAllHref?: string;
+}
+
+export interface NavMegaMenuModel {
+  sidebarItems: LandingCatalogMenuSidebarItem[];
+  defaultCategorySlug: string;
+  getColumnGroups: (categorySlug: string) => MegaMenuColumnGroup[];
+  categoryShowsBrandStrip: (categorySlug: string) => boolean;
 }
 
 const FALLBACK_COLUMN_IMAGE = '/categories/toner-suministros.png';

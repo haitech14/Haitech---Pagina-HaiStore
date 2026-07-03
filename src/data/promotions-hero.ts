@@ -11,6 +11,16 @@ export interface PromotionSlide {
 
 export const promotionSlides: PromotionSlide[] = [
   {
+    id: 'servicio',
+    title: 'Servicio técnico especializado',
+    subtitle: 'Instalación, mantenimiento y soporte para tu flota de impresión en Lima y provincias.',
+    badge: 'Soporte oficial',
+    ctaLabel: 'Solicitar cotización',
+    ctaHref: '/contacto',
+    image: '/promo-cards/technician-service.webp',
+    imageAlt: 'Técnico de servicio para equipos de impresión',
+  },
+  {
     id: 'multifuncionales',
     title: 'Multifuncionales en promoción',
     subtitle: 'Imprime, escanea y copia con equipos Ricoh y más. Precios corporativos desde la primera unidad.',
@@ -29,15 +39,5 @@ export const promotionSlides: PromotionSlide[] = [
     ctaHref: '/tienda',
     image: '/promotions/promo-hero-ofertas.png',
     imageAlt: 'Fondo promocional de ofertas HaiStore',
-  },
-  {
-    id: 'servicio',
-    title: 'Servicio técnico especializado',
-    subtitle: 'Instalación, mantenimiento y soporte para tu flota de impresión en Lima y provincias.',
-    badge: 'Soporte oficial',
-    ctaLabel: 'Solicitar cotización',
-    ctaHref: '/contacto',
-    image: '/promo-cards/technician-service.webp',
-    imageAlt: 'Técnico de servicio para equipos de impresión',
   },
 ];

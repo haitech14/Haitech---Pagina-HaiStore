@@ -1,6 +1,7 @@
 export const ADMIN_ROUTES = {
   DASHBOARD: '/admin',
   VENTAS: '/admin/ventas',
+  PEDIDOS: '/admin/pedidos',
   /** @deprecated Usar VENTAS */
   ORDERS: '/admin/ventas',
   PRODUCTS: '/admin/productos',
@@ -148,3 +149,124 @@ export const ADMIN_NAV_MAIN = [
 ] as const;
 
 export const TECHNICIAN_NAV_KEYS = ['INVENTORY', 'SETTINGS'] as const;
+
+export interface AdminSidebarNavItem {
+  key: string;
+  label: string;
+  href: string;
+  icon: string;
+  badge?: 'orders-pending';
+  technicianAllowed?: boolean;
+}
+
+export interface AdminSidebarNavGroup {
+  label: string;
+  items: AdminSidebarNavItem[];
+}
+
+/** Navegación lateral agrupada (mockup HaiStore admin). */
+export const ADMIN_SIDEBAR_GROUPS: AdminSidebarNavGroup[] = [
+  {
+    label: 'VENTAS',
+    items: [
+      { key: 'orders', label: 'Pedidos', href: ADMIN_ROUTES.VENTAS, icon: 'shopping-cart', badge: 'orders-pending' },
+      { key: 'customers', label: 'Clientes', href: ADMIN_ROUTES.CRM_CLIENTES, icon: 'users' },
+      { key: 'returns', label: 'Devoluciones', href: `${ADMIN_ROUTES.VENTAS}?vista=devoluciones`, icon: 'undo-2' },
+      { key: 'quotes', label: 'Cotizaciones', href: `${ADMIN_ROUTES.VENTAS}?vista=cotizaciones`, icon: 'file-text' },
+    ],
+  },
+  {
+    label: 'CATÁLOGO',
+    items: [
+      { key: 'products', label: 'Productos', href: ADMIN_ROUTES.INVENTORY, icon: 'package' },
+      { key: 'categories', label: 'Categorías', href: ADMIN_ROUTES.CATEGORIES, icon: 'tags' },
+      { key: 'brands', label: 'Marcas', href: ADMIN_ROUTES.CATEGORIES, icon: 'badge-check' },
+      { key: 'attributes', label: 'Atributos', href: ADMIN_ROUTES.INVENTORY, icon: 'list-tree' },
+      { key: 'coupons', label: 'Cupones', href: ADMIN_ROUTES.MARKETING_COUPONS, icon: 'ticket' },
+      { key: 'banners', label: 'Banners', href: ADMIN_ROUTES.APPEARANCE, icon: 'image' },
+    ],
+  },
+  {
+    label: 'INVENTARIO',
+    items: [
+      { key: 'inventory', label: 'Inventario', href: ADMIN_ROUTES.INVENTORY, icon: 'warehouse', technicianAllowed: true },
+      { key: 'warehouses', label: 'Almacenes', href: ADMIN_ROUTES.INVENTORY, icon: 'building-2', technicianAllowed: true },
+      { key: 'movements', label: 'Movimientos', href: ADMIN_ROUTES.INVENTORY, icon: 'arrow-left-right', technicianAllowed: true },
+      { key: 'transfers', label: 'Transferencias', href: ADMIN_ROUTES.INVENTORY, icon: 'truck', technicianAllowed: true },
+    ],
+  },
+  {
+    label: 'MARKETING',
+    items: [
+      { key: 'promotions', label: 'Promociones', href: ADMIN_ROUTES.MARKETING, icon: 'megaphone' },
+      { key: 'popups', label: 'Popups', href: ADMIN_ROUTES.MARKETING, icon: 'message-square' },
+      { key: 'newsletter', label: 'Newsletter', href: ADMIN_ROUTES.MARKETING, icon: 'mail' },
+    ],
+  },
+  {
+    label: 'CONFIGURACIÓN',
+    items: [
+      { key: 'users', label: 'Usuarios', href: ADMIN_ROUTES.SETTINGS_USUARIOS, icon: 'user-cog' },
+      { key: 'roles', label: 'Roles y permisos', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'shield' },
+      { key: 'settings', label: 'Configuraciones', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'settings', technicianAllowed: true },
+      { key: 'payments', label: 'Métodos de pago', href: ADMIN_ROUTES.SETTINGS_INTEGRATIONS, icon: 'credit-card' },
+      { key: 'shipping', label: 'Métodos de envío', href: ADMIN_ROUTES.SHIPPING, icon: 'truck' },
+      { key: 'taxes', label: 'Impuestos', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'percent' },
+      { key: 'logs', label: 'Logs del sistema', href: ADMIN_ROUTES.REPORTS, icon: 'scroll-text' },
+    ],
+  },
+];
+
+export const ADMIN_SIDEBAR_DASHBOARD: AdminSidebarNavItem = {
+  key: 'dashboard',
+  label: 'Dashboard',
+  href: ADMIN_ROUTES.DASHBOARD,
+  icon: 'layout-dashboard',
+};
+
+export interface AdminSidebarMockupNavItem {
+  key: string;
+  label: string;
+  href: string;
+  icon: string;
+}
+
+export interface AdminSidebarMockupNavGroup {
+  key: string;
+  label: string;
+  icon: string;
+  items: AdminSidebarMockupNavItem[];
+}
+
+/** Navegación lateral estilo mockup NovaDesk (panel Resumen). */
+export const ADMIN_SIDEBAR_MOCKUP_MAIN: AdminSidebarMockupNavItem[] = [
+  { key: 'dashboard', label: 'Dashboard', href: ADMIN_ROUTES.DASHBOARD, icon: 'home' },
+  { key: 'users', label: 'Usuarios', href: ADMIN_ROUTES.SETTINGS_USUARIOS, icon: 'users' },
+  { key: 'customers', label: 'Clientes', href: ADMIN_ROUTES.CRM_CLIENTES, icon: 'user' },
+  { key: 'sales', label: 'Ventas', href: ADMIN_ROUTES.VENTAS, icon: 'shopping-cart' },
+  { key: 'purchases', label: 'Compras', href: ADMIN_ROUTES.PEDIDOS, icon: 'shopping-bag' },
+  { key: 'inventory', label: 'Inventario', href: ADMIN_ROUTES.INVENTORY, icon: 'warehouse' },
+];
+
+export const ADMIN_SIDEBAR_MOCKUP_GROUPS: AdminSidebarMockupNavGroup[] = [
+  {
+    key: 'reports',
+    label: 'Reportes',
+    icon: 'bar-chart-3',
+    items: [
+      { key: 'monthly-sales', label: 'Ventas mensuales', href: ADMIN_ROUTES.REPORTS, icon: 'trending-up' },
+      { key: 'stock', label: 'Stock', href: ADMIN_ROUTES.INVENTORY, icon: 'package' },
+      { key: 'technicians', label: 'Técnicos', href: ADMIN_ROUTES.SERVICES, icon: 'wrench' },
+    ],
+  },
+  {
+    key: 'settings',
+    label: 'Configuración',
+    icon: 'settings',
+    items: [
+      { key: 'roles', label: 'Roles', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'shield' },
+      { key: 'permissions', label: 'Permisos', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'key-round' },
+      { key: 'parameters', label: 'Parámetros', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'sliders-horizontal' },
+    ],
+  },
+];

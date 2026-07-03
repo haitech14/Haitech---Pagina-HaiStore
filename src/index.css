@@ -24,21 +24,22 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
-    /* Panel admin — sidebar negro; rojo solo como fondo/acento (no texto rojo sobre negro) */
-    --admin-sidebar-bg: 0 0% 7%;
-    --admin-sidebar-bg-top: 0 0% 4%;
-    --admin-sidebar-hover: 0 0% 14%;
-    --admin-sidebar-fg: 0 0% 96%;
-    --admin-sidebar-fg-muted: 0 0% 68%;
-    --admin-sidebar-border: 0 0% 20%;
-    --admin-sidebar-active-bg: 0 72% 51%;
+    /* Panel admin — sidebar navy (#0B1120); acento azul mockup (#2563EB) */
+    --admin-sidebar-bg: 222 47% 7%;
+    --admin-sidebar-bg-top: 222 47% 7%;
+    --admin-sidebar-hover: 217 33% 14%;
+    --admin-sidebar-fg: 210 40% 98%;
+    --admin-sidebar-fg-muted: 215 16% 65%;
+    --admin-sidebar-border: 217 33% 18%;
+    --admin-sidebar-active-bg: 217 91% 53%;
     --admin-sidebar-active-fg: 0 0% 100%;
-    --admin-sidebar-card-title: 0 0% 12%;
-    --admin-accent: 0 72% 51%;
-    --admin-accent-hover: 0 72% 45%;
-    --admin-accent-soft: 0 75% 62%;
+    --admin-sidebar-card-title: 222 47% 11%;
+    --admin-accent: 217 91% 60%;
+    --admin-accent-hover: 217 91% 54%;
+    --admin-accent-soft: 214 95% 93%;
     --admin-topbar-bg: 0 0% 100%;
     --admin-topbar-border: 214.3 31.8% 91.4%;
+    --admin-dashboard-bg: 210 20% 98%;
   }
 
   .dark {
@@ -83,7 +84,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
     font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 
@@ -126,6 +127,22 @@
       system-ui,
       sans-serif;
     font-weight: 400;
+  }
+
+  .home-landing-sans {
+    font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .home-landing-sans :where(h2, h3, p, a, button, span) {
+    font-family: inherit;
+  }
+
+  .home-section-title {
+    font-weight: 700;
+  }
+
+  .home-section-title :where(span) {
+    font-weight: inherit;
   }
 
   .mural-canvas-dots {

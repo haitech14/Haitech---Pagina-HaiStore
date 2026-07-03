@@ -82,7 +82,7 @@ export function injectSeoIntoHtml(html, seo) {
   next = upsertMetaTag(next, 'property', 'og:url', seo.canonical);
   next = upsertMetaTag(next, 'property', 'og:type', seo.ogType ?? 'website');
   next = upsertMetaTag(next, 'property', 'og:locale', 'es_PE');
-  next = upsertMetaTag(next, 'property', 'og:site_name', 'Haitech');
+  next = upsertMetaTag(next, 'property', 'og:site_name', 'HaiStore');
 
   if (seo.image) {
     next = upsertMetaTag(next, 'property', 'og:image', seo.image);

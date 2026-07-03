@@ -11,10 +11,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildLandingCatalogMegaMenu } from '@/lib/mega-menu-from-store-categories';
+import { HeaderNavChevron } from '@/components/layout/header-nav-chevron';
 import {
+  DARK_NAV_ICON_CLASS,
   MAIN_NAV_CATEGORIES_BUTTON_CLASS,
   MAIN_NAV_ICON_CLASS,
-  mainNavLinkClass,
+  MAIN_NAV_ICON_COMPACT_CLASS,
+  darkNavSecondarySubmenuTriggerClass,
+  darkNavSubmenuTriggerClass,
+  lightNavSubmenuTriggerClass,
+  lightNavSubmenuTriggerCompactClass,
+  SUBMENU_PANEL_ANIMATION_CLASS,
 } from '@/components/layout/main-nav-styles';
 import { cn } from '@/lib/utils';
 
@@ -25,9 +32,15 @@ const MEGA_MENU_MAX_WIDTH = 860;
 
 interface CategoriesMegaMenuProps {
   triggerVariant?: 'button' | 'nav' | 'categories-button';
+  navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
+  showIcon?: boolean;
 }
 
-export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMegaMenuProps) {
+export function CategoriesMegaMenu({
+  triggerVariant = 'button',
+  navRow = 'default',
+  showIcon = true,
+}: CategoriesMegaMenuProps) {
   const location = useLocation();
   const isCatalogRoute =
     location.pathname.startsWith('/categoria') ||
@@ -100,6 +113,22 @@ export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMega
 
   const closeMenu = () => setOpen(false);
 
+  const navTriggerClass =
+    navRow === 'light-compact'
+      ? lightNavSubmenuTriggerCompactClass
+      : navRow === 'light'
+        ? lightNavSubmenuTriggerClass
+        : navRow === 'secondary'
+          ? darkNavSecondarySubmenuTriggerClass
+          : darkNavSubmenuTriggerClass;
+
+  const navIconClass =
+    navRow === 'light-compact'
+      ? MAIN_NAV_ICON_COMPACT_CLASS
+      : navRow === 'light'
+        ? MAIN_NAV_ICON_CLASS
+        : DARK_NAV_ICON_CLASS;
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger asChild>
@@ -129,14 +158,13 @@ export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMega
             onMouseEnter={openMenu}
             onMouseLeave={scheduleClose}
             onFocus={openMenu}
-            className={cn(mainNavLinkClass(open || isCatalogRoute), 'gap-1')}
+            className={navTriggerClass(isCatalogRoute, open)}
           >
-            <Package className={MAIN_NAV_ICON_CLASS} strokeWidth={1.75} aria-hidden="true" />
+            {showIcon ? (
+              <Package className={navIconClass} strokeWidth={1.75} aria-hidden="true" />
+            ) : null}
             Productos
-            <ChevronDown
-              aria-hidden="true"
-              className={cn('size-3 transition-transform', open && 'rotate-180')}
-            />
+            <HeaderNavChevron navRow={navRow} open={open} />
           </button>
         ) : (
           <Button
@@ -166,9 +194,7 @@ export function CategoriesMegaMenu({ triggerVariant = 'button' }: CategoriesMega
         onCloseAutoFocus={(event) => event.preventDefault()}
         className={cn(
           'z-50 max-w-none overflow-hidden rounded-lg border border-border/70 p-0 shadow-xl',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out',
-          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          SUBMENU_PANEL_ANIMATION_CLASS,
         )}
         style={menuWidth ? { width: menuWidth, maxHeight: 'min(40rem, 82vh)' } : undefined}
       >
