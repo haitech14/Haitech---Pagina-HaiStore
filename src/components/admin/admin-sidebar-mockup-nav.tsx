@@ -24,7 +24,6 @@ import {
   ADMIN_ROUTES,
   ADMIN_SIDEBAR_MOCKUP_GROUPS,
   ADMIN_SIDEBAR_MOCKUP_MAIN,
-  type AdminSidebarMockupNavGroup,
   type AdminSidebarMockupNavItem,
 } from '@/lib/admin-routes';
 import { cn } from '@/lib/utils';
@@ -56,10 +55,6 @@ function isItemActive(pathname: string, href: string, key: string): boolean {
   if (key === 'inventory') return pathname.startsWith(ADMIN_ROUTES.INVENTORY);
   if (key === 'users') return pathname.startsWith(ADMIN_ROUTES.SETTINGS_USUARIOS);
   return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function isGroupActive(pathname: string, group: AdminSidebarMockupNavGroup): boolean {
-  return group.items.some((item) => isItemActive(pathname, item.href, item.key));
 }
 
 interface AdminSidebarMockupNavProps {

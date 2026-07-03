@@ -80,7 +80,7 @@ export function AdminClientesWidgets({ customers, range }: AdminClientesWidgetsP
             <div className="relative mx-auto w-full max-w-[11rem]">
               <ChartContainer config={roleChartConfig} className="mx-auto aspect-square h-[11rem]">
                 <PieChart aria-label="Distribución de clientes por tipo">
-                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
                   <Pie
                     data={donutData}
                     dataKey="value"

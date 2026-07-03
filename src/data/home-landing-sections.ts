@@ -1,4 +1,4 @@
-import { CalendarDays, Cog, Droplets, Headphones, Printer, ShieldCheck, Truck, UserRound, Wrench } from 'lucide-react';
+import { CalendarDays, Cog, Droplets, Headphones, Printer, ShieldCheck, Truck, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { categoryLandingPath } from '@/lib/category-path';

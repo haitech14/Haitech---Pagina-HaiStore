@@ -49,5 +49,11 @@ export function HeaderLogoLink({ className, ...props }: LogoImageProps) {
 }
 
 export function FooterLogoImage({ className, ...props }: LogoImageProps) {
-  return <LogoImage src={SITE_FOOTER_LOGO_SRC} className={className} {...props} />;
+  return (
+    <LogoImage
+      src={SITE_FOOTER_LOGO_SRC}
+      {...props}
+      {...(className ? { className } : {})}
+    />
+  );
 }

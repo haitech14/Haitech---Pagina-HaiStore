@@ -88,7 +88,7 @@ function staticCategoryFallback(slug: string): {
     name: category.name,
     tagline: category.tagline,
     icon: category.icon,
-    image: category.image,
+    ...(category.image ? { image: category.image } : {}),
   };
 }
 

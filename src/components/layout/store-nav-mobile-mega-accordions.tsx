@@ -30,19 +30,19 @@ export function StoreNavMobileMegaAccordions({ onNavigate }: { onNavigate?: () =
         label="Servicios"
         icon={Wrench}
         menu={servicesMenu}
-        onNavigate={onNavigate}
+        {...(onNavigate ? { onNavigate } : {})}
       />
       <StaticNavMobileAccordion
         label="Alquileres"
         icon={RENTALS_NAV_MEGA_MENU_ICON}
         menu={rentalsMenu}
-        onNavigate={onNavigate}
+        {...(onNavigate ? { onNavigate } : {})}
       />
       <StaticNavMobileAccordion
         label="Tóner y Repuestos"
         icon={TONER_NAV_MEGA_MENU_ICON}
         menu={tonerMenu}
-        onNavigate={onNavigate}
+        {...(onNavigate ? { onNavigate } : {})}
       />
     </>
   );

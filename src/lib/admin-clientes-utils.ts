@@ -184,31 +184,32 @@ export function computeClientesKpis(
     {
       title: 'Total clientes',
       value: String(customers.length),
-      trend: calcTrendPercent(current.length, prev.length),
+      trend: calcTrendPercent(current.length, prev.length) ?? 0,
       trendLabel: 'vs. periodo anterior',
       icon: 'total',
     },
     {
       title: 'Nuevos del periodo',
       value: String(current.length),
-      trend: calcTrendPercent(current.length, prev.length),
+      trend: calcTrendPercent(current.length, prev.length) ?? 0,
       trendLabel: 'vs. periodo anterior',
       icon: 'new',
     },
     {
       title: 'Con cuenta',
       value: String(withAccountTotal),
-      trend: calcTrendPercent(withAccountCurrent, withAccountPrev),
+      trend: calcTrendPercent(withAccountCurrent, withAccountPrev) ?? 0,
       trendLabel: 'vs. periodo anterior',
       icon: 'account',
     },
     {
       title: 'Sin cuenta / HaiSupport',
       value: String(withoutAccountTotal + haiSupportTotal),
-      trend: calcTrendPercent(
-        current.filter((customer) => !customer.profile_id).length,
-        prev.filter((customer) => !customer.profile_id).length,
-      ),
+      trend:
+        calcTrendPercent(
+          current.filter((customer) => !customer.profile_id).length,
+          prev.filter((customer) => !customer.profile_id).length,
+        ) ?? 0,
       trendLabel: 'vs. periodo anterior',
       icon: 'haisupport',
     },

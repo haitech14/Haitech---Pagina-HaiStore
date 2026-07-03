@@ -59,11 +59,13 @@ export function buildHomeCategoryStripItems(categories: Category[]): HomeCategor
   return categories.map((category) => {
     const override = HOME_CATEGORY_DISPLAY_OVERRIDES[category.slug] ?? {};
 
+    const image = override.image ?? category.image;
+
     return {
       id: category.slug,
       name: override.name ?? category.name,
       description: override.description ?? category.tagline,
-      image: override.image ?? category.image,
+      ...(image ? { image } : {}),
       href: override.href ?? categoryHref(category.slug),
       ctaLabel: resolveCtaLabel(category.slug, override),
     };
