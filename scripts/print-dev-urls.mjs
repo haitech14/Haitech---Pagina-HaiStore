@@ -2,6 +2,7 @@ import os from 'node:os';
 
 const webPort = Number(process.env.VITE_DEV_PORT ?? 5173);
 const apiPort = Number(process.env.ADMIN_PORT ?? 3080);
+const locale = process.env.HAISTORE_DEV_LOCALE ?? 'es-PE';
 
 function listLanIps() {
   const ips = new Set();
@@ -15,7 +16,30 @@ function listLanIps() {
   return [...ips];
 }
 
-console.log('\n[HaiStore] URLs de desarrollo:\n');
+function getLocalTimeInfo(date = new Date()) {
+  const formatter = new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short',
+  });
+  const timeZone = formatter.resolvedOptions().timeZone;
+
+  return {
+    formattedTime: formatter.format(date),
+    timeZone,
+  };
+}
+
+const { formattedTime, timeZone } = getLocalTimeInfo();
+
+console.log('\n[HaiStore] Desarrollo local activo:\n');
+console.log(`  Hora:    ${formattedTime}`);
+console.log(`  Zona:    ${timeZone}`);
 console.log(`  Local:   http://localhost:${webPort}`);
 console.log(`  API:     http://localhost:${apiPort} (proxy /api desde Vite)`);
 console.log('  Stack:   npm run dev:all  (Vite + API admin)\n');
@@ -24,7 +48,7 @@ const ips = listLanIps();
 if (ips.length === 0) {
   console.log('  Red:     (sin IPv4 LAN detectada)\n');
 } else {
-  console.log('  Red (misma Wi‑Fi/Ethernet):');
+  console.log('  IP/Red (misma Wi-Fi/Ethernet):');
   for (const ip of ips) {
     console.log(`           http://${ip}:${webPort}`);
   }
