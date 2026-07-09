@@ -36,4 +36,34 @@ export const HOME_FAQ_SEO_ITEMS = [
     answer:
       'Sí. Cotizamos venta y alquiler de fotocopiadoras, impresoras multifuncionales, tóner original, tintas y repuestos Ricoh con asesoría comercial para empresas en todo el Perú.',
   },
+  {
+    id: 'whatsapp-cotizacion',
+    question: '¿Puedo cotizar por WhatsApp?',
+    answer:
+      'Sí. Escríbenos por WhatsApp con el modelo del equipo o el código del insumo y te respondemos con stock, precio y tiempos de entrega. Ideal para cotizaciones rápidas de tóner, repuestos y equipos.',
+  },
+  {
+    id: 'instalacion',
+    question: '¿Los equipos incluyen instalación?',
+    answer:
+      'En Lima Metropolitana la instalación y puesta en marcha de multifuncionales e impresoras Ricoh está incluida o se cotiza según el modelo. En provincia coordinamos envío y, si lo necesitas, soporte remoto o técnico en destino.',
+  },
+  {
+    id: 'garantia-seminuevos',
+    question: '¿Tienen garantía los equipos seminuevos?',
+    answer:
+      'Sí. Los equipos seminuevos y remanufacturados incluyen garantía por escrito según modelo y condición, respaldada por revisión técnica previa a la entrega y soporte postventa HaiTech.',
+  },
+  {
+    id: 'alquiler-mantenimiento',
+    question: '¿El alquiler incluye mantenimiento?',
+    answer:
+      'Sí. Los planes de alquiler pueden incluir mantenimiento preventivo, repuestos y tóner según el contrato. Te asesoramos para elegir la modalidad que mejor se adapte al volumen de impresión de tu empresa.',
+  },
+  {
+    id: 'delivery-provincia',
+    question: '¿Hacen delivery a provincia?',
+    answer:
+      'Sí. Enviamos equipos, tóner y repuestos a todo el Perú por courier o transporte de confianza. Coordinamos embalaje, seguimiento y tiempos de entrega según tu ciudad.',
+  },
 ];

@@ -12,6 +12,7 @@ const TABLE_QUERY_KEYS: Record<string, string[][]> = {
   store_rental_requests: [['rental-requests']],
   store_service_requests: [['service-requests']],
   store_service_categories: [['service-categories']],
+  store_service_catalog: [['service-catalog']],
   store_orders: [['admin-orders'], ['admin-orders-list'], ['admin-orders-recent'], ['admin-dashboard']],
 };
 

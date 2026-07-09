@@ -249,7 +249,7 @@ function resolveComponentLabel(product: Product): string | undefined {
 
 function toConsumableItem(product: Product): ConsumableItem {
   const image =
-    buildProductImageCandidates(product, { stockFallback: true })[0] ?? null;
+    buildProductImageCandidates(product)[0] ?? null;
   const componentLabel = resolveComponentLabel(product);
   const yieldInfo = extractProductYield(product);
   const costPerCopyPen = computeCostPerCopyPen(product.price, yieldInfo.pages);

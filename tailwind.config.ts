@@ -15,18 +15,11 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        heading: ['"Anton"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        hero: [
-          '"Myriad Pro"',
-          'Myriad',
-          '"Source Sans 3"',
-          'ui-sans-serif',
-          'system-ui',
-          'sans-serif',
-        ],
-        landing: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        celebration: ['"Playfair Display"', 'Georgia', 'ui-serif', 'serif'],
+        display: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        heading: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        hero: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        landing: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        celebration: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

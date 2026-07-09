@@ -17,7 +17,7 @@ function CategoryCount({
   return (
     <span
       className={cn(
-        'shrink-0 min-w-[1.25rem] text-right tabular-nums text-[0.65rem] font-medium',
+        'shrink-0 min-w-[1.25rem] text-right tabular-nums text-[0.6rem] font-medium',
         count === 0 || subdued
           ? 'text-muted-foreground/45'
           : 'text-muted-foreground',
@@ -30,7 +30,7 @@ function CategoryCount({
 
 function rootItemClass(isActiveCategory: boolean, expanded: boolean) {
   return cn(
-    'relative flex min-h-10 w-full items-center justify-between gap-2 px-2.5 py-2 text-left text-xs transition-colors',
+    'relative flex min-h-9 w-full items-center justify-between gap-2 px-2.5 py-1.5 text-left text-[0.6875rem] transition-colors',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset',
     // Indicador rojo pegado al borde del recuadro (cubre el borde 1px del contenedor).
     isActiveCategory &&
@@ -45,7 +45,7 @@ function rootItemClass(isActiveCategory: boolean, expanded: boolean) {
 
 function subItemClass(active: boolean) {
   return cn(
-    'relative flex min-h-8 w-full items-center justify-between gap-2 py-1.5 pl-7 pr-2.5 text-left text-[0.6875rem] transition-colors',
+    'relative flex min-h-7 w-full items-center justify-between gap-2 py-1 pl-7 pr-2.5 text-left text-[0.625rem] transition-colors',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset',
     active
       ? 'bg-red-50/90 font-semibold text-red-700 before:absolute before:left-3 before:top-1/2 before:size-1.5 before:-translate-y-1/2 before:rounded-full before:bg-red-600'

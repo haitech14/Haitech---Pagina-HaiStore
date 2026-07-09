@@ -16,6 +16,7 @@ export interface AdminInventarioRecord {
   lastMovementAt: Date;
   lastMovementType: AdminInventarioMovementType;
   imageColor: string;
+  imageUrl?: string | null;
 }
 
 export interface AdminInventarioKpi {
@@ -23,7 +24,7 @@ export interface AdminInventarioKpi {
   value: string;
   trend: number;
   trendLabel: string;
-  icon: 'products' | 'low-stock' | 'inbound' | 'outbound';
+  icon: 'products' | 'low-stock' | 'movements' | 'value';
   sparkline: number[];
 }
 
@@ -46,4 +47,5 @@ export interface AdminInventarioTopMovedProduct {
   name: string;
   movements: number;
   imageColor: string;
+  imageUrl?: string | null;
 }

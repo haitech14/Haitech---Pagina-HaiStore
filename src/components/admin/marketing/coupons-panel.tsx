@@ -138,8 +138,8 @@ export function CouponsPanel() {
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2 w-fit">
             <Link to={ADMIN_ROUTES.MARKETING}>
@@ -147,21 +147,21 @@ export function CouponsPanel() {
               Marketing
             </Link>
           </Button>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Tag className="size-6 text-primary" aria-hidden="true" />
+          <h1 className="flex items-center gap-1.5 text-xl font-bold sm:text-[1.35rem]">
+            <Tag className="size-4 text-primary" aria-hidden="true" />
             Cupones de descuento
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Registro de cupones de la Ruleta del Color y promociones manuales.
           </p>
         </div>
-        <Button className="min-h-11" onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4" aria-hidden="true" />
+        <Button className="h-8 gap-1 text-xs" onClick={() => setCreateOpen(true)}>
+          <Plus className="size-3.5" aria-hidden="true" />
           Nuevo cupón
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Activos</CardDescription>
@@ -295,7 +295,7 @@ export function CouponsPanel() {
               Se generará un código único canjeable en el checkout.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="coupon-label">Etiqueta</Label>
               <Input

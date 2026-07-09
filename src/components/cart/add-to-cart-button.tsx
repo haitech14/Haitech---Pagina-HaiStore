@@ -65,9 +65,9 @@ export function getAddToCartLabel(
   if (onRequest > 0 && fromStock === 0) {
     return variant === 'short' ? 'A pedido' : 'Comprar a pedido';
   }
-  if (variant === 'short') return 'Añadir';
-  if (variant === 'detail') return 'Agregar al carrito';
-  return 'Añadir al carrito';
+  if (variant === 'short') return 'Comprar';
+  if (variant === 'detail') return 'Comprar';
+  return 'Comprar';
 }
 
 interface AddToCartButtonProps extends Omit<ButtonProps, 'onClick'> {

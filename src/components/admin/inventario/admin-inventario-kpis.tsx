@@ -1,34 +1,35 @@
 import {
   AlertTriangle,
-  ArrowDownCircle,
-  ArrowUpCircle,
+  ArrowLeftRight,
+  Coins,
   Package,
   TrendingDown,
   TrendingUp,
 } from 'lucide-react';
 
-import { ADMIN_INVENTARIO_KPIS } from '@/data/admin-inventario-data';
+import { buildInventarioKpis } from '@/lib/admin-inventario-products';
 import { cn } from '@/lib/utils';
+import type { InventoryProduct } from '@/types/product';
 
 const iconMap = {
   products: Package,
   'low-stock': AlertTriangle,
-  inbound: ArrowDownCircle,
-  outbound: ArrowUpCircle,
+  movements: ArrowLeftRight,
+  value: Coins,
 } as const;
 
 const iconStyles = {
   products: 'bg-blue-50 text-blue-600',
   'low-stock': 'bg-amber-50 text-amber-600',
-  inbound: 'bg-emerald-50 text-emerald-600',
-  outbound: 'bg-violet-50 text-violet-600',
+  movements: 'bg-emerald-50 text-emerald-600',
+  value: 'bg-violet-50 text-violet-600',
 } as const;
 
 const sparklineColors = {
   products: '#3B82F6',
   'low-stock': '#F59E0B',
-  inbound: '#22C55E',
-  outbound: '#8B5CF6',
+  movements: '#22C55E',
+  value: '#8B5CF6',
 } as const;
 
 function formatTrend(trend: number) {
@@ -56,7 +57,7 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="h-8 w-[5.5rem]"
+      className="h-5 w-14 shrink-0"
       aria-hidden="true"
       preserveAspectRatio="none"
     >
@@ -72,52 +73,68 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   );
 }
 
-export function AdminInventarioKpis() {
+interface AdminInventarioKpisProps {
+  products: InventoryProduct[];
+  isLoading?: boolean;
+}
+
+export function AdminInventarioKpis({ products, isLoading = false }: AdminInventarioKpisProps) {
+  const kpis = buildInventarioKpis(products);
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {ADMIN_INVENTARIO_KPIS.map((kpi) => {
+    <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">
+      {kpis.map((kpi) => {
         const Icon = iconMap[kpi.icon];
         const trendPositive = kpi.trend >= 0;
+        const showTrend = kpi.trend !== 0;
 
         return (
           <article
             key={kpi.title}
-            className="rounded-xl border border-border/60 bg-card p-5 shadow-sm"
+            className="rounded-lg border border-border/60 bg-card p-2.5 shadow-sm"
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-1.5">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
-                <p className="mt-2 text-[1.75rem] font-bold leading-none tracking-tight text-foreground">
-                  {kpi.value}
+                <p className="text-[0.6875rem] font-medium leading-tight text-muted-foreground">
+                  {kpi.title}
+                </p>
+                <p className="mt-0.5 text-lg font-bold leading-none tracking-tight text-foreground">
+                  {isLoading ? '—' : kpi.value}
                 </p>
               </div>
               <span
                 className={cn(
-                  'flex size-11 shrink-0 items-center justify-center rounded-xl',
+                  'flex size-7 shrink-0 items-center justify-center rounded-md',
                   iconStyles[kpi.icon],
                 )}
                 aria-hidden="true"
               >
-                <Icon className="size-5" />
+                <Icon className="size-3" />
               </span>
             </div>
 
-            <div className="mt-4 flex items-end justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                {trendPositive ? (
-                  <TrendingUp className="size-4 text-emerald-600" aria-hidden="true" />
-                ) : (
-                  <TrendingDown className="size-4 text-red-600" aria-hidden="true" />
-                )}
-                <span
-                  className={cn(
-                    'text-sm font-semibold',
-                    trendPositive ? 'text-emerald-600' : 'text-red-600',
-                  )}
-                >
-                  {formatTrend(kpi.trend)}
+            <div className="mt-2 flex items-end justify-between gap-1.5">
+              <div className="flex min-w-0 items-center gap-1">
+                {showTrend ? (
+                  <>
+                    {trendPositive ? (
+                      <TrendingUp className="size-3 shrink-0 text-emerald-600" aria-hidden="true" />
+                    ) : (
+                      <TrendingDown className="size-3 shrink-0 text-red-600" aria-hidden="true" />
+                    )}
+                    <span
+                      className={cn(
+                        'text-[0.6875rem] font-semibold',
+                        trendPositive ? 'text-emerald-600' : 'text-red-600',
+                      )}
+                    >
+                      {formatTrend(kpi.trend)}
+                    </span>
+                  </>
+                ) : null}
+                <span className="truncate text-[0.6875rem] text-muted-foreground">
+                  {kpi.trendLabel}
                 </span>
-                <span className="text-xs text-muted-foreground">{kpi.trendLabel}</span>
               </div>
               <Sparkline values={kpi.sparkline} color={sparklineColors[kpi.icon]} />
             </div>

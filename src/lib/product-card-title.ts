@@ -1,3 +1,4 @@
+import { formatProductNameSentenceCase } from '@/lib/format-product-name-sentence-case';
 import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
@@ -19,6 +20,10 @@ export const PRODUCT_CARD_BRAND_ACCENT_CLASS = PRODUCT_CARD_BRAND_CLASS;
 export const PRODUCT_CARD_CODE_CLASS =
   'shrink-0 font-mono text-[0.62rem] font-medium normal-case tracking-normal text-muted-foreground sm:text-[0.65rem]';
 
+/** Stock disponible junto al código en tarjetas de catálogo (mismo tono gris, sin badge). */
+export const PRODUCT_CARD_STOCK_CLASS =
+  'shrink-0 text-[0.62rem] font-medium normal-case tracking-normal text-muted-foreground sm:text-[0.65rem]';
+
 /** Título principal en tarjetas de catálogo (nombre del producto tal cual en inventario). */
 export const PRODUCT_CARD_TITLE_MAIN_CLASS = `${PRODUCT_CARD_TITLE_SIZE} font-semibold text-foreground`;
 
@@ -28,7 +33,7 @@ export const PRODUCT_CARD_TITLE_CLAMP_CLASS =
 
 /** Precio actual en tarjetas de catálogo (negrita, un poco más grande que el tachado). */
 export const PRODUCT_CARD_PRICE_MAIN_CLASS =
-  'text-sm font-bold tabular-nums text-foreground sm:text-[0.95rem]';
+  'text-sm font-bold tabular-nums sm:text-[0.95rem]';
 
 /** Precio actual en vitrina de destacados (más prominente, como el diseño de referencia). */
 export const PRODUCT_CARD_PRICE_FEATURED_CLASS =
@@ -69,32 +74,12 @@ function capitalizeEquipmentDescriptorWords(text: string): string {
     .replace(/\bmonocrom[aá]tica\b/gi, 'Monocromática');
 }
 
-function formatEquipmentTitlePrefix(prefix: string): string {
-  const trimmed = prefix.trim();
-  if (!trimmed) return trimmed;
-  return capitalizeEquipmentDescriptorWords(trimmed.toLowerCase());
-}
-
-/** Título en vitrina «Lo más destacado»: descriptor en título case; RICOH, IM y modelo en mayúsculas. */
-export function formatHighlightProductTitle(name: string): string {
-  const trimmed = name
-    .trim()
-    .replace(/\s+B\/N\s+/gi, ' ')
-    .replace(/\s+B\/N$/i, '')
-    .replace(/\s{2,}/g, ' ');
-  if (!trimmed) return trimmed;
-
-  const ricohMatch = /\bRICOH\b/i.exec(trimmed);
-  if (!ricohMatch || ricohMatch.index === undefined) {
-    return formatEquipmentTitlePrefix(trimmed);
-  }
-
-  const prefix = trimmed.slice(0, ricohMatch.index).trim();
-  const suffix = trimmed.slice(ricohMatch.index).trim().toUpperCase();
-
-  if (!prefix) return suffix;
-
-  return `${formatEquipmentTitlePrefix(prefix)} ${suffix}`.replace(/\s{2,}/g, ' ').trim();
+/** Título en vitrina home: oración con marca y modelo preservados. */
+export function formatHomeLandingProductCardTitle(
+  product: ProductBadgeSource & { name: string; category?: string | null; brand?: string | null },
+): string {
+  const normalized = formatInventoryProductName(product.name.trim());
+  return formatProductNameSentenceCase(normalized, { brand: product.brand });
 }
 
 /** Añade «B/N» en equipos monocromáticos si el nombre aún no lo incluye. */

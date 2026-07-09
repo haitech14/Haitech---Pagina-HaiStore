@@ -43,7 +43,7 @@ export function AdminPedidosKpis({ orders, range, isLoading }: AdminPedidosKpisP
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
       {kpis.map((kpi) => {
         const Icon = iconMap[kpi.icon];
         const trendPositive = kpi.trend >= 0;
@@ -51,35 +51,35 @@ export function AdminPedidosKpis({ orders, range, isLoading }: AdminPedidosKpisP
         return (
           <article
             key={kpi.title}
-            className="rounded-xl border border-border/60 bg-card p-5 shadow-sm"
+            className="rounded-lg border border-border/60 bg-card p-3 shadow-sm"
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
-                <p className="mt-2 text-[1.75rem] font-bold leading-none tracking-tight text-foreground">
+                <p className="text-xs font-medium text-muted-foreground">{kpi.title}</p>
+                <p className="mt-1 text-xl font-bold leading-none tracking-tight text-foreground">
                   {kpi.value}
                 </p>
               </div>
               <span
                 className={cn(
-                  'flex size-11 shrink-0 items-center justify-center rounded-xl',
+                  'flex size-8 shrink-0 items-center justify-center rounded-lg',
                   iconStyles[kpi.icon],
                 )}
                 aria-hidden="true"
               >
-                <Icon className="size-5" />
+                <Icon className="size-3.5" />
               </span>
             </div>
 
-            <div className="mt-4 flex items-center gap-1.5">
+            <div className="mt-2.5 flex items-center gap-1">
               {trendPositive ? (
-                <TrendingUp className="size-4 text-emerald-600" aria-hidden="true" />
+                <TrendingUp className="size-3.5 text-emerald-600" aria-hidden="true" />
               ) : (
-                <TrendingDown className="size-4 text-red-600" aria-hidden="true" />
+                <TrendingDown className="size-3.5 text-red-600" aria-hidden="true" />
               )}
               <span
                 className={cn(
-                  'text-sm font-semibold',
+                  'text-xs font-semibold',
                   trendPositive ? 'text-emerald-600' : 'text-red-600',
                 )}
               >

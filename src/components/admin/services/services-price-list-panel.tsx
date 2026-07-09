@@ -6,6 +6,7 @@ import { ServicePriceDraggableHeader } from '@/components/admin/services/service
 import { ServicePriceListCell } from '@/components/admin/services/service-price-list-cell';
 import { Button } from '@/components/ui/button';
 import { useServicePriceListColumnOrder } from '@/hooks/use-service-price-list-column-order';
+import type { ServiceCatalogPatch } from '@/hooks/use-service-catalog';
 import {
   createServicePriceItem,
   deleteServicePriceItem,
@@ -17,7 +18,10 @@ import type { ServiceCategory, ServicePriceItem } from '@/types/service';
 interface ServicesPriceListPanelProps {
   categories: ServiceCategory[];
   items: ServicePriceItem[];
-  onChange: (items: ServicePriceItem[]) => void;
+  onChange?: (items: ServicePriceItem[]) => void;
+  onCreateItem?: (categoryId: string, name: string) => void | Promise<void>;
+  onUpdateItem?: (id: string, patch: ServiceCatalogPatch) => void | Promise<void>;
+  onDeleteItem?: (id: string) => void | Promise<void>;
   onSaved?: (message: string) => void;
 }
 
@@ -25,11 +29,15 @@ export function ServicesPriceListPanel({
   categories,
   items,
   onChange,
+  onCreateItem,
+  onUpdateItem,
+  onDeleteItem,
   onSaved,
 }: ServicesPriceListPanelProps) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null);
   const { columnOrder, reorder } = useServicePriceListColumnOrder();
+  const usesApi = Boolean(onCreateItem && onUpdateItem && onDeleteItem);
 
   const activeCategories = useMemo(
     () => categories.filter((cat) => cat.active),
@@ -44,6 +52,15 @@ export function ServicesPriceListPanel({
   const handleAdd = () => {
     const categoryId = activeCategories[0]?.id ?? categories[0]?.id;
     if (!categoryId) return;
+
+    if (usesApi && onCreateItem) {
+      void Promise.resolve(onCreateItem(categoryId, 'Nuevo servicio')).then(() => {
+        onSaved?.('Ítem agregado a la lista.');
+      });
+      return;
+    }
+
+    if (!onChange) return;
     const next = createServicePriceItem(categoryId, 'Nuevo servicio');
     onChange(next);
     onSaved?.('Ítem agregado a la lista.');
@@ -52,12 +69,30 @@ export function ServicesPriceListPanel({
   const handleDelete = (row: ServicePriceItem) => {
     if (!window.confirm(`¿Eliminar «${row.name}» de la lista de precios?`)) return;
     setBusyId(row.id);
+
+    if (usesApi && onDeleteItem) {
+      void Promise.resolve(onDeleteItem(row.id)).finally(() => {
+        onSaved?.('Ítem eliminado.');
+        setBusyId(null);
+      });
+      return;
+    }
+
+    if (!onChange) return;
     onChange(deleteServicePriceItem(row.id));
     onSaved?.('Ítem eliminado.');
     setBusyId(null);
   };
 
-  const patchRow = (id: string, patch: Parameters<typeof updateServicePriceItem>[1]) => {
+  const patchRow = (id: string, patch: ServiceCatalogPatch) => {
+    if (usesApi && onUpdateItem) {
+      void Promise.resolve(onUpdateItem(id, patch)).then(() => {
+        onSaved?.('Lista de precios actualizada.');
+      });
+      return;
+    }
+
+    if (!onChange) return;
     onChange(updateServicePriceItem(id, patch));
     onSaved?.('Lista de precios actualizada.');
   };

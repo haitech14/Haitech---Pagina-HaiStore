@@ -1,7 +1,10 @@
 export const ADMIN_ROUTES = {
   DASHBOARD: '/admin',
+  RESUMEN: '/admin/resumen',
   VENTAS: '/admin/ventas',
   PEDIDOS: '/admin/pedidos',
+  BANDEJA: '/admin/bandeja',
+  MURAL: '/admin/mural',
   /** @deprecated Usar VENTAS */
   ORDERS: '/admin/ventas',
   PRODUCTS: '/admin/productos',
@@ -31,15 +34,20 @@ export const ADMIN_ROUTES = {
   RENTALS: '/admin/alquileres-planes',
   SHIPPING: '/admin/envios',
   CATEGORIES: '/admin/categorias',
+  ATTRIBUTES: '/admin/atributos',
+  VARIANTS: '/admin/variantes',
   PRICE_LISTS: '/admin/listas-precios',
-  ALBUM: '/admin/album',
+  ALBUM: '/admin/medios',
+  MEDIOS: '/admin/medios',
   APPEARANCE: '/admin/apariencia',
 } as const;
 
 export const ADMIN_CATALOG_NAV = [
-  { label: 'Inventario', href: ADMIN_ROUTES.INVENTORY },
-  { label: 'Álbum', href: ADMIN_ROUTES.ALBUM },
+  { label: 'Productos', href: ADMIN_ROUTES.INVENTORY },
+  { label: 'Medios', href: ADMIN_ROUTES.MEDIOS },
   { label: 'Categorías', href: ADMIN_ROUTES.CATEGORIES },
+  { label: 'Atributos', href: ADMIN_ROUTES.ATTRIBUTES },
+  { label: 'Variantes', href: ADMIN_ROUTES.VARIANTS },
   { label: 'Listas de Precios', href: ADMIN_ROUTES.PRICE_LISTS },
 ] as const;
 
@@ -63,6 +71,11 @@ export function isAdminCatalogPath(pathname: string): boolean {
   );
 }
 
+/** Vistas mockup en Categorías que ocultan la subnavegación de catálogo. */
+export function isAdminCategoriasMockupView(search: string): boolean {
+  return /[?&]vista=(marcas|etiquetas)\b/.test(search);
+}
+
 export const ADMIN_SERVICES_NAV = [
   { label: 'Servicios', tab: null as string | null },
   { label: 'Categorías', tab: 'categorias' },
@@ -71,6 +84,12 @@ export const ADMIN_SERVICES_NAV = [
 
 export function isAdminServicesPath(pathname: string): boolean {
   return pathname === ADMIN_ROUTES.SERVICES || pathname.startsWith(`${ADMIN_ROUTES.SERVICES}/`);
+}
+
+/** Vista mockup del catálogo de servicios (oculta subnavegación legacy). */
+export function isAdminServiciosMockupView(search: string): boolean {
+  const tab = new URLSearchParams(search).get('tab');
+  return !tab || tab === 'servicios';
 }
 
 export const ADMIN_SETTINGS_SECTIONS = [
@@ -84,11 +103,12 @@ export const ADMIN_SETTINGS_SECTIONS = [
 export type AdminSettingsSectionId = (typeof ADMIN_SETTINGS_SECTIONS)[number];
 
 export const ADMIN_SETTINGS_NAV: Array<{
-  id: AdminSettingsSectionId;
+  id: AdminSettingsSectionId | 'usuarios';
   label: string;
   href: string;
 }> = [
   { id: 'general', label: 'General', href: ADMIN_ROUTES.SETTINGS_GENERAL },
+  { id: 'usuarios', label: 'Usuarios', href: ADMIN_ROUTES.SETTINGS_USUARIOS },
   { id: 'descuentos-volumen', label: 'Descuentos volumen', href: ADMIN_ROUTES.SETTINGS_VOLUME_DISCOUNTS },
   { id: 'pdf', label: 'PDF', href: ADMIN_ROUTES.SETTINGS_PDF },
   { id: 'apariencia', label: 'Apariencia', href: ADMIN_ROUTES.SETTINGS_APPEARANCE },
@@ -142,7 +162,7 @@ export const ADMIN_NAV_MAIN = [
     icon: 'shopping-bag',
     children: ADMIN_VENTAS_NAV,
   },
-  { key: 'INVENTORY' as const, label: 'Inventario', href: ADMIN_ROUTES.INVENTORY, icon: 'warehouse' },
+  { key: 'INVENTORY' as const, label: 'Productos', href: ADMIN_ROUTES.INVENTORY, icon: 'warehouse' },
   { key: 'SHIPPING' as const, label: 'Envíos', href: ADMIN_ROUTES.SHIPPING, icon: 'truck' },
   { key: 'SERVICES' as const, label: 'Servicios', href: ADMIN_ROUTES.SERVICES, icon: 'wrench' },
   { key: 'SETTINGS' as const, label: 'Configuración', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'settings' },
@@ -181,7 +201,8 @@ export const ADMIN_SIDEBAR_GROUPS: AdminSidebarNavGroup[] = [
       { key: 'products', label: 'Productos', href: ADMIN_ROUTES.INVENTORY, icon: 'package' },
       { key: 'categories', label: 'Categorías', href: ADMIN_ROUTES.CATEGORIES, icon: 'tags' },
       { key: 'brands', label: 'Marcas', href: ADMIN_ROUTES.CATEGORIES, icon: 'badge-check' },
-      { key: 'attributes', label: 'Atributos', href: ADMIN_ROUTES.INVENTORY, icon: 'list-tree' },
+      { key: 'attributes', label: 'Atributos', href: ADMIN_ROUTES.ATTRIBUTES, icon: 'list-tree' },
+      { key: 'variants', label: 'Variantes', href: ADMIN_ROUTES.VARIANTS, icon: 'layers' },
       { key: 'coupons', label: 'Cupones', href: ADMIN_ROUTES.MARKETING_COUPONS, icon: 'ticket' },
       { key: 'banners', label: 'Banners', href: ADMIN_ROUTES.APPEARANCE, icon: 'image' },
     ],
@@ -229,8 +250,122 @@ export interface AdminSidebarMockupNavItem {
   label: string;
   href: string;
   icon: string;
+  badge?: 'orders-pending' | 'support-open';
 }
 
+export interface AdminSidebarCollapsibleGroup {
+  key: string;
+  label: string;
+  icon: string;
+  href?: string;
+  defaultOpen?: boolean;
+  items: Array<{
+    key: string;
+    label: string;
+    href: string;
+  }>;
+}
+
+export interface AdminSidebarMockupSection {
+  key: string;
+  label: string;
+  items: AdminSidebarMockupNavItem[];
+}
+
+/** Grupo plegable Dashboard (Resumen, Reportes). */
+export const ADMIN_SIDEBAR_DASHBOARD_GROUP: AdminSidebarCollapsibleGroup = {
+  key: 'dashboard',
+  label: 'Dashboard',
+  icon: 'layout-dashboard',
+  href: ADMIN_ROUTES.DASHBOARD,
+  defaultOpen: false,
+  items: [
+    { key: 'resumen', label: 'Resumen', href: ADMIN_ROUTES.RESUMEN },
+    { key: 'reports', label: 'Reportes', href: `${ADMIN_ROUTES.RESUMEN}?vista=reportes` },
+  ],
+};
+
+/** Grupo plegable Productos (Categorías, Marcas, Atributos, Variantes, Etiquetas). */
+export const ADMIN_SIDEBAR_PRODUCTOS_GROUP: AdminSidebarCollapsibleGroup = {
+  key: 'products',
+  label: 'Productos',
+  icon: 'shopping-bag',
+  href: ADMIN_ROUTES.INVENTORY,
+  defaultOpen: false,
+  items: [
+    { key: 'categories', label: 'Categorías', href: ADMIN_ROUTES.CATEGORIES },
+    { key: 'brands', label: 'Marcas', href: `${ADMIN_ROUTES.CATEGORIES}?vista=marcas` },
+    { key: 'attributes', label: 'Atributos', href: ADMIN_ROUTES.ATTRIBUTES },
+    { key: 'variants', label: 'Variantes', href: ADMIN_ROUTES.VARIANTS },
+    { key: 'labels', label: 'Etiquetas', href: `${ADMIN_ROUTES.CATEGORIES}?vista=etiquetas` },
+  ],
+};
+
+export function isAdminProductosGroupPath(pathname: string, search: string): boolean {
+  if (pathname === ADMIN_ROUTES.ATTRIBUTES || pathname.startsWith(`${ADMIN_ROUTES.ATTRIBUTES}/`)) {
+    return true;
+  }
+  if (pathname === ADMIN_ROUTES.VARIANTS || pathname.startsWith(`${ADMIN_ROUTES.VARIANTS}/`)) {
+    return true;
+  }
+  if (pathname === ADMIN_ROUTES.CATEGORIES || pathname.startsWith(`${ADMIN_ROUTES.CATEGORIES}/`)) {
+    return true;
+  }
+  if (pathname === ADMIN_ROUTES.INVENTORY) {
+    const match = search.match(/[?&]vista=([^&]+)/);
+    return (match?.[1] ?? null) === null;
+  }
+  return false;
+}
+
+/** Navegación lateral según mockup HaiStore admin. */
+export const ADMIN_SIDEBAR_SECTIONS: AdminSidebarMockupSection[] = [
+  {
+    key: 'catalog',
+    label: 'CATÁLOGO',
+    items: [
+      { key: 'catalog-media', label: 'Medios', href: ADMIN_ROUTES.MEDIOS, icon: 'image' },
+    ],
+  },
+  {
+    key: 'sales',
+    label: 'VENTAS',
+    items: [
+      { key: 'orders', label: 'Pedidos', href: ADMIN_ROUTES.PEDIDOS, icon: 'calendar-days', badge: 'orders-pending' },
+      { key: 'customers', label: 'Clientes', href: ADMIN_ROUTES.CRM_CLIENTES, icon: 'users' },
+      { key: 'quotes', label: 'Cotizaciones', href: `${ADMIN_ROUTES.VENTAS}?vista=cotizaciones`, icon: 'file-text' },
+      { key: 'discounts', label: 'Descuentos', href: ADMIN_ROUTES.MARKETING_COUPONS, icon: 'star' },
+    ],
+  },
+  {
+    key: 'operations',
+    label: 'OPERACIONES',
+    items: [
+      { key: 'bandeja', label: 'Bandeja', href: ADMIN_ROUTES.BANDEJA, icon: 'inbox', badge: 'support-open' },
+      { key: 'inventory', label: 'Inventario', href: `${ADMIN_ROUTES.INVENTORY}?vista=stock`, icon: 'package-plus' },
+      { key: 'suppliers', label: 'Proveedores', href: `${ADMIN_ROUTES.INVENTORY}?vista=proveedores`, icon: 'building-2' },
+      { key: 'shipping', label: 'Envíos', href: ADMIN_ROUTES.SHIPPING, icon: 'truck' },
+    ],
+  },
+  {
+    key: 'communication',
+    label: 'COMUNICACIÓN',
+    items: [
+      { key: 'mural', label: 'Mural', href: ADMIN_ROUTES.MURAL, icon: 'newspaper' },
+    ],
+  },
+  {
+    key: 'settings',
+    label: 'CONFIGURACIÓN',
+    items: [
+      { key: 'users', label: 'Usuarios', href: ADMIN_ROUTES.SETTINGS_USUARIOS, icon: 'user' },
+      { key: 'integrations', label: 'Integraciones', href: ADMIN_ROUTES.SETTINGS_INTEGRATIONS, icon: 'plug' },
+      { key: 'settings', label: 'Configuración', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'settings' },
+    ],
+  },
+];
+
+/** @deprecated Usar ADMIN_SIDEBAR_SECTIONS */
 export interface AdminSidebarMockupNavGroup {
   key: string;
   label: string;
@@ -238,35 +373,9 @@ export interface AdminSidebarMockupNavGroup {
   items: AdminSidebarMockupNavItem[];
 }
 
-/** Navegación lateral estilo mockup NovaDesk (panel Resumen). */
-export const ADMIN_SIDEBAR_MOCKUP_MAIN: AdminSidebarMockupNavItem[] = [
-  { key: 'dashboard', label: 'Dashboard', href: ADMIN_ROUTES.DASHBOARD, icon: 'home' },
-  { key: 'users', label: 'Usuarios', href: ADMIN_ROUTES.SETTINGS_USUARIOS, icon: 'users' },
-  { key: 'customers', label: 'Clientes', href: ADMIN_ROUTES.CRM_CLIENTES, icon: 'user' },
-  { key: 'sales', label: 'Ventas', href: ADMIN_ROUTES.VENTAS, icon: 'shopping-cart' },
-  { key: 'purchases', label: 'Compras', href: ADMIN_ROUTES.PEDIDOS, icon: 'shopping-bag' },
-  { key: 'inventory', label: 'Inventario', href: ADMIN_ROUTES.INVENTORY, icon: 'warehouse' },
-];
+/** @deprecated Usar ADMIN_SIDEBAR_SECTIONS */
+export const ADMIN_SIDEBAR_MOCKUP_MAIN: AdminSidebarMockupNavItem[] =
+  ADMIN_SIDEBAR_SECTIONS[0]?.items ?? [];
 
-export const ADMIN_SIDEBAR_MOCKUP_GROUPS: AdminSidebarMockupNavGroup[] = [
-  {
-    key: 'reports',
-    label: 'Reportes',
-    icon: 'bar-chart-3',
-    items: [
-      { key: 'monthly-sales', label: 'Ventas mensuales', href: ADMIN_ROUTES.REPORTS, icon: 'trending-up' },
-      { key: 'stock', label: 'Stock', href: ADMIN_ROUTES.INVENTORY, icon: 'package' },
-      { key: 'technicians', label: 'Técnicos', href: ADMIN_ROUTES.SERVICES, icon: 'wrench' },
-    ],
-  },
-  {
-    key: 'settings',
-    label: 'Configuración',
-    icon: 'settings',
-    items: [
-      { key: 'roles', label: 'Roles', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'shield' },
-      { key: 'permissions', label: 'Permisos', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'key-round' },
-      { key: 'parameters', label: 'Parámetros', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'sliders-horizontal' },
-    ],
-  },
-];
+/** @deprecated Usar ADMIN_SIDEBAR_SECTIONS */
+export const ADMIN_SIDEBAR_MOCKUP_GROUPS: AdminSidebarMockupNavGroup[] = [];

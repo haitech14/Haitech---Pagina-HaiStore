@@ -12,8 +12,8 @@ export function AdminPlaceholder({ page }: AdminPlaceholderProps) {
   };
 
   return (
-    <div className="mx-auto max-w-2xl py-8">
-      <h2 className="mb-2 text-2xl font-bold text-foreground">{copy.title}</h2>
+    <div className="mx-auto max-w-2xl py-5">
+      <h2 className="mb-2 text-xl font-bold text-foreground">{copy.title}</h2>
       <p className="mb-6 text-sm text-muted-foreground">{copy.description}</p>
       <AdminEmptyState title={copy.title} description={copy.description} />
     </div>

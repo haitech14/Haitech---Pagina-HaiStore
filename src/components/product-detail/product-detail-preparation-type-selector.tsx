@@ -1,6 +1,7 @@
-import { isColorPrinterEquipment } from '@/lib/build-product-detail';
 import {
   SEMINUEVA_PREPARATION_LABELS,
+  SEMINUEVA_PREPARATION_OPTIONS,
+  resolveSeminuevaPreparationSurchargeUsd,
   type SeminuevaPreparationType,
 } from '@/lib/seminueva-preparation';
 import { cn } from '@/lib/utils';
@@ -13,20 +14,28 @@ interface ProductDetailPreparationTypeSelectorProps {
   className?: string;
 }
 
+function resolvePreparationHint(
+  option: SeminuevaPreparationType,
+  product: Product,
+): string {
+  if (option === 'acondicionado') {
+    return 'Precio público estándar';
+  }
+  const surchargeUsd = resolveSeminuevaPreparationSurchargeUsd(option, product);
+  return `Recargo +USD ${surchargeUsd}`;
+}
+
 export function ProductDetailPreparationTypeSelector({
   product,
   value,
   onChange,
   className,
 }: ProductDetailPreparationTypeSelectorProps) {
-  const isColor = isColorPrinterEquipment(product);
-  const surchargeLabel = isColor ? '+USD 350' : '+USD 250';
-
   return (
-    <fieldset className={cn('mt-4 space-y-2.5', className)}>
-      <legend className="text-sm font-semibold text-[#0f1f3d]">Tipo de preparado</legend>
-      <div className="space-y-2">
-        {(['acondicionada', 'semirepotenciada'] as const).map((option) => {
+    <fieldset className={cn('space-y-2.5', className)}>
+      <legend className="text-sm font-semibold text-[#0f1f3d]">Tipo de Preparado:</legend>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {SEMINUEVA_PREPARATION_OPTIONS.map((option) => {
           const id = `preparation-type-${option}`;
           const isActive = value === option;
           return (
@@ -54,15 +63,9 @@ export function ProductDetailPreparationTypeSelector({
                 <span className="block text-sm font-semibold text-foreground">
                   {SEMINUEVA_PREPARATION_LABELS[option]}
                 </span>
-                {option === 'semirepotenciada' ? (
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                    Recargo {surchargeLabel} sobre precio público ({isColor ? 'Color' : 'B/N'})
-                  </span>
-                ) : (
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                    Precio público estándar
-                  </span>
-                )}
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  {resolvePreparationHint(option, product)}
+                </span>
               </span>
             </label>
           );

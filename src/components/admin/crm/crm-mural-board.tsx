@@ -30,13 +30,13 @@ export function CrmMuralBoard() {
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
 
   useEffect(() => {
-    const accountsCard = buildMuralCardsWithCompany(company).find(
-      (c) => c.id === 'c1' && c.kind === 'accounts',
-    );
+    const accountsCard = buildMuralCardsWithCompany(company).find((card) => card.kind === 'accounts');
     if (!accountsCard || accountsCard.kind !== 'accounts') return;
-    setCards((prev) =>
-      prev.map((card) => (card.id === 'c1' && card.kind === 'accounts' ? accountsCard : card)),
-    );
+    setCards((prev) => {
+      const hasAccounts = prev.some((card) => card.kind === 'accounts');
+      if (!hasAccounts) return [...prev, accountsCard];
+      return prev.map((card) => (card.kind === 'accounts' ? accountsCard : card));
+    });
   }, [company.bankAccountsText, company.legalName]);
 
   const cardsByColumn = useMemo(() => groupMuralCardsByColumn(cards), [cards]);

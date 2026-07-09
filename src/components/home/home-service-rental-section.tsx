@@ -1,16 +1,21 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check, Wrench } from 'lucide-react';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import { ArrowRight, Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
-  HOME_LANDING_LINKS,
   HOME_LANDING_RENTAL_FEATURES,
   HOME_LANDING_RENTAL_PLANS,
   HOME_LANDING_SERVICE_FEATURES,
   HOME_LANDING_SERVICE_IMAGE,
+  HOME_LANDING_SERVICE_WHATSAPP_MESSAGE,
 } from '@/data/home-landing-sections';
 import { cn } from '@/lib/utils';
 import { formatPenInteger } from '@/lib/pen-pricing';
+import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
+
+const serviceWhatsAppUrl = buildHaitechWhatsAppUrl(HOME_LANDING_SERVICE_WHATSAPP_MESSAGE);
 
 function ServiceFeatureItem({ label }: { label: string }) {
   return (
@@ -34,50 +39,51 @@ function RentalPlanCard({
   return (
     <article
       className={cn(
-        'relative flex h-full flex-col overflow-hidden rounded-xl border bg-white px-3 pb-4 pt-5 text-center shadow-[0_2px_12px_rgba(15,31,61,0.06)]',
+        'relative flex h-full flex-col overflow-hidden rounded-xl border bg-white pb-5 text-center shadow-[0_2px_12px_rgba(15,31,61,0.06)]',
         plan.popular ? 'border-red-600 shadow-[0_4px_20px_rgba(227,6,19,0.12)]' : 'border-border/50',
       )}
     >
       {plan.popular ? (
-        <span className="absolute left-1/2 top-0 z-[1] -translate-x-1/2 -translate-y-1/2 rounded bg-red-600 px-2.5 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-white">
+        <span className="absolute left-1/2 top-0 z-[1] -translate-x-1/2 -translate-y-1/2 rounded bg-red-600 px-3 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
           Más popular
         </span>
       ) : null}
 
-      <p className="text-[0.6875rem] font-bold uppercase tracking-wide text-[#111111]">{plan.name}</p>
-      <p className="mt-1 text-pretty text-[0.625rem] leading-snug text-[#666666]">{plan.subtitle}</p>
-
-      <div className="mx-auto mt-3 flex h-[4.75rem] w-full items-center justify-center sm:h-20">
+      <div className="h-40 w-full overflow-hidden bg-[#F5F5F5] sm:h-44">
         <img
           src={plan.image}
           alt={plan.imageAlt}
-          width={136}
-          height={80}
-          className="max-h-full max-w-[5.5rem] object-contain sm:max-w-[6.5rem]"
+          width={320}
+          height={200}
           loading="lazy"
+          className="size-full object-cover object-center"
         />
       </div>
 
-      <p className="mt-2.5 text-sm leading-none">
-        <span className="font-medium text-[#666666]">Desde </span>
-        <span className="text-base font-bold text-red-600 sm:text-[1.0625rem]">
-          {formatPenInteger(plan.priceFromPen)}
-        </span>
-        <span className="text-[0.6875rem] font-medium text-[#666666]">/mes</span>
-      </p>
+      <div className="flex flex-1 flex-col px-4 pt-4 sm:px-5 sm:pt-5">
+        <p className="text-xs font-bold uppercase tracking-wide text-[#111111] sm:text-sm">{plan.name}</p>
+        <p className="mt-2.5 text-sm leading-none sm:mt-3">
+          <span className="font-medium text-[#666666]">Desde </span>
+          <span className="text-lg font-bold text-red-600 sm:text-xl">
+            {formatPenInteger(plan.priceFromPen)}
+          </span>
+          <span className="text-xs font-medium text-[#666666]">/mes</span>
+        </p>
+        <p className="mt-2.5 text-pretty text-xs leading-snug text-[#666666] sm:mt-3">{plan.subtitle}</p>
 
-      <Button
-        asChild
-        variant={plan.popular ? 'default' : 'outline'}
-        className={cn(
-          'mt-3 h-9 w-full rounded-full text-xs font-semibold sm:text-sm',
-          plan.popular
-            ? 'bg-red-600 text-white hover:bg-red-700'
-            : 'border-red-600 bg-white text-red-600 hover:bg-red-50',
-        )}
-      >
-        <Link to={plan.href}>Cotizar plan</Link>
-      </Button>
+        <Button
+          asChild
+          variant={plan.popular ? 'default' : 'outline'}
+          className={cn(
+            'mt-4 h-10 w-full rounded-full text-xs font-semibold sm:text-sm',
+            plan.popular
+              ? 'bg-red-600 text-white hover:bg-red-700'
+              : 'border-red-600 bg-white text-red-600 hover:bg-red-50',
+          )}
+        >
+          <Link to={plan.href}>Cotizar plan</Link>
+        </Button>
+      </div>
     </article>
   );
 }
@@ -111,11 +117,11 @@ export function HomeServiceRentalSection() {
                   id="home-service-rental-title"
                   className="home-section-title mt-2 text-balance text-xl font-bold leading-tight text-[#111111] sm:text-[1.375rem]"
                 >
-                  Mantenimiento y reparación para el mejor rendimiento
+                  Soporte técnico especializado
                 </h2>
                 <p className="mt-3 text-pretty text-sm leading-relaxed text-[#666666]">
-                  Diagnóstico, mantenimiento preventivo y reparación con técnicos certificados y repuestos
-                  originales para mantener tu operación sin interrupciones.
+                  Mantenimiento preventivo, reparación, instalación y diagnóstico con técnicos certificados
+                  y repuestos originales para mantener tu operación sin interrupciones.
                 </p>
 
                 <ul className="mt-4 space-y-2.5">
@@ -128,14 +134,16 @@ export function HomeServiceRentalSection() {
                   asChild
                   className="mt-5 h-11 w-full rounded-full bg-red-600 px-5 text-sm font-semibold text-white hover:bg-red-700"
                 >
-                  <Link
-                    to={HOME_LANDING_LINKS.technicalService}
+                  <a
+                    href={serviceWhatsAppUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex w-full items-center justify-center gap-2"
                   >
-                    <Wrench className="size-4 shrink-0" strokeWidth={2} aria-hidden="true" />
-                    <span>Solicitar servicio técnico</span>
+                    <Icon path={mdiWhatsapp} size={0.85} className="text-white" aria-hidden="true" />
+                    <span>Solicitar diagnóstico por WhatsApp</span>
                     <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
-                  </Link>
+                  </a>
                 </Button>
               </div>
             </div>
@@ -146,12 +154,8 @@ export function HomeServiceRentalSection() {
               Alquileres para oficinas y negocios
             </p>
             <h3 className="home-section-title mt-2 text-balance text-xl font-bold leading-tight text-[#111111] sm:text-[1.375rem]">
-              Soluciones flexibles que se adaptan a ti
+              Alquila equipos con mantenimiento y tóner incluidos.
             </h3>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-[#666666]">
-              Planes mensuales con equipos, mantenimiento y consumibles incluidos para empresas que buscan
-              controlar costos sin sacrificar productividad.
-            </p>
 
             <ul className="mt-5 grid grid-cols-3 gap-2 sm:gap-2.5">
               {HOME_LANDING_RENTAL_FEATURES.map((feature) => {
@@ -172,7 +176,7 @@ export function HomeServiceRentalSection() {
               })}
             </ul>
 
-            <div className="mt-5 grid grid-cols-3 gap-2.5 sm:mt-6 sm:gap-3">
+            <div className="mt-5 grid grid-cols-3 gap-3 sm:mt-6 sm:gap-4">
               {HOME_LANDING_RENTAL_PLANS.map((plan) => (
                 <RentalPlanCard key={plan.id} plan={plan} />
               ))}

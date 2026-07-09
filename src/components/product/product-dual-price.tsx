@@ -1,14 +1,51 @@
+import { formatEquipmentRentalPen } from '@/lib/rental-calculator';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { getDisplayPriceVisibility } from '@/lib/display-price';
-import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
+import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
+
+export interface RentalEstimateDualPriceProps {
+  estimatedMonthlyPen: number;
+  className?: string;
+}
+
+/** Precio mensual de alquiler: PEN como fuente de verdad (sin redondeo al 9). */
+export function RentalEstimateDualPrice({
+  estimatedMonthlyPen,
+  className,
+}: RentalEstimateDualPriceProps) {
+  const { displayCurrency } = useDisplayCurrency();
+  const visibility = getDisplayPriceVisibility(displayCurrency);
+  const showUsd = visibility.showUsd;
+  const showPen = visibility.showPen;
+  const usd = penToUsd(estimatedMonthlyPen);
+
+  return (
+    <span className={cn('inline-flex flex-nowrap items-baseline gap-x-1.5 whitespace-nowrap', className)}>
+      {showPen ? (
+        <span className="text-red-600">
+          S/ {formatEquipmentRentalPen(estimatedMonthlyPen)}
+        </span>
+      ) : null}
+      {showUsd && showPen ? (
+        <span aria-hidden="true" className="font-normal text-muted-foreground">
+          {' '}
+          ·{' '}
+        </span>
+      ) : null}
+      {showUsd ? (
+        <span className="text-foreground">{formatUsd(usd)}</span>
+      ) : null}
+    </span>
+  );
+}
 
 export interface DualPriceProps {
   usd: number;
   className?: string;
   strikethrough?: boolean;
-  /** Vitrina destacada: siempre USD y PEN con guion, como el diseño de referencia. */
+  /** Vitrina destacada: siempre PEN y USD con guion, como el diseño de referencia. */
   alwaysBoth?: boolean;
-  /** Apila USD y PEN en líneas separadas (sidebar checkout). */
+  /** Apila PEN y USD en líneas separadas (sidebar checkout). */
   stacked?: boolean;
 }
 
@@ -36,17 +73,17 @@ export function DualPrice({
           className,
         )}
       >
-        <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>
         <span className={cn(strike, 'text-red-600')}>{formatPenFromUsd(usd)}</span>
+        <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>
       </span>
     );
   }
 
   return (
-    <span className={cn('inline-flex flex-wrap items-baseline gap-x-1.5', className)}>
-      {showUsd ? (
-        <span className={cn(strike, 'text-foreground')}>
-          {formatUsd(usd)}
+    <span className={cn('inline-flex flex-nowrap items-baseline gap-x-1.5 whitespace-nowrap', className)}>
+      {showPen ? (
+        <span className={cn(strike, 'text-red-600')}>
+          {formatPenFromUsd(usd)}
         </span>
       ) : null}
       {showUsd && showPen ? (
@@ -55,9 +92,9 @@ export function DualPrice({
           ·{' '}
         </span>
       ) : null}
-      {showPen ? (
-        <span className={cn(strike, showUsd ? 'text-red-600' : 'text-foreground')}>
-          {formatPenFromUsd(usd)}
+      {showUsd ? (
+        <span className={cn(strike, 'text-foreground')}>
+          {formatUsd(usd)}
         </span>
       ) : null}
     </span>

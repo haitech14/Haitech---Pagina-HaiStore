@@ -213,8 +213,8 @@ export function resolveMerchandisingConfigureCard(
   const priceUsd = prices.public ?? product.price;
   if (priceUsd <= 0) return null;
 
-  const imageCandidates = buildProductImageCandidates(product, { stockFallback: true });
-  const image = imageCandidates[0] ?? '/categories/toner-suministros.png';
+  const imageCandidates = buildProductImageCandidates(product);
+  const image = imageCandidates[0] ?? '';
   const description = product.description?.trim() || product.name;
 
   return {
@@ -264,7 +264,7 @@ export function resolveOptionalMerchandisingConfigureCards(
 
   for (const item of normalized) {
     const priceUsd = item.price_usd;
-    const image = item.image_url?.trim() || '/categories/repuestos.png';
+    const image = item.image_url?.trim() || '';
     cards.push({
       productId: item.id,
       title,

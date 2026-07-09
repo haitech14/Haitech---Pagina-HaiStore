@@ -215,10 +215,10 @@ function GalleryThumbnailButton({
       <button
         type="button"
         className={cn(
-          'relative overflow-hidden rounded-md border-2 bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600',
+          'relative overflow-hidden rounded-md border bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600',
           'aspect-square w-16 sm:w-[4.25rem]',
           'max-sm:w-[4.5rem]',
-          isActive ? 'border-red-600' : 'border-border/70 hover:border-border',
+          isActive ? 'border-neutral-800' : 'border-neutral-200 hover:border-neutral-400',
         )}
         onClick={onSelect}
         aria-label={
@@ -295,8 +295,8 @@ export function ProductDetailGallery({
     <ul
       className={cn(
         'flex gap-2 p-2 [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1',
-        'max-sm:order-2 max-sm:overflow-x-auto max-sm:border-t max-sm:border-border/60 max-sm:bg-muted/10',
-        'sm:w-[4.25rem] sm:shrink-0 sm:flex-col sm:overflow-y-auto sm:border-r sm:border-border/60 sm:bg-muted/10 md:w-24 lg:max-h-[min(72vh,680px)]',
+        'max-sm:order-2 max-sm:overflow-x-auto max-sm:bg-muted/10',
+        'sm:w-[4.25rem] sm:shrink-0 sm:flex-col sm:overflow-y-auto sm:bg-neutral-50 md:w-[4.75rem] lg:max-h-[min(68vh,640px)]',
       )}
       aria-label={`Miniaturas de ${productName}`}
     >
@@ -336,8 +336,8 @@ export function ProductDetailGallery({
 
   return (
     <div className="flex w-full flex-col">
-      <div className="relative overflow-hidden rounded-lg border border-border/60 bg-white">
-        <div className="flex min-h-[280px] flex-col items-stretch max-sm:min-h-0 sm:min-h-[360px] sm:flex-row lg:min-h-[520px]">
+      <div className="relative overflow-hidden rounded-lg bg-white">
+        <div className="flex min-h-[280px] flex-col items-stretch max-sm:min-h-0 sm:min-h-[360px] sm:flex-row lg:min-h-[480px]">
           <div className="hidden sm:contents">{thumbnailList}</div>
 
           <div className="relative min-w-0 flex-1 max-sm:order-1">

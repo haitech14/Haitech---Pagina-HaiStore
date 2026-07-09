@@ -10,10 +10,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
-import { buildLandingCatalogMegaMenu } from '@/lib/mega-menu-from-store-categories';
+import { buildDesktopMegaMenuColumns, buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
 import { HeaderNavChevron } from '@/components/layout/header-nav-chevron';
 import {
+  computeMegaMenuDropdownLayout,
   DARK_NAV_ICON_CLASS,
   MAIN_NAV_CATEGORIES_BUTTON_CLASS,
   MAIN_NAV_ICON_CLASS,
@@ -22,14 +23,13 @@ import {
   darkNavSubmenuTriggerClass,
   lightNavSubmenuTriggerClass,
   lightNavSubmenuTriggerCompactClass,
-  SUBMENU_PANEL_ANIMATION_CLASS,
+  MEGA_MENU_DROPDOWN_CLASS,
+  type MegaMenuDropdownLayout,
+  megaMenuDropdownStyle,
 } from '@/components/layout/main-nav-styles';
 import { cn } from '@/lib/utils';
 
 const HOVER_CLOSE_DELAY_MS = 180;
-/** Ancho del panel «Todas las categorías» (más compacto que el contenedor en pantallas anchas). */
-const MEGA_MENU_MIN_WIDTH = 720;
-const MEGA_MENU_MAX_WIDTH = 860;
 
 interface CategoriesMegaMenuProps {
   triggerVariant?: 'button' | 'nav' | 'categories-button';
@@ -49,33 +49,28 @@ export function CategoriesMegaMenu({
     location.pathname.startsWith('/producto');
 
   const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const menu = useMemo(() => buildLandingCatalogMegaMenu(categoryTree), [categoryTree]);
+  const menu = useMemo(() => buildProductosNavMegaMenu(categoryTree), [categoryTree]);
 
   const [open, setOpen] = useState(false);
   const [activeCategorySlug, setActiveCategorySlug] = useState(menu.defaultCategorySlug);
-  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+  const [menuLayout, setMenuLayout] = useState<MegaMenuDropdownLayout | undefined>(undefined);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const columnGroups = useMemo(
-    () => menu.getColumnGroups(activeCategorySlug),
+    () => buildDesktopMegaMenuColumns(menu, 'sidebar-as-columns'),
+    [menu],
+  );
+
+  const featuredContent = useMemo(
+    () => menu.getFeaturedContent(activeCategorySlug),
     [menu, activeCategorySlug],
   );
 
   const updateMenuWidth = useCallback(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
-    const container = trigger.closest('.container');
-    const containerRect = container?.getBoundingClientRect();
-    const triggerRect = trigger.getBoundingClientRect();
-    const left = containerRect?.left ?? triggerRect.left;
-    const rightMargin = containerRect
-      ? Math.max(12, window.innerWidth - containerRect.right)
-      : 12;
-    const available = window.innerWidth - left - rightMargin;
-    setMenuWidth(
-      Math.min(MEGA_MENU_MAX_WIDTH, Math.max(MEGA_MENU_MIN_WIDTH, available)),
-    );
+    setMenuLayout(computeMegaMenuDropdownLayout(trigger));
   }, []);
 
   useEffect(() => {
@@ -131,29 +126,17 @@ export function CategoriesMegaMenu({
         ? MAIN_NAV_ICON_CLASS
         : DARK_NAV_ICON_CLASS;
 
-  return (
-    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-      <DropdownMenuTrigger asChild>
-        {triggerVariant === 'categories-button' ? (
+  const panelClassName = MEGA_MENU_DROPDOWN_CLASS;
+  const panelStyle = megaMenuDropdownStyle(menuLayout);
+
+  if (triggerVariant === 'nav') {
+    return (
+      <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+        <DropdownMenuTrigger asChild>
           <button
-            ref={triggerRef}
-            type="button"
-            aria-haspopup="true"
-            aria-expanded={open}
-            onMouseEnter={openMenu}
-            onMouseLeave={scheduleClose}
-            onFocus={openMenu}
-            className={cn(
-              MAIN_NAV_CATEGORIES_BUTTON_CLASS,
-              (open || isCatalogRoute) && 'bg-red-700',
-            )}
-          >
-            <Menu className={MAIN_NAV_ICON_CLASS} aria-hidden="true" />
-            Todas las categorías
-          </button>
-        ) : triggerVariant === 'nav' ? (
-          <button
-            ref={triggerRef}
+            ref={(node) => {
+              triggerRef.current = node;
+            }}
             type="button"
             aria-haspopup="true"
             aria-expanded={open}
@@ -168,9 +151,57 @@ export function CategoriesMegaMenu({
             Productos
             <HeaderNavChevron navRow={navRow} open={open} />
           </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align="start"
+          sideOffset={4}
+          onMouseEnter={openMenu}
+          onMouseLeave={scheduleClose}
+          onCloseAutoFocus={(event) => event.preventDefault()}
+          className={panelClassName}
+          style={panelStyle}
+        >
+          <CatalogMegaMenuPanel
+            activeCategorySlug={activeCategorySlug}
+            onCategoryChange={setActiveCategorySlug}
+            sidebarItems={menu.sidebarItems}
+            columnGroups={columnGroups}
+            featuredContent={featuredContent}
+            onNavigate={closeMenu}
+          />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+      <DropdownMenuTrigger asChild>
+        {triggerVariant === 'categories-button' ? (
+          <button
+            ref={(node) => {
+              triggerRef.current = node;
+            }}
+            type="button"
+            aria-haspopup="true"
+            aria-expanded={open}
+            onMouseEnter={openMenu}
+            onMouseLeave={scheduleClose}
+            onFocus={openMenu}
+            className={cn(
+              MAIN_NAV_CATEGORIES_BUTTON_CLASS,
+              (open || isCatalogRoute) && 'bg-red-700',
+            )}
+          >
+            <Menu className={MAIN_NAV_ICON_CLASS} aria-hidden="true" />
+            Todas las categorías
+          </button>
         ) : (
           <Button
-            ref={triggerRef}
+            ref={(node) => {
+              triggerRef.current = node;
+            }}
             aria-haspopup="true"
             aria-expanded={open}
             onMouseEnter={openMenu}
@@ -194,18 +225,15 @@ export function CategoriesMegaMenu({
         onMouseEnter={openMenu}
         onMouseLeave={scheduleClose}
         onCloseAutoFocus={(event) => event.preventDefault()}
-        className={cn(
-          'z-50 max-w-none overflow-hidden rounded-lg border border-border/70 p-0 shadow-xl',
-          SUBMENU_PANEL_ANIMATION_CLASS,
-        )}
-        style={menuWidth ? { width: menuWidth, maxHeight: 'min(40rem, 82vh)' } : undefined}
+        className={panelClassName}
+        style={panelStyle}
       >
         <CatalogMegaMenuPanel
           activeCategorySlug={activeCategorySlug}
           onCategoryChange={setActiveCategorySlug}
           sidebarItems={menu.sidebarItems}
           columnGroups={columnGroups}
-          showBrandStrip={menu.categoryShowsBrandStrip(activeCategorySlug)}
+          featuredContent={featuredContent}
           onNavigate={closeMenu}
         />
       </DropdownMenuContent>

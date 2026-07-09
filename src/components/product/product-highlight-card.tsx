@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ImageOff } from 'lucide-react';
 
 import { CatalogPreviewPriceBlock } from '@/components/product/catalog-preview-price-block';
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
@@ -79,27 +78,6 @@ export function ProductHighlightCard({ product, variant = 'default' }: ProductHi
           alt={product.name}
           className="size-full"
           imageClassName={PRODUCT_CARD_IMAGE_CLASS}
-          placeholder={
-            <div className="relative flex size-full items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted/20">
-              <img
-                src="/categories/multifuncionales.png"
-                alt=""
-                aria-hidden="true"
-                className="size-full object-cover opacity-35"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/25 to-background/70" />
-              <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[0.625rem] font-semibold text-primary-foreground shadow-sm sm:text-[0.6875rem]">
-                Destacado
-              </span>
-              <div className="absolute inset-x-0 bottom-2 flex items-center justify-center gap-1 text-foreground/85">
-                <ImageOff className="size-3.5" aria-hidden="true" />
-                <span className="text-[0.625rem] font-medium sm:text-[0.6875rem]">
-                  Imagen referencial
-                </span>
-              </div>
-            </div>
-          }
         />
       </Link>
 
@@ -130,7 +108,7 @@ export function ProductHighlightCard({ product, variant = 'default' }: ProductHi
           <ProductQuantityAddFooter
             product={product}
             size="sm"
-            showBuyNow
+            addLabel="Comprar ahora"
             onQuantityChange={setQuantity}
           />
 

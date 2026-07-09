@@ -64,6 +64,10 @@ export interface ShipmentRecord {
   createdAt: string;
   /** Fecha del despacho (ISO o YYYY-MM-DD). */
   shipmentDate?: string | null;
+  /** Fecha estimada de entrega (ISO o YYYY-MM-DD). */
+  estimatedDeliveryDate?: string | null;
+  /** Cantidad de incidencias reportadas en el envío. */
+  incidentsCount?: number;
   etaLabel: string;
   exchangeRate?: number;
   lineItems?: ShipmentLineItem[];

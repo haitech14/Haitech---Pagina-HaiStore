@@ -9,7 +9,6 @@ import {
   LogIn,
   LogOut,
   ShoppingBag,
-  Star,
   User,
   UserPlus,
   type LucideIcon,
@@ -31,7 +30,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/auth-context';
 import type { AuthUser } from '@/lib/auth-storage';
-import { ADMIN_PANEL_EMAILS, normalizeAuthEmail } from '@/lib/admin-access';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
 import { VIEW_AS_ROLE_OPTIONS } from '@/lib/view-as-role';
 import { cn } from '@/lib/utils';
@@ -49,15 +47,6 @@ function roleBadgeClass(role: UserRole | 'public'): string {
   if (role === 'admin') return 'bg-violet-100 text-violet-700';
   if (role === 'vip') return 'bg-amber-100 text-amber-800';
   return 'bg-sky-100 text-sky-700';
-}
-
-/** Puntos de fidelidad (demo hasta integrar backend). */
-function getHaiPoints(user: AuthUser): number {
-  if (ADMIN_PANEL_EMAILS.includes(normalizeAuthEmail(user.email))) {
-    return 2450;
-  }
-  const seed = user.id?.length ?? user.email.length;
-  return 800 + (seed % 17) * 100;
 }
 
 interface AccountMenuRowProps {
@@ -87,31 +76,6 @@ function AccountMenuRow({ icon: Icon, label, variant = 'default' }: AccountMenuR
         aria-hidden="true"
       />
     </span>
-  );
-}
-
-function HaiPointsBanner({ points }: { points: number }) {
-  return (
-    <div className="mx-2.5 flex w-[calc(100%-1.25rem)] items-center gap-2 rounded-lg bg-[#FFF0EB] px-2.5 py-2">
-      <span
-        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-600 shadow-sm"
-        aria-hidden="true"
-      >
-        <Star className="size-4 fill-white text-white" strokeWidth={0} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-xs font-bold text-foreground">Tus HaiPoints</span>
-        <span className="block text-[0.6875rem] leading-tight text-muted-foreground">
-          Acumula puntos y obtén beneficios
-        </span>
-      </span>
-      <span className="flex shrink-0 items-center gap-0.5">
-        <span className="text-xs font-bold text-red-600">
-          {points.toLocaleString('es-PE')} pts
-        </span>
-        <ChevronRight className="size-3.5 text-red-600" aria-hidden="true" />
-      </span>
-    </div>
   );
 }
 
@@ -249,13 +213,6 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
               )}
-
-              <DropdownMenuItem
-                className="cursor-pointer rounded-none p-0 py-1.5 focus:bg-transparent data-[highlighted]:bg-transparent"
-                onSelect={() => goTo('/tienda')}
-              >
-                <HaiPointsBanner points={getHaiPoints(user)} />
-              </DropdownMenuItem>
 
               <div>
                 <DropdownMenuItem

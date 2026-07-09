@@ -22,7 +22,25 @@ export const RENTAL_BLACK_COPY_COST_PEN = RENTAL_EXCESS_COPY_COST_PEN;
 export const RENTAL_PAPER_SURCHARGE_PEN = 0.02;
 
 /** Cuota fija mensual por operador (PEN). */
-export const RENTAL_OPERATOR_MONTHLY_PEN = 1500;
+export const RENTAL_OPERATOR_MONTHLY_PEN = 2000;
+
+/** Cuota fija mensual por laptop adicional en alquiler de equipo (PEN). */
+export const RENTAL_EQUIPMENT_LAPTOP_MONTHLY_PEN = 299;
+
+/** Cuota mensual por guillotina en alquiler de equipo (PEN). */
+export const RENTAL_EQUIPMENT_GUILLOTINE_MONTHLY_PEN = 99;
+
+/** Cuota mensual por enmicadora en alquiler de equipo (PEN). */
+export const RENTAL_EQUIPMENT_LAMINATOR_MONTHLY_PEN = 199;
+
+/** Cuota mensual por operador dedicado en alquiler de equipo (PEN). */
+export const RENTAL_EQUIPMENT_OPERATOR_MONTHLY_PEN = 2000;
+
+/** Cuota mensual por técnico residente en alquiler de equipo (PEN). */
+export const RENTAL_EQUIPMENT_RESIDENT_TECH_MONTHLY_PEN = 2000;
+
+/** Cuota mensual por espiraladora/anilladora en alquiler de equipo (PEN). */
+export const RENTAL_EQUIPMENT_SPIRAL_BINDER_MONTHLY_PEN = 349;
 
 /** Plazo fijo de contrato de alquiler (meses) — valor por defecto al abrir el simulador. */
 export const RENTAL_DEFAULT_TERM_MONTHS = 6;
@@ -128,4 +146,9 @@ export function formatPen(value: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+}
+
+/** Formato PEN para cotizaciones de alquiler (sin redondeo comercial al 9). */
+export function formatEquipmentRentalPen(value: number): string {
+  return value.toLocaleString('es-PE', { maximumFractionDigits: 2 });
 }

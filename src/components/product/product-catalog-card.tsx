@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import {
   Check,
   Heart,
-  ImageOff,
 } from 'lucide-react';
 
 import { isProductOutOfStock, ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
@@ -43,8 +42,8 @@ function CatalogCardPricing({ product }: { product: Product }) {
   const showPen = displayCurrency !== 'USD';
 
   const compareParts = [
-    ...(showUsd ? [formatUsd(pricing.compareUsd)] : []),
     ...(showPen ? [formatPenFromUsd(pricing.compareUsd)] : []),
+    ...(showUsd ? [formatUsd(pricing.compareUsd)] : []),
   ];
 
   return (
@@ -236,12 +235,6 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
             alt={product.name}
             className="size-full"
             imageClassName={PRODUCT_CARD_IMAGE_CLASS}
-            placeholder={
-              <div className="flex flex-col items-center gap-2 px-4 text-center text-muted-foreground">
-                <ImageOff className="size-8" aria-hidden="true" />
-                <span className="text-xs font-medium">Sin Imagen</span>
-              </div>
-            }
           />
         </Link>
       </div>
@@ -256,7 +249,9 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
           </h3>
         </Link>
 
-        <ProductRating rating={rating.rating} reviews={rating.reviews} className="-mt-0.5" />
+        {rating ? (
+          <ProductRating rating={rating.rating} reviews={rating.reviews} className="-mt-0.5" />
+        ) : null}
 
         <CatalogCardStockLine outOfStock={outOfStock} stock={product.stock} />
 

@@ -30,27 +30,27 @@ export function AdminClientesPageHeader({
   return (
     <header
       className={cn(
-        'flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between',
+        'flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between',
         className,
       )}
     >
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-[1.75rem]">
+        <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-[1.35rem]">
           Clientes
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Gestión de clientes Persona, cuentas de acceso e importación.
         </p>
       </div>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
         <Button
           type="button"
           variant="outline"
-          className="h-9 gap-2 bg-card text-sm"
+          className="h-8 gap-1.5 bg-card text-xs"
           onClick={toggleSidebar}
         >
-          <LayoutPanelLeft className="size-4" aria-hidden="true" />
+          <LayoutPanelLeft className="size-3.5" aria-hidden="true" />
           {sidebarOpen ? 'Ocultar panel' : 'Mostrar panel'}
         </Button>
 
@@ -59,10 +59,10 @@ export function AdminClientesPageHeader({
             type="button"
             variant="outline"
             size="icon"
-            className="relative size-9 bg-card"
+            className="relative size-8 bg-card"
             aria-label={`${newCustomersCount} clientes nuevos en el periodo`}
           >
-            <Bell className="size-4" aria-hidden="true" />
+            <Bell className="size-3.5" aria-hidden="true" />
             <span className="absolute -right-1 -top-1 flex size-[1.125rem] items-center justify-center rounded-full bg-red-500 text-[0.625rem] font-bold text-white ring-2 ring-background">
               {newCustomersCount > 99 ? '99+' : newCustomersCount}
             </span>
@@ -73,9 +73,9 @@ export function AdminClientesPageHeader({
           <DropdownMenuTrigger asChild>
             <Button
               type="button"
-              className="h-9 gap-1.5 bg-[hsl(var(--admin-accent))] text-sm hover:bg-[hsl(var(--admin-accent-hover))]"
+              className="h-8 gap-1 bg-[hsl(var(--admin-accent))] text-xs hover:bg-[hsl(var(--admin-accent-hover))]"
             >
-              <Plus className="size-4" aria-hidden="true" />
+              <Plus className="size-3.5" aria-hidden="true" />
               Nuevo cliente
               <ChevronDown className="size-4 opacity-80" aria-hidden="true" />
             </Button>
@@ -83,7 +83,7 @@ export function AdminClientesPageHeader({
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onCreateCustomer}>Crear cliente manual</DropdownMenuItem>
             <DropdownMenuItem disabled={isImporting} onClick={onImportExcel}>
-              <FileUp className="size-4" aria-hidden="true" />
+              <FileUp className="size-3.5" aria-hidden="true" />
               {isImporting ? 'Importando Excel…' : 'Importar Excel Persona'}
             </DropdownMenuItem>
           </DropdownMenuContent>

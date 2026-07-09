@@ -1,4 +1,5 @@
 import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
+import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import {
@@ -46,6 +47,18 @@ export function ProductCardPricing({
   });
 
   const isTable = variant === 'table';
+
+  if (featured && !penOnly && !isTable) {
+    return (
+      <ProductCardFeaturedPricing
+        productId={productId}
+        currentUsd={pricing.currentUsd}
+        compareUsd={pricing.compareUsd}
+        showAccentBar={pricing.compareUsd > pricing.currentUsd}
+      />
+    );
+  }
+
   const priceMainClass = isTable
     ? 'text-xs font-semibold tabular-nums text-foreground'
     : featured
@@ -62,7 +75,7 @@ export function ProductCardPricing({
     <div className={cn(isTable ? 'space-y-0 leading-tight' : 'space-y-0.5')}>
       <div className={priceMainClass}>
         {penOnly ? (
-          formatPenFromUsd(pricing.currentUsd)
+          <span className="text-red-600">{formatPenFromUsd(pricing.currentUsd)}</span>
         ) : (
           <AdminRolePricesTooltip
             productId={productId}

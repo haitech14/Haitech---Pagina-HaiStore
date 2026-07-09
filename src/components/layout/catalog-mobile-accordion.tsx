@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 import { CatalogMegaMenuPanel } from '@/components/layout/catalog-mega-menu-panel';
-import { buildLandingCatalogMegaMenu } from '@/lib/mega-menu-from-store-categories';
+import { buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { cn } from '@/lib/utils';
 
@@ -12,13 +12,18 @@ interface CatalogMobileAccordionProps {
 
 export function CatalogMobileAccordion({ onNavigate }: CatalogMobileAccordionProps) {
   const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const menu = useMemo(() => buildLandingCatalogMegaMenu(categoryTree), [categoryTree]);
+  const menu = useMemo(() => buildProductosNavMegaMenu(categoryTree), [categoryTree]);
 
   const [open, setOpen] = useState(false);
   const [activeCategorySlug, setActiveCategorySlug] = useState(menu.defaultCategorySlug);
 
   const columnGroups = useMemo(
     () => menu.getColumnGroups(activeCategorySlug),
+    [menu, activeCategorySlug],
+  );
+
+  const featuredContent = useMemo(
+    () => menu.getFeaturedContent(activeCategorySlug),
     [menu, activeCategorySlug],
   );
 
@@ -57,7 +62,7 @@ export function CatalogMobileAccordion({ onNavigate }: CatalogMobileAccordionPro
             onCategoryChange={setActiveCategorySlug}
             sidebarItems={menu.sidebarItems}
             columnGroups={columnGroups}
-            showBrandStrip={menu.categoryShowsBrandStrip(activeCategorySlug)}
+            featuredContent={featuredContent}
             onNavigate={closeAll}
           />
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { ImageOff } from 'lucide-react';
 
 import { ProductCardImage } from '@/components/product/product-card-image';
+import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
 import { cn } from '@/lib/utils';
 
 /** Imagen de tarjeta: ocupa el recuadro y se ve completa (sin recorte). */
@@ -92,7 +92,7 @@ export function ProductCardHoverImage({
   if (!primarySrc) {
     return (
       <div className={cn('flex items-center justify-center', className)}>
-        {placeholder ?? <ImageOff className="size-10 text-muted-foreground/40" aria-hidden="true" />}
+        {placeholder ?? <ProductNoImagePlaceholder />}
       </div>
     );
   }

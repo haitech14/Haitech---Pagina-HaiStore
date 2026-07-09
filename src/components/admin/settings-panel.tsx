@@ -2,6 +2,8 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Building2, Coins, Link2, Palette, Save } from 'lucide-react';
 
 import { HaiSalesIntegrationCard } from '@/components/admin/integrations/haisales-integration-card';
+import { HaiSupportIntegrationCard } from '@/components/admin/integrations/haisupport-integration-card';
+import { IntegrationsSyncAllCard } from '@/components/admin/integrations/integrations-sync-all-card';
 import { BulkDiscountTiersPanel } from '@/components/admin/bulk-discount-tiers-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -228,13 +230,13 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
       )}
 
       {section === 'descuentos-volumen' && (
-        <section className="max-w-4xl rounded-xl border p-4 sm:p-5">
+        <section className="max-w-4xl rounded-lg border p-3">
           <BulkDiscountTiersPanel />
         </section>
       )}
 
       {section === 'pdf' && (
-        <section className="rounded-xl border p-5">
+        <section className="rounded-lg border p-3">
           <h3 className="mb-4 text-lg font-semibold">Proforma / Cotización PDF</h3>
           <p className="mb-4 text-sm text-muted-foreground">
             Numeración, textos legales y cuentas que aparecen en cotizaciones y documentos del TPV.
@@ -330,7 +332,7 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
       )}
 
       {section === 'apariencia' && (
-        <section className="rounded-xl border bg-card p-5">
+        <section className="rounded-lg border bg-card p-3">
           <div className="mb-4 flex items-center gap-2">
             <Palette className="size-5 text-[hsl(var(--admin-accent))]" aria-hidden="true" />
             <h3 className="text-lg font-semibold">Marca y colores</h3>
@@ -393,7 +395,7 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
       )}
 
       {section === 'integraciones' && (
-        <section className="rounded-xl border p-5">
+        <section className="rounded-lg border p-3">
           <div className="mb-4 flex items-center gap-2">
             <Link2 className="size-5 text-[hsl(var(--admin-accent))]" aria-hidden="true" />
             <h3 className="text-lg font-semibold">Integraciones y enlaces</h3>
@@ -404,7 +406,9 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
           </p>
 
           <div className="grid max-w-2xl gap-4">
+            <IntegrationsSyncAllCard />
             <HaiSalesIntegrationCard />
+            <HaiSupportIntegrationCard />
             <div className="space-y-2">
               <Label htmlFor="supportUrl">URL de soporte (QR en PDF)</Label>
               <Input

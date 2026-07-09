@@ -4,28 +4,33 @@ import { buildEquipmentCartLineId, type SelectedEquipmentOption } from '@/lib/eq
 import type { Product } from '@/types/product';
 import type { UserRole } from '@/lib/roles';
 
-export type SeminuevaPreparationType = 'acondicionada' | 'semirepotenciada';
+export type SeminuevaPreparationType = 'acondicionado' | 'semirepotenciado' | 'remanufacturado';
 
-export const SEMINUEVA_PREPARATION_LABELS: Record<SeminuevaPreparationType, string> = {
-  acondicionada: 'Acondicionada',
-  semirepotenciada: 'Semirepotenciada',
-};
-
-const SEMINUEVA_PREPARATION_CATEGORY_HINTS = [
-  'multifuncionales seminuevas',
-  'impresoras laser seminuevas',
-  'impresoras láser seminuevas',
+export const SEMINUEVA_PREPARATION_OPTIONS: readonly SeminuevaPreparationType[] = [
+  'acondicionado',
+  'semirepotenciado',
+  'remanufacturado',
 ] as const;
 
-const SEMIREPOTENCIADA_SURCHARGE_USD = {
+export const SEMINUEVA_PREPARATION_LABELS: Record<SeminuevaPreparationType, string> = {
+  acondicionado: 'Acondicionado',
+  semirepotenciado: 'Semi repotenciado',
+  remanufacturado: 'Remanufacturado',
+};
+
+const SEMIREPOTENCIADO_SURCHARGE_USD = {
   bn: 250,
   color: 350,
 } as const;
 
+/** Recargo placeholder hasta que el catálogo exponga precios por tipo de preparado. */
+const REMANUFACTURADO_SURCHARGE_USD = {
+  bn: 400,
+  color: 550,
+} as const;
+
 export function productQualifiesForSeminuevaPreparation(product: Product): boolean {
-  if (!productQualifiesAsSeminuevaEquipment(product)) return false;
-  const category = String(product.category ?? '').toLowerCase();
-  return SEMINUEVA_PREPARATION_CATEGORY_HINTS.some((hint) => category.includes(hint));
+  return productQualifiesAsSeminuevaEquipment(product);
 }
 
 export function shouldShowSeminuevaPreparationSelector(
@@ -41,10 +46,14 @@ export function resolveSeminuevaPreparationSurchargeUsd(
   preparationType: SeminuevaPreparationType,
   product: Product,
 ): number {
-  if (preparationType !== 'semirepotenciada') return 0;
-  return isColorPrinterEquipment(product)
-    ? SEMIREPOTENCIADA_SURCHARGE_USD.color
-    : SEMIREPOTENCIADA_SURCHARGE_USD.bn;
+  const isColor = isColorPrinterEquipment(product);
+  if (preparationType === 'semirepotenciado') {
+    return isColor ? SEMIREPOTENCIADO_SURCHARGE_USD.color : SEMIREPOTENCIADO_SURCHARGE_USD.bn;
+  }
+  if (preparationType === 'remanufacturado') {
+    return isColor ? REMANUFACTURADO_SURCHARGE_USD.color : REMANUFACTURADO_SURCHARGE_USD.bn;
+  }
+  return 0;
 }
 
 export function resolvePublicUnitBaseWithPreparationUsd(
@@ -55,14 +64,33 @@ export function resolvePublicUnitBaseWithPreparationUsd(
   return publicPriceUsd + resolveSeminuevaPreparationSurchargeUsd(preparationType, product);
 }
 
+export function resolveSeminuevaPreparationUnitPrices(
+  publicPriceUsd: number,
+  product: Product,
+): Record<SeminuevaPreparationType, number> {
+  return {
+    acondicionado: resolvePublicUnitBaseWithPreparationUsd(publicPriceUsd, 'acondicionado', product),
+    semirepotenciado: resolvePublicUnitBaseWithPreparationUsd(
+      publicPriceUsd,
+      'semirepotenciado',
+      product,
+    ),
+    remanufacturado: resolvePublicUnitBaseWithPreparationUsd(
+      publicPriceUsd,
+      'remanufacturado',
+      product,
+    ),
+  };
+}
+
 export function buildCartLineId(
   productId: string,
   paidOptions: SelectedEquipmentOption[],
   preparationType?: SeminuevaPreparationType,
 ): string {
   const base = buildEquipmentCartLineId(productId, paidOptions);
-  if (preparationType === 'semirepotenciada') {
-    return `${base}::prep:semirepotenciada`;
+  if (preparationType && preparationType !== 'acondicionado') {
+    return `${base}::prep:${preparationType}`;
   }
   return base;
 }

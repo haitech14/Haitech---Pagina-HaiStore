@@ -10,7 +10,7 @@ import {
   MOBILE_BOTTOM_NAV_HEIGHT_PX,
   useSetMobileBottomNavInset,
 } from '@/context/mobile-bottom-inset-context';
-import { buildLandingCatalogMegaMenu } from '@/lib/mega-menu-from-store-categories';
+import { buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { cn } from '@/lib/utils';
@@ -36,7 +36,7 @@ export function MobileBottomNav() {
   const { pathname } = useLocation();
   const { totalItems, setCartOpen } = useCart();
   const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const menu = useMemo(() => buildLandingCatalogMegaMenu(categoryTree), [categoryTree]);
+  const menu = useMemo(() => buildProductosNavMegaMenu(categoryTree), [categoryTree]);
 
   const [activeSheet, setActiveSheet] = useState<MobileNavSheet>(null);
   const [activeCategorySlug, setActiveCategorySlug] = useState(menu.defaultCategorySlug);
@@ -46,6 +46,11 @@ export function MobileBottomNav() {
 
   const columnGroups = useMemo(
     () => menu.getColumnGroups(activeCategorySlug),
+    [menu, activeCategorySlug],
+  );
+
+  const featuredContent = useMemo(
+    () => menu.getFeaturedContent(activeCategorySlug),
     [menu, activeCategorySlug],
   );
 
@@ -151,7 +156,7 @@ export function MobileBottomNav() {
               onCategoryChange={setActiveCategorySlug}
               sidebarItems={menu.sidebarItems}
               columnGroups={columnGroups}
-              showBrandStrip={menu.categoryShowsBrandStrip(activeCategorySlug)}
+              featuredContent={featuredContent}
               onNavigate={handleNavigate}
             />
           </div>
@@ -172,7 +177,6 @@ export function MobileBottomNav() {
             <SiteSearchForm
               variant="simple"
               autoFocusInput
-              showCategoryFilter
               onNavigate={handleNavigate}
             />
           </div>

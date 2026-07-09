@@ -1,6 +1,5 @@
 import { useId, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronDown, Headphones } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 import {
   HOME_FAQ_ITEMS,
@@ -101,26 +100,74 @@ function FaqColumn({
   );
 }
 
+const INITIAL_FAQ_VISIBLE_COUNT = Math.ceil(HOME_FAQ_ITEMS.length / 2);
+
+function getFaqIdsInRowOrder(): string[] {
+  const maxRows = Math.max(HOME_FAQ_LEFT_COLUMN_IDS.length, HOME_FAQ_RIGHT_COLUMN_IDS.length);
+  const ids: string[] = [];
+
+  for (let row = 0; row < maxRows; row += 1) {
+    if (row < HOME_FAQ_LEFT_COLUMN_IDS.length) {
+      ids.push(HOME_FAQ_LEFT_COLUMN_IDS[row]);
+    }
+    if (row < HOME_FAQ_RIGHT_COLUMN_IDS.length) {
+      ids.push(HOME_FAQ_RIGHT_COLUMN_IDS[row]);
+    }
+  }
+
+  return ids;
+}
+
 export function HomeFaqSection() {
   const [openId, setOpenId] = useState<string | null>(HOME_FAQ_ITEMS[0]?.id ?? null);
+  const [showAll, setShowAll] = useState(false);
 
   const faqById = useMemo(
     () => new Map(HOME_FAQ_ITEMS.map((item) => [item.id, item])),
     [],
   );
 
+  const faqIdsInRowOrder = useMemo(() => getFaqIdsInRowOrder(), []);
+
+  const visibleIds = useMemo(() => {
+    if (showAll) {
+      return new Set(faqIdsInRowOrder);
+    }
+
+    return new Set(faqIdsInRowOrder.slice(0, INITIAL_FAQ_VISIBLE_COUNT));
+  }, [showAll, faqIdsInRowOrder]);
+
   const leftColumn = HOME_FAQ_LEFT_COLUMN_IDS.flatMap((id) => {
+    if (!visibleIds.has(id)) {
+      return [];
+    }
+
     const item = faqById.get(id);
     return item ? [item] : [];
   });
 
   const rightColumn = HOME_FAQ_RIGHT_COLUMN_IDS.flatMap((id) => {
+    if (!visibleIds.has(id)) {
+      return [];
+    }
+
     const item = faqById.get(id);
     return item ? [item] : [];
   });
 
+  const hasHiddenFaqs = HOME_FAQ_ITEMS.length > INITIAL_FAQ_VISIBLE_COUNT;
+
+  const handleToggleShowAll = () => {
+    if (showAll) {
+      const collapsedVisible = new Set(faqIdsInRowOrder.slice(0, INITIAL_FAQ_VISIBLE_COUNT));
+      setOpenId((current) => (current && !collapsedVisible.has(current) ? null : current));
+    }
+
+    setShowAll((current) => !current);
+  };
+
   return (
-    <section aria-labelledby="faq-titulo" className="home-landing-sans pt-8 sm:pt-10">
+    <section id="preguntas-frecuentes" aria-labelledby="faq-titulo" className="home-landing-sans pt-8 pb-10 sm:pt-10 sm:pb-12">
       <div className="container">
         <header className="mx-auto mb-6 max-w-3xl text-center sm:mb-8">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
@@ -157,20 +204,18 @@ export function HomeFaqSection() {
           />
         </div>
 
-        <div className="mx-auto mt-6 flex max-w-5xl justify-center sm:mt-8">
-          <p className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-white px-4 py-2.5 text-sm text-muted-foreground shadow-sm">
-            <Headphones className="size-4 shrink-0 text-red-600" aria-hidden="true" />
-            <span>
-              ¿No encuentras lo que buscas?{' '}
-              <Link
-                to="/contacto"
-                className="font-bold text-red-600 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
-              >
-                Contáctanos
-              </Link>
-            </span>
-          </p>
-        </div>
+        {hasHiddenFaqs ? (
+          <div className="mx-auto mt-4 flex max-w-5xl justify-center sm:mt-5">
+            <button
+              type="button"
+              onClick={handleToggleShowAll}
+              aria-expanded={showAll}
+              className="rounded-full border border-red-200 bg-white px-5 py-2.5 text-sm font-bold text-red-600 shadow-sm transition-colors hover:border-red-300 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+            >
+              {showAll ? 'Ver menos' : 'Ver más'}
+            </button>
+          </div>
+        ) : null}
       </div>
     </section>
   );

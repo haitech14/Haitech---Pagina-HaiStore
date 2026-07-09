@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { StaticNavMegaMenu } from '@/components/layout/static-nav-mega-menu';
-import { RENTALS_NAV_SUBMENU } from '@/data/header-nav-submenus';
+import { ALQUILER_NAV_SUBMENU } from '@/data/header-nav-submenus';
 import {
   buildRentalsNavMegaMenu,
   RENTALS_NAV_MEGA_MENU_ICON,
@@ -17,11 +17,11 @@ export function RentalsNavMegaMenu({
 }) {
   const location = useLocation();
   const menu = useMemo(() => buildRentalsNavMegaMenu(), []);
-  const isRouteActive = RENTALS_NAV_SUBMENU.matchActive(location);
+  const isRouteActive = ALQUILER_NAV_SUBMENU.matchActive(location);
 
   return (
     <StaticNavMegaMenu
-      label="Alquileres"
+      label="Alquiler"
       icon={RENTALS_NAV_MEGA_MENU_ICON}
       menu={menu}
       isRouteActive={isRouteActive}

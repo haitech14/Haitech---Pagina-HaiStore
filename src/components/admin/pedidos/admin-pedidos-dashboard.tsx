@@ -12,11 +12,11 @@ export function AdminPedidosDashboard() {
   const pendingCount = orders.filter((order) => order.payment_status === 'pending').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPedidosPageHeader pendingCount={pendingCount} />
       <AdminPedidosKpis orders={orders} range={range} isLoading={isLoading} />
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_16rem] 2xl:grid-cols-[minmax(0,1fr)_17rem]">
         <AdminPedidosTablePanel
           orders={orders}
           range={range}

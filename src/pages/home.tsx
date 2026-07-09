@@ -1,11 +1,16 @@
 import { useMemo } from 'react';
 
-import { CategoryStrip } from '@/components/category-strip';
+import { HeroBanner } from '@/components/hero-banner';
 import { HomeBenefitsBlackBar } from '@/components/home/home-benefits-black-bar';
-import { HomeFeaturedProductsSection } from '@/components/home/home-featured-products-section';
-import { HomeLandingHero } from '@/components/home/home-landing-hero';
+import {
+  HOME_CONSUMABLES_ADVISORY,
+  HomeFeaturedAdvisoryRow,
+  HomeFeaturedProductsSection,
+} from '@/components/home/home-featured-products-section';
+import { HomeEquipmentQuickNavSection } from '@/components/home/home-equipment-quick-nav-section';
+import { HomeHeroCatalogBanners } from '@/components/home/home-hero-catalog-banners';
+import { HomeHeroPromoStrip } from '@/components/home/home-hero-promo-strip';
 import { HomeServiceRentalSection } from '@/components/home/home-service-rental-section';
-import { HomeTonerRepuestosBanner } from '@/components/home/home-toner-repuestos-banner';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
 import { FooterBrandsSection } from '@/components/layout/footer-brands-section';
 import { useSeo } from '@/hooks/use-seo';
@@ -43,22 +48,38 @@ export function HomePage() {
 
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
-      <HomeLandingHero />
-      <CategoryStrip />
-      <HomeFeaturedProductsSection />
+      <HeroBanner />
+      <HomeHeroPromoStrip />
+      <div className="home-landing-sans relative bg-white shadow-[0_8px_32px_rgba(15,31,61,0.08)]">
+        <HomeEquipmentQuickNavSection />
+        <div className="container pb-4 sm:pb-5">
+          <HomeFeaturedAdvisoryRow
+            message={HOME_CONSUMABLES_ADVISORY.message}
+            campaign={HOME_CONSUMABLES_ADVISORY.campaign}
+            description={HOME_CONSUMABLES_ADVISORY.description}
+          />
+        </div>
+        <HomeHeroCatalogBanners />
+      </div>
       <HomeBenefitsBlackBar />
-      <HomeServiceRentalSection />
-      <HomeTonerRepuestosBanner />
-
+      <div className="home-landing-sans bg-white">
+        <HomeFeaturedProductsSection
+          key="featured-consumables-after-equipment"
+          variant="consumables"
+          instanceId="consumables-after-equipment"
+          advisoryPlacement="none"
+        />
+      </div>
       <LazyHomeSection minHeight="120px">
         <FooterBrandsSection />
       </LazyHomeSection>
+      <HomeServiceRentalSection />
 
-      <LazyHomeSection minHeight="360px">
+      <LazyHomeSection minHeight="280px">
         <ClientRecommendationsSection />
       </LazyHomeSection>
 
-      <LazyHomeSection minHeight="160px">
+      <LazyHomeSection minHeight="120px">
         <ClientsSection />
       </LazyHomeSection>
 

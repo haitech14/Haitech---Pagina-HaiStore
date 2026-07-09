@@ -9,20 +9,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  computeMegaMenuDropdownLayout,
   DARK_NAV_ICON_CLASS,
   MAIN_NAV_ICON_CLASS,
   darkNavSecondarySubmenuTriggerClass,
   darkNavSubmenuTriggerClass,
   lightNavSubmenuTriggerClass,
   lightNavSubmenuTriggerCompactClass,
-  SUBMENU_PANEL_ANIMATION_CLASS,
+  MEGA_MENU_DROPDOWN_CLASS,
+  type MegaMenuDropdownLayout,
+  megaMenuDropdownStyle,
 } from '@/components/layout/main-nav-styles';
 import type { NavMegaMenuModel } from '@/lib/mega-menu-from-store-categories';
-import { cn } from '@/lib/utils';
+import {
+  buildDesktopMegaMenuColumns,
+  type DesktopMegaMenuColumnMode,
+} from '@/lib/mega-menu-from-store-categories';
 
 const HOVER_CLOSE_DELAY_MS = 180;
-const MEGA_MENU_MIN_WIDTH = 720;
-const MEGA_MENU_MAX_WIDTH = 860;
 
 type StaticNavMegaMenuProps = {
   label: string;
@@ -31,6 +35,7 @@ type StaticNavMegaMenuProps = {
   isRouteActive: boolean;
   navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
   showIcon?: boolean;
+  desktopColumnMode?: DesktopMegaMenuColumnMode;
 };
 
 export function StaticNavMegaMenu({
@@ -40,32 +45,28 @@ export function StaticNavMegaMenu({
   isRouteActive,
   navRow = 'default',
   showIcon = true,
+  desktopColumnMode = 'flatten-groups',
 }: StaticNavMegaMenuProps) {
   const [open, setOpen] = useState(false);
   const [activeCategorySlug, setActiveCategorySlug] = useState(menu.defaultCategorySlug);
-  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+  const [menuLayout, setMenuLayout] = useState<MegaMenuDropdownLayout | undefined>(undefined);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const columnGroups = useMemo(
-    () => menu.getColumnGroups(activeCategorySlug),
+    () => buildDesktopMegaMenuColumns(menu, desktopColumnMode),
+    [menu, desktopColumnMode],
+  );
+
+  const featuredContent = useMemo(
+    () => menu.getFeaturedContent(activeCategorySlug),
     [menu, activeCategorySlug],
   );
 
   const updateMenuWidth = useCallback(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
-    const container = trigger.closest('.container');
-    const containerRect = container?.getBoundingClientRect();
-    const triggerRect = trigger.getBoundingClientRect();
-    const left = containerRect?.left ?? triggerRect.left;
-    const rightMargin = containerRect
-      ? Math.max(12, window.innerWidth - containerRect.right)
-      : 12;
-    const available = window.innerWidth - left - rightMargin;
-    setMenuWidth(
-      Math.min(MEGA_MENU_MAX_WIDTH, Math.max(MEGA_MENU_MIN_WIDTH, available)),
-    );
+    setMenuLayout(computeMegaMenuDropdownLayout(trigger));
   }, []);
 
   useEffect(() => {
@@ -145,18 +146,15 @@ export function StaticNavMegaMenu({
         onMouseEnter={openMenu}
         onMouseLeave={scheduleClose}
         onCloseAutoFocus={(event) => event.preventDefault()}
-        className={cn(
-          'z-50 max-w-none overflow-hidden rounded-lg border border-border/70 p-0 shadow-xl',
-          SUBMENU_PANEL_ANIMATION_CLASS,
-        )}
-        style={menuWidth ? { width: menuWidth, maxHeight: 'min(40rem, 82vh)' } : undefined}
+        className={MEGA_MENU_DROPDOWN_CLASS}
+        style={megaMenuDropdownStyle(menuLayout)}
       >
         <CatalogMegaMenuPanel
           activeCategorySlug={activeCategorySlug}
           onCategoryChange={setActiveCategorySlug}
           sidebarItems={menu.sidebarItems}
           columnGroups={columnGroups}
-          showBrandStrip={menu.categoryShowsBrandStrip(activeCategorySlug)}
+          featuredContent={featuredContent}
           onNavigate={closeMenu}
         />
       </DropdownMenuContent>

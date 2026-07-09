@@ -19,7 +19,7 @@ function ClientLogo({ client }: { client: Client }) {
   return (
     <div
       className={cn(
-        'flex h-[4.25rem] w-full items-center justify-center rounded-lg border border-border/50 bg-white px-3 shadow-sm sm:h-20 md:h-24',
+        'flex h-14 w-full items-center justify-center rounded-lg border border-border/50 bg-white px-2.5 shadow-sm sm:h-16 md:h-[4.25rem]',
         client.logoSurface === 'dark' && 'bg-neutral-950',
       )}
     >
@@ -90,9 +90,9 @@ export function ClientsSection() {
   }, [emblaApi]);
 
   return (
-    <section id="clientes" aria-labelledby="clientes-titulo" className="home-landing-sans py-5 sm:py-6">
+    <section id="clientes" aria-labelledby="clientes-titulo" className="home-landing-sans py-3 sm:py-4">
       <div className="container">
-        <header className="mb-5 text-center sm:mb-6">
+        <header className="mb-3 text-center sm:mb-4">
           <div className="flex items-center justify-center gap-3 sm:gap-5">
             <span className="h-px w-10 bg-red-600/70 sm:w-16" aria-hidden="true" />
             <h2
@@ -118,7 +118,7 @@ export function ClientsSection() {
           </button>
 
           <div className="overflow-hidden" ref={emblaRef}>
-            <ul className="flex touch-pan-y gap-4 sm:gap-6">
+            <ul className="flex touch-pan-y gap-2.5 sm:gap-4">
               {clients.map((client) => (
                 <li key={client.id} className={CLIENT_SLIDE_CLASS}>
                   <ClientLogo client={client} />

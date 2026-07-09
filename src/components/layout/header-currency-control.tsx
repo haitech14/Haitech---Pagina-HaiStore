@@ -40,6 +40,54 @@ const currencyOptions: { id: DisplayCurrency; label: string; shortLabel: string 
   { id: 'BOTH', label: 'Ambos', shortLabel: 'Ambos' },
 ];
 
+const darkCurrencyToggleGroupClass = 'inline-flex shrink-0 items-center gap-1';
+const darkCurrencyToggleButtonClass =
+  'min-h-6 rounded px-1.5 text-[0.65rem] font-semibold leading-none tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-1 focus-visible:ring-offset-black';
+
+function DarkCurrencySymbolToggle({
+  className,
+  buttonClassName,
+}: {
+  className?: string;
+  buttonClassName?: string;
+}) {
+  const { displayCurrency, setDisplayCurrency } = useDisplayCurrency();
+
+  const symbolOptions: { id: DisplayCurrency; label: string; ariaLabel: string }[] = [
+    { id: 'USD', label: '$', ariaLabel: 'Mostrar precios en dólares' },
+    { id: 'PEN', label: 'S/', ariaLabel: 'Mostrar precios en soles' },
+    { id: 'BOTH', label: '$S/', ariaLabel: 'Mostrar precios en dólares y soles' },
+  ];
+
+  return (
+    <div
+      role="group"
+      aria-label="Moneda de visualización"
+      className={cn(darkCurrencyToggleGroupClass, className)}
+    >
+      {symbolOptions.map((option) => {
+        const isActive = displayCurrency === option.id;
+        return (
+          <button
+            key={option.id}
+            type="button"
+            aria-pressed={isActive}
+            aria-label={option.ariaLabel}
+            onClick={() => setDisplayCurrency(option.id)}
+            className={cn(
+              darkCurrencyToggleButtonClass,
+              buttonClassName,
+              isActive ? 'bg-[#E30613] text-white' : 'text-white/55 hover:text-white/90',
+            )}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function ExchangeRateDisplay({ className }: { className?: string }) {
   const { saleRate, purchaseRate } = useSystemExchangeRates();
 
@@ -107,46 +155,10 @@ export function HeaderCurrencyControl({ className }: { className?: string }) {
 
 /** Selector $ / S/ / $S/ para header oscuro. */
 export function HeaderDarkCurrencyControl({ className }: { className?: string }) {
-  const { displayCurrency, setDisplayCurrency } = useDisplayCurrency();
-
-  const symbolOptions: { id: DisplayCurrency; label: string; ariaLabel: string }[] = [
-    { id: 'USD', label: '$', ariaLabel: 'Mostrar precios en dólares' },
-    { id: 'PEN', label: 'S/', ariaLabel: 'Mostrar precios en soles' },
-    { id: 'BOTH', label: '$S/', ariaLabel: 'Mostrar precios en dólares y soles' },
-  ];
-
   return (
-    <div
-      className={cn('flex shrink-0 items-center gap-1.5', className)}
-      aria-label="Moneda de visualización"
-    >
+    <div className={cn('flex shrink-0 items-center gap-1.5', className)} aria-label="Moneda de visualización">
       <Coins className="size-4 shrink-0 text-white/80" aria-hidden="true" />
-      <div
-        role="group"
-        className="inline-flex shrink-0 items-center rounded-md border border-white/20 bg-white/10 p-0.5"
-      >
-        {symbolOptions.map((option) => {
-          const isActive = displayCurrency === option.id;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              aria-pressed={isActive}
-              aria-label={option.ariaLabel}
-              onClick={() => setDisplayCurrency(option.id)}
-              className={cn(
-                'min-h-6 min-w-6 rounded px-1.5 text-[0.65rem] font-semibold leading-none tabular-nums transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1A1A1A]',
-                isActive
-                  ? 'bg-[#E30613] text-white shadow-sm'
-                  : 'text-white/70 hover:bg-white/10 hover:text-white',
-              )}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
+      <DarkCurrencySymbolToggle />
     </div>
   );
 }
@@ -165,10 +177,7 @@ export function HeaderCurrencySymbolToggle({ className }: { className?: string }
     <div
       role="group"
       aria-label="Moneda de visualización"
-      className={cn(
-        'inline-flex shrink-0 items-center rounded-md border border-border bg-muted/40 p-0.5',
-        className,
-      )}
+      className={cn('inline-flex shrink-0 items-center gap-1', className)}
     >
       {symbolOptions.map((option) => {
         const isActive = displayCurrency === option.id;
@@ -180,11 +189,11 @@ export function HeaderCurrencySymbolToggle({ className }: { className?: string }
             aria-label={option.ariaLabel}
             onClick={() => setDisplayCurrency(option.id)}
             className={cn(
-              'min-h-5 min-w-6 rounded px-1 text-[0.6rem] font-semibold leading-none tabular-nums transition-colors',
+              'min-h-5 rounded px-1 text-[0.6rem] font-semibold leading-none tabular-nums transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1 focus-visible:ring-offset-background',
               isActive
-                ? 'bg-red-600 text-white shadow-sm'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                ? 'bg-red-600 text-white'
+                : 'text-muted-foreground hover:text-foreground',
             )}
           >
             {option.label}
@@ -247,10 +256,7 @@ export function HeaderTopbarCurrencyToggle({ className }: { className?: string }
     <div
       role="group"
       aria-label="Moneda de visualización"
-      className={cn(
-        'inline-flex shrink-0 items-center rounded-md border border-neutral-700 bg-neutral-900 p-0.5',
-        className,
-      )}
+      className={cn(darkCurrencyToggleGroupClass, className)}
     >
       {currencyOptions.map((option) => {
         const isActive = displayCurrency === option.id;
@@ -261,11 +267,9 @@ export function HeaderTopbarCurrencyToggle({ className }: { className?: string }
             aria-pressed={isActive}
             onClick={() => setDisplayCurrency(option.id)}
             className={cn(
-              'min-h-6 rounded px-2 text-[0.65rem] font-semibold leading-none transition-colors',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1 focus-visible:ring-offset-black',
-              isActive
-                ? 'bg-red-600 text-white shadow-sm'
-                : 'text-neutral-400 hover:text-white',
+              darkCurrencyToggleButtonClass,
+              'px-2',
+              isActive ? 'bg-red-600 text-white' : 'text-neutral-400 hover:text-white',
             )}
           >
             <span className="sm:hidden">{option.shortLabel}</span>
@@ -446,51 +450,11 @@ function AdminExchangeRateEditor({
 /** Moneda + T.C. Venta compacto en el header oscuro de la tienda. */
 export function HeaderStoreCurrencyExchangeBlock({ className }: { className?: string }) {
   const { saleRate, purchaseRate } = useSystemExchangeRates();
-  const { displayCurrency, setDisplayCurrency } = useDisplayCurrency();
   const { isAdmin } = useAuth();
 
-  const symbolOptions: { id: DisplayCurrency; label: string; ariaLabel: string }[] = [
-    { id: 'USD', label: '$', ariaLabel: 'Mostrar precios en dólares' },
-    { id: 'PEN', label: 'S/', ariaLabel: 'Mostrar precios en soles' },
-    { id: 'BOTH', label: '$S/', ariaLabel: 'Mostrar precios en dólares y soles' },
-  ];
-
   return (
-    <div
-      className={cn(
-        'inline-flex shrink-0 items-center gap-2 rounded-lg px-2 py-1.5',
-        className,
-      )}
-    >
-      <div
-        role="group"
-        aria-label="Moneda de visualización"
-        className="inline-flex shrink-0 items-center rounded-md border border-white/20 bg-white/10 p-0.5"
-      >
-        {symbolOptions.map((option) => {
-          const isActive = displayCurrency === option.id;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              aria-pressed={isActive}
-              aria-label={option.ariaLabel}
-              onClick={() => setDisplayCurrency(option.id)}
-              className={cn(
-                'min-h-5 min-w-5 rounded px-1 text-[0.6rem] font-semibold leading-none tabular-nums transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1A1A1A]',
-                isActive
-                  ? 'bg-[#E30613] text-white shadow-sm'
-                  : 'text-white/70 hover:bg-white/10 hover:text-white',
-              )}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
-
-      <span className="mx-px h-4 w-px bg-white/15" aria-hidden="true" />
+    <div className={cn('inline-flex shrink-0 items-center gap-2.5', className)}>
+      <DarkCurrencySymbolToggle buttonClassName="min-h-5 px-1 text-[0.6rem]" />
 
       {isAdmin ? (
         <AdminExchangeRateEditor

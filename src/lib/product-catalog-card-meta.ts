@@ -25,19 +25,12 @@ export const CATALOG_VOLUME_TIERS: readonly CatalogVolumeTier[] = [
   { range: '6+ unidades', discountPercent: 10 },
 ] as const;
 
-function soldCountFromId(id: string): number {
-  let hash = 0;
-  for (let i = 0; i < id.length; i += 1) hash = (hash + id.charCodeAt(i) * (i + 1)) % 97;
-  return 4 + (hash % 24);
-}
-
-export function getCatalogCardRating(product: Product): { rating: number; reviews: number; soldCount: number } {
-  const soldCount = soldCountFromId(product.id);
-  return {
-    rating: 4.8,
-    reviews: soldCount + 2,
-    soldCount,
-  };
+export function getCatalogCardRating(_product: Product): {
+  rating: number;
+  reviews: number;
+  soldCount: number;
+} | null {
+  return null;
 }
 
 function extractUnitNumber(value: string, unit: 'ppm' | 'ipm'): string | null {

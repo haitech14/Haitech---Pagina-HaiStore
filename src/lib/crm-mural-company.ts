@@ -23,18 +23,27 @@ export function parseBankAccountsText(text: string): CrmMuralAccountLine[] {
     });
 }
 
+function buildCompanyAccountsCard(company: CompanySettings): CrmMuralCard | null {
+  const accounts = parseBankAccountsText(company.bankAccountsText);
+  if (accounts.length === 0) return null;
+
+  return {
+    id: 'company-accounts',
+    columnId: 'cuentas',
+    kind: 'accounts',
+    topBorderClass: 'border-t-blue-600',
+    title: company.legalName.toUpperCase(),
+    accounts,
+  };
+}
+
 /** Tarjetas del mural con cuentas bancarias sincronizadas desde configuración. */
 export function buildMuralCardsWithCompany(
   company: CompanySettings = DEFAULT_COMPANY_SETTINGS,
 ): CrmMuralCard[] {
-  const accounts = parseBankAccountsText(company.bankAccountsText);
+  const accountsCard = buildCompanyAccountsCard(company);
+  const seededCards = CRM_MURAL_CARDS.filter((card) => card.kind !== 'accounts');
 
-  return CRM_MURAL_CARDS.map((card) => {
-    if (card.kind !== 'accounts' || card.id !== 'c1') return card;
-    return {
-      ...card,
-      title: company.legalName.toUpperCase(),
-      accounts: accounts.length > 0 ? accounts : card.accounts,
-    };
-  });
+  if (!accountsCard) return seededCards;
+  return [...seededCards, accountsCard];
 }

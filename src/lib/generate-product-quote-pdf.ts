@@ -43,6 +43,7 @@ export interface QuoteTechnicalSheetData {
 
 export interface BuildProductQuotePdfOptions {
   technicalSheet?: QuoteTechnicalSheetData | null;
+  summaryNotes?: string[];
 }
 
 type Rgb = [number, number, number];
@@ -1002,6 +1003,40 @@ export async function buildProductQuotePdf(
   const amountWords = amountToWordsEs(total, 'SOLES');
   doc.text(`IMPORTE EN LETRAS: ${amountWords}`, MARGIN + 4, y + 6.5);
   y += 14;
+
+  const summaryNotes = options?.summaryNotes?.filter((note) => note != null) ?? [];
+  if (summaryNotes.length > 0) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    const notesWidth = contentW - 8;
+    let notesBoxH = 11;
+    summaryNotes.forEach((note) => {
+      if (!note.trim()) {
+        notesBoxH += 3;
+        return;
+      }
+      notesBoxH += doc.splitTextToSize(note, notesWidth).length * 3.5 + 0.8;
+    });
+    notesBoxH += 4;
+
+    doc.setDrawColor(226, 232, 240);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(MARGIN, y, contentW, notesBoxH, 2, 2, 'FD');
+    drawSectionTitle(doc, MARGIN, y, contentW, 'DETALLE DEL PLAN DE ALQUILER', primary);
+
+    let notesY = y + 11;
+    doc.setTextColor(51, 65, 85);
+    summaryNotes.forEach((note) => {
+      if (!note.trim()) {
+        notesY += 3;
+        return;
+      }
+      const wrapped = doc.splitTextToSize(note, notesWidth);
+      doc.text(wrapped, MARGIN + 4, notesY);
+      notesY += wrapped.length * 3.5 + 0.8;
+    });
+    y += notesBoxH + 5;
+  }
 
   const footerBoxH = 42;
   doc.setDrawColor(226, 232, 240);

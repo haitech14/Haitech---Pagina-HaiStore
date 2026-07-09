@@ -40,10 +40,10 @@ function WidgetCard({
 }) {
   return (
     <section
-      className={cn('rounded-xl border border-border/60 bg-card p-5 shadow-sm', className)}
+      className={cn('rounded-lg border border-border/60 bg-card p-3 shadow-sm', className)}
     >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <h2 className="text-base font-semibold text-foreground">{title}</h2>
+      <div className="mb-2.5 flex items-start justify-between gap-2">
+        <h2 className="text-xs font-semibold text-foreground">{title}</h2>
         {action}
       </div>
       {children}
@@ -73,7 +73,7 @@ export function AdminClientesWidgets({ customers, range }: AdminClientesWidgetsP
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <WidgetCard title="Distribución por tipo">
         {donutData.length > 0 ? (
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
@@ -97,7 +97,7 @@ export function AdminClientesWidgets({ customers, range }: AdminClientesWidgetsP
                 </PieChart>
               </ChartContainer>
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-foreground">{total}</span>
+                <span className="text-lg font-bold text-foreground">{total}</span>
                 <span className="text-xs text-muted-foreground">Total</span>
               </div>
             </div>
@@ -127,7 +127,7 @@ export function AdminClientesWidgets({ customers, range }: AdminClientesWidgetsP
       </WidgetCard>
 
       <WidgetCard title="Estado de cuenta">
-        <ul className="space-y-4">
+        <ul className="space-y-3">
           {accountDistribution.map((item) => (
             <li key={item.key}>
               <div className="mb-1.5 flex items-center justify-between text-sm">

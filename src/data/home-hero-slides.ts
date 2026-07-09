@@ -1,8 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
 import { BadgeCheck, Headphones, KeyRound, Percent, ShieldCheck, Tag, Truck } from 'lucide-react';
-
-import { CATEGORY_STRIP_HERO_HEIGHT_CLASS } from '@/lib/category-strip-layout';
-
 export type HomeHeroTrustIcon =
   | 'badge-check'
   | 'tag'
@@ -23,7 +20,7 @@ export interface HomeHeroTitleLine {
   variant: 'white' | 'red';
 }
 
-export type HomeHeroSlideLayout = 'image-only' | 'dia-papa-home';
+export type HomeHeroSlideLayout = 'image-only' | 'dia-papa-home' | 'home-landing';
 
 export interface HomeHeroSlide {
   id: string;
@@ -66,6 +63,8 @@ export interface HomeHeroSlide {
   ctaOverlay?: boolean;
   /** Evita variantes WebP inexistentes (p. ej. categorías sin -768/-1920). */
   skipHeroWebpVariants?: boolean;
+  /** Contraste de los puntos del carrusel: claros sobre fondo oscuro o oscuros sobre fondo claro. */
+  dotTheme?: 'light' | 'dark';
   sealTitle?: string;
   sealSubtitle?: string;
 }
@@ -82,37 +81,50 @@ export const TRUST_ICON_MAP: Record<HomeHeroTrustIcon, LucideIcon> = {
   headset: Headphones,
 };
 
-/** Ajustes compartidos del hero compacto (misma altura en todos los slides). */
-const HOME_HERO_COMPACT_SHARED = {
+/** Slide principal de la landing (texto + escena). */
+export const HOME_LANDING_HERO_SLIDE: HomeHeroSlide = {
+  id: 'home-landing',
+  layout: 'home-landing',
+  backgroundImage: '/hero/home-hero-scene.png',
+  dotTheme: 'light',
+};
+
+/** Altura del carrusel para banners promocionales (slides 2 y 3), alineada al hero principal. */
+export const HOME_HERO_PROMO_BANNER_HEIGHT_CLASS =
+  'h-[min(66vw,22rem)] sm:h-[min(52vw,25rem)] lg:h-[28rem] xl:h-[31rem]';
+
+/** Ajustes compartidos de banners promocionales (más compactos que el slide principal). */
+const HOME_HERO_PROMO_IMAGE_SHARED = {
   imageOnly: true,
   singleAsset: true,
   compact: true,
-  imageWidth: 2172,
-  imageHeight: 724,
+  skipHeroWebpVariants: true,
+  compactMaxHeightClass: HOME_HERO_PROMO_BANNER_HEIGHT_CLASS,
   objectFit: 'cover' as const,
-  heroVerticalCrop: 0.84,
-  objectPositionClass: 'object-[center_50%]',
-  compactMaxHeightClass: CATEGORY_STRIP_HERO_HEIGHT_CLASS,
-  ctaOverlay: false,
+  heroVerticalCrop: 1,
+  objectPositionClass: 'object-[center_58%]',
+  compactImageFrameClass: 'h-full w-full',
+  compactImageZoomClass: 'scale-100',
   linkHref: HOME_HERO_WHATSAPP_LINK,
 };
-
-/** Banner hero Fiestas Patrias — promociones generales (referencia de encuadre). */
+/** Banner Fiestas Patrias — promociones generales. */
 export const FIESTAS_PATRIAS_BANNER_HERO_SLIDE: HomeHeroSlide = {
-  ...HOME_HERO_COMPACT_SHARED,
-  id: 'fiestas-patrias-banner',
-  backgroundImage: '/categories/fiestaspatriasbanner.png',
-  imageWidth: 1983,
-  imageHeight: 793,
+  ...HOME_HERO_PROMO_IMAGE_SHARED,
+  id: 'fiestas-patrias-promociones',
+  dotTheme: 'light',
+  backgroundImage: '/Banner2hero.png',
+  imageWidth: 2048,
+  imageHeight: 768,
   imageAlt:
     'Promociones por Fiestas Patrias — Fotocopiadoras Ricoh para tu oficina. Rendimiento, velocidad y calidad profesional.',
 };
 
-/** Banner hero Fiestas Patrias — ofertas con precios (promonuevas). */
+/** Banner Fiestas Patrias — ofertas con precios. */
 export const FIESTAS_PATRIAS_PROMO_NUEVAS_HERO_SLIDE: HomeHeroSlide = {
-  ...HOME_HERO_COMPACT_SHARED,
-  id: 'fiestas-patrias-promo-nuevas',
-  backgroundImage: '/categories/promonuevas-1.png',
+  ...HOME_HERO_PROMO_IMAGE_SHARED,
+  id: 'fiestas-patrias-ofertas',
+  dotTheme: 'dark',
+  backgroundImage: '/hero/fiestas-patrias-ofertas.png',
   imageWidth: 2172,
   imageHeight: 724,
   imageAlt:
@@ -121,6 +133,7 @@ export const FIESTAS_PATRIAS_PROMO_NUEVAS_HERO_SLIDE: HomeHeroSlide = {
 
 /** Slides activos del hero (LCP = primer slide). */
 export const homeHeroSlides: HomeHeroSlide[] = [
+  HOME_LANDING_HERO_SLIDE,
   FIESTAS_PATRIAS_BANNER_HERO_SLIDE,
   FIESTAS_PATRIAS_PROMO_NUEVAS_HERO_SLIDE,
 ];

@@ -139,7 +139,6 @@ export const HERO_PARTNER_BRAND_NAMES = [
   'Canon',
   'Epson',
   'HP',
-  'Konica Minolta',
   'Kyocera',
   'Lexmark',
   'Pantum',
@@ -168,6 +167,66 @@ export const footerPartnerBrands: Brand[] = FOOTER_PARTNER_BRAND_NAMES.flatMap((
   const brand = printerBrands.find((item) => item.name === name);
   return brand ? [brand] : [];
 });
+
+/** Marcas de la franja Dataplus en la landing (Samsung, Lenovo, LG, etc.). */
+export const dataplusPartnerBrands: Brand[] = [
+  {
+    name: 'Samsung',
+    logo: '/brands/samsung.svg',
+    logoWidth: 200,
+    logoHeight: 48,
+    logoClassName: 'max-h-7 w-auto max-w-[5.5rem] object-contain sm:max-h-8 md:max-h-9',
+  },
+  {
+    name: 'Lenovo',
+    logo: '/brands/lenovo.svg',
+    logoWidth: 200,
+    logoHeight: 48,
+    logoClassName: 'max-h-7 w-auto max-w-[5rem] object-contain sm:max-h-8 md:max-h-9',
+  },
+  {
+    name: 'LG',
+    logo: '/brands/lg.svg',
+    logoWidth: 120,
+    logoHeight: 48,
+    logoClassName: 'max-h-7 w-auto max-w-[3.5rem] object-contain sm:max-h-8 md:max-h-9',
+  },
+  {
+    name: 'TP-Link',
+    logo: '/brands/tp-link.svg',
+    logoWidth: 200,
+    logoHeight: 48,
+    logoClassName: 'max-h-7 w-auto max-w-[5rem] object-contain sm:max-h-8 md:max-h-9',
+  },
+  {
+    name: 'UGREEN',
+    logo: '/brands/ugreen.svg',
+    logoWidth: 200,
+    logoHeight: 48,
+    logoClassName: 'max-h-7 w-auto max-w-[5.25rem] object-contain sm:max-h-8 md:max-h-9',
+  },
+  {
+    name: 'Epson',
+    logo: '/brands/epson.png',
+    logoWidth: 325,
+    logoHeight: 80,
+    logoClassName: 'max-h-7 w-auto max-w-[5rem] object-contain sm:max-h-8 md:max-h-9',
+  },
+  {
+    name: 'Brother',
+    logo: '/brands/brother.svg',
+    logoWidth: 200,
+    logoHeight: 48,
+    logoClassName: 'max-h-7 w-auto max-w-[5rem] object-contain sm:max-h-8 md:max-h-9',
+  },
+  {
+    name: 'TEROS',
+    logo: '/brands/teros.svg',
+    logoWidth: 200,
+    logoHeight: 48,
+    logoClassName: 'max-h-7 w-auto max-w-[4.5rem] object-contain sm:max-h-8 md:max-h-9',
+  },
+];
 
 export type BrandItem = string | Brand;
 

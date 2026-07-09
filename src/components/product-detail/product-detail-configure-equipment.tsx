@@ -527,6 +527,18 @@ export function ProductDetailConfigureEquipment({
     return null;
   }
 
+  if (isRentMode) {
+    return (
+      <ProductDetailRentalConfigurator
+        rentalPlans={plans}
+        equipmentBasePriceUsd={equipmentBasePriceUsd}
+        isColorEquipment={isColorEquipment}
+        variant="full"
+        {...(onRentalEstimateChange ? { onEstimateChange: onRentalEstimateChange } : {})}
+      />
+    );
+  }
+
   const handleToggleMerchandising = (
     step: typeof crossSellStep,
     optionId: string,
@@ -622,16 +634,6 @@ export function ProductDetailConfigureEquipment({
           hidden={!expanded}
           className={cn('border-t border-border/60 px-3 pb-3 pt-3 sm:px-4 sm:pb-4', !expanded && 'hidden')}
         >
-          {isRentMode ? (
-            <ProductDetailRentalConfigurator
-              rentalPlans={plans}
-              equipmentBasePriceUsd={equipmentBasePriceUsd}
-              isColorEquipment={isColorEquipment}
-              {...(onRentalEstimateChange ? { onEstimateChange: onRentalEstimateChange } : {})}
-              hideTitle
-              className="border-0 bg-transparent p-0"
-            />
-          ) : (
         <div className="relative">
           {showCarouselControls ? (
             <>
@@ -732,7 +734,6 @@ export function ProductDetailConfigureEquipment({
             </ul>
           </div>
         </div>
-          )}
         </div>
       </section>
 

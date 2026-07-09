@@ -5,7 +5,6 @@ import { Menu, ShoppingCart, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
-import { CatalogMobileAccordion } from '@/components/layout/catalog-mobile-accordion';
 import {
   HeaderActionStrip,
   headerIconActionButtonClass,
@@ -17,10 +16,9 @@ import {
 } from '@/components/layout/header-category-nav';
 import { HeaderForumPublishButton } from '@/components/layout/header-forum-publish-button';
 import { HeaderTopBar } from '@/components/layout/header-top-bar';
-import { HeaderNavMobileAccordion } from '@/components/layout/header-nav-mobile-accordion';
+import { HeaderSupportButton } from '@/components/layout/header-support-button';
 import { StoreNavMobileMegaAccordions } from '@/components/layout/store-nav-mobile-mega-accordions';
-import { ABOUT_NAV_SUBMENU, CONTACT_NAV_SUBMENU, SOFTWARE_NAV_SUBMENU } from '@/data/header-nav-submenus';
-import { HeaderLogoLink } from '@/components/layout/site-logo';
+import { HeaderBrandLogos } from '@/components/layout/site-logo';
 import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
@@ -114,7 +112,13 @@ export function Header() {
             {mobileOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
           </Button>
 
-          <HeaderLogoLink heightClass="h-7 sm:h-8" width={160} height={35} loading="eager" />
+          <HeaderBrandLogos
+            heightClass="h-7 sm:h-8"
+            width={160}
+            height={35}
+            loading="eager"
+            partnerTone={forumMode ? 'light' : 'dark'}
+          />
         </div>
 
         {forumMode ? (
@@ -174,19 +178,14 @@ export function Header() {
       {mobileOpen && (
         <div className={cn('border-t lg:hidden', forumMode ? 'border-border/60' : 'border-white/15')}>
           <div className="container flex flex-col gap-4 py-4">
-            {!forumMode ? <CatalogMobileAccordion onNavigate={() => setMobileOpen(false)} /> : null}
             {!forumMode ? (
               <StoreNavMobileMegaAccordions onNavigate={() => setMobileOpen(false)} />
             ) : null}
-            {!forumMode
-              ? [SOFTWARE_NAV_SUBMENU, ABOUT_NAV_SUBMENU, CONTACT_NAV_SUBMENU].map((config) => (
-                  <HeaderNavMobileAccordion
-                    key={config.id}
-                    config={config}
-                    onNavigate={() => setMobileOpen(false)}
-                  />
-                ))
-              : null}
+            {!forumMode ? (
+              <div className="px-0.5">
+                <HeaderSupportButton className="w-full justify-center px-3 py-2.5" />
+              </div>
+            ) : null}
             <nav aria-label={forumMode ? 'Navegación móvil del foro' : 'Navegación móvil'}>
               <ul className="flex flex-col">
                 {mobileLinks.map((item) => (

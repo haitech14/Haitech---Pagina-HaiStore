@@ -30,8 +30,25 @@ export interface ServiceOrder {
   createdAt: string;
 }
 
+export type ServiceCatalogModalidad = 'presencial' | 'remoto' | 'mixto';
+
+export type ServiceCatalogTipo = 'unico' | 'mensual' | 'proyecto';
+
+export type ServiceCatalogEstado = 'activo' | 'programado' | 'pausado' | 'archivado';
+
+/** Metadatos del catálogo usados en el módulo admin de servicios. */
+export interface ServiceCatalogMeta {
+  modalidad?: ServiceCatalogModalidad;
+  cobertura?: string;
+  tipo?: ServiceCatalogTipo;
+  estado?: ServiceCatalogEstado;
+  responsableName?: string;
+  responsableTitle?: string;
+  createdAt?: string;
+}
+
 /** Ítem de catálogo en la lista de precios de servicios (soles por rol). */
-export interface ServicePriceItem {
+export interface ServicePriceItem extends ServiceCatalogMeta {
   id: string;
   code: string;
   name: string;

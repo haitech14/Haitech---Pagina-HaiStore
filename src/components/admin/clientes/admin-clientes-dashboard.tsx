@@ -33,7 +33,7 @@ function fileToBase64(file: File): Promise<string> {
 
 export function AdminClientesDashboard() {
   const { range, setRange } = useAdminDateRange();
-  const { data, isLoading, isError } = useAdminStoreCustomers();
+  const { data, isLoading, isError, error } = useAdminStoreCustomers();
   const customers = data?.customers ?? [];
   const { createCustomer, importPersonaExcel } = useAdminStoreCustomersMutations();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +63,7 @@ export function AdminClientesDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <input
         ref={fileInputRef}
         type="file"
@@ -85,13 +85,14 @@ export function AdminClientesDashboard() {
 
       <AdminClientesKpis customers={customers} range={range} isLoading={isLoading} />
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_16rem] 2xl:grid-cols-[minmax(0,1fr)_17rem]">
         <AdminClientesTablePanel
           customers={customers}
           range={range}
           onRangeChange={setRange}
           isLoading={isLoading}
           isError={isError}
+          errorMessage={error instanceof Error ? error.message : undefined}
         />
         <AdminClientesWidgets customers={customers} range={range} />
       </div>

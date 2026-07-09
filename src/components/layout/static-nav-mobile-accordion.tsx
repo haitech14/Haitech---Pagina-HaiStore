@@ -27,6 +27,11 @@ export function StaticNavMobileAccordion({
     [menu, activeCategorySlug],
   );
 
+  const featuredContent = useMemo(
+    () => menu.getFeaturedContent(activeCategorySlug),
+    [menu, activeCategorySlug],
+  );
+
   useEffect(() => {
     const slugs = menu.sidebarItems.map((item) => item.slug);
     if (!slugs.includes(activeCategorySlug)) {
@@ -65,7 +70,7 @@ export function StaticNavMobileAccordion({
             onCategoryChange={setActiveCategorySlug}
             sidebarItems={menu.sidebarItems}
             columnGroups={columnGroups}
-            showBrandStrip={menu.categoryShowsBrandStrip(activeCategorySlug)}
+            featuredContent={featuredContent}
             onNavigate={closeAll}
           />
         </div>

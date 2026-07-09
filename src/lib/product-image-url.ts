@@ -1,5 +1,5 @@
 import { isImageMediaUrl } from '@/lib/product-media';
-import { isSyntheticProductMediaUrl } from '../../shared/product-media-sanitize.js';
+import { isSyntheticProductMediaUrl, sanitizeStoredProductMedia } from '../../shared/product-media-sanitize.js';
 import {
   publicProductMediaPath,
   resolveProductCategoryStockImage,
@@ -44,6 +44,21 @@ function isUsableStoredImageUrl(
   return true;
 }
 
+function withSanitizedProductMedia(product: ResolveProductImageInput): ResolveProductImageInput {
+  const sanitized = sanitizeStoredProductMedia({
+    id: product.id ?? '',
+    code: product.code,
+    image_url: product.image_url,
+    gallery: product.gallery,
+  });
+
+  return {
+    ...product,
+    image_url: sanitized.image_url,
+    gallery: sanitized.gallery,
+  };
+}
+
 export function resolveProductStockImagePath(product: {
   id?: string;
   name?: string;
@@ -59,12 +74,13 @@ export function buildProductImageCandidates(
   product: ResolveProductImageInput,
   options?: ResolveProductImageOptions,
 ): string[] {
+  const sanitizedProduct = withSanitizedProductMedia(product);
   const candidates: string[] = [];
   const seen = new Set<string>();
 
   const pushStored = (url: string | null | undefined) => {
     if (!url || seen.has(url)) return;
-    if (!isUsableStoredImageUrl(product, url, options)) return;
+    if (!isUsableStoredImageUrl(sanitizedProduct, url, options)) return;
     seen.add(url);
     candidates.push(url);
   };
@@ -77,17 +93,17 @@ export function buildProductImageCandidates(
     candidates.push(url);
   };
 
-  pushStored(product.image_url);
-  for (const url of product.gallery ?? []) {
+  pushStored(sanitizedProduct.image_url);
+  for (const url of sanitizedProduct.gallery ?? []) {
     pushStored(url);
   }
 
   if (shouldUseStockFallback(options)) {
-    pushFallback(resolveProductModelStockImage(product));
-    if (product.id) {
-      pushFallback(publicProductMediaPath(product.id));
+    pushFallback(resolveProductModelStockImage(sanitizedProduct));
+    if (sanitizedProduct.id) {
+      pushFallback(publicProductMediaPath(sanitizedProduct.id));
     }
-    pushFallback(resolveProductCategoryStockImage(product));
+    pushFallback(resolveProductCategoryStockImage(sanitizedProduct));
   }
 
   return candidates;
@@ -106,11 +122,13 @@ export function resolveProductCardHoverImage(
   product: ResolveProductImageInput,
   options?: ResolveProductImageOptions,
 ): string | null {
-  const primary = typeof product.image_url === 'string' ? product.image_url.trim() : '';
-  const gallery = Array.isArray(product.gallery) ? product.gallery : [];
+  const sanitizedProduct = withSanitizedProductMedia(product);
+  const primary =
+    typeof sanitizedProduct.image_url === 'string' ? sanitizedProduct.image_url.trim() : '';
+  const gallery = Array.isArray(sanitizedProduct.gallery) ? sanitizedProduct.gallery : [];
 
   const pick = (url: string | null | undefined): string | null => {
-    if (!url || !isUsableStoredImageUrl(product, url, options)) return null;
+    if (!url || !isUsableStoredImageUrl(sanitizedProduct, url, options)) return null;
     if (primary && url === primary) return null;
     return url;
   };
@@ -137,11 +155,12 @@ export function resolveProductGallery(
   product: ResolveProductImageInput,
   options?: ResolveProductImageOptions,
 ): string[] {
-  const authentic = (product.gallery ?? []).filter(
+  const sanitizedProduct = withSanitizedProductMedia(product);
+  const authentic = (sanitizedProduct.gallery ?? []).filter(
     (url): url is string =>
       typeof url === 'string' &&
       url.length > 0 &&
-      isUsableStoredImageUrl(product, url, options),
+      isUsableStoredImageUrl(sanitizedProduct, url, options),
   );
   if (authentic.length > 0) {
     return [...new Set(authentic)];

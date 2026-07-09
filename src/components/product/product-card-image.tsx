@@ -13,6 +13,8 @@ interface ProductCardImageProps {
   className?: string;
   overlayClassName?: string;
   watermarkClassName?: string;
+  /** Override del atributo `sizes` en variantes responsive (p. ej. miniaturas compactas). */
+  responsiveSizes?: string;
   loading?: 'lazy' | 'eager';
   imageVersion?: string | null;
   onError?: () => void;
@@ -31,13 +33,18 @@ export function ProductCardImage({
   className,
   overlayClassName,
   watermarkClassName,
+  responsiveSizes,
   loading = 'lazy',
   imageVersion = null,
   onError,
 }: ProductCardImageProps) {
   const [loaded, setLoaded] = useState(false);
-  const responsive =
-    supportsResponsiveProductImage(src) ? productCardImageSources(src) : null;
+  const responsive = supportsResponsiveProductImage(src)
+    ? {
+        ...productCardImageSources(src),
+        ...(responsiveSizes ? { sizes: responsiveSizes } : {}),
+      }
+    : null;
   const overlayWrapperClass = cn(
     'relative flex min-h-0 min-w-0 items-center justify-center bg-muted/60',
     overlayClassName ?? 'h-full w-full',

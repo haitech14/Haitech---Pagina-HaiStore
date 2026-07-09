@@ -13,6 +13,7 @@ const CONDITION_BADGE_SIZE_CLASS = {
   overlay:
     'rounded-md px-2.5 py-0.5 text-[0.58rem] leading-none shadow-sm sm:px-3 sm:py-0.5 sm:text-[0.64rem]',
   table: 'rounded-full px-1.5 py-px text-[0.54rem] leading-none sm:text-[0.58rem]',
+  card: 'rounded px-1 py-px text-[0.5rem] leading-tight sm:text-[0.5625rem]',
 } as const;
 
 const NUEVA_OVERLAY_BADGE_CLASS =

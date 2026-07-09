@@ -1,4 +1,12 @@
-import { CalendarDays, Cog, Droplets, Headphones, Printer, ShieldCheck, Truck, UserRound } from 'lucide-react';
+import {
+  CalendarDays,
+  Droplets,
+  FileText,
+  Headphones,
+  Printer,
+  ShieldCheck,
+  Truck,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { categoryLandingPath } from '@/lib/category-path';
@@ -31,25 +39,23 @@ export const HOME_LANDING_BLACK_BENEFITS: HomeLandingBenefitItem[] = [
     icon: ShieldCheck,
   },
   {
-    id: 'repuestos',
-    title: 'Repuestos originales',
-    description: 'Componentes certificados para tu equipo.',
-    icon: Cog,
-  },
-  {
-    id: 'atencion',
-    title: 'Atención personalizada',
-    description: 'Asesoría comercial a medida de tu negocio.',
-    icon: UserRound,
+    id: 'facturacion',
+    title: 'Facturación para empresas',
+    description: 'Boletas y facturas para tu contabilidad.',
+    icon: FileText,
   },
 ];
 
 export const HOME_LANDING_SERVICE_FEATURES = [
-  'Diagnóstico preciso y rápido',
-  'Mantenimiento preventivo programado',
-  'Reparación con repuestos originales',
-  'Soporte técnico remoto y presencial',
+  'Mantenimiento preventivo',
+  'Reparación',
+  'Instalación',
+  'Diagnóstico',
+  'Repuestos',
 ] as const;
+
+export const HOME_LANDING_SERVICE_WHATSAPP_MESSAGE =
+  'Hola, vengo desde HaiStore. Necesito solicitar un diagnóstico técnico para mi equipo de impresión.';
 
 export type HomeLandingRentalFeature = {
   id: string;
@@ -77,30 +83,30 @@ export type HomeLandingRentalPlanCard = {
 export const HOME_LANDING_RENTAL_PLANS: HomeLandingRentalPlanCard[] = [
   {
     id: 'basico',
-    name: 'Básico',
-    subtitle: 'Ideal para oficinas pequeñas',
-    priceFromPen: 199,
+    name: 'Plan Oficina Pequeña',
+    subtitle: 'Para 1 a 5 usuarios',
+    priceFromPen: 499,
     image: '/services/alquiler/impresoras.png',
-    imageAlt: 'Impresora multifuncional para plan básico',
+    imageAlt: 'Impresora multifuncional para plan oficina pequeña',
     href: serviceHubPath('alquiler'),
   },
   {
     id: 'profesional',
-    name: 'Profesional',
+    name: 'Plan Empresa',
     subtitle: 'Para equipos de trabajo exigentes',
-    priceFromPen: 399,
+    priceFromPen: 899,
     image: '/categories/multifuncionales.png',
-    imageAlt: 'Fotocopiadora multifuncional para plan profesional',
+    imageAlt: 'Fotocopiadora multifuncional para plan empresa',
     popular: true,
     href: serviceHubPath('alquiler'),
   },
   {
     id: 'empresarial',
-    name: 'Empresarial',
-    subtitle: 'Solución integral para empresas',
-    priceFromPen: 699,
+    name: 'Plan Alto Volumen',
+    subtitle: 'Para impresión constante',
+    priceFromPen: 1399,
     image: '/services/alquiler/plotters.png',
-    imageAlt: 'Equipos de impresión empresarial en alquiler',
+    imageAlt: 'Equipos de impresión de alto volumen en alquiler',
     href: serviceHubPath('alquiler'),
   },
 ];

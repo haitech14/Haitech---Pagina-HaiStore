@@ -16,6 +16,21 @@ import type { ProductRolePrices } from '@/lib/roles';
 const ORDERS_KEY = 'haistore-service-orders';
 const CATEGORIES_KEY = 'haistore-service-categories';
 const PRICE_LIST_KEY = 'haistore-service-price-list';
+const PRICE_LIST_CHANGE_EVENT = 'haistore-service-price-list-change';
+
+export function subscribeServicePriceList(onStoreChange: () => void): () => void {
+  const handler = () => onStoreChange();
+  window.addEventListener(PRICE_LIST_CHANGE_EVENT, handler);
+  window.addEventListener('storage', handler);
+  return () => {
+    window.removeEventListener(PRICE_LIST_CHANGE_EVENT, handler);
+    window.removeEventListener('storage', handler);
+  };
+}
+
+export function getServicePriceListSnapshot(): ServicePriceItem[] {
+  return loadServicePriceList();
+}
 
 function loadJson<T>(key: string, fallback: T): T {
   try {
@@ -113,7 +128,7 @@ function normalizeServicePriceItem(
 ): ServicePriceItem {
   const fallbackCategory =
     DEFAULT_SERVICE_PRICE_LIST[0]?.categoryId ?? 'cat-mantenimiento';
-  return {
+  const normalized: ServicePriceItem = {
     id: row.id ?? `sp-fallback-${index}`,
     code: row.code ?? '',
     name: row.name ?? '',
@@ -122,6 +137,16 @@ function normalizeServicePriceItem(
     prices: ensureFullPrices(row.prices),
     active: row.active !== false,
   };
+
+  if (row.modalidad !== undefined) normalized.modalidad = row.modalidad;
+  if (row.cobertura !== undefined) normalized.cobertura = row.cobertura;
+  if (row.tipo !== undefined) normalized.tipo = row.tipo;
+  if (row.estado !== undefined) normalized.estado = row.estado;
+  if (row.responsableName !== undefined) normalized.responsableName = row.responsableName;
+  if (row.responsableTitle !== undefined) normalized.responsableTitle = row.responsableTitle;
+  if (row.createdAt !== undefined) normalized.createdAt = row.createdAt;
+
+  return normalized;
 }
 
 export function loadServicePriceList(): ServicePriceItem[] {
@@ -143,6 +168,7 @@ export function loadServicePriceList(): ServicePriceItem[] {
 
 export function saveServicePriceList(items: ServicePriceItem[]): void {
   saveJson(PRICE_LIST_KEY, items);
+  window.dispatchEvent(new Event(PRICE_LIST_CHANGE_EVENT));
 }
 
 export function createServicePriceItem(
@@ -158,7 +184,21 @@ export function createServicePriceItem(
 export function updateServicePriceItem(
   id: string,
   patch: Partial<
-    Pick<ServicePriceItem, 'code' | 'name' | 'categoryId' | 'description' | 'active'> & {
+    Pick<
+      ServicePriceItem,
+      | 'code'
+      | 'name'
+      | 'categoryId'
+      | 'description'
+      | 'active'
+      | 'modalidad'
+      | 'cobertura'
+      | 'tipo'
+      | 'estado'
+      | 'responsableName'
+      | 'responsableTitle'
+      | 'createdAt'
+    > & {
       prices?: Partial<ProductRolePrices>;
     }
   >,

@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 import { cn } from '@/lib/utils';
 
 /** Barra de menú principal mockup (fondo rojo marca). */
@@ -82,6 +84,66 @@ const SUBMENU_PANEL_ANIMATION_CLASS =
   'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1';
 
 export { SUBMENU_PANEL_ANIMATION_CLASS };
+
+/** Dimensiones compartidas de los mega menús del header (Productos, Servicios, Software, etc.). */
+export const MEGA_MENU_MIN_WIDTH = 720;
+export const MEGA_MENU_MAX_HEIGHT = 'min(36rem, 75vh)';
+
+export const MEGA_MENU_DROPDOWN_CLASS = cn(
+  'z-50 max-w-none overflow-hidden rounded-xl border border-[#E5E7EB] p-0 shadow-[0_12px_40px_rgba(15,31,61,0.12)]',
+  SUBMENU_PANEL_ANIMATION_CLASS,
+);
+
+export function clampMegaMenuWidth(available: number): number {
+  return Math.max(MEGA_MENU_MIN_WIDTH, available);
+}
+
+export type MegaMenuDropdownLayout = {
+  width: number;
+  marginLeft: number;
+};
+
+/** Ancho del panel y desplazamiento para centrarlo respecto al `.container` del nav. */
+export function computeMegaMenuDropdownLayout(
+  trigger: HTMLElement,
+  options?: { minWidth?: number; maxWidth?: number },
+): MegaMenuDropdownLayout {
+  const minWidth = options?.minWidth ?? MEGA_MENU_MIN_WIDTH;
+  const container = trigger.closest('.container');
+  const containerRect = container?.getBoundingClientRect();
+  const triggerRect = trigger.getBoundingClientRect();
+  const left = containerRect?.left ?? triggerRect.left;
+  const rightMargin = containerRect
+    ? Math.max(12, window.innerWidth - containerRect.right)
+    : 12;
+  const available = window.innerWidth - left - rightMargin;
+  let width = Math.max(minWidth, available);
+  if (options?.maxWidth !== undefined) {
+    width = Math.min(width, options.maxWidth);
+  }
+
+  const containerCenter = containerRect
+    ? containerRect.left + containerRect.width / 2
+    : triggerRect.left + triggerRect.width / 2;
+  const desiredLeft = containerCenter - width / 2;
+  const marginLeft = desiredLeft - triggerRect.left;
+
+  return { width, marginLeft };
+}
+
+export function megaMenuDropdownStyle(
+  layout: MegaMenuDropdownLayout | number | undefined,
+): CSSProperties | undefined {
+  if (layout === undefined) return undefined;
+  if (typeof layout === 'number') {
+    return { width: layout, maxHeight: MEGA_MENU_MAX_HEIGHT };
+  }
+  return {
+    width: layout.width,
+    maxHeight: MEGA_MENU_MAX_HEIGHT,
+    marginLeft: layout.marginLeft,
+  };
+}
 
 export function mainNavContactClass(isActive: boolean) {
   return cn(

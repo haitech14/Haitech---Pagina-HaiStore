@@ -1,157 +1,212 @@
-import { Star } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import { ON_REQUEST_STOCK_BADGE_CLASS, isProductOutOfStock } from '@/components/cart/add-to-cart-button';
+import { Star } from 'lucide-react';
+
+import { ProductDetailComplementaCompra } from '@/components/product-detail/product-detail-complementa-compra';
 import { ProductDetailHeroSpecs } from '@/components/product-detail/product-detail-hero-specs';
-import { ProductDetailHeroTonerSelector } from '@/components/product-detail/product-detail-hero-toner-selector';
+import { resolveTrustWarrantyLabel } from '@/lib/build-product-detail';
+import { ProductDetailHeroTrustStrip } from '@/components/product-detail/product-detail-hero-trust-strip';
 import { ProductDetailPreparationTypeSelector } from '@/components/product-detail/product-detail-preparation-type-selector';
-import { ProductConditionBadge } from '@/components/product/product-condition-badge';
-import { ProductQuickViewFeaturePills } from '@/components/product/product-quick-view-feature-pills';
+import type { PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
+import type { ConfigureHeroAccessoryCard, ConfigureHeroWarrantyUpgrade } from '@/lib/product-configure-hero-options';
+import { HERO_WARRANTY_BASE_OPTION_ID } from '@/lib/product-configure-hero-options';
+import { ProductDetailMaintenanceSupplyPlans } from '@/components/product-detail/product-detail-maintenance-supply-plans';
 import type { ConfigureTonerCard } from '@/lib/product-configure-toner';
-import {
-  resolveProductEquipmentConditionLabel,
-  resolveProductHeroBrand,
-  resolveProductStockAvailability,
-} from '@/lib/product-hero-meta';
-import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
-import { cn } from '@/lib/utils';
-import type { ProductDetailViewModel } from '@/types/product-detail';
+import type { EquipmentSelectionState } from '@/lib/equipment-config-selection';
+import type { ConsumableGroup } from '@/lib/product-equipment-consumables';
+import type { MaintenanceSupplyPlanSelection } from '@/lib/maintenance-supply-plan-calculator';
 import type { Product } from '@/types/product';
+import { resolveProductHeroBrand } from '@/lib/product-hero-meta';
+import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
+import type { ProductDetailViewModel } from '@/types/product-detail';
+import type { FeaturedProduct } from '@/data/featured-products';
 
 interface ProductDetailHeroInfoProps {
   product: Product;
   detail: ProductDetailViewModel;
+  featuredMeta?: Pick<FeaturedProduct, 'rating' | 'reviews' | 'isNew'> | undefined;
   tonerCards?: ConfigureTonerCard[];
   selectedTonerOptionIds?: Set<string>;
   onTonerToggle?: (card: ConfigureTonerCard) => void;
+  accessoryCards?: ConfigureHeroAccessoryCard[];
+  equipmentSelection?: EquipmentSelectionState;
+  onAccessoryToggle?: (card: ConfigureHeroAccessoryCard) => void;
+  warrantyBaseLabel?: string;
+  warrantyUpgrades?: ConfigureHeroWarrantyUpgrade[];
+  selectedWarrantyOptionId?: string;
+  onWarrantySelect?: (optionId: string) => void;
   showPreparationTypeSelector?: boolean;
   preparationType?: SeminuevaPreparationType;
   onPreparationTypeChange?: (value: SeminuevaPreparationType) => void;
   afterTonerSlot?: ReactNode;
+  purchaseMode?: PurchaseMode;
+  showMaintenanceSupplyPlans?: boolean;
+  maintenanceSupplyPlan?: MaintenanceSupplyPlanSelection;
+  onMaintenanceSupplyPlanChange?: (selection: MaintenanceSupplyPlanSelection) => void;
+  tonerCatalog?: Product[];
+  consumableGroups?: ConsumableGroup[];
+}
+
+function resolveBestSellerBadge(
+  detail: ProductDetailViewModel,
+  featuredMeta?: Pick<FeaturedProduct, 'rating' | 'reviews' | 'isNew'>,
+): boolean {
+  if (featuredMeta?.reviews && featuredMeta.reviews > 0) return true;
+  if (detail.reviews >= 2) return true;
+  if (detail.rating >= 4.5 && detail.reviews > 0) return true;
+  return false;
 }
 
 export function ProductDetailHeroInfo({
   product,
   detail,
+  featuredMeta,
   tonerCards = [],
   selectedTonerOptionIds,
   onTonerToggle,
+  accessoryCards = [],
+  equipmentSelection,
+  onAccessoryToggle,
+  warrantyBaseLabel,
+  warrantyUpgrades = [],
+  selectedWarrantyOptionId = HERO_WARRANTY_BASE_OPTION_ID,
+  onWarrantySelect,
   showPreparationTypeSelector = false,
-  preparationType = 'acondicionada',
+  preparationType = 'acondicionado',
   onPreparationTypeChange,
   afterTonerSlot,
+  purchaseMode = 'buy',
+  showMaintenanceSupplyPlans = false,
+  maintenanceSupplyPlan,
+  onMaintenanceSupplyPlanChange,
+  tonerCatalog = [],
+  consumableGroups = [],
 }: ProductDetailHeroInfoProps) {
-  const outOfStock = isProductOutOfStock(product);
   const brandLabel = resolveProductHeroBrand(product) ?? detail.brandLabel;
-  const stockAvailability = resolveProductStockAvailability(product, outOfStock);
-  const conditionLabel = resolveProductEquipmentConditionLabel(product);
   const displayRating = Number(detail.rating.toFixed(1));
   const fullStars = Math.min(5, Math.max(0, Math.round(displayRating)));
+  const reviewCount = featuredMeta?.reviews ?? detail.reviews;
+  const showBestSeller = resolveBestSellerBadge(detail, featuredMeta);
+  const skuLabel = detail.sku?.trim() || product.code?.trim();
+  const showBuyHeroOptions = purchaseMode !== 'rent';
+
+  const hasTonerSection = tonerCards.length > 0;
+  const hasAccessorySection = accessoryCards.length > 0;
+  const hasWarrantySection = warrantyUpgrades.length > 0 && onWarrantySelect != null;
+  const hasComplementaItems = hasTonerSection || hasAccessorySection || hasWarrantySection;
+  const showComplementaCompra =
+    showBuyHeroOptions &&
+    hasComplementaItems &&
+    equipmentSelection != null &&
+    (!hasTonerSection || (selectedTonerOptionIds != null && onTonerToggle != null)) &&
+    (!hasAccessorySection || onAccessoryToggle != null);
+
+  const preparationSelector =
+    showBuyHeroOptions && showPreparationTypeSelector && onPreparationTypeChange ? (
+      <ProductDetailPreparationTypeSelector
+        product={product}
+        value={preparationType}
+        onChange={onPreparationTypeChange}
+        className="mb-2"
+      />
+    ) : null;
 
   return (
     <div className="flex min-w-0 flex-col">
-      {brandLabel ? (
-        <p className="text-xs font-bold uppercase tracking-wider text-primary sm:text-sm">
-          {brandLabel}
-        </p>
-      ) : null}
-
-      <div className="mt-1 flex items-start justify-between gap-3">
-        <h1 className="min-w-0 flex-1 text-pretty text-xl font-bold leading-snug text-[#0f1f3d] sm:text-2xl lg:text-[1.65rem] lg:leading-tight">
-          {detail.heroTitle ?? product.name}
-        </h1>
-        {conditionLabel ? (
-          <ProductConditionBadge label={conditionLabel} size="overlay" className="mt-0.5 shrink-0" />
-        ) : null}
-      </div>
-
-      <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-        <div
-          className="flex min-w-0 items-center gap-1.5"
-          aria-label={`Valoración ${displayRating} de 5, ${detail.reviews} opiniones`}
-        >
-          <div className="flex shrink-0 gap-0.5" aria-hidden="true">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Star
-                key={index}
-                className={cn(
-                  'size-3.5 sm:size-4',
-                  index < fullStars
-                    ? 'fill-amber-400 text-amber-400'
-                    : 'fill-neutral-200 text-neutral-200',
-                )}
-              />
-            ))}
-          </div>
-          <span className="text-xs text-muted-foreground sm:text-sm">
-            {displayRating.toFixed(1)} ({detail.reviews} opiniones)
+      <div className="flex flex-wrap items-center gap-2.5">
+        {showBestSeller ? (
+          <span className="inline-flex rounded-md bg-orange-500 px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-white">
+            Más vendido
           </span>
-        </div>
-      </div>
+        ) : null}
 
-      <div className="mt-2">
-        <span
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
-            stockAvailability.tone === 'unavailable' && ON_REQUEST_STOCK_BADGE_CLASS,
-            stockAvailability.tone === 'low' && 'bg-amber-50 text-amber-800',
-            stockAvailability.tone === 'available' && 'bg-emerald-50 text-emerald-700',
-          )}
-        >
-          {stockAvailability.tone === 'available' ? (
-            <span className="size-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
+        <p className="text-[0.6875rem] text-neutral-500 sm:text-xs">
+          {skuLabel ? (
+            <>
+              <span className="font-semibold text-neutral-600">CODIGO:</span> {skuLabel}
+            </>
           ) : null}
-          {stockAvailability.label}
-        </span>
+          {skuLabel && brandLabel ? <span className="mx-2 text-neutral-300">|</span> : null}
+          {brandLabel ? (
+            <>
+              <span className="font-semibold text-neutral-600">MARCA:</span> {brandLabel}
+            </>
+          ) : null}
+        </p>
       </div>
 
-      {detail.specPills.length > 0 ? (
-        <ProductQuickViewFeaturePills items={detail.specPills} className="mt-3 w-full" />
+      {reviewCount > 0 ? (
+        <div className="mt-2.5 flex min-w-0 flex-wrap items-center gap-2">
+          <div
+            className="flex min-w-0 items-center gap-1.5"
+            aria-label={`Valoración ${displayRating} de 5, ${reviewCount} valoraciones`}
+          >
+            <div className="flex shrink-0 gap-0.5" aria-hidden="true">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Star
+                  key={index}
+                  className={
+                    index < fullStars
+                      ? 'size-4 fill-amber-400 text-amber-400'
+                      : 'size-4 fill-neutral-200 text-neutral-200'
+                  }
+                />
+              ))}
+            </div>
+            <span className="text-sm text-blue-600">
+              ({reviewCount} valoraciones de clientes)
+            </span>
+          </div>
+        </div>
       ) : null}
 
-      <ProductDetailHeroSpecs bullets={detail.heroSpecBullets} pills={[]} />
+      <h1 className="mt-2.5 text-pretty text-lg font-bold leading-snug text-[#0f1f3d] sm:text-xl lg:text-2xl">
+        {detail.heroTitle ?? product.name}
+      </h1>
 
-      {detail.heroLead ? (
-        <p className="mt-3 text-sm font-semibold leading-snug text-[#0f1f3d] sm:text-base">
-          {detail.heroLead}
-        </p>
+      <ProductDetailHeroSpecs bullets={detail.heroSpecBullets} className="mt-3" />
+
+      <ProductDetailHeroTrustStrip
+        warrantyLabel={resolveTrustWarrantyLabel(warrantyBaseLabel)}
+        giftSubtitle={detail.giftTrustSubtitle}
+        className="mt-3"
+      />
+
+      {showComplementaCompra ? (
+        <ProductDetailComplementaCompra
+          tonerCards={tonerCards}
+          accessoryCards={accessoryCards}
+          selectedTonerOptionIds={selectedTonerOptionIds ?? new Set<string>()}
+          equipmentSelection={equipmentSelection}
+          onTonerToggle={onTonerToggle ?? (() => undefined)}
+          onAccessoryToggle={onAccessoryToggle ?? (() => undefined)}
+          {...(warrantyBaseLabel ? { warrantyBaseLabel } : {})}
+          warrantyUpgrades={warrantyUpgrades}
+          selectedWarrantyOptionId={selectedWarrantyOptionId}
+          {...(onWarrantySelect ? { onWarrantySelect } : {})}
+          beforeTonerSlot={hasTonerSection ? preparationSelector : undefined}
+          leadingSlot={!hasTonerSection ? preparationSelector : undefined}
+          className="mt-3"
+        />
+      ) : preparationSelector ? (
+        <div className="mt-3">{preparationSelector}</div>
       ) : null}
 
-      {detail.heroDescription && !detail.isSupplyProduct ? (
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {detail.heroDescription}
-        </p>
-      ) : null}
-
-      {showPreparationTypeSelector && onPreparationTypeChange ? (
-        <ProductDetailPreparationTypeSelector
-          product={product}
-          value={preparationType}
-          onChange={onPreparationTypeChange}
+      {showBuyHeroOptions &&
+      showMaintenanceSupplyPlans &&
+      maintenanceSupplyPlan &&
+      onMaintenanceSupplyPlanChange ? (
+        <ProductDetailMaintenanceSupplyPlans
+          tonerCards={tonerCards}
+          catalog={tonerCatalog}
+          consumableGroups={consumableGroups}
+          selection={maintenanceSupplyPlan}
+          onSelectionChange={onMaintenanceSupplyPlanChange}
+          className="mt-3"
         />
       ) : null}
 
-      {(() => {
-        const showTonerSelector =
-          tonerCards.length > 0 && selectedTonerOptionIds != null && onTonerToggle != null;
-        const showTonerOriginalRicoh =
-          detail.isPrinterEquipment && /ricoh/i.test(brandLabel ?? detail.brandLabel);
-
-        if (!showTonerSelector && !showTonerOriginalRicoh) return null;
-
-        return showTonerSelector ? (
-          <ProductDetailHeroTonerSelector
-            cards={tonerCards}
-            selectedOptionIds={selectedTonerOptionIds}
-            onToggle={onTonerToggle}
-            className="mt-4"
-          />
-        ) : (
-          <p className="mt-4 text-sm font-semibold leading-snug text-[#0f1f3d]">Toner Original RICOH</p>
-        );
-      })()}
-
-      {afterTonerSlot}
+      {showBuyHeroOptions ? afterTonerSlot : null}
     </div>
   );
 }

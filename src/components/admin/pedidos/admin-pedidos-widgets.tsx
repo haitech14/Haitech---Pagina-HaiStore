@@ -38,10 +38,10 @@ function WidgetCard({
 }) {
   return (
     <section
-      className={cn('rounded-xl border border-border/60 bg-card p-5 shadow-sm', className)}
+      className={cn('rounded-lg border border-border/60 bg-card p-3 shadow-sm', className)}
     >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <h2 className="text-base font-semibold text-foreground">{title}</h2>
+      <div className="mb-2.5 flex items-start justify-between gap-2">
+        <h2 className="text-xs font-semibold text-foreground">{title}</h2>
         {action}
       </div>
       {children}
@@ -72,7 +72,7 @@ export function AdminPedidosWidgets({ orders, range }: AdminPedidosWidgetsProps)
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <WidgetCard title="Distribución por estado">
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
           <div className="relative mx-auto w-full max-w-[11rem]">
@@ -95,7 +95,7 @@ export function AdminPedidosWidgets({ orders, range }: AdminPedidosWidgetsProps)
               </PieChart>
             </ChartContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-bold text-foreground">{total}</span>
+              <span className="text-lg font-bold text-foreground">{total}</span>
               <span className="text-xs text-muted-foreground">Total</span>
             </div>
           </div>
@@ -122,7 +122,7 @@ export function AdminPedidosWidgets({ orders, range }: AdminPedidosWidgetsProps)
       </WidgetCard>
 
       <WidgetCard title="Estado de pago">
-        <ul className="space-y-4">
+        <ul className="space-y-3">
           {paymentDistribution.map((item) => (
             <li key={item.paymentStatus}>
               <div className="mb-1.5 flex items-center justify-between text-sm">

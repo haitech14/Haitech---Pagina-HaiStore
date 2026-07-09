@@ -1,22 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import type { LucideIcon } from 'lucide-react';
-import { Building2 } from 'lucide-react';
 
 import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
-import { HeaderNavDropdown } from '@/components/layout/header-nav-dropdown';
-import {
-  MAIN_NAV_ICON_CLASS,
-  MAIN_NAV_ICON_COMPACT_CLASS,
-  darkNavLinkClass,
-} from '@/components/layout/main-nav-styles';
+import { CompaniesNavMegaMenu } from '@/components/layout/companies-nav-mega-menu';
+import { ConsumiblesNavMegaMenu } from '@/components/layout/consumibles-nav-mega-menu';
 import { RentalsNavMegaMenu } from '@/components/layout/rentals-nav-mega-menu';
+import { RepuestosNavMegaMenu } from '@/components/layout/repuestos-nav-mega-menu';
 import { ServicesNavMegaMenu } from '@/components/layout/services-nav-mega-menu';
-import { TonerNavMegaMenu } from '@/components/layout/toner-nav-mega-menu';
-import {
-  ABOUT_NAV_SUBMENU,
-  CONTACT_NAV_SUBMENU,
-  SOFTWARE_NAV_SUBMENU,
-} from '@/data/header-nav-submenus';
+import { SoftwareNavMegaMenu } from '@/components/layout/software-nav-mega-menu';
 import { cn } from '@/lib/utils';
 
 export type HeaderMainNavLink = {
@@ -49,37 +39,8 @@ function MockupNavLink({
   );
 }
 
-function HeaderNavIconLink({
-  to,
-  label,
-  icon: Icon,
-  matchActive,
-  linkClassName = darkNavLinkClass,
-  iconClassName = MAIN_NAV_ICON_CLASS,
-  showIcon = true,
-}: {
-  to: string;
-  label: string;
-  icon: LucideIcon;
-  matchActive?: (location: { pathname: string; search: string; hash: string }) => boolean;
-  linkClassName?: (isActive: boolean) => string;
-  iconClassName?: string;
-  showIcon?: boolean;
-}) {
-  const location = useLocation();
-  const isActive = matchActive ? matchActive(location) : false;
-
-  return (
-    <NavLink to={to} className={linkClassName(isActive)}>
-      {showIcon ? <Icon className={iconClassName} strokeWidth={1.75} aria-hidden="true" /> : null}
-      {label}
-    </NavLink>
-  );
-}
-
 /** Enlaces principales del mockup. */
 export function HeaderMainMenu({
-  linkClassName,
   className,
   menuVariant = 'default',
   menuDensity = 'default',
@@ -99,10 +60,6 @@ export function HeaderMainMenu({
         : menuVariant === 'secondary'
           ? 'secondary'
           : 'default';
-  const iconClassName =
-    menuVariant === 'light' && menuDensity === 'compact'
-      ? MAIN_NAV_ICON_COMPACT_CLASS
-      : MAIN_NAV_ICON_CLASS;
 
   return (
     <ul
@@ -113,33 +70,25 @@ export function HeaderMainMenu({
       )}
     >
       <li className="shrink-0">
-        <CategoriesMegaMenu triggerVariant="nav" navRow={dropdownVariant} showIcon={showIcons} />
-      </li>
-      <li className="shrink-0">
-        <ServicesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
+        <CategoriesMegaMenu navRow={dropdownVariant} showIcon={showIcons} triggerVariant="nav" />
       </li>
       <li className="shrink-0">
         <RentalsNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
       <li className="shrink-0">
-        <TonerNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
+        <ConsumiblesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
       <li className="shrink-0">
-        <HeaderNavDropdown config={SOFTWARE_NAV_SUBMENU} navRow={dropdownVariant} showIcon={showIcons} />
+        <RepuestosNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
       <li className="shrink-0">
-        <HeaderNavIconLink
-          to="/#clientes"
-          label="Nosotros"
-          icon={Building2}
-          matchActive={ABOUT_NAV_SUBMENU.matchActive}
-          linkClassName={linkClassName}
-          iconClassName={iconClassName}
-          showIcon={showIcons}
-        />
+        <ServicesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
       <li className="shrink-0">
-        <HeaderNavDropdown config={CONTACT_NAV_SUBMENU} navRow={dropdownVariant} showIcon={showIcons} />
+        <CompaniesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
+      </li>
+      <li className="shrink-0">
+        <SoftwareNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
     </ul>
   );

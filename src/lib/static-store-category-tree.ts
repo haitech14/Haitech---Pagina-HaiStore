@@ -134,6 +134,35 @@ const EQUIPMENT_SUBCATEGORIES: Record<
       ],
     },
   ],
+  escaneres: [
+    {
+      slug: 'escaneres-nuevos',
+      name: 'Escáneres Nuevos',
+      inventoryLabels: ['Escáneres Nuevos', 'Escáneres, Escáneres Nuevos'],
+    },
+  ],
+  'equipos-de-oficina': [
+    {
+      slug: 'espiraladoras',
+      name: 'Espiraladoras',
+      inventoryLabels: ['Espiraladoras', 'Espiraladora', 'Equipos de Oficina, Espiraladoras'],
+    },
+    {
+      slug: 'anilladoras',
+      name: 'Anilladoras',
+      inventoryLabels: ['Anilladoras', 'Anilladora', 'Equipos de Oficina, Anilladoras'],
+    },
+    {
+      slug: 'enmicadoras',
+      name: 'Enmicadoras',
+      inventoryLabels: ['Enmicadoras', 'Enmicadora', 'Equipos de Oficina, Enmicadora'],
+    },
+    {
+      slug: 'guillotinas',
+      name: 'Guillotinas',
+      inventoryLabels: ['Guillotinas', 'Guillotina', 'Equipos de Oficina, Guillotina'],
+    },
+  ],
 };
 
 function countProductsForLabels(labels: readonly string[]): number {
@@ -157,6 +186,26 @@ function buildSubcategoryNodes(
     productCount: countProductsForLabels(entry.inventoryLabels),
     children: [],
   }));
+}
+
+/** Inyecta subcategorías de equipos cuando el snapshot/API no trae hijos. */
+export function enrichStoreCategoryTree(tree: StoreCategoryTreeNode[]): StoreCategoryTreeNode[] {
+  function enrichNode(node: StoreCategoryTreeNode): StoreCategoryTreeNode {
+    const children = node.children ?? [];
+    const staticSubEntries = EQUIPMENT_SUBCATEGORIES[node.slug] ?? [];
+
+    return {
+      ...node,
+      children:
+        children.length > 0
+          ? children.map(enrichNode)
+          : staticSubEntries.length > 0
+            ? buildSubcategoryNodes(node.id, staticSubEntries)
+            : children,
+    };
+  }
+
+  return tree.map(enrichNode);
 }
 
 /** Árbol mínimo embebido cuando la API de categorías no responde. */

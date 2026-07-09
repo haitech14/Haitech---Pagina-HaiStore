@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { AdminModuleLayout } from '@/components/admin/admin-module-layout';
+import { AdminServiciosDashboard } from '@/components/admin/servicios/admin-servicios-dashboard';
 import { AppearancePanel } from '@/components/admin/appearance-panel';
 import { RentalPlansPanel } from '@/components/admin/rentals/rental-plans-panel';
 import { RentalRequestsPanel } from '@/components/admin/rentals/rental-requests-panel';
-import { ServicesPanel } from '@/components/admin/services/services-panel';
+import {
+  parseServicesTab,
+  ServicesPanel,
+} from '@/components/admin/services/services-panel';
 import { ShippingPanel } from '@/components/admin/shipping/shipping-panel';
 import { TpvPanel } from '@/components/admin/tpv/tpv-panel';
 import { cn } from '@/lib/utils';
@@ -23,14 +28,21 @@ export function AdminTpvPage() {
 }
 
 export function AdminServiciosPage() {
-  return (
-    <AdminModuleLayout
-      title="Servicios"
-      description="Solicitudes de servicio técnico, categorías y lista de precios (sincronizado con HaiSupport)."
-    >
-      <ServicesPanel />
-    </AdminModuleLayout>
-  );
+  const [searchParams] = useSearchParams();
+  const tab = parseServicesTab(searchParams);
+
+  if (tab === 'categorias' || tab === 'precios') {
+    return (
+      <AdminModuleLayout
+        title={tab === 'categorias' ? 'Categorías de servicio' : 'Lista de precios'}
+        description="Taxonomía y tarifas del catálogo de servicios (sincronizado con HaiSupport)."
+      >
+        <ServicesPanel />
+      </AdminModuleLayout>
+    );
+  }
+
+  return <AdminServiciosDashboard />;
 }
 
 export function AdminAlquileresPage() {

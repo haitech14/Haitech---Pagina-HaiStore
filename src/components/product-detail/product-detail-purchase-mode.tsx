@@ -1,4 +1,4 @@
-import { CalendarClock, ShoppingBag, Wrench } from 'lucide-react';
+import { CalendarClock, ShoppingCart, Wrench } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -16,7 +16,7 @@ function PurchaseModeCard({
   selected: boolean;
   title: string;
   subtitle: string;
-  icon: typeof ShoppingBag;
+  icon: typeof ShoppingCart;
   onSelect: () => void;
 }) {
   return (
@@ -26,25 +26,31 @@ function PurchaseModeCard({
       aria-checked={selected}
       onClick={onSelect}
       className={cn(
-        'flex min-h-[3.25rem] w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-all sm:min-h-[3.5rem] sm:px-2.5',
+        'flex min-h-[3.25rem] w-full items-center gap-2 rounded-lg border-2 px-2.5 py-2 text-left transition-all',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1',
         selected
-          ? 'bg-background text-foreground shadow-sm ring-1 ring-red-600/25'
-          : 'bg-transparent text-foreground hover:bg-background/60',
+          ? 'border-red-600 bg-white'
+          : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300',
       )}
     >
-      <span
+      <Icon
         className={cn(
-          'flex size-7 shrink-0 items-center justify-center rounded-md transition-colors sm:size-8',
-          selected ? 'bg-red-600 text-white' : 'bg-muted/80 text-muted-foreground',
+          'size-5 shrink-0',
+          selected ? 'text-red-600' : 'text-neutral-600',
         )}
+        strokeWidth={2}
         aria-hidden="true"
-      >
-        <Icon className="size-3.5 sm:size-4" strokeWidth={2.25} />
-      </span>
+      />
       <span className="min-w-0 flex-1 leading-tight">
-        <span className="block text-xs font-semibold text-balance sm:text-sm">{title}</span>
-        <span className="mt-0.5 block text-[0.6875rem] leading-snug text-muted-foreground">
+        <span
+          className={cn(
+            'block text-xs font-bold',
+            selected ? 'text-red-600' : 'text-neutral-900',
+          )}
+        >
+          {title}
+        </span>
+        <span className="mt-0.5 block text-[0.6875rem] leading-snug text-neutral-500">
           {subtitle}
         </span>
       </span>
@@ -97,20 +103,20 @@ export function ProductDetailPurchaseMode({
   const SecondaryIcon = hasRentalPlans || showRentalTab ? CalendarClock : Wrench;
 
   return (
-    <fieldset className={cn('space-y-1.5 border-0 p-0', className)}>
-      <legend id={legendId} className="text-xs font-semibold text-foreground sm:text-sm">
+    <fieldset className={cn('border-0 p-0', className)}>
+      <legend id={legendId} className="sr-only">
         Elige cómo llevarlo
       </legend>
       <div
         role="radiogroup"
         aria-labelledby={legendId}
-        className="grid grid-cols-2 items-stretch gap-1 rounded-lg border border-border/70 bg-muted/25 p-0.5 sm:rounded-xl sm:p-1"
+        className="grid grid-cols-2 items-stretch gap-2"
       >
         <PurchaseModeCard
           selected={purchaseMode === 'buy'}
           title="Comprar"
           subtitle="Pago único"
-          icon={ShoppingBag}
+          icon={ShoppingCart}
           onSelect={() => onPurchaseModeChange('buy')}
         />
         <PurchaseModeCard

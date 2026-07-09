@@ -560,7 +560,7 @@ export function ProductDetailCombo({
           disabled={selectedCount === 0}
         >
           <ShoppingCart className={cn(isMiniLayout ? 'size-3' : 'size-3.5')} strokeWidth={1.5} aria-hidden="true" />
-          Agregar al carrito
+          Comprar
         </Button>
       </div>
     </section>

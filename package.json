@@ -21,6 +21,7 @@
     "server": "node --watch server/index.js",
     "dev:all": "node scripts/print-dev-urls.mjs && concurrently -n web,api -c cyan,magenta \"vite\" \"npm run server\"",
     "sync:supabase": "node scripts/sync-supabase.mjs",
+    "sync:inventory-catalog": "node scripts/sync-inventory-from-catalog.mjs",
     "generate:home-bundle": "node scripts/generate-home-bundle-snapshot.mjs",
     "generate:inventory-index": "node scripts/generate-inventory-index-snapshot.mjs",
     "generate:store-categories-tree": "node scripts/generate-store-categories-tree-snapshot.mjs",
@@ -38,6 +39,7 @@
     "import:persona-customers": "node scripts/import-persona-customers.mjs",
     "import:ventas-reports": "node scripts/import-ventas-reports.mjs",
     "haisales:sync": "node scripts/haisales-sync-seeds.mjs",
+    "integrations:sync-all": "node scripts/integrations-sync-all.mjs",
     "import:toner": "node scripts/import-toner-products.mjs",
     "import:ricoh-toner-408211": "node scripts/import-ricoh-toner-408211.mjs",
     "import:ricoh-toner-408212": "node scripts/import-ricoh-toner-408212.mjs",
@@ -117,7 +119,12 @@
     "db:migrate:015": "node scripts/apply-supabase-migration.mjs supabase/migrations/015_products_slug.sql",
     "populate:product-slugs": "node scripts/populate-product-slugs.mjs",
     "db:migrate:011": "node scripts/apply-supabase-migration.mjs supabase/migrations/011_imported_sale_documents.sql",
-    "db:migrate:009": "node scripts/apply-supabase-migration.mjs supabase/migrations/009_store_customers_persona.sql"
+    "db:migrate:003": "node scripts/apply-supabase-migration.mjs supabase/migrations/003_store_customers_orders.sql",
+    "db:migrate:008": "node scripts/apply-supabase-migration.mjs supabase/migrations/008_haisupport_sync_entities.sql",
+    "db:migrate:017": "node scripts/apply-supabase-migration.mjs supabase/migrations/017_store_service_catalog.sql",
+    "db:migrate:009": "node scripts/apply-supabase-migration.mjs supabase/migrations/009_store_customers_persona.sql",
+    "db:migrate:010": "node scripts/apply-supabase-migration.mjs supabase/migrations/010_store_customers_productos_interes.sql",
+    "db:migrate:customers": "npm run db:migrate:003 && npm run db:migrate:008 && npm run db:migrate:009 && npm run db:migrate:010"
   },
   "engines": {
     "node": ">=18"

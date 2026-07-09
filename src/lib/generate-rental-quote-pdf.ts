@@ -1,10 +1,21 @@
+import type { EquipmentRentalEstimate } from '@/components/product-detail/product-detail-rental-configurator';
 import type { CompanySettings } from '@/types/company-settings';
 
 import {
+  RENTAL_BW_VARIABLE_COPY_COST_PEN,
+  RENTAL_COLOR_BLACK_VARIABLE_COPY_COST_PEN,
+  RENTAL_COLOR_VARIABLE_COPY_COST_PEN,
+  RENTAL_EQUIPMENT_GUILLOTINE_MONTHLY_PEN,
+  RENTAL_EQUIPMENT_LAMINATOR_MONTHLY_PEN,
+  RENTAL_EQUIPMENT_LAPTOP_MONTHLY_PEN,
+  RENTAL_EQUIPMENT_OPERATOR_MONTHLY_PEN,
+  RENTAL_EQUIPMENT_RESIDENT_TECH_MONTHLY_PEN,
+  RENTAL_EQUIPMENT_SPIRAL_BINDER_MONTHLY_PEN,
   RENTAL_EXCESS_COPY_COST_PEN,
   RENTAL_OPERATOR_MONTHLY_PEN,
   RENTAL_PAPER_SURCHARGE_PEN,
   RENTAL_TERM_RENEWAL_NOTE,
+  formatPen,
   type RentalCalculatorBreakdown,
 } from '@/lib/rental-calculator';
 import {
@@ -19,6 +30,161 @@ export interface RentalQuoteProduct {
   sku: string;
   brand: string;
   imageUrl?: string | null;
+}
+
+const EQUIPMENT_RENTAL_EXTRA_LABELS: Record<keyof EquipmentRentalEstimate['extraServices'], string> = {
+  paper: 'Suministro de papel',
+  operator: 'Operador dedicado',
+  laptop: 'Laptop',
+  laminator: 'Enmicadora',
+  guillotine: 'Guillotina',
+  residentTech: 'Técnico residente',
+  spiralBinder: 'Espiraladora/Anilladora',
+};
+
+const EQUIPMENT_RENTAL_EXTRA_MONTHLY_FEES: Partial<
+  Record<keyof EquipmentRentalEstimate['extraServices'], number>
+> = {
+  operator: RENTAL_EQUIPMENT_OPERATOR_MONTHLY_PEN,
+  laptop: RENTAL_EQUIPMENT_LAPTOP_MONTHLY_PEN,
+  laminator: RENTAL_EQUIPMENT_LAMINATOR_MONTHLY_PEN,
+  guillotine: RENTAL_EQUIPMENT_GUILLOTINE_MONTHLY_PEN,
+  residentTech: RENTAL_EQUIPMENT_RESIDENT_TECH_MONTHLY_PEN,
+  spiralBinder: RENTAL_EQUIPMENT_SPIRAL_BINDER_MONTHLY_PEN,
+};
+
+function resolveEquipmentRentalExtraServiceLabels(
+  extraServices: EquipmentRentalEstimate['extraServices'],
+): string[] {
+  return (Object.keys(EQUIPMENT_RENTAL_EXTRA_LABELS) as Array<keyof typeof EQUIPMENT_RENTAL_EXTRA_LABELS>)
+    .filter((key) => extraServices[key])
+    .map((key) => EQUIPMENT_RENTAL_EXTRA_LABELS[key]);
+}
+
+function formatEquipmentRentalVariableFormula(estimate: EquipmentRentalEstimate): string {
+  const pages = estimate.billablePages.toLocaleString('es-PE');
+  const paperNote =
+    estimate.paperSurchargeMonthlyPen > 0
+      ? ` + S/ ${RENTAL_PAPER_SURCHARGE_PEN} papel × ${pages} impresiones`
+      : '';
+  if (estimate.isColorEquipment) {
+    const excess =
+      estimate.excessFeeMonthlyPen > 0
+        ? ` (excedentes S/ ${formatPen(estimate.excessFeeMonthlyPen)})`
+        : '';
+    return `S/ ${RENTAL_COLOR_BLACK_VARIABLE_COPY_COST_PEN} negro + S/ ${RENTAL_COLOR_VARIABLE_COPY_COST_PEN} color × ${pages} impresiones${excess}${paperNote}`;
+  }
+
+  const excess =
+    estimate.excessFeeMonthlyPen > 0
+      ? ` (excedentes S/ ${formatPen(estimate.excessFeeMonthlyPen)})`
+      : '';
+  return `S/ ${RENTAL_BW_VARIABLE_COPY_COST_PEN} × ${pages} impresiones${excess}${paperNote}`;
+}
+
+export function buildEquipmentRentalQuoteSummaryNotes(estimate: EquipmentRentalEstimate): string[] {
+  const extraLabels = resolveEquipmentRentalExtraServiceLabels(estimate.extraServices);
+
+  return [
+    'CONFIGURACIÓN DE ALQUILER DE EQUIPO',
+    `Impresiones/mes: ${estimate.monthlyPages.toLocaleString('es-PE')}`,
+    `Cantidad de equipos: ${estimate.equipmentQuantity}`,
+    `Plazo de contrato: ${estimate.termMonths} meses`,
+    extraLabels.length > 0
+      ? `Servicios adicionales: ${extraLabels.join(', ')}`
+      : 'Servicios adicionales: Ninguno',
+    '',
+    'RESUMEN ESTIMADO MENSUAL',
+    `Cuota fija mensual: S/ ${formatPen(estimate.fixedFeeMonthlyPen)} — Valor del equipo + 20% (×1,2) ÷ ${estimate.termMonths} meses${estimate.laptopFeeMonthlyPen > 0 ? ` + laptop S/ ${formatPen(estimate.laptopFeeMonthlyPen)}` : ''}`,
+    `Cuota variable mensual: S/ ${formatPen(estimate.variableFeeMonthlyPen)} — ${formatEquipmentRentalVariableFormula(estimate)}`,
+    estimate.extraServicesMonthlyPen > 0
+      ? `Servicios adicionales mensuales: S/ ${formatPen(estimate.extraServicesMonthlyPen)}`
+      : null,
+    `Total mensual: S/ ${formatPen(estimate.estimatedMonthlyPen)} — Desglose: cuota variable S/ ${formatPen(estimate.variableFeeMonthlyPen)} + cuota fija S/ ${formatPen(estimate.fixedFeeMonthlyPen)}${estimate.extraServicesMonthlyPen > 0 ? ` + servicios adicionales S/ ${formatPen(estimate.extraServicesMonthlyPen)}` : ''}`,
+    RENTAL_TERM_RENEWAL_NOTE,
+  ].filter((line): line is string => line != null);
+}
+
+export function buildEquipmentRentalQuoteLines(
+  estimate: EquipmentRentalEstimate,
+  product: RentalQuoteProduct,
+): QuoteProductData[] {
+  const term = estimate.termMonths;
+  const equipmentLabel =
+    estimate.equipmentQuantity > 1
+      ? `${estimate.equipmentQuantity} equipos`
+      : '1 equipo';
+
+  const equipmentOnlyFixedPen =
+    Math.round((estimate.fixedFeeMonthlyPen - estimate.laptopFeeMonthlyPen) * 100) / 100;
+  const copyVariablePen =
+    Math.round((estimate.variableFeeMonthlyPen - estimate.paperSurchargeMonthlyPen) * 100) / 100;
+
+  const lines: QuoteProductData[] = [
+    {
+      name: `Alquiler de equipo — ${product.name} · cuota fija mensual (${term} meses · ${equipmentLabel})`,
+      sku: product.sku,
+      brand: product.brand,
+      pricePen: equipmentOnlyFixedPen,
+      quantity: 1,
+      ...(product.imageUrl != null ? { imageUrl: product.imageUrl } : {}),
+    },
+    {
+      name: `Cuota variable mensual · ${estimate.billablePages.toLocaleString('es-PE')} impresiones/mes`,
+      sku: 'VAR-MES',
+      brand: 'Alquiler',
+      pricePen: copyVariablePen,
+      quantity: 1,
+    },
+  ];
+
+  if (estimate.extraServices.laptop && estimate.laptopFeeMonthlyPen > 0) {
+    lines.push({
+      name: `${EQUIPMENT_RENTAL_EXTRA_LABELS.laptop} — cuota fija mensual`,
+      sku: 'EXTRA-LAPTOP',
+      brand: 'Alquiler',
+      pricePen: estimate.laptopFeeMonthlyPen,
+      quantity: 1,
+    });
+  }
+
+  if (estimate.extraServices.paper && estimate.paperSurchargeMonthlyPen > 0) {
+    lines.push({
+      name: `Suministro de papel (${estimate.billablePages.toLocaleString('es-PE')} × S/ ${RENTAL_PAPER_SURCHARGE_PEN.toFixed(2)})`,
+      sku: 'PAPEL-ALQ',
+      brand: 'Alquiler',
+      pricePen: estimate.paperSurchargeMonthlyPen,
+      quantity: 1,
+    });
+  }
+
+  (
+    ['operator', 'laminator', 'guillotine', 'residentTech', 'spiralBinder'] as const
+  ).forEach((key) => {
+    if (!estimate.extraServices[key]) return;
+    const monthlyPen = EQUIPMENT_RENTAL_EXTRA_MONTHLY_FEES[key];
+    if (monthlyPen == null) return;
+    lines.push({
+      name: `${EQUIPMENT_RENTAL_EXTRA_LABELS[key]} — cuota mensual`,
+      sku: `EXTRA-${key.toUpperCase()}`,
+      brand: 'Alquiler',
+      pricePen: monthlyPen,
+      quantity: 1,
+    });
+  });
+
+  return lines;
+}
+
+export async function buildEquipmentRentalQuotePdf(
+  client: QuoteClientData,
+  estimate: EquipmentRentalEstimate,
+  product: RentalQuoteProduct,
+  company: CompanySettings,
+): Promise<GeneratedQuotePdf> {
+  const lines = buildEquipmentRentalQuoteLines(estimate, product);
+  const summaryNotes = buildEquipmentRentalQuoteSummaryNotes(estimate);
+  return buildProductQuotePdf(client, lines, company, { summaryNotes });
 }
 
 export function buildRentalQuoteLines(

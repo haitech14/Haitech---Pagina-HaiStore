@@ -157,7 +157,7 @@ function resolveTonerProductImageCandidates(
 
   push(itemImage);
   if (product) {
-    for (const url of buildProductImageCandidates(product, { stockFallback: true })) {
+    for (const url of buildProductImageCandidates(product)) {
       push(url);
     }
   }

@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   Cloud,
   Copy,
+  Droplets,
   FileText,
   Gauge,
   Gift,
@@ -20,6 +21,9 @@ import type {
 import type { Product } from '@/types/product';
 import type { StoredFeatureBarItem, StoredHeroBullet } from '@/types/product-storefront';
 
+export const GIFT_TRUST_TITLE = 'Regalos';
+export const GIFT_TRUST_SUBTITLE = '01 Paquete de Papel y Calendario';
+
 export const STOREFRONT_ICON_KEYS = [
   'Printer',
   'Gauge',
@@ -32,6 +36,7 @@ export const STOREFRONT_ICON_KEYS = [
   'Gift',
   'Layers',
   'Network',
+  'Droplets',
 ] as const;
 
 export type StorefrontIconKey = (typeof STOREFRONT_ICON_KEYS)[number];
@@ -48,6 +53,7 @@ export const STOREFRONT_ICON_LABELS: Record<StorefrontIconKey, string> = {
   Gift: 'Regalo',
   Layers: 'Capas / volumen',
   Network: 'Red',
+  Droplets: 'Tóner / tinta',
 };
 
 const ICON_MAP: Record<StorefrontIconKey, LucideIcon> = {
@@ -62,6 +68,7 @@ const ICON_MAP: Record<StorefrontIconKey, LucideIcon> = {
   Gift,
   Layers,
   Network,
+  Droplets,
 };
 
 export function isStorefrontIconKey(value: string): value is StorefrontIconKey {
@@ -158,7 +165,12 @@ export function highlightsToStoredFeatureBar(
 export function heroBulletsToStored(items: ProductHeroSpecBullet[]): StoredHeroBullet[] {
   const result: StoredHeroBullet[] = [];
   for (const item of items) {
-    const text = item.text?.trim() ?? item.value?.trim() ?? '';
+    let text = item.text?.trim() ?? '';
+    if (!text && item.label?.trim() && item.value?.trim()) {
+      text = `${item.label.trim()}: ${item.value.trim()}`;
+    } else if (!text) {
+      text = item.value?.trim() ?? '';
+    }
     if (!text) continue;
     result.push({
       icon: item.icon ? iconKeyFromLucide(item.icon) : 'Printer',
@@ -198,7 +210,9 @@ export function inferIconForHeroLine(text: string): StorefrontIconKey {
     .normalize('NFD')
     .replace(/\p{M}/gu, '');
 
-  if (/regalo|toner|envio/.test(normalized)) return 'Gift';
+  if (/regalo|envio/.test(normalized)) return 'Gift';
+  if (/rendimiento.*toner|toner.*inicio|rendimiento de toner/.test(normalized)) return 'Droplets';
+  if (/toner|t[oó]ner/.test(normalized)) return 'Droplets';
   if (/conectividad|wi-?fi|wifi|ethernet|usb|red\b|lan\b/.test(normalized)) return 'Wifi';
   if (/spdf|alimentador|doble\s*scan|escane|adf|estandar/.test(normalized)) return 'ScanLine';
   if (/formato|a4|a5|a6|carta|bypass/.test(normalized)) return 'FileText';

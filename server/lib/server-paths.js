@@ -30,6 +30,10 @@ export function getStoreCategoriesPath() {
   return path.join(getServerDataDir(), 'store-categories.json');
 }
 
+export function getStoreBrandsPath() {
+  return path.join(getServerDataDir(), 'store-brands.json');
+}
+
 export function getSupportTicketsPath() {
   return path.join(getServerDataDir(), 'support-tickets.json');
 }

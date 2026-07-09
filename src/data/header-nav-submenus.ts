@@ -1,24 +1,54 @@
-import { AppWindow, Building2, Calendar, Droplets, Mail, type LucideIcon } from 'lucide-react';
+import {
+  AppWindow,
+  Building2,
+  Calendar,
+  Cog,
+  Droplets,
+  Package,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
 
-import { rentalCategories } from '@/data/rental-categories';
 import { SOFTWARE_CATALOG_CATEGORIES } from '@/data/software-catalog';
+import { rentalCategories } from '@/data/rental-categories';
 import {
-  FOOTER_ADDRESS,
-  FOOTER_WHATSAPP_LINK,
-} from '@/data/site-footer';
-import {
-  HEADER_FORUM_PATH,
-  HEADER_SALES_EMAIL_MAILTO,
-  HEADER_SALES_PHONE_TEL,
-} from '@/data/site-header';
-import { categoryLandingPath, categoryPath } from '@/lib/category-path';
-import { serviceHubPath } from '@/lib/service-hub';
+  categoryLandingPath,
+  categoryPath,
+} from '@/lib/category-path';
+import { serviceDetailPathFromLanding, serviceHubPath } from '@/lib/service-hub';
 
-export type HeaderNavSubmenuItem = {
+export type HeaderNavSubmenuHeadingItem = {
+  kind: 'heading';
+  label: string;
+};
+
+export type HeaderNavSubmenuInfoItem = {
+  kind: 'info';
+  label: string;
+  value: string;
+  href?: string;
+  external?: boolean;
+};
+
+export type HeaderNavSubmenuLinkItem = {
+  kind?: 'link';
   label: string;
   href: string;
   external?: boolean;
 };
+
+export type HeaderNavSubmenuItem =
+  | HeaderNavSubmenuHeadingItem
+  | HeaderNavSubmenuInfoItem
+  | HeaderNavSubmenuLinkItem;
+
+export function getHeaderNavSubmenuDefaultHref(items: HeaderNavSubmenuItem[]): string {
+  for (const item of items) {
+    if (item.kind === 'heading' || item.kind === 'info') continue;
+    return item.href;
+  }
+  return '/contacto';
+}
 
 export type HeaderNavSubmenuConfig = {
   id: string;
@@ -28,20 +58,103 @@ export type HeaderNavSubmenuConfig = {
   matchActive: (location: { pathname: string; search: string; hash: string }) => boolean;
 };
 
-const FOOTER_MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(FOOTER_ADDRESS)}`;
-
-export const TONER_NAV_SUBMENU: HeaderNavSubmenuConfig = {
-  id: 'toner-repuestos',
-  label: 'Tóner y Repuestos',
-  icon: Droplets,
+export const PRODUCTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
+  id: 'productos',
+  label: 'Productos',
+  icon: Package,
   matchActive: ({ pathname }) =>
-    pathname.startsWith('/categoria/toner-suministros') ||
-    pathname.startsWith('/categoria/repuestos'),
+    (pathname.startsWith('/categoria') &&
+      !pathname.startsWith('/categoria/software') &&
+      !pathname.startsWith('/categoria/toner-suministros') &&
+      !pathname.startsWith('/categoria/repuestos') &&
+      !pathname.startsWith('/categoria/alquiler')) ||
+    pathname.startsWith('/tienda') ||
+    pathname.startsWith('/producto'),
   items: [
-    { label: 'Tóner y tintas', href: categoryLandingPath('toner-suministros') },
-    { label: 'Tóner compatibles', href: categoryPath('toner-suministros', 'toner-compatibles') },
+    { label: 'Fotocopiadoras', href: categoryLandingPath('multifuncionales') },
+    { label: 'Impresoras', href: categoryLandingPath('impresoras') },
+    { label: 'Formato ancho', href: categoryLandingPath('formato-ancho') },
+    { label: 'Accesorios', href: categoryLandingPath('accesorios') },
+  ],
+};
+
+export const ALQUILER_NAV_SUBMENU: HeaderNavSubmenuConfig = {
+  id: 'alquiler',
+  label: 'Alquiler',
+  icon: Calendar,
+  matchActive: ({ pathname }) =>
+    pathname.startsWith('/servicios/alquiler') ||
+    pathname === '/alquiler' ||
+    pathname.startsWith('/categoria/alquiler'),
+  items: [
+    { label: 'Ver alquiler', href: serviceHubPath('alquiler') },
+    ...rentalCategories.map((category) => ({
+      label: category.name,
+      href: categoryPath('alquiler', category.slug),
+    })),
+  ],
+};
+
+export const CONSUMIBLES_NAV_SUBMENU: HeaderNavSubmenuConfig = {
+  id: 'consumibles',
+  label: 'Consumibles',
+  icon: Droplets,
+  matchActive: ({ pathname }) => pathname.startsWith('/categoria/toner-suministros'),
+  items: [
+    { label: 'Ver consumibles', href: categoryLandingPath('toner-suministros') },
     { label: 'Tóner originales', href: categoryPath('toner-suministros', 'toner-originales') },
-    { label: 'Repuestos', href: categoryLandingPath('repuestos') },
+    { label: 'Tóner compatibles', href: categoryPath('toner-suministros', 'toner-compatibles') },
+    {
+      label: 'Tóner remanufacturado',
+      href: categoryPath('toner-suministros', 'toner-remanufacturado'),
+    },
+    { label: 'Recargas de tóner', href: categoryPath('toner-suministros', 'toner-recarga') },
+  ],
+};
+
+export const REPUESTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
+  id: 'repuestos',
+  label: 'Repuestos',
+  icon: Cog,
+  matchActive: ({ pathname }) => pathname.startsWith('/categoria/repuestos'),
+  items: [
+    { label: 'Ver repuestos', href: categoryLandingPath('repuestos') },
+    { label: 'Partes y componentes', href: categoryLandingPath('repuestos') },
+  ],
+};
+
+export const SERVICIOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
+  id: 'servicios',
+  label: 'Servicios',
+  icon: Wrench,
+  matchActive: ({ pathname }) =>
+    pathname.startsWith('/servicios') && !pathname.startsWith('/servicios/alquiler'),
+  items: [
+    { label: 'Soporte técnico', href: serviceHubPath('servicio-tecnico') },
+    {
+      label: 'Mantenimiento',
+      href: serviceDetailPathFromLanding('servicio-tecnico', 'preventivo'),
+    },
+    {
+      label: 'Instalación',
+      href: serviceDetailPathFromLanding('servicio-tecnico', 'instalacion-config-capacitacion'),
+    },
+  ],
+};
+
+export const EMPRESAS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
+  id: 'empresas',
+  label: 'Empresas',
+  icon: Building2,
+  matchActive: ({ pathname, hash }) =>
+    pathname === '/contacto' ||
+    (pathname === '/' &&
+      (hash === '#clientes' || hash === '#testimonios' || hash === '#preguntas-frecuentes')),
+  items: [
+    { label: 'Nosotros', href: '/contacto' },
+    { label: 'Clientes', href: '/#clientes' },
+    { label: 'Testimonios', href: '/#testimonios' },
+    { label: 'Preguntas frecuentes', href: '/#preguntas-frecuentes' },
   ],
 };
 
@@ -60,63 +173,18 @@ export const SOFTWARE_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   ],
 };
 
-export const RENTALS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
-  id: 'alquileres',
-  label: 'Alquileres',
-  icon: Calendar,
-  matchActive: ({ pathname, search }) => {
-    if (pathname === '/alquiler') return true;
-    if (pathname.startsWith('/categoria/alquiler')) return true;
-    if (pathname !== '/servicios') return false;
-    const seccion = new URLSearchParams(search).get('seccion');
-    return !seccion || seccion === 'alquiler';
-  },
-  items: [
-    { label: 'Alquiler de equipos', href: serviceHubPath('alquiler') },
-    { label: 'Alquiler mensual', href: categoryLandingPath('alquiler') },
-    ...rentalCategories.map((category) => ({
-      label: category.title,
-      href: categoryPath('alquiler', category.slug),
-    })),
-  ],
-};
+/** @deprecated Usar ALQUILER_NAV_SUBMENU */
+export const RENTALS_NAV_SUBMENU = ALQUILER_NAV_SUBMENU;
 
-export const ABOUT_NAV_SUBMENU: HeaderNavSubmenuConfig = {
-  id: 'nosotros',
-  label: 'Nosotros',
-  icon: Building2,
-  matchActive: ({ pathname, hash }) =>
-    pathname === '/' &&
-    (hash === '#clientes' ||
-      hash === '#clientes-recomiendan-titulo' ||
-      hash === '#faq-titulo'),
-  items: [
-    { label: 'Nuestros clientes', href: '/#clientes' },
-    { label: 'Testimonios', href: '/#clientes-recomiendan-titulo' },
-    { label: 'Preguntas frecuentes', href: '/#faq-titulo' },
-    { label: 'Foro', href: HEADER_FORUM_PATH },
-    { label: 'Descargas', href: '/descargas' },
-  ],
-};
-
-export const CONTACT_NAV_SUBMENU: HeaderNavSubmenuConfig = {
-  id: 'contacto',
-  label: 'Contacto',
-  icon: Mail,
-  matchActive: ({ pathname }) => pathname === '/contacto',
-  items: [
-    { label: 'Formulario de contacto', href: '/contacto' },
-    { label: 'WhatsApp', href: FOOTER_WHATSAPP_LINK, external: true },
-    { label: 'Ubicación', href: FOOTER_MAPS_LINK, external: true },
-    { label: 'Teléfono de ventas', href: HEADER_SALES_PHONE_TEL },
-    { label: 'Correo de ventas', href: HEADER_SALES_EMAIL_MAILTO },
-  ],
-};
+/** @deprecated Usar CONSUMIBLES_NAV_SUBMENU */
+export const TONER_NAV_SUBMENU = CONSUMIBLES_NAV_SUBMENU;
 
 export const HEADER_NAV_SUBMENUS: HeaderNavSubmenuConfig[] = [
-  RENTALS_NAV_SUBMENU,
-  TONER_NAV_SUBMENU,
+  PRODUCTOS_NAV_SUBMENU,
+  ALQUILER_NAV_SUBMENU,
+  CONSUMIBLES_NAV_SUBMENU,
+  REPUESTOS_NAV_SUBMENU,
+  SERVICIOS_NAV_SUBMENU,
+  EMPRESAS_NAV_SUBMENU,
   SOFTWARE_NAV_SUBMENU,
-  ABOUT_NAV_SUBMENU,
-  CONTACT_NAV_SUBMENU,
 ];

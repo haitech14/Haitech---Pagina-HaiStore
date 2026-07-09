@@ -173,7 +173,7 @@ export interface CartItem {
   /** Precio unitario USD con descuento por volumen al agregar. */
   volumeUnitPriceUsd?: number;
   /** Tipo de preparado en equipos seminuevos (solo visitantes públicos). */
-  preparationType?: 'acondicionada' | 'semirepotenciada';
+  preparationType?: 'acondicionado' | 'semirepotenciado' | 'remanufacturado';
 }
 
 export interface UserProfile {

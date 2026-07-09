@@ -22,7 +22,7 @@ export const softwareLandingFormBenefits = [
 
 export const softwareLandingFormServiceOptions = [
   { value: 'antivirus', label: 'Antivirus' },
-  { value: 'inteligencia-artificial', label: 'Inteligencia Artificial' },
+  { value: 'inteligencia-artificial', label: 'Licencias' },
   { value: 'gestion-documental', label: 'Gestión documental' },
   { value: 'automatizacion-procesos', label: 'Automatización de procesos' },
   { value: 'impresion-y-captura', label: 'Impresión y captura digital' },

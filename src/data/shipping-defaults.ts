@@ -101,44 +101,4 @@ export const DEFAULT_SHIPPING_RATES: ShippingRate[] = [
   },
 ];
 
-export const DEMO_SHIPMENTS: ShipmentRecord[] = [
-  {
-    id: 'shp-001',
-    orderRef: 'OE01-001',
-    customerName: 'Distribuidora Lima Norte',
-    district: 'Los Olivos',
-    zoneId: 'lima-metropolitana',
-    carrierId: 'haitech',
-    status: 'out_for_delivery',
-    shippingCostPen: 0,
-    trackingCode: 'HT-LIM-88421',
-    createdAt: '2026-06-01T09:30:00',
-    etaLabel: 'Hoy antes de 6 p.m.',
-  },
-  {
-    id: 'shp-002',
-    orderRef: 'OE01-002',
-    customerName: 'Clínica Salud Total',
-    district: 'San Isidro',
-    zoneId: 'lima-metropolitana',
-    carrierId: 'olva',
-    status: 'in_transit',
-    shippingCostPen: 22,
-    trackingCode: 'OLVA-9921834',
-    createdAt: '2026-05-31T14:00:00',
-    etaLabel: '1–2 días hábiles',
-  },
-  {
-    id: 'shp-003',
-    orderRef: 'OE01-003',
-    customerName: 'Agroindustrial Pacífico',
-    district: 'Trujillo',
-    zoneId: 'provincia-costera',
-    carrierId: 'shalom',
-    status: 'pending_pickup',
-    shippingCostPen: 28,
-    trackingCode: 'SHM-441902',
-    createdAt: '2026-05-30T11:15:00',
-    etaLabel: '3–5 días hábiles',
-  },
-];
+export const DEMO_SHIPMENTS: ShipmentRecord[] = [];

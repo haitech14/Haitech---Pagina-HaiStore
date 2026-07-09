@@ -83,11 +83,13 @@ export function SoftwareCatalogCard({ item, selected, onSelect }: SoftwareCatalo
           </h3>
         </div>
 
-        <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-          <Star className="size-3.5 fill-amber-400 text-amber-400" aria-hidden="true" />
-          <span className="font-semibold text-foreground">{item.rating.toFixed(1)}</span>
-          <span>({item.reviewCount})</span>
-        </div>
+        {item.reviewCount > 0 ? (
+          <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+            <Star className="size-3.5 fill-amber-400 text-amber-400" aria-hidden="true" />
+            <span className="font-semibold text-foreground">{item.rating.toFixed(1)}</span>
+            <span>({item.reviewCount})</span>
+          </div>
+        ) : null}
 
         <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
           {item.shortDescription}

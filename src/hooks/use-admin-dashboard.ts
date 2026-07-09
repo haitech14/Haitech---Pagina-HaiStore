@@ -13,7 +13,7 @@ import { apiFetch } from '@/lib/api';
 import {
   getInventoryStockStatus,
   INVENTORY_LOW_STOCK_THRESHOLD,
-  inventoryCategoryParentLabel,
+  inventoryCategoryLeafLabel,
   mergeInventoryCategoryStockSnapshots,
   normalizeStockQuantity,
   sortInventoryCategoriesByUrgency,
@@ -357,7 +357,7 @@ export function useAdminInventoryByCategory(options?: { urgentLimit?: number }) 
   const categories = new Map<string, InventoryCategoryStockSnapshot>();
 
   for (const product of productsQuery.data ?? []) {
-    const category = inventoryCategoryParentLabel(product.category);
+    const category = inventoryCategoryLeafLabel(product.category);
     const entry = categories.get(category) ?? { total: 0, out: 0, low: 0, healthy: 0 };
     const tally = tallyInventoryCategoryStock(normalizeStockQuantity(product.stock));
     categories.set(

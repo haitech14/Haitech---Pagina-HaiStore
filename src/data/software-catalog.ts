@@ -131,8 +131,8 @@ function buildSoftwareItem(
     images: [input.image, input.image],
     imageAlt: input.imageAlt,
     badge,
-    rating: 4.6 + (index % 4) * 0.1,
-    reviewCount: 8 + index * 5,
+    rating: 0,
+    reviewCount: 0,
     basePricePen: meta.basePrice + index * 20,
     pricePeriod: meta.period,
     features: input.features,
@@ -519,7 +519,7 @@ export const SOFTWARE_CATALOG_CATEGORIES: readonly SoftwareCatalogCategory[] = [
   },
   {
     id: 'inteligencia-artificial',
-    label: 'Inteligencia Artificial',
+    label: 'Licencias',
     icon: Brain,
   },
   {

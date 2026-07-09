@@ -9,6 +9,14 @@ import {
   readServiceRequests,
   removeServiceRequest,
 } from '../lib/service-requests-store.js';
+import {
+  createServiceCatalogItem,
+  importServiceCatalog,
+  patchServiceCatalogItem,
+  readServiceCatalog,
+  removeServiceCatalogItem,
+  SERVICE_CATALOG_MIGRATION_HINT,
+} from '../lib/service-catalog-store.js';
 
 export const serviceRequestsRouter = Router();
 
@@ -28,6 +36,80 @@ serviceRequestsRouter.patch('/categories/:id', requireAdmin, async (req, res, ne
   } catch (error) {
     if (error instanceof Error && /actualizar/i.test(error.message)) {
       return res.status(400).json({ error: error.message });
+    }
+    next(error);
+  }
+});
+
+serviceRequestsRouter.get('/catalog', requireAdmin, async (_req, res, next) => {
+  try {
+    const result = await readServiceCatalog();
+    if (result.unavailable) {
+      return res.status(503).json({
+        error: result.migrationHint ?? SERVICE_CATALOG_MIGRATION_HINT,
+        items: [],
+        unavailable: true,
+      });
+    }
+    res.json({ items: result.items });
+  } catch (error) {
+    next(error);
+  }
+});
+
+serviceRequestsRouter.post('/catalog/import', requireAdmin, async (req, res, next) => {
+  try {
+    const items = req.body?.items;
+    if (!Array.isArray(items)) {
+      return res.status(400).json({ error: 'Se requiere un arreglo items para importar.' });
+    }
+    const result = await importServiceCatalog(items);
+    res.status(201).json(result);
+  } catch (error) {
+    if (error instanceof Error && /migraci[oó]n|store_service_catalog/i.test(error.message)) {
+      return res.status(503).json({ error: error.message });
+    }
+    next(error);
+  }
+});
+
+serviceRequestsRouter.post('/catalog', requireAdmin, async (req, res, next) => {
+  try {
+    const item = await createServiceCatalogItem(req.body ?? {});
+    res.status(201).json({ item });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('obligator')) {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error instanceof Error && /migraci[oó]n|store_service_catalog/i.test(error.message)) {
+      return res.status(503).json({ error: error.message });
+    }
+    next(error);
+  }
+});
+
+serviceRequestsRouter.patch('/catalog/:id', requireAdmin, async (req, res, next) => {
+  try {
+    const item = await patchServiceCatalogItem(req.params.id, req.body ?? {});
+    res.json({ item });
+  } catch (error) {
+    if (error instanceof Error && /no encontrado/i.test(error.message)) {
+      return res.status(404).json({ error: error.message });
+    }
+    if (error instanceof Error && /migraci[oó]n|store_service_catalog/i.test(error.message)) {
+      return res.status(503).json({ error: error.message });
+    }
+    next(error);
+  }
+});
+
+serviceRequestsRouter.delete('/catalog/:id', requireAdmin, async (req, res, next) => {
+  try {
+    await removeServiceCatalogItem(req.params.id);
+    res.json({ ok: true, id: req.params.id });
+  } catch (error) {
+    if (error instanceof Error && /migraci[oó]n|store_service_catalog/i.test(error.message)) {
+      return res.status(503).json({ error: error.message });
     }
     next(error);
   }

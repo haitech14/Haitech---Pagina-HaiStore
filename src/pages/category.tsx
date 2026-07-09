@@ -5,7 +5,7 @@ import { Plus, PanelLeftClose, SlidersHorizontal } from 'lucide-react';
 import { StoreCatalogHeader } from '@/components/store-storefront/store-catalog-header';
 import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
 import { StoreCatalogViewControls } from '@/components/store-storefront/store-catalog-view-controls';
-import { PromotionsHeroBanner } from '@/components/promotions-hero-banner';
+import { StoreSubcategoryCarousel } from '@/components/store-storefront/store-subcategory-carousel';
 import { storeCatalogCopy } from '@/data/store-landing';
 import { CatalogFilterOption } from '@/components/catalog-filter-option';
 import { CatalogFilterGroup } from '@/components/catalog-filter-group';
@@ -1062,8 +1062,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const colorSpecFilterTabs = specFilterTabs.filter((tab) => tab.key.startsWith('Color::'));
 
   const filterSectionLabelClass = storefrontMode
-    ? 'text-sm font-medium text-foreground'
-    : 'text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground';
+    ? 'text-[0.8125rem] font-medium text-foreground'
+    : 'text-[0.625rem] font-medium uppercase tracking-wider text-muted-foreground';
 
   const categoryFiltersContent = (
     <>
@@ -1073,10 +1073,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         </h3>
         <div className="mt-1.5 max-h-[min(16rem,42vh)] overflow-y-auto rounded-md border border-border/70 bg-background shadow-sm [scrollbar-width:thin]">
           {categoryTreeLoading && categoryTree.length === 0 ? (
-            <p className="px-2.5 py-2 text-xs text-muted-foreground">Cargando categorías…</p>
+            <p className="px-2.5 py-2 text-[0.6875rem] text-muted-foreground">Cargando categorías…</p>
           ) : categoryTreeError && categoryTree.length === 0 ? (
             <div className="space-y-2 px-2.5 py-2">
-              <p className="text-xs text-destructive">No se pudieron cargar las categorías.</p>
+              <p className="text-[0.6875rem] text-destructive">No se pudieron cargar las categorías.</p>
               <Button
                 type="button"
                 variant="outline"
@@ -1088,7 +1088,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               </Button>
             </div>
           ) : categoryTree.length === 0 ? (
-            <p className="px-2.5 py-2 text-xs text-muted-foreground">Sin categorías disponibles.</p>
+            <p className="px-2.5 py-2 text-[0.6875rem] text-muted-foreground">Sin categorías disponibles.</p>
           ) : (
             <CatalogSidebarNav
               categoryTree={sidebarCategoryTree}
@@ -1108,6 +1108,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         <CatalogFilterSection
           title="Color"
           labelClassName={filterSectionLabelClass}
+          defaultOpen
           openWhenActive={selectedSpecFilters.some((key) => key.startsWith('Color::'))}
         >
           <CatalogFilterGroup>
@@ -1131,6 +1132,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         <CatalogFilterSection
           title="Formato"
           labelClassName={filterSectionLabelClass}
+          defaultOpen
           openWhenActive={selectedSpecFilters.some((key) => key.includes('Formato papel::'))}
         >
           <CatalogFilterGroup>
@@ -1265,7 +1267,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         openWhenActive={hasPriceFilter}
       >
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+          <div className="grid grid-cols-2 gap-2 text-[0.6875rem] text-muted-foreground">
             <div className="flex items-center justify-start gap-1.5">
               <span className="font-medium">Mín:</span>
               <span className="tabular-nums text-foreground">
@@ -1302,7 +1304,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
             }}
           />
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">
+        <p className="mt-2 text-[0.6875rem] text-muted-foreground">
           Rango disponible: {availablePriceRange.min} - {availablePriceRange.max} USD
         </p>
       </CatalogFilterSection>
@@ -1353,7 +1355,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           type="button"
           variant="outline"
           size="sm"
-          className="h-8 w-full text-xs font-medium"
+          className="h-7 w-full text-[0.6875rem] font-medium"
           onClick={clearAllFilters}
         >
           Limpiar filtros
@@ -1437,7 +1439,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }
 
   const heroSubcategoriesTabs =
-    storeCategory && (storeCategory.children?.length ?? 0) > 0 && activeSubcategory ? (
+    !storefrontMode &&
+    storeCategory &&
+    (storeCategory.children?.length ?? 0) > 0 &&
+    activeSubcategory ? (
       <SubcategoryTabs
         heading="Subcategorías"
         align="start"
@@ -1451,6 +1456,11 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         className="w-max"
       />
     ) : null;
+
+  const catalogParentCategory = isStoreAll ? storeFilterCategory : storeCategory;
+  const catalogSubcategories = catalogParentCategory?.children ?? [];
+  const showSubcategoryCarousel =
+    storefrontMode && showProductCatalog && catalogSubcategories.length > 0;
 
   const categorySeoIntro = useMemo(
     () => (slug && !isStoreAll ? getCategorySeoIntro(slug, subSlug) : null),
@@ -1495,7 +1505,17 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
           {storefrontMode && showProductCatalog ? (
             <>
-              <PromotionsHeroBanner embedded variant="compact" />
+              {showSubcategoryCarousel ? (
+                <StoreSubcategoryCarousel
+                  className="min-w-0"
+                  subcategories={catalogSubcategories}
+                  activeSubSlug={subSlug}
+                  parentName={catalogParentCategory?.name ?? null}
+                  parentImage={catalogParentCategory?.image ?? null}
+                  products={isStoreAll ? storeCatalogProducts : filteredProducts}
+                  onSelect={selectSubcategory}
+                />
+              ) : null}
               <StoreCatalogHeader
                 productCount={catalogProductCount}
                 searchQuery={catalogSearch}
@@ -1555,8 +1575,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                   <h2
                     className={cn(
                       storefrontMode
-                        ? 'text-sm font-bold text-foreground'
-                        : 'text-xs font-semibold uppercase tracking-wider text-muted-foreground',
+                        ? 'text-[0.8125rem] font-bold text-foreground'
+                        : 'text-[0.625rem] font-semibold uppercase tracking-wider text-muted-foreground',
                     )}
                   >
                     Filtros

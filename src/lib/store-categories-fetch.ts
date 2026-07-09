@@ -1,5 +1,8 @@
 import { apiFetch } from '@/lib/api';
-import { buildStaticStoreCategoryTree } from '@/lib/static-store-category-tree';
+import {
+  buildStaticStoreCategoryTree,
+  enrichStoreCategoryTree,
+} from '@/lib/static-store-category-tree';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 
 export const STORE_CATEGORIES_QUERY_KEY = 'store-categories';
@@ -41,6 +44,10 @@ async function fetchStaticStoreCategoriesTree(): Promise<StoreCategoryTreeNode[]
   }
 }
 
+function finalizeStoreCategoryTree(tree: StoreCategoryTreeNode[]): StoreCategoryTreeNode[] {
+  return enrichStoreCategoryTree(tree);
+}
+
 /**
  * Snapshot estático primero; revalida contra API en segundo plano.
  */
@@ -49,22 +56,23 @@ export async function fetchStoreCategoriesTreeWithFallback(): Promise<StoreCateg
   const snapshot = await fetchStaticStoreCategoriesTree();
 
   if (snapshot?.length) {
-    storeCategoriesTree(snapshot);
+    const tree = finalizeStoreCategoryTree(snapshot);
+    storeCategoriesTree(tree);
     void apiFetch<StoreCategoryTreeNode[]>('/api/categories')
-      .then((tree) => storeCategoriesTree(tree))
+      .then((apiTree) => storeCategoriesTree(finalizeStoreCategoryTree(apiTree)))
       .catch(() => {
         /* mantener snapshot */
       });
-    return snapshot;
+    return tree;
   }
 
   try {
-    const tree = await apiFetch<StoreCategoryTreeNode[]>('/api/categories');
+    const tree = finalizeStoreCategoryTree(await apiFetch<StoreCategoryTreeNode[]>('/api/categories'));
     storeCategoriesTree(tree);
     return tree;
   } catch {
     const cached = readStoredStoreCategoriesTree();
-    if (cached?.length) return cached;
+    if (cached?.length) return finalizeStoreCategoryTree(cached);
 
     return staticTree;
   }

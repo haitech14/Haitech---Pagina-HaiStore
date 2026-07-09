@@ -152,11 +152,13 @@ export function SoftwareDetailPage() {
 
               <div>
                 <h1 className="text-2xl font-bold text-neutral-950 sm:text-3xl">{item.title}</h1>
-                <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
-                  <Star className="size-4 fill-amber-400 text-amber-400" aria-hidden="true" />
-                  <span className="font-semibold text-foreground">{item.rating.toFixed(1)}</span>
-                  <span>({item.reviewCount} reseñas)</span>
-                </div>
+                {item.reviewCount > 0 ? (
+                  <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
+                    <Star className="size-4 fill-amber-400 text-amber-400" aria-hidden="true" />
+                    <span className="font-semibold text-foreground">{item.rating.toFixed(1)}</span>
+                    <span>({item.reviewCount} reseñas)</span>
+                  </div>
+                ) : null}
 
                 <p className="mt-4 text-2xl font-bold text-neutral-950">
                   Desde {formatSoftwarePrice(currentPrice, item.pricePeriod)}

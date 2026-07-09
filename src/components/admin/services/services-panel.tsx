@@ -15,9 +15,9 @@ const ServicesPriceListPanel = lazy(() =>
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  loadServicePriceList,
   updateServiceCategory as updateLocalServiceCategory,
 } from '@/lib/services-storage';
+import { useServiceCatalog } from '@/hooks/use-service-catalog';
 import {
   useServiceCategories,
   useServiceCategoryMutations,
@@ -89,8 +89,15 @@ export function ServicesPanel() {
   const { data: apiCategories = [] } = useServiceCategories();
   const { updateCategory } = useServiceCategoryMutations();
   const { updateRequest, deleteRequest } = useServiceRequestMutations();
+  const {
+    items: priceList,
+    unavailable: catalogUnavailable,
+    migrationHint: catalogMigrationHint,
+    createItem,
+    updateItem,
+    deleteItem,
+  } = useServiceCatalog();
   const [localCategories, setLocalCategories] = useState<ServiceCategory[]>([]);
-  const [priceList, setPriceList] = useState(() => loadServicePriceList());
   const [newOpen, setNewOpen] = useState(false);
   const [savedHint, setSavedHint] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -231,7 +238,7 @@ export function ServicesPanel() {
       />
 
       {tab === 'servicios' && (
-        <div className="space-y-6">
+        <div className="space-y-3">
           {ordersLoading ? (
             <p className="text-sm text-muted-foreground" role="status">
               Cargando solicitudes…
@@ -373,10 +380,26 @@ export function ServicesPanel() {
             </div>
           }
         >
+          {catalogUnavailable && catalogMigrationHint ? (
+            <p
+              className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+              role="status"
+            >
+              {catalogMigrationHint} Mostrando copia local hasta aplicar la migración.
+            </p>
+          ) : null}
           <ServicesPriceListPanel
             categories={categories}
             items={priceList}
-            onChange={setPriceList}
+            onCreateItem={(categoryId, name) => {
+              void createItem.mutateAsync({ name, categoryId, estado: 'activo' });
+            }}
+            onUpdateItem={(id, patch) => {
+              void updateItem.mutateAsync({ id, patch });
+            }}
+            onDeleteItem={(id) => {
+              void deleteItem.mutateAsync(id);
+            }}
             onSaved={setSavedHint}
           />
         </Suspense>

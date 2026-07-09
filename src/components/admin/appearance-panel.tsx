@@ -60,14 +60,14 @@ export function AppearancePanel() {
   }
 
   return (
-    <form onSubmit={(event) => void handleSubmit(event)} className="max-w-xl space-y-6">
+    <form onSubmit={(event) => void handleSubmit(event)} className="max-w-xl space-y-3">
       {isError && (
         <p role="alert" className="text-sm text-amber-700">
           No se pudo cargar la configuración del servidor. Se muestran valores por defecto.
         </p>
       )}
 
-      <section className="rounded-xl border bg-card p-5">
+      <section className="rounded-lg border bg-card p-3">
         <div className="mb-4 flex items-center gap-2">
           <Palette className="size-5 text-[hsl(var(--admin-accent))]" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Marca y colores</h3>

@@ -32,7 +32,7 @@ export function MarketingChannelsPanel() {
       >
         <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-10">
           <div className="w-full max-w-2xl text-center">
-            <h2 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h2 className="text-balance text-xl font-bold tracking-tight text-foreground sm:text-[1.35rem]">
               {MARKETING_ONBOARDING.title}
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">

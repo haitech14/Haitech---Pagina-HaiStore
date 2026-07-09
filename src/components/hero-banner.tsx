@@ -6,7 +6,8 @@ import { Icon } from '@mdi/react';
 import { mdiWhatsapp } from '@mdi/js';
 
 import { Button } from '@/components/ui/button';
-import { CarouselDots } from '@/components/ui/carousel-dots';
+import { CarouselDots, type CarouselDotsTheme } from '@/components/ui/carousel-dots';
+import { HomeLandingHeroSlideContent } from '@/components/home/home-landing-hero';
 import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import {
   CATEGORY_STRIP_HERO_IMAGE_FRAME_CLASS,
@@ -92,6 +93,15 @@ function HeroSlideContent({
   onWhatsAppClick: (campaign?: string) => void;
 }) {
   const headingId = index === 0 ? sectionHeadingId : `${sectionHeadingId}-${slide.id}`;
+
+  if (slide.layout === 'home-landing') {
+    return (
+      <HomeLandingHeroSlideContent
+        headingId={headingId}
+        onWhatsAppClick={() => onWhatsAppClick('home-hero-cotizacion')}
+      />
+    );
+  }
 
   if (slide.layout === 'dia-papa-home') {
     return (
@@ -268,7 +278,7 @@ function HeroSlideContent({
   const HeadingTag = index === 0 ? 'h1' : 'h2';
 
   return (
-    <div className="relative min-h-[min(40vh,18rem)] sm:min-h-[min(44vh,20rem)] lg:min-h-[min(46vh,22rem)] xl:min-h-[min(48vh,24rem)]">
+    <div className="relative min-h-[min(40vh,16rem)] sm:min-h-[min(44vh,17.5rem)] lg:min-h-[min(46vh,19.5rem)] xl:min-h-[min(48vh,21rem)]">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden bg-black"
@@ -296,7 +306,7 @@ function HeroSlideContent({
         className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-black/15"
       />
 
-      <div className="container relative flex min-h-[inherit] flex-col justify-center py-4 sm:py-5 lg:py-6">
+      <div className="container relative flex min-h-[inherit] flex-col justify-center py-3 sm:py-4 lg:py-5">
         <div className="relative flex max-w-2xl flex-col items-start gap-2 sm:gap-2.5">
         <span className="-mb-0.5 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 pb-0.5 pt-1 text-[0.6875rem] font-bold uppercase leading-none tracking-[0.16em] text-white sm:text-xs">
           <span className="size-1.5 rounded-full bg-white" aria-hidden="true" />
@@ -428,6 +438,10 @@ export function HeroBanner({
   const [whatsappCampaign, setWhatsappCampaign] = useState<string | undefined>();
   const { contact, saveContact, isSaving } = useWhatsAppContact();
   const showCarouselControls = slides.length > 1;
+  const hasHomeLandingSlide = slides.some((slide) => slide.layout === 'home-landing');
+  const activeSlide = slides[selectedIndex];
+  const carouselDotTheme: CarouselDotsTheme =
+    activeSlide?.dotTheme ?? (activeSlide?.layout === 'home-landing' ? 'light' : 'dark');
 
   const openWhatsAppDialog = useCallback((campaign?: string) => {
     setWhatsappCampaign(campaign);
@@ -554,7 +568,14 @@ export function HeroBanner({
           selectedIndex={selectedIndex}
           onSelect={scrollTo}
           ariaLabel="Slides del banner principal"
-          className="absolute inset-x-0 bottom-2 z-20 sm:bottom-3"
+          theme={carouselDotTheme}
+          size="lg"
+          className={cn(
+            'absolute inset-x-0 z-20',
+            hasHomeLandingSlide && selectedIndex === 0
+              ? 'bottom-3.5 sm:bottom-4 lg:bottom-5'
+              : 'bottom-2.5 sm:bottom-3 lg:bottom-3.5',
+          )}
         />
       ) : null}
 

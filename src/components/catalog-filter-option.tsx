@@ -31,7 +31,7 @@ export function CatalogFilterOption({
         'flex w-full cursor-pointer items-center justify-between gap-2 text-left transition-colors',
         compact
           ? cn(
-              'min-h-9 px-2.5 py-1.5 text-xs',
+              'min-h-8 px-2 py-1 text-[0.6875rem]',
               active
                 ? 'bg-red-50 font-medium text-red-700'
                 : 'text-foreground hover:bg-muted/50',
@@ -64,7 +64,7 @@ export function CatalogFilterOption({
       <span
         className={cn(
           'shrink-0 tabular-nums text-muted-foreground',
-          compact ? 'text-[0.65rem]' : 'text-xs',
+          compact ? 'text-[0.6rem]' : 'text-[0.6875rem]',
         )}
       >
         {count}

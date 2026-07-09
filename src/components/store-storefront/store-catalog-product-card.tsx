@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { isProductOutOfStock, ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
+import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { ProductCardOverlayActions } from '@/components/product/product-card-overlay-actions';
 import { ProductCardPricing } from '@/components/product/product-card-pricing';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
@@ -16,6 +16,9 @@ import {
   buildProductCardStoredImageCandidates,
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
+import { ProductConditionBadge } from '@/components/product/product-condition-badge';
+import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
+import { PRODUCT_CARD_CODE_CLASS, PRODUCT_CARD_STOCK_CLASS } from '@/lib/product-card-title';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
 import { productToFeatured } from '@/lib/store-products';
@@ -56,6 +59,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
     attributes: product.attributes ?? [],
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
+  const conditionLabel = resolveProductCardConditionLabel(titleProduct);
   const buyNowLabel = outOfStock ? 'Reservar Ahora' : 'Comprar Ahora';
 
   return (
@@ -102,25 +106,20 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
         >
           <h3 className="line-clamp-2 text-pretty text-[0.8125rem] font-bold leading-snug text-foreground sm:text-sm">
             {title}
+            {code ? (
+              <span className={cn(PRODUCT_CARD_CODE_CLASS, 'inline font-normal')}> ({code})</span>
+            ) : null}
           </h3>
         </Link>
 
-        <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
-          {code ? (
-            <p className="min-w-0 truncate font-mono text-[0.625rem] text-muted-foreground sm:text-[0.6875rem]">
-              {code}
-            </p>
-          ) : (
-            <span className="min-w-0" aria-hidden="true" />
-          )}
-          <span
-            className={cn(
-              'shrink-0 rounded-md px-1.5 py-0.5 text-[0.625rem] font-semibold sm:text-[0.6875rem]',
-              outOfStock
-                ? ON_REQUEST_STOCK_BADGE_CLASS
-                : 'bg-emerald-50 font-semibold text-emerald-700',
-            )}
-          >
+        {conditionLabel ? (
+          <div className="mt-1 flex min-w-0 flex-nowrap items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <ProductConditionBadge label={conditionLabel} size="card" />
+          </div>
+        ) : null}
+
+        <div className="mt-1 flex min-w-0 justify-end">
+          <span className={PRODUCT_CARD_STOCK_CLASS}>
             {outOfStock ? 'A pedido' : `${Math.max(0, Math.floor(product.stock))} unids.`}
           </span>
         </div>
@@ -146,15 +145,12 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
           <ProductQuantityAddFooter
             product={product}
             size="sm"
-            showBuyNow
             revealQuantityOnHover
-            addLabel="Añadir"
-            buyNowLabel={buyNowLabel}
+            addLabel={buyNowLabel}
             addButtonClassName={cn(
-              'h-9 min-h-9 rounded-md border border-border bg-background text-foreground shadow-none hover:bg-muted',
+              'h-9 min-h-9 rounded-md px-2 shadow-none sm:px-2.5',
               outOfStock && 'font-semibold',
             )}
-            buyNowButtonClassName="h-9 min-h-9 rounded-md bg-red-600 px-2 text-white shadow-none hover:bg-red-500 sm:px-2.5"
           />
         </div>
       </div>

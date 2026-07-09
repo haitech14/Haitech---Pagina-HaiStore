@@ -1,7 +1,6 @@
 import type { ProductSpecRow } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
-import { publicProductMediaPath } from '@/lib/product-stock-images';
 
 export interface ProductComparisonRow {
   id: string;
@@ -121,12 +120,8 @@ function resolveComparisonImage(
   spec: ComparisonModelSpec,
 ): string | null {
   if (catalogMatch) {
-    const fromCatalog = resolveProductImageUrl(catalogMatch, { stockFallback: true });
+    const fromCatalog = resolveProductImageUrl(catalogMatch);
     if (fromCatalog) return fromCatalog;
-  }
-
-  if (spec.productId) {
-    return publicProductMediaPath(spec.productId);
   }
 
   return spec.image ?? null;
@@ -199,9 +194,7 @@ export function resolveEquipmentComparison(
     columns.unshift({
       productId: equipment.id,
       modelLabel: equipment.name.replace(/ricoh\s*/i, 'IM ').trim() || 'Este equipo',
-      image:
-        resolveProductImageUrl(equipment, { stockFallback: true }) ??
-        publicProductMediaPath(equipment.id),
+      image: resolveProductImageUrl(equipment),
       isCurrent: true,
       values: specsToComparisonValues(specs),
     });

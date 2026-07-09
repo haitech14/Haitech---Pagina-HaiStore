@@ -8,10 +8,12 @@ interface AdminModuleLayoutProps {
 
 export function AdminModuleLayout({ title, description, children }: AdminModuleLayoutProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <header>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-[1.35rem]">
+          {title}
+        </h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
       </header>
       {children}
     </div>

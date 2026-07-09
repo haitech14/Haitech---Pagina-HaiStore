@@ -83,7 +83,10 @@ async function applyViaManagementApi() {
 
   const body = await res.text();
   if (!res.ok) {
-    throw new Error(`Management API ${res.status}: ${body.slice(0, 500)}`);
+    console.warn(
+      `Management API ${res.status}: ${body.slice(0, 300)}. Se intentará otro método.\n`,
+    );
+    return false;
   }
 
   console.log(`✓ Migración aplicada vía Management API (${sqlFile})`);

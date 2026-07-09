@@ -142,7 +142,7 @@ export function AdminPedidosTablePanel({
   };
 
   return (
-    <section className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
+    <section className="overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
       <div className="border-b px-4 pt-4 sm:px-5">
         <div role="tablist" aria-label="Filtrar pedidos por estado" className="flex flex-wrap gap-1">
           {tabs.map((tab) => {
@@ -191,7 +191,7 @@ export function AdminPedidosTablePanel({
               setPage(1);
             }}
             placeholder="Buscar por cliente, pedido o canal…"
-            className="h-9 bg-background pl-9"
+            className="h-8 bg-background pl-8 text-xs"
             aria-label="Buscar pedidos"
           />
         </div>
@@ -203,7 +203,7 @@ export function AdminPedidosTablePanel({
             setPage(1);
           }}
         >
-          <SelectTrigger className="h-9 w-full bg-background sm:w-[10.5rem]" aria-label="Filtrar por canal">
+          <SelectTrigger className="h-8 w-full bg-background text-xs sm:w-[10.5rem]" aria-label="Filtrar por canal">
             <SelectValue placeholder="Canal: Todos" />
           </SelectTrigger>
           <SelectContent>
@@ -223,7 +223,7 @@ export function AdminPedidosTablePanel({
             setPage(1);
           }}
         >
-          <SelectTrigger className="h-9 w-full bg-background sm:w-[10rem]" aria-label="Filtrar por estado">
+          <SelectTrigger className="h-8 w-full bg-background text-xs sm:w-[10rem]" aria-label="Filtrar por estado">
             <SelectValue placeholder="Estado: Todos" />
           </SelectTrigger>
           <SelectContent>
@@ -244,7 +244,7 @@ export function AdminPedidosTablePanel({
             setPage(1);
           }}
         >
-          <SelectTrigger className="h-9 w-full bg-background sm:w-[10.5rem]" aria-label="Filtrar por pago">
+          <SelectTrigger className="h-8 w-full bg-background text-xs sm:w-[10.5rem]" aria-label="Filtrar por pago">
             <SelectValue placeholder="Pago: Todos" />
           </SelectTrigger>
           <SelectContent>
@@ -258,7 +258,7 @@ export function AdminPedidosTablePanel({
 
         <AdminDateRangePicker variant="toolbar" value={range} onChange={onRangeChange} />
 
-        <Button type="button" variant="outline" className="h-9 gap-2 bg-background">
+        <Button type="button" variant="outline" className="h-8 gap-1.5 bg-background text-xs">
           <Filter className="size-4" aria-hidden="true" />
           Filtros
         </Button>
@@ -347,7 +347,7 @@ export function AdminPedidosTablePanel({
 
       <nav
         aria-label="Paginación de pedidos"
-        className="flex flex-col gap-3 border-t bg-muted/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+        className="flex flex-col gap-3 border-t bg-muted/10 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
       >
         <p className="text-sm text-muted-foreground">
           Mostrando{' '}
@@ -420,7 +420,7 @@ export function AdminPedidosTablePanel({
               setPage(1);
             }}
           >
-            <SelectTrigger className="h-9 w-[8.5rem] bg-background" aria-label="Pedidos por página">
+            <SelectTrigger className="h-8 w-[8.5rem] bg-background text-xs" aria-label="Pedidos por página">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

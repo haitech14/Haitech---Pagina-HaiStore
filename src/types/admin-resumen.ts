@@ -44,3 +44,33 @@ export interface AdminResumenSlaPoint {
   date: string;
   value: number;
 }
+
+export type AdminResumenQuoteStatus = 'pendiente' | 'en_gestion' | 'cotizado' | 'cerrado';
+
+export interface AdminResumenQuoteRequest {
+  id: string;
+  requestedAt: Date;
+  clientName: string;
+  company?: string;
+  phone: string;
+  email: string;
+  productInterest: string;
+  status: AdminResumenQuoteStatus;
+  source: 'tienda' | 'whatsapp' | 'formulario';
+}
+
+export interface AdminResumenVisitorProduct {
+  name: string;
+  sku?: string;
+}
+
+export interface AdminResumenVisitor {
+  id: string;
+  visitedAt: Date;
+  ip: string;
+  city: string;
+  name: string | null;
+  createdAccount: boolean;
+  productsViewed: AdminResumenVisitorProduct[];
+  pages: number;
+}

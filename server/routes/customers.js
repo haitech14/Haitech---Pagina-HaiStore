@@ -29,6 +29,17 @@ import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 
 export const customersRouter = Router();
 
+const STORE_CUSTOMERS_MIGRATION_HINT =
+  'Falta la tabla store_customers en Supabase. Ejecuta las migraciones 003, 008, 009 y 010 (npm run db:migrate:customers) o aplica los SQL en supabase/migrations/ desde el SQL Editor del proyecto.';
+
+/** @param {{ code?: string; message?: string } | null | undefined} error */
+function isMissingStoreCustomersTable(error) {
+  if (!error) return false;
+  if (error.code === 'PGRST205') return true;
+  const message = String(error.message ?? '').toLowerCase();
+  return message.includes('store_customers') && message.includes('schema cache');
+}
+
 function cityFromBilling(billing) {
   if (!billing || typeof billing !== 'object') return '';
   const raw = billing.city ?? billing.ciudad ?? billing.address_level2;
@@ -348,6 +359,9 @@ customersRouter.get('/admin/all', requireAdmin, async (_req, res, next) => {
 
       if (error) {
         console.error('[customers] list error:', error);
+        if (isMissingStoreCustomersTable(error)) {
+          return res.status(503).json({ error: STORE_CUSTOMERS_MIGRATION_HINT });
+        }
         return res.status(500).json({ error: 'No se pudieron cargar los clientes' });
       }
 

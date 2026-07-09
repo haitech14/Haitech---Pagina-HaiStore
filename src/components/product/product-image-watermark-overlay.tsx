@@ -23,22 +23,26 @@ export function ProductImageWatermarkOverlay({
   watermarkClassName = PRODUCT_IMAGE_WATERMARK_OVERLAY_CLASS,
   enabled = true,
 }: ProductImageWatermarkOverlayProps) {
-  if (!enabled || !shouldShowProductImageWatermarkOverlay(src)) {
+  const showWatermark = enabled && shouldShowProductImageWatermarkOverlay(src);
+
+  if (!showWatermark && !className) {
     return <>{children}</>;
   }
 
   return (
     <div className={cn('relative', className)}>
       {children}
-      <img
-        src={HAITECH_WATERMARK_SRC}
-        alt=""
-        aria-hidden="true"
-        loading="lazy"
-        decoding="async"
-        className={watermarkClassName}
-        style={{ opacity: PRODUCT_IMAGE_WATERMARK_OVERLAY_OPACITY }}
-      />
+      {showWatermark ? (
+        <img
+          src={HAITECH_WATERMARK_SRC}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          className={watermarkClassName}
+          style={{ opacity: PRODUCT_IMAGE_WATERMARK_OVERLAY_OPACITY }}
+        />
+      ) : null}
     </div>
   );
 }

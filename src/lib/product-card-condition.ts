@@ -1,9 +1,13 @@
-import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
+import {
+  isConsumableProductForCardSpec,
+  resolveConsumableEstadoLabel,
+} from '@/lib/format-consumable-product-spec-label';
 import {
   productQualifiesAsNuevaEquipment,
   productQualifiesAsRemanufacturadaEquipment,
   productQualifiesAsSeminuevaEquipment,
 } from '@/lib/inventory-product-name';
+import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import type { ProductEquipmentConditionLabel } from '@/lib/product-hero-meta';
 
 export function resolveProductCardConditionLabel(
@@ -21,6 +25,20 @@ export function resolveProductCardConditionLabel(
     return 'Remanufacturada';
   }
   if (category.includes('nuevas') || category.includes('nuevos')) return 'Nueva';
+
+  return null;
+}
+
+/** Etiqueta de estado/condición para la fila de badges en tarjetas de inicio. */
+export function resolveProductCardEstadoLabel(
+  product: ProductBadgeSource & { name: string; category?: string | null },
+): string | null {
+  const equipmentLabel = resolveProductCardConditionLabel(product);
+  if (equipmentLabel) return equipmentLabel;
+
+  if (isConsumableProductForCardSpec(product)) {
+    return resolveConsumableEstadoLabel(product);
+  }
 
   return null;
 }

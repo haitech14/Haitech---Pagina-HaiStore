@@ -55,7 +55,17 @@ export function saveShippingRates(rates: ShippingRate[]): void {
 }
 
 export function loadShipments(): ShipmentRecord[] {
-  return loadJson(SHIPMENTS_KEY, DEMO_SHIPMENTS);
+  const rows = loadJson(SHIPMENTS_KEY, DEMO_SHIPMENTS);
+  const next = rows.filter((row) => !row.id.startsWith('shp-demo-'));
+  if (next.length !== rows.length) {
+    saveShipments(next);
+  }
+  try {
+    localStorage.removeItem('haistore-envios-mock-seeded-v1');
+  } catch {
+    /* ignore */
+  }
+  return next;
 }
 
 export function saveShipments(shipments: ShipmentRecord[]): void {

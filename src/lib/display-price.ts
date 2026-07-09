@@ -15,8 +15,8 @@ export function formatDisplayPriceFromUsd(
 ): string {
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
-  if (showUsd) parts.push(formatUsd(usd));
   if (showPen) parts.push(formatPenFromUsd(usd));
+  if (showUsd) parts.push(formatUsd(usd));
   return parts.join(' · ');
 }
 
@@ -44,6 +44,17 @@ export function formatVolumeQuantityPromoMessage(
 ): string {
   const amount = formatDisplayPriceFromUsd(unitPriceUsd, displayCurrency);
   return `Si llevas ${quantity}, llévate en ${amount}`;
+}
+
+/** Mensaje promocional: «Llévate N unidades a S/ X c/u» según moneda activa. */
+export function formatVolumePerUnitPromoMessage(
+  quantity: number,
+  unitPriceUsd: number,
+  displayCurrency: DisplayCurrency,
+): string {
+  const amount = formatDisplayPriceFromUsd(unitPriceUsd, displayCurrency);
+  const unitLabel = quantity === 1 ? 'unidad' : 'unidades';
+  return `Llévate ${quantity} ${unitLabel} a ${amount} c/u`;
 }
 
 /** Mensaje promocional: «Si llevas N, ahorra S/ X soles». */
@@ -82,11 +93,11 @@ export function formatVolumeUnitPrice(
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
 
-  if (showUsd) {
-    parts.push(formatUsd(discountedUsdPrice(unitPriceUsd, discountPercent)));
-  }
   if (showPen) {
     parts.push(formatPenInteger(discountedPenPrice(unitPriceUsd, discountPercent)));
+  }
+  if (showUsd) {
+    parts.push(formatUsd(discountedUsdPrice(unitPriceUsd, discountPercent)));
   }
 
   return parts.join(' · ');

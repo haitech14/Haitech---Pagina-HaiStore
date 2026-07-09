@@ -10,37 +10,24 @@ import {
   darkNavSecondaryLinkClass,
   mainNavLinkClass,
 } from '@/components/layout/main-nav-styles';
-import { HeaderLogoLink } from '@/components/layout/site-logo';
+import { HeaderBrandLogos } from '@/components/layout/site-logo';
 import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { FORUM_HEADER_NAV } from '@/data/forum-home-layout';
 import {
-  ABOUT_NAV_SUBMENU,
-  CONTACT_NAV_SUBMENU,
-  RENTALS_NAV_SUBMENU,
+  getHeaderNavSubmenuDefaultHref,
+  PRODUCTOS_NAV_SUBMENU,
 } from '@/data/header-nav-submenus';
 import { formatPenFromUsd } from '@/lib/utils';
 export type { HeaderMainNavLink } from '@/components/layout/header-main-menu';
 
 export const headerMainNavLinks: HeaderMainNavLink[] = [
   {
-    id: RENTALS_NAV_SUBMENU.id,
-    to: RENTALS_NAV_SUBMENU.items[0]?.href ?? '/servicios?seccion=alquiler',
-    label: RENTALS_NAV_SUBMENU.label,
-    matchActive: RENTALS_NAV_SUBMENU.matchActive,
-  },
-  {
-    id: ABOUT_NAV_SUBMENU.id,
-    to: ABOUT_NAV_SUBMENU.items[0]?.href ?? '/#clientes',
-    label: ABOUT_NAV_SUBMENU.label,
-    matchActive: ABOUT_NAV_SUBMENU.matchActive,
-  },
-  {
-    id: CONTACT_NAV_SUBMENU.id,
-    to: CONTACT_NAV_SUBMENU.items[0]?.href ?? '/contacto',
-    label: CONTACT_NAV_SUBMENU.label,
-    matchActive: CONTACT_NAV_SUBMENU.matchActive,
+    id: PRODUCTOS_NAV_SUBMENU.id,
+    to: getHeaderNavSubmenuDefaultHref(PRODUCTOS_NAV_SUBMENU.items),
+    label: PRODUCTOS_NAV_SUBMENU.label,
+    matchActive: PRODUCTOS_NAV_SUBMENU.matchActive,
   },
 ];
 
@@ -59,7 +46,12 @@ export function isForumPath(pathname: string): boolean {
 
 function HeaderBrandLogo() {
   return (
-    <HeaderLogoLink heightClass="h-9 lg:h-10" width={176} height={39} loading="eager" />
+    <HeaderBrandLogos
+      heightClass="h-9 lg:h-10"
+      width={176}
+      height={39}
+      loading="eager"
+    />
   );
 }
 

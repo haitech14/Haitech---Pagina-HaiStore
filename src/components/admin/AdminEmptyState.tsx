@@ -19,16 +19,16 @@ export function AdminEmptyState({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center rounded-lg border border-dashed bg-muted/30 px-4 py-10 text-center',
+        'flex flex-col items-center justify-center rounded-lg border border-dashed bg-muted/30 px-3 py-5 text-center',
         className,
       )}
       role="status"
     >
-      <span className="mb-3 flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-        {icon ?? <Inbox className="size-5" aria-hidden="true" />}
+      <span className="mb-2 flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        {icon ?? <Inbox className="size-4" aria-hidden="true" />}
       </span>
-      <p className="text-sm font-semibold text-foreground">{title}</p>
-      <p className="mt-1 max-w-xs text-xs text-muted-foreground">{description}</p>
+      <p className="text-xs font-semibold text-foreground">{title}</p>
+      <p className="mt-0.5 max-w-xs text-[0.6875rem] text-muted-foreground">{description}</p>
     </div>
   );
 }

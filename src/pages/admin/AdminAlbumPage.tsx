@@ -1,5 +1,5 @@
-import { MediaAlbumPanel } from '@/components/admin/media-album/media-album-panel';
+import { Navigate } from 'react-router-dom';
 
 export function AdminAlbumPage() {
-  return <MediaAlbumPanel />;
+  return <Navigate to="/admin/medios" replace />;
 }

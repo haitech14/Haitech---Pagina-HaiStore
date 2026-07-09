@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Star, ZoomIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 
 import {
@@ -16,11 +17,13 @@ import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { recommendationImageSources } from '@/lib/responsive-image';
 import { cn } from '@/lib/utils';
 
+const CAROUSEL_GAP_CLASS = 'gap-3';
+/** 2 móvil · 3 md · 4 lg · 5 xl visibles por vista. */
 const SLIDE_CLASS =
-  'min-w-0 flex-[0_0_88%] sm:flex-[0_0_48%] md:flex-[0_0_32%]';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] md:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-2.25rem)/4)] xl:flex-[0_0_calc((100%-3rem)/5)]';
 
 const carouselArrowClass =
-  'absolute top-[32%] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-white text-foreground shadow-md transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-35 sm:size-10';
+  'absolute top-[38%] z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-white text-foreground shadow-md transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-35 sm:size-9';
 
 function StarRating({ compact = false }: { compact?: boolean }) {
   return (
@@ -228,11 +231,12 @@ export function ClientRecommendationsSection() {
 
   return (
     <section
+      id="testimonios"
       aria-labelledby="clientes-recomiendan-titulo"
-      className="home-landing-sans relative overflow-hidden py-8 sm:py-10"
+      className="home-landing-sans relative overflow-hidden py-5 sm:py-6"
     >
       <div className="container relative">
-        <header className="mx-auto mb-6 max-w-3xl text-center sm:mb-8">
+        <header className="mx-auto mb-4 max-w-3xl text-center sm:mb-5">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
             <span className="h-px w-8 bg-red-600/70 sm:w-12" aria-hidden="true" />
             <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-red-600 sm:text-xs">
@@ -243,50 +247,46 @@ export function ClientRecommendationsSection() {
 
           <h2
             id="clientes-recomiendan-titulo"
-            className="home-section-title mt-3 text-balance text-2xl font-bold tracking-tight text-[#0f1f3d] sm:mt-4 sm:text-3xl lg:text-[2rem]"
+            className="home-section-title mt-2 text-balance text-xl font-bold tracking-tight text-[#0f1f3d] sm:mt-3 sm:text-2xl lg:text-[1.75rem]"
           >
             Nuestros clientes nos{' '}
             <span className="text-red-600">recomiendan</span>
           </h2>
 
-          <p className="mx-auto mt-2 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground sm:mt-3 sm:text-base">
+          <p className="mx-auto mt-1.5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground sm:mt-2">
             Experiencias de compra, entrega y soporte. Toca una foto para verla en grande.
           </p>
         </header>
 
-        <ul className="hidden gap-3 lg:grid lg:grid-cols-5 lg:gap-3 xl:gap-4">
-          {clientRecommendations.map((item) => (
-            <li key={item.id}>
-              <RecommendationCard item={item} onOpen={setLightboxItem} compact />
-            </li>
-          ))}
-        </ul>
+        <div className={cn('relative', scrollSnaps.length > 1 && 'px-9 sm:px-11')}>
+          {scrollSnaps.length > 1 ? (
+            <>
+              <button
+                type="button"
+                onClick={scrollPrev}
+                disabled={!canScrollPrev}
+                className={cn(carouselArrowClass, 'left-0')}
+                aria-label="Testimonio anterior"
+              >
+                <ChevronLeft className="size-4" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={scrollNext}
+                disabled={!canScrollNext}
+                className={cn(carouselArrowClass, 'right-0')}
+                aria-label="Testimonio siguiente"
+              >
+                <ChevronRight className="size-4" aria-hidden="true" />
+              </button>
+            </>
+          ) : null}
 
-        <div className="relative lg:hidden">
-          <button
-            type="button"
-            onClick={scrollPrev}
-            disabled={!canScrollPrev}
-            className={cn(carouselArrowClass, '-left-1 sm:left-0')}
-            aria-label="Testimonio anterior"
-          >
-            <ChevronLeft className="size-5" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={scrollNext}
-            disabled={!canScrollNext}
-            className={cn(carouselArrowClass, '-right-1 sm:right-0')}
-            aria-label="Testimonio siguiente"
-          >
-            <ChevronRight className="size-5" aria-hidden="true" />
-          </button>
-
-          <div className="overflow-hidden px-10 sm:px-12" ref={emblaRef}>
-            <ul className="flex touch-pan-y">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <ul className={cn('flex touch-pan-y', CAROUSEL_GAP_CLASS)}>
               {clientRecommendations.map((item) => (
-                <li key={item.id} className={cn(SLIDE_CLASS, 'pl-3 first:pl-0 sm:pl-4')}>
-                  <RecommendationCard item={item} onOpen={setLightboxItem} />
+                <li key={item.id} className={SLIDE_CLASS}>
+                  <RecommendationCard item={item} onOpen={setLightboxItem} compact />
                 </li>
               ))}
             </ul>
@@ -314,6 +314,15 @@ export function ClientRecommendationsSection() {
               ))}
             </div>
           ) : null}
+        </div>
+
+        <div className="mt-4 flex justify-center">
+          <Link
+            to="#clientes"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-red-600/30 bg-white px-5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+          >
+            Ver más entregas reales
+          </Link>
         </div>
       </div>
 

@@ -18,6 +18,7 @@ import { ProductAttributeBadges } from '@/components/product-attribute-badges';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { useProduct } from '@/hooks/use-product';
 import { buildProductDetail } from '@/lib/build-product-detail';
+import { inventoryCategoryLeafLabel } from '@/lib/inventory-stock-status';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import {
   resolveProductHeroBrand,
@@ -69,7 +70,12 @@ export function ProductQuickViewDialog({
     ? resolveProductHeroCode(product)
     : getProductCardTitleContent(badgeSource).code;
   const title = detail?.heroTitle ?? getProductCardTitleContent(badgeSource).title;
-  const categoryLabel = detail?.categoryLabel ?? snapshot?.category ?? product?.category ?? null;
+  const rawCategory = detail?.categoryLabel ?? snapshot?.category ?? product?.category ?? null;
+  const categoryLabel = detail?.categoryLabel
+    ? detail.categoryLabel
+    : rawCategory
+      ? inventoryCategoryLeafLabel(rawCategory)
+      : null;
 
   const displayName = product?.name ?? snapshot?.name ?? title;
   const detailHref = product
@@ -180,7 +186,7 @@ export function ProductQuickViewDialog({
                     Comprar ahora
                   </Button>
                   <Button type="button" variant="outline" className="min-h-11 w-full" disabled>
-                    Añadir al carrito
+                    Comprar
                   </Button>
                   <span className="sr-only">Cargando acciones de compra…</span>
                 </div>

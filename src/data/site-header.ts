@@ -1,4 +1,4 @@
-import { Clock, Mail, Phone, Truck, type LucideIcon } from 'lucide-react';
+import { Clock, Phone, Truck, type LucideIcon } from 'lucide-react';
 
 import { FOOTER_WHATSAPP_LINK } from '@/data/site-footer';
 import { buildHaitechWhatsAppUrl, HAITECH_WHATSAPP_URL } from '@/lib/whatsapp-sales';
@@ -9,7 +9,13 @@ export const HEADER_SALES_PHONE_TEL = 'tel:+51915149290';
 export const HEADER_SALES_WHATSAPP_LINK = HAITECH_WHATSAPP_URL;
 export const HEADER_SUPPORT_PHONE_DISPLAY = '965 805 873';
 export const HEADER_SUPPORT_PHONE_TEL = 'tel:+51965805873';
+export const HEADER_TOPBAR_PROMO_TEXT =
+  'Envío gratis por compras mayores a S/ 299.00 para Lima Metropolitana. Aplica T&C';
 export const HEADER_TOPBAR_ADDRESS = 'Av. Petit Thouars 1935 - Lince';
+export const HEADER_PIURA_ADDRESS =
+  'Calle Los Ficus N° 157, Urb. Miraflores I Etapa, Mz Q-1 - Piura';
+export const HEADER_LIMA_MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(HEADER_TOPBAR_ADDRESS)}`;
+export const HEADER_PIURA_MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(HEADER_PIURA_ADDRESS)}`;
 export const HEADER_SALES_EMAIL = 'ventas@haitech.pe';
 export const HEADER_SALES_EMAIL_MAILTO = 'mailto:ventas@haitech.pe';
 export const HEADER_BUSINESS_HOURS = 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
@@ -40,12 +46,6 @@ export const HEADER_UTILITY_LEFT_ITEMS: HeaderUtilityItem[] = [
     href: HEADER_SALES_PHONE_TEL,
   },
   {
-    id: 'email',
-    label: HEADER_SALES_EMAIL,
-    icon: Mail,
-    href: HEADER_SALES_EMAIL_MAILTO,
-  },
-  {
     id: 'horario',
     label: HEADER_BUSINESS_HOURS,
     icon: Clock,
@@ -53,7 +53,7 @@ export const HEADER_UTILITY_LEFT_ITEMS: HeaderUtilityItem[] = [
 ];
 
 export const HEADER_UTILITY_RIGHT_ITEMS: HeaderUtilityItem[] = [
-  { id: 'envios', label: 'Envíos a nivel nacional', icon: Truck },
+  { id: 'envio-gratis-lima', label: HEADER_TOPBAR_PROMO_TEXT, icon: Truck },
 ];
 
 /** @deprecated Usar HEADER_UTILITY_LEFT_ITEMS / HEADER_UTILITY_RIGHT_ITEMS */

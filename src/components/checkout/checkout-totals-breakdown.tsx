@@ -119,11 +119,11 @@ export function CheckoutTotalsBreakdown({
           <p className="text-[0.65rem] leading-snug text-muted-foreground/80">
             Total{' '}
             <span className="tabular-nums">
-              {formatUsd(installmentPreview.totalWithInstallmentUsd)}
+              {formatPenAmount(installmentPreview.totalWithInstallmentPen)}
             </span>
             {' · '}
             <span className="tabular-nums">
-              {formatPenAmount(installmentPreview.totalWithInstallmentPen)}
+              {formatUsd(installmentPreview.totalWithInstallmentUsd)}
             </span>
           </p>
         </div>

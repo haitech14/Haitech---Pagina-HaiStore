@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none" role="img" aria-label="Sin Imagen">
+  <rect width="160" height="120" fill="#F3F5F8" rx="8" />
+  <g stroke="#707A8A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="48" y="22" width="64" height="52" rx="6" />
+    <path d="M56 58L72 42L88 54L104 38" />
+    <circle cx="72" cy="36" r="4" fill="#707A8A" stroke="none" />
+    <path d="M48 22L112 74" />
+  </g>
+  <text
+    x="80"
+    y="98"
+    text-anchor="middle"
+    fill="#707A8A"
+    font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+    font-size="14"
+    font-weight="600"
+  >
+    Sin Imagen
+  </text>
+</svg>

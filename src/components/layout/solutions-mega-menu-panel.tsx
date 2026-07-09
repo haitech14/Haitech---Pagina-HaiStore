@@ -10,6 +10,7 @@ import {
   type SolutionsMegaMenuSectionId,
 } from '@/data/solutions-mega-menu';
 import { Button } from '@/components/ui/button';
+import { megaMenuIconForSlug } from '@/lib/mega-menu-visuals';
 import { cn } from '@/lib/utils';
 
 const ICON_STROKE = 1.5;
@@ -39,6 +40,8 @@ function MegaMenuColumn({
   group: MegaMenuStaticColumnGroup;
   onNavigate: () => void;
 }) {
+  const Icon = megaMenuIconForSlug(group.slug);
+
   return (
     <div className="flex min-w-0 flex-col">
       <MegaMenuLink
@@ -56,8 +59,11 @@ function MegaMenuColumn({
         </span>
       </MegaMenuLink>
 
-      <h4 className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-foreground">
-        {group.title}
+      <h4 className="mt-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-foreground">
+        <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-600">
+          <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" />
+        </span>
+        <span>{group.title}</span>
       </h4>
 
       <ul className="mt-2 space-y-1.5" role="list">

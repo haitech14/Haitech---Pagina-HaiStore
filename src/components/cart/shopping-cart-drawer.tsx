@@ -185,11 +185,11 @@ export function ShoppingCartDrawer() {
                             </ul>
                           ) : null}
 
-                          {preparationType === 'semirepotenciada' ? (
+                          {preparationType && preparationType !== 'acondicionado' ? (
                             <p className="mt-1 text-[0.6875rem] text-muted-foreground">
                               Preparado:{' '}
                               <span className="font-semibold text-[#0f1f3d]">
-                                {SEMINUEVA_PREPARATION_LABELS.semirepotenciada}
+                                {SEMINUEVA_PREPARATION_LABELS[preparationType]}
                               </span>
                             </p>
                           ) : null}

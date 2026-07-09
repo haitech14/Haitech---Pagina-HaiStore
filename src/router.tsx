@@ -144,17 +144,17 @@ const AdminDashboard = lazyWithRetry(
   () => import('@/pages/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard })),
   'panel',
 );
-const AdminPlaceholder = lazyWithRetry(
-  () => import('@/pages/admin/AdminPlaceholder').then((m) => ({ default: m.AdminPlaceholder })),
-  'admin',
+const AdminResumenPage = lazyWithRetry(
+  () => import('@/pages/admin/AdminResumenPage').then((m) => ({ default: m.AdminResumenPage })),
+  'resumen',
 );
 const AdminInventarioPage = lazyWithRetry(
   () => import('@/pages/admin/AdminInventarioPage').then((m) => ({ default: m.AdminInventarioPage })),
   'inventario',
 );
-const AdminAlbumPage = lazyWithRetry(
-  () => import('@/pages/admin/AdminAlbumPage').then((m) => ({ default: m.AdminAlbumPage })),
-  'album',
+const AdminMediosPage = lazyWithRetry(
+  () => import('@/pages/admin/AdminMediosPage').then((m) => ({ default: m.AdminMediosPage })),
+  'medios',
 );
 const AdminClientesPage = lazyWithRetry(
   () => import('@/pages/admin/AdminClientesPage').then((m) => ({ default: m.AdminClientesPage })),
@@ -223,9 +223,24 @@ const AdminConfiguracionSectionPage = lazyWithRetry(
     })),
   'configuración',
 );
+const AdminConfiguracionUsuariosPage = lazyWithRetry(
+  () =>
+    import('@/pages/admin/AdminConfiguracionUsuariosPage').then((m) => ({
+      default: m.AdminConfiguracionUsuariosPage,
+    })),
+  'configuración-usuarios',
+);
 const AdminPedidosPage = lazyWithRetry(
   () => import('@/pages/admin/AdminPedidosPage').then((m) => ({ default: m.AdminPedidosPage })),
   'pedidos',
+);
+const AdminBandejaPage = lazyWithRetry(
+  () => import('@/pages/admin/AdminBandejaPage').then((m) => ({ default: m.AdminBandejaPage })),
+  'bandeja',
+);
+const AdminMuralPage = lazyWithRetry(
+  () => import('@/pages/admin/AdminMuralPage').then((m) => ({ default: m.AdminMuralPage })),
+  'mural',
 );
 const AdminVentasPage = lazyWithRetry(
   () => import('@/pages/admin/AdminVentasPage').then((m) => ({ default: m.AdminVentasPage })),
@@ -246,6 +261,14 @@ const AdminEnviosPage = lazyWithRetry(
 const AdminCategoriasPage = lazyWithRetry(
   () => import('@/pages/admin/AdminCategoriasPage').then((m) => ({ default: m.AdminCategoriasPage })),
   'categorías',
+);
+const AdminAtributosPage = lazyWithRetry(
+  () => import('@/pages/admin/AdminAtributosPage').then((m) => ({ default: m.AdminAtributosPage })),
+  'atributos',
+);
+const AdminVariantesPage = lazyWithRetry(
+  () => import('@/pages/admin/AdminVariantesPage').then((m) => ({ default: m.AdminVariantesPage })),
+  'variantes',
 );
 const AdminListasPreciosPage = lazyWithRetry(
   () =>
@@ -330,11 +353,15 @@ export const router = createBrowserRouter([
     element: withSuspense(<AdminLayout />),
     children: [
       { index: true, element: withSuspense(<AdminDashboard />) },
+      { path: 'resumen', element: withSuspense(<AdminResumenPage />) },
       { path: 'ventas', element: withSuspense(<AdminVentasPage />) },
       { path: 'pedidos', element: withSuspense(<AdminPedidosPage />) },
+      { path: 'bandeja', element: withSuspense(<AdminBandejaPage />) },
+      { path: 'mural', element: withSuspense(<AdminMuralPage />) },
       { path: 'productos', element: <Navigate to="/admin/inventario" replace /> },
       { path: 'inventario', element: withSuspense(<AdminInventarioPage />) },
-      { path: 'album', element: withSuspense(<AdminAlbumPage />) },
+      { path: 'medios', element: withSuspense(<AdminMediosPage />) },
+      { path: 'album', element: <Navigate to="/admin/medios" replace /> },
       { path: 'clientes', element: withSuspense(<AdminClientesPage />) },
       {
         path: 'crm',
@@ -349,7 +376,7 @@ export const router = createBrowserRouter([
       },
       { path: 'marketing', element: withSuspense(<AdminMarketingPage />) },
       { path: 'marketing/cupones', element: withSuspense(<AdminMarketingCuponesPage />) },
-      { path: 'reportes', element: withSuspense(<AdminPlaceholder page="reportes" />) },
+      { path: 'reportes', element: <Navigate to="/admin/resumen?vista=reportes" replace /> },
       {
         path: 'configuracion',
         element: withSuspense(<AdminConfiguracionLayout />),
@@ -357,7 +384,7 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/admin/configuracion/general" replace /> },
           {
             path: 'usuarios',
-            element: <Navigate to="/admin/crm/clientes" replace />,
+            element: withSuspense(<AdminConfiguracionUsuariosPage />),
           },
           { path: ':section', element: withSuspense(<AdminConfiguracionSectionPage />) },
         ],
@@ -367,6 +394,8 @@ export const router = createBrowserRouter([
       { path: 'alquileres-planes', element: withSuspense(<AdminAlquileresPage />) },
       { path: 'envios', element: withSuspense(<AdminEnviosPage />) },
       { path: 'categorias', element: withSuspense(<AdminCategoriasPage />) },
+      { path: 'atributos', element: withSuspense(<AdminAtributosPage />) },
+      { path: 'variantes', element: withSuspense(<AdminVariantesPage />) },
       { path: 'listas-precios', element: withSuspense(<AdminListasPreciosPage />) },
       {
         path: 'apariencia',
@@ -376,7 +405,7 @@ export const router = createBrowserRouter([
   },
   { path: '/panel', element: <Navigate to="/admin" replace /> },
   { path: '/panel/inventario', element: <Navigate to="/admin/inventario" replace /> },
-  { path: '/panel/usuarios', element: <Navigate to="/admin/crm/clientes" replace /> },
+  { path: '/panel/usuarios', element: <Navigate to="/admin/configuracion/usuarios" replace /> },
   {
     path: '/panel/configuracion',
     element: <Navigate to="/admin/configuracion/general" replace />,

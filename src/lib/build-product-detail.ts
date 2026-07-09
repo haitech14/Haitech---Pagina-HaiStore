@@ -3,9 +3,9 @@ import {
   BookOpen,
   Cloud,
   Copy,
+  Droplets,
   FileText,
   Gauge,
-  Gift,
   Inbox,
   Layers,
   Leaf,
@@ -34,6 +34,7 @@ import {
   resolveTitlePredominantPrinterFields,
   shouldPreferTitleSyncedHeroBullets,
 } from '@/lib/product-title-spec-sync';
+import { extractProductYield, formatYieldLabel } from '@/lib/product-cost-per-copy';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import {
   CASETERA_250_PB1110_PRODUCT_ID,
@@ -69,8 +70,10 @@ import type { Product } from '@/types/product';
 import { productHasNuevoCornerBadge } from '@/lib/product-detail-badges';
 import { findTechnicalSheetAttachment, findAttachmentByKind } from '@/lib/inventory-attachments';
 import { buildProductGalleryItems } from '@/lib/product-media';
-import { resolveProductHeroBrand, resolveProductHeroCode } from '@/lib/product-hero-meta';
+import { productQualifiesAsSeminuevaEquipment } from '@/lib/inventory-product-name';
+import { resolveProductHeroBrand, resolveProductHeroCode, resolveProductEquipmentConditionLabel } from '@/lib/product-hero-meta';
 import {
+  GIFT_TRUST_SUBTITLE,
   heroBulletsToStored,
   highlightsToStoredFeatureBar,
   normalizeStorefrontHeroBullets,
@@ -119,13 +122,11 @@ const IM_BN_A4_FORMAT_BULLET: ProductHeroSpecBullet = {
 
 const IM_BN_A4_MONTHLY_PRODUCTION_BULLET: ProductHeroSpecBullet = {
   icon: Gauge,
-  text: 'Producción mensual 50,000 páginas al mes',
+  label: 'Producción mensual',
+  value: '50,000 páginas',
 };
 
-const IM_BN_A4_GIFT_BULLET: ProductHeroSpecBullet = {
-  icon: Gift,
-  text: 'Regalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis',
-};
+const DEFAULT_TONER_YIELD_DESCRIPTION = '7,000 páginas';
 
 const IM430F_HERO_LEAD = '';
 
@@ -138,10 +139,12 @@ function resolvePrinterSpeedTitle(specs: ProductSpecRow[]): string {
 
 function resolvePrinterHeroSpeedBulletText(product: Product, specs: ProductSpecRow[]): string {
   const speed = resolvePrinterSpeedTitle(specs);
-  if (shouldShowGiftBullet(product)) {
-    return `${speed} y escaneo de 180 ipm`;
-  }
-  return `Imprime hasta ${speed}`;
+  const adf = resolveAdfPillLabel(product, specs);
+  return `${speed} / ${adf}`;
+}
+
+export function resolveGiftTrustSubtitle(_product: Product): string {
+  return GIFT_TRUST_SUBTITLE;
 }
 
 function resolveAdfFeatureBarTile(
@@ -174,27 +177,6 @@ function resolveFormatFeatureBarTile(
   return { title: format, subtitle: 'Formato de impresión' };
 }
 
-function formatConnectivityBullet(connectivity: string): string {
-  const formatted = connectivity
-    .replace(/\s*\/\s*/g, ', ')
-    .replace(/\s+y\s+/i, ', ')
-    .replace(/Red/gi, 'LAN');
-  return `Conectividad: ${formatted}`;
-}
-
-function resolveAdfBulletText(product: Product, specs: ProductSpecRow[]): string {
-  if (isImBnA4Sibling(product)) {
-    return 'SPDF — Alimentador de originales doble scan';
-  }
-
-  const adf = specValue(specs, 'adf') || findProductAttribute(product, 'alimentador', 'adf') || '';
-  if (/doble\s*scan/i.test(adf)) {
-    return 'SPDF — Alimentador de originales doble scan';
-  }
-  if (adf.trim()) return adf.trim();
-  return 'SPDF — Alimentador de originales doble scan';
-}
-
 function resolveFormatBulletText(product: Product, specs: ProductSpecRow[]): string {
   const titleSync = resolveTitlePredominantPrinterFields(product);
   if (titleSync.active && titleSync.format) {
@@ -212,6 +194,74 @@ function resolveFormatBulletText(product: Product, specs: ProductSpecRow[]): str
   return `Formato ${format}`;
 }
 
+function formatTonerYieldDescription(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  const yieldInfo = extractProductYield({ name: trimmed, attributes: [], description: trimmed });
+  const formatted = formatYieldLabel(yieldInfo.pages, yieldInfo.label);
+  if (formatted !== '—') return formatted;
+  if (/p[aá]ginas?/i.test(trimmed)) return trimmed;
+  return null;
+}
+
+function parseStarterTonerYieldFromDescription(description: string | null | undefined): string | null {
+  if (!description?.trim()) return null;
+
+  for (const line of description.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!/toner|t[oó]ner/i.test(trimmed) || /regalo/i.test(trimmed)) continue;
+    const formatted = formatTonerYieldDescription(trimmed);
+    if (formatted) return formatted;
+  }
+
+  return null;
+}
+
+function resolveKnownStarterTonerYield(product: Product): string | null {
+  if (isIm430f(product)) return '8,000 páginas';
+  if (isM320f(product)) return '5,600 páginas';
+  return null;
+}
+
+function resolveTonerYieldBulletDescription(product: Product, specs: ProductSpecRow[]): string {
+  const fromSpec = specValue(
+    specs,
+    'rendimiento de toner',
+    'rendimiento toner',
+    'rendimiento tóner',
+    'toner de inicio',
+    'toner inicio',
+    'tóner de inicio',
+  );
+  if (fromSpec) {
+    const formatted = formatTonerYieldDescription(fromSpec);
+    if (formatted) return formatted;
+  }
+
+  const fromAttr = findProductAttribute(
+    product,
+    'rendimiento toner',
+    'rendimiento tóner',
+    'rendimiento de toner',
+    'toner inicio',
+    'toner de inicio',
+    'tóner de inicio',
+  );
+  if (fromAttr) {
+    const formatted = formatTonerYieldDescription(fromAttr);
+    if (formatted) return formatted;
+  }
+
+  const fromKnown = resolveKnownStarterTonerYield(product);
+  if (fromKnown) return fromKnown;
+
+  const fromDescription = parseStarterTonerYieldFromDescription(product.description);
+  if (fromDescription) return fromDescription;
+
+  return DEFAULT_TONER_YIELD_DESCRIPTION;
+}
+
 function resolveMonthlyProductionBullet(
   product: Product,
   specs: ProductSpecRow[],
@@ -219,12 +269,12 @@ function resolveMonthlyProductionBullet(
   const volume = specValue(specs, 'volumen');
   if (volume) {
     const monthly = volume.replace(/^hasta\s+/i, '');
-    return { icon: Gauge, text: `Producción mensual ${monthly}` };
+    return { icon: Gauge, label: 'Producción mensual', value: monthly };
   }
 
   const fromModel = resolveRicohMonthlyProductionFromModel(product);
   if (fromModel) {
-    return { icon: Gauge, text: `Producción mensual ${fromModel}` };
+    return { icon: Gauge, label: 'Producción mensual', value: fromModel };
   }
 
   if (/nuev/i.test(product.category ?? '')) {
@@ -232,10 +282,6 @@ function resolveMonthlyProductionBullet(
   }
 
   return null;
-}
-
-function shouldShowGiftBullet(product: Product): boolean {
-  return /nuev/i.test(product.category ?? '') || isImBnA4Sibling(product);
 }
 
 function resolveAdfPillLabel(product: Product, specs: ProductSpecRow[]): string {
@@ -335,44 +381,137 @@ function buildPrinterFeatureBar(product: Product, specs: ProductSpecRow[]): Prod
   ];
 }
 
-function buildPrinterHeroSpecBullets(product: Product, specs: ProductSpecRow[]): ProductHeroSpecBullet[] {
-  const bullets: ProductHeroSpecBullet[] = [];
-  const functions = specValue(specs, 'funciones');
-  const connectivity = specValue(specs, 'conectividad');
-
-  bullets.push({ icon: Copy, text: 'Copiadora, Impresora, Escaner y fax' });
-  bullets.push({ icon: Printer, text: resolvePrinterHeroSpeedBulletText(product, specs) });
-
-  if (connectivity) {
-    bullets.push({ icon: Wifi, text: formatConnectivityBullet(connectivity) });
+function resolveHeroFormatValue(product: Product, specs: ProductSpecRow[]): string {
+  const raw = resolveFormatBulletText(product, specs).replace(/^Formato\s+/i, '');
+  const a4Match = raw.match(/A4[^,]*/i);
+  if (a4Match && /a5|a6/i.test(raw)) {
+    return 'A4, A5, A6';
   }
+  return raw.replace(/\s+bypass.*/i, '').trim() || 'A4, A5, A6';
+}
 
-  bullets.push({ icon: ScanLine, text: resolveAdfBulletText(product, specs) });
+function resolveHeroConnectivityValue(specs: ProductSpecRow[]): string {
+  const connectivity = specValue(specs, 'conectividad') || 'Wi-Fi, Ethernet, USB';
+  return connectivity
+    .replace(/\s*\/\s*/g, ', ')
+    .replace(/\s+y\s+/i, ', ')
+    .replace(/Red/gi, 'Ethernet')
+    .replace(/LAN/gi, 'Ethernet');
+}
 
-  if (functions) {
-    const normalized = functions.replace(/\s*\/\s*/g, ', ').toLowerCase();
-    const firstBullet = bullets[0]?.text?.toLowerCase() ?? '';
-    const isRedundant =
-      /impresi|copia|escane|fax/.test(normalized) &&
-      /copiadora|impresora|escaner|fax/.test(firstBullet);
-    if (!isRedundant) {
-      bullets.push({
-        icon: ScanLine,
-        text: functions.replace(/\s*\/\s*/g, ', '),
-      });
+function resolveHeroMonthlyProductionValue(product: Product, specs: ProductSpecRow[]): string {
+  const monthly = resolveMonthlyProductionBullet(product, specs);
+  if (monthly?.value) {
+    return monthly.value.replace(/\s+al\s+mes$/i, '').trim();
+  }
+  return '50,000 páginas';
+}
+
+function buildPrinterHeroSpecBullets(product: Product, specs: ProductSpecRow[]): ProductHeroSpecBullet[] {
+  return [
+    {
+      icon: Copy,
+      label: 'Funciones 4 en 1',
+      value: 'Copia, impresión, escaneo y fax',
+    },
+    {
+      icon: Gauge,
+      label: 'Velocidad',
+      value: resolvePrinterHeroSpeedBulletText(product, specs),
+    },
+    {
+      icon: FileText,
+      label: 'Formato de Papel',
+      value: resolveHeroFormatValue(product, specs),
+    },
+    {
+      icon: Wifi,
+      label: 'Conectividad',
+      value: resolveHeroConnectivityValue(specs),
+    },
+    {
+      icon: Gauge,
+      label: 'Producción mensual',
+      value: resolveHeroMonthlyProductionValue(product, specs),
+    },
+    {
+      icon: Droplets,
+      label: 'Rendimiento de tóner',
+      value: resolveTonerYieldBulletDescription(product, specs),
+    },
+  ];
+}
+
+function heroBulletLine(bullet: ProductHeroSpecBullet): string {
+  return `${bullet.label ?? ''} ${bullet.value ?? ''} ${bullet.text ?? ''}`.trim();
+}
+
+function postProcessHeroSpecBullets(
+  bullets: ProductHeroSpecBullet[],
+  product: Product,
+  specs: ProductSpecRow[],
+): ProductHeroSpecBullet[] {
+  const adf = resolveAdfPillLabel(product, specs);
+
+  const cleaned = bullets.filter((bullet) => {
+    const line = heroBulletLine(bullet);
+    if (/regalo/i.test(line)) return false;
+    if (/alimentador de originales/i.test(line) && !/ppm/i.test(line)) return false;
+    if (/\bspdf\b/i.test(line) && !/ppm|velocidad/i.test(line)) return false;
+    return true;
+  });
+
+  const processed = cleaned.map((bullet) => {
+    let next = bullet;
+
+    if (next.label === 'Formato') {
+      next = { ...next, label: 'Formato de Papel' };
+    }
+
+    const line = heroBulletLine(next);
+    const isSpeed =
+      next.label === 'Velocidad' ||
+      /velocidad/i.test(next.label ?? '') ||
+      (/ppm/i.test(line) && !/producci[oó]n/i.test(line));
+
+    if (!isSpeed) return next;
+
+    const raw =
+      next.value ??
+      next.text?.replace(/^velocidad:?\s*/i, '').replace(/^imprime hasta\s+/i, '').trim() ??
+      '';
+    if (!raw || /\/\s*adf/i.test(raw)) return next;
+
+    const speed = raw.split('/')[0]?.trim() ?? raw;
+    return {
+      ...next,
+      text: undefined,
+      label: 'Velocidad',
+      value: `${speed} / ${adf}`,
+    };
+  });
+
+  const hasConditionBullet = processed.some((bullet) =>
+    /condici[oó]n/i.test(heroBulletLine(bullet)),
+  );
+  if (!hasConditionBullet) {
+    if (productQualifiesAsSeminuevaEquipment(product)) {
+      const conditionLabel = resolveProductEquipmentConditionLabel(product);
+      if (conditionLabel === 'Seminueva') {
+        const funcionesIndex = processed.findIndex((bullet) =>
+          /funciones/i.test(heroBulletLine(bullet)),
+        );
+        const insertAt = funcionesIndex >= 0 ? funcionesIndex + 1 : 0;
+        processed.splice(insertAt, 0, {
+          icon: Shield,
+          label: 'Condición',
+          value: 'Seminueva',
+        });
+      }
     }
   }
 
-  bullets.push({ icon: FileText, text: resolveFormatBulletText(product, specs) });
-
-  const monthly = resolveMonthlyProductionBullet(product, specs);
-  if (monthly) bullets.push(monthly);
-
-  if (shouldShowGiftBullet(product)) {
-    bullets.push(IM_BN_A4_GIFT_BULLET);
-  }
-
-  return bullets.slice(0, 10);
+  return processed;
 }
 
 function buildPrinterDescriptionVisual(product: Product, specs: ProductSpecRow[]): ProductDescriptionVisual {
@@ -495,6 +634,78 @@ const IM430F_SPECS: ProductSpecRow[] = [
   { label: 'Capacidad de papel estándar', value: '550 hojas (expandible a 2,300 hojas)' },
   { label: 'Volumen mensual recomendado', value: 'Hasta 10,000 páginas' },
 ];
+
+const M320F_SPECS: ProductSpecRow[] = [
+  { section: 'Especificaciones Generales', label: 'Tiempo de calentamiento', value: '30 s' },
+  { section: 'Especificaciones Generales', label: 'Primera copia B/N', value: 'Menos de 8 s' },
+  { section: 'Especificaciones Generales', label: 'Velocidad continua', value: '32 ppm' },
+  { section: 'Especificaciones Generales', label: 'Memoria', value: '256 MB' },
+  { section: 'Especificaciones Generales', label: 'HDD', value: 'Opcional' },
+  { section: 'Especificaciones Generales', label: 'SPDF', value: '35 hojas' },
+  { section: 'Especificaciones Generales', label: 'Dimensiones', value: '404 x 391 x 419 mm' },
+  { section: 'Especificaciones Generales', label: 'Peso', value: '18 kg' },
+  { section: 'Especificaciones Generales', label: 'Fuente de energía', value: '220-240V / 12A / 60Hz' },
+  { section: 'Especificaciones Generales', label: 'CPU', value: 'QB6640-23UF 1.2GHz.' },
+  { section: 'Impresora', label: 'Lenguajes estándar', value: 'PCL5e, PCL6, PS3, PDF Direct' },
+  { section: 'Impresora', label: 'Lenguajes opcionales', value: 'Adobe PS3 genuino, IPDS' },
+  { section: 'Impresora', label: 'Resolución', value: '1200 x 1200 dpi' },
+  { section: 'Impresora', label: 'Conectividad', value: 'Ethernet, USB' },
+  { section: 'Escáner', label: 'Velocidad', value: '13 ipm B/N & 4,5 ipm Color' },
+  { section: 'Escáner', label: 'Resolución', value: '600 dpi' },
+  { section: 'Escáner', label: 'Formatos', value: 'TIFF, JPEG, PDF' },
+  { section: 'Escáner', label: 'Envío', value: 'Email, Carpeta, USB, SD' },
+  { section: 'Fax', label: 'Compatibilidad', value: 'ITU-T (CCITT) G3' },
+  { section: 'Fax', label: 'Velocidad transmisión', value: '3 s' },
+  { section: 'Fax', label: 'Velocidad módem', value: '33.6 Kbps' },
+  { section: 'Fax', label: 'Resolución', value: '200 x 200 dpi' },
+  { section: 'Manejo de Papel', label: 'Entrada estándar', value: '300 hojas' },
+  { section: 'Manejo de Papel', label: 'Máxima entrada', value: '550 hojas' },
+  { section: 'Manejo de Papel', label: 'Salida', value: '250 hojas' },
+  { section: 'Manejo de Papel', label: 'Tamaños', value: 'A6–A4, B6–B5, personalizados' },
+  { section: 'Manejo de Papel', label: 'Peso admitido', value: '52 - 162 g/m2' },
+  { section: 'Consumo Eléctrico', label: 'Consumo máximo', value: '520 W' },
+  { section: 'Consumo Eléctrico', label: 'Operación', value: '514 W' },
+  { section: 'Consumo Eléctrico', label: 'Reposo', value: '0,87 W' },
+  { section: 'Consumo Eléctrico', label: 'TEC', value: '0.423 kWh' },
+  { section: 'Consumibles', label: 'Cartucho de toner', value: '5,600 páginas' },
+  { section: 'Consumibles', label: 'Norma', value: 'ISO/IEC 19752' },
+];
+
+export const DEFAULT_TRUST_WARRANTY_LABEL = '12 meses y/o 30,000 páginas';
+
+const DEFAULT_TRUST_WARRANTY_PAGES = '30,000';
+
+function formatTrustWarrantyLabel(months: number, pages?: string): string {
+  const pagesLabel = pages?.trim() || DEFAULT_TRUST_WARRANTY_PAGES;
+  return `${months} meses y/o ${pagesLabel} páginas`;
+}
+
+export function resolveTrustWarrantyLabel(warrantyBaseLabel?: string): string {
+  const label = warrantyBaseLabel?.trim();
+  if (!label) return DEFAULT_TRUST_WARRANTY_LABEL;
+
+  const formattedMatch = label.match(/^(\d+)\s*mes(?:es)?\s+y\/o\s+([\d.,]+)\s*pág/i);
+  if (formattedMatch?.[1] && formattedMatch[2]) {
+    return formatTrustWarrantyLabel(Number(formattedMatch[1]), formattedMatch[2]);
+  }
+
+  const yearPagesMatch = label.match(/(\d+)\s*añ[oa]s?.*?y\/o\s+([\d.,]+)\s*pág/i);
+  if (yearPagesMatch?.[1] && yearPagesMatch[2]) {
+    return formatTrustWarrantyLabel(Number(yearPagesMatch[1]) * 12, yearPagesMatch[2]);
+  }
+
+  const monthsOnlyMatch = label.match(/^(\d+)\s*mes/i);
+  if (monthsOnlyMatch?.[1]) {
+    return formatTrustWarrantyLabel(Number(monthsOnlyMatch[1]));
+  }
+
+  const yearOnlyMatch = label.match(/(\d+)\s*añ[oa]/i);
+  if (yearOnlyMatch?.[1]) {
+    return formatTrustWarrantyLabel(Number(yearOnlyMatch[1]) * 12);
+  }
+
+  return label;
+}
 
 const WARRANTY_BULLETS = [
   'Garantía oficial de 12 meses por defecto de fábrica.',
@@ -687,12 +898,6 @@ const CONSUMER_BULLETS = [
 function skuFromId(id: string): string {
   const clean = id.replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase().padEnd(8, '0');
   return `${clean.slice(0, 4)}-${clean.slice(4, 8)}-1`;
-}
-
-function soldCountFromId(id: string): number {
-  let hash = 0;
-  for (let i = 0; i < id.length; i += 1) hash = (hash + id.charCodeAt(i) * (i + 1)) % 97;
-  return 4 + (hash % 24);
 }
 
 export function isPrinterEquipment(product: Product): boolean {
@@ -1268,24 +1473,24 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
       options: [
         {
           id: 'garantia-base',
-          name: 'Garantía 1 año y/o 20,000 páginas',
+          name: '1 año y/o 20,000 páginas incluido',
           description: 'Incluido',
           pricePen: 0,
           included: true,
         },
         {
           id: 'garantia-2y',
-          name: 'Garantía extendida 2 años y/o 100,000 páginas',
-          description: '$200 o S/ 600 adicional',
-          priceUsd: 200,
-          pricePen: 600,
+          name: '2 años y/o 50,000 páginas',
+          description: `$150 o S/ ${usdToPen(150)} adicional`,
+          priceUsd: 150,
+          pricePen: usdToPen(150),
         },
         {
           id: 'garantia-3y',
-          name: 'Garantía extendida 3 años y/o 100,000 páginas',
-          description: '$350 adicional',
-          priceUsd: 350,
-          pricePen: usdToPen(350),
+          name: '3 años y/o 80,000 páginas',
+          description: `$250 o S/ ${usdToPen(250)} adicional`,
+          priceUsd: 250,
+          pricePen: usdToPen(250),
         },
       ],
     },
@@ -1379,13 +1584,16 @@ export function buildProductDetail(
 
   const specs = isIm430f(product)
     ? IM430F_SPECS
-    : isSupply
-      ? buildSupplySpecs(product)
-      : isPrinter
-        ? buildPrinterSpecs(product, brandLabel, sku)
-        : buildGenericSpecs(product, brandLabel, sku);
+    : isM320f(product)
+      ? M320F_SPECS
+      : isSupply
+        ? buildSupplySpecs(product)
+        : isPrinter
+          ? buildPrinterSpecs(product, brandLabel, sku)
+          : buildGenericSpecs(product, brandLabel, sku);
 
-  const syncedSpecs = isPrinter ? applyTitlePredominanceToSpecs(product, specs) : specs;
+  const syncedSpecs =
+    isPrinter && !isM320f(product) ? applyTitlePredominanceToSpecs(product, specs) : specs;
 
   const generatedHeroBullets = buildHeroSpecBullets(product, syncedSpecs, isPrinter).map(
     (bullet) => ({
@@ -1393,12 +1601,19 @@ export function buildProductDetail(
       icon: resolveHeroBulletIcon(bullet),
     }),
   );
-  const heroSpecBullets = shouldPreferTitleSyncedHeroBullets(product)
-    ? generatedHeroBullets
-    : resolveStoredHeroBullets(product, generatedHeroBullets).map((bullet) => ({
-        ...bullet,
-        icon: resolveHeroBulletIcon(bullet),
-      }));
+  const heroSpecBullets = postProcessHeroSpecBullets(
+    shouldPreferTitleSyncedHeroBullets(product)
+      ? generatedHeroBullets
+      : resolveStoredHeroBullets(product, generatedHeroBullets).map((bullet) => ({
+          ...bullet,
+          icon: resolveHeroBulletIcon(bullet),
+        })),
+    product,
+    syncedSpecs,
+  ).map((bullet) => ({
+    ...bullet,
+    icon: resolveHeroBulletIcon(bullet),
+  }));
   const heroSpecTitle = buildHeroSpecTitle(product, isPrinter);
 
   const descriptionVisual = buildDescriptionVisual(product, syncedSpecs, isPrinter, heroSpecBullets);
@@ -1437,10 +1652,11 @@ export function buildProductDetail(
     heroDescription,
     heroSpecBullets,
     heroSpecTitle,
+    giftTrustSubtitle: isPrinter ? resolveGiftTrustSubtitle(product) : '',
     categoryLabel,
-    rating: featuredMeta?.rating ?? 4.6,
-    reviews: featuredMeta?.reviews ?? soldCountFromId(product.id) * 5 + 18,
-    soldCount: soldCountFromId(product.id),
+    rating: featuredMeta?.rating ?? 0,
+    reviews: featuredMeta?.reviews ?? 0,
+    soldCount: 0,
     bullets,
     descriptionContent: buildDescriptionContent(product, isPrinter),
     descriptionVisual,
@@ -1464,7 +1680,7 @@ export function buildProductDetail(
             },
           ]
         : []),
-      { label: 'Solicitar cotización', subtitle: 'PDF', icon: FileText, action: 'quote' as const },
+      { label: 'Generar Cotización', subtitle: 'PDF', icon: FileText, action: 'quote' as const },
       ...(manualAttachment?.url
         ? [
             {

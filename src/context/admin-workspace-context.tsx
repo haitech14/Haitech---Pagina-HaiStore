@@ -12,7 +12,6 @@ import {
   ADMIN_WORKSPACE_BRANDS,
   type AdminWorkspaceBrand,
   type AdminWorkspaceBrandId,
-  isAdminWorkspaceBrandId,
 } from '@/lib/admin-workspace-brands';
 
 const STORAGE_KEY = 'admin-workspace-brand';
@@ -30,8 +29,11 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && isAdminWorkspaceBrandId(stored)) {
-      setBrandIdState(stored);
+    // Solo Haitech en el panel; Printcore queda fuera del sidebar.
+    if (stored === 'haitech') {
+      setBrandIdState('haitech');
+    } else if (stored) {
+      localStorage.setItem(STORAGE_KEY, 'haitech');
     }
   }, []);
 

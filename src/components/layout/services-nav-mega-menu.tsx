@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Wrench } from 'lucide-react';
 
 import { StaticNavMegaMenu } from '@/components/layout/static-nav-mega-menu';
+import { SERVICIOS_NAV_SUBMENU } from '@/data/header-nav-submenus';
 import { buildServicesNavMegaMenu } from '@/lib/nav-mega-menu-builders';
 
 export function ServicesNavMegaMenu({
@@ -14,12 +15,7 @@ export function ServicesNavMegaMenu({
 }) {
   const location = useLocation();
   const menu = useMemo(() => buildServicesNavMegaMenu(), []);
-  const isRouteActive =
-    location.pathname.startsWith('/servicio-tecnico') ||
-    location.pathname.startsWith('/outsourcing') ||
-    location.pathname.startsWith('/servicios-corporativos') ||
-    (location.pathname === '/servicios' &&
-      new URLSearchParams(location.search).get('seccion') !== 'alquiler');
+  const isRouteActive = SERVICIOS_NAV_SUBMENU.matchActive(location);
 
   return (
     <StaticNavMegaMenu

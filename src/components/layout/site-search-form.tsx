@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, FolderOpen, ImageOff, Loader2, Plus, Search, ShoppingCart, Wrench } from 'lucide-react';
+import { ChevronDown, FolderOpen, Loader2, Plus, Search, Wrench, X } from 'lucide-react';
 
 import { ProductCardImage } from '@/components/product/product-card-image';
-import { AddToCartButton, isProductOutOfStock, ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
+import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
 import { useAuth } from '@/context/auth-context';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
@@ -16,22 +16,26 @@ import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
 import {
   filterCategoriesBySearch,
   filterServicesBySearch,
-  groupSearchProductsByCategory,
-  getSearchCategoryEmoji,
   MIN_PRODUCT_SEARCH_LENGTH,
+  normalizeSearchText,
   PRODUCT_SEARCH_INITIAL_VISIBLE,
   PRODUCT_SEARCH_LOAD_MORE_STEP,
   PRODUCT_SEARCH_MAX_LIMIT,
   type SearchCategorySuggestion,
   type SearchServiceSuggestion,
 } from '@/lib/product-search';
-import { formatProductDisplayCode } from '@/lib/product-display-code';
+import {
+  buildProductCardImageCandidates,
+  buildProductCardImageSource,
+} from '@/lib/product-card-images';
+import { formatProductCardTitle, PRODUCT_CARD_STOCK_CLASS } from '@/lib/product-card-title';
+import { getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
 import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
+import { sanitizeStoredProductMedia } from '@/lib/product-media-sanitize';
 import { productPath } from '@/lib/product-path';
-import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { ensureFullPrices } from '@/lib/roles';
-import type { Product } from '@/types/product';
-import { cn, formatUsd } from '@/lib/utils';
+import type { Product, UserRole } from '@/types/product';
+import { cn, formatPenFromUsdDisplay, formatUsd } from '@/lib/utils';
 
 const ALL_CATEGORIES_VALUE = 'all';
 
@@ -109,6 +113,18 @@ const denseSearchInputWithIconClass =
 const denseSearchButtonClass =
   'flex h-10 w-10 shrink-0 items-center justify-center rounded-r-full border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
+const SEARCH_SUGGESTION_THUMB_CLASS =
+  'size-8 shrink-0 overflow-hidden rounded border border-border/50 bg-white sm:size-9';
+
+const SEARCH_SUGGESTION_CELL_CLASS =
+  'flex w-full items-start gap-1.5 px-2.5 py-1.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:px-3 sm:py-2';
+
+function formatSearchSuggestionStockLabel(stock: number): string {
+  const quantity = Math.max(0, Math.floor(Number(stock) || 0));
+  if (quantity <= 0) return 'A pedido';
+  return `${quantity} unids.`;
+}
+
 function SuggestionSectionHeading({ children }: { children: string }) {
   return (
     <p className="border-b border-border/60 bg-muted/25 px-3 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:px-3.5">
@@ -117,143 +133,217 @@ function SuggestionSectionHeading({ children }: { children: string }) {
   );
 }
 
-type SearchProductSuggestionRowProps = {
+function highlightSearchTerms(text: string, query: string): React.ReactNode {
+  const terms = normalizeSearchText(query).split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return text;
+
+  const pattern = terms
+    .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const regex = new RegExp(`(${pattern})`, 'gi');
+  const segments: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push(text.slice(lastIndex, match.index));
+    }
+    segments.push(
+      <span
+        key={`${match.index}-${match[0]}`}
+        className="underline decoration-foreground/80 underline-offset-[3px]"
+      >
+        {match[0]}
+      </span>,
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    segments.push(text.slice(lastIndex));
+  }
+
+  return segments.length > 0 ? segments : text;
+}
+
+function resolveSearchDisplayPriceUsd(
+  product: Product,
+  isAdmin: boolean,
+  viewAsRoles: readonly UserRole[],
+) {
+  const showAdminPublicPrice = isAdmin && viewAsRoles.length === 0;
+  if (!showAdminPublicPrice) return product.price;
+  return ensureFullPrices(product.prices ? product.prices : { public: product.price }).public;
+}
+
+type SearchProductSuggestionCellProps = {
   product: Product;
+  query: string;
   optionId: string;
   isActive: boolean;
   onMouseEnter: () => void;
   onNavigateProduct: () => void;
 };
 
-function SearchProductSuggestionRow({
+function SearchProductSuggestionThumbInner({ candidates }: { candidates: string[] }) {
+  const [imageIndex, setImageIndex] = useState(0);
+  const [imagesExhausted, setImagesExhausted] = useState(false);
+
+  const src = imagesExhausted ? null : (candidates[imageIndex] ?? null);
+
+  const handleError = () => {
+    if (imageIndex + 1 < candidates.length) {
+      setImageIndex((current) => current + 1);
+      return;
+    }
+    setImagesExhausted(true);
+  };
+
+  if (!src) {
+    return (
+      <span
+        className={cn(
+          'flex items-center justify-center overflow-hidden bg-muted/40',
+          SEARCH_SUGGESTION_THUMB_CLASS,
+        )}
+        aria-hidden="true"
+      >
+        <ProductNoImagePlaceholder size="sm" className="w-full" />
+      </span>
+    );
+  }
+
+  return (
+    <ProductCardImage
+      src={src}
+      alt=""
+      className="size-full max-h-full max-w-full object-contain object-center p-px"
+      overlayClassName={SEARCH_SUGGESTION_THUMB_CLASS}
+      watermarkClassName={PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS}
+      responsiveSizes="36px"
+      onError={handleError}
+    />
+  );
+}
+
+function SearchProductSuggestionThumb({ product }: { product: Product }) {
+  const imageSource = useMemo(() => {
+    const sanitized = sanitizeStoredProductMedia({
+      id: product.id,
+      code: product.code ?? null,
+      image_url: product.image_url,
+      gallery: product.gallery ?? null,
+    });
+    return buildProductCardImageSource({
+      id: product.id,
+      code: product.code ?? null,
+      name: product.name,
+      category: product.category,
+      brand: product.brand ?? null,
+      image_url: sanitized.image_url,
+      gallery: sanitized.gallery,
+    });
+  }, [product]);
+
+  const imageCandidates = useMemo(
+    () => buildProductCardImageCandidates(imageSource),
+    [imageSource],
+  );
+
+  return (
+    <SearchProductSuggestionThumbInner
+      key={imageCandidates.join('|')}
+      candidates={imageCandidates}
+    />
+  );
+}
+
+function SearchProductSuggestionCell({
   product,
+  query,
   optionId,
   isActive,
   onMouseEnter,
   onNavigateProduct,
-}: SearchProductSuggestionRowProps) {
+}: SearchProductSuggestionCellProps) {
   const { isAdmin, viewAsRoles } = useAuth();
-  const showAdminPrices = isAdmin && viewAsRoles.length === 0;
-  const outOfStock = isProductOutOfStock(product);
-  const code = formatProductDisplayCode(product.code, {
-    brand: product.brand,
-    category: product.category,
-    name: product.name,
-  });
-  const stockLabel = outOfStock ? 'A pedido' : `Stock: ${product.stock}`;
-  const imageUrl = resolveProductImageUrl(product);
-  const rolePrices = ensureFullPrices(product.prices ? product.prices : { public: product.price });
-  const priceAria = showAdminPrices
-    ? `Precio técnico ${formatUsd(rolePrices.tecnico)}, precio público ${formatUsd(rolePrices.public)}`
-    : formatUsd(product.price);
+  const displayUsd = resolveSearchDisplayPriceUsd(product, isAdmin, viewAsRoles);
+  const pricing = getCatalogCardPricing({ id: product.id, price: displayUsd });
+  const showPrice = displayUsd > 0;
+  const hasDiscount = showPrice && pricing.compareUsd > pricing.currentUsd && pricing.currentUsd > 0;
+  const title = formatProductCardTitle(product);
+  const currentPen = showPrice
+    ? formatPenFromUsdDisplay(pricing.currentUsd, product.category)
+    : null;
+  const comparePen = showPrice
+    ? formatPenFromUsdDisplay(pricing.compareUsd, product.category)
+    : null;
+  const currentUsd = showPrice ? formatUsd(pricing.currentUsd) : null;
+  const stockLabel = formatSearchSuggestionStockLabel(product.stock);
+  const priceAria = showPrice
+    ? hasDiscount
+      ? `Antes ${comparePen}, ahora ${currentPen}, ${currentUsd}, ${stockLabel}`
+      : `${currentPen}, ${currentUsd}, ${stockLabel}`
+    : 'Consultar Precio';
 
   return (
-    <div
+    <button
       id={optionId}
+      type="button"
       role="option"
       aria-selected={isActive}
-      aria-label={[product.name, code ? `Código ${code}` : null, stockLabel, priceAria]
-        .filter(Boolean)
-        .join(', ')}
-      className={cn(
-        'flex items-stretch gap-0.5 border-b border-border/40 bg-background transition-colors last:border-b-0',
-        isActive && 'bg-accent',
-      )}
+      aria-label={[title, priceAria].filter(Boolean).join(', ')}
+      className={cn(SEARCH_SUGGESTION_CELL_CLASS, isActive && 'bg-accent')}
       onMouseEnter={onMouseEnter}
+      onClick={onNavigateProduct}
     >
-      <button
-        type="button"
-        className="flex min-w-0 flex-1 items-center gap-2 px-2.5 py-2 text-left text-sm hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2.5 sm:px-3"
-        onClick={onNavigateProduct}
-      >
-        {imageUrl ? (
-          <ProductCardImage
-            src={imageUrl}
-            alt=""
-            className="size-full object-contain p-0.5"
-            overlayClassName="size-10 shrink-0 rounded border border-border/60 bg-muted sm:size-11"
-            watermarkClassName={PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS}
-          />
-        ) : (
-          <span
-            className="flex size-10 shrink-0 items-center justify-center rounded border border-border/60 bg-muted/50 text-muted-foreground sm:size-11"
-            aria-hidden="true"
-          >
-            <ImageOff className="size-4" strokeWidth={1.75} />
-          </span>
-        )}
-        <span className="min-w-0 flex-1">
-          <span className="line-clamp-1 text-sm font-medium leading-tight text-foreground">
-            {product.name}
-          </span>
-          <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0 text-xs text-muted-foreground">
-            {code ? (
-              <span className="font-mono tracking-tight">{code}</span>
-            ) : null}
-            <span
-              className={cn(
-                'font-medium',
-                outOfStock ? ON_REQUEST_STOCK_BADGE_CLASS : 'text-emerald-700',
-              )}
-            >
-              {stockLabel}
-            </span>
-          </span>
+      <SearchProductSuggestionThumb product={product} />
+      <span className="min-w-0 flex-1">
+        <span className="line-clamp-2 text-[0.8125rem] font-medium leading-snug text-foreground sm:text-sm">
+          {highlightSearchTerms(title, query)}
         </span>
-        {showAdminPrices ? (
-          <span className="hidden shrink-0 flex-col items-end gap-y-0.5 min-[480px]:flex">
-            <span className="flex items-baseline gap-x-1.5 text-[0.6875rem] sm:text-xs">
-              <span className="shrink-0 font-semibold uppercase tracking-wide text-muted-foreground">
-                Técnico
-              </span>
-              <span className="font-semibold tabular-nums text-foreground">
-                {formatUsd(rolePrices.tecnico)}
-              </span>
+        <span className="mt-0.5 block space-y-0">
+          {hasDiscount && comparePen ? (
+            <span className="block text-[0.6875rem] font-normal tabular-nums text-muted-foreground line-through decoration-muted-foreground sm:text-xs">
+              {comparePen}
             </span>
-            <span className="flex items-baseline gap-x-1.5 text-[0.6875rem] sm:text-xs">
-              <span className="shrink-0 font-semibold uppercase tracking-wide text-muted-foreground">
-                Público
+          ) : null}
+          {showPrice && currentPen ? (
+            <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0 leading-tight">
+              <span
+                className={cn(
+                  'text-sm font-bold tabular-nums sm:text-[0.9375rem]',
+                  'text-red-600',
+                )}
+              >
+                {currentPen}
               </span>
-              <span className="font-semibold tabular-nums text-foreground">
-                {formatUsd(rolePrices.public)}
-              </span>
+              {currentUsd ? (
+                <span className="text-[0.6875rem] font-medium tabular-nums text-muted-foreground sm:text-xs">
+                  {currentUsd}
+                </span>
+              ) : null}
+              <span className={cn(PRODUCT_CARD_STOCK_CLASS, 'tabular-nums')}>{stockLabel}</span>
             </span>
-          </span>
-        ) : (
-          <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
-            {formatUsd(product.price)}
-          </span>
-        )}
-      </button>
-
-      <div className="flex shrink-0 items-center border-l border-border/40 px-1.5 py-1.5 sm:px-2">
-        <AddToCartButton
-          product={product}
-          addOptions={{ openDrawer: true }}
-          size="icon"
-          variant="ghost"
-          aria-label={`Añadir ${product.name} al carrito`}
-          className="size-11 min-h-11 min-w-11 shrink-0 rounded-md text-red-600 hover:bg-red-50 hover:text-red-600 focus-visible:ring-red-600"
-        >
-          <ShoppingCart className="size-[1.125rem]" aria-hidden="true" />
-        </AddToCartButton>
-      </div>
-    </div>
+          ) : (
+            <span className="text-[0.6875rem] font-medium text-[#E30613] sm:text-xs">Consultar Precio</span>
+          )}
+        </span>
+      </span>
+    </button>
   );
 }
 
 function SearchProductSuggestionSkeleton() {
   return (
-    <div
-      className="flex items-center gap-2 border-b border-border/40 px-2.5 py-2 sm:gap-2.5 sm:px-3"
-      aria-hidden="true"
-    >
-      <div className="size-10 shrink-0 animate-pulse rounded border border-border/60 bg-muted sm:size-11" />
-      <div className="min-w-0 flex-1 space-y-2">
-        <div className="h-3.5 w-3/4 animate-pulse rounded bg-muted" />
-        <div className="h-3 w-1/3 animate-pulse rounded bg-muted" />
+    <div className={cn(SEARCH_SUGGESTION_CELL_CLASS)} aria-hidden="true">
+      <div className={cn('animate-pulse bg-muted', SEARCH_SUGGESTION_THUMB_CLASS)} />
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <div className="h-3.5 w-full animate-pulse rounded bg-muted" />
+        <div className="h-3 w-4/5 animate-pulse rounded bg-muted" />
+        <div className="h-3.5 w-14 animate-pulse rounded bg-muted" />
       </div>
-      <div className="h-4 w-14 shrink-0 animate-pulse rounded bg-muted" />
     </div>
   );
 }
@@ -286,7 +376,10 @@ export function SiteSearchForm({
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES_VALUE);
   const [panelOpen, setPanelOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [productDisplayLimit, setProductDisplayLimit] = useState(PRODUCT_SEARCH_INITIAL_VISIBLE);
+  const [pagination, setPagination] = useState({
+    scopeKey: '',
+    extraLoads: 0,
+  });
 
   const debouncedQuery = useDebouncedValue(query, 200);
 
@@ -307,6 +400,17 @@ export function SiteSearchForm({
 
   const trimmedQuery = query.trim();
   const trimmedDebouncedQuery = debouncedQuery.trim();
+  const paginationScopeKey = `${trimmedDebouncedQuery}|${categoryFilter}`;
+
+  if (pagination.scopeKey !== paginationScopeKey) {
+    setPagination({ scopeKey: paginationScopeKey, extraLoads: 0 });
+  }
+
+  const productDisplayLimit = Math.min(
+    PRODUCT_SEARCH_INITIAL_VISIBLE + pagination.extraLoads * PRODUCT_SEARCH_LOAD_MORE_STEP,
+    PRODUCT_SEARCH_MAX_LIMIT,
+  );
+
   const queryTooShort =
     panelOpen && trimmedQuery.length > 0 && trimmedQuery.length < MIN_PRODUCT_SEARCH_LENGTH;
   const isSearchDebouncing =
@@ -322,7 +426,10 @@ export function SiteSearchForm({
       enabled: searchEnabled,
     });
 
-  const productSuggestions = searchResult?.products ?? [];
+  const productSuggestions = useMemo(
+    () => searchResult?.products ?? [],
+    [searchResult?.products],
+  );
   const totalMatches = searchResult?.total ?? 0;
   const isProductsLoading =
     searchEnabled && (searchLoading || isSearchDebouncing) && productSuggestions.length === 0;
@@ -334,44 +441,26 @@ export function SiteSearchForm({
     productDisplayLimit < Math.min(totalMatches, PRODUCT_SEARCH_MAX_LIMIT);
 
   useEffect(() => {
-    setProductDisplayLimit(PRODUCT_SEARCH_INITIAL_VISIBLE);
-  }, [trimmedDebouncedQuery, categoryFilter]);
-
-  useEffect(() => {
     if (!autoFocusInput) return;
     const timer = window.setTimeout(() => inputRef.current?.focus(), 100);
     return () => window.clearTimeout(timer);
   }, [autoFocusInput]);
 
-  const productGroups = useMemo(
-    () => groupSearchProductsByCategory(productSuggestions, debouncedQuery),
-    [productSuggestions, debouncedQuery],
-  );
-
-  const groupedProductSuggestions = useMemo(
-    () => productGroups.flatMap((group) => group.products),
-    [productGroups],
-  );
-
-  const productGroupsWithIndices = useMemo(() => {
-    let index = categorySuggestions.length + serviceSuggestions.length;
-    return productGroups.map((group) => ({
-      category: group.category,
-      products: group.products.map((product) => {
-        const suggestionIndex = index;
-        index += 1;
-        return { product, suggestionIndex };
-      }),
+  const productSuggestionsWithIndices = useMemo(() => {
+    const baseIndex = categorySuggestions.length + serviceSuggestions.length;
+    return productSuggestions.map((product, productIndex) => ({
+      product,
+      suggestionIndex: baseIndex + productIndex,
     }));
-  }, [productGroups, categorySuggestions.length, serviceSuggestions.length]);
+  }, [productSuggestions, categorySuggestions.length, serviceSuggestions.length]);
 
   const suggestions = useMemo<SearchSuggestionItem[]>(
     () => [
       ...categorySuggestions,
       ...serviceSuggestions,
-      ...groupedProductSuggestions.map((product) => ({ type: 'product' as const, product })),
+      ...productSuggestions.map((product) => ({ type: 'product' as const, product })),
     ],
-    [categorySuggestions, serviceSuggestions, groupedProductSuggestions],
+    [categorySuggestions, serviceSuggestions, productSuggestions],
   );
 
   const showEmptyResults =
@@ -400,11 +489,11 @@ export function SiteSearchForm({
     });
   }, [queryClient, categoryFilter, role, viewAsRoles]);
 
-  useEffect(() => {
-    if (!showPanel || queryTooShort || suggestions.length === 0) {
-      setActiveIndex(-1);
-    }
-  }, [showPanel, queryTooShort, suggestions.length]);
+  const resolvedActiveIndex = useMemo(() => {
+    if (!showPanel || queryTooShort || suggestions.length === 0) return -1;
+    if (activeIndex < 0 || activeIndex >= suggestions.length) return -1;
+    return activeIndex;
+  }, [showPanel, queryTooShort, suggestions.length, activeIndex]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -417,8 +506,10 @@ export function SiteSearchForm({
   }, []);
 
   const loadMoreProducts = () => {
-    setProductDisplayLimit((current) =>
-      Math.min(current + PRODUCT_SEARCH_LOAD_MORE_STEP, PRODUCT_SEARCH_MAX_LIMIT, totalMatches),
+    setPagination((current) =>
+      current.scopeKey === paginationScopeKey
+        ? { ...current, extraLoads: current.extraLoads + 1 }
+        : { scopeKey: paginationScopeKey, extraLoads: 1 },
     );
   };
 
@@ -484,9 +575,9 @@ export function SiteSearchForm({
       return;
     }
 
-    if (event.key === 'Enter' && activeIndex >= 0 && suggestions[activeIndex]) {
+    if (event.key === 'Enter' && resolvedActiveIndex >= 0 && suggestions[resolvedActiveIndex]) {
       event.preventDefault();
-      activateSuggestion(suggestions[activeIndex]);
+      activateSuggestion(suggestions[resolvedActiveIndex]);
     }
   };
 
@@ -502,6 +593,15 @@ export function SiteSearchForm({
 
   const showLeadingIcon = showSearchIcons && variant === 'segmented';
   const showSubmitIcon = showSearchIcons && variant === 'segmented';
+  const showClearButton = query.length > 0;
+  const clearButtonInsetClass =
+    variant === 'simple'
+      ? 'right-10'
+      : variant === 'segmented'
+        ? isCompact
+          ? 'right-2'
+          : 'right-2.5'
+        : 'right-2';
 
   const barClass =
     variant === 'header-dark'
@@ -603,8 +703,8 @@ export function SiteSearchForm({
             aria-controls={showPanel ? listboxId : undefined}
             aria-autocomplete="list"
             aria-activedescendant={
-              activeIndex >= 0 && suggestions[activeIndex]
-                ? `${listboxId}-option-${activeIndex}`
+              resolvedActiveIndex >= 0 && suggestions[resolvedActiveIndex]
+                ? `${listboxId}-option-${resolvedActiveIndex}`
                 : undefined
             }
             placeholder={placeholder}
@@ -613,8 +713,28 @@ export function SiteSearchForm({
             className={cn(
               inputClass,
               variant === 'simple' && 'pr-11',
+              showClearButton && variant === 'segmented' && (isCompact ? 'pr-9' : 'pr-10'),
+              showClearButton && variant === 'header-dark' && 'pr-9',
             )}
           />
+          {showClearButton ? (
+            <button
+              type="button"
+              aria-label="Limpiar búsqueda"
+              className={cn(
+                'absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                clearButtonInsetClass,
+                isCompact ? 'size-6' : 'size-7',
+              )}
+              onClick={() => {
+                setQuery('');
+                setActiveIndex(-1);
+                inputRef.current?.focus();
+              }}
+            >
+              <X className={isCompact ? 'size-3.5' : 'size-4'} strokeWidth={2} aria-hidden="true" />
+            </button>
+          ) : null}
           {variant === 'simple' ? (
             <Search
               className="pointer-events-none absolute right-3.5 top-1/2 size-[1.125rem] -translate-y-1/2 text-foreground/60"
@@ -669,7 +789,7 @@ export function SiteSearchForm({
 
       {showPanel ? (
         <div
-          className="absolute left-0 right-0 top-full z-[60] mt-2 max-h-[min(80vh,44rem)] overflow-hidden rounded-xl border border-border/70 bg-popover shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,56rem)] sm:-translate-x-1/2"
+          className="absolute left-0 right-0 top-full z-[60] mt-2 max-h-[min(80vh,44rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,48rem)] sm:-translate-x-1/2"
           role="presentation"
         >
           {queryTooShort ? (
@@ -705,7 +825,7 @@ export function SiteSearchForm({
                       <SuggestionSectionHeading>Categorías</SuggestionSectionHeading>
                     </li>
                     {categorySuggestions.map((item, index) => {
-                      const isActive = index === activeIndex;
+                      const isActive = index === resolvedActiveIndex;
                       return (
                         <li key={`category-${item.slug}`} role="presentation">
                           <button
@@ -747,7 +867,7 @@ export function SiteSearchForm({
                     </li>
                     {serviceSuggestions.map((item, index) => {
                       const suggestionIndex = categorySuggestions.length + index;
-                      const isActive = suggestionIndex === activeIndex;
+                      const isActive = suggestionIndex === resolvedActiveIndex;
                       return (
                         <li key={`service-${item.href}`} role="presentation">
                           <button
@@ -778,54 +898,51 @@ export function SiteSearchForm({
                   </>
                 ) : null}
 
-                {productGroupsWithIndices.length > 0
-                  ? productGroupsWithIndices.map((group) => (
-                      <li key={`product-group-${group.category}`} role="presentation">
-                        <ul role="group" aria-label={group.category}>
-                          <li role="presentation">
-                            <SuggestionSectionHeading>
-                              {`${getSearchCategoryEmoji(group.category)} ${group.category}`}
-                            </SuggestionSectionHeading>
+                {productSuggestionsWithIndices.length > 0 ? (
+                  <li role="presentation">
+                    <ul
+                      role="group"
+                      aria-label="Productos"
+                      className="grid grid-cols-1 divide-y divide-border/50 sm:grid-cols-2 sm:divide-x"
+                    >
+                      {productSuggestionsWithIndices.map(({ product, suggestionIndex }) => {
+                        const isActive = suggestionIndex === resolvedActiveIndex;
+                        return (
+                          <li key={product.id} role="presentation" className="min-w-0">
+                            <SearchProductSuggestionCell
+                              product={product}
+                              query={trimmedQuery}
+                              optionId={`${listboxId}-option-${suggestionIndex}`}
+                              isActive={isActive}
+                              onMouseEnter={() => setActiveIndex(suggestionIndex)}
+                              onNavigateProduct={() =>
+                                activateSuggestion({ type: 'product', product })
+                              }
+                            />
                           </li>
-                          <li role="presentation">
-                            <ul className="grid grid-cols-1 gap-0">
-                              {group.products.map(({ product, suggestionIndex }) => {
-                                const isActive = suggestionIndex === activeIndex;
-                                return (
-                                  <li
-                                    key={product.id}
-                                    role="presentation"
-                                    className="min-w-0"
-                                  >
-                                    <SearchProductSuggestionRow
-                                      product={product}
-                                      optionId={`${listboxId}-option-${suggestionIndex}`}
-                                      isActive={isActive}
-                                      onMouseEnter={() => setActiveIndex(suggestionIndex)}
-                                      onNavigateProduct={() =>
-                                        activateSuggestion({ type: 'product', product })
-                                      }
-                                    />
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </li>
-                        </ul>
-                      </li>
-                    ))
-                  : null}
+                        );
+                      })}
+                    </ul>
+                  </li>
+                ) : null}
 
                 {isProductsLoading ? (
                   <>
                     <li role="presentation">
                       <SuggestionSectionHeading>Productos</SuggestionSectionHeading>
                     </li>
-                    {[0, 1, 2].map((index) => (
-                      <li key={`product-skeleton-${index}`} role="presentation">
-                        <SearchProductSuggestionSkeleton />
-                      </li>
-                    ))}
+                    <li role="presentation">
+                      <ul
+                        className="grid grid-cols-1 divide-y divide-border/50 sm:grid-cols-2 sm:divide-x"
+                        aria-hidden="true"
+                      >
+                        {[0, 1, 2, 3].map((index) => (
+                          <li key={`product-skeleton-${index}`} role="presentation">
+                            <SearchProductSuggestionSkeleton />
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
                   </>
                 ) : null}
               </ul>

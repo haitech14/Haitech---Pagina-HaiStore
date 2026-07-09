@@ -32,45 +32,7 @@ export const DEFAULT_SERVICE_CATEGORIES: ServiceCategory[] = [
   },
 ];
 
-export const DEMO_SERVICE_ORDERS: ServiceOrder[] = [
-  {
-    id: 'svc-001',
-    code: 'SV-2026-0041',
-    customerName: 'Clínica Salud Total',
-    customerPhone: '987654321',
-    categoryId: 'cat-mantenimiento',
-    status: 'scheduled',
-    scheduledAt: '2026-06-02T10:00:00',
-    description: 'Mantenimiento trimestral multifuncional piso 3.',
-    technician: 'Carlos Mendoza',
-    address: 'Av. Javier Prado 1250, San Isidro',
-    createdAt: '2026-06-01T08:00:00',
-  },
-  {
-    id: 'svc-002',
-    code: 'SV-2026-0038',
-    customerName: 'Distribuidora Lima Norte',
-    customerPhone: '912345678',
-    categoryId: 'cat-correctivo',
-    status: 'in_progress',
-    scheduledAt: '2026-06-01T14:30:00',
-    description: 'Atasco recurrente en bandeja ADF.',
-    technician: 'Luis Rojas',
-    address: 'Los Olivos, Lima',
-    createdAt: '2026-05-31T16:20:00',
-  },
-  {
-    id: 'svc-003',
-    code: 'SV-2026-0035',
-    customerName: 'Agroindustrial Pacífico',
-    categoryId: 'cat-instalacion',
-    status: 'pending',
-    scheduledAt: '2026-06-05T09:00:00',
-    description: 'Instalación plotter nuevo almacén Trujillo.',
-    address: 'Trujillo',
-    createdAt: '2026-05-30T11:00:00',
-  },
-];
+export const DEMO_SERVICE_ORDERS: ServiceOrder[] = [];
 
 export const DEFAULT_SERVICE_PRICE_LIST: ServicePriceItem[] = [
   {

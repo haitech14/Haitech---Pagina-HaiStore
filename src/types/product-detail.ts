@@ -72,6 +72,8 @@ export interface EquipmentConfigStep {
 export interface ProductSpecRow {
   label: string;
   value: string;
+  /** Agrupa la fila en una sección de ficha técnica cuando el label es ambiguo. */
+  section?: string;
 }
 
 export interface BulkDiscountTier {
@@ -178,6 +180,8 @@ export interface ProductDetailViewModel {
   heroSpecBullets: ProductHeroSpecBullet[];
   /** Encabezado de la lista de specs del hero (p. ej. versión optimizada). */
   heroSpecTitle: string | null;
+  /** Subtítulo opcional del beneficio de regalo en la franja de confianza. */
+  giftTrustSubtitle: string;
   categoryLabel: string;
   rating: number;
   reviews: number;

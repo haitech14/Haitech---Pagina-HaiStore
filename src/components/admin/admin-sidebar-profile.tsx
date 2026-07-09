@@ -1,4 +1,5 @@
-import { ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronDown, ExternalLink, UserRound } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -38,39 +39,54 @@ export function AdminSidebarProfile({ className }: AdminSidebarProfileProps) {
   const roleLabel = ROLE_LABELS[user?.role ?? 'admin'] ?? 'Administrador';
 
   return (
-    <div className={cn('border-b border-[hsl(var(--admin-sidebar-border))]/50 px-4 py-3', className)}>
+    <div className={cn('border-t border-[hsl(var(--admin-sidebar-border))]/50 px-3 py-2', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex w-full items-center gap-3 rounded-lg py-0.5 text-left transition-colors hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-sidebar-bg))]"
+            className="flex w-full items-center gap-2 rounded-md px-1 py-1 text-left transition-colors hover:bg-[hsl(var(--admin-sidebar-hover))]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-sidebar-bg))]"
             aria-label="Menú de cuenta"
           >
-            <Avatar className="size-10 shrink-0 ring-2 ring-[hsl(var(--admin-sidebar-border))]">
-              <AvatarFallback className="bg-[hsl(var(--admin-sidebar-hover))] text-sm font-semibold text-[hsl(var(--admin-sidebar-fg))]">
-                {getInitials(user?.name, user?.email)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-[hsl(var(--admin-sidebar-fg))]">
+            <span className="relative shrink-0">
+              <Avatar className="size-8 ring-1 ring-[hsl(var(--admin-sidebar-border))]">
+                <AvatarFallback className="bg-[hsl(var(--admin-sidebar-hover))] text-xs font-semibold text-[hsl(var(--admin-sidebar-fg))]">
+                  {getInitials(user?.name, user?.email)}
+                </AvatarFallback>
+              </Avatar>
+              <span
+                className="absolute bottom-0 right-0 size-2 rounded-full border border-[hsl(var(--admin-sidebar-bg))] bg-emerald-400"
+                aria-hidden="true"
+              />
+            </span>
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block truncate text-[0.8125rem] font-medium text-[hsl(var(--admin-sidebar-fg))]">
                 {displayName}
               </span>
-              <span className="block truncate text-xs text-[hsl(var(--admin-sidebar-fg-muted))]">
+              <span className="block truncate text-[0.6875rem] text-[hsl(var(--admin-sidebar-fg-muted))]">
                 {roleLabel}
-              </span>
-              <span className="mt-0.5 flex items-center gap-1.5 text-[0.6875rem] font-medium text-emerald-400">
-                <span className="size-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
-                En línea
               </span>
             </span>
             <ChevronDown
-              className="size-4 shrink-0 text-[hsl(var(--admin-sidebar-fg-muted))]"
+              className="size-3.5 shrink-0 text-[hsl(var(--admin-sidebar-fg-muted))]/70"
               aria-hidden="true"
             />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-56">
+        <DropdownMenuContent side="top" align="start" className="w-56">
           <DropdownMenuItem disabled>{displayName}</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link to="/mi-cuenta" className="cursor-pointer">
+              <UserRound className="size-4" aria-hidden="true" />
+              Perfil
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/" className="cursor-pointer">
+              <ExternalLink className="size-4" aria-hidden="true" />
+              Regresar al Sitio Web
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => void logout()}>Cerrar sesión</DropdownMenuItem>
         </DropdownMenuContent>

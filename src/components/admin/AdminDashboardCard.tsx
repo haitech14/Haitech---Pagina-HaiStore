@@ -22,19 +22,19 @@ export function AdminDashboardCard({
   return (
     <section
       className={cn(
-        'rounded-xl border border-border/60 bg-card p-5 shadow-sm sm:p-6',
+        'rounded-lg border border-border/60 bg-card p-3 shadow-sm',
         className,
       )}
     >
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-foreground">{title}</h2>
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         {actionLabel && actionHref && (
           <Link
             to={actionHref}
-            className="inline-flex items-center gap-1 text-sm font-medium text-[hsl(var(--admin-accent))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-accent))]"
+            className="inline-flex items-center gap-1 text-xs font-medium text-[hsl(var(--admin-accent))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-accent))]"
           >
             {actionLabel}
-            <ArrowRight className="size-4" aria-hidden="true" />
+            <ArrowRight className="size-3.5" aria-hidden="true" />
           </Link>
         )}
       </div>

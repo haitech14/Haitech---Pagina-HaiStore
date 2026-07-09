@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell, Menu, Search, Sun } from 'lucide-react';
+import { Bell, ChevronRight, Menu, Search, Sun } from 'lucide-react';
 
 import { AdminCrmSubNav } from '@/components/admin/admin-crm-subnav';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
@@ -103,17 +103,18 @@ export function AdminTopBar() {
           </SheetContent>
         </Sheet>
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="hidden shrink-0 lg:inline-flex"
-          onClick={toggleSidebar}
-          aria-label={sidebarOpen ? 'Ocultar barra lateral' : 'Mostrar barra lateral'}
-          aria-expanded={sidebarOpen}
-        >
-          <Menu className="size-5" aria-hidden="true" />
-        </Button>
+        {!sidebarOpen ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="hidden shrink-0 lg:inline-flex"
+            onClick={toggleSidebar}
+            aria-label="Mostrar barra lateral"
+          >
+            <ChevronRight className="size-4" aria-hidden="true" />
+          </Button>
+        ) : null}
 
         {!isDashboard && !showCrmTabs ? (
           <h1 className="hidden shrink-0 text-base font-semibold text-foreground sm:block">{title}</h1>
@@ -161,11 +162,10 @@ export function AdminTopBar() {
             type="button"
             variant="ghost"
             size="icon"
-            className="relative size-9 text-muted-foreground"
+            className="size-9 text-muted-foreground"
             aria-label="Notificaciones"
           >
             <Bell className="size-[1.125rem]" aria-hidden="true" />
-            <span className="absolute right-2 top-2 size-2 rounded-full bg-red-500 ring-2 ring-white" />
           </Button>
           <AdminTopBarUserMenu />
         </div>

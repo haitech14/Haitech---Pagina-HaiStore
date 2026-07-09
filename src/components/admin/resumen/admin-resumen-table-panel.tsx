@@ -17,6 +17,7 @@ import {
 
 import { AdminResumenPriorityBadge } from '@/components/admin/resumen/admin-resumen-priority-badge';
 import { AdminResumenStatusBadge } from '@/components/admin/resumen/admin-resumen-status-badge';
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -131,12 +132,12 @@ export function AdminResumenTablePanel() {
   };
 
   return (
-    <section className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
+    <section className="overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
       <div className="border-b px-4 sm:px-5">
         <div
           role="tablist"
           aria-label="Filtrar registros por estado"
-          className="flex flex-wrap gap-4"
+          className="flex flex-wrap gap-2"
         >
           {TABS.map((tab) => {
             const isActive = activeTab === tab.key;
@@ -177,7 +178,7 @@ export function AdminResumenTablePanel() {
               setPage(1);
             }}
             placeholder="Buscar por cliente..."
-            className="h-9 bg-background pl-9"
+            className="h-8 bg-background pl-8 text-xs"
             aria-label="Buscar registros"
           />
         </div>
@@ -189,7 +190,7 @@ export function AdminResumenTablePanel() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="h-9 w-full bg-background sm:w-[10.5rem]" aria-label="Filtrar por módulo">
+          <SelectTrigger className="h-8 w-full bg-background text-xs sm:w-[10.5rem]" aria-label="Filtrar por módulo">
             <SelectValue placeholder="Módulo: Todos" />
           </SelectTrigger>
           <SelectContent>
@@ -209,7 +210,7 @@ export function AdminResumenTablePanel() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="h-9 w-full bg-background sm:w-[10rem]" aria-label="Filtrar por estado">
+          <SelectTrigger className="h-8 w-full bg-background text-xs sm:w-[10rem]" aria-label="Filtrar por estado">
             <SelectValue placeholder="Estado: Todos" />
           </SelectTrigger>
           <SelectContent>
@@ -228,7 +229,7 @@ export function AdminResumenTablePanel() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="h-9 w-full bg-background sm:w-[10.5rem]" aria-label="Filtrar por prioridad">
+          <SelectTrigger className="h-8 w-full bg-background text-xs sm:w-[10.5rem]" aria-label="Filtrar por prioridad">
             <SelectValue placeholder="Prioridad: Todas" />
           </SelectTrigger>
           <SelectContent>
@@ -239,12 +240,12 @@ export function AdminResumenTablePanel() {
           </SelectContent>
         </Select>
 
-        <Button type="button" variant="outline" className="h-9 gap-2 bg-background">
+        <Button type="button" variant="outline" className="h-8 gap-1.5 bg-background text-xs">
           <Calendar className="size-4" aria-hidden="true" />
           01/05/2026 - 31/05/2026
         </Button>
 
-        <Button type="button" variant="outline" className="h-9 gap-2 bg-background">
+        <Button type="button" variant="outline" className="h-8 gap-1.5 bg-background text-xs">
           <Filter className="size-4" aria-hidden="true" />
           Filtros
         </Button>
@@ -265,7 +266,18 @@ export function AdminResumenTablePanel() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedRecords.map((record) => {
+            {paginatedRecords.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="p-0">
+                  <AdminEmptyState
+                    title="Sin registros"
+                    description="No hay solicitudes que coincidan con los filtros seleccionados."
+                    className="rounded-none border-0 bg-transparent"
+                  />
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedRecords.map((record) => {
               const moduleMeta = MODULE_META[record.module];
               const ModuleIcon = moduleMeta.icon;
 
@@ -326,14 +338,15 @@ export function AdminResumenTablePanel() {
                   </TableCell>
                 </TableRow>
               );
-            })}
+            })
+            )}
           </TableBody>
         </Table>
       </div>
 
       <nav
         aria-label="Paginación de registros"
-        className="flex flex-col gap-3 border-t bg-muted/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+        className="flex flex-col gap-3 border-t bg-muted/10 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
       >
         <p className="text-sm text-muted-foreground">
           Mostrando{' '}
@@ -406,7 +419,7 @@ export function AdminResumenTablePanel() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="h-9 w-[8.5rem] bg-background" aria-label="Registros por página">
+            <SelectTrigger className="h-8 w-[8.5rem] bg-background text-xs" aria-label="Registros por página">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

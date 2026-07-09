@@ -1,10 +1,9 @@
-import { Headphones, ShoppingCart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ShoppingCart } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
-import { HeaderStoreCurrencyExchangeBlock } from '@/components/layout/header-currency-control';
+import { HeaderSupportButton } from '@/components/layout/header-support-button';
 import { cn } from '@/lib/utils';
 
 function HeaderDarkDivider() {
@@ -26,17 +25,7 @@ export function HeaderStoreDesktopActions({
 }: HeaderStoreDesktopActionsProps) {
   return (
     <div className={cn('hidden shrink-0 items-center lg:flex', className)}>
-      <HeaderStoreCurrencyExchangeBlock />
-
-      <HeaderDarkDivider />
-
-      <Link
-        to="/servicios?seccion=servicio-tecnico"
-        className={cn(headerDarkUtilityButtonClass(), 'gap-2 px-2.5')}
-      >
-        <Headphones className="size-4" strokeWidth={1.75} aria-hidden="true" />
-        Soporte
-      </Link>
+      <HeaderSupportButton />
 
       <HeaderDarkDivider />
 

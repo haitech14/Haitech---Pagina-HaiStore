@@ -35,40 +35,40 @@ export function AdminKpiCard({
   return (
     <article
       className={cn(
-        'relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 shadow-sm',
+        'relative overflow-hidden rounded-lg border border-border/60 bg-card p-3 shadow-sm',
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="mt-2 text-[1.75rem] font-bold leading-none tracking-tight text-foreground">
+          <p className="text-xs font-medium text-muted-foreground">{title}</p>
+          <p className="mt-1 text-xl font-bold leading-none tracking-tight text-foreground">
             {value}
           </p>
-          {subtitle ? <p className="mt-1.5 text-xs text-muted-foreground">{subtitle}</p> : null}
+          {subtitle ? <p className="mt-1 text-[0.6875rem] text-muted-foreground">{subtitle}</p> : null}
         </div>
         <span
           className={cn(
-            'flex size-11 shrink-0 items-center justify-center rounded-xl',
+            'flex size-8 shrink-0 items-center justify-center rounded-lg',
             iconClassName,
           )}
           aria-hidden="true"
         >
-          <Icon className="size-5" />
+          <Icon className="size-3.5" />
         </span>
       </div>
 
-      <div className="mt-4 flex items-center gap-1.5">
+      <div className="mt-2.5 flex items-center gap-1">
         {hasTrend ? (
           <>
             {trendPositive ? (
-              <TrendingUp className="size-4 text-emerald-600" aria-hidden="true" />
+              <TrendingUp className="size-3.5 text-emerald-600" aria-hidden="true" />
             ) : (
-              <TrendingDown className="size-4 text-red-600" aria-hidden="true" />
+              <TrendingDown className="size-3.5 text-red-600" aria-hidden="true" />
             )}
             <span
               className={cn(
-                'text-sm font-semibold',
+                'text-xs font-semibold',
                 trendPositive ? 'text-emerald-600' : 'text-red-600',
               )}
             >
@@ -76,10 +76,10 @@ export function AdminKpiCard({
             </span>
           </>
         ) : (
-          <span className="text-xs text-muted-foreground">{trendLabel}</span>
+          <span className="text-[0.6875rem] text-muted-foreground">{trendLabel}</span>
         )}
         {hasTrend ? (
-          <span className="text-xs text-muted-foreground">{trendLabel}</span>
+          <span className="text-[0.6875rem] text-muted-foreground">{trendLabel}</span>
         ) : null}
       </div>
     </article>

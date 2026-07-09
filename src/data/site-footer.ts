@@ -1,7 +1,9 @@
-import { Award, Headphones, ShieldCheck, Truck, type LucideIcon } from 'lucide-react';
+import { Award, Headphones, ShieldCheck, type LucideIcon } from 'lucide-react';
 
-import { categoryLandingPath, categoryPathWithCondition } from '@/lib/category-path';
+import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
+import { HAITECH_WHATSAPP_URL } from '@/lib/whatsapp-sales';
+import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 
 export interface FooterLink {
   label: string;
@@ -17,17 +19,16 @@ export interface FooterValueProp {
 export const FOOTER_TAGLINE = 'SOLUCIONES DE IMPRESIÓN';
 
 export const FOOTER_DESCRIPTION =
-  'Soluciones de impresión confiables y tecnología de vanguardia para que tu empresa sea más eficiente.';
+  'Impresión confiable y tecnología para empresas más eficientes.';
 
 export const FOOTER_VALUE_PROPS: FooterValueProp[] = [
   { icon: ShieldCheck, label: 'Equipos 100% originales' },
   { icon: Award, label: 'Garantía oficial' },
   { icon: Headphones, label: 'Soporte técnico especializado' },
-  { icon: Truck, label: 'Envíos a todo el país' },
 ];
 
+/** Enlaces esenciales alineados con Productos, Servicios y Empresa del menú principal. */
 export const FOOTER_NAV_LINKS: FooterLink[] = [
-  { label: 'Inicio', href: '/' },
   { label: 'Fotocopiadoras', href: categoryLandingPath('multifuncionales') },
   { label: 'Impresoras', href: categoryLandingPath('impresoras') },
   { label: 'Tóner y tintas', href: categoryLandingPath('toner-suministros') },
@@ -36,30 +37,26 @@ export const FOOTER_NAV_LINKS: FooterLink[] = [
   { label: 'Servicio técnico', href: serviceHubPath('servicio-tecnico') },
   { label: 'Descargas', href: '/descargas' },
   { label: 'Contacto', href: '/contacto' },
-  { label: 'Blog', href: '/foro' },
 ];
 
-export const FOOTER_CATEGORY_LINKS: FooterLink[] = [
-  { label: 'Impresoras multifuncionales', href: categoryLandingPath('multifuncionales') },
-  { label: 'Impresoras láser', href: categoryLandingPath('impresoras') },
-  { label: 'Impresoras de producción', href: categoryLandingPath('formato-ancho') },
-  { label: 'Consumibles y repuestos', href: categoryLandingPath('toner-suministros') },
-  {
-    label: 'Equipos seminuevos',
-    href: categoryPathWithCondition('multifuncionales', 'compatibles'),
-  },
-  { label: 'Alquiler mensual', href: categoryLandingPath('alquiler') },
-];
+/** Dirección principal (Lima) — misma que barra superior del sitio. */
+export const FOOTER_ADDRESS = 'Av. Petit Thouars 1935 - Lince, Lima';
 
-export const FOOTER_WHATSAPP_LINK = 'https://wa.me/51926224243';
+export const FOOTER_HOURS = 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
 
-export const FOOTER_ADDRESS = 'Av. Los Próceres 123, San Isidro Lima, Perú';
+export const FOOTER_SALES_WHATSAPP_LINK = HAITECH_WHATSAPP_URL;
+export const FOOTER_SALES_PHONE_DISPLAY = '915 149 290';
 
-export const FOOTER_HOURS = 'Lun - Sáb: 9:00 am a 6:00 pm';
+export const FOOTER_SUPPORT_PHONE_DISPLAY = '965 805 873';
+export const FOOTER_SUPPORT_PHONE_TEL = 'tel:+51965805873';
 
-export const FOOTER_SALES_EMAIL = 'ventas@nbntecnologia.com';
+/** @deprecated Usar FOOTER_SALES_WHATSAPP_LINK */
+export const FOOTER_WHATSAPP_LINK = FOOTER_SALES_WHATSAPP_LINK;
 
+export const FOOTER_SALES_EMAIL = 'ventas@haitech.pe';
 export const FOOTER_SUPPORT_EMAIL = 'servicioalcliente@haitech.pe';
+
+export const FOOTER_RUC = DEFAULT_COMPANY_SETTINGS.ruc;
 
 export const FOOTER_SOCIAL_LINKS = [
   { label: 'Facebook', href: 'https://facebook.com/' },

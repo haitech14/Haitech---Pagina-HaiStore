@@ -6,6 +6,7 @@ import {
   type ResolveProductImageInput,
   type ResolveProductImageOptions,
 } from '@/lib/product-image-url';
+import { sanitizeStoredProductMedia } from '@/lib/product-media-sanitize';
 
 function mergeGallery(
   primary?: string[] | null,
@@ -33,7 +34,18 @@ export function buildProductCardImageSource(
   const name = product.name ?? catalog?.name;
   if (name) source.name = name;
 
-  return source;
+  const sanitized = sanitizeStoredProductMedia({
+    id: source.id ?? product.id ?? '',
+    code: source.code,
+    image_url: source.image_url,
+    gallery: source.gallery,
+  });
+
+  return {
+    ...source,
+    image_url: sanitized.image_url,
+    gallery: sanitized.gallery,
+  };
 }
 
 export function buildProductCardImageCandidates(
@@ -41,7 +53,7 @@ export function buildProductCardImageCandidates(
   options?: ResolveProductImageOptions,
 ): string[] {
   return buildProductImageCandidates(buildProductCardImageSource(product), {
-    stockFallback: true,
+    stockFallback: false,
     ...options,
   });
 }
@@ -61,7 +73,7 @@ export function resolveProductCardHoverImageFromProduct(
   options?: ResolveProductImageOptions,
 ): string | null {
   return resolveProductCardHoverImage(buildProductCardImageSource(product), {
-    stockFallback: true,
+    stockFallback: false,
     ...options,
   });
 }

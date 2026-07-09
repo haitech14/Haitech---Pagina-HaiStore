@@ -53,9 +53,9 @@ export function FooterBrandsSection() {
   }, [emblaApi]);
 
   return (
-    <section aria-labelledby="marcas-footer-titulo" className="home-landing-sans py-5 sm:py-6">
+    <section aria-labelledby="marcas-footer-titulo" className="home-landing-sans py-3 sm:py-4">
       <div className="container">
-        <header className="mb-5 text-center sm:mb-6">
+        <header className="mb-3 text-center sm:mb-4">
           <div className="flex items-center justify-center gap-3 sm:gap-5">
             <span className="h-px w-10 bg-red-600/70 sm:w-16" aria-hidden="true" />
             <h2
@@ -83,7 +83,7 @@ export function FooterBrandsSection() {
             <ul className="flex touch-pan-y gap-1.5 sm:gap-2" role="list" aria-label="Marcas disponibles">
               {footerPartnerBrands.map((brand) => (
                 <li key={getBrandName(brand)} className={BRAND_SLIDE_CLASS}>
-                  <BrandLogoCard brand={brand} isDark={false} linkable={false} />
+                  <BrandLogoCard brand={brand} isDark={false} linkable />
                 </li>
               ))}
             </ul>
@@ -102,7 +102,7 @@ export function FooterBrandsSection() {
 
         {scrollSnaps.length > 1 ? (
           <div
-            className="mt-3 flex items-center justify-center gap-1.5 sm:mt-4"
+            className="mt-3 flex items-center justify-center gap-0 sm:mt-4"
             role="tablist"
             aria-label="Paginación de marcas"
           >
@@ -115,10 +115,17 @@ export function FooterBrandsSection() {
                 aria-label={`Ir al grupo ${index + 1} de marcas`}
                 onClick={() => scrollTo(index)}
                 className={cn(
-                  'size-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-                  index === selectedIndex ? 'bg-red-600' : 'bg-neutral-300 hover:bg-neutral-400',
+                  'flex size-7 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
                 )}
-              />
+              >
+                <span
+                  className={cn(
+                    'size-2.5 rounded-full transition-colors',
+                    index === selectedIndex ? 'bg-red-600' : 'bg-neutral-300 hover:bg-neutral-400',
+                  )}
+                  aria-hidden="true"
+                />
+              </button>
             ))}
           </div>
         ) : null}

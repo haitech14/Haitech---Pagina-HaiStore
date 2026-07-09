@@ -202,6 +202,9 @@ export const megaMenuCategoryImages: Record<string, string> = {
   'computadoras-laptop': '/categories/computadoras-laptop.png',
   'soluciones-colaboracion': '/categories/soluciones-colaboracion.png',
   'soluciones-negocio': '/categories/soluciones-negocio.png',
+  'equipos-de-oficina': '/categories/repuestos.png',
+  'equipamiento-videoconferencias': '/categories/soluciones-colaboracion.png',
+  software: '/categories/soluciones-negocio.png',
 };
 
 export function megaMenuImageForSlug(slug: string): string | undefined {
@@ -209,26 +212,3 @@ export function megaMenuImageForSlug(slug: string): string | undefined {
   const root = slug.split('-')[0];
   return megaMenuCategoryImages[root];
 }
-
-export interface MegaMenuPartnerBrand {
-  id: string;
-  name: string;
-  logo: string;
-  href?: string;
-}
-
-/** Marcas con las que trabaja HaiStore (franja inferior del mega menú). */
-export const megaMenuPartnerBrands: readonly MegaMenuPartnerBrand[] = [
-  { id: 'ricoh', name: 'Ricoh', logo: '/brands/ricoh.png', href: categoryPath('multifuncionales') },
-  { id: 'canon', name: 'Canon', logo: '/brands/canon.png', href: categoryPath('impresoras') },
-  { id: 'hp', name: 'HP', logo: '/brands/hp.png', href: categoryPath('toner-suministros') },
-  { id: 'epson', name: 'Epson', logo: '/brands/epson.png', href: categoryPath('impresoras') },
-  {
-    id: 'konica-minolta',
-    name: 'Konica Minolta',
-    logo: '/brands/konica-minolta.png',
-    href: categoryPath('multifuncionales'),
-  },
-  { id: 'kyocera', name: 'Kyocera', logo: '/brands/kyocera.png', href: categoryPath('multifuncionales') },
-  { id: 'pantum', name: 'Pantum', logo: '/brands/pantum.png', href: categoryPath('impresoras') },
-];

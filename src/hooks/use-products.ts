@@ -198,7 +198,7 @@ export function useInventoryMutations() {
         '/api/products/sync-catalog',
         {
           method: 'POST',
-          body: JSON.stringify({ resetDeleted }),
+          body: JSON.stringify({ resetDeleted, importMissing: true }),
         },
       ),
     onSuccess: () => notifyCatalogChange(),

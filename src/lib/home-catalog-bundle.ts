@@ -8,7 +8,12 @@ export const HOME_FEATURED_BUNDLE_LIMIT = 6;
 export const HOME_SECTIONS_BUNDLE_LIMIT = 10;
 export const HOME_BUNDLE_STATIC_URL = '/catalog/home-bundle.json';
 
-const BUNDLE_STORAGE_KEY = 'haistore_home_bundle_v1';
+const BUNDLE_STORAGE_KEY = 'haistore_home_bundle_v2';
+
+interface StoredHomeCatalogBundle {
+  generatedAt?: string;
+  bundle: HomeCatalogBundleResponse;
+}
 
 export interface HomeCatalogSectionPayload {
   id: CatalogFamilySlug;
@@ -35,20 +40,55 @@ export function readStoredHomeCatalogBundle(): HomeCatalogBundleResponse | undef
   try {
     const raw = sessionStorage.getItem(BUNDLE_STORAGE_KEY);
     if (!raw) return undefined;
-    const parsed = JSON.parse(raw) as HomeCatalogBundleResponse;
-    if (!isValidBundlePayload(parsed)) return undefined;
-    return parsed;
+    const parsed = JSON.parse(raw) as StoredHomeCatalogBundle | HomeCatalogBundleResponse;
+    const bundle =
+      parsed && typeof parsed === 'object' && 'bundle' in parsed
+        ? parsed.bundle
+        : (parsed as HomeCatalogBundleResponse);
+    if (!isValidBundlePayload(bundle)) return undefined;
+    return bundle;
   } catch {
     return undefined;
   }
 }
 
-export function storeHomeCatalogBundle(payload: HomeCatalogBundleResponse): void {
+function readStoredHomeCatalogBundleMeta(): StoredHomeCatalogBundle | undefined {
   try {
-    sessionStorage.setItem(BUNDLE_STORAGE_KEY, JSON.stringify(payload));
+    const raw = sessionStorage.getItem(BUNDLE_STORAGE_KEY);
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw) as StoredHomeCatalogBundle | HomeCatalogBundleResponse;
+    if (parsed && typeof parsed === 'object' && 'bundle' in parsed) {
+      return isValidBundlePayload(parsed.bundle) ? parsed : undefined;
+    }
+    if (isValidBundlePayload(parsed)) {
+      return { bundle: parsed };
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function storeHomeCatalogBundle(
+  payload: HomeCatalogBundleResponse,
+  generatedAt?: string,
+): void {
+  try {
+    const stored: StoredHomeCatalogBundle = { bundle: payload };
+    if (generatedAt) stored.generatedAt = generatedAt;
+    sessionStorage.setItem(BUNDLE_STORAGE_KEY, JSON.stringify(stored));
   } catch {
     /* quota / privado */
   }
+}
+
+function isStaticBundleNewer(
+  cached: StoredHomeCatalogBundle | undefined,
+  staticGeneratedAt?: string,
+): boolean {
+  if (!staticGeneratedAt) return false;
+  if (!cached?.generatedAt) return true;
+  return staticGeneratedAt > cached.generatedAt;
 }
 
 function snapshotToBundle(payload: HomeBundleSnapshotFile): HomeCatalogBundleResponse {
@@ -59,7 +99,10 @@ function snapshotToBundle(payload: HomeBundleSnapshotFile): HomeCatalogBundleRes
 }
 
 /** Snapshot estático (CDN / public); no requiere API. */
-export async function fetchStaticHomeCatalogBundle(): Promise<HomeCatalogBundleResponse | null> {
+export async function fetchStaticHomeCatalogBundle(): Promise<{
+  bundle: HomeCatalogBundleResponse;
+  generatedAt?: string;
+} | null> {
   try {
     const response = await fetch(HOME_BUNDLE_STATIC_URL, {
       cache: 'default',
@@ -68,7 +111,10 @@ export async function fetchStaticHomeCatalogBundle(): Promise<HomeCatalogBundleR
     if (!response.ok) return null;
     const payload = (await response.json()) as HomeBundleSnapshotFile;
     if (!isValidBundlePayload(payload)) return null;
-    return snapshotToBundle(payload);
+    return {
+      bundle: snapshotToBundle(payload),
+      ...(payload.generatedAt ? { generatedAt: payload.generatedAt } : {}),
+    };
   } catch {
     return null;
   }
@@ -85,13 +131,22 @@ async function fetchHomeCatalogBundleFromApi(): Promise<HomeCatalogBundleRespons
 
 /** Datos para pintar la home: snapshot / sessionStorage primero (sin esperar API). */
 export async function fetchHomeCatalogBundleForDisplay(): Promise<HomeCatalogBundleResponse> {
-  const cached = readStoredHomeCatalogBundle();
-  if (cached) return cached;
+  const cachedMeta = readStoredHomeCatalogBundleMeta();
+  const staticPayload = await fetchStaticHomeCatalogBundle();
 
-  const staticBundle = await fetchStaticHomeCatalogBundle();
-  if (staticBundle) {
-    storeHomeCatalogBundle(staticBundle);
-    return staticBundle;
+  if (
+    staticPayload &&
+    isStaticBundleNewer(cachedMeta, staticPayload.generatedAt)
+  ) {
+    storeHomeCatalogBundle(staticPayload.bundle, staticPayload.generatedAt);
+    return staticPayload.bundle;
+  }
+
+  if (cachedMeta?.bundle) return cachedMeta.bundle;
+
+  if (staticPayload) {
+    storeHomeCatalogBundle(staticPayload.bundle, staticPayload.generatedAt);
+    return staticPayload.bundle;
   }
 
   return fetchHomeCatalogBundleFromApi();
@@ -104,12 +159,12 @@ export async function revalidateHomeCatalogBundle(): Promise<HomeCatalogBundleRe
     storeHomeCatalogBundle(apiBundle);
     return apiBundle;
   } catch (error) {
-    const cached = readStoredHomeCatalogBundle();
-    if (cached) return cached;
-    const staticBundle = await fetchStaticHomeCatalogBundle();
-    if (staticBundle) {
-      storeHomeCatalogBundle(staticBundle);
-      return staticBundle;
+    const cachedMeta = readStoredHomeCatalogBundleMeta();
+    if (cachedMeta?.bundle) return cachedMeta.bundle;
+    const staticPayload = await fetchStaticHomeCatalogBundle();
+    if (staticPayload) {
+      storeHomeCatalogBundle(staticPayload.bundle, staticPayload.generatedAt);
+      return staticPayload.bundle;
     }
     throw error;
   }
@@ -124,10 +179,10 @@ export async function fetchHomeCatalogBundle(): Promise<HomeCatalogBundleRespons
 
 /** Precarga instantánea desde JSON estático (sin API). */
 export async function fetchHomeCatalogBundleInitial(): Promise<HomeCatalogBundleResponse | null> {
-  const staticBundle = await fetchStaticHomeCatalogBundle();
-  if (staticBundle) {
-    storeHomeCatalogBundle(staticBundle);
-    return staticBundle;
+  const staticPayload = await fetchStaticHomeCatalogBundle();
+  if (staticPayload) {
+    storeHomeCatalogBundle(staticPayload.bundle, staticPayload.generatedAt);
+    return staticPayload.bundle;
   }
   return readStoredHomeCatalogBundle() ?? null;
 }

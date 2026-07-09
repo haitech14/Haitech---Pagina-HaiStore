@@ -1,14 +1,18 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
-import { isProductOutOfStock, ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
-import { DualPrice } from '@/components/product/product-dual-price';
+import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
+import { ProductCardPromoBadges } from '@/components/product/product-card-promo-badges';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
+import { useDisplayCurrency } from '@/context/display-currency-context';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
+import { getDisplayPriceVisibility } from '@/lib/display-price';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { getCatalogProductById } from '@/lib/catalog-featured';
+import { formatConsumableProductSpecLabel } from '@/lib/format-consumable-product-spec-label';
+import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import {
   buildProductCardImageCandidates,
   buildProductCardImageSource,
@@ -16,22 +20,22 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
-import { formatProductCardTitle } from '@/lib/product-card-title';
+import { formatProductCodeCardDisplay } from '@/lib/format-product-code-display';
+import { resolveProductCardEstadoLabel } from '@/lib/product-card-condition';
+import { resolveHomeLandingProductBadges } from '@/lib/home-landing-product-badges';
+import { formatHomeLandingProductCardTitle } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
-import { cn } from '@/lib/utils';
+import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
-const WHATSAPP_REVEAL_CLASS =
-  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
+const LOW_STOCK_THRESHOLD = 8;
 
-export function HomeLandingProductCard({
-  product,
-  index,
-}: {
-  product: FeaturedProduct;
-  index: number;
-}) {
-  const [quantity, setQuantity] = useState(1);
+const whatsappRevealClass =
+  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-150 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
+
+export function HomeLandingProductCard({ product }: { product: FeaturedProduct }) {
+  const { displayCurrency } = useDisplayCurrency();
+  const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const catalogProduct = getCatalogProductById(product.id);
   const displayPrice = useCatalogDisplayPrice({
     price: product.price,
@@ -42,32 +46,70 @@ export function HomeLandingProductCard({
     ...(product.oldPrice != null ? { oldPrice: product.oldPrice } : {}),
     ...(product.discount != null ? { discount: product.discount } : {}),
   });
-  const showBestSellerBadge = index === 0;
-  const showDiscountBadge = pricing.discountPercent >= 5;
-  const categoryLabel = product.category?.trim() || catalogProduct?.category?.trim() || null;
+
   const code = product.code ?? catalogProduct?.code ?? null;
+  const displayCode = code ? formatProductCodeCardDisplay(code) : null;
   const stock = catalogProduct?.stock ?? 0;
-  const displayTitle = formatProductCardTitle({
+  const outOfStock = isProductOutOfStock({
+    id: product.id,
+    name: product.name,
+    description: catalogProduct?.description ?? null,
+    price: displayPrice.priceUsd,
+    currency: 'USD',
+    image_url: product.image,
+    stock,
+    category: product.category,
+    brand: product.brand ?? catalogProduct?.brand ?? null,
+    code,
+    created_at: catalogProduct?.created_at ?? new Date().toISOString(),
+  });
+  const stockCount = Math.max(0, Math.floor(stock));
+
+  const productSource = {
     id: product.id,
     name: product.name,
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
-    code: product.code ?? catalogProduct?.code ?? null,
-    attributes: product.attributes ?? [],
+    code,
+    attributes: product.attributes ?? catalogProduct?.attributes ?? [],
+  };
+
+  const showDiscountBadge = pricing.discountPercent >= 5;
+  const showLimitedStockBadge = !outOfStock && stockCount <= LOW_STOCK_THRESHOLD;
+  const topBadgeLabel = showDiscountBadge
+    ? `Oferta -${pricing.discountPercent}%`
+    : showLimitedStockBadge
+      ? 'Últimas unidades'
+      : null;
+
+  const displayTitle = formatHomeLandingProductCardTitle({
+    ...productSource,
+    attributes: productSource.attributes,
   });
+
+  const promoBadges = resolveHomeLandingProductBadges({
+    product,
+    priceUsd: pricing.currentUsd,
+    catalogProduct,
+  });
+  const estadoLabel = resolveProductCardEstadoLabel(productSource);
+
+  const specsLine =
+    formatConsumableProductSpecLabel(productSource) ??
+    buildProductCardQuickSpecsLine(productSource);
 
   const imageSource = useMemo(
     () =>
       buildProductCardImageSource({
         id: product.id,
-        code: product.code ?? catalogProduct?.code ?? null,
+        code,
         name: product.name,
         category: product.category,
         brand: product.brand ?? catalogProduct?.brand ?? null,
         image_url: product.image ?? catalogProduct?.image_url ?? null,
         gallery: catalogProduct?.gallery ?? null,
       }),
-    [catalogProduct, product],
+    [catalogProduct, code, product],
   );
   const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
   const storedImageCandidates = useMemo(
@@ -78,6 +120,9 @@ export function HomeLandingProductCard({
     () => resolveProductCardHoverImageFromProduct(imageSource),
     [imageSource],
   );
+  const hasValidImage = imageCandidates.length > 0;
+  const showPriceOnRequest =
+    !Number.isFinite(displayPrice.priceUsd) || displayPrice.priceUsd <= 0;
 
   const cartProduct: Product = {
     id: product.id,
@@ -89,28 +134,30 @@ export function HomeLandingProductCard({
     stock,
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
-    code: product.code ?? catalogProduct?.code ?? null,
+    code,
     created_at: catalogProduct?.created_at ?? new Date().toISOString(),
+    attributes: productSource.attributes,
   };
-  const outOfStock = isProductOutOfStock(cartProduct);
 
   return (
     <article className="group flex h-full w-full flex-col overflow-hidden rounded-xl border border-border/50 bg-white shadow-[0_2px_14px_rgba(15,31,61,0.07)]">
       <div className="relative">
         <Link
           to={productPath(product)}
-          className="relative block aspect-square bg-white p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:p-3"
+          className={cn(
+            'relative block aspect-square p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:p-3',
+            hasValidImage ? 'bg-white' : 'bg-muted/35',
+          )}
           aria-label={`Ver ficha de ${product.name}`}
         >
-          {showBestSellerBadge ? (
-            <span className="absolute left-2 top-2 z-[2] rounded bg-[#E30613] px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-white sm:left-2.5 sm:top-2.5 sm:text-[0.6875rem]">
-              Más vendido
-            </span>
-          ) : null}
-
-          {showDiscountBadge ? (
-            <span className="absolute right-2 top-2 z-[2] rounded bg-primary px-1.5 py-0.5 text-[0.6875rem] font-semibold text-primary-foreground sm:right-2.5 sm:top-2.5 sm:text-xs">
-              -{pricing.discountPercent}%
+          {topBadgeLabel ? (
+            <span
+              className={cn(
+                'absolute left-2 top-2 z-[2] rounded px-1.5 py-px text-[0.5625rem] font-bold uppercase tracking-wide text-white sm:left-2.5 sm:top-2.5 sm:text-[0.625rem]',
+                showDiscountBadge ? 'bg-[#E30613]' : 'bg-[#F59E0B]',
+              )}
+            >
+              {topBadgeLabel}
             </span>
           ) : null}
 
@@ -121,88 +168,91 @@ export function HomeLandingProductCard({
             alt={product.name}
             className="size-full"
             imageClassName="size-full object-contain"
-            placeholder={
-              <span className="text-4xl font-bold text-neutral-200" aria-hidden="true">
-                {product.name.charAt(0)}
-              </span>
-            }
           />
         </Link>
       </div>
 
-      <div className="flex flex-1 flex-col px-3 pb-3 pt-2 sm:px-3.5 sm:pb-3.5">
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-1.5 sm:px-3.5 sm:pb-3.5 sm:pt-2">
+        <ProductCardPromoBadges badges={promoBadges} estadoLabel={estadoLabel} className="mb-1" />
         <Link
           to={productPath(product)}
           className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
         >
-          <h3 className="line-clamp-2 min-h-[2.5rem] text-pretty text-left text-[0.8125rem] font-bold leading-snug text-[#111111] sm:min-h-[2.75rem] sm:text-sm">
+          <h3 className="line-clamp-2 text-pretty text-left text-sm font-semibold leading-snug text-[#111111]">
             {displayTitle}
+            {displayCode ? (
+              <span className="font-normal text-[#888888]" title={code ?? undefined}>
+                {' '}
+                ({displayCode})
+              </span>
+            ) : null}
           </h3>
         </Link>
 
-        <p className="mt-1 min-h-[1rem] line-clamp-1 text-left text-[0.6875rem] font-normal text-[#666666] sm:min-h-[1.125rem] sm:text-xs">
-          {categoryLabel ?? '\u00a0'}
-        </p>
+        {specsLine ? (
+          <p className="mt-1 line-clamp-1 text-[0.6875rem] text-[#666666] sm:text-xs">{specsLine}</p>
+        ) : (
+          <span className="mt-1 block min-h-4" aria-hidden="true" />
+        )}
 
-        <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
-          {code ? (
-            <p className="min-w-0 truncate font-mono text-[0.625rem] text-muted-foreground sm:text-[0.6875rem]">
-              {code}
-            </p>
-          ) : (
-            <span className="min-w-0" aria-hidden="true" />
-          )}
-          <span
+        <div className="mt-0.5 flex min-h-4 justify-end">
+          <p
             className={cn(
-              'shrink-0 rounded-md px-1.5 py-0.5 text-[0.625rem] font-semibold sm:text-[0.6875rem]',
-              outOfStock
-                ? ON_REQUEST_STOCK_BADGE_CLASS
-                : 'bg-emerald-50 font-semibold text-emerald-700',
+              'shrink-0 text-right text-[0.6875rem] font-medium sm:text-xs',
+              outOfStock ? 'text-[#888888]' : 'text-[#16A34A]',
             )}
           >
-            {outOfStock ? 'A pedido' : `${Math.max(0, Math.floor(stock))} unids.`}
-          </span>
+            {outOfStock ? 'A pedido' : `${stockCount} en stock`}
+          </p>
         </div>
 
-        <div className="mt-2 flex min-h-[1.375rem] flex-wrap items-baseline gap-x-2 gap-y-0.5 sm:min-h-[1.5rem]">
-          <DualPrice
-            usd={pricing.currentUsd}
-            className="text-base font-bold text-[#111111] sm:text-[1.0625rem]"
-          />
-          {pricing.compareUsd > pricing.currentUsd ? (
-            <DualPrice
-              usd={pricing.compareUsd}
-              strikethrough
-              className="text-[0.6875rem] font-normal text-[#888888] sm:text-xs"
-            />
+        <div
+          className={cn(
+            'mt-2',
+            !showPriceOnRequest && showUsd && showPen
+              ? 'flex flex-nowrap items-baseline gap-2'
+              : 'space-y-0.5',
+          )}
+        >
+          {showPriceOnRequest ? (
+            <p className="text-sm font-bold leading-tight text-[#111111] sm:text-base">Consultar Precio</p>
+          ) : showPen ? (
+            <p className="text-base font-bold tabular-nums leading-tight text-red-600 sm:text-lg">
+              {formatPenFromUsd(pricing.currentUsd)}
+            </p>
+          ) : null}
+          {!showPriceOnRequest && showUsd && showPen ? (
+            <p className="text-[0.6875rem] tabular-nums text-[#888888] sm:text-xs">
+              {formatUsd(pricing.currentUsd)}
+            </p>
+          ) : !showPriceOnRequest && showUsd ? (
+            <p className="text-base font-bold tabular-nums leading-tight text-[#111111] sm:text-lg">
+              {formatUsd(pricing.currentUsd)}
+            </p>
           ) : null}
         </div>
 
-        <div className="relative z-[2] mt-auto space-y-1.5 pt-3">
+        <div className="relative z-[2] mt-auto flex flex-col gap-0 pt-3 transition-[gap] duration-150 ease-out group-hover:gap-2 group-focus-within:gap-2">
           <ProductQuantityAddFooter
             product={cartProduct}
             size="sm"
-            revealQuantityOnHover
-            addLabel="Agregar al carrito"
-            onQuantityChange={setQuantity}
-            addButtonClassName="h-10 min-h-10 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"
+            addLabel="Comprar ahora"
+            hideQuantity
+            addButtonClassName="h-10 min-h-10 w-full rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"
           />
-
-          <div className={WHATSAPP_REVEAL_CLASS}>
+          <div className={whatsappRevealClass}>
             <div className="min-h-0 overflow-hidden">
               <ProductWhatsAppButton
                 stopPropagation
-                accent="outline"
-                label="Cotizar por WhatsApp"
-                quantity={quantity}
                 product={{
-                  id: product.id,
-                  name: product.name,
-                  priceUsd: displayPrice.priceUsd,
-                  category: product.category,
-                  brand: product.brand ?? catalogProduct?.brand ?? null,
+                  id: cartProduct.id,
+                  name: cartProduct.name,
+                  priceUsd: pricing.currentUsd,
+                  category: cartProduct.category,
+                  brand: cartProduct.brand ?? null,
                 }}
-                className="h-10 min-h-10 w-full rounded-lg border-[#25D366] bg-white px-2 text-[0.6875rem] font-semibold normal-case tracking-normal text-[#25D366] transition-colors hover:border-[#25D366] hover:bg-[#25D366] hover:text-white sm:text-xs"
+                className="h-10 min-h-10 w-full rounded-lg bg-[#25D366] px-3 text-xs font-semibold normal-case tracking-normal text-white shadow-none hover:bg-[#20bd5a] focus-visible:ring-[#25D366] sm:text-sm [&_span]:truncate-none"
+                label="Cotizar por WhatsApp"
               />
             </div>
           </div>

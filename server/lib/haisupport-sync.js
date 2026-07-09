@@ -1,9 +1,13 @@
 /**
  * Sincronización HaiStore → HaiSupport (API) e ingesta HaiSupport → HaiStore (webhook).
  *
- * Contrato outbound: POST {HAISUPPORT_API_URL}/sync/{entity}
+ * Contrato outbound API dedicada: POST {HAISUPPORT_API_URL}/sync/{entity}
+ * Contrato outbound Supabase compartido: bridge directo (haisupport-bridge-outbound.js)
  * Contrato inbound: POST /api/integrations/haisupport/webhook
  */
+
+import { bridgeOutboundSync } from './haisupport-bridge-outbound.js';
+import { isHaiSupportSupabaseConfigured } from './haisupport-supabase.js';
 
 const TIMEOUT_MS = 12_000;
 
@@ -11,6 +15,11 @@ function getApiBaseUrl() {
   const raw = process.env.HAISUPPORT_API_URL?.trim();
   if (!raw) return '';
   return raw.replace(/\/+$/, '');
+}
+
+function isDedicatedHaiSupportApi() {
+  const url = getApiBaseUrl();
+  return Boolean(url) && !url.includes('supabase.co');
 }
 
 function isOutboundSyncEnabled() {
@@ -64,6 +73,14 @@ async function postToHaiSupport(path, body) {
  */
 export function notifyHaiSupportChange(entity, action, payload) {
   if (!isOutboundSyncEnabled()) return;
+
+  if (isHaiSupportSupabaseConfigured() && !isDedicatedHaiSupportApi()) {
+    void bridgeOutboundSync(entity, action, payload).catch((error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn('[haisupport-sync] bridge:', entity, message);
+    });
+    return;
+  }
 
   void postToHaiSupport(`/sync/${entity}`, {
     action,

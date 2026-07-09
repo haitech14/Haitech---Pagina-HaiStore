@@ -29,7 +29,7 @@ const CARD_TITLES: Record<ConfigureEquipmentCarouselOptionId, string> = {
   gabinete: 'Gabinete',
   'estabilizador-2000w': 'Estabilizador 2000 watts 220v',
   'router-wifi': 'Router Wifi',
-  'garantia-2y': 'Garantía Extendida 2 años',
+  'garantia-2y': '2 años y/o 50,000 páginas',
 };
 
 export interface ConfigureEquipmentCard {
@@ -79,7 +79,7 @@ function optionToCard(
   const modelName = resolveModelLabel(option);
   const description =
     optionId === 'garantia-2y'
-      ? option.description?.trim() || '2 años y/o 100,000 páginas'
+      ? option.description?.trim() || '2 años y/o 50,000 páginas'
       : modelName;
 
   return {

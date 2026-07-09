@@ -49,14 +49,32 @@ function slimProduct(raw) {
 
 async function loadSourceProducts() {
   const inventoryPath = getInventoryPath();
+  const catalogProducts = existsSync(catalogPath)
+    ? (JSON.parse(readFileSync(catalogPath, 'utf8')).products ?? [])
+    : [];
+
   if (existsSync(inventoryPath)) {
     const inventory = await readInventory();
-    return { products: inventory.products ?? [], source: inventoryPath };
+    const inventoryProducts = inventory.products ?? [];
+
+    // Si el inventario local quedó truncado (p. ej. seed demo), usar el catálogo maestro.
+    const inventoryLooksTruncated =
+      catalogProducts.length > 0 &&
+      inventoryProducts.length > 0 &&
+      inventoryProducts.length < Math.min(100, catalogProducts.length * 0.25);
+
+    if (inventoryLooksTruncated) {
+      console.warn(
+        `[generate:inventory-index] Inventario truncado (${inventoryProducts.length} vs catálogo ${catalogProducts.length}); usando catálogo maestro.`,
+      );
+      return { products: catalogProducts, source: catalogPath };
+    }
+
+    return { products: inventoryProducts, source: inventoryPath };
   }
 
-  if (existsSync(catalogPath)) {
-    const catalog = JSON.parse(readFileSync(catalogPath, 'utf8'));
-    return { products: catalog.products ?? [], source: catalogPath };
+  if (catalogProducts.length > 0) {
+    return { products: catalogProducts, source: catalogPath };
   }
 
   return null;

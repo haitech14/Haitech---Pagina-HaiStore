@@ -24,6 +24,8 @@ import {
   upsertServiceRequestFromInbound,
 } from '../lib/service-requests-store.js';
 import { syncProductFromHaiSupport, deleteProductFromHaiSupport } from '../lib/haisupport-inbound.js';
+import { getHaiSupportIntegrationStatus, syncHaiSupportFromDatabase } from '../lib/haisupport-integration.js';
+import { syncAllIntegrations } from '../lib/integrations-orchestrator.js';
 import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 import { haisalesIntegrationRouter } from './haisales-integration.js';
 
@@ -130,26 +132,44 @@ integrationsRouter.post('/haisupport/webhook', async (req, res, next) => {
   }
 });
 
-integrationsRouter.get('/haisupport/status', requireAdmin, (_req, res) => {
-  res.json({
-    sharedSupabase: shouldUseSharedSupabaseData(),
-    outboundSync: process.env.HAISUPPORT_SYNC_ENABLED === 'true',
-    webhookConfigured: Boolean(process.env.HAISUPPORT_WEBHOOK_SECRET?.trim()),
-    haisupportSupabaseBridge: Boolean(
-      process.env.HAISUPPORT_API_URL?.includes('supabase.co') && process.env.HAISUPPORT_API_KEY?.trim(),
-    ),
-    entities: {
-      products: { outbound: true, inbound: true },
-      customers: { outbound: true, inbound: true },
-      proformas: { outbound: true, inbound: true },
-      rental_plans: { outbound: true, inbound: true },
-      service_requests: { outbound: true, inbound: true },
-      rental_requests: { outbound: true, inbound: true },
-      orders: { outbound: true, inbound: true },
-    },
-    haisales: {
-      statusUrl: '/api/integrations/haisales/status',
-      syncSeedsUrl: '/api/integrations/haisales/sync-seeds',
-    },
-  });
+integrationsRouter.get('/haisupport/status', requireAdmin, async (_req, res, next) => {
+  try {
+    const status = await getHaiSupportIntegrationStatus();
+    res.json({
+      ...status,
+      haisales: {
+        statusUrl: '/api/integrations/haisales/status',
+        syncSeedsUrl: '/api/integrations/haisales/sync-seeds',
+        syncDatabaseUrl: '/api/integrations/haisales/sync-database',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+integrationsRouter.post('/haisupport/sync', requireAdmin, async (_req, res, next) => {
+  try {
+    if (!shouldUseSharedSupabaseData()) {
+      return res.status(503).json({ error: 'Supabase compartido no configurado en HaiStore' });
+    }
+    const result = await syncHaiSupportFromDatabase();
+    res.json({ ok: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+integrationsRouter.post('/sync-all', requireAdmin, async (req, res, next) => {
+  try {
+    const body = req.body ?? {};
+    const result = await syncAllIntegrations({
+      haisales: body.haisales !== false,
+      haisupport: body.haisupport !== false,
+      mirrorRemote: body.mirrorRemote === true,
+    });
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
 });

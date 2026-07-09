@@ -30,8 +30,8 @@ export function ProductDetailDescription({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4 text-sm leading-relaxed text-neutral-600 sm:text-[0.9375rem]">
+    <div className="space-y-4">
+      <div className="space-y-3 text-xs leading-relaxed text-neutral-600 sm:text-sm">
         {paragraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}

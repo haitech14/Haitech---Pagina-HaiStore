@@ -37,9 +37,9 @@ const FALLBACK_ADDON_PRODUCTS: Record<CheckoutMultifuncionalAddonKind, Product> 
   'garantia-extendida': {
     id: 'checkout-addon-garantia-extendida',
     slug: 'garantia-extendida-2y',
-    name: 'Garantía extendida 2 años',
-    description: 'Cobertura adicional 2 años y/o 100,000 páginas.',
-    price: 200,
+    name: '2 años y/o 50,000 páginas',
+    description: 'Garantía extendida: 2 años y/o 50,000 páginas adicionales.',
+    price: 150,
     currency: 'USD',
     image_url: '/products/combo-garantia-extendida.webp',
     gallery: [],

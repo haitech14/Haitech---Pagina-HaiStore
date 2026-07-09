@@ -69,10 +69,10 @@ export function MediaAlbumPanel() {
     upload.isPending || remove.isPending || updateDriveConfig.isPending || syncDrive.isPending;
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+    <div className="space-y-3">
+      <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
         <h2 className="text-lg font-semibold text-foreground">Álbum interno</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Biblioteca central de fotos y vídeos optimizados. Incluye las imágenes guardadas en
           inventario y las subidas al álbum.
         </p>
@@ -102,9 +102,9 @@ export function MediaAlbumPanel() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-        <h3 className="text-base font-semibold text-foreground">Google Drive</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
+        <h3 className="text-sm font-semibold text-foreground">Google Drive</h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Conecta una carpeta compartida para importar imágenes y vídeos al álbum. Configura en el
           servidor{' '}
           <code className="rounded bg-muted px-1 py-0.5 text-xs">GOOGLE_DRIVE_API_KEY</code> o{' '}
@@ -161,9 +161,9 @@ export function MediaAlbumPanel() {
         </p>
       ) : null}
 
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+      <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold text-foreground">
+          <h3 className="text-sm font-semibold text-foreground">
             Medios ({items.length})
           </h3>
           {isLoading ? (

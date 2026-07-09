@@ -1,16 +1,19 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
-import { megaMenuPartnerBrands } from '@/data/mega-menu';
-import {
-  filterRedundantMegaMenuLinks,
-  type LandingCatalogMenuSidebarItem,
-  type MegaMenuColumnGroup,
+import type {
+  LandingCatalogMenuSidebarItem,
+  MegaMenuColumnGroup,
+  MegaMenuFeaturedContent,
 } from '@/lib/mega-menu-from-store-categories';
 import { categoryLandingPath } from '@/lib/category-path';
+import { megaMenuIconForSlug, resolveMegaMenuColumnImage } from '@/lib/mega-menu-visuals';
 import { cn } from '@/lib/utils';
 
-const ICON_STROKE = 1.5;
+const ICON_STROKE = 1.75;
+const BRAND_RED = '#E30613';
+const MEGA_MENU_NAVY = '#0f1f3d';
 
 function MegaMenuLink({
   to,
@@ -30,46 +33,192 @@ function MegaMenuLink({
   );
 }
 
-function MegaMenuColumn({
+function MegaMenuColumnThumbnail({
+  group,
+  onNavigate,
+  size = 'desktop',
+}: {
+  group: MegaMenuColumnGroup;
+  onNavigate: () => void;
+  size?: 'desktop' | 'mobile';
+}) {
+  const imageSrc = resolveMegaMenuColumnImage(group.slug, group.image);
+  const heightClass = size === 'desktop' ? 'h-[4.5rem]' : 'h-14';
+
+  return (
+    <MegaMenuLink
+      to={group.href}
+      onNavigate={onNavigate}
+      className="group/thumb block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
+    >
+      <span
+        className={cn(
+          'mb-2.5 flex items-center justify-center overflow-hidden rounded-md bg-[#F9FAFB] p-2 transition-colors group-hover/thumb:bg-[#F3F4F6]',
+          heightClass,
+        )}
+      >
+        <img
+          src={imageSrc}
+          alt=""
+          className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover/thumb:scale-[1.03]"
+          loading="lazy"
+        />
+      </span>
+    </MegaMenuLink>
+  );
+}
+
+function MegaMenuColumnTitle({
+  group,
+  onNavigate,
+  variant = 'desktop',
+}: {
+  group: MegaMenuColumnGroup;
+  onNavigate: () => void;
+  variant?: 'desktop' | 'mobile';
+}) {
+  const Icon = megaMenuIconForSlug(group.slug);
+  const isDesktop = variant === 'desktop';
+
+  return (
+    <MegaMenuLink
+      to={group.href}
+      onNavigate={onNavigate}
+      className={cn(
+        'group/title inline-flex max-w-full items-center gap-2 rounded-md transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+        isDesktop ? 'mb-2.5 hover:text-[#E30613]' : 'py-1.5 hover:text-[#E30613]',
+      )}
+    >
+      <span
+        className={cn(
+          'flex shrink-0 items-center justify-center rounded-md bg-[#FFF5F5] text-[#E30613] transition-colors group-hover/title:bg-[#FEE2E2]',
+          isDesktop ? 'size-7' : 'size-6',
+        )}
+      >
+        <Icon
+          className={isDesktop ? 'size-3.5' : 'size-3'}
+          strokeWidth={ICON_STROKE}
+          aria-hidden="true"
+        />
+      </span>
+      <span
+        className={cn(
+          'min-w-0 text-pretty font-semibold leading-snug',
+          isDesktop
+            ? 'text-[0.6875rem] uppercase tracking-[0.12em] text-[#9CA3AF] group-hover/title:text-[#E30613]'
+            : 'text-sm text-[#0f1f3d]',
+        )}
+      >
+        {group.title}
+      </span>
+    </MegaMenuLink>
+  );
+}
+
+function MegaMenuDesktopColumn({
   group,
   onNavigate,
 }: {
   group: MegaMenuColumnGroup;
   onNavigate: () => void;
 }) {
-  const links = filterRedundantMegaMenuLinks(group.title, group.links);
-  const hasSubLinks = links.length > 0;
+  const hasSubLinks = group.links.length > 0;
 
   return (
     <div className="flex min-w-0 flex-col">
-      <MegaMenuLink
-        to={group.href}
-        onNavigate={onNavigate}
-        className="group flex flex-col overflow-hidden rounded-lg border border-border/70 bg-card transition-all hover:border-primary/35 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <span className="flex h-[4.5rem] items-center justify-center bg-muted/20 p-2 transition-colors group-hover:bg-muted/35 sm:h-20">
-          <img
-            src={group.image}
-            alt=""
-            className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
-            loading="lazy"
-          />
-        </span>
-        <span className="border-t border-border/60 px-2.5 py-2">
-          <span className="block text-xs font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
-            {group.title}
-          </span>
-        </span>
-      </MegaMenuLink>
+      <MegaMenuColumnThumbnail group={group} onNavigate={onNavigate} />
+      <MegaMenuColumnTitle group={group} onNavigate={onNavigate} />
 
       {hasSubLinks ? (
-        <ul className="mt-1.5 space-y-1 px-0.5" role="list">
-          {links.map((link) => (
+        <ul className="mb-3 space-y-1.5" role="list">
+          {group.links.map((link) => (
             <li key={`${group.slug}-${link.href}-${link.name}`}>
               <MegaMenuLink
                 to={link.href}
                 onNavigate={onNavigate}
-                className="block rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className={cn(
+                  'block rounded-md py-0.5 text-[0.8125rem] leading-snug text-[#374151] transition-colors',
+                  'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                )}
+              >
+                {link.name}
+              </MegaMenuLink>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      <MegaMenuLink
+        to={group.href}
+        onNavigate={onNavigate}
+        className={cn(
+          'mt-auto inline-flex items-center gap-0.5 text-[0.8125rem] font-semibold transition-colors',
+          'text-[#E30613] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+        )}
+      >
+        Ver todo
+        <ChevronRight className="size-3.5" aria-hidden="true" />
+      </MegaMenuLink>
+    </div>
+  );
+}
+
+function MegaMenuLinkGroup({
+  group,
+  onNavigate,
+}: {
+  group: MegaMenuColumnGroup;
+  onNavigate: () => void;
+}) {
+  const hasSubLinks = group.links.length > 0;
+  const [expanded, setExpanded] = useState(true);
+
+  return (
+    <div className="min-w-0">
+      {hasSubLinks ? (
+        <>
+          <div className="mb-1 flex items-start gap-2">
+            <button
+              type="button"
+              onClick={() => setExpanded((value) => !value)}
+              className={cn(
+                'mt-2 flex size-6 shrink-0 items-center justify-center rounded-md text-[#9CA3AF] transition-colors',
+                'hover:bg-[#F3F4F6] hover:text-[#E30613]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+              )}
+              aria-expanded={expanded}
+              aria-label={expanded ? `Contraer ${group.title}` : `Expandir ${group.title}`}
+            >
+              <ChevronDown
+                className={cn('size-3.5 transition-transform', !expanded && '-rotate-90')}
+                aria-hidden="true"
+              />
+            </button>
+            <div className="min-w-0 flex-1">
+              <MegaMenuColumnThumbnail group={group} onNavigate={onNavigate} size="mobile" />
+              <MegaMenuColumnTitle group={group} onNavigate={onNavigate} variant="mobile" />
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="py-1">
+          <MegaMenuColumnThumbnail group={group} onNavigate={onNavigate} size="mobile" />
+          <MegaMenuColumnTitle group={group} onNavigate={onNavigate} variant="mobile" />
+        </div>
+      )}
+
+      {hasSubLinks && expanded ? (
+        <ul className="mb-3 ml-8 space-y-1 border-l border-[#E5E7EB] pl-3" role="list">
+          {group.links.map((link) => (
+            <li key={`${group.slug}-${link.href}-${link.name}`}>
+              <MegaMenuLink
+                to={link.href}
+                onNavigate={onNavigate}
+                className={cn(
+                  'block rounded-md py-1 text-[0.8125rem] leading-snug text-[#4B5563] transition-colors',
+                  'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                )}
               >
                 {link.name}
               </MegaMenuLink>
@@ -81,49 +230,12 @@ function MegaMenuColumn({
   );
 }
 
-function MegaMenuBrandStrip({ onNavigate }: { onNavigate: () => void }) {
-  return (
-    <div className="border-t border-border/60 bg-muted/20 px-3 py-2.5 sm:px-4">
-      <p className="mb-2 text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-        Marcas que distribuimos
-      </p>
-      <ul className="flex flex-wrap items-center gap-2.5 sm:gap-3" role="list">
-        {megaMenuPartnerBrands.map((brand) => (
-          <li key={brand.id}>
-            {brand.href ? (
-              <Link
-                to={brand.href}
-                onClick={onNavigate}
-                className="flex h-9 items-center rounded-md px-1 transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-10"
-              >
-                <img
-                  src={brand.logo}
-                  alt={brand.name}
-                  className="max-h-full max-w-[5.5rem] object-contain sm:max-w-[6.5rem]"
-                  loading="lazy"
-                />
-              </Link>
-            ) : (
-              <img
-                src={brand.logo}
-                alt={brand.name}
-                className="h-9 max-w-[5.5rem] object-contain sm:h-10 sm:max-w-[6.5rem]"
-                loading="lazy"
-              />
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 export interface CatalogMegaMenuPanelProps {
   activeCategorySlug: string;
   onCategoryChange: (slug: string) => void;
   sidebarItems: LandingCatalogMenuSidebarItem[];
   columnGroups: MegaMenuColumnGroup[];
-  showBrandStrip: boolean;
+  featuredContent: MegaMenuFeaturedContent;
   onNavigate: () => void;
   layout?: 'desktop' | 'mobile';
 }
@@ -133,76 +245,90 @@ export function CatalogMegaMenuPanel({
   onCategoryChange,
   sidebarItems,
   columnGroups,
-  showBrandStrip,
+  featuredContent,
   onNavigate,
   layout = 'desktop',
 }: CatalogMegaMenuPanelProps) {
+  void featuredContent;
   const activeItem =
     sidebarItems.find((item) => item.slug === activeCategorySlug) ?? sidebarItems[0];
   const isMobile = layout === 'mobile';
 
-  return (
-    <div
-      className={cn(
-        'flex bg-background',
-        isMobile ? 'flex-col' : 'min-h-[22rem]',
-      )}
-    >
-      <aside
-        className={cn(
-          'shrink-0 border-border/60 bg-muted/10',
-          isMobile
-            ? 'border-b px-3 py-2'
-            : 'flex w-[10.5rem] flex-col border-r py-2 pl-2 pr-1',
-        )}
-      >
-        {!isMobile ? (
-          <p className="mb-1.5 px-1 text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            Categorías
-          </p>
-        ) : null}
+  const desktopGridClass =
+    columnGroups.length <= 2
+      ? 'grid-cols-2'
+      : columnGroups.length <= 4
+        ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+        : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6';
 
+  if (!isMobile) {
+    return (
+      <div className="bg-white px-5 py-5 sm:px-6 sm:py-6">
+        {columnGroups.length > 0 ? (
+          <div className={cn('grid gap-x-8 gap-y-6', desktopGridClass)}>
+            {columnGroups.map((group) => (
+              <MegaMenuDesktopColumn
+                key={`${activeCategorySlug}-${group.slug}`}
+                group={group}
+                onNavigate={onNavigate}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-[#6B7280]">No hay categorías disponibles.</p>
+        )}
+      </div>
+    );
+  }
+
+  const linkGridClass =
+    columnGroups.length <= 2
+      ? 'grid-cols-1'
+      : columnGroups.length <= 4
+        ? 'grid-cols-1 sm:grid-cols-2'
+        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+
+  return (
+    <div className="flex flex-col bg-white">
+      <aside className="shrink-0 border-b border-[#E5E7EB] bg-white px-3 py-2.5">
         <ul
-          className={cn(
-            'flex gap-0.5',
-            isMobile
-              ? 'flex-row overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
-              : 'max-h-[min(34rem,72vh)] flex-col overflow-y-auto [scrollbar-width:thin]',
-          )}
+          className="flex flex-row gap-0.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           role="tablist"
-          aria-label="Categorías del catálogo"
+          aria-label="Secciones del menú"
         >
           {sidebarItems.map((item) => {
             const isActive = activeCategorySlug === item.slug;
             const Icon = item.icon;
 
             return (
-              <li key={item.slug} role="presentation" className={isMobile ? 'shrink-0' : undefined}>
+              <li key={item.slug} role="presentation" className="shrink-0">
                 <button
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  onMouseEnter={isMobile ? undefined : () => onCategoryChange(item.slug)}
                   onFocus={() => onCategoryChange(item.slug)}
                   onClick={() => onCategoryChange(item.slug)}
                   className={cn(
-                    'flex min-h-8 w-full items-center gap-1.5 rounded-md px-1.5 py-1.5 text-left text-xs font-medium transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                    isMobile && 'whitespace-nowrap',
+                    'flex min-h-9 items-center gap-2 rounded-md px-2 py-2 text-left text-xs font-medium transition-colors',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                    'whitespace-nowrap',
                     isActive
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-foreground hover:bg-muted/80',
+                      ? 'border-l-[3px] bg-[#FFF5F5] font-semibold text-[#E30613]'
+                      : 'border-l-[3px] border-transparent text-[#374151] hover:bg-[#F9FAFB]',
                   )}
+                  style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
                 >
                   <span
                     className={cn(
-                      'flex size-6 shrink-0 items-center justify-center rounded',
-                      isActive ? 'bg-primary-foreground/15 text-primary-foreground' : 'bg-muted text-muted-foreground',
+                      'flex size-6 shrink-0 items-center justify-center rounded-md',
+                      isActive
+                        ? 'bg-[#E30613]/10 text-[#E30613]'
+                        : 'bg-[#F3F4F6] text-[#6B7280]',
                     )}
                   >
-                    <Icon className="size-3" strokeWidth={ICON_STROKE} aria-hidden="true" />
+                    <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" />
                   </span>
-                  <span className="min-w-0 flex-1 line-clamp-2 text-pretty leading-tight">{item.label}</span>
+                  <span className="min-w-0 flex-1 text-pretty leading-snug">{item.label}</span>
                 </button>
               </li>
             );
@@ -213,47 +339,43 @@ export function CatalogMegaMenuPanel({
       <div
         className="flex min-w-0 flex-1 flex-col"
         role="tabpanel"
-        aria-label={activeItem?.label ?? 'Categoría'}
+        aria-label={activeItem?.label ?? 'Sección'}
       >
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 py-3 sm:px-4">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3.5 sm:px-5 sm:py-4">
           <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="text-sm font-bold text-foreground sm:text-base">{activeItem?.label}</h3>
-              <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
+              <h3 className="text-base font-bold sm:text-lg" style={{ color: MEGA_MENU_NAVY }}>
+                {activeItem?.label}
+              </h3>
+              <p className="mt-0.5 max-w-[28rem] text-pretty text-xs leading-relaxed text-[#6B7280] sm:text-sm">
                 {activeItem?.description}
               </p>
             </div>
             <Link
               to={activeItem?.viewAllHref ?? categoryLandingPath(activeCategorySlug)}
               onClick={onNavigate}
-              className="inline-flex min-h-8 shrink-0 items-center gap-0.5 rounded-md px-1 text-[0.65rem] font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-xs"
+              className="inline-flex min-h-8 shrink-0 items-center gap-0.5 rounded-md px-1 text-sm font-semibold transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
+              style={{ color: BRAND_RED }}
             >
               Ver todo
-              <ChevronRight className="size-3.5" aria-hidden="true" />
+              <ChevronRight className="size-4" aria-hidden="true" />
             </Link>
           </div>
 
           {columnGroups.length > 0 ? (
-            <div
-              className={cn(
-                'grid gap-3',
-                columnGroups.length === 1
-                  ? 'grid-cols-1 sm:max-w-xs'
-                  : columnGroups.length === 2
-                    ? 'grid-cols-2'
-                    : 'grid-cols-2 sm:grid-cols-3',
-              )}
-            >
+            <div className={cn('grid gap-x-6 gap-y-1', linkGridClass)}>
               {columnGroups.map((group) => (
-                <MegaMenuColumn key={`${activeCategorySlug}-${group.slug}`} group={group} onNavigate={onNavigate} />
+                <MegaMenuLinkGroup
+                  key={`${activeCategorySlug}-${group.slug}`}
+                  group={group}
+                  onNavigate={onNavigate}
+                />
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No hay categorías disponibles.</p>
+            <p className="text-sm text-[#6B7280]">No hay categorías disponibles.</p>
           )}
         </div>
-
-        {showBrandStrip ? <MegaMenuBrandStrip onNavigate={onNavigate} /> : null}
       </div>
     </div>
   );

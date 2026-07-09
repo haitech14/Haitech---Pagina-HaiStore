@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ImageOff } from 'lucide-react';
 import { CatalogPreviewPriceBlock } from '@/components/product/catalog-preview-price-block';
 import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
@@ -39,7 +38,11 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
 
   const cartActions = (
     <div className="space-y-2">
-      <ProductQuantityAddFooter product={product} showBuyNow revealQuantityOnHover={false} />
+      <ProductQuantityAddFooter
+        product={product}
+        addLabel="Comprar ahora"
+        revealQuantityOnHover={false}
+      />
       <ProductWhatsAppButton
         accent="outline"
         label="Comprar por WhatsApp"
@@ -79,12 +82,6 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
                 className="size-full"
                 imageClassName={PRODUCT_CARD_IMAGE_CLASS}
                 watermarkClassName={PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS}
-                placeholder={
-                  <div className="flex flex-col items-center gap-1.5 text-center text-muted-foreground">
-                    <ImageOff className="size-8 text-muted-foreground/70" aria-hidden="true" />
-                    <span className="text-xs font-medium">Sin Imagen</span>
-                  </div>
-                }
               />
             </div>
           </div>
@@ -140,12 +137,6 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
                 alt={product.name}
                 className="size-full"
                 imageClassName={PRODUCT_CARD_IMAGE_CLASS}
-                placeholder={
-                  <div className="flex flex-col items-center gap-2 text-center text-muted-foreground">
-                    <ImageOff className="size-10 text-muted-foreground/70" aria-hidden="true" />
-                    <span className="text-xs font-medium">Sin Imagen</span>
-                  </div>
-                }
               />
             </div>
           </div>

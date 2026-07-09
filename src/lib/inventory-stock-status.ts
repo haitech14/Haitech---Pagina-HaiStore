@@ -78,6 +78,15 @@ export function inventoryCategoryParentLabel(category: string | null | undefined
   return raw.slice(0, commaIndex).trim() || raw;
 }
 
+/** Muestra solo la categoría hoja (último segmento tras coma). */
+export function inventoryCategoryLeafLabel(category: string | null | undefined): string {
+  const raw = String(category ?? '').trim() || 'Sin categoría';
+  const commaIndex = raw.lastIndexOf(',');
+  if (commaIndex < 0) return raw;
+  const leaf = raw.slice(commaIndex + 1).trim();
+  return leaf || raw;
+}
+
 export function mergeInventoryCategoryStockSnapshots(
   left: InventoryCategoryStockSnapshot,
   right: InventoryCategoryStockSnapshot,
