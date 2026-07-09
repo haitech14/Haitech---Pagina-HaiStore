@@ -1,4 +1,8 @@
-export type HomeFeaturedEquipmentConditionFilterId = 'nuevas' | 'seminuevas' | 'remanufacturadas';
+export type HomeFeaturedEquipmentConditionFilterId =
+  | 'todas'
+  | 'nuevas'
+  | 'seminuevas'
+  | 'remanufacturadas';
 
 export type HomeFeaturedEquipmentCategoryFilterId =
   | 'multifuncionales'
@@ -25,6 +29,7 @@ export type HomeFeaturedEquipmentCategoryFilter = {
 };
 
 export const HOME_FEATURED_EQUIPMENT_CONDITION_FILTERS: HomeFeaturedEquipmentConditionFilter[] = [
+  { id: 'todas', label: 'Todas' },
   { id: 'nuevas', label: 'Nuevas' },
   { id: 'seminuevas', label: 'Seminuevas' },
   { id: 'remanufacturadas', label: 'Remanufacturadas' },
@@ -46,6 +51,6 @@ export const HOME_FEATURED_EQUIPMENT_CATEGORY_FILTERS: HomeFeaturedEquipmentCate
 ];
 
 export const HOME_FEATURED_EQUIPMENT_DEFAULT_CONDITION: HomeFeaturedEquipmentConditionFilterId =
-  'nuevas';
+  'todas';
 export const HOME_FEATURED_EQUIPMENT_DEFAULT_CATEGORY: HomeFeaturedEquipmentCategoryFilterId =
   'multifuncionales';

@@ -10,6 +10,8 @@ export interface HaiSalesImportResult {
 export interface HaiSalesIntegrationStatus {
   product: string;
   description: string;
+  configured: boolean;
+  connection: import('./integrations-health').IntegrationConnectionStatus;
   supabaseConfigured: boolean;
   haisalesDatabase: {
     configured: boolean;

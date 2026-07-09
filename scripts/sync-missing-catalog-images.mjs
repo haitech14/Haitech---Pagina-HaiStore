@@ -308,9 +308,11 @@ async function main() {
     console.log(`  ← ${resolved.label}`);
   }
 
-  if (!dryRun && synced.length > 0) {
+  const catalogAuthentic = synced.filter((row) => row.source.startsWith('cdn:'));
+
+  if (!dryRun && catalogAuthentic.length > 0) {
     let nextProducts = products;
-    for (const row of synced) {
+    for (const row of catalogAuthentic) {
       nextProducts = upsertProductMedia(nextProducts, row.id, buildMediaPaths(row.id));
     }
     catalog.products = nextProducts;
@@ -320,7 +322,7 @@ async function main() {
     if (fs.existsSync(inventoryPath)) {
       const inventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
       let inventoryProducts = Array.isArray(inventory.products) ? inventory.products : [];
-      for (const row of synced) {
+      for (const row of catalogAuthentic) {
         inventoryProducts = upsertProductMedia(inventoryProducts, row.id, buildMediaPaths(row.id));
       }
       inventory.products = inventoryProducts;

@@ -188,11 +188,6 @@ export function ProductShowcaseCard({
                 alt={product.name}
                 className="size-full"
                 imageClassName={PRODUCT_CARD_IMAGE_CLASS}
-                placeholder={
-                  <span className="text-4xl font-bold text-neutral-200" aria-hidden="true">
-                    {product.name.charAt(0)}
-                  </span>
-                }
               />
             </div>
           </div>

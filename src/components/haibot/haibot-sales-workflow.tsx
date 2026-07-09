@@ -9,24 +9,16 @@ import {
   getHaibotCrmResumenUrl,
 } from '@/lib/haibot-integrations';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
-import type { Product } from '@/types/product';
 
 interface HaibotSalesWorkflowProps {
   onClose?: () => void;
-  inventoryContext?: {
-    searchQuery?: string;
-    products: Product[];
-  } | null;
 }
 
-export function HaibotSalesWorkflow({ onClose, inventoryContext }: HaibotSalesWorkflowProps) {
+export function HaibotSalesWorkflow({ onClose }: HaibotSalesWorkflowProps) {
   const { openNewLead } = useCrmLeadDialog();
 
   const handleNewLead = () => {
-    const prefill = inventoryContext?.products.length
-      ? buildHaibotCrmLeadPrefill(inventoryContext.products, inventoryContext.searchQuery)
-      : buildHaibotCrmLeadPrefill([], inventoryContext?.searchQuery);
-    openNewLead({ stageId: 'leads', prefill });
+    openNewLead({ stageId: 'leads', prefill: buildHaibotCrmLeadPrefill([]) });
     onClose?.();
   };
 
@@ -34,7 +26,7 @@ export function HaibotSalesWorkflow({ onClose, inventoryContext }: HaibotSalesWo
     <div className="space-y-3 rounded-xl bg-white p-3 shadow-sm">
       <p className="text-[0.7rem] font-semibold text-[#075e54]">📈 Ventas y CRM</p>
       <p className="text-[0.65rem] leading-relaxed text-[#667781]">
-        Crea leads con datos del inventario consultado o gestiona el pipeline sin salir de la tienda.
+        Crea leads y gestiona el pipeline sin salir de la tienda.
       </p>
 
       <div className="flex flex-col gap-2">

@@ -97,8 +97,8 @@ export function HomeServiceRentalSection() {
       <div className="container py-8 sm:py-10 lg:py-12">
         <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12">
           <article className="overflow-hidden rounded-xl border border-border/40 bg-white shadow-[0_4px_18px_rgba(15,31,61,0.06)]">
-            <div className="grid md:grid-cols-[minmax(0,0.44fr)_minmax(0,1fr)]">
-              <div className="relative min-h-[12rem] md:min-h-[22rem]">
+            <div className="grid md:grid-cols-[minmax(0,0.44fr)_minmax(0,1fr)] md:min-h-[28rem]">
+              <div className="relative min-h-[16rem] md:min-h-full">
                 <img
                   src={HOME_LANDING_SERVICE_IMAGE}
                   alt="Técnico especializado realizando mantenimiento a un equipo de impresión"
@@ -109,7 +109,7 @@ export function HomeServiceRentalSection() {
                 />
               </div>
 
-              <div className="flex flex-col justify-center p-5 sm:p-6 lg:p-7">
+              <div className="flex flex-col justify-center p-6 sm:p-7 lg:p-8">
                 <p className="text-[0.6875rem] font-bold uppercase tracking-wide text-red-600 sm:text-xs">
                   Servicio técnico especializado
                 </p>
@@ -124,7 +124,7 @@ export function HomeServiceRentalSection() {
                   y repuestos originales para mantener tu operación sin interrupciones.
                 </p>
 
-                <ul className="mt-4 space-y-2.5">
+                <ul className="mt-5 space-y-3">
                   {HOME_LANDING_SERVICE_FEATURES.map((feature) => (
                     <ServiceFeatureItem key={feature} label={feature} />
                   ))}
@@ -132,7 +132,7 @@ export function HomeServiceRentalSection() {
 
                 <Button
                   asChild
-                  className="mt-5 h-11 w-full rounded-full bg-red-600 px-5 text-sm font-semibold text-white hover:bg-red-700"
+                  className="mt-6 h-11 w-full rounded-full bg-red-600 px-5 text-sm font-semibold text-white hover:bg-red-700"
                 >
                   <a
                     href={serviceWhatsAppUrl}

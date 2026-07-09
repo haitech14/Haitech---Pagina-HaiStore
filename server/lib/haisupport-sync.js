@@ -8,31 +8,33 @@
 
 import { bridgeOutboundSync } from './haisupport-bridge-outbound.js';
 import { isHaiSupportSupabaseConfigured } from './haisupport-supabase.js';
+import {
+  isDedicatedRestApi,
+  resolveHaiSupportCredentials,
+} from './haitech-integrations-config.js';
 
 const TIMEOUT_MS = 12_000;
 
 function getApiBaseUrl() {
-  const raw = process.env.HAISUPPORT_API_URL?.trim();
-  if (!raw) return '';
-  return raw.replace(/\/+$/, '');
+  const { url } = resolveHaiSupportCredentials();
+  return url ?? '';
 }
 
 function isDedicatedHaiSupportApi() {
-  const url = getApiBaseUrl();
-  return Boolean(url) && !url.includes('supabase.co');
+  return isDedicatedRestApi(getApiBaseUrl());
 }
 
 function isOutboundSyncEnabled() {
+  const { url, key } = resolveHaiSupportCredentials();
   return (
     process.env.HAISUPPORT_SYNC_ENABLED === 'true' &&
-    Boolean(getApiBaseUrl()) &&
-    Boolean(process.env.HAISUPPORT_API_KEY?.trim())
+    Boolean(url) &&
+    Boolean(key)
   );
 }
 
 async function postToHaiSupport(path, body) {
-  const API_URL = getApiBaseUrl();
-  const API_KEY = process.env.HAISUPPORT_API_KEY?.trim();
+  const { url: API_URL, key: API_KEY } = resolveHaiSupportCredentials();
   if (!API_URL || !API_KEY) return null;
 
   const controller = new AbortController();

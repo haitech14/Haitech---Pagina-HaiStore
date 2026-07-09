@@ -84,6 +84,7 @@ export function ProductDetailPurchaseCard({
   maintenancePlanMonthlyPen,
   preparationType,
   preparationSurchargeUsd = 0,
+  showSeminuevaPreparationPrices = false,
   showRentalAction: _showRentalAction = false,
   onRentalClick: _onRentalClick,
   showMaintenancePlanAction = false,
@@ -485,10 +486,6 @@ export function ProductDetailPurchaseCard({
           filename={fichaFileName}
         />
       ) : null}
-    </aside>
-  );
-}
- ) : null}
     </aside>
   );
 }

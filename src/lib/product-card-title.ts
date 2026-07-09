@@ -1,7 +1,10 @@
 import { formatProductNameSentenceCase } from '@/lib/format-product-name-sentence-case';
+import { inferColor } from '@/lib/category-catalog-filters';
+import { resolveHomeLandingConsumableSubtitle } from '@/lib/home-featured-product-filter';
 import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
+import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
 
 /** Título en grilla de catálogo (5 columnas en desktop). */
 export const PRODUCT_CARD_TITLE_SIZE = 'text-[0.84rem] leading-[1.2] sm:text-[0.9rem]';
@@ -80,6 +83,61 @@ export function formatHomeLandingProductCardTitle(
 ): string {
   const normalized = formatInventoryProductName(product.name.trim());
   return formatProductNameSentenceCase(normalized, { brand: product.brand });
+}
+
+/** Título en dos líneas para vitrina home: «Ricoh MP 401» + «Multifuncional seminueva B/N». */
+export function getHomeLandingProductCardLines(
+  product: ProductBadgeSource & { name: string; category?: string | null; brand?: string | null },
+): { headline: string; subtitle: string | null } {
+  const brand = product.brand?.trim() || null;
+  const rawName = formatInventoryProductName(product.name.trim());
+  let headline = rawName;
+
+  if (brand) {
+    const brandRegex = new RegExp(
+      `\\b${brand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`,
+      'i',
+    );
+    const brandIndex = rawName.search(brandRegex);
+    if (brandIndex >= 0) {
+      headline = rawName
+        .slice(brandIndex)
+        .replace(/\s+\d{2,3}\s*v\b.*$/i, '')
+        .replace(/\s*\([^)]*\)\s*$/g, '')
+        .trim();
+    }
+  } else {
+    headline = rawName
+      .replace(
+        /^(impresora\s+)?multifuncional\s+(seminueva\s+|nueva\s+|remanufacturada\s+)?/i,
+        '',
+      )
+      .replace(/\s+\d{2,3}\s*v\b.*$/i, '')
+      .replace(/\s*\([^)]*\)\s*$/g, '')
+      .trim();
+  }
+
+  headline = formatProductNameSentenceCase(headline, { brand });
+
+  const consumableSubtitle = resolveHomeLandingConsumableSubtitle(product);
+  if (consumableSubtitle) {
+    return { headline, subtitle: consumableSubtitle };
+  }
+
+  const haystack = `${product.category ?? ''} ${product.name}`.toLowerCase();
+  const isMultifunctional = haystack.includes('multifunc') || haystack.includes('copiadora');
+  const condition = resolveProductCardConditionLabel(product);
+  const subtitleParts: string[] = [];
+
+  if (isMultifunctional) subtitleParts.push('Multifuncional');
+  else if (isPrinterProduct(product)) subtitleParts.push('Impresora');
+  if (condition) subtitleParts.push(condition.toLowerCase());
+  subtitleParts.push(inferColor(product) === 'Color' ? 'Color' : 'B/N');
+
+  return {
+    headline,
+    subtitle: subtitleParts.length > 0 ? subtitleParts.join(' ') : null,
+  };
 }
 
 /** Añade «B/N» en equipos monocromáticos si el nombre aún no lo incluye. */

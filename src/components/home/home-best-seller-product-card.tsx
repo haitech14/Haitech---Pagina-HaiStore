@@ -1,9 +1,17 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
+import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import type { HomeBestSellerProduct } from '@/data/home-best-sellers';
-import { productCardImageSources } from '@/lib/responsive-image';
+import { getCatalogProductById } from '@/lib/catalog-featured';
+import {
+  buildProductCardImageCandidates,
+  buildProductCardImageSource,
+  buildProductCardStoredImageCandidates,
+  resolveProductCardHoverImageFromProduct,
+} from '@/lib/product-card-images';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -35,15 +43,41 @@ export function HomeBestSellerProductCard({
   showBestSellerBadge?: boolean;
   buttonVariant?: 'link' | 'grey';
 }) {
+  const catalog = getCatalogProductById(product.id);
   const cartProduct = toCartProduct(product);
-  const { webpSrcSet, fallbackSrc, sizes } = productCardImageSources(product.image);
+  const imageSource = useMemo(
+    () =>
+      buildProductCardImageSource({
+        id: product.id,
+        code: catalog?.code ?? null,
+        name: product.name,
+        category: catalog?.category ?? 'Equipos',
+        brand: product.brand ?? catalog?.brand ?? null,
+        image_url: catalog?.image_url ?? product.image ?? null,
+        gallery: catalog?.gallery ?? null,
+      }),
+    [catalog, product],
+  );
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
+  const storedImageCandidates = useMemo(
+    () => buildProductCardStoredImageCandidates(imageSource),
+    [imageSource],
+  );
+  const hoverImageSrc = useMemo(
+    () => resolveProductCardHoverImageFromProduct(imageSource),
+    [imageSource],
+  );
+  const hasValidImage = imageCandidates.length > 0;
 
   return (
     <article className="group flex h-full w-full min-w-[9.5rem] flex-col overflow-hidden rounded-xl border border-border/50 bg-white shadow-[0_2px_14px_rgba(15,31,61,0.07)] sm:min-w-0">
       <div className="relative">
         <Link
           to={product.href}
-          className="relative block aspect-square bg-white p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 sm:p-3"
+          className={cn(
+            'relative block aspect-square p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 sm:p-3',
+            hasValidImage ? 'bg-white' : 'bg-muted/35',
+          )}
           aria-label={`Ver ficha de ${product.name}`}
         >
           {showBestSellerBadge ? (
@@ -55,16 +89,14 @@ export function HomeBestSellerProductCard({
             </span>
           ) : null}
 
-          <picture className="flex size-full items-center justify-center">
-            <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
-            <img
-              src={fallbackSrc}
-              alt=""
-              className="size-full object-contain"
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
+          <ProductCardHoverImage
+            candidates={imageCandidates}
+            storedCandidates={storedImageCandidates}
+            hoverSrc={hoverImageSrc}
+            alt={product.name}
+            className="size-full"
+            imageClassName="size-full object-contain"
+          />
         </Link>
       </div>
 

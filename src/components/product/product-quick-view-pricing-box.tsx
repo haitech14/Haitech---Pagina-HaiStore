@@ -39,7 +39,7 @@ export function ProductQuickViewPricingBox({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <AdminRolePricesTooltip productId={productId} displayUsd={pricing.currentUsd}>
           <p className="text-2xl font-bold leading-tight text-foreground sm:text-[1.75rem]">
-            <DualPrice usd={pricing.currentUsd} alwaysBoth />
+            <DualPrice usd={pricing.currentUsd} />
           </p>
         </AdminRolePricesTooltip>
         <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
@@ -49,7 +49,7 @@ export function ProductQuickViewPricingBox({
 
       <p className="mt-1 text-sm text-muted-foreground">
         Antes:{' '}
-        <DualPrice usd={pricing.compareUsd} strikethrough className="inline" alwaysBoth />
+        <DualPrice usd={pricing.compareUsd} strikethrough className="inline" />
       </p>
 
       <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 border-t border-border/60 pt-3">

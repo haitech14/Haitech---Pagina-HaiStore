@@ -18,6 +18,10 @@ import { getHaiSalesSupabaseAdmin, getHaiSalesSupabaseUrl, isHaiSalesRemoteDatab
 import { importPersonaCustomerRows, parsePersonaWorkbook, sanitizePersonaData } from './persona-excel.js';
 import { getSupabaseAdmin } from './supabase-auth.js';
 import { importVentasDocumentRows, parseVentasWorkbook } from './ventas-excel.js';
+import {
+  isHaiSalesConfigured,
+  probeHaiSalesConnection,
+} from './haitech-integrations-config.js';
 
 /** @param {Array<{ buffer: Buffer; filename: string }>} files */
 export async function importVentasFromBuffers(files) {
@@ -207,9 +211,13 @@ export async function getHaiSalesIntegrationStatus() {
   if (mirror.migrationRequired) migrations.push('supabase/migrations/012_haisales_mirror_tables.sql');
   if (ventasTable.migrationRequired) migrations.push('supabase/migrations/011_imported_sale_documents.sql');
 
+  const connection = await probeHaiSalesConnection(getHaiSalesSupabaseAdmin());
+
   return {
     product: 'HaiSales',
     description: 'ERP Haitech — base espejo Supabase + sincronización a HaiStore',
+    configured: isHaiSalesConfigured(),
+    connection,
     supabaseConfigured: Boolean(supabase),
     haisalesDatabase: {
       configured: mirror.configured,

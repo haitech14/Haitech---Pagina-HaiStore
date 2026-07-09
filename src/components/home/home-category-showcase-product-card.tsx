@@ -9,9 +9,15 @@ import { getCatalogUrgencyLabel } from '@/lib/product-catalog-card-meta';
 import { ProductCardQuickSpecBadges } from '@/components/product/product-card-quick-spec-badges';
 import { isPrinterProduct } from '@/lib/product-detail-badges';
 import { PRODUCT_CARD_CODE_CLASS, PRODUCT_CARD_STOCK_CLASS } from '@/lib/product-card-title';
-import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
-import { productCardImageSources } from '@/lib/responsive-image';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
+import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
+import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
+import {
+  buildProductCardImageCandidates,
+  buildProductCardImageSource,
+  buildProductCardStoredImageCandidates,
+  resolveProductCardHoverImageFromProduct,
+} from '@/lib/product-card-images';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -85,15 +91,39 @@ export function HomeCategoryShowcaseProductCard({
   const urgencyLabel = getCatalogUrgencyLabel(cartProduct);
   const showLimitedStock = stockCount > 0 && stockCount <= LOW_STOCK_THRESHOLD;
 
-  const imagePath = catalog?.image_url ?? product.image;
-  const { webpSrcSet, fallbackSrc, sizes } = productCardImageSources(imagePath);
+  const imageSource = useMemo(
+    () =>
+      buildProductCardImageSource({
+        id: cartProduct.id,
+        code: cartProduct.code ?? null,
+        name: cartProduct.name,
+        category: cartProduct.category,
+        brand: cartProduct.brand ?? null,
+        image_url: catalog?.image_url ?? product.image ?? null,
+        gallery: catalog?.gallery ?? null,
+      }),
+    [cartProduct, catalog, product.image],
+  );
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
+  const storedImageCandidates = useMemo(
+    () => buildProductCardStoredImageCandidates(imageSource),
+    [imageSource],
+  );
+  const hoverImageSrc = useMemo(
+    () => resolveProductCardHoverImageFromProduct(imageSource),
+    [imageSource],
+  );
+  const hasValidImage = imageCandidates.length > 0;
 
   return (
     <article className="group flex h-full w-full min-w-[9.5rem] flex-col overflow-hidden rounded-xl border border-border/50 bg-white shadow-[0_2px_14px_rgba(15,31,61,0.07)] sm:min-w-0">
       <div className="relative">
         <Link
           to={product.href}
-          className="relative block aspect-square bg-white p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 sm:p-3"
+          className={cn(
+            'relative block aspect-square p-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 sm:p-3',
+            hasValidImage ? 'bg-white' : 'bg-muted/35',
+          )}
           aria-label={`Ver ficha de ${product.name}`}
         >
           {product.bestSeller ? (
@@ -117,16 +147,14 @@ export function HomeCategoryShowcaseProductCard({
             </div>
           ) : null}
 
-          <picture className="flex size-full items-center justify-center">
-            <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
-            <img
-              src={fallbackSrc}
-              alt=""
-              className="size-full object-contain"
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
+          <ProductCardHoverImage
+            candidates={imageCandidates}
+            storedCandidates={storedImageCandidates}
+            hoverSrc={hoverImageSrc}
+            alt={product.name}
+            className="size-full"
+            imageClassName="size-full object-contain"
+          />
         </Link>
       </div>
 

@@ -40,7 +40,7 @@ export function HaibotFloatingMenu() {
       className="fixed right-5 z-50 flex flex-col items-end gap-3 sm:right-6"
       style={mobileBottomOffsetStyle(bottomInset, 1.25)}
     >
-      <HaibotChatPanel open={chatOpen} onClose={closeChat} />
+      {chatOpen ? <HaibotChatPanel onClose={closeChat} /> : null}
 
       <div className="group relative flex items-center">
         {!chatOpen ? (

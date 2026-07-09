@@ -7,6 +7,8 @@ export interface HaiSupportEntitySync {
 export interface HaiSupportIntegrationStatus {
   product: string;
   description: string;
+  configured: boolean;
+  connection: import('./integrations-health').IntegrationConnectionStatus;
   sharedSupabase: boolean;
   supabaseConfigured: boolean;
   bridge: {

@@ -19,16 +19,20 @@ export const PRODUCTOS_NAV_EXCLUDED_SLUGS = new Set<string>([
 
 /** Orden curado de categorías de equipos en el mega menú «Productos». */
 export const PRODUCTOS_NAV_ROOT_SLUGS = [
+  // Impresión y digitalización
   'multifuncionales',
   'impresoras',
   'formato-ancho',
   'escaneres',
-  'accesorios',
+  // Tecnología y periféricos
   'computadoras-laptop',
   'monitores',
-  'camaras',
+  'accesorios',
+  // Colaboración y AV
   'soluciones-colaboracion',
   'equipamiento-videoconferencias',
+  'camaras',
+  // Oficina
   'equipos-de-oficina',
   'soluciones-negocio',
 ] as const;

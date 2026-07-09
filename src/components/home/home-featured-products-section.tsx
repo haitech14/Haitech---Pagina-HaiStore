@@ -44,6 +44,8 @@ import {
   isHomeFeaturedConsumableProduct,
   isHomeFeaturedEquipmentProduct,
   matchesHomeFeaturedConsumablesFilters,
+  matchesHomeFeaturedEquipmentCategoryFilter,
+  matchesHomeFeaturedEquipmentConditionFilter,
   matchesHomeFeaturedEquipmentFilters,
 } from '@/lib/home-featured-product-filter';
 import { openHeroQuoteWhatsApp } from '@/lib/hero-whatsapp-message';
@@ -180,7 +182,7 @@ function HomeFeaturedProductsSkeleton() {
       <ul className={cn('flex', FEATURED_PRODUCTS_CAROUSEL_GAP)} role="list">
         {Array.from({ length: 5 }).map((_, index) => (
           <li key={index} className={FEATURED_PRODUCT_SLIDE_CLASS}>
-            <div className="overflow-hidden rounded-xl border border-border/50 bg-white p-3 shadow-[0_2px_14px_rgba(15,31,61,0.07)]">
+            <div className="overflow-hidden rounded-xl bg-white p-3 shadow-[0_2px_14px_rgba(15,31,61,0.07)]">
               <Skeleton className="aspect-square w-full rounded-lg" />
               <Skeleton className="mt-2.5 h-4 w-full" />
               <Skeleton className="mt-1.5 h-3 w-28" />
@@ -281,12 +283,14 @@ function HomeFeaturedConditionFilters<T extends string>({
   onFilterChange,
   ariaLabel = 'Filtros por condición',
   size = 'default',
+  counts,
 }: {
   filters: ReadonlyArray<{ id: T; label: string }>;
   activeFilter: T;
   onFilterChange: (filterId: T) => void;
   ariaLabel?: string;
   size?: 'default' | 'compact';
+  counts?: Partial<Record<T, number>>;
 }) {
   const isCompact = size === 'compact';
 
@@ -299,6 +303,7 @@ function HomeFeaturedConditionFilters<T extends string>({
       >
         {filters.map((filter) => {
           const isActive = activeFilter === filter.id;
+          const count = counts?.[filter.id];
           return (
             <button
               key={filter.id}
@@ -318,6 +323,11 @@ function HomeFeaturedConditionFilters<T extends string>({
               onClick={() => onFilterChange(filter.id)}
             >
               {filter.label}
+              {count != null ? (
+                <span className={cn('ml-1 tabular-nums', isActive ? 'text-white/90' : 'text-[#888888]')}>
+                  ({count})
+                </span>
+              ) : null}
             </button>
           );
         })}
@@ -639,6 +649,27 @@ export function HomeFeaturedProductsSection({
     return merged;
   }, [catalogBundle, config]);
 
+  const equipmentConditionCounts = useMemo(() => {
+    if (config.variant !== 'equipment') return undefined;
+
+    const counts = {} as Partial<Record<HomeFeaturedEquipmentConditionFilterId, number>>;
+    for (const filter of HOME_FEATURED_EQUIPMENT_CONDITION_FILTERS) {
+      counts[filter.id] = productPool.filter(
+        (product) =>
+          matchesHomeFeaturedEquipmentCategoryFilter(
+            product,
+            activeCategory as HomeFeaturedEquipmentCategoryFilterId,
+          ) &&
+          matchesHomeFeaturedEquipmentConditionFilter(
+            product,
+            filter.id,
+            activeCategory as HomeFeaturedEquipmentCategoryFilterId,
+          ),
+      ).length;
+    }
+    return counts;
+  }, [activeCategory, config.variant, productPool]);
+
   const products = useMemo(() => {
     return productPool
       .filter((product) =>
@@ -696,6 +727,7 @@ export function HomeFeaturedProductsSection({
               filters={config.conditionFilters}
               activeFilter={activeCondition as HomeFeaturedEquipmentConditionFilterId}
               onFilterChange={setActiveCondition}
+              counts={equipmentConditionCounts}
             />
             <HomeFeaturedCategoryFilters
               filters={config.categoryFilters}

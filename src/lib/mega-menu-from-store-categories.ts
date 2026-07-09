@@ -38,6 +38,18 @@ export function filterRedundantMegaMenuLinks(
   return links.filter((link) => normalizeMegaMenuLabel(link.name) !== normalizedTitle);
 }
 
+/** Quita un único enlace «Ver …» redundante con el pie «Ver todo». */
+function normalizeSidebarColumnLinks(
+  title: string,
+  links: MegaMenuLinkItem[],
+): MegaMenuLinkItem[] {
+  const filtered = filterRedundantMegaMenuLinks(title, links);
+  if (filtered.length === 1 && /^ver\s/i.test(filtered[0].name.trim())) {
+    return [];
+  }
+  return filtered;
+}
+
 export interface LandingCatalogMenuSidebarItem {
   slug: string;
   label: string;
@@ -288,7 +300,7 @@ export function buildDesktopMegaMenuColumns(
         title: item.label,
         image,
         href: item.viewAllHref ?? categoryLandingPath(item.slug),
-        links: filterRedundantMegaMenuLinks(
+        links: normalizeSidebarColumnLinks(
           item.label,
           childGroups.flatMap((group) =>
             group.links.length > 0 ? group.links : [{ name: group.title, href: group.href }],

@@ -15,6 +15,16 @@ const ICON_STROKE = 1.75;
 const BRAND_RED = '#E30613';
 const MEGA_MENU_NAVY = '#0f1f3d';
 
+function desktopMegaMenuGridClass(count: number): string {
+  if (count <= 2) return 'grid-cols-2';
+  if (count <= 4) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
+  if (count === 9) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-3';
+  if (count === 10) return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5';
+  if (count === 11) return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5';
+  if (count === 12) return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6';
+  return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6';
+}
+
 function MegaMenuLink({
   to,
   onNavigate,
@@ -126,12 +136,12 @@ function MegaMenuDesktopColumn({
   const hasSubLinks = group.links.length > 0;
 
   return (
-    <div className="flex min-w-0 flex-col">
+    <div className="flex h-full min-w-0 flex-col">
       <MegaMenuColumnThumbnail group={group} onNavigate={onNavigate} />
       <MegaMenuColumnTitle group={group} onNavigate={onNavigate} />
 
       {hasSubLinks ? (
-        <ul className="mb-3 space-y-1.5" role="list">
+        <ul className="mb-3 flex-1 space-y-1.5" role="list">
           {group.links.map((link) => (
             <li key={`${group.slug}-${link.href}-${link.name}`}>
               <MegaMenuLink
@@ -147,7 +157,9 @@ function MegaMenuDesktopColumn({
             </li>
           ))}
         </ul>
-      ) : null}
+      ) : (
+        <div className="mb-3 flex-1" aria-hidden="true" />
+      )}
 
       <MegaMenuLink
         to={group.href}
@@ -254,18 +266,13 @@ export function CatalogMegaMenuPanel({
     sidebarItems.find((item) => item.slug === activeCategorySlug) ?? sidebarItems[0];
   const isMobile = layout === 'mobile';
 
-  const desktopGridClass =
-    columnGroups.length <= 2
-      ? 'grid-cols-2'
-      : columnGroups.length <= 4
-        ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-        : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6';
+  const desktopGridClass = desktopMegaMenuGridClass(columnGroups.length);
 
   if (!isMobile) {
     return (
       <div className="bg-white px-5 py-5 sm:px-6 sm:py-6">
         {columnGroups.length > 0 ? (
-          <div className={cn('grid gap-x-8 gap-y-6', desktopGridClass)}>
+          <div className={cn('grid items-stretch gap-x-8 gap-y-6', desktopGridClass)}>
             {columnGroups.map((group) => (
               <MegaMenuDesktopColumn
                 key={`${activeCategorySlug}-${group.slug}`}

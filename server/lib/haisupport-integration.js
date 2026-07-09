@@ -6,15 +6,21 @@ import {
 } from './haisupport-bridge-outbound.js';
 import { listHaiSupportClients } from './haisupport-customers.js';
 import {
+  getHaiSupportSupabaseAdmin,
   getHaiSupportSupabaseUrl,
   isHaiSupportSupabaseConfigured,
 } from './haisupport-supabase.js';
 import { isOutboundSyncEnabled } from './haisupport-sync.js';
 import { getSupabaseAdmin } from './supabase-auth.js';
+import {
+  isDedicatedRestApi,
+  isHaiSupportConfigured,
+  probeHaiSupportConnection,
+} from './haitech-integrations-config.js';
 
 function isDedicatedHaiSupportApi() {
   const url = getHaiSupportSupabaseUrl() ?? '';
-  return Boolean(url) && !url.includes('supabase.co');
+  return isDedicatedRestApi(url);
 }
 
 async function countTable(table) {
@@ -77,9 +83,16 @@ export async function getHaiSupportIntegrationStatus() {
     migrations.push('supabase/migrations/008_haisupport_sync_entities.sql');
   }
 
+  const connection = await probeHaiSupportConnection(
+    getHaiSupportSupabaseAdmin(),
+    getSupabaseAdmin(),
+  );
+
   return {
     product: 'HaiSupport',
     description: 'Soporte técnico, servicios y alquileres — sincronizado con HaiStore',
+    configured: isHaiSupportConfigured(),
+    connection,
     sharedSupabase: shouldUseSharedSupabaseData(),
     supabaseConfigured: Boolean(supabase),
     bridge: {

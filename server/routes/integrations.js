@@ -2,7 +2,14 @@ import { Router } from 'express';
 
 import { requireAdmin } from '../lib/auth-store.js';
 import { shouldUseSharedSupabaseData } from '../lib/data-source.js';
+import { getHaiSalesSupabaseAdmin } from '../lib/haisales-supabase.js';
 import { verifyHaiSupportWebhookSecret } from '../lib/haisupport-sync.js';
+import { getHaiSupportSupabaseAdmin } from '../lib/haisupport-supabase.js';
+import {
+  probeHaiSalesConnection,
+  probeHaiSupportConnection,
+} from '../lib/haitech-integrations-config.js';
+import { getUnifiedAuthEnvStatus } from '../lib/haitech-auth-env.js';
 import {
   haitechClientToStoreCustomerRow,
   inboundPayloadToHaitechClient,
@@ -32,6 +39,31 @@ import { haisalesIntegrationRouter } from './haisales-integration.js';
 export const integrationsRouter = Router();
 
 integrationsRouter.use('/haisales', haisalesIntegrationRouter);
+
+/** Estado de conexión HaiSupport + HaiSales (sin secretos). */
+integrationsRouter.get('/health', async (_req, res, next) => {
+  try {
+    const [haisupport, haisales] = await Promise.all([
+      probeHaiSupportConnection(getHaiSupportSupabaseAdmin(), getSupabaseAdmin()),
+      probeHaiSalesConnection(getHaiSalesSupabaseAdmin()),
+    ]);
+
+    const auth = getUnifiedAuthEnvStatus();
+
+    res.json({
+      ok: haisupport.connected || haisales.connected,
+      ts: new Date().toISOString(),
+      auth: {
+        unified: auth.unified,
+        warnings: auth.warnings,
+      },
+      haisupport,
+      haisales,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 async function syncCustomerFromHaiSupport(action, payload) {
   const supabase = getSupabaseAdmin();

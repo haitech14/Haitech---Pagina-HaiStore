@@ -23,7 +23,7 @@ import {
 import type { Product } from '@/types/product';
 
 const EQUIPMENT_CONDITION_FILTER_TO_PRODUCT_CONDITION: Record<
-  HomeFeaturedEquipmentConditionFilterId,
+  Exclude<HomeFeaturedEquipmentConditionFilterId, 'todas'>,
   ProductCondition
 > = {
   nuevas: 'originales',
@@ -312,6 +312,8 @@ export function matchesHomeFeaturedEquipmentConditionFilter(
   filterId: HomeFeaturedEquipmentConditionFilterId,
   categoryFilter?: HomeFeaturedEquipmentCategoryFilterId,
 ): boolean {
+  if (filterId === 'todas') return true;
+
   const row = asProduct(product);
   const productCondition = EQUIPMENT_CONDITION_FILTER_TO_PRODUCT_CONDITION[filterId];
   const family = categoryFilter
@@ -424,6 +426,27 @@ function hasRecargaKeyword(haystack: string): boolean {
     haystack.includes('refill') ||
     haystack.includes('relleno')
   );
+}
+
+export function resolveHomeLandingConsumableSubtitle(
+  product: Pick<FeaturedProduct, 'id' | 'name' | 'category' | 'brand' | 'code' | 'attributes'>,
+): string | null {
+  const featured: FeaturedProduct = {
+    id: product.id,
+    name: product.name,
+    category: product.category ?? '',
+    brand: product.brand ?? null,
+    code: product.code ?? null,
+    attributes: product.attributes ?? [],
+    price: 0,
+    rating: 0,
+    reviews: 0,
+    image: null,
+  };
+
+  if (!isHomeFeaturedConsumableProduct(featured)) return null;
+  if (isConsumablesTonerProduct(featured)) return 'Toner Cartucho Original';
+  return 'Repuesto Original';
 }
 
 function isConsumablesTonerProduct(product: FeaturedProduct): boolean {

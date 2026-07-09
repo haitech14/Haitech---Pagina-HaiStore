@@ -120,6 +120,15 @@ export function HaiSalesIntegrationCard() {
       {status && (
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
+            <StatusDot ok={status.connection?.connected ?? false} />
+            API HaiSales:{' '}
+            {status.connection?.connected
+              ? `conectado (${status.connection.mode})`
+              : status.configured
+                ? 'configurado, sin respuesta'
+                : 'no configurado'}
+          </li>
+          <li className="flex items-center gap-2">
             <StatusDot ok={status.haisalesDatabase.configured} />
             <Database className="size-4 shrink-0" aria-hidden="true" />
             Base HaiSales:{' '}

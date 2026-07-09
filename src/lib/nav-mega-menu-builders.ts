@@ -742,18 +742,6 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
   const columnGroupsBySlug: Record<string, MegaMenuColumnGroup[]> = {
     'toner-suministros': [
       {
-        slug: 'toner-compatibles',
-        title: 'Tóner compatibles',
-        image: '/categories/toner-suministros.png',
-        href: categoryPath('toner-suministros', 'toner-compatibles'),
-        links: [
-          {
-            name: 'Explorar',
-            href: categoryPath('toner-suministros', 'toner-compatibles'),
-          },
-        ],
-      },
-      {
         slug: 'toner-originales',
         title: 'Tóner originales',
         image: '/categories/accesorios-impresoras.png',
@@ -762,6 +750,18 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
           {
             name: 'Explorar',
             href: categoryPath('toner-suministros', 'toner-originales'),
+          },
+        ],
+      },
+      {
+        slug: 'toner-compatibles',
+        title: 'Tóner compatibles',
+        image: '/categories/toner-suministros.png',
+        href: categoryPath('toner-suministros', 'toner-compatibles'),
+        links: [
+          {
+            name: 'Explorar',
+            href: categoryPath('toner-suministros', 'toner-compatibles'),
           },
         ],
       },

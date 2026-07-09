@@ -44,7 +44,8 @@ export function ProductConditionBadge({
   return (
     <span
       className={cn(
-        'font-myriad inline-flex shrink-0 items-center font-normal tracking-normal',
+        'font-myriad inline-flex shrink-0 items-center tracking-normal',
+        label === 'Seminueva' ? 'font-bold' : 'font-normal',
         CONDITION_BADGE_SIZE_CLASS[size],
         CONDITION_BADGE_CLASS[label],
         className,

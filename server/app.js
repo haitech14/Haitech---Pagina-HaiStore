@@ -4,6 +4,12 @@ import cors from 'cors';
 
 import { getCorsOrigins, isCorsOriginAllowed } from './lib/cors-origins.js';
 import { shouldPreferSupabaseCatalog } from './lib/catalog-source.js';
+import { getHaiSalesSupabaseAdmin } from './lib/haisales-supabase.js';
+import { getHaiSupportSupabaseAdmin } from './lib/haisupport-supabase.js';
+import {
+  probeHaiSalesConnection,
+  probeHaiSupportConnection,
+} from './lib/haitech-integrations-config.js';
 import { getSupabaseAdmin, isSupabaseAuthEnabled } from './lib/supabase-auth.js';
 import { supportRouter } from './routes/support.js';
 import { productsRouter } from './routes/products.js';
@@ -53,6 +59,7 @@ app.get('/api/health', async (_req, res) => {
   let catalogProducts = null;
   let catalogError = null;
   let catalogHint = null;
+  let integrations = null;
 
   if (isSupabaseAuthEnabled()) {
     try {
@@ -75,6 +82,12 @@ app.get('/api/health', async (_req, res) => {
         catalogHint =
           'Catálogo vacío en Supabase. Ejecuta npm run sync:supabase y verifica SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY en Vercel (mismo proyecto que haistore.vercel.app).';
       }
+
+      const [haisupport, haisales] = await Promise.all([
+        probeHaiSupportConnection(getHaiSupportSupabaseAdmin(), getSupabaseAdmin()),
+        probeHaiSalesConnection(getHaiSalesSupabaseAdmin()),
+      ]);
+      integrations = { haisupport, haisales };
     } catch (error) {
       catalogError = error instanceof Error ? error.message : 'unknown';
     }
@@ -92,6 +105,7 @@ app.get('/api/health', async (_req, res) => {
     catalogProducts,
     catalogError,
     catalogHint,
+    integrations,
   });
 });
 

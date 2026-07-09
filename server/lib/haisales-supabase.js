@@ -1,23 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 
+import {
+  isHaiSalesRemoteProject,
+  isSupabaseProjectUrl,
+  resolveHaiSalesCredentials,
+} from './haitech-integrations-config.js';
+
 let haisalesAdminClient = null;
 
 /** URL del proyecto Supabase de HaiSales (sin /rest/v1). Por defecto = SUPABASE_URL. */
 export function getHaiSalesSupabaseUrl() {
-  const dedicated = process.env.HAISALES_API_URL?.trim();
-  if (dedicated) {
-    return dedicated.replace(/\/rest\/v1\/?$/i, '').replace(/\/+$/, '');
-  }
-  const store = process.env.SUPABASE_URL?.trim();
-  return store ? store.replace(/\/+$/, '') : null;
+  const { url } = resolveHaiSalesCredentials();
+  if (!url || !isSupabaseProjectUrl(url)) return url;
+  return url;
 }
 
 export function getHaiSalesSupabaseKey() {
-  return (
-    process.env.HAISALES_API_KEY?.trim() ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
-    null
-  );
+  return resolveHaiSalesCredentials().key;
 }
 
 export function getHaiSalesSupabaseAdmin() {
@@ -36,10 +35,7 @@ export function isHaiSalesSupabaseConfigured() {
 }
 
 export function isHaiSalesRemoteDatabase() {
-  const dedicated = process.env.HAISALES_API_URL?.trim();
-  const store = process.env.SUPABASE_URL?.trim();
-  if (!dedicated || !store) return false;
-  return dedicated.replace(/\/+$/, '') !== store.replace(/\/+$/, '');
+  return isHaiSalesRemoteProject();
 }
 
 export const HAISALES_TABLE_PERSONA =

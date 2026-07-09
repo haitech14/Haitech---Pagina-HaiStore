@@ -30,12 +30,6 @@ import {
 } from '@/lib/haibot-quick-actions';
 import { searchCatalogProducts } from '@/lib/catalog-search-api';
 import { cn } from '@/lib/utils';
-import type { Product } from '@/types/product';
-
-interface HaibotInventoryContext {
-  searchQuery: string;
-  products: Product[];
-}
 
 const SEARCH_MODE_LABELS: Record<HaibotSearchFocus, string> = {
   all: 'buscar',
@@ -48,21 +42,6 @@ const WORKFLOW_MODE_LABELS: Record<HaibotWorkflowId, string> = {
   shipping: 'envíos',
   sales: 'ventas',
 };
-
-function HaibotTypingBubble() {
-  return (
-    <div className="mr-auto flex max-w-[85%] flex-col gap-1">
-      <div className="rounded-lg rounded-tl-sm bg-white px-3 py-2.5 shadow-sm">
-        <div className="flex items-center gap-1" aria-hidden="true">
-          <span className="size-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:0ms]" />
-          <span className="size-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:150ms]" />
-          <span className="size-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:300ms]" />
-        </div>
-      </div>
-      <span className="sr-only">Haibot está escribiendo</span>
-    </div>
-  );
-}
 
 function ChatBubble({ message }: { message: HaibotChatMessage }) {
   const isUser = message.role === 'user';
@@ -92,53 +71,32 @@ function ChatBubble({ message }: { message: HaibotChatMessage }) {
 }
 
 interface HaibotChatPanelProps {
-  open: boolean;
   onClose: () => void;
 }
 
-export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
+export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
   const navigate = useNavigate();
   const formId = useId();
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [draft, setDraft] = useState('');
-  const [messages, setMessages] = useState<HaibotChatMessage[]>([]);
-  const [isThinking, setIsThinking] = useState(false);
+  const [messages, setMessages] = useState<HaibotChatMessage[]>(() => [
+    createHaibotMessage('assistant', HAIBOT_WELCOME_MESSAGE),
+  ]);
   const [searchFocus, setSearchFocus] = useState<HaibotSearchFocus | null>(null);
   const [activeWorkflow, setActiveWorkflow] = useState<HaibotWorkflowId | null>(null);
-  const [inventoryContext, setInventoryContext] = useState<HaibotInventoryContext | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    setMessages([createHaibotMessage('assistant', HAIBOT_WELCOME_MESSAGE)]);
-    setDraft('');
-    setIsThinking(false);
-    setSearchFocus(null);
-    setActiveWorkflow(null);
-    setInventoryContext(null);
-  }, [open]);
 
   useEffect(() => {
     const node = listRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;
-  }, [messages, isThinking, open, activeWorkflow]);
-
-  const replyAfterDelay = (reply: string, delay = 550) => {
-    window.setTimeout(() => {
-      setMessages((prev) => [...prev, createHaibotMessage('assistant', reply)]);
-      setIsThinking(false);
-    }, delay);
-  };
+  }, [messages, activeWorkflow]);
 
   const buildReply = async (text: string): Promise<string> => {
     const search = resolveHaibotInventorySearch(text, [], searchFocus);
     if (search) {
       try {
         const { products: matches } = await searchCatalogProducts(search.query, { limit: 50 });
-        if (matches.length > 0) {
-          setInventoryContext({ searchQuery: search.query, products: matches.slice(0, 5) });
-        }
         return formatHaibotInventorySearchReply(search.query, matches, search.focus);
       } catch {
         return 'No pude consultar el inventario en este momento. Inténtalo de nuevo.';
@@ -150,15 +108,14 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
 
   const submitText = (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || isThinking || activeWorkflow) return;
+    if (!trimmed || activeWorkflow) return;
 
     setDraft('');
     setMessages((prev) => [...prev, createHaibotMessage('user', trimmed)]);
-    setIsThinking(true);
 
-    const searchIntent = resolveHaibotInventorySearch(trimmed, [], searchFocus);
-    const delay = searchIntent ? 320 : 550;
-    void buildReply(trimmed).then((reply) => replyAfterDelay(reply, delay));
+    void buildReply(trimmed).then((reply) => {
+      setMessages((prev) => [...prev, createHaibotMessage('assistant', reply)]);
+    });
   };
 
   const handleSubmit = (event: FormEvent) => {
@@ -175,8 +132,6 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
   };
 
   const handleQuickAction = (action: HaibotQuickAction) => {
-    if (isThinking) return;
-
     if (action.kind === 'navigate') {
       onClose();
       void navigate(action.to);
@@ -215,13 +170,10 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
   };
 
   const statusLabel = (() => {
-    if (isThinking) return 'escribiendo…';
     if (activeWorkflow) return `modo ${WORKFLOW_MODE_LABELS[activeWorkflow]}`;
     if (searchFocus) return `modo ${SEARCH_MODE_LABELS[searchFocus]} · inventario`;
     return 'en línea · asistente HaiStore';
   })();
-
-  if (!open) return null;
 
   return (
     <section
@@ -259,7 +211,6 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
         {messages.map((message) => (
           <ChatBubble key={message.id} message={message} />
         ))}
-        {isThinking ? <HaibotTypingBubble /> : null}
       </div>
 
       <div className="shrink-0 bg-[#f0f2f5] px-2 pb-2 pt-2">
@@ -280,12 +231,10 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
                     type="button"
                     role="radio"
                     aria-checked={isSelected}
-                    disabled={isThinking}
                     onClick={() => handleQuickAction(action)}
                     className={cn(
                       'inline-flex min-h-10 min-w-[4.25rem] items-center justify-center gap-1 rounded-lg px-2 py-2 text-[0.68rem] font-semibold transition-all',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54] focus-visible:ring-offset-1',
-                      'disabled:pointer-events-none disabled:opacity-50',
                       isSelected
                         ? 'bg-white text-[#075e54] shadow-sm ring-1 ring-[#075e54]/20'
                         : 'text-[#54656f] hover:bg-white/70 hover:text-[#3b4a54]',
@@ -308,12 +257,10 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
                 <button
                   key={action.id}
                   type="button"
-                  disabled={isThinking}
                   onClick={() => handleQuickAction(action)}
                   className={cn(
                     'inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-[0.7rem] font-semibold transition-all',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54] focus-visible:ring-offset-1',
-                    'disabled:pointer-events-none disabled:opacity-50',
                     isWhatsapp
                       ? 'bg-[#dcf8c6] text-[#075e54] ring-1 ring-[#25d366]/25 hover:bg-[#c8f0b4]'
                       : 'text-[#54656f] hover:bg-white/70 hover:text-[#3b4a54]',
@@ -328,11 +275,11 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
         </div>
 
         {activeWorkflow === 'support' ? (
-          <HaibotSupportWorkflow disabled={isThinking} />
+          <HaibotSupportWorkflow />
         ) : activeWorkflow === 'shipping' ? (
-          <HaibotShippingWorkflow disabled={isThinking} />
+          <HaibotShippingWorkflow />
         ) : activeWorkflow === 'sales' ? (
-          <HaibotSalesWorkflow onClose={onClose} inventoryContext={inventoryContext} />
+          <HaibotSalesWorkflow onClose={onClose} />
         ) : (
           <form id={formId} onSubmit={handleSubmit} className="flex items-end gap-2">
             <label htmlFor={`${formId}-input`} className="sr-only">
@@ -345,8 +292,7 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
               onChange={(event) => setDraft(event.target.value)}
               placeholder={getHaibotSearchPlaceholder(searchFocus)}
               rows={1}
-              disabled={isThinking}
-              className="max-h-24 min-h-10 flex-1 resize-none rounded-3xl border-0 bg-white px-4 py-2.5 text-sm text-[#111b21] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54] disabled:opacity-60"
+              className="max-h-24 min-h-10 flex-1 resize-none rounded-3xl border-0 bg-white px-4 py-2.5 text-sm text-[#111b21] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54]"
               onKeyDown={(event) => {
                 if (event.key === 'Enter' && !event.shiftKey) {
                   event.preventDefault();
@@ -356,7 +302,7 @@ export function HaibotChatPanel({ open, onClose }: HaibotChatPanelProps) {
             />
             <button
               type="submit"
-              disabled={!draft.trim() || isThinking}
+              disabled={!draft.trim()}
               className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#075e54] text-white transition-colors hover:bg-[#128c7e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54] focus-visible:ring-offset-2 disabled:opacity-40"
               aria-label="Enviar mensaje"
             >

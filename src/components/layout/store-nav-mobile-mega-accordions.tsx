@@ -4,7 +4,6 @@ import { StaticNavMobileAccordion } from '@/components/layout/static-nav-mobile-
 import {
   ALQUILER_NAV_SUBMENU,
   CONSUMIBLES_NAV_SUBMENU,
-  EMPRESAS_NAV_SUBMENU,
   PRODUCTOS_NAV_SUBMENU,
   REPUESTOS_NAV_SUBMENU,
   SERVICIOS_NAV_SUBMENU,
@@ -13,7 +12,6 @@ import {
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import {
-  buildCompaniesNavMegaMenu,
   buildConsumiblesNavMegaMenu,
   buildConsumiblesNavMegaMenuStatic,
   buildRentalsNavMegaMenu,
@@ -21,7 +19,6 @@ import {
   buildRepuestosNavMegaMenuStatic,
   buildServicesNavMegaMenu,
   buildSoftwareNavMegaMenu,
-  COMPANIES_NAV_MEGA_MENU_ICON,
   CONSUMABLES_NAV_MEGA_MENU_ICON,
   RENTALS_NAV_MEGA_MENU_ICON,
   REPUESTOS_NAV_MEGA_MENU_ICON,
@@ -60,7 +57,6 @@ export function StoreNavMobileMegaAccordions({ onNavigate }: { onNavigate?: () =
     [categoryTree],
   );
   const servicesMenu = useMemo(() => buildServicesNavMegaMenu(), []);
-  const companiesMenu = useMemo(() => buildCompaniesNavMegaMenu(), []);
   const softwareMenu = useMemo(() => buildSoftwareNavMegaMenu(), []);
 
   return (
@@ -88,12 +84,6 @@ export function StoreNavMobileMegaAccordions({ onNavigate }: { onNavigate?: () =
         label={SERVICIOS_NAV_SUBMENU.label}
         icon={SERVICIOS_NAV_SUBMENU.icon}
         menu={servicesMenu}
-        {...(onNavigate ? { onNavigate } : {})}
-      />
-      <StaticNavMobileAccordion
-        label={EMPRESAS_NAV_SUBMENU.label}
-        icon={COMPANIES_NAV_MEGA_MENU_ICON}
-        menu={companiesMenu}
         {...(onNavigate ? { onNavigate } : {})}
       />
       <StaticNavMobileAccordion

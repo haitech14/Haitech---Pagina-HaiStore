@@ -76,6 +76,15 @@ export function HaiSupportIntegrationCard() {
       {status && (
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
+            <StatusDot ok={status.connection?.connected ?? false} />
+            API HaiSupport:{' '}
+            {status.connection?.connected
+              ? `conectado (${status.connection.mode})`
+              : status.configured
+                ? 'configurado, sin respuesta'
+                : 'no configurado'}
+          </li>
+          <li className="flex items-center gap-2">
             <StatusDot ok={status.sharedSupabase} />
             <Database className="size-4 shrink-0" aria-hidden="true" />
             Supabase compartido: {status.sharedSupabase ? 'activo' : 'no configurado'}

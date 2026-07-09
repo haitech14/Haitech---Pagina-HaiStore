@@ -11,6 +11,7 @@ import {
   resolveProductModelStockImage,
   sanitizeProductId,
 } from './product-stock-images.js';
+import { DUPLICATE_MAIN_PRODUCT_IDS } from './product-media-duplicate-main-ids.js';
 
 function isCategoryStockImageUrl(url) {
   return (
@@ -61,6 +62,55 @@ function ownedProductMediaStems(product) {
   return stems;
 }
 
+function isExtraAuthenticProductPhotoPath(url) {
+  const path = productMediaPathname(url);
+  if (/^https?:\/\//i.test(path)) return true;
+  if (/\/products\/.+-(?:2|3)\.webp$/i.test(path)) return true;
+  return false;
+}
+
+/**
+ * Galería copiada por sync-missing-catalog-images (categoría/modelo/donor),
+ * con solo variantes de tarjeta (-256/-512), sin fotos reales adicionales.
+ */
+function isSyncGeneratedFallbackProductGallery(product) {
+  const imagePaths = storedMediaUrls(product).filter(
+    (url) =>
+      isImageMediaUrl(url) &&
+      !isYoutubeMediaUrl(url) &&
+      !isVideoMediaUrl(url) &&
+      !String(url).startsWith('data:'),
+  );
+  if (imagePaths.length === 0) return false;
+  if (imagePaths.some(isExtraAuthenticProductPhotoPath)) return false;
+
+  const mainPath = productMediaPathname(publicProductMediaPath(product?.id ?? ''));
+  if (!mainPath.startsWith('/products/')) return false;
+
+  const stem = mainPath.replace(/\.webp$/i, '');
+  const variant256 = `${stem}-256.webp`;
+  const variant512 = `${stem}-512.webp`;
+  const variant1024 = `${stem}-1024.webp`;
+
+  const normalized = imagePaths.map(productMediaPathname);
+  if (!normalized.includes(variant256) || !normalized.includes(variant512)) return false;
+  if (normalized.includes(variant1024)) return false;
+
+  return normalized.every(
+    (path) => path === mainPath || path === variant256 || path === variant512,
+  );
+}
+
+/** Imagen principal idéntica a la de otros productos (copia de sync/donor). */
+function isDuplicateMainProductGallery(product) {
+  const id = sanitizeProductId(product?.id);
+  if (!id || !DUPLICATE_MAIN_PRODUCT_IDS.has(id)) return false;
+
+  return !storedMediaUrls(product).some((url) =>
+    /^https?:\/\//i.test(productMediaPathname(url)),
+  );
+}
+
 /** Imagen en /products/ que pertenece a este producto (no tomada de otro ítem). */
 export function isOwnedProductMediaPath(product, url) {
   if (!String(url).startsWith('/products/')) return true;
@@ -87,7 +137,12 @@ export function isSyntheticProductMediaUrl(product, url) {
   if (isStoredMediaUrl(product, url)) {
     if (isCategoryStockImageUrl(url)) return true;
     if (isYoutubeMediaUrl(url) || isVideoMediaUrl(url)) return false;
-    if (url.startsWith('/products/')) return !isOwnedProductMediaPath(product, url);
+    if (url.startsWith('/products/')) {
+      if (!isOwnedProductMediaPath(product, url)) return true;
+      if (isDuplicateMainProductGallery(product)) return true;
+      if (isSyncGeneratedFallbackProductGallery(product)) return true;
+      return false;
+    }
     if (url.startsWith('http://') || url.startsWith('https://')) return false;
     return false;
   }

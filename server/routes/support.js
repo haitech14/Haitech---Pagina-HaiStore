@@ -64,7 +64,11 @@ supportRouter.post('/tickets', async (req, res, next) => {
     }
 
     const ticket = await createSupportTicket(parsed);
-    res.status(201).json(ticket);
+    const isLocal = ticket.local === true;
+    res.status(201).json({
+      ...ticket,
+      ...(isLocal ? { demo: true } : {}),
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Error interno del servidor';
     if (

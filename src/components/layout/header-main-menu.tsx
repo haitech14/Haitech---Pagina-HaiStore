@@ -1,7 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 
 import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
-import { CompaniesNavMegaMenu } from '@/components/layout/companies-nav-mega-menu';
 import { ConsumiblesNavMegaMenu } from '@/components/layout/consumibles-nav-mega-menu';
 import { RentalsNavMegaMenu } from '@/components/layout/rentals-nav-mega-menu';
 import { RepuestosNavMegaMenu } from '@/components/layout/repuestos-nav-mega-menu';
@@ -83,9 +82,6 @@ export function HeaderMainMenu({
       </li>
       <li className="shrink-0">
         <ServicesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
-      </li>
-      <li className="shrink-0">
-        <CompaniesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
       <li className="shrink-0">
         <SoftwareNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />

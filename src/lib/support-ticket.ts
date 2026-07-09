@@ -13,6 +13,8 @@ export interface SupportTicketPayload {
 export interface SupportTicketResponse {
   id: string;
   status?: string;
+  code?: string;
+  connected?: boolean;
   demo?: boolean;
   local?: boolean;
 }
@@ -37,6 +39,8 @@ export async function submitSupportTicket(
     error?: string;
     id?: string;
     status?: string;
+    code?: string;
+    connected?: boolean;
     demo?: boolean;
     local?: boolean;
   };
@@ -57,7 +61,9 @@ export async function submitSupportTicket(
   return {
     id: body.id,
     ...(body.status ? { status: body.status } : {}),
-    ...(body.demo === true ? { demo: true } : {}),
+    ...(body.code ? { code: body.code } : {}),
+    ...(body.connected === true ? { connected: true } : {}),
+    ...(body.demo === true || body.local === true ? { demo: true } : {}),
     ...(body.local === true ? { local: true } : {}),
   };
 }

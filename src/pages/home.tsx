@@ -2,11 +2,7 @@ import { useMemo } from 'react';
 
 import { HeroBanner } from '@/components/hero-banner';
 import { HomeBenefitsBlackBar } from '@/components/home/home-benefits-black-bar';
-import {
-  HOME_CONSUMABLES_ADVISORY,
-  HomeFeaturedAdvisoryRow,
-  HomeFeaturedProductsSection,
-} from '@/components/home/home-featured-products-section';
+import { HomeFeaturedProductsSection } from '@/components/home/home-featured-products-section';
 import { HomeEquipmentQuickNavSection } from '@/components/home/home-equipment-quick-nav-section';
 import { HomeHeroCatalogBanners } from '@/components/home/home-hero-catalog-banners';
 import { HomeHeroPromoStrip } from '@/components/home/home-hero-promo-strip';
@@ -52,13 +48,6 @@ export function HomePage() {
       <HomeHeroPromoStrip />
       <div className="home-landing-sans relative bg-white shadow-[0_8px_32px_rgba(15,31,61,0.08)]">
         <HomeEquipmentQuickNavSection />
-        <div className="container pb-4 sm:pb-5">
-          <HomeFeaturedAdvisoryRow
-            message={HOME_CONSUMABLES_ADVISORY.message}
-            campaign={HOME_CONSUMABLES_ADVISORY.campaign}
-            description={HOME_CONSUMABLES_ADVISORY.description}
-          />
-        </div>
         <HomeHeroCatalogBanners />
       </div>
       <HomeBenefitsBlackBar />

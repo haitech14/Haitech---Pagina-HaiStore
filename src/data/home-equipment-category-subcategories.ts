@@ -5,7 +5,7 @@ import type {
 import { HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS } from '@/lib/home-equipment-category-links';
 import { categoryLandingPath, categoryPath } from '@/lib/category-path';
 
-export type HomeEquipmentSubcategoryId = 'todas' | HomeFeaturedEquipmentConditionFilterId;
+export type HomeEquipmentSubcategoryId = HomeFeaturedEquipmentConditionFilterId;
 
 export type HomeEquipmentSubcategory = {
   id: HomeEquipmentSubcategoryId;
@@ -14,14 +14,19 @@ export type HomeEquipmentSubcategory = {
   href?: string;
 };
 
-const CONDITION_SUBCATEGORY_LABELS: Record<HomeFeaturedEquipmentConditionFilterId, string> = {
+type HomeFeaturedEquipmentProductConditionId = Exclude<
+  HomeFeaturedEquipmentConditionFilterId,
+  'todas'
+>;
+
+const CONDITION_SUBCATEGORY_LABELS: Record<HomeFeaturedEquipmentProductConditionId, string> = {
   nuevas: 'Nuevas',
   seminuevas: 'Seminuevas',
   remanufacturadas: 'Remanufacturadas',
 };
 
 const MULTIFUNCIONALES_CONDITION_SLUGS: Record<
-  HomeFeaturedEquipmentConditionFilterId,
+  HomeFeaturedEquipmentProductConditionId,
   string
 > = {
   nuevas: 'multifuncionales-nuevas',
@@ -29,7 +34,7 @@ const MULTIFUNCIONALES_CONDITION_SLUGS: Record<
   remanufacturadas: 'multifuncionales-remanufacturadas',
 };
 
-const IMPRESORAS_CONDITION_SLUGS: Record<HomeFeaturedEquipmentConditionFilterId, string> = {
+const IMPRESORAS_CONDITION_SLUGS: Record<HomeFeaturedEquipmentProductConditionId, string> = {
   nuevas: 'impresoras-laser-nuevas',
   seminuevas: 'impresoras-laser-seminuevas',
   remanufacturadas: 'impresoras-laser-remanufacturadas',
@@ -37,9 +42,9 @@ const IMPRESORAS_CONDITION_SLUGS: Record<HomeFeaturedEquipmentConditionFilterId,
 
 function buildConditionSubcategories(
   categorySlug: string,
-  slugByCondition: Record<HomeFeaturedEquipmentConditionFilterId, string>,
+  slugByCondition: Record<HomeFeaturedEquipmentProductConditionId, string>,
 ): HomeEquipmentSubcategory[] {
-  const conditions: HomeFeaturedEquipmentConditionFilterId[] = [
+  const conditions: HomeFeaturedEquipmentProductConditionId[] = [
     'nuevas',
     'seminuevas',
     'remanufacturadas',
