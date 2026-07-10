@@ -139,6 +139,7 @@ function isSparePartsTarjetasProduct(product: FeaturedProduct): boolean {
 function isSparePartsRodillosProduct(product: FeaturedProduct): boolean {
   const haystack = productHaystack(product);
   if (isSparePartsFusorasProduct(product)) return false;
+  if (isSparePartsTransferenciaProduct(product)) return false;
 
   return (
     haystack.includes('rodillo') ||
@@ -167,6 +168,23 @@ function isSparePartsUnidadesImagenProduct(product: FeaturedProduct): boolean {
   );
 }
 
+function isSparePartsTransferenciaProduct(product: FeaturedProduct): boolean {
+  const haystack = productHaystack(product);
+  return (
+    haystack.includes('unidad de transferencia') ||
+    haystack.includes('transfer unit') ||
+    haystack.includes('faja de transferencia') ||
+    haystack.includes('fajas de transferencia') ||
+    haystack.includes('transfer belt') ||
+    haystack.includes('belt transfer') ||
+    haystack.includes('transfer roller') ||
+    haystack.includes('rodillo de transferencia') ||
+    haystack.includes('rodillos de transferencia') ||
+    haystack.includes('cuchilla de transferencia') ||
+    haystack.includes('cuchillas de transferencia')
+  );
+}
+
 export function matchesHomeFindSparePartsCategoryFilter(
   product: FeaturedProduct,
   filterId: HomeFindSparePartsCategoryId,
@@ -184,6 +202,8 @@ export function matchesHomeFindSparePartsCategoryFilter(
       return isSparePartsRodillosProduct(product);
     case 'unidades-imagen':
       return isSparePartsUnidadesImagenProduct(product);
+    case 'transferencia':
+      return isSparePartsTransferenciaProduct(product);
     default: {
       const _exhaustive: never = filterId;
       return _exhaustive;

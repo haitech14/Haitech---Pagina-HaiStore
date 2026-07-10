@@ -26,6 +26,7 @@ const SPARE_PARTS_CONSUMABLES_IMAGE_MAP: Partial<
 > = {
   'kit-mantenimiento': 'unidad-imagen-kit-mantenimiento',
   fusoras: 'unidad-fusora',
+  transferencia: 'unidad-transferencia',
   tarjetas: 'tarjetas',
   'unidades-imagen': 'unidad-imagen-kit-mantenimiento',
 };

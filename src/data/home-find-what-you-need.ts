@@ -11,15 +11,16 @@ export type HomeFindEquipmentCategoryId = Extract<
 
 export type HomeFindConsumablesCategoryId = Extract<
   HomeFeaturedConsumablesCategoryFilterId,
-  'toner' | 'tintas' | 'unidad-imagen-kit-mantenimiento' | 'unidad-fusora' | 'unidad-transferencia'
+  'toner' | 'tintas'
 >;
 
 export type HomeFindSparePartsCategoryId =
   | 'kit-mantenimiento'
+  | 'unidades-imagen'
   | 'fusoras'
+  | 'transferencia'
   | 'tarjetas'
-  | 'rodillos'
-  | 'unidades-imagen';
+  | 'rodillos';
 
 export type HomeFindSparePartsFilterId = 'originales' | 'compatibles' | 'disponibles' | 'a-pedido';
 
@@ -48,9 +49,6 @@ export const HOME_FIND_CONSUMABLES_CATEGORIES: ReadonlyArray<{
 }> = [
   { id: 'toner', label: 'Tóner' },
   { id: 'tintas', label: 'Tintas' },
-  { id: 'unidad-imagen-kit-mantenimiento', label: 'Unidades de imagen' },
-  { id: 'unidad-fusora', label: 'Fusoras' },
-  { id: 'unidad-transferencia', label: 'Transferencia' },
 ];
 
 export const HOME_FIND_SPARE_PARTS_CATEGORIES: ReadonlyArray<{
@@ -58,10 +56,11 @@ export const HOME_FIND_SPARE_PARTS_CATEGORIES: ReadonlyArray<{
   label: string;
 }> = [
   { id: 'kit-mantenimiento', label: 'Kits de mantenimiento' },
+  { id: 'unidades-imagen', label: 'Unidades de imagen' },
   { id: 'fusoras', label: 'Fusoras' },
+  { id: 'transferencia', label: 'Transferencia' },
   { id: 'tarjetas', label: 'Tarjetas' },
   { id: 'rodillos', label: 'Rodillos' },
-  { id: 'unidades-imagen', label: 'Unidades de imagen' },
 ];
 
 export const HOME_FIND_CATALOG_LINKS: Record<
