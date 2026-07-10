@@ -23,7 +23,7 @@ import {
 import type { Product } from '@/types/product';
 
 const EQUIPMENT_CONDITION_FILTER_TO_PRODUCT_CONDITION: Record<
-  Exclude<HomeFeaturedEquipmentConditionFilterId, 'todas'>,
+  HomeFeaturedEquipmentConditionFilterId,
   ProductCondition
 > = {
   nuevas: 'originales',
@@ -312,8 +312,6 @@ export function matchesHomeFeaturedEquipmentConditionFilter(
   filterId: HomeFeaturedEquipmentConditionFilterId,
   categoryFilter?: HomeFeaturedEquipmentCategoryFilterId,
 ): boolean {
-  if (filterId === 'todas') return true;
-
   const row = asProduct(product);
   const productCondition = EQUIPMENT_CONDITION_FILTER_TO_PRODUCT_CONDITION[filterId];
   const family = categoryFilter
@@ -388,8 +386,6 @@ export function matchesHomeFeaturedSpecFilter(
   product: FeaturedProduct,
   filterId: HomeFeaturedSpecFilterId,
 ): boolean {
-  if (filterId === 'todos') return true;
-
   const row = asProduct(product);
   const haystack = productHaystack(product);
 
@@ -409,14 +405,14 @@ export function matchesHomeFeaturedEquipmentFilters(
   product: FeaturedProduct,
   conditionFilter: HomeFeaturedEquipmentConditionFilterId,
   categoryFilter: HomeFeaturedEquipmentCategoryFilterId,
-  specFilter: HomeFeaturedSpecFilterId = 'todos',
+  specFilter?: HomeFeaturedSpecFilterId | null,
 ): boolean {
   if (!isHomeFeaturedEquipmentProduct(product)) return false;
 
   return (
     matchesHomeFeaturedEquipmentCategoryFilter(product, categoryFilter) &&
     matchesHomeFeaturedEquipmentConditionFilter(product, conditionFilter, categoryFilter) &&
-    matchesHomeFeaturedSpecFilter(product, specFilter)
+    (specFilter == null || matchesHomeFeaturedSpecFilter(product, specFilter))
   );
 }
 
@@ -625,13 +621,13 @@ export function matchesHomeFeaturedConsumablesFilters(
   product: FeaturedProduct,
   conditionFilter: HomeFeaturedConsumablesConditionFilterId,
   categoryFilter: HomeFeaturedConsumablesCategoryFilterId,
-  specFilter: HomeFeaturedSpecFilterId = 'todos',
+  specFilter?: HomeFeaturedSpecFilterId | null,
 ): boolean {
   if (!isHomeFeaturedConsumableProduct(product)) return false;
 
   return (
     matchesHomeFeaturedConsumablesConditionFilter(product, conditionFilter, categoryFilter) &&
-    matchesHomeFeaturedSpecFilter(product, specFilter)
+    (specFilter == null || matchesHomeFeaturedSpecFilter(product, specFilter))
   );
 }
 

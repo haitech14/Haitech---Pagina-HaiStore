@@ -132,19 +132,10 @@ export function HomeCategoryShowcaseProductCard({
             </span>
           ) : null}
 
-          {pricing.discountPercent >= 5 || showLimitedStock ? (
-            <div className="absolute right-2 top-2 z-[2] flex flex-col items-end gap-1 sm:right-2.5 sm:top-2.5">
-              {pricing.discountPercent >= 5 ? (
-                <span className="rounded bg-[#16A34A] px-1 py-px text-[0.5625rem] font-bold text-white sm:text-[0.625rem]">
-                  Oferta -{pricing.discountPercent}%
-                </span>
-              ) : null}
-              {showLimitedStock ? (
-                <span className="rounded bg-[#F59E0B] px-1 py-px text-[0.5625rem] font-bold text-white sm:text-[0.625rem]">
-                  {urgencyLabel ?? 'Stock limitado'}
-                </span>
-              ) : null}
-            </div>
+          {showLimitedStock ? (
+            <span className="absolute right-2 top-2 z-[2] rounded bg-[#F59E0B] px-1 py-px text-[0.5625rem] font-bold text-white sm:right-2.5 sm:top-2.5 sm:text-[0.625rem]">
+              {urgencyLabel ?? 'Stock limitado'}
+            </span>
           ) : null}
 
           <ProductCardHoverImage

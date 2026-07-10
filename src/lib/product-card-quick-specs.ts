@@ -82,8 +82,12 @@ export function buildProductCardQuickSpecBadges(
 }
 
 /** Línea compacta bajo el título: B/N · A4 · 40 ppm · Dúplex · Red */
-export function buildProductCardQuickSpecsLine(product: ProductBadgeSource): string | null {
-  const badges = buildProductCardQuickSpecBadges(product);
+export function buildProductCardQuickSpecsLine(
+  product: ProductBadgeSource,
+  options?: { omitIds?: readonly string[] },
+): string | null {
+  const omit = new Set(options?.omitIds ?? []);
+  const badges = buildProductCardQuickSpecBadges(product).filter((badge) => !omit.has(badge.id));
   if (badges.length === 0) return null;
   return badges.map((badge) => badge.label).join(' · ');
 }

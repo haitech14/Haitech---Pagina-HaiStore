@@ -12,6 +12,7 @@ import {
   isVideoMediaUrl,
   isYoutubeMediaUrl,
 } from '../../shared/product-media.js';
+import { dedupeMediaAlbumItems } from '../../shared/media-album-dedupe.js';
 
 const WEBP_QUALITY = 82;
 const MAX_EDGE = 1200;
@@ -263,7 +264,7 @@ export async function listMediaAlbumItems(filters = {}) {
     items = items.filter((item) => item.kind === filters.kind);
   }
 
-  return items.sort((a, b) => b.created_at.localeCompare(a.created_at));
+  return dedupeMediaAlbumItems(items);
 }
 
 export async function getMediaAlbumDriveConfig() {

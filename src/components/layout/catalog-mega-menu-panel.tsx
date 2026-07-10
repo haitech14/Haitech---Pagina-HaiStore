@@ -15,16 +15,6 @@ const ICON_STROKE = 1.75;
 const BRAND_RED = '#E30613';
 const MEGA_MENU_NAVY = '#0f1f3d';
 
-function desktopMegaMenuGridClass(count: number): string {
-  if (count <= 2) return 'grid-cols-2';
-  if (count <= 4) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
-  if (count === 9) return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-3';
-  if (count === 10) return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5';
-  if (count === 11) return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5';
-  if (count === 12) return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6';
-  return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6';
-}
-
 function MegaMenuLink({
   to,
   onNavigate,
@@ -50,10 +40,11 @@ function MegaMenuColumnThumbnail({
 }: {
   group: MegaMenuColumnGroup;
   onNavigate: () => void;
-  size?: 'desktop' | 'mobile';
+  size?: 'desktop' | 'mobile' | 'summary';
 }) {
   const imageSrc = resolveMegaMenuColumnImage(group.slug, group.image);
-  const heightClass = size === 'desktop' ? 'h-[4.5rem]' : 'h-14';
+  const heightClass =
+    size === 'summary' ? 'h-36 w-44' : size === 'desktop' ? 'h-[4.5rem]' : 'h-14';
 
   return (
     <MegaMenuLink
@@ -63,7 +54,8 @@ function MegaMenuColumnThumbnail({
     >
       <span
         className={cn(
-          'mb-2.5 flex items-center justify-center overflow-hidden rounded-md bg-[#F9FAFB] p-2 transition-colors group-hover/thumb:bg-[#F3F4F6]',
+          'flex items-center justify-center overflow-hidden rounded-md bg-[#F9FAFB] p-2 transition-colors group-hover/thumb:bg-[#F3F4F6]',
+          size === 'summary' ? 'mb-0 h-36 w-44 shrink-0' : 'mb-2.5',
           heightClass,
         )}
       >
@@ -85,10 +77,11 @@ function MegaMenuColumnTitle({
 }: {
   group: MegaMenuColumnGroup;
   onNavigate: () => void;
-  variant?: 'desktop' | 'mobile';
+  variant?: 'desktop' | 'mobile' | 'summary';
 }) {
   const Icon = megaMenuIconForSlug(group.slug);
   const isDesktop = variant === 'desktop';
+  const isSummary = variant === 'summary';
 
   return (
     <MegaMenuLink
@@ -97,17 +90,21 @@ function MegaMenuColumnTitle({
       className={cn(
         'group/title inline-flex max-w-full items-center gap-2 rounded-md transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-        isDesktop ? 'mb-2.5 hover:text-[#E30613]' : 'py-1.5 hover:text-[#E30613]',
+        isSummary
+          ? 'mb-4 hover:text-[#E30613]'
+          : isDesktop
+            ? 'mb-2.5 hover:text-[#E30613]'
+            : 'py-1.5 hover:text-[#E30613]',
       )}
     >
       <span
         className={cn(
           'flex shrink-0 items-center justify-center rounded-md bg-[#FFF5F5] text-[#E30613] transition-colors group-hover/title:bg-[#FEE2E2]',
-          isDesktop ? 'size-7' : 'size-6',
+          isSummary ? 'size-8' : isDesktop ? 'size-7' : 'size-6',
         )}
       >
         <Icon
-          className={isDesktop ? 'size-3.5' : 'size-3'}
+          className={isSummary ? 'size-4' : isDesktop ? 'size-3.5' : 'size-3'}
           strokeWidth={ICON_STROKE}
           aria-hidden="true"
         />
@@ -115,9 +112,11 @@ function MegaMenuColumnTitle({
       <span
         className={cn(
           'min-w-0 text-pretty font-semibold leading-snug',
-          isDesktop
-            ? 'text-[0.6875rem] uppercase tracking-[0.12em] text-[#9CA3AF] group-hover/title:text-[#E30613]'
-            : 'text-sm text-[#0f1f3d]',
+          isSummary
+            ? 'text-sm uppercase tracking-[0.1em] text-[#0f1f3d] group-hover/title:text-[#E30613]'
+            : isDesktop
+              ? 'text-[0.6875rem] uppercase tracking-[0.12em] text-[#9CA3AF] group-hover/title:text-[#E30613]'
+              : 'text-sm text-[#0f1f3d]',
         )}
       >
         {group.title}
@@ -172,6 +171,63 @@ function MegaMenuDesktopColumn({
         Ver todo
         <ChevronRight className="size-3.5" aria-hidden="true" />
       </MegaMenuLink>
+    </div>
+  );
+}
+
+function MegaMenuSummaryPanel({
+  group,
+  onNavigate,
+}: {
+  group: MegaMenuColumnGroup;
+  onNavigate: () => void;
+}) {
+  const hasSubLinks = group.links.length > 0;
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <MegaMenuColumnTitle group={group} onNavigate={onNavigate} variant="summary" />
+
+      <div className="flex min-h-0 flex-1 gap-6">
+        <MegaMenuColumnThumbnail group={group} onNavigate={onNavigate} size="summary" />
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          {hasSubLinks ? (
+            <ul className="flex-1 space-y-2" role="list">
+              {group.links.map((link) => (
+                <li key={`${group.slug}-${link.href}-${link.name}`}>
+                  <MegaMenuLink
+                    to={link.href}
+                    onNavigate={onNavigate}
+                    className={cn(
+                      'block rounded-md py-0.5 text-sm leading-snug text-[#374151] transition-colors',
+                      'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                    )}
+                  >
+                    {link.name}
+                  </MegaMenuLink>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="flex-1 text-sm text-[#6B7280]">
+              Explora todos los productos de esta categoría.
+            </p>
+          )}
+
+          <MegaMenuLink
+            to={group.href}
+            onNavigate={onNavigate}
+            className={cn(
+              'mt-4 inline-flex items-center gap-0.5 text-sm font-semibold transition-colors',
+              'text-[#E30613] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+            )}
+          >
+            Ver todo
+            <ChevronRight className="size-4" aria-hidden="true" />
+          </MegaMenuLink>
+        </div>
+      </div>
     </div>
   );
 }
@@ -242,6 +298,100 @@ function MegaMenuLinkGroup({
   );
 }
 
+function desktopMegaMenuGridClass(count: number): string {
+  if (count <= 2) return 'grid-cols-2';
+  if (count <= 4) return 'grid-cols-2 sm:grid-cols-3';
+  return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-3';
+}
+
+function CatalogMegaMenuSidebar({
+  sidebarItems,
+  activeCategorySlug,
+  onCategoryChange,
+  isMobile,
+}: {
+  sidebarItems: LandingCatalogMenuSidebarItem[];
+  activeCategorySlug: string;
+  onCategoryChange: (slug: string) => void;
+  isMobile: boolean;
+}) {
+  return (
+    <aside
+      className={cn(
+        'shrink-0 border-[#E5E7EB] bg-[#FAFAFA]',
+        isMobile
+          ? 'border-b bg-white px-3 py-2.5'
+          : 'w-[13rem] border-r py-3 pl-3 pr-2 sm:w-[14rem]',
+      )}
+    >
+      {!isMobile ? (
+        <p className="mb-2 px-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">
+          Categorías
+        </p>
+      ) : null}
+
+      <ul
+        className={cn(
+          'flex gap-0.5',
+          isMobile
+            ? 'flex-row overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+            : 'flex-col',
+        )}
+        role="tablist"
+        aria-label="Categorías del menú"
+      >
+        {sidebarItems.map((item) => {
+          const isActive = activeCategorySlug === item.slug;
+          const Icon = item.icon;
+
+          return (
+            <li key={item.slug} role="presentation" className={isMobile ? 'shrink-0' : undefined}>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onMouseEnter={isMobile ? undefined : () => onCategoryChange(item.slug)}
+                onFocus={() => onCategoryChange(item.slug)}
+                onClick={() => onCategoryChange(item.slug)}
+                className={cn(
+                  'flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                  isMobile && 'whitespace-nowrap text-xs',
+                  isActive
+                    ? 'border-l-[3px] bg-[#FFF5F5] font-semibold text-[#E30613]'
+                    : 'border-l-[3px] border-transparent text-[#374151] hover:bg-[#F3F4F6]',
+                )}
+                style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
+              >
+                <span
+                  className={cn(
+                    'flex size-7 shrink-0 items-center justify-center rounded-md',
+                    isActive
+                      ? 'bg-[#E30613]/10 text-[#E30613]'
+                      : 'bg-[#F3F4F6] text-[#6B7280]',
+                  )}
+                >
+                  <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1 text-pretty leading-snug">{item.label}</span>
+                {!isMobile ? (
+                  <ChevronRight
+                    className={cn(
+                      'size-3.5 shrink-0',
+                      isActive ? 'text-[#E30613]' : 'text-[#D1D5DB]',
+                    )}
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </aside>
+  );
+}
+
 export interface CatalogMegaMenuPanelProps {
   activeCategorySlug: string;
   onCategoryChange: (slug: string) => void;
@@ -250,6 +400,8 @@ export interface CatalogMegaMenuPanelProps {
   featuredContent: MegaMenuFeaturedContent;
   onNavigate: () => void;
   layout?: 'desktop' | 'mobile';
+  /** Muestra imagen + lista plana cuando hay un solo grupo (p. ej. Productos). */
+  desktopContentMode?: 'summary' | 'grid';
 }
 
 export function CatalogMegaMenuPanel({
@@ -260,30 +412,50 @@ export function CatalogMegaMenuPanel({
   featuredContent,
   onNavigate,
   layout = 'desktop',
+  desktopContentMode = 'grid',
 }: CatalogMegaMenuPanelProps) {
   void featuredContent;
   const activeItem =
     sidebarItems.find((item) => item.slug === activeCategorySlug) ?? sidebarItems[0];
   const isMobile = layout === 'mobile';
-
+  const useSummaryLayout = !isMobile && desktopContentMode === 'summary' && columnGroups.length === 1;
   const desktopGridClass = desktopMegaMenuGridClass(columnGroups.length);
 
   if (!isMobile) {
     return (
-      <div className="bg-white px-5 py-5 sm:px-6 sm:py-6">
-        {columnGroups.length > 0 ? (
-          <div className={cn('grid items-stretch gap-x-8 gap-y-6', desktopGridClass)}>
-            {columnGroups.map((group) => (
-              <MegaMenuDesktopColumn
-                key={`${activeCategorySlug}-${group.slug}`}
-                group={group}
-                onNavigate={onNavigate}
-              />
-            ))}
+      <div className="flex min-h-[20rem] bg-white">
+        <CatalogMegaMenuSidebar
+          sidebarItems={sidebarItems}
+          activeCategorySlug={activeCategorySlug}
+          onCategoryChange={onCategoryChange}
+          isMobile={false}
+        />
+
+        <div
+          className="flex min-w-0 flex-1 flex-col"
+          role="tabpanel"
+          aria-label={activeItem?.label ?? 'Categoría'}
+        >
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
+            {columnGroups.length > 0 ? (
+              useSummaryLayout ? (
+                <MegaMenuSummaryPanel group={columnGroups[0]} onNavigate={onNavigate} />
+              ) : (
+                <div className={cn('grid items-stretch gap-x-8 gap-y-6', desktopGridClass)}>
+                  {columnGroups.map((group) => (
+                    <MegaMenuDesktopColumn
+                      key={`${activeCategorySlug}-${group.slug}`}
+                      group={group}
+                      onNavigate={onNavigate}
+                    />
+                  ))}
+                </div>
+              )
+            ) : (
+              <p className="text-sm text-[#6B7280]">No hay categorías disponibles.</p>
+            )}
           </div>
-        ) : (
-          <p className="text-sm text-[#6B7280]">No hay categorías disponibles.</p>
-        )}
+        </div>
       </div>
     );
   }
@@ -297,51 +469,12 @@ export function CatalogMegaMenuPanel({
 
   return (
     <div className="flex flex-col bg-white">
-      <aside className="shrink-0 border-b border-[#E5E7EB] bg-white px-3 py-2.5">
-        <ul
-          className="flex flex-row gap-0.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          role="tablist"
-          aria-label="Secciones del menú"
-        >
-          {sidebarItems.map((item) => {
-            const isActive = activeCategorySlug === item.slug;
-            const Icon = item.icon;
-
-            return (
-              <li key={item.slug} role="presentation" className="shrink-0">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onFocus={() => onCategoryChange(item.slug)}
-                  onClick={() => onCategoryChange(item.slug)}
-                  className={cn(
-                    'flex min-h-9 items-center gap-2 rounded-md px-2 py-2 text-left text-xs font-medium transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-                    'whitespace-nowrap',
-                    isActive
-                      ? 'border-l-[3px] bg-[#FFF5F5] font-semibold text-[#E30613]'
-                      : 'border-l-[3px] border-transparent text-[#374151] hover:bg-[#F9FAFB]',
-                  )}
-                  style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
-                >
-                  <span
-                    className={cn(
-                      'flex size-6 shrink-0 items-center justify-center rounded-md',
-                      isActive
-                        ? 'bg-[#E30613]/10 text-[#E30613]'
-                        : 'bg-[#F3F4F6] text-[#6B7280]',
-                    )}
-                  >
-                    <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0 flex-1 text-pretty leading-snug">{item.label}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </aside>
+      <CatalogMegaMenuSidebar
+        sidebarItems={sidebarItems}
+        activeCategorySlug={activeCategorySlug}
+        onCategoryChange={onCategoryChange}
+        isMobile
+      />
 
       <div
         className="flex min-w-0 flex-1 flex-col"

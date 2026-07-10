@@ -37,6 +37,7 @@ const SLIM_FIELDS = [
   'is_new',
   'view_count',
   'is_featured',
+  'status',
 ];
 
 function slimProduct(raw) {

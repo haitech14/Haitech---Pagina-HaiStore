@@ -5,75 +5,18 @@ import type {
   AdminVariantesStatusDistribution,
   AdminVariantesStockBar,
   AdminVariantesTopCombinations,
+  AdminVarianteStatus,
 } from '@/types/admin-variantes';
+import { VARIANTE_STATUS_LABELS } from '@/lib/admin-variantes-utils';
 
-export const ADMIN_VARIANTES_UPDATED_AT = new Date('2026-07-08T14:30:00');
+export const ADMIN_VARIANTES_UPDATED_AT = new Date('2026-07-10T00:00:00.000Z');
 
-export const ADMIN_VARIANTES_KPIS: AdminVariantesKpi[] = [
-  {
-    title: 'Variantes activas',
-    value: '1,248',
-    icon: 'active',
-    delta: 12.4,
-    trendLabel: 'vs mes anterior',
-    sparkline: [980, 1020, 1050, 1100, 1140, 1180, 1210, 1248],
-  },
-  {
-    title: 'Productos con variantes',
-    value: '156',
-    icon: 'products',
-    delta: 8.1,
-    trendLabel: 'vs mes anterior',
-    sparkline: [128, 132, 138, 142, 146, 150, 153, 156],
-  },
-  {
-    title: 'Stock total',
-    value: '18,532',
-    icon: 'stock',
-    delta: 6.7,
-    trendLabel: 'vs mes anterior',
-    sparkline: [16200, 16800, 17100, 17500, 17800, 18100, 18300, 18532],
-  },
-  {
-    title: 'Variantes agotadas',
-    value: '96',
-    icon: 'out_of_stock',
-    trend: -9.3,
-    trendLabel: 'vs mes anterior',
-    sparkline: [118, 112, 108, 105, 102, 100, 98, 96],
-  },
-];
-
-export const ADMIN_PRODUCT_OPTIONS_KPIS: AdminProductOptionsKpi[] = [
-  {
-    title: 'Opciones configuradas',
-    value: '—',
-    icon: 'total',
-    trendLabel: 'desde inventario',
-    sparkline: [12, 18, 22, 28, 32, 38, 42, 48],
-  },
-  {
-    title: 'Cross-sell',
-    value: '—',
-    icon: 'cross_sell',
-    trendLabel: 'productos vinculados',
-    sparkline: [4, 6, 8, 10, 12, 14, 16, 18],
-  },
-  {
-    title: 'Upsell',
-    value: '—',
-    icon: 'upsell',
-    trendLabel: 'en configurador',
-    sparkline: [3, 5, 7, 9, 11, 13, 15, 17],
-  },
-  {
-    title: 'Sin inventario',
-    value: '—',
-    icon: 'optional',
-    trendLabel: 'opcionales manuales',
-    sparkline: [1, 2, 2, 3, 4, 4, 5, 6],
-  },
-];
+const STATUS_COLORS: Record<AdminVarianteStatus, string> = {
+  activa: '#22C55E',
+  stock_bajo: '#F97316',
+  agotada: '#EF4444',
+  inactiva: '#94A3B8',
+};
 
 export const ADMIN_CATALOG_VARIANTS: AdminCatalogVariant[] = [
   {
@@ -280,27 +223,221 @@ export const ADMIN_CATALOG_VARIANTS: AdminCatalogVariant[] = [
     updatedBy: 'Sistema',
     status: 'inactiva',
   },
+  {
+    id: 'var-013',
+    createdAt: '2026-07-09T10:00:00',
+    baseProductId: 'prod-impresora-multifuncional',
+    baseProductName: 'Impresora Multifuncional',
+    baseProductImage: '/products/12402a94-70d2-4d3b-8953-bf29f119fbf4.webp',
+    variantLabel: 'Acondicionada',
+    sku: 'IMP-MF-ACOND',
+    pricePen: 1699,
+    stock: 14,
+    stockCapacity: 40,
+    warehouse: 'Lima Centro',
+    category: 'Impresoras',
+    updatedAt: '2026-07-09T14:20:00',
+    updatedBy: 'Sistema',
+    status: 'activa',
+  },
+  {
+    id: 'var-014',
+    createdAt: '2026-07-09T10:05:00',
+    baseProductId: 'prod-impresora-multifuncional',
+    baseProductName: 'Impresora Multifuncional',
+    baseProductImage: '/products/12402a94-70d2-4d3b-8953-bf29f119fbf4.webp',
+    variantLabel: 'Reponteciada',
+    sku: 'IMP-MF-REPON',
+    pricePen: 1999,
+    stock: 9,
+    stockCapacity: 30,
+    warehouse: 'Lima Centro',
+    category: 'Impresoras',
+    updatedAt: '2026-07-09T14:25:00',
+    updatedBy: 'María G.',
+    status: 'activa',
+  },
+  {
+    id: 'var-015',
+    createdAt: '2026-07-09T10:10:00',
+    baseProductId: 'prod-impresora-multifuncional',
+    baseProductName: 'Impresora Multifuncional',
+    baseProductImage: '/products/12402a94-70d2-4d3b-8953-bf29f119fbf4.webp',
+    variantLabel: 'Remanufacturada',
+    sku: 'IMP-MF-REMAN',
+    pricePen: 1499,
+    stock: 6,
+    stockCapacity: 25,
+    warehouse: 'Lima Norte',
+    category: 'Impresoras',
+    updatedAt: '2026-07-09T14:30:00',
+    updatedBy: 'Sistema',
+    status: 'stock_bajo',
+  },
+  {
+    id: 'var-016',
+    createdAt: '2026-07-09T10:15:00',
+    baseProductId: 'prod-impresora-multifuncional',
+    baseProductName: 'Impresora Multifuncional',
+    baseProductImage: '/products/12402a94-70d2-4d3b-8953-bf29f119fbf4.webp',
+    variantLabel: 'Con Gabinete',
+    sku: 'IMP-MF-GAB',
+    pricePen: 2199,
+    stock: 11,
+    stockCapacity: 20,
+    warehouse: 'Lima Centro',
+    category: 'Impresoras',
+    updatedAt: '2026-07-09T14:35:00',
+    updatedBy: 'Carlos R.',
+    status: 'activa',
+  },
+  {
+    id: 'var-017',
+    createdAt: '2026-07-09T10:20:00',
+    baseProductId: 'prod-impresora-multifuncional',
+    baseProductName: 'Impresora Multifuncional',
+    baseProductImage: '/products/12402a94-70d2-4d3b-8953-bf29f119fbf4.webp',
+    variantLabel: 'Con Casetera adicional',
+    sku: 'IMP-MF-CASET',
+    pricePen: 2099,
+    stock: 7,
+    stockCapacity: 18,
+    warehouse: 'Arequipa',
+    category: 'Impresoras',
+    updatedAt: '2026-07-09T14:40:00',
+    updatedBy: 'Luis P.',
+    status: 'stock_bajo',
+  },
 ];
 
-export const ADMIN_VARIANTES_STATUS_DISTRIBUTION: AdminVariantesStatusDistribution[] = [
-  { status: 'activa', label: 'Activas', count: 892, percent: 71.5, color: '#22C55E' },
-  { status: 'stock_bajo', label: 'Stock bajo', count: 184, percent: 14.7, color: '#F97316' },
-  { status: 'agotada', label: 'Agotadas', count: 96, percent: 7.7, color: '#EF4444' },
-  { status: 'inactiva', label: 'Inactivas', count: 76, percent: 6.1, color: '#94A3B8' },
+function buildVariantesKpis(variants: readonly AdminCatalogVariant[]): AdminVariantesKpi[] {
+  const active = variants.filter((variant) => variant.status === 'activa').length;
+  const productsWithVariants = new Set(variants.map((variant) => variant.baseProductId)).size;
+  const totalStock = variants.reduce((sum, variant) => sum + variant.stock, 0);
+  const outOfStock = variants.filter((variant) => variant.status === 'agotada').length;
+
+  return [
+    {
+      title: 'Variantes activas',
+      value: String(active),
+      icon: 'active',
+      trendLabel: 'en catálogo',
+      sparkline: [active],
+    },
+    {
+      title: 'Productos con variantes',
+      value: String(productsWithVariants),
+      icon: 'products',
+      trendLabel: 'productos base',
+      sparkline: [productsWithVariants],
+    },
+    {
+      title: 'Stock total',
+      value: totalStock.toLocaleString('es-PE'),
+      icon: 'stock',
+      trendLabel: 'unidades en almacén',
+      sparkline: [totalStock],
+    },
+    {
+      title: 'Variantes agotadas',
+      value: String(outOfStock),
+      icon: 'out_of_stock',
+      trendLabel: 'sin stock',
+      sparkline: [outOfStock],
+    },
+  ];
+}
+
+function buildStatusDistribution(
+  variants: readonly AdminCatalogVariant[],
+): AdminVariantesStatusDistribution[] {
+  const totals = new Map<AdminVarianteStatus, number>();
+
+  for (const variant of variants) {
+    totals.set(variant.status, (totals.get(variant.status) ?? 0) + 1);
+  }
+
+  const total = variants.length || 1;
+
+  return (['activa', 'stock_bajo', 'agotada', 'inactiva'] as const)
+    .filter((status) => (totals.get(status) ?? 0) > 0)
+    .map((status) => {
+      const count = totals.get(status) ?? 0;
+      return {
+        status,
+        label: VARIANTE_STATUS_LABELS[status],
+        count,
+        percent: Math.round((count / total) * 100),
+        color: STATUS_COLORS[status],
+      };
+    });
+}
+
+function buildStockBars(variants: readonly AdminCatalogVariant[]): AdminVariantesStockBar[] {
+  return [...variants]
+    .sort((a, b) => b.stock / Math.max(b.stockCapacity, 1) - a.stock / Math.max(a.stockCapacity, 1))
+    .slice(0, 5)
+    .map((variant) => ({
+      variantId: variant.id,
+      label: `${variant.baseProductName} · ${variant.variantLabel}`,
+      stock: variant.stock,
+      capacity: variant.stockCapacity,
+      percent: Math.round((variant.stock / Math.max(variant.stockCapacity, 1)) * 100),
+    }));
+}
+
+function buildTopCombinations(
+  variants: readonly AdminCatalogVariant[],
+): AdminVariantesTopCombinations[] {
+  const counts = new Map<string, number>();
+
+  for (const variant of variants) {
+    counts.set(variant.baseProductName, (counts.get(variant.baseProductName) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'es'))
+    .slice(0, 5)
+    .map(([productName, variantCount], index) => ({
+      rank: index + 1,
+      productName,
+      variantCount,
+    }));
+}
+
+export const ADMIN_VARIANTES_KPIS = buildVariantesKpis(ADMIN_CATALOG_VARIANTS);
+
+export const ADMIN_PRODUCT_OPTIONS_KPIS: AdminProductOptionsKpi[] = [
+  {
+    title: 'Opciones configuradas',
+    value: '—',
+    icon: 'total',
+    trendLabel: 'desde inventario',
+    sparkline: [12, 18, 22, 28, 32, 38, 42, 48],
+  },
+  {
+    title: 'Cross-sell',
+    value: '—',
+    icon: 'cross_sell',
+    trendLabel: 'productos vinculados',
+    sparkline: [4, 6, 8, 10, 12, 14, 16, 18],
+  },
+  {
+    title: 'Upsell',
+    value: '—',
+    icon: 'upsell',
+    trendLabel: 'en configurador',
+    sparkline: [3, 5, 7, 9, 11, 13, 15, 17],
+  },
+  {
+    title: 'Sin inventario',
+    value: '—',
+    icon: 'optional',
+    trendLabel: 'opcionales manuales',
+    sparkline: [1, 2, 2, 3, 4, 4, 5, 6],
+  },
 ];
 
-export const ADMIN_VARIANTES_STOCK_BARS: AdminVariantesStockBar[] = [
-  { variantId: 'var-001', label: 'Laptop Pro 14 · 16GB', stock: 3480, capacity: 4100, percent: 85 },
-  { variantId: 'var-003', label: 'Mouse inalámbrico · Negro', stock: 1240, capacity: 1500, percent: 83 },
-  { variantId: 'var-009', label: 'Tóner HP · CF410A', stock: 890, capacity: 1200, percent: 74 },
-  { variantId: 'var-006', label: 'Teclado Mecánico · Rojo', stock: 420, capacity: 750, percent: 56 },
-  { variantId: 'var-007', label: 'Monitor 27" · HDMI', stock: 180, capacity: 400, percent: 45 },
-];
-
-export const ADMIN_VARIANTES_TOP_COMBINATIONS: AdminVariantesTopCombinations[] = [
-  { rank: 1, productName: 'Laptop Pro 14', variantCount: 3 },
-  { rank: 2, productName: 'Teclado Mecánico', variantCount: 5 },
-  { rank: 3, productName: 'Tóner HP LaserJet', variantCount: 4 },
-  { rank: 4, productName: 'Mouse inalámbrico', variantCount: 2 },
-  { rank: 5, productName: 'Monitor 27" 4K', variantCount: 2 },
-];
+export const ADMIN_VARIANTES_STATUS_DISTRIBUTION = buildStatusDistribution(ADMIN_CATALOG_VARIANTS);
+export const ADMIN_VARIANTES_STOCK_BARS = buildStockBars(ADMIN_CATALOG_VARIANTS);
+export const ADMIN_VARIANTES_TOP_COMBINATIONS = buildTopCombinations(ADMIN_CATALOG_VARIANTS);

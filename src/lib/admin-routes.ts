@@ -97,7 +97,6 @@ export const ADMIN_SETTINGS_SECTIONS = [
   'descuentos-volumen',
   'pdf',
   'apariencia',
-  'integraciones',
 ] as const;
 
 export type AdminSettingsSectionId = (typeof ADMIN_SETTINGS_SECTIONS)[number];
@@ -112,7 +111,6 @@ export const ADMIN_SETTINGS_NAV: Array<{
   { id: 'descuentos-volumen', label: 'Descuentos volumen', href: ADMIN_ROUTES.SETTINGS_VOLUME_DISCOUNTS },
   { id: 'pdf', label: 'PDF', href: ADMIN_ROUTES.SETTINGS_PDF },
   { id: 'apariencia', label: 'Apariencia', href: ADMIN_ROUTES.SETTINGS_APPEARANCE },
-  { id: 'integraciones', label: 'Integraciones', href: ADMIN_ROUTES.SETTINGS_INTEGRATIONS },
 ];
 
 export function isAdminSettingsPath(pathname: string): boolean {
@@ -318,6 +316,13 @@ export function isAdminProductosGroupPath(pathname: string, search: string): boo
   return false;
 }
 
+export const ADMIN_SIDEBAR_MURAL: AdminSidebarMockupNavItem = {
+  key: 'mural',
+  label: 'Mural',
+  href: ADMIN_ROUTES.MURAL,
+  icon: 'newspaper',
+};
+
 /** Navegación lateral según mockup HaiStore admin. */
 export const ADMIN_SIDEBAR_SECTIONS: AdminSidebarMockupSection[] = [
   {
@@ -348,18 +353,10 @@ export const ADMIN_SIDEBAR_SECTIONS: AdminSidebarMockupSection[] = [
     ],
   },
   {
-    key: 'communication',
-    label: 'COMUNICACIÓN',
-    items: [
-      { key: 'mural', label: 'Mural', href: ADMIN_ROUTES.MURAL, icon: 'newspaper' },
-    ],
-  },
-  {
     key: 'settings',
     label: 'CONFIGURACIÓN',
     items: [
       { key: 'users', label: 'Usuarios', href: ADMIN_ROUTES.SETTINGS_USUARIOS, icon: 'user' },
-      { key: 'integrations', label: 'Integraciones', href: ADMIN_ROUTES.SETTINGS_INTEGRATIONS, icon: 'plug' },
       { key: 'settings', label: 'Configuración', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'settings' },
     ],
   },

@@ -44,21 +44,25 @@ export function normalizeCompatibleTonerCategory(category) {
 }
 
 /**
+ * Quita sufijos de marca legacy (HaiPrint / Haitone) del texto visible.
  * @param {unknown} text
  */
 export function replaceLegacyCompatibleTonerBrand(text) {
-  return String(text ?? '').replace(/\bHaitone\b/gi, COMPATIBLE_TONER_BRAND_SUFFIX);
+  return String(text ?? '')
+    .replace(/\bHaiPrint\b/gi, ' ')
+    .replace(/\bHaitone\b/gi, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^[\s\-–—·|/]+|[\s\-–—·|/]+$/g, '')
+    .trim();
 }
 
 /**
+ * Normaliza el nombre de tóner compatible sin añadir marca al título.
+ * Conserva el nombre de la API por compatibilidad con importadores.
  * @param {unknown} name
  */
 export function appendHaiPrintProductSuffix(name) {
-  const trimmed = replaceLegacyCompatibleTonerBrand(String(name ?? '').trim());
-  if (!trimmed) return trimmed;
-  if (/\bHaiPrint\b/i.test(trimmed)) return trimmed;
-  if (/\bIntercopy\b/i.test(trimmed)) return trimmed;
-  return `${trimmed} ${COMPATIBLE_TONER_BRAND_SUFFIX}`;
+  return replaceLegacyCompatibleTonerBrand(name);
 }
 
 /** @deprecated Usar appendHaiPrintProductSuffix */
@@ -85,10 +89,18 @@ export function normalizeCompatibleTonerProductFields(product) {
       ? name
       : appendHaiPrintProductSuffix(rawDescription);
 
+  const brandRaw = String(product.brand ?? '').trim();
+  const brand =
+    /\b(?:haiprint|haitone)\b/i.test(brandRaw) &&
+    brandRaw.replace(/\b(?:haiprint|haitone)\b/gi, '').trim() === ''
+      ? ''
+      : replaceLegacyCompatibleTonerBrand(brandRaw) || brandRaw;
+
   return {
     ...product,
     category: CATEGORY_COMPATIBLE_TONER,
     name,
     description,
+    brand,
   };
 }

@@ -20,15 +20,79 @@ import {
   productMatchesCategoryFilter,
 } from '../../shared/home-catalog-filter.js';
 import { LANDING_CATEGORY } from '../../shared/landing-categories.js';
+import {
+  getCatalogSeedIdentifiers,
+  getStoreCategoryCatalogSeeds,
+} from '../../shared/store-category-catalog-seeds.js';
 import { getStoreCategoriesPath } from './server-paths.js';
+import { writeStoreCategoriesTreeSnapshot } from './store-categories-snapshot.js';
 
-const BUNDLED_STORE_CATEGORIES_PATH = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../data/store-categories.json',
+const STORE_CATEGORIES_DIR = path.dirname(fileURLToPath(import.meta.url));
+/** Snapshot público (preload/PWA) — respaldo si el JSON local está vacío o corrupto. */
+const PUBLIC_CATEGORIES_TREE_SNAPSHOT_PATH = path.join(
+  STORE_CATEGORIES_DIR,
+  '../../public/catalog/store-categories-tree.json',
 );
 
 function categoriesPath() {
   return getStoreCategoriesPath();
+}
+
+function flattenCategoryTree(nodes, out = []) {
+  for (const node of nodes ?? []) {
+    out.push({
+      id: node.id,
+      name: node.name,
+      slug: node.slug,
+      parentId: node.parentId ?? null,
+      sortOrder: node.sortOrder ?? 0,
+      inventoryLabels: Array.isArray(node.inventoryLabels) ? node.inventoryLabels : [],
+      image: node.image ?? null,
+      tagline: node.tagline ?? null,
+    });
+    flattenCategoryTree(node.children, out);
+  }
+  return out;
+}
+
+async function readCategoriesSeedPayload() {
+  try {
+    const raw = await fs.readFile(PUBLIC_CATEGORIES_TREE_SNAPSHOT_PATH, 'utf8');
+    const snap = JSON.parse(raw);
+    const categories = flattenCategoryTree(snap.tree ?? snap);
+    if (categories.length > 0) {
+      return { categories, removedStaticSlugs: [] };
+    }
+  } catch {
+    // fallback abajo
+  }
+  return { categories: DEFAULT_CATEGORIES, removedStaticSlugs: [] };
+}
+
+async function writeJsonFileAtomic(filePath, data) {
+  const payload = `${JSON.stringify(data, null, 2)}\n`;
+  const tmpPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  await fs.writeFile(tmpPath, payload, 'utf8');
+  try {
+    await fs.rename(tmpPath, filePath);
+  } catch (error) {
+    // Windows/OneDrive: rename sobre archivo existente a menudo falla con EPERM.
+    if (error && (error.code === 'EPERM' || error.code === 'EEXIST')) {
+      try {
+        await fs.copyFile(tmpPath, filePath);
+        await fs.unlink(tmpPath).catch(() => {});
+        return;
+      } catch {
+        // último recurso: escritura directa
+      }
+    }
+    await fs.unlink(tmpPath).catch(() => {});
+    await fs.writeFile(filePath, payload, 'utf8');
+  }
+}
+
+function isUsableCategoriesPayload(data) {
+  return Boolean(data && typeof data === 'object' && Array.isArray(data.categories));
 }
 
 const DEFAULT_CATEGORIES = [
@@ -201,30 +265,21 @@ function normalizeCategory(raw, existing) {
 }
 
 async function ensureCategoriesFile() {
-  try {
-    await fs.access(categoriesPath());
-    return;
-  } catch {
-    // noop — crear abajo
-  }
-
-  await fs.mkdir(path.dirname(categoriesPath()), { recursive: true });
+  const filePath = categoriesPath();
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
 
   try {
-    const bundled = await fs.readFile(BUNDLED_STORE_CATEGORIES_PATH, 'utf8');
-    await fs.writeFile(categoriesPath(), bundled);
-    return;
+    const raw = await fs.readFile(filePath, 'utf8');
+    if (raw.trim()) {
+      const data = JSON.parse(raw);
+      if (isUsableCategoriesPayload(data)) return;
+    }
   } catch {
-    await fs.writeFile(
-      categoriesPath(),
-      JSON.stringify({ categories: DEFAULT_CATEGORIES }, null, 2),
-    );
+    // vacío, ausente o JSON inválido → reseedar
   }
-}
 
-function migrateRemoveRentalCategories(categories) {
-  const filtered = categories.filter((row) => row.id !== 'cat-alquiler' && row.parentId !== 'cat-alquiler');
-  return filtered.length !== categories.length ? filtered : categories;
+  const seed = await readCategoriesSeedPayload();
+  await writeJsonFileAtomic(filePath, seed);
 }
 
 const SUPPLY_CATEGORY_IDS = [
@@ -237,13 +292,15 @@ const SUPPLY_CATEGORY_IDS = [
   'cat-tintas-compatibles',
 ];
 
-function mergeMissingSupplyCategories(categories) {
+function mergeMissingSupplyCategories(categories, removedSlugs = []) {
+  const removed = new Set(removedSlugs);
   const byId = new Map(categories.map((row) => [row.id, row]));
   let changed = false;
 
   for (const seed of DEFAULT_CATEGORIES) {
     if (!SUPPLY_CATEGORY_IDS.includes(seed.id)) continue;
     if (byId.has(seed.id)) continue;
+    if (removed.has(seed.slug) || removed.has(seed.id)) continue;
     byId.set(seed.id, normalizeCategory(seed));
     changed = true;
   }
@@ -510,18 +567,11 @@ function mergeMissingCilindrosCompatiblesSubcategory(categories) {
 
 export async function readStoreCategories() {
   await ensureCategoriesFile();
-  const raw = await fs.readFile(categoriesPath(), 'utf-8');
-  const data = JSON.parse(raw);
+  const { data, removedStaticSlugs } = await readCategoriesFileMeta();
   let categories = (data.categories ?? []).map((row) => normalizeCategory(row));
   let needsWrite = false;
 
-  const rentalsRemoved = migrateRemoveRentalCategories(categories);
-  if (rentalsRemoved !== categories) {
-    categories = rentalsRemoved;
-    needsWrite = true;
-  }
-
-  const supplyMerged = mergeMissingSupplyCategories(categories);
+  const supplyMerged = mergeMissingSupplyCategories(categories, removedStaticSlugs);
   if (supplyMerged !== categories) {
     categories = supplyMerged;
     needsWrite = true;
@@ -570,17 +620,60 @@ export async function readStoreCategories() {
   }
 
   if (needsWrite) {
-    await writeStoreCategories(categories);
+    await writeStoreCategories(categories, { removedStaticSlugs });
   }
 
   return categories;
 }
 
-export async function writeStoreCategories(categories) {
+async function readCategoriesFileMeta() {
+  await ensureCategoriesFile();
+  const filePath = categoriesPath();
+  let data;
+  try {
+    const raw = await fs.readFile(filePath, 'utf-8');
+    data = JSON.parse(raw);
+    if (!isUsableCategoriesPayload(data)) {
+      throw new Error('store-categories.json sin categories[]');
+    }
+  } catch (error) {
+    console.warn(
+      '[store-categories] Archivo inválido o vacío; restaurando desde snapshot:',
+      error instanceof Error ? error.message : error,
+    );
+    data = await readCategoriesSeedPayload();
+    await writeJsonFileAtomic(filePath, data);
+  }
+  const removedStaticSlugs = Array.isArray(data.removedStaticSlugs)
+    ? data.removedStaticSlugs.map((slug) => String(slug).trim()).filter(Boolean)
+    : [];
+  return { data, removedStaticSlugs };
+}
+
+export async function readRemovedStaticSlugs() {
+  const { removedStaticSlugs } = await readCategoriesFileMeta();
+  return removedStaticSlugs;
+}
+
+export async function writeStoreCategories(categories, options = {}) {
+  const { removedStaticSlugs: existingRemoved } = await readCategoriesFileMeta().catch(() => ({
+    removedStaticSlugs: [],
+  }));
+  const removedStaticSlugs =
+    options.removedStaticSlugs !== undefined
+      ? [...new Set(options.removedStaticSlugs.map((slug) => String(slug).trim()).filter(Boolean))]
+      : existingRemoved;
+
   const normalized = categories.map((row) => normalizeCategory(row));
   await fs.mkdir(path.dirname(categoriesPath()), { recursive: true });
-  await fs.writeFile(categoriesPath(), JSON.stringify({ categories: normalized }, null, 2));
+  await writeJsonFileAtomic(categoriesPath(), { categories: normalized, removedStaticSlugs });
   invalidateStoreCategoriesTreeCache();
+  void writeStoreCategoriesTreeSnapshot().catch((error) => {
+    console.warn(
+      '[store-categories] No se pudo escribir store-categories-tree.json:',
+      error instanceof Error ? error.message : error,
+    );
+  });
   return normalized;
 }
 
@@ -713,16 +806,63 @@ export async function updateStoreCategory(id, input) {
 }
 
 export async function deleteStoreCategory(id) {
-  const categories = await readStoreCategories();
-  const hasChildren = categories.some((row) => row.parentId === id);
-  if (hasChildren) {
-    throw new Error('Elimina primero las subcategorías');
+  const categoryId = String(id ?? '').trim();
+  if (!categoryId) {
+    const error = new Error('Categoría no encontrada');
+    error.statusCode = 404;
+    throw error;
   }
 
-  const next = categories.filter((row) => row.id !== id);
-  if (next.length === categories.length) throw new Error('Categoría no encontrada');
-  await writeStoreCategories(next);
-  return { ok: true };
+  const categories = await readStoreCategories();
+  const removedStaticSlugs = await readRemovedStaticSlugs();
+
+  // Subcategorías virtuales (inyectadas en el cliente) no viven en el JSON.
+  if (categoryId.startsWith('static-')) {
+    const slug = categoryId.slice('static-'.length);
+    if (!slug) {
+      const error = new Error('Categoría no encontrada');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (!removedStaticSlugs.includes(slug)) {
+      await writeStoreCategories(categories, {
+        removedStaticSlugs: [...removedStaticSlugs, slug],
+      });
+    } else {
+      invalidateStoreCategoriesTreeCache();
+    }
+    return { ok: true, removedStatic: true };
+  }
+
+  const target = categories.find((row) => row.id === categoryId);
+  if (!target) {
+    const error = new Error('Categoría no encontrada');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const toDelete = new Set([categoryId]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const row of categories) {
+      if (row.parentId && toDelete.has(row.parentId) && !toDelete.has(row.id)) {
+        toDelete.add(row.id);
+        grew = true;
+      }
+    }
+  }
+
+  const next = categories.filter((row) => !toDelete.has(row.id));
+  const nextRemoved = new Set(removedStaticSlugs);
+  for (const deletedId of toDelete) {
+    const row = categories.find((entry) => entry.id === deletedId);
+    if (row?.slug) nextRemoved.add(row.slug);
+    nextRemoved.add(deletedId);
+  }
+
+  await writeStoreCategories(next, { removedStaticSlugs: [...nextRemoved] });
+  return { ok: true, deletedCount: toDelete.size };
 }
 
 export async function reorderStoreCategories(items) {
@@ -751,6 +891,54 @@ function findCategoryForLabel(categories, label) {
   return categories.find((row) =>
     (row.inventoryLabels ?? []).some((entry) => normalizeInventoryCategory(entry) === norm),
   );
+}
+
+export async function syncCategoriesFromCatalog() {
+  const seeds = getStoreCategoryCatalogSeeds();
+  const catalogIds = getCatalogSeedIdentifiers(seeds);
+  let categories = await readStoreCategories();
+  let removedStaticSlugs = await readRemovedStaticSlugs();
+  const bySlug = new Map();
+
+  for (const category of categories) {
+    if (!bySlug.has(category.slug)) bySlug.set(category.slug, category);
+  }
+
+  for (const seed of seeds) {
+    const parent = seed.parentSlug ? bySlug.get(seed.parentSlug) : null;
+    const parentId = parent?.id ?? null;
+    let existing = bySlug.get(seed.slug);
+
+    if (!existing) {
+      const category = normalizeCategory({
+        id: seed.id,
+        name: seed.name,
+        slug: seed.slug,
+        parentId,
+        sortOrder:
+          seed.sortOrder ??
+          categories.filter((row) => row.parentId === parentId).length,
+        inventoryLabels: seed.inventoryLabels ?? [],
+        image: seed.image ?? null,
+        tagline: seed.tagline ?? null,
+      });
+      categories.push(category);
+      bySlug.set(category.slug, category);
+      continue;
+    }
+
+    if (!existing.tagline && seed.tagline) existing.tagline = seed.tagline;
+    if (!existing.image && seed.image) existing.image = seed.image;
+    if (!existing.parentId && parentId) existing.parentId = parentId;
+
+    const labels = new Set([...(existing.inventoryLabels ?? []), ...(seed.inventoryLabels ?? [])]);
+    existing.inventoryLabels = [...labels];
+  }
+
+  removedStaticSlugs = removedStaticSlugs.filter((slug) => !catalogIds.has(slug));
+
+  await writeStoreCategories(categories, { removedStaticSlugs });
+  return readStoreCategoriesTree();
 }
 
 export async function syncCategoriesFromInventory() {

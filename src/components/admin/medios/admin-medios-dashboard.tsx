@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { AdminMediosKpis } from '@/components/admin/medios/admin-medios-kpis';
@@ -14,7 +14,7 @@ import {
   useMediaAlbumDriveConfig,
   useMediaAlbumMutations,
 } from '@/hooks/use-media-album';
-import { buildMediosKpis } from '@/lib/admin-medios-utils';
+import { buildMediosKpis, dedupeMediosForDisplay } from '@/lib/admin-medios-utils';
 import { readImageFile, readVideoFile } from '@/lib/inventory-product';
 import { cn } from '@/lib/utils';
 import type { MediaAlbumItem } from '@/types/media-album';
@@ -27,10 +27,11 @@ export function AdminMediosDashboard() {
   const { open: sidebarOpen } = useAdminSidebar();
 
   const { data: items = [], isLoading, refetch } = useMediaAlbum();
+  const displayItems = useMemo(() => dedupeMediosForDisplay(items), [items]);
   const { data: driveConfig } = useMediaAlbumDriveConfig();
   const { upload, remove, updateDriveConfig, syncDrive } = useMediaAlbumMutations();
 
-  const kpis = buildMediosKpis(items);
+  const kpis = buildMediosKpis(displayItems);
   const busy = upload.isPending || remove.isPending || updateDriveConfig.isPending || syncDrive.isPending;
 
   const handleUploadClick = () => fileInputRef.current?.click();
@@ -58,7 +59,11 @@ export function AdminMediosDashboard() {
 
   const handleDelete = async (item: MediaAlbumItem) => {
     try {
-      await remove.mutateAsync(item.id);
+      const idsToRemove = item.mergedIds?.length ? item.mergedIds : [item.id];
+      for (const id of idsToRemove) {
+        if (id.startsWith('inventory:')) continue;
+        await remove.mutateAsync(id);
+      }
       setUpdatedAt(new Date());
       toast.success(`"${item.name}" eliminado`);
     } catch (error) {
@@ -145,7 +150,7 @@ export function AdminMediosDashboard() {
         )}
       >
         <AdminMediosTablePanel items={items} isLoading={isLoading} search={search} onDelete={(item) => void handleDelete(item)} />
-        <AdminMediosWidgets items={items} updatedAt={updatedAt} onRefresh={() => void handleRefresh()} />
+        <AdminMediosWidgets items={displayItems} updatedAt={updatedAt} onRefresh={() => void handleRefresh()} />
       </div>
     </div>
   );

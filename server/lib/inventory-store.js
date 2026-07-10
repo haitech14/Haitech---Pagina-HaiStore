@@ -28,6 +28,7 @@ import {
 } from '../../shared/compatible-toner-product-code.js';
 import { normalizeProductCode } from '../../shared/product-code-prefix.js';
 import { deriveProductSlug } from '../../shared/product-slug.js';
+import { normalizeProductCatalogStatus } from '../../shared/product-catalog-status.js';
 import { formatNuevaProductName } from '../../shared/inventory-product-name.js';
 import { normalizeMerchandisingOptionalProducts } from '../../shared/merchandising-optional-product.js';
 import { isBundleProduct, normalizeBundleComponents, syncInventoryBundleProducts } from './product-bundle.js';
@@ -48,34 +49,158 @@ function invalidateInventoryReadCache() {
   inventoryReadCacheAt = 0;
 }
 
+function isUnreadableInventoryRaw(raw) {
+  if (typeof raw !== 'string' || !raw.trim()) return true;
+  // OneDrive / sync a veces deja el archivo lleno de NUL manteniendo el tamaño.
+  if (raw.charCodeAt(0) === 0) return true;
+  try {
+    const data = JSON.parse(raw);
+    return !data || !Array.isArray(data.products);
+  } catch {
+    return true;
+  }
+}
+
+async function verifyJsonFileReadable(filePath) {
+  const raw = await fs.readFile(filePath, 'utf8');
+  if (isUnreadableInventoryRaw(raw)) {
+    throw new Error(`Archivo JSON ilegible tras escritura: ${filePath}`);
+  }
+}
+
 async function writeJsonFileAtomic(filePath, data) {
-  const tmpPath = `${filePath}.tmp`;
-  await fs.writeFile(tmpPath, JSON.stringify(data, null, 2), 'utf8');
-  await fs.rename(tmpPath, filePath);
+  const payload = `${JSON.stringify(data, null, 2)}\n`;
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  const tmpPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  await fs.writeFile(tmpPath, payload, 'utf8');
+  try {
+    await fs.rename(tmpPath, filePath);
+  } catch (error) {
+    // Windows/OneDrive: rename sobre destino existente suele fallar con EPERM.
+    if (error && (error.code === 'EPERM' || error.code === 'EEXIST')) {
+      try {
+        await fs.copyFile(tmpPath, filePath);
+        await fs.unlink(tmpPath).catch(() => {});
+      } catch {
+        await fs.unlink(tmpPath).catch(() => {});
+        await fs.writeFile(filePath, payload, 'utf8');
+      }
+    } else {
+      await fs.unlink(tmpPath).catch(() => {});
+      await fs.writeFile(filePath, payload, 'utf8');
+    }
+  }
+  try {
+    await verifyJsonFileReadable(filePath);
+  } catch {
+    // Reintento directo: copyFile/rename en OneDrive a veces deja el destino en ceros.
+    await fs.writeFile(filePath, payload, 'utf8');
+    await verifyJsonFileReadable(filePath);
+  }
 }
 
 function inventoryPath() {
   return getInventoryPath();
 }
 
-async function ensureInventoryFile() {
-  const filePath = inventoryPath();
-  try {
-    await fs.access(filePath);
-  } catch {
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    const emptyInventory = {
+function defaultInventorySeedPayload() {
+  if (shouldPreferSupabaseCatalog() && process.env.VERCEL) {
+    return {
       products: [],
       warehouses: normalizeWarehouses(),
       deletedProductIds: [],
     };
-    // En Vercel el disco es efímero; no sembrar el catálogo demo si Supabase es la fuente.
-    if (shouldPreferSupabaseCatalog() && process.env.VERCEL) {
-      await fs.writeFile(filePath, JSON.stringify(emptyInventory, null, 2));
-      return;
-    }
-    await fs.writeFile(filePath, JSON.stringify({ products: seedProducts }, null, 2));
   }
+  return {
+    products: seedProducts,
+    warehouses: normalizeWarehouses(),
+    deletedProductIds: [],
+  };
+}
+
+async function ensureInventoryFile() {
+  const filePath = inventoryPath();
+  try {
+    const raw = await fs.readFile(filePath, 'utf8');
+    if (!isUnreadableInventoryRaw(raw)) return;
+    console.warn('[inventory] inventory.json corrupto o vacío; se reescribe desde respaldo.');
+  } catch {
+    // ausente → sembrar abajo
+  }
+
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  const recovered = await tryRecoverInventoryPayload();
+  await writeJsonFileAtomic(filePath, recovered ?? defaultInventorySeedPayload());
+}
+
+/**
+ * Intenta reconstruir inventario desde Supabase o el snapshot público slim.
+ * @returns {Promise<{ products: unknown[]; deletedProductIds: string[]; warehouses: unknown } | null>}
+ */
+async function tryRecoverInventoryPayload() {
+  const warehouses = normalizeWarehouses();
+
+  try {
+    const { fetchInventoryProductsFromSupabase } = await import('./product-catalog.js');
+    const supabaseProducts = await fetchInventoryProductsFromSupabase();
+    if (Array.isArray(supabaseProducts) && supabaseProducts.length > 0) {
+      const indexPath = path.join(__dirname, '../../public/catalog/inventory-index.json');
+      let indexIds = null;
+      try {
+        const indexRaw = await fs.readFile(indexPath, 'utf8');
+        const indexData = JSON.parse(indexRaw);
+        if (Array.isArray(indexData.products) && indexData.products.length > 0) {
+          indexIds = new Set(indexData.products.map((product) => product.id));
+        }
+      } catch {
+        // sin índice: usar todo Supabase
+      }
+
+      const products = (
+        indexIds
+          ? supabaseProducts.filter((product) => indexIds.has(product.id))
+          : supabaseProducts
+      ).map((product) => migrateInventoryProduct(product, warehouses));
+
+      // Si el índice es más reciente/completo que el cruce con Supabase, completar con slim.
+      if (indexIds && products.length < indexIds.size * 0.5) {
+        const byId = new Map(supabaseProducts.map((product) => [product.id, product]));
+        const indexData = JSON.parse(await fs.readFile(indexPath, 'utf8'));
+        return {
+          products: indexData.products.map((slim) =>
+            migrateInventoryProduct(byId.get(slim.id) ? { ...byId.get(slim.id), ...slim } : slim, warehouses),
+          ),
+          deletedProductIds: [],
+          warehouses,
+        };
+      }
+
+      if (products.length > 0) {
+        return { products, deletedProductIds: [], warehouses };
+      }
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn('[inventory] recuperación desde Supabase falló:', message);
+  }
+
+  try {
+    const indexPath = path.join(__dirname, '../../public/catalog/inventory-index.json');
+    const indexRaw = await fs.readFile(indexPath, 'utf8');
+    const indexData = JSON.parse(indexRaw);
+    if (Array.isArray(indexData.products) && indexData.products.length > 0) {
+      return {
+        products: indexData.products.map((product) => migrateInventoryProduct(product, warehouses)),
+        deletedProductIds: [],
+        warehouses,
+      };
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn('[inventory] recuperación desde inventory-index falló:', message);
+  }
+
+  return null;
 }
 
 function normalizeSuppliers(value, legacyPurchaseUsd) {
@@ -189,6 +314,7 @@ export function migrateInventoryProduct(product, warehouses = normalizeWarehouse
     ...normalizedToner,
     ...(name ? { name } : {}),
     ...(sort_order !== undefined ? { sort_order } : {}),
+    status: normalizeProductCatalogStatus(normalizedToner.status),
     bundle_components: normalizeBundleComponents(
       normalizedToner.bundle_components ?? product.bundle_components,
     ),

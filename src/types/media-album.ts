@@ -13,6 +13,10 @@ export interface MediaAlbumItem {
   bytes?: number | null;
   width?: number | null;
   height?: number | null;
+  /** Repeticiones agrupadas con la misma URL. */
+  duplicateCount?: number;
+  /** IDs fusionados al deduplicar (para eliminar todas las copias). */
+  mergedIds?: string[];
 }
 
 export interface MediaAlbumDriveConfig {

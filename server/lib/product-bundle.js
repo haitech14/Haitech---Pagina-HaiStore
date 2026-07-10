@@ -53,7 +53,7 @@ export function stripTonerColorSuffix(name) {
 /** @param {unknown} baseName */
 export function buildTonerPackName(baseName) {
   const base = stripTonerColorSuffix(baseName).replace(BRAND_SUFFIX_END_PATTERN, '').trim();
-  return `${base} ${TONER_PACK_LABEL} ${COMPATIBLE_TONER_BRAND_SUFFIX}`.replace(/\s{2,}/g, ' ').trim();
+  return `${base} ${TONER_PACK_LABEL}`.replace(/\s{2,}/g, ' ').trim();
 }
 
 /**

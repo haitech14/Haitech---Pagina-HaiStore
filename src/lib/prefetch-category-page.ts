@@ -5,7 +5,8 @@ import {
   type UseCategoryCatalogParams,
 } from '@/hooks/use-category-catalog';
 import { getResponsiveCatalogPageSize } from '@/lib/catalog-product-pagination';
-import { findCategoryBySlug, resolveCategoryPageProductLabels } from '@/lib/category-product-labels';
+import { resolveCategoryPageProductLabels } from '@/lib/category-product-labels';
+import { resolveCategoryForPage } from '@/lib/store-category-page';
 import { queryCategoryCatalogClient, queryCategoryCatalogClientAsync } from '@/lib/category-catalog-client';
 import {
   STORE_CATEGORIES_QUERY_KEY,
@@ -66,9 +67,6 @@ export async function prefetchCategoryPage(
 ) {
   preloadCatalogIndexNow();
 
-  const category = findCategoryBySlug(slug);
-  if (!category) return;
-
   const staticTree = buildStaticStoreCategoryTree();
   queryClient.setQueryData([STORE_CATEGORIES_QUERY_KEY], staticTree);
 
@@ -79,6 +77,8 @@ export async function prefetchCategoryPage(
   });
 
   const storeCategory = findStoreCategoryBySlug(staticTree, slug);
+  const category = resolveCategoryForPage(slug, storeCategory);
+  if (!category) return;
   const labels = resolveCategoryPageProductLabels(category, storeCategory, subSlug, staticTree);
   if (labels.length === 0) return;
 

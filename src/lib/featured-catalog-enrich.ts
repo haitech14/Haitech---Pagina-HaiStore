@@ -11,5 +11,6 @@ export function enrichFeaturedFromCatalog(featured: FeaturedProduct): FeaturedPr
     ...(fromCatalog.isNew ? { isNew: true } : {}),
     ...(fromCatalog.oldPrice != null ? { oldPrice: fromCatalog.oldPrice } : {}),
     ...(fromCatalog.discount != null ? { discount: fromCatalog.discount } : {}),
+    stock: row.stock ?? featured.stock,
   };
 }

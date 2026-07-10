@@ -50,10 +50,10 @@ import { buildCategorySeoConfig } from '@/lib/build-category-seo';
 import { getCategorySeoIntro } from '@/lib/category-seo-intro';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import {
-  findCategoryBySlug,
   findStoreSubcategoryBySlug,
   resolveCategoryPageProductLabels,
 } from '@/lib/category-product-labels';
+import { resolveCategoryForPage } from '@/lib/store-category-page';
 import {
   ALL_SUBCATEGORIES_QUERY,
   collectInventoryLabels,
@@ -179,7 +179,6 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const isInventorySearch = searchQuery.length >= MIN_PRODUCT_SEARCH_LENGTH;
   const estadoFilter = useCategoryConditionFilter();
 
-  const category = slug ? findCategoryBySlug(slug) : undefined;
   const catalogFamily = slug ? catalogFamilyForCategorySlug(slug) : null;
   const {
     data: categoryTreeData,
@@ -252,6 +251,11 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     [categoryTree, slug],
   );
 
+  const category = useMemo(
+    () => resolveCategoryForPage(slug, storeCategory),
+    [slug, storeCategory],
+  );
+
   const storeFilterCategory = useMemo(
     () =>
       storeFilterCategorySlug
@@ -287,7 +291,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   const productLabels = useMemo(() => {
     if (isStoreAll) return EMPTY_LABEL_LIST;
-    if (!category) return EMPTY_LABEL_LIST;
+    if (!category && !storeCategory) return EMPTY_LABEL_LIST;
     return resolveCategoryPageProductLabels(category, storeCategory, subSlug, categoryTree);
   }, [category, storeCategory, subSlug, categoryTree, isStoreAll]);
 
@@ -1005,7 +1009,19 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     setFiltersSheetOpen(true);
   }, [storefrontMode, isDesktopNav]);
 
-  if (!isStoreAll && (!slug || !category)) {
+  if (!isStoreAll && !slug) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!isStoreAll && !category && (categoryTreeLoading || categoryTreeFetching)) {
+    return (
+      <div className="container py-16 text-center text-sm text-muted-foreground">
+        Cargando categoría…
+      </div>
+    );
+  }
+
+  if (!isStoreAll && !category) {
     return <Navigate to="/" replace />;
   }
 
@@ -1040,7 +1056,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     ? `Resultados para «${searchQuery}»`
     : isStoreAll
       ? (storeFilterSubcategory?.name ?? storeFilterCategory?.name ?? 'Todo el catálogo')
-      : (rentalSubcategory?.title ?? activeSubcategory?.name ?? category!.name);
+      : (rentalSubcategory?.title ??
+          activeSubcategory?.name ??
+          storeCategory?.name ??
+          category!.name);
   const defaultCategoryForNewProduct =
     isStoreAll ? null : (activeSubcategory?.name ?? storeCategory?.name ?? category!.name ?? null);
   const hasBrandFilters = selectedBrands.length > 0;
@@ -1182,17 +1201,6 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           openWhenActive={selectedProduction != null}
         >
           <CatalogFilterGroup>
-            {!catalogSidebarLayout ? (
-              <CatalogFilterOption
-                id="filter-produccion-all"
-                label="Todas"
-                count={baseProducts.length}
-                active={selectedProduction === null}
-                mode="radio"
-                compact
-                onToggle={() => setSelectedProduction(null)}
-              />
-            ) : null}
             {productionFiltersWithCounts.map((option) => (
               <CatalogFilterOption
                 key={option.key}
@@ -1520,7 +1528,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                 productCount={catalogProductCount}
                 searchQuery={catalogSearch}
                 onSearchQueryChange={setCatalogSearch}
-                {...(isStoreAll ? {} : { eyebrow: category?.name ?? 'Catálogo' })}
+                {...(isStoreAll ? {} : { eyebrow: storeCategory?.name ?? category?.name ?? 'Catálogo' })}
                 title={isStoreAll ? storeCatalogCopy.title : pageTitle}
                 searchPlaceholder={
                   isStoreAll ? storeCatalogCopy.searchPlaceholder : `Buscar en ${pageTitle}…`

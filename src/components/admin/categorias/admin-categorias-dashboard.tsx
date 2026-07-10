@@ -1,133 +1,98 @@
-import { useCallback, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import {
-  CategoryFormDialog,
-  type CategoryFormValues,
-} from '@/components/admin/categories/category-form-dialog';
 import { AdminCategoriasKpis } from '@/components/admin/categorias/admin-categorias-kpis';
 import { AdminCategoriasPageHeader } from '@/components/admin/categorias/admin-categorias-page-header';
-import { AdminCategoriasTablePanel } from '@/components/admin/categorias/admin-categorias-table-panel';
+import { AdminCategoriasTreePanel } from '@/components/admin/categorias/admin-categorias-tree-panel';
 import { AdminCategoriasWidgets } from '@/components/admin/categorias/admin-categorias-widgets';
 import { useAdminSidebar } from '@/context/admin-sidebar-context';
-import { ADMIN_CATEGORIAS_RECORDS } from '@/data/admin-categorias-data';
-import { useStoreCategoriesMutations } from '@/hooks/use-store-categories';
+import {
+  EMPTY_STORE_CATEGORY_TREE,
+  useStoreCategoriesMutations,
+  useStoreCategoriesTree,
+} from '@/hooks/use-store-categories';
+import { flattenCategoryTree } from '@/lib/store-category-tree';
 import { cn } from '@/lib/utils';
-import type { AdminCategoriaRecord, AdminCategoriaStatus } from '@/types/admin-categorias';
+import type { AdminCategoriaRecord } from '@/types/admin-categorias';
+import type { StoreCategory } from '@/types/store-category';
 
-function labelsFromForm(values: CategoryFormValues): string[] {
-  const parsed = values.inventoryLabels
-    .split(',')
-    .map((label) => label.trim())
-    .filter(Boolean);
-  if (parsed.length > 0) return parsed;
-  return values.name.trim() ? [values.name.trim()] : [];
-}
-
-function buildRecordFromForm(
-  values: CategoryFormValues,
-  existing?: AdminCategoriaRecord,
+function mapStoreCategoryToRecord(
+  category: StoreCategory & { depth?: number },
+  byId: Map<string, StoreCategory>,
 ): AdminCategoriaRecord {
+  const parent = category.parentId ? byId.get(category.parentId) : null;
   const now = new Date();
-  const name = values.name.trim();
+
   return {
-    id: existing?.id ?? `cat-${Date.now()}`,
-    createdAt: existing?.createdAt ?? now,
+    id: category.id,
+    createdAt: now,
     updatedAt: now,
-    name,
-    description: values.tagline.trim() || 'Sin descripción',
-    parentName: null,
-    productCount: existing?.productCount ?? 0,
-    assigneeName: existing?.assigneeName ?? 'Ana Torres',
-    assigneeInitials: existing?.assigneeInitials ?? 'AT',
-    assigneeRole: existing?.assigneeRole ?? 'Catálogo',
-    status: existing?.status ?? 'activa',
+    name: category.name,
+    description: category.tagline?.trim() || 'Sin descripción',
+    parentName: parent?.name ?? null,
+    productCount: category.productCount ?? 0,
+    assigneeName: 'Catálogo',
+    assigneeInitials: 'CT',
+    assigneeRole: 'Tienda',
+    status: 'activa',
   };
 }
 
 export function AdminCategoriasDashboard() {
-  const [records, setRecords] = useState<AdminCategoriaRecord[]>(() => [...ADMIN_CATEGORIAS_RECORDS]);
   const [headerSearch, setHeaderSearch] = useState('');
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<AdminCategoriaRecord | null>(null);
+  const [createTick, setCreateTick] = useState(0);
   const [widgetsKey, setWidgetsKey] = useState(0);
-  const { createCategory } = useStoreCategoriesMutations();
+
+  const {
+    data: tree = EMPTY_STORE_CATEGORY_TREE,
+    isError,
+    error,
+    refetch,
+  } = useStoreCategoriesTree();
+  const { syncFromCatalog } = useStoreCategoriesMutations();
   const { open: sidebarOpen } = useAdminSidebar();
 
-  const openCreateDialog = useCallback(() => {
-    setEditingCategory(null);
-    setDialogOpen(true);
-  }, []);
+  const handleSyncCatalog = async () => {
+    try {
+      await syncFromCatalog.mutateAsync();
+      toast.success('Catálogo sincronizado: tienda, servicios, alquiler y software.');
+      await refetch();
+    } catch (syncError) {
+      toast.error(
+        syncError instanceof Error
+          ? syncError.message
+          : 'No se pudo sincronizar el catálogo. Verifica que la API esté activa.',
+      );
+    }
+  };
 
-  const openEditDialog = useCallback((record: AdminCategoriaRecord) => {
-    setEditingCategory(record);
-    setDialogOpen(true);
-  }, []);
-
-  const handleDialogOpenChange = useCallback((open: boolean) => {
-    setDialogOpen(open);
-    if (!open) setEditingCategory(null);
-  }, []);
-
-  const handleSubmit = useCallback(
-    async (values: CategoryFormValues) => {
-      if (editingCategory) {
-        const updated = buildRecordFromForm(values, editingCategory);
-        setRecords((prev) => prev.map((item) => (item.id === editingCategory.id ? updated : item)));
-        toast.success(`Categoría "${updated.name}" actualizada`);
-        return;
-      }
-
-      await createCategory.mutateAsync({
-        name: values.name.trim(),
-        tagline: values.tagline.trim() || null,
-        image: values.image.trim() || null,
-        parentId: values.parentId,
-        inventoryLabels: labelsFromForm(values),
-        ...(values.slug.trim() ? { slug: values.slug.trim() } : {}),
-      });
-
-      const created = buildRecordFromForm(values);
-      setRecords((prev) => [created, ...prev]);
-      toast.success('Categoría creada correctamente');
-    },
-    [createCategory, editingCategory],
-  );
-
-  const handleToggleFeatured = useCallback((record: AdminCategoriaRecord) => {
-    const nextStatus: AdminCategoriaStatus =
-      record.status === 'destacada' ? 'activa' : 'destacada';
-    setRecords((prev) =>
-      prev.map((item) =>
-        item.id === record.id ? { ...item, status: nextStatus, updatedAt: new Date() } : item,
-      ),
-    );
-    toast.success(
-      nextStatus === 'destacada'
-        ? `"${record.name}" marcada como destacada`
-        : `"${record.name}" ya no está destacada`,
-    );
-  }, []);
-
-  const handleArchiveCategory = useCallback((record: AdminCategoriaRecord) => {
-    setRecords((prev) =>
-      prev.map((item) =>
-        item.id === record.id
-          ? { ...item, status: 'archivada', updatedAt: new Date() }
-          : item,
-      ),
-    );
-    toast.success(`"${record.name}" archivada`);
-  }, []);
+  const records = useMemo(() => {
+    const flat = flattenCategoryTree(tree);
+    const byId = new Map(flat.map((row) => [row.id, row]));
+    return flat.map((row) => mapStoreCategoryToRecord(row, byId));
+  }, [tree]);
 
   return (
     <div className="space-y-3">
       <AdminCategoriasPageHeader
         search={headerSearch}
         onSearchChange={setHeaderSearch}
-        onNewCategory={openCreateDialog}
+        onNewCategory={() => setCreateTick((value) => value + 1)}
+        onSyncCatalog={() => void handleSyncCatalog()}
+        isSyncingCatalog={syncFromCatalog.isPending}
       />
-      <AdminCategoriasKpis />
+      <AdminCategoriasKpis records={records} />
+
+      {isError ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+        >
+          {error instanceof Error
+            ? error.message
+            : 'No se pudieron cargar las categorías. Verifica que el servidor API esté activo.'}
+        </p>
+      ) : null}
 
       <div
         className={cn(
@@ -137,33 +102,16 @@ export function AdminCategoriasDashboard() {
             : 'lg:grid-cols-[minmax(0,1fr)_16rem] xl:grid-cols-[minmax(0,1fr)_17rem]',
         )}
       >
-        <AdminCategoriasTablePanel
+        <AdminCategoriasTreePanel search={headerSearch} createTick={createTick} />
+        <AdminCategoriasWidgets
+          key={widgetsKey}
           records={records}
-          headerSearch={headerSearch}
-          onEditCategory={openEditDialog}
-          onToggleFeatured={handleToggleFeatured}
-          onArchiveCategory={handleArchiveCategory}
+          onRefresh={() => {
+            setWidgetsKey((value) => value + 1);
+            void refetch();
+          }}
         />
-        <AdminCategoriasWidgets key={widgetsKey} onRefresh={() => setWidgetsKey((value) => value + 1)} />
       </div>
-
-      <CategoryFormDialog
-        open={dialogOpen}
-        onOpenChange={handleDialogOpenChange}
-        title={editingCategory ? 'Editar categoría' : 'Nueva categoría'}
-        description="Las etiquetas de inventario deben coincidir con el campo categoría de los productos."
-        parentId={null}
-        {...(editingCategory
-          ? {
-              initial: {
-                name: editingCategory.name,
-                tagline: editingCategory.description,
-              },
-            }
-          : {})}
-        isSaving={createCategory.isPending}
-        onSubmit={handleSubmit}
-      />
     </div>
   );
 }

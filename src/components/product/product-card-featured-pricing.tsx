@@ -28,11 +28,11 @@ function FeaturedDualCurrencyLine({
 
   return (
     <span className="inline-flex flex-nowrap items-baseline gap-2 whitespace-nowrap">
-      <span className={cn(penClassName, strike)}>{formatPenFromUsd(usd)}</span>
+      <span className={cn(usdClassName, strike)}>{formatUsd(usd)}</span>
       <span className={cn('font-normal', separatorClassName)} aria-hidden="true">
         ·
       </span>
-      <span className={cn(usdClassName, strike)}>{formatUsd(usd)}</span>
+      <span className={cn(penClassName, strike)}>{formatPenFromUsd(usd)}</span>
     </span>
   );
 }
@@ -97,6 +97,15 @@ export function ProductCardFeaturedPricing({
 
   return (
     <div className={cn('space-y-0.5', className)}>
+      <p className={FEATURED_PRICE_CURRENT_CLASS}>
+        {productId ? (
+          <AdminRolePricesTooltip productId={productId} displayUsd={currentUsd}>
+            {currentPrice}
+          </AdminRolePricesTooltip>
+        ) : (
+          currentPrice
+        )}
+      </p>
       {hasDiscount ? (
         <p className={FEATURED_PRICE_COMPARE_CLASS}>
           {showBoth ? (
@@ -115,15 +124,6 @@ export function ProductCardFeaturedPricing({
           )}
         </p>
       ) : null}
-      <p className={FEATURED_PRICE_CURRENT_CLASS}>
-        {productId ? (
-          <AdminRolePricesTooltip productId={productId} displayUsd={currentUsd}>
-            {currentPrice}
-          </AdminRolePricesTooltip>
-        ) : (
-          currentPrice
-        )}
-      </p>
       {hasDiscount && showAccentBar ? (
         <span
           className="mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]"

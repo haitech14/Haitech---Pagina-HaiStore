@@ -1,1 +1,247 @@
-{"version":1,"generatedAt":"2026-07-09T09:20:24.109Z","tree":[{"id":"cat-multifuncionales","name":"Multifuncionales","slug":"multifuncionales","parentId":null,"sortOrder":0,"inventoryLabels":["Multifuncionales","Multifuncionales Nuevas"],"image":"/categories/multifuncionales.png","tagline":"Imprime, escanea y copia en un solo equipo","children":[],"productCount":125},{"id":"cat-impresoras","name":"Impresoras","slug":"impresoras","parentId":null,"sortOrder":1,"inventoryLabels":["Impresoras"],"image":"/categories/impresoras.png","tagline":"Láser, inkjet y soluciones de impresión","children":[],"productCount":13},{"id":"cat-toner","name":"Suministros","slug":"toner-suministros","parentId":null,"sortOrder":2,"inventoryLabels":["Toner y suministros","Tóner y Suministros","Suministros, Toner Compatible","Suministros","Toner y Suministros","Toner"],"image":"/categories/toner-suministros.png","tagline":"Consumibles originales y compatibles","children":[{"id":"cat-toner-originales","name":"Toner Originales","slug":"toner-originales","parentId":"cat-toner","sortOrder":0,"inventoryLabels":["Toner Original","Toner Originales","Toner, Toner Original","Toner, Toner Originales","Toner y Suministros, Toner Original","Tóner y Suministros, Toner Original","Suministros, Toner Original","Suministros, Toner Originales"],"image":"/categories/accesorios-impresoras.png","tagline":"Cartuchos originales para tu equipo","children":[],"productCount":8},{"id":"cat-toner-compatibles","name":"Toner Compatible","slug":"toner-compatibles","parentId":"cat-toner","sortOrder":1,"inventoryLabels":["Suministros, Toner Compatible"],"image":"/categories/toner-suministros.png","tagline":"Cartuchos y recargas compatibles","children":[],"productCount":1},{"id":"cat-toner-remanufacturado","name":"Toner Remanufacturado","slug":"toner-remanufacturado","parentId":"cat-toner","sortOrder":2,"inventoryLabels":["Toner Remanufacturado","Toner Remanufacturados","Toner, Toner Remanufacturado","Toner, Toner Remanufacturados","Suministros, Toner Remanufacturado","Toner y Suministros, Toner Remanufacturado"],"image":"/categories/toner-suministros.png","tagline":"Alternativas remanufacturadas","children":[],"productCount":0},{"id":"cat-toner-recarga","name":"Toner Recarga","slug":"toner-recarga","parentId":"cat-toner","sortOrder":3,"inventoryLabels":["Toner Recargas","Recargas","Recarga","Toner, Recargas","Toner, Recarga","Suministros, Recarga","Suministros, Toner Recarga","Toner y Suministros, Recarga","Toner y Suministros, Toner Recarga"],"image":"/categories/toner-suministros.png","tagline":"Servicios y recargas de toner","children":[],"productCount":0},{"id":"cat-tintas-originales","name":"Tintas Originales","slug":"tintas-originales","parentId":"cat-toner","sortOrder":10,"inventoryLabels":["Tintas Originales","Tinta Original","Tinta, Tinta Original","Tintas","Tinta"],"image":"/categories/toner-suministros.png","tagline":"Tintas originales para impresoras","children":[],"productCount":0},{"id":"cat-tintas-compatibles","name":"Tintas Compatibles","slug":"tintas-compatibles","parentId":"cat-toner","sortOrder":11,"inventoryLabels":["Tintas Compatibles","Tinta Compatible","Tinta, Tinta Compatible","Tintas"],"image":"/categories/toner-suministros.png","tagline":"Tintas compatibles y alternativas","children":[],"productCount":0}],"productCount":9},{"id":"cat-repuestos","name":"Repuestos","slug":"repuestos","parentId":null,"sortOrder":3,"inventoryLabels":["Repuestos"],"image":"/categories/repuestos.png","tagline":"Partes y componentes para impresoras","children":[{"id":"cat-repuestos-compatibles","name":"Repuestos Compatibles","slug":"repuestos-compatibles","parentId":"cat-repuestos","sortOrder":1,"inventoryLabels":["Repuestos Compatibles","Repuesto Compatible","Repuestos, Repuestos Compatibles"],"image":"/categories/repuestos.png","tagline":"Partes y componentes compatibles","children":[{"id":"cat-unidades-compatibles","name":"Unidades Compatibles","slug":"unidades-compatibles","parentId":"cat-repuestos-compatibles","sortOrder":0,"inventoryLabels":["Unidades Compatibles","Unidad Compatible","Repuestos Compatibles, Unidades Compatibles","Repuestos, Repuestos Compatibles, Unidades Compatibles"],"image":"/categories/repuestos.png","tagline":"Unidades de imagen compatibles","children":[],"productCount":41},{"id":"cat-cilindros-compatibles","name":"Cilindros","slug":"cilindros","parentId":"cat-repuestos-compatibles","sortOrder":1,"inventoryLabels":["Cilindros","Cilindro Compatible","Repuestos Compatibles, Cilindros","Repuestos, Repuestos Compatibles, Cilindros"],"image":"/categories/repuestos.png","tagline":"Cilindros OPC compatibles Fuji","children":[],"productCount":41}],"productCount":82}],"productCount":82},{"id":"cat-servicio-tecnico","name":"Servicio Técnico","slug":"servicio-tecnico","parentId":null,"sortOrder":4,"inventoryLabels":["Servicio Técnico","Servicio tecnico"],"image":"/categories/servicio-tecnico.png","tagline":"Mantenimiento, instalación y soporte especializado","children":[],"productCount":0}]}
+{
+  "version": 1,
+  "generatedAt": "2026-07-10T10:03:42.218Z",
+  "tree": [
+    {
+      "id": "cat-multifuncionales",
+      "name": "Multifuncionales",
+      "slug": "multifuncionales",
+      "parentId": null,
+      "sortOrder": 0,
+      "inventoryLabels": [
+        "Multifuncionales",
+        "Multifuncionales Nuevas"
+      ],
+      "image": "/categories/multifuncionales.png",
+      "tagline": "Imprime, escanea y copia en un solo equipo",
+      "children": [],
+      "productCount": 125
+    },
+    {
+      "id": "cat-impresoras",
+      "name": "Impresoras",
+      "slug": "impresoras",
+      "parentId": null,
+      "sortOrder": 1,
+      "inventoryLabels": [
+        "Impresoras"
+      ],
+      "image": "/categories/impresoras.png",
+      "tagline": "Láser, inkjet y soluciones de impresión",
+      "children": [],
+      "productCount": 13
+    },
+    {
+      "id": "cat-toner",
+      "name": "Suministros",
+      "slug": "toner-suministros",
+      "parentId": null,
+      "sortOrder": 2,
+      "inventoryLabels": [
+        "Suministros",
+        "Toner y Suministros",
+        "Toner y suministros",
+        "Tóner y Suministros",
+        "Toner",
+        "Suministros, Toner Compatible"
+      ],
+      "image": "/categories/toner-suministros.png",
+      "tagline": "Consumibles originales y compatibles",
+      "children": [
+        {
+          "id": "cat-toner-originales",
+          "name": "Toner Originales",
+          "slug": "toner-originales",
+          "parentId": "cat-toner",
+          "sortOrder": 0,
+          "inventoryLabels": [
+            "Toner Original",
+            "Toner Originales",
+            "Toner, Toner Original",
+            "Toner, Toner Originales",
+            "Toner y Suministros, Toner Original",
+            "Tóner y Suministros, Toner Original",
+            "Suministros, Toner Original",
+            "Suministros, Toner Originales"
+          ],
+          "image": "/categories/accesorios-impresoras.png",
+          "tagline": "Cartuchos originales para tu equipo",
+          "children": [],
+          "productCount": 8
+        },
+        {
+          "id": "cat-toner-compatibles",
+          "name": "Toner Compatible",
+          "slug": "toner-compatibles",
+          "parentId": "cat-toner",
+          "sortOrder": 1,
+          "inventoryLabels": [
+            "Suministros, Toner Compatible"
+          ],
+          "image": "/categories/toner-suministros.png",
+          "tagline": "Cartuchos y recargas compatibles",
+          "children": [],
+          "productCount": 1
+        },
+        {
+          "id": "cat-toner-remanufacturado",
+          "name": "Toner Remanufacturado",
+          "slug": "toner-remanufacturado",
+          "parentId": "cat-toner",
+          "sortOrder": 2,
+          "inventoryLabels": [
+            "Toner Remanufacturado",
+            "Toner Remanufacturados",
+            "Toner, Toner Remanufacturado",
+            "Toner, Toner Remanufacturados",
+            "Suministros, Toner Remanufacturado",
+            "Toner y Suministros, Toner Remanufacturado"
+          ],
+          "image": "/categories/toner-suministros.png",
+          "tagline": "Alternativas remanufacturadas",
+          "children": [],
+          "productCount": 0
+        },
+        {
+          "id": "cat-toner-recarga",
+          "name": "Toner Recarga",
+          "slug": "toner-recarga",
+          "parentId": "cat-toner",
+          "sortOrder": 3,
+          "inventoryLabels": [
+            "Toner Recargas",
+            "Recargas",
+            "Recarga",
+            "Toner, Recargas",
+            "Toner, Recarga",
+            "Suministros, Recarga",
+            "Suministros, Toner Recarga",
+            "Toner y Suministros, Recarga",
+            "Toner y Suministros, Toner Recarga"
+          ],
+          "image": "/categories/toner-suministros.png",
+          "tagline": "Servicios y recargas de toner",
+          "children": [],
+          "productCount": 0
+        },
+        {
+          "id": "cat-tintas-originales",
+          "name": "Tintas Originales",
+          "slug": "tintas-originales",
+          "parentId": "cat-toner",
+          "sortOrder": 10,
+          "inventoryLabels": [
+            "Tintas Originales",
+            "Tinta Original",
+            "Tinta, Tinta Original",
+            "Tintas",
+            "Tinta"
+          ],
+          "image": "/categories/toner-suministros.png",
+          "tagline": "Tintas originales para impresoras",
+          "children": [],
+          "productCount": 0
+        },
+        {
+          "id": "cat-tintas-compatibles",
+          "name": "Tintas Compatibles",
+          "slug": "tintas-compatibles",
+          "parentId": "cat-toner",
+          "sortOrder": 11,
+          "inventoryLabels": [
+            "Tintas Compatibles",
+            "Tinta Compatible",
+            "Tinta, Tinta Compatible",
+            "Tintas"
+          ],
+          "image": "/categories/toner-suministros.png",
+          "tagline": "Tintas compatibles y alternativas",
+          "children": [],
+          "productCount": 0
+        }
+      ],
+      "productCount": 9
+    },
+    {
+      "id": "cat-repuestos",
+      "name": "Repuestos",
+      "slug": "repuestos",
+      "parentId": null,
+      "sortOrder": 3,
+      "inventoryLabels": [
+        "Repuestos"
+      ],
+      "image": "/categories/repuestos.png",
+      "tagline": "Partes y componentes para impresoras",
+      "children": [
+        {
+          "id": "cat-repuestos-compatibles",
+          "name": "Repuestos Compatibles",
+          "slug": "repuestos-compatibles",
+          "parentId": "cat-repuestos",
+          "sortOrder": 1,
+          "inventoryLabels": [
+            "Repuestos Compatibles",
+            "Repuesto Compatible",
+            "Repuestos, Repuestos Compatibles"
+          ],
+          "image": "/categories/repuestos.png",
+          "tagline": "Partes y componentes compatibles",
+          "children": [
+            {
+              "id": "cat-unidades-compatibles",
+              "name": "Unidades Compatibles",
+              "slug": "unidades-compatibles",
+              "parentId": "cat-repuestos-compatibles",
+              "sortOrder": 0,
+              "inventoryLabels": [
+                "Unidades Compatibles",
+                "Unidad Compatible",
+                "Repuestos Compatibles, Unidades Compatibles",
+                "Repuestos, Repuestos Compatibles, Unidades Compatibles"
+              ],
+              "image": "/categories/repuestos.png",
+              "tagline": "Unidades de imagen compatibles",
+              "children": [],
+              "productCount": 41
+            },
+            {
+              "id": "cat-cilindros-compatibles",
+              "name": "Cilindros",
+              "slug": "cilindros",
+              "parentId": "cat-repuestos-compatibles",
+              "sortOrder": 1,
+              "inventoryLabels": [
+                "Cilindros",
+                "Cilindro Compatible",
+                "Repuestos Compatibles, Cilindros",
+                "Repuestos, Repuestos Compatibles, Cilindros"
+              ],
+              "image": "/categories/repuestos.png",
+              "tagline": "Cilindros OPC compatibles Fuji",
+              "children": [],
+              "productCount": 41
+            }
+          ],
+          "productCount": 82
+        }
+      ],
+      "productCount": 82
+    },
+    {
+      "id": "cat-servicio-tecnico",
+      "name": "Servicio Técnico",
+      "slug": "servicio-tecnico",
+      "parentId": null,
+      "sortOrder": 4,
+      "inventoryLabels": [
+        "Servicio Técnico",
+        "Servicio tecnico"
+      ],
+      "image": "/categories/servicio-tecnico.png",
+      "tagline": "Mantenimiento, instalación y soporte especializado",
+      "children": [],
+      "productCount": 0
+    }
+  ]
+}

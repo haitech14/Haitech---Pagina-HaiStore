@@ -4027,7 +4027,7 @@
       "currency": "USD",
       "stock": 0,
       "category": "Toner, Toner Compatibles",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/categories/toner-suministros.png",
       "gallery": [
         "/categories/toner-suministros.png"
@@ -31685,8 +31685,8 @@
     {
       "id": "haiprint-cilindro-mp-c305",
       "code": "948130",
-      "name": "Cilindro Compatible HaiPrint Ricoh OPC MP C305 MPC305",
-      "description": "Cilindro Compatible HaiPrint Ricoh OPC MP C305 MPC305",
+      "name": "Cilindro Compatible Ricoh OPC MP C305 MPC305",
+      "description": "Cilindro Compatible Ricoh OPC MP C305 MPC305",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -31696,17 +31696,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-mp-c305.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "2b24a011-2524-4264-9c5b-67d82487f508",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -31723,11 +31717,6 @@
           "id": "9e27f85c-22a6-43a2-9c62-d4263e03f598",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "c56b67ac-4ab5-49f8-9556-c627e7e9f44b",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -31744,8 +31733,8 @@
     {
       "id": "haiprint-cilindro-mp-c2551",
       "code": "937663",
-      "name": "Cilindro Compatible HaiPrint Ricoh OPC MP C2551 MP C2551",
-      "description": "Cilindro Compatible HaiPrint Ricoh OPC MP C2551 MP C2551",
+      "name": "Cilindro Compatible Ricoh OPC MP C2551 MP C2551",
+      "description": "Cilindro Compatible Ricoh OPC MP C2551 MP C2551",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -31755,17 +31744,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-mp-c2551.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "3aa4637a-3ca8-492a-808b-135fa6429746",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -31782,11 +31765,6 @@
           "id": "72a2426f-c1fc-40a5-ac3b-2096e51bc293",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "45b8e6d1-c2bc-470f-a3bf-6109a92b3868",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -31803,8 +31781,8 @@
     {
       "id": "haiprint-cilindro-mpc-2503-2003",
       "code": "939262",
-      "name": "Cilindro Compatible HaiPrint Ricoh OPC MPC 2503/2003 MPC 2503/2003",
-      "description": "Cilindro Compatible HaiPrint Ricoh OPC MPC 2503/2003 MPC 2503/2003",
+      "name": "Cilindro Compatible Ricoh OPC MPC 2503/2003 MPC 2503/2003",
+      "description": "Cilindro Compatible Ricoh OPC MPC 2503/2003 MPC 2503/2003",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -31814,17 +31792,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-mpc-2503-2003.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "75d7f7f7-d9b8-44cb-92f8-a76ae4889339",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -31841,11 +31813,6 @@
           "id": "64194198-8f8b-4c4a-ad68-5cee44aeef24",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "b7f84a37-25d7-43e0-9932-a9c5ffad1cab",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -31862,8 +31829,8 @@
     {
       "id": "haiprint-cilindro-mp-2554-3554",
       "code": "920621",
-      "name": "Cilindro Compatible HaiPrint Ricoh OPC MP 2554/3554 MP 2554/3554",
-      "description": "Cilindro Compatible HaiPrint Ricoh OPC MP 2554/3554 MP 2554/3554",
+      "name": "Cilindro Compatible Ricoh OPC MP 2554/3554 MP 2554/3554",
+      "description": "Cilindro Compatible Ricoh OPC MP 2554/3554 MP 2554/3554",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -31873,17 +31840,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-mp-2554-3554.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "8c2f8632-b2e5-4175-b1d9-45a06490678a",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -31900,11 +31861,6 @@
           "id": "70e2fb13-443b-4fdc-a0d5-33a8e152b202",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "94bba54d-c745-4ada-a409-2ff48baeda01",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -31921,8 +31877,8 @@
     {
       "id": "haiprint-cilindro-sp-5200",
       "code": "905452",
-      "name": "Cilindro Compatible HaiPrint Ricoh OPC SP 5200 SP 5200",
-      "description": "Cilindro Compatible HaiPrint Ricoh OPC SP 5200 SP 5200",
+      "name": "Cilindro Compatible Ricoh OPC SP 5200 SP 5200",
+      "description": "Cilindro Compatible Ricoh OPC SP 5200 SP 5200",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -31932,17 +31888,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-sp-5200.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "d8096212-d29d-4c1f-8f92-fe79556aaee7",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -31959,11 +31909,6 @@
           "id": "64c26e7b-61c7-4e81-932a-6ea1e0bba018",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "0226d8c5-f8e1-4336-bc4e-6a5e709e4221",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -31980,8 +31925,8 @@
     {
       "id": "haiprint-cilindro-mp201",
       "code": "933437",
-      "name": "Cilindro Compatible HaiPrint Ricoh OPC MP201 MP201",
-      "description": "Cilindro Compatible HaiPrint Ricoh OPC MP201 MP201",
+      "name": "Cilindro Compatible Ricoh OPC MP201 MP201",
+      "description": "Cilindro Compatible Ricoh OPC MP201 MP201",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -31991,17 +31936,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-mp201.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "dd1e127d-4499-41e8-bf69-f886bacfc57f",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32018,11 +31957,6 @@
           "id": "a0db6cb4-9e63-4b50-b1bc-869fce749784",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "d5ed55de-8c4b-4ebe-99f8-cf189a2c23d7",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32039,8 +31973,8 @@
     {
       "id": "haiprint-cilindro-mp-4000-5000",
       "code": "983277",
-      "name": "Cilindro Compatible HaiPrint Ricoh OPC MP 4000/5000 MP 4000/5000",
-      "description": "Cilindro Compatible HaiPrint Ricoh OPC MP 4000/5000 MP 4000/5000",
+      "name": "Cilindro Compatible Ricoh OPC MP 4000/5000 MP 4000/5000",
+      "description": "Cilindro Compatible Ricoh OPC MP 4000/5000 MP 4000/5000",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32050,17 +31984,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-mp-4000-5000.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "67be616e-d3e9-4ae7-a1e2-a884f3ca1634",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32077,11 +32005,6 @@
           "id": "bc242aa9-8cf3-4d5b-8bf7-2177c83c098c",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "885c2c99-d864-4dda-8037-b1a2afceae32",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32098,8 +32021,8 @@
     {
       "id": "haiprint-cilindro-ir1730",
       "code": "972011",
-      "name": "Cilindro Compatible HaiPrint Canon OPC IR1730 IR1730",
-      "description": "Cilindro Compatible HaiPrint Canon OPC IR1730 IR1730",
+      "name": "Cilindro Compatible Canon OPC IR1730 IR1730",
+      "description": "Cilindro Compatible Canon OPC IR1730 IR1730",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32109,17 +32032,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-ir1730.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "09b40f6c-987a-496b-8711-21dcffa6d787",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32136,11 +32053,6 @@
           "id": "f2e9cc8a-2155-44c0-b337-792fe4b7ffda",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "9e88e90d-91eb-4d08-99a2-5fdd7a5109ee",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32157,8 +32069,8 @@
     {
       "id": "haiprint-cilindro-irc-5550",
       "code": "995535",
-      "name": "Cilindro Compatible HaiPrint Canon OPC IRC 5550 IRC 5550/5540",
-      "description": "Cilindro Compatible HaiPrint Canon OPC IRC 5550 IRC 5550/5540",
+      "name": "Cilindro Compatible Canon OPC IRC 5550 IRC 5550/5540",
+      "description": "Cilindro Compatible Canon OPC IRC 5550 IRC 5550/5540",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32168,17 +32080,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-irc-5550.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "24c021b1-8f5a-4967-8ce2-bfdfddf1b02e",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32195,11 +32101,6 @@
           "id": "96611f65-4bfb-4483-b688-86b47fc75350",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "a1ecda1e-1757-42e4-b0fc-df0e7853999f",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32216,8 +32117,8 @@
     {
       "id": "haiprint-cilindro-irc5235-5035",
       "code": "921300",
-      "name": "Cilindro Compatible HaiPrint Canon OPC IRC5235/5035 IRC 5235/5035/5030",
-      "description": "Cilindro Compatible HaiPrint Canon OPC IRC5235/5035 IRC 5235/5035/5030",
+      "name": "Cilindro Compatible Canon OPC IRC5235/5035 IRC 5235/5035/5030",
+      "description": "Cilindro Compatible Canon OPC IRC5235/5035 IRC 5235/5035/5030",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32227,17 +32128,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-irc5235-5035.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "6db66ce4-916a-481c-a8f1-aa4038b3d141",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32254,11 +32149,6 @@
           "id": "6d57b9e6-a9e2-4261-91a2-5aa7c08e01c9",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "2561743b-3dfd-457e-9f23-3580add6500f",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32275,8 +32165,8 @@
     {
       "id": "haiprint-cilindro-ir4251",
       "code": "975444",
-      "name": "Cilindro Compatible HaiPrint Canon OPC IR4251 IR4251",
-      "description": "Cilindro Compatible HaiPrint Canon OPC IR4251 IR4251",
+      "name": "Cilindro Compatible Canon OPC IR4251 IR4251",
+      "description": "Cilindro Compatible Canon OPC IR4251 IR4251",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32286,17 +32176,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-ir4251.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "92f12dd7-87c2-4963-a3e7-ebfbce2c0de1",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32313,11 +32197,6 @@
           "id": "71a8c360-f6aa-4a40-94e3-ab90bf00a293",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "a67d0327-ce96-4ca5-8030-5cb206db6764",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32334,8 +32213,8 @@
     {
       "id": "haiprint-cilindro-c220-360",
       "code": "973906",
-      "name": "Cilindro Compatible HaiPrint Konica Minolta OPC C220/360 C220/360",
-      "description": "Cilindro Compatible HaiPrint Konica Minolta OPC C220/360 C220/360",
+      "name": "Cilindro Compatible Konica Minolta OPC C220/360 C220/360",
+      "description": "Cilindro Compatible Konica Minolta OPC C220/360 C220/360",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32345,17 +32224,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-c220-360.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "c5b58a06-f0bd-4946-a3f9-fee0e23f65b0",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32372,11 +32245,6 @@
           "id": "afa23049-be39-4b15-89ab-8dcd112d8232",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "0cbac243-77c3-4e37-b74f-3a45a16af9ed",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32393,8 +32261,8 @@
     {
       "id": "haiprint-cilindro-bh420-500",
       "code": "989343",
-      "name": "Cilindro Compatible HaiPrint Konica Minolta OPC BH420/500 BH 360/500/420",
-      "description": "Cilindro Compatible HaiPrint Konica Minolta OPC BH420/500 BH 360/500/420",
+      "name": "Cilindro Compatible Konica Minolta OPC BH420/500 BH 360/500/420",
+      "description": "Cilindro Compatible Konica Minolta OPC BH420/500 BH 360/500/420",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32404,17 +32272,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-bh420-500.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "17c4b172-5d9a-4a79-9159-b6ab3bbe731f",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32431,11 +32293,6 @@
           "id": "87674205-77f0-4d0e-aa3b-f0ab17b7807e",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "42b23b1b-f93c-4e3e-ad19-feaaa6013bb9",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32452,8 +32309,8 @@
     {
       "id": "haiprint-cilindro-bh-c203",
       "code": "960420",
-      "name": "Cilindro Compatible HaiPrint Konica Minolta OPC BH-C203 BHC-C203",
-      "description": "Cilindro Compatible HaiPrint Konica Minolta OPC BH-C203 BHC-C203",
+      "name": "Cilindro Compatible Konica Minolta OPC BH-C203 BHC-C203",
+      "description": "Cilindro Compatible Konica Minolta OPC BH-C203 BHC-C203",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32463,17 +32320,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-bh-c203.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "23d4ce0d-5cd9-49d8-acc1-24b62e00adf8",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32490,11 +32341,6 @@
           "id": "b7eafbb3-cd19-438b-bea8-1e4b60d17334",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "1b83864c-daa9-4649-999f-42e8735b2b3b",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32511,8 +32357,8 @@
     {
       "id": "haiprint-cilindro-c451-452",
       "code": "940706",
-      "name": "Cilindro Compatible HaiPrint Konica Minolta OPC C451/452 C451/452 COLOR",
-      "description": "Cilindro Compatible HaiPrint Konica Minolta OPC C451/452 C451/452 COLOR",
+      "name": "Cilindro Compatible Konica Minolta OPC C451/452 C451/452 COLOR",
+      "description": "Cilindro Compatible Konica Minolta OPC C451/452 C451/452 COLOR",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32522,17 +32368,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-c451-452.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "357617c7-5c5c-40ce-80c2-1a1ea5d4d3c7",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32549,11 +32389,6 @@
           "id": "df4dfd32-109c-4a22-96ea-94897115b252",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "58d4baab-0fd3-459e-aa22-ebab27c2f52f",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32570,8 +32405,8 @@
     {
       "id": "haiprint-cilindro-fs-4200-4100",
       "code": "977139",
-      "name": "Cilindro Compatible HaiPrint Kyocera OPC FS 4200/4100 FS 4200/4100/2100",
-      "description": "Cilindro Compatible HaiPrint Kyocera OPC FS 4200/4100 FS 4200/4100/2100",
+      "name": "Cilindro Compatible Kyocera OPC FS 4200/4100 FS 4200/4100/2100",
+      "description": "Cilindro Compatible Kyocera OPC FS 4200/4100 FS 4200/4100/2100",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32581,17 +32416,11 @@
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cilindro-fs-4200-4100.webp",
       "gallery": [],
       "purchase_price_usd": 0,
-      "suppliers": [
-        {
-          "id": "06c89223-435d-4d59-8d9a-3e7d3e9c6ad0",
-          "name": "HaiPrint",
-          "purchase_price_usd": 0
-        }
-      ],
+      "suppliers": [],
       "attachments": [],
       "attributes": [
         {
@@ -32608,11 +32437,6 @@
           "id": "ad939455-1d42-49e3-9ded-315f05dfaca9",
           "name": "Marca compatible",
           "value": "Kyocera"
-        },
-        {
-          "id": "9fccab1a-770a-4311-9418-358076168cef",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32629,8 +32453,8 @@
     {
       "id": "haiprint-rc-sp5200",
       "code": "997856",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH SP5200",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH SP5200",
+      "name": "Rodillo de Calor Compatible RICOH SP5200",
+      "description": "Rodillo de Calor Compatible RICOH SP5200",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32640,7 +32464,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-sp5200.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -32667,11 +32491,6 @@
           "id": "a4cf1db6-8589-4a5a-8612-867fbc7965e9",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "3f3c6f9c-3dba-46b5-9d98-6d02182d1ebf",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32688,8 +32507,8 @@
     {
       "id": "haiprint-rc-af1060",
       "code": "919844",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH AF1060 BROWN",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH AF1060 BROWN",
+      "name": "Rodillo de Calor Compatible RICOH AF1060 BROWN",
+      "description": "Rodillo de Calor Compatible RICOH AF1060 BROWN",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32699,7 +32518,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-af1060.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -32726,11 +32545,6 @@
           "id": "3fea8bd4-3804-4595-8d06-fcfdb572e3b9",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "8248e131-f1db-4a8a-869c-9a65d1bf5f50",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32747,8 +32561,8 @@
     {
       "id": "haiprint-rc-mp-2550",
       "code": "904916",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH MP 2550",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH MP 2550",
+      "name": "Rodillo de Calor Compatible RICOH MP 2550",
+      "description": "Rodillo de Calor Compatible RICOH MP 2550",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32758,7 +32572,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-mp-2550.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -32785,11 +32599,6 @@
           "id": "a53d4d1d-c3d4-4a3e-936f-8d1760dc194f",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "39453f58-80fe-45df-89da-6190971493d8",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32806,8 +32615,8 @@
     {
       "id": "haiprint-rc-mp6000-a",
       "code": "910463",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH MP6000 A",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH MP6000 A",
+      "name": "Rodillo de Calor Compatible RICOH MP6000 A",
+      "description": "Rodillo de Calor Compatible RICOH MP6000 A",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32817,7 +32626,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-mp6000-a.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -32844,11 +32653,6 @@
           "id": "932d6ae1-f43d-4185-97c8-3d5458825d52",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "dc641b82-308a-4ae3-bae8-cd980b030f80",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32865,8 +32669,8 @@
     {
       "id": "haiprint-rc-mp-6000-b",
       "code": "923717",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH MP 6000 B",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH MP 6000 B",
+      "name": "Rodillo de Calor Compatible RICOH MP 6000 B",
+      "description": "Rodillo de Calor Compatible RICOH MP 6000 B",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32876,7 +32680,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-mp-6000-b.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -32903,11 +32707,6 @@
           "id": "3e3010ae-f721-4353-b789-a36a4443bc75",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "6a3afbc2-5b4c-48df-b40b-1384ee3da71f",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32924,8 +32723,8 @@
     {
       "id": "haiprint-rc-mp6001-c",
       "code": "911554",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH MP6001 C",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH MP6001 C",
+      "name": "Rodillo de Calor Compatible RICOH MP6001 C",
+      "description": "Rodillo de Calor Compatible RICOH MP6001 C",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32935,7 +32734,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-mp6001-c.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -32962,11 +32761,6 @@
           "id": "6d978984-8e5d-4928-b284-275d10a18df8",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "aecf3c03-96e0-4b71-8f2a-c41849c696ff",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -32983,8 +32777,8 @@
     {
       "id": "haiprint-rc-bh-420",
       "code": "905555",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH BH 420",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH BH 420",
+      "name": "Rodillo de Calor Compatible RICOH BH 420",
+      "description": "Rodillo de Calor Compatible RICOH BH 420",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -32994,7 +32788,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-bh-420.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33021,11 +32815,6 @@
           "id": "a1822bbe-7a1d-4eac-a919-3ab3e34593f6",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "4c527484-022e-40de-97df-d9b476403fe5",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33042,8 +32831,8 @@
     {
       "id": "haiprint-rc-mp-4000",
       "code": "971180",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH MP 4000",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH MP 4000",
+      "name": "Rodillo de Calor Compatible RICOH MP 4000",
+      "description": "Rodillo de Calor Compatible RICOH MP 4000",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33053,7 +32842,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-mp-4000.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33080,11 +32869,6 @@
           "id": "ae48cafc-2452-462a-a34f-038d57b070a2",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "6497bbda-0913-4b0c-9e99-7afc48f3fe47",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33101,8 +32885,8 @@
     {
       "id": "haiprint-rc-mp-501",
       "code": "927270",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH MP 501",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH MP 501",
+      "name": "Rodillo de Calor Compatible RICOH MP 501",
+      "description": "Rodillo de Calor Compatible RICOH MP 501",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33112,7 +32896,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-mp-501.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33139,11 +32923,6 @@
           "id": "91f84e03-a446-46f0-a030-6add94e43098",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "b211967d-2b6d-4567-bca7-af2b5fedb5ef",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33160,8 +32939,8 @@
     {
       "id": "haiprint-rc-bh283",
       "code": "991197",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH BH283 BLACK",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH BH283 BLACK",
+      "name": "Rodillo de Calor Compatible RICOH BH283 BLACK",
+      "description": "Rodillo de Calor Compatible RICOH BH283 BLACK",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33171,7 +32950,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-bh283.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33198,11 +32977,6 @@
           "id": "f58fecf5-b719-472d-b1d1-d9ba32e7fe01",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "ae8a4fd7-36a4-4751-b86b-370c64da5173",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33219,8 +32993,8 @@
     {
       "id": "haiprint-rc-bh-c452",
       "code": "944827",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH BH C452 BIZHUB",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH BH C452 BIZHUB",
+      "name": "Rodillo de Calor Compatible RICOH BH C452 BIZHUB",
+      "description": "Rodillo de Calor Compatible RICOH BH C452 BIZHUB",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33230,7 +33004,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-bh-c452.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33257,11 +33031,6 @@
           "id": "73139372-f6ea-42b6-96e7-0836cae6fe36",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "d33fe92f-c5cf-4134-9490-ab52efc59a8a",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33278,8 +33047,8 @@
     {
       "id": "haiprint-rc-di-650",
       "code": "966539",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH DI 650",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH DI 650",
+      "name": "Rodillo de Calor Compatible RICOH DI 650",
+      "description": "Rodillo de Calor Compatible RICOH DI 650",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33289,7 +33058,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-di-650.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33316,11 +33085,6 @@
           "id": "fb57649c-80b4-4ce9-8b42-2e2c2c293c0a",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "0a95500e-6c3a-4170-8350-66cdf69f33d1",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33337,8 +33101,8 @@
     {
       "id": "haiprint-rc-di-750",
       "code": "967628",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH DI 750 BH 920",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH DI 750 BH 920",
+      "name": "Rodillo de Calor Compatible RICOH DI 750 BH 920",
+      "description": "Rodillo de Calor Compatible RICOH DI 750 BH 920",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33348,7 +33112,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-di-750.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33375,11 +33139,6 @@
           "id": "30d0ca4c-2e84-4243-9584-5a4dc76fb785",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "11272e4e-456e-448f-b9a5-2ab2098c72e7",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33396,8 +33155,8 @@
     {
       "id": "haiprint-rc-ir-8085",
       "code": "976403",
-      "name": "Rodillo de Calor Compatible HaiPrint RICOH IR 8085",
-      "description": "Rodillo de Calor Compatible HaiPrint RICOH IR 8085",
+      "name": "Rodillo de Calor Compatible RICOH IR 8085",
+      "description": "Rodillo de Calor Compatible RICOH IR 8085",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33407,7 +33166,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rc-ir-8085.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33434,11 +33193,6 @@
           "id": "8d743c49-2309-4fc9-8cc7-8332cbca02c9",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "5ae8fca3-4f3d-4c2f-b9b5-61712de194e7",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33455,8 +33209,8 @@
     {
       "id": "haiprint-rp-mpc2503",
       "code": "974549",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MPC2503",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MPC2503",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh MPC2503",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh MPC2503",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33466,7 +33220,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-mpc2503.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33493,11 +33247,6 @@
           "id": "14a95868-a79c-4588-a097-2ffe104db1ba",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "729e1761-56fa-4b00-87f2-0dd663b986b3",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33514,8 +33263,8 @@
     {
       "id": "haiprint-rp-mp-501",
       "code": "992787",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP 501",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP 501",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh MP 501",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh MP 501",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33525,7 +33274,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-mp-501.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33552,11 +33301,6 @@
           "id": "5562687c-7311-4c63-bdfb-137ec5c54446",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "6f542456-f065-4a57-b7cb-7f1772735a73",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33573,8 +33317,8 @@
     {
       "id": "haiprint-rp-mp301",
       "code": "927060",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP301 AF",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP301 AF",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh MP301 AF",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh MP301 AF",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33584,7 +33328,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-mp301.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33611,11 +33355,6 @@
           "id": "09c19848-bb7a-46fb-a66e-fd7190acdf76",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "cfd7bc10-808a-46d3-ba5c-fd7a0d6b4ae1",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33632,8 +33371,8 @@
     {
       "id": "haiprint-rp-af-1022",
       "code": "985124",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh AF 1022/1027",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh AF 1022/1027",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh AF 1022/1027",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh AF 1022/1027",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33643,7 +33382,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-af-1022.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33670,11 +33409,6 @@
           "id": "8dc1b0ce-daf7-40d0-9b84-bf020c722e4a",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "f7e762b8-b753-40f4-bdfd-a18edcb0299e",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33691,8 +33425,8 @@
     {
       "id": "haiprint-rp-sp-5200",
       "code": "970578",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh SP 5200",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh SP 5200",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh SP 5200",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh SP 5200",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33702,7 +33436,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-sp-5200.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33729,11 +33463,6 @@
           "id": "b5386f0c-1eaf-4573-813d-f1df23d1bd4b",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "4f24ecff-9f80-4908-ba2e-827c2a9caf00",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33750,8 +33479,8 @@
     {
       "id": "haiprint-rp-mpc305",
       "code": "951211",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MPC305",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MPC305",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh MPC305",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh MPC305",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33761,7 +33490,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-mpc305.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33788,11 +33517,6 @@
           "id": "2804f364-490b-45e1-aad5-a0757f2834f5",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "4d9f809f-26e2-43e5-bb48-f4b5643b12bf",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33809,8 +33533,8 @@
     {
       "id": "haiprint-rp-af-2051",
       "code": "922159",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh AF 2051/2075",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh AF 2051/2075",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh AF 2051/2075",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh AF 2051/2075",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33820,7 +33544,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-af-2051.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33847,11 +33571,6 @@
           "id": "30fe8a32-e0ab-4aeb-b73f-83aae0497bdd",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "4fc35311-c0c6-4150-bbbe-39353f42d5af",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33868,8 +33587,8 @@
     {
       "id": "haiprint-rp-mp-c3503",
       "code": "962107",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP C3503",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP C3503",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh MP C3503",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh MP C3503",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33879,7 +33598,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-mp-c3503.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33906,11 +33625,6 @@
           "id": "d9574dcf-c09a-45c0-91d8-3a17e1dda686",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "26562958-a090-4327-865c-c0c0d50cb387",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33927,8 +33641,8 @@
     {
       "id": "haiprint-rp-mp-2554",
       "code": "987981",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP 2554",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP 2554",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh MP 2554",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh MP 2554",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33938,7 +33652,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-mp-2554.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -33965,11 +33679,6 @@
           "id": "8c4e494a-8a87-4088-928e-9e07f3b21f00",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "b7542c3f-6972-44a5-b23d-c23bf8e5fc07",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -33986,8 +33695,8 @@
     {
       "id": "haiprint-rp-af-1060",
       "code": "985254",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh AF 1060",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh AF 1060",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh AF 1060",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh AF 1060",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -33997,7 +33706,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-af-1060.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34024,11 +33733,6 @@
           "id": "d4a19dd6-30cb-4e7d-81df-454d289f1249",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "d89f4e14-5df1-48eb-8a77-23b21df0c072",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34045,8 +33749,8 @@
     {
       "id": "haiprint-rp-mp-5000",
       "code": "991178",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP 5000/4000",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Ricoh MP 5000/4000",
+      "name": "RODILLO DE PRESIÓN Compatible Ricoh MP 5000/4000",
+      "description": "RODILLO DE PRESIÓN Compatible Ricoh MP 5000/4000",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34056,7 +33760,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-mp-5000.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34083,11 +33787,6 @@
           "id": "e7d8fd46-102d-4fc7-bf4d-4a1622490769",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "9dc2a534-b4c8-4df6-a14d-27d4b5f36e29",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34104,8 +33803,8 @@
     {
       "id": "haiprint-rp-c452",
       "code": "929201",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta C452 BH6452",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta C452 BH6452",
+      "name": "RODILLO DE PRESIÓN Compatible Konica Minolta C452 BH6452",
+      "description": "RODILLO DE PRESIÓN Compatible Konica Minolta C452 BH6452",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34115,7 +33814,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-c452.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34142,11 +33841,6 @@
           "id": "676bdd90-e5ab-49b2-8463-5b76408b1142",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "a61b01e4-df51-4b83-9f6a-a47799991562",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34163,8 +33857,8 @@
     {
       "id": "haiprint-rp-bhc654",
       "code": "933951",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta BHC654",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta BHC654",
+      "name": "RODILLO DE PRESIÓN Compatible Konica Minolta BHC654",
+      "description": "RODILLO DE PRESIÓN Compatible Konica Minolta BHC654",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34174,7 +33868,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-bhc654.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34201,11 +33895,6 @@
           "id": "6184de8d-a48e-4c2f-b08b-478c9c42e945",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "673ca496-75cb-4f56-8427-d7dbf657f617",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34222,8 +33911,8 @@
     {
       "id": "haiprint-rp-bh-654",
       "code": "973353",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta BH 654/754",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta BH 654/754",
+      "name": "RODILLO DE PRESIÓN Compatible Konica Minolta BH 654/754",
+      "description": "RODILLO DE PRESIÓN Compatible Konica Minolta BH 654/754",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34233,7 +33922,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-bh-654.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34260,11 +33949,6 @@
           "id": "3df66cb6-d6c9-4b69-8c73-91cd8cf3551f",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "97dc7a51-4e9e-4f02-a1a5-5fea52220c70",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34281,8 +33965,8 @@
     {
       "id": "haiprint-rp-af-1013",
       "code": "985092",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta AF 1013",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta AF 1013",
+      "name": "RODILLO DE PRESIÓN Compatible Konica Minolta AF 1013",
+      "description": "RODILLO DE PRESIÓN Compatible Konica Minolta AF 1013",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34292,7 +33976,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-af-1013.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34319,11 +34003,6 @@
           "id": "868eccb5-0db8-4c56-8037-bc27db1597ad",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "c5c620a1-0540-492f-920a-13f8adf04ef0",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34340,8 +34019,8 @@
     {
       "id": "haiprint-rp-bhc454",
       "code": "931773",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta BHC454",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta BHC454",
+      "name": "RODILLO DE PRESIÓN Compatible Konica Minolta BHC454",
+      "description": "RODILLO DE PRESIÓN Compatible Konica Minolta BHC454",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34351,7 +34030,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-bhc454.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34378,11 +34057,6 @@
           "id": "6abdf810-025d-42af-b503-12be92cdc869",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "8301f789-c88f-4576-a418-ab565d4a089d",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34399,8 +34073,8 @@
     {
       "id": "haiprint-rp-di-750",
       "code": "934145",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta DI 750",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta DI 750",
+      "name": "RODILLO DE PRESIÓN Compatible Konica Minolta DI 750",
+      "description": "RODILLO DE PRESIÓN Compatible Konica Minolta DI 750",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34410,7 +34084,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-di-750.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34437,11 +34111,6 @@
           "id": "231269d1-8c4b-47c6-936a-28bc0a3b7119",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "279a8ffe-4249-4cb0-ba7b-bf9cfa0dcea2",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34458,8 +34127,8 @@
     {
       "id": "haiprint-rp-bh-c224",
       "code": "926613",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta BH C224 BIZHUB",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta BH C224 BIZHUB",
+      "name": "RODILLO DE PRESIÓN Compatible Konica Minolta BH C224 BIZHUB",
+      "description": "RODILLO DE PRESIÓN Compatible Konica Minolta BH C224 BIZHUB",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34469,7 +34138,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-bh-c224.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34496,11 +34165,6 @@
           "id": "41b20f21-9ccd-40f3-ac51-6d4a9eccf5c5",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "160fb754-b41b-4c6f-9e7c-2d0168b164f2",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34517,8 +34181,8 @@
     {
       "id": "haiprint-rp-di-551",
       "code": "931968",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta DI 551/550",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Konica Minolta DI 551/550",
+      "name": "RODILLO DE PRESIÓN Compatible Konica Minolta DI 551/550",
+      "description": "RODILLO DE PRESIÓN Compatible Konica Minolta DI 551/550",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34528,7 +34192,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-di-551.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34555,11 +34219,6 @@
           "id": "f44d7e2e-24b4-4c7a-a8d3-7fcbb2b8c6b3",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "8a1fea42-a933-4a69-9931-298af1315624",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34576,8 +34235,8 @@
     {
       "id": "haiprint-rp-ir-c5250",
       "code": "910450",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Canon IR C5250",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Canon IR C5250",
+      "name": "RODILLO DE PRESIÓN Compatible Canon IR C5250",
+      "description": "RODILLO DE PRESIÓN Compatible Canon IR C5250",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34587,7 +34246,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-ir-c5250.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34614,11 +34273,6 @@
           "id": "230e5e4c-d782-48a2-bd25-c659367b9997",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "30833dea-89e9-40d7-a516-b7a0c844866e",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34635,8 +34289,8 @@
     {
       "id": "haiprint-rp-ir8205",
       "code": "962101",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Canon IR8205/8085",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Canon IR8205/8085",
+      "name": "RODILLO DE PRESIÓN Compatible Canon IR8205/8085",
+      "description": "RODILLO DE PRESIÓN Compatible Canon IR8205/8085",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34646,7 +34300,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-ir8205.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34673,11 +34327,6 @@
           "id": "2f2ccbce-bb48-4c04-9cfc-9ecf29c1af6f",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "52e611c6-8585-4b1b-92fb-ae4dc577482a",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34694,8 +34343,8 @@
     {
       "id": "haiprint-rp-ir-c7260",
       "code": "982357",
-      "name": "RODILLO DE PRESIÓN Compatible HaiPrint Canon IRC7260",
-      "description": "RODILLO DE PRESIÓN Compatible HaiPrint Canon IRC7260",
+      "name": "RODILLO DE PRESIÓN Compatible Canon IRC7260",
+      "description": "RODILLO DE PRESIÓN Compatible Canon IRC7260",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34705,7 +34354,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-rp-ir-c7260.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34732,11 +34381,6 @@
           "id": "bb84c4ae-15f8-414b-bb01-1ca07861e291",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "26c298ba-9f76-4673-bee8-395fbf6bf226",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34753,8 +34397,8 @@
     {
       "id": "haiprint-ff-bhc-224",
       "code": "942215",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Konica Minolta BHC 224",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Konica Minolta BHC 224",
+      "name": "Fuser Film (Faja Fusora) Compatible Konica Minolta BHC 224",
+      "description": "Fuser Film (Faja Fusora) Compatible Konica Minolta BHC 224",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34764,7 +34408,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-bhc-224.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34791,11 +34435,6 @@
           "id": "e71a2235-a5e8-4f99-9b5d-ba11f1f9211a",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "3be2879f-e2b4-4891-ac8a-7fed45803dd1",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34812,8 +34451,8 @@
     {
       "id": "haiprint-ff-bh-c451",
       "code": "918353",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Konica Minolta BH C451",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Konica Minolta BH C451",
+      "name": "Fuser Film (Faja Fusora) Compatible Konica Minolta BH C451",
+      "description": "Fuser Film (Faja Fusora) Compatible Konica Minolta BH C451",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34823,7 +34462,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-bh-c451.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34850,11 +34489,6 @@
           "id": "9fe61d9c-3440-40ec-b740-d546387a7519",
           "name": "Marca compatible",
           "value": "Konica Minolta"
-        },
-        {
-          "id": "a6683318-60d1-4485-9574-b2e71521daaa",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34871,8 +34505,8 @@
     {
       "id": "haiprint-ff-hl-5440",
       "code": "948011",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Brother HL 5440",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Brother HL 5440",
+      "name": "Fuser Film (Faja Fusora) Compatible Brother HL 5440",
+      "description": "Fuser Film (Faja Fusora) Compatible Brother HL 5440",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34882,7 +34516,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-hl-5440.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34909,11 +34543,6 @@
           "id": "eaa362e6-1b06-439c-9606-ef648963b73c",
           "name": "Marca compatible",
           "value": "Brother"
-        },
-        {
-          "id": "2b333079-3755-401a-9542-81a18ea4f64b",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34930,8 +34559,8 @@
     {
       "id": "haiprint-ff-m2040",
       "code": "952528",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh M2040",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh M2040",
+      "name": "Fuser Film (Faja Fusora) Compatible Ricoh M2040",
+      "description": "Fuser Film (Faja Fusora) Compatible Ricoh M2040",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -34941,7 +34570,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-m2040.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -34968,11 +34597,6 @@
           "id": "c076d547-5a77-49ad-9ccb-f5ddd961bebd",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "cd450017-a85f-4b76-90eb-893480bc033d",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -34989,8 +34613,8 @@
     {
       "id": "haiprint-ff-mp-c305-306",
       "code": "911504",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh MP C305/306",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh MP C305/306",
+      "name": "Fuser Film (Faja Fusora) Compatible Ricoh MP C305/306",
+      "description": "Fuser Film (Faja Fusora) Compatible Ricoh MP C305/306",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35000,7 +34624,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-mp-c305-306.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35027,11 +34651,6 @@
           "id": "c1c3e477-ad6f-4e57-b247-aa7445a6960b",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "eb1d2c68-0b1f-4eea-95e6-63e12679c001",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35048,8 +34667,8 @@
     {
       "id": "haiprint-ff-mp-c4502",
       "code": "989757",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh MP C4502 C2554",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh MP C4502 C2554",
+      "name": "Fuser Film (Faja Fusora) Compatible Ricoh MP C4502 C2554",
+      "description": "Fuser Film (Faja Fusora) Compatible Ricoh MP C4502 C2554",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35059,7 +34678,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-mp-c4502.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35086,11 +34705,6 @@
           "id": "edc8c1a9-3444-465f-9511-884e7ae0b225",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "ffcb8144-4a98-414d-b14f-9a03945cce06",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35107,8 +34721,8 @@
     {
       "id": "haiprint-ff-mp-c2503",
       "code": "917884",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh MP C2503/3503",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh MP C2503/3503",
+      "name": "Fuser Film (Faja Fusora) Compatible Ricoh MP C2503/3503",
+      "description": "Fuser Film (Faja Fusora) Compatible Ricoh MP C2503/3503",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35118,7 +34732,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-mp-c2503.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35145,11 +34759,6 @@
           "id": "5e190587-6fcf-445b-97d2-8603d3257cda",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "59a95daf-3113-42cc-bce4-134038f4c817",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35166,8 +34775,8 @@
     {
       "id": "haiprint-ff-mp-c300",
       "code": "954013",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh MP C300",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Ricoh MP C300",
+      "name": "Fuser Film (Faja Fusora) Compatible Ricoh MP C300",
+      "description": "Fuser Film (Faja Fusora) Compatible Ricoh MP C300",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35177,7 +34786,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-mp-c300.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35204,11 +34813,6 @@
           "id": "c80d1a97-f52d-4faf-8002-6bb74fba841e",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "05b2baab-77d7-4b97-b25f-f6d0085c1223",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35225,8 +34829,8 @@
     {
       "id": "haiprint-ff-ir-4235",
       "code": "907195",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR 4235/4245/4251",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR 4235/4245/4251",
+      "name": "Fuser Film (Faja Fusora) Compatible Canon IR 4235/4245/4251",
+      "description": "Fuser Film (Faja Fusora) Compatible Canon IR 4235/4245/4251",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35236,7 +34840,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-ir-4235.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35263,11 +34867,6 @@
           "id": "25627e8e-bb24-4187-982a-716f9db8afbc",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "1cdc2aa6-fc44-4295-bc72-a23a0e331e8a",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35284,8 +34883,8 @@
     {
       "id": "haiprint-ff-ir-c5550",
       "code": "905431",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR C5550 ADV",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR C5550 ADV",
+      "name": "Fuser Film (Faja Fusora) Compatible Canon IR C5550 ADV",
+      "description": "Fuser Film (Faja Fusora) Compatible Canon IR C5550 ADV",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35295,7 +34894,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-ir-c5550.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35322,11 +34921,6 @@
           "id": "f3ba42a4-5764-40c3-8a4a-2a5936dd5379",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "b187a7a5-537b-49ae-80ca-043331eb9fc9",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35343,8 +34937,8 @@
     {
       "id": "haiprint-ff-ir-c5235",
       "code": "902103",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR C5235 ADV",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR C5235 ADV",
+      "name": "Fuser Film (Faja Fusora) Compatible Canon IR C5235 ADV",
+      "description": "Fuser Film (Faja Fusora) Compatible Canon IR C5235 ADV",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35354,7 +34948,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-ir-c5235.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35381,11 +34975,6 @@
           "id": "3eb1f5c4-4857-4fe1-92b1-7539fe4d8ac2",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "095e7642-f48e-4544-b6ae-e9bd7a595f16",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35402,8 +34991,8 @@
     {
       "id": "haiprint-ff-irc-2020",
       "code": "961564",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IRC 2020",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IRC 2020",
+      "name": "Fuser Film (Faja Fusora) Compatible Canon IRC 2020",
+      "description": "Fuser Film (Faja Fusora) Compatible Canon IRC 2020",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35413,7 +35002,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-irc-2020.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35440,11 +35029,6 @@
           "id": "80d73f36-f192-400a-9875-41b485208643",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "0b237fc4-3106-422c-80ec-8d84a8c6a3da",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35461,8 +35045,8 @@
     {
       "id": "haiprint-ff-ir-c7260",
       "code": "974071",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR C7260",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR C7260",
+      "name": "Fuser Film (Faja Fusora) Compatible Canon IR C7260",
+      "description": "Fuser Film (Faja Fusora) Compatible Canon IR C7260",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35472,7 +35056,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-ir-c7260.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35499,11 +35083,6 @@
           "id": "c36c4a17-ed87-4a8c-8d86-1a979c5ef5a7",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "69bb1e56-5099-4e12-8984-8628f612c750",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35520,8 +35099,8 @@
     {
       "id": "haiprint-ff-ir-1730",
       "code": "903824",
-      "name": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR 1730",
-      "description": "Fuser Film (Faja Fusora) Compatible HaiPrint Canon IR 1730",
+      "name": "Fuser Film (Faja Fusora) Compatible Canon IR 1730",
+      "description": "Fuser Film (Faja Fusora) Compatible Canon IR 1730",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35531,7 +35110,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-ff-ir-1730.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35558,11 +35137,6 @@
           "id": "6970e184-cb39-41a7-bac1-f79e0c86ed51",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "bf9f10df-ec4e-48ec-bba1-4b33b38706b3",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35579,8 +35153,8 @@
     {
       "id": "haiprint-cc-mp-c300-400",
       "code": "968920",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Ricoh MP C300/400",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Ricoh MP C300/400",
+      "name": "Cuchilla de Cilindro Compatible Ricoh MP C300/400",
+      "description": "Cuchilla de Cilindro Compatible Ricoh MP C300/400",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35590,7 +35164,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-mp-c300-400.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35617,11 +35191,6 @@
           "id": "9a207dbf-9b63-4901-88f0-122438309d26",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "adc7be66-6b99-431a-a547-d37e2b63f51e",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35638,8 +35207,8 @@
     {
       "id": "haiprint-cc-mp-c2003-2503",
       "code": "970672",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Ricoh MP C2003/2503 2004/2504",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Ricoh MP C2003/2503 2004/2504",
+      "name": "Cuchilla de Cilindro Compatible Ricoh MP C2003/2503 2004/2504",
+      "description": "Cuchilla de Cilindro Compatible Ricoh MP C2003/2503 2004/2504",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35649,7 +35218,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-mp-c2003-2503.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35676,11 +35245,6 @@
           "id": "3573d780-516a-4020-a9f1-3fbcb64bed72",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "cd6aa149-27a7-45f0-bb9e-e9b29ae54d8a",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35697,8 +35261,8 @@
     {
       "id": "haiprint-cc-mp-c3003",
       "code": "953514",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Ricoh MP C3003",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Ricoh MP C3003",
+      "name": "Cuchilla de Cilindro Compatible Ricoh MP C3003",
+      "description": "Cuchilla de Cilindro Compatible Ricoh MP C3003",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35708,7 +35272,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-mp-c3003.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35735,11 +35299,6 @@
           "id": "7eb8e18e-cb49-4365-99a1-a96cd8b8666a",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "b8d4e611-f9ee-4e22-ad6a-2c7a2267fe7b",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35756,8 +35315,8 @@
     {
       "id": "haiprint-cc-mp-2554",
       "code": "911265",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Ricoh MP 2554",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Ricoh MP 2554",
+      "name": "Cuchilla de Cilindro Compatible Ricoh MP 2554",
+      "description": "Cuchilla de Cilindro Compatible Ricoh MP 2554",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35767,7 +35326,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-mp-2554.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35794,11 +35353,6 @@
           "id": "c27719f1-dc9f-45cf-824d-f98e7ccb28ea",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "356964c5-48e9-4b8b-9a46-0400057d069f",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35815,8 +35369,8 @@
     {
       "id": "haiprint-cc-ir-1730",
       "code": "936642",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Canon IR 1730",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Canon IR 1730",
+      "name": "Cuchilla de Cilindro Compatible Canon IR 1730",
+      "description": "Cuchilla de Cilindro Compatible Canon IR 1730",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35826,7 +35380,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-ir-1730.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35853,11 +35407,6 @@
           "id": "3bcc0397-eb9d-4e5d-b1a4-5ff747ea6eff",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "2f9a4241-c8c4-45c1-9c61-554d22cd5501",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35874,8 +35423,8 @@
     {
       "id": "haiprint-cc-irc-3525-3530",
       "code": "904801",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Canon IRC 3525/3530",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Canon IRC 3525/3530",
+      "name": "Cuchilla de Cilindro Compatible Canon IRC 3525/3530",
+      "description": "Cuchilla de Cilindro Compatible Canon IRC 3525/3530",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35885,7 +35434,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-irc-3525-3530.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35912,11 +35461,6 @@
           "id": "5682f662-8d16-49c5-b969-dbb8b0d2009f",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "684416e9-1e90-4271-b793-b7d12a220b87",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35933,8 +35477,8 @@
     {
       "id": "haiprint-cc-ir-c7265-7260",
       "code": "935650",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Canon IR C7265/7260 BLACK Y COLOR",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Canon IR C7265/7260 BLACK Y COLOR",
+      "name": "Cuchilla de Cilindro Compatible Canon IR C7265/7260 BLACK Y COLOR",
+      "description": "Cuchilla de Cilindro Compatible Canon IR C7265/7260 BLACK Y COLOR",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -35944,7 +35488,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-ir-c7265-7260.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -35971,11 +35515,6 @@
           "id": "29596a35-a76a-4693-b3ef-3c32b65019dd",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "83e7e0d9-596b-46de-af24-0efd7f808991",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -35992,8 +35531,8 @@
     {
       "id": "haiprint-cc-ir-1435",
       "code": "933380",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Canon IR 1435",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Canon IR 1435",
+      "name": "Cuchilla de Cilindro Compatible Canon IR 1435",
+      "description": "Cuchilla de Cilindro Compatible Canon IR 1435",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -36003,7 +35542,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-ir-1435.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -36030,11 +35569,6 @@
           "id": "e2b22ed7-8d0a-46b5-b873-2d95531feb55",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "cfddc1fa-9bf1-4aac-97d8-34069350a49c",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -36051,8 +35585,8 @@
     {
       "id": "haiprint-cc-ir-c250",
       "code": "946113",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Canon IR C250",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Canon IR C250",
+      "name": "Cuchilla de Cilindro Compatible Canon IR C250",
+      "description": "Cuchilla de Cilindro Compatible Canon IR C250",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -36062,7 +35596,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-ir-c250.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -36089,11 +35623,6 @@
           "id": "47555d41-ec0d-44d1-976c-06ac72fde5c9",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "07f72ecd-5910-475e-af1b-d5adc4f76b71",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -36110,8 +35639,8 @@
     {
       "id": "haiprint-cc-ir-c5240-5250",
       "code": "928238",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Canon IR C 5240/5250 (DISPONIBLE EN OLD & NEW)",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Canon IR C 5240/5250 (DISPONIBLE EN OLD & NEW)",
+      "name": "Cuchilla de Cilindro Compatible Canon IR C 5240/5250 (DISPONIBLE EN OLD & NEW)",
+      "description": "Cuchilla de Cilindro Compatible Canon IR C 5240/5250 (DISPONIBLE EN OLD & NEW)",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -36121,7 +35650,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-ir-c5240-5250.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -36148,11 +35677,6 @@
           "id": "31786699-7af9-442f-858c-97d59208caf5",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "dfbd7c9a-f1c1-482b-9c30-53cdf348eb77",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -36169,8 +35693,8 @@
     {
       "id": "haiprint-cc-ir-4251-4235",
       "code": "939790",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Canon IR 4251/4235",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Canon IR 4251/4235",
+      "name": "Cuchilla de Cilindro Compatible Canon IR 4251/4235",
+      "description": "Cuchilla de Cilindro Compatible Canon IR 4251/4235",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -36180,7 +35704,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-ir-4251-4235.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -36207,11 +35731,6 @@
           "id": "6ee20c1b-6f5d-4d8a-9068-412a9e736ad1",
           "name": "Marca compatible",
           "value": "Canon"
-        },
-        {
-          "id": "8c9afb09-276a-4ea3-9767-0e4ce5e87010",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -36228,8 +35747,8 @@
     {
       "id": "haiprint-cc-fs-1028",
       "code": "970776",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Kyocera FS 1028",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Kyocera FS 1028",
+      "name": "Cuchilla de Cilindro Compatible Kyocera FS 1028",
+      "description": "Cuchilla de Cilindro Compatible Kyocera FS 1028",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -36239,7 +35758,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-fs-1028.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -36266,11 +35785,6 @@
           "id": "618231e0-aa1f-462f-9f5c-53e6d2e6c6df",
           "name": "Marca compatible",
           "value": "Kyocera"
-        },
-        {
-          "id": "f1cd892c-33ea-4852-9015-5574ee8378c6",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -36287,8 +35801,8 @@
     {
       "id": "haiprint-cc-fs-2040",
       "code": "907771",
-      "name": "Cuchilla de Cilindro Compatible HaiPrint Kyocera FS 2040",
-      "description": "Cuchilla de Cilindro Compatible HaiPrint Kyocera FS 2040",
+      "name": "Cuchilla de Cilindro Compatible Kyocera FS 2040",
+      "description": "Cuchilla de Cilindro Compatible Kyocera FS 2040",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -36298,7 +35812,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-cc-fs-2040.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -36325,11 +35839,6 @@
           "id": "caa2dea7-c686-4aff-8c24-f5feb471424b",
           "name": "Marca compatible",
           "value": "Kyocera"
-        },
-        {
-          "id": "035c9055-71d0-456d-859c-40729e38a9d2",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -37290,8 +36799,8 @@
     {
       "id": "haiprint-am-mp-c2503-3503",
       "code": "944134",
-      "name": "Almohadilla Compatible HaiPrint Ricoh MP C2503/3503",
-      "description": "Almohadilla Compatible HaiPrint Ricoh MP C2503/3503",
+      "name": "Almohadilla Compatible Ricoh MP C2503/3503",
+      "description": "Almohadilla Compatible Ricoh MP C2503/3503",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -37301,7 +36810,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Almohadilla",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-am-mp-c2503-3503.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -37328,11 +36837,6 @@
           "id": "615616c4-48af-4146-a1c1-660b5a6262d7",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "dcb71287-ad6d-4276-ac8b-71a6ec26f526",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -37349,8 +36853,8 @@
     {
       "id": "haiprint-am-mp-c2504",
       "code": "944207",
-      "name": "Almohadilla Compatible HaiPrint Ricoh MP C2504",
-      "description": "Almohadilla Compatible HaiPrint Ricoh MP C2504",
+      "name": "Almohadilla Compatible Ricoh MP C2504",
+      "description": "Almohadilla Compatible Ricoh MP C2504",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -37360,7 +36864,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Almohadilla",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-am-mp-c2504.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -37387,11 +36891,6 @@
           "id": "7a194f8c-5ac8-4f1f-b89f-2880a8c38e9e",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "758ab042-f46f-430d-9fbd-06aba266cead",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],
@@ -37408,8 +36907,8 @@
     {
       "id": "haiprint-am-mp-2554",
       "code": "964817",
-      "name": "Almohadilla Compatible HaiPrint Ricoh MP 2554",
-      "description": "Almohadilla Compatible HaiPrint Ricoh MP 2554",
+      "name": "Almohadilla Compatible Ricoh MP 2554",
+      "description": "Almohadilla Compatible Ricoh MP 2554",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -37419,7 +36918,7 @@
         }
       ],
       "category": "Repuestos Compatibles, Almohadilla",
-      "brand": "HaiPrint",
+      "brand": "",
       "image_url": "/products/haiprint-am-mp-2554.webp",
       "gallery": [],
       "purchase_price_usd": 0,
@@ -37446,11 +36945,6 @@
           "id": "249f31ad-3de1-4ff7-ad15-df1235020692",
           "name": "Marca compatible",
           "value": "Ricoh"
-        },
-        {
-          "id": "3d8a0424-41d4-43a6-bfc1-5066abd05c3a",
-          "name": "Proveedor",
-          "value": "HaiPrint"
         }
       ],
       "bundle_components": [],

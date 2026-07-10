@@ -20,6 +20,7 @@ import type { InventoryProduct } from '@/types/product';
 
 export function AdminInventarioDashboard() {
   const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<InventoryProduct | null>(null);
   const queryClient = useQueryClient();
   const {
     data: products = [],
@@ -48,6 +49,21 @@ export function AdminInventarioDashboard() {
     [updateProduct],
   );
 
+  const openCreateProduct = useCallback(() => {
+    setEditingProduct(null);
+    setProductDialogOpen(true);
+  }, []);
+
+  const openEditProduct = useCallback((product: InventoryProduct) => {
+    setEditingProduct(product);
+    setProductDialogOpen(true);
+  }, []);
+
+  const handleProductDialogOpenChange = useCallback((open: boolean) => {
+    setProductDialogOpen(open);
+    if (!open) setEditingProduct(null);
+  }, []);
+
   const { open: utilityPanelOpen } = useAdminUtilityPanel();
 
   const handleSync = async () => {
@@ -58,7 +74,7 @@ export function AdminInventarioDashboard() {
   return (
     <div className="space-y-3">
       <AdminInventarioPageHeader
-        onNewProduct={() => setProductDialogOpen(true)}
+        onNewProduct={openCreateProduct}
         onSync={() => {
           void handleSync();
         }}
@@ -85,6 +101,8 @@ export function AdminInventarioDashboard() {
             saleExchangeRate={saleExchangeRate}
             purchaseExchangeRate={purchaseExchangeRate}
             onPatchProduct={handlePatchProduct}
+            onNewProduct={openCreateProduct}
+            onEditProduct={openEditProduct}
             isLoading={isLoading}
             isSaving={updateProduct.isPending}
           />
@@ -102,8 +120,8 @@ export function AdminInventarioDashboard() {
 
       <InventoryProductFormDialog
         open={productDialogOpen}
-        onOpenChange={setProductDialogOpen}
-        initial={null}
+        onOpenChange={handleProductDialogOpenChange}
+        initial={editingProduct}
       />
     </div>
   );

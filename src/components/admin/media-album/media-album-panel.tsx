@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { CloudUpload, HardDriveDownload, Loader2, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,13 @@ import {
   useMediaAlbumDriveConfig,
   useMediaAlbumMutations,
 } from '@/hooks/use-media-album';
+import { dedupeMediosForDisplay } from '@/lib/admin-medios-utils';
 import { readImageFile, readVideoFile } from '@/lib/inventory-product';
 import { cn } from '@/lib/utils';
 
 export function MediaAlbumPanel() {
   const { data: items = [], isLoading } = useMediaAlbum();
+  const displayItems = useMemo(() => dedupeMediosForDisplay(items), [items]);
   const { data: driveConfig } = useMediaAlbumDriveConfig();
   const { upload, remove, updateDriveConfig, syncDrive } = useMediaAlbumMutations();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -164,23 +166,23 @@ export function MediaAlbumPanel() {
       <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="text-sm font-semibold text-foreground">
-            Medios ({items.length})
+            Medios ({displayItems.length})
           </h3>
           {isLoading ? (
             <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
           ) : null}
         </div>
 
-        {items.length === 0 ? (
+        {displayItems.length === 0 ? (
           <p className="text-sm text-muted-foreground">El álbum está vacío.</p>
         ) : (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {items.map((item) => (
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {displayItems.map((item) => (
               <li
-                key={item.id}
+                key={item.mergedIds?.join(':') ?? item.id}
                 className="group relative overflow-hidden rounded-lg border border-border bg-muted/20"
               >
-                <div className="aspect-square">
+                <div className="aspect-square relative">
                   {item.kind === 'video' ? (
                     <video
                       src={item.url}
@@ -192,6 +194,11 @@ export function MediaAlbumPanel() {
                   ) : (
                     <img src={item.url} alt="" className="size-full object-cover" loading="lazy" />
                   )}
+                  {(item.duplicateCount ?? 1) > 1 ? (
+                    <span className="absolute left-1.5 top-1.5 rounded-full bg-background/90 px-1.5 py-0.5 text-[0.625rem] font-semibold text-foreground shadow-sm">
+                      ×{item.duplicateCount}
+                    </span>
+                  ) : null}
                 </div>
                 <div className="space-y-1 p-2">
                   <p className="truncate text-xs font-medium">{item.name}</p>

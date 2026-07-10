@@ -80,6 +80,7 @@ function matchesTab(record: AdminCategoriaRecord, tab: AdminCategoriaTab) {
 interface AdminCategoriasTablePanelProps {
   records: AdminCategoriaRecord[];
   headerSearch?: string;
+  isLoading?: boolean;
   onEditCategory?: (record: AdminCategoriaRecord) => void;
   onToggleFeatured?: (record: AdminCategoriaRecord) => void;
   onArchiveCategory?: (record: AdminCategoriaRecord) => void;
@@ -88,6 +89,7 @@ interface AdminCategoriasTablePanelProps {
 export function AdminCategoriasTablePanel({
   records,
   headerSearch = '',
+  isLoading = false,
   onEditCategory,
   onToggleFeatured,
   onArchiveCategory,
@@ -299,7 +301,9 @@ export function AdminCategoriasTablePanel({
             {paginatedRecords.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-10 text-center text-sm text-muted-foreground">
-                  No hay categorías que coincidan con los filtros seleccionados.
+                  {isLoading
+                    ? 'Cargando categorías…'
+                    : 'No hay categorías que coincidan con los filtros seleccionados.'}
                 </TableCell>
               </TableRow>
             ) : (

@@ -101,14 +101,25 @@ function isSyncGeneratedFallbackProductGallery(product) {
   );
 }
 
+/** Señales de que el usuario subió o eligió medios reales (no placeholder de sync). */
+function hasAuthenticUserMedia(urls) {
+  return urls.some((url) => {
+    if (typeof url !== 'string' || url.length === 0) return false;
+    if (url.startsWith('data:')) return true;
+    if (url.includes('?v=')) return true;
+    return isExtraAuthenticProductPhotoPath(url);
+  });
+}
+
 /** Imagen principal idéntica a la de otros productos (copia de sync/donor). */
 function isDuplicateMainProductGallery(product) {
   const id = sanitizeProductId(product?.id);
   if (!id || !DUPLICATE_MAIN_PRODUCT_IDS.has(id)) return false;
 
-  return !storedMediaUrls(product).some((url) =>
-    /^https?:\/\//i.test(productMediaPathname(url)),
-  );
+  const urls = storedMediaUrls(product);
+  if (hasAuthenticUserMedia(urls)) return false;
+
+  return !urls.some((url) => /^https?:\/\//i.test(productMediaPathname(url)));
 }
 
 /** Imagen en /products/ que pertenece a este producto (no tomada de otro ítem). */

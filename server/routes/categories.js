@@ -4,8 +4,10 @@ import { requireAdmin } from '../lib/auth-store.js';
 import {
   createStoreCategory,
   deleteStoreCategory,
+  readRemovedStaticSlugs,
   readStoreCategoriesTree,
   reorderStoreCategories,
+  syncCategoriesFromCatalog,
   syncCategoriesFromInventory,
   updateStoreCategory,
 } from '../lib/store-categories-store.js';
@@ -15,8 +17,20 @@ export const categoriesRouter = Router();
 categoriesRouter.get('/', async (_req, res, next) => {
   try {
     const tree = await readStoreCategoriesTree();
-    res.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=300');
+    const removedStaticSlugs = await readRemovedStaticSlugs();
+    res.set('Cache-Control', 'private, no-store');
+    res.set('X-Removed-Static-Slugs', removedStaticSlugs.join(','));
     res.json(tree);
+  } catch (error) {
+    next(error);
+  }
+});
+
+categoriesRouter.get('/removed-static-slugs', async (_req, res, next) => {
+  try {
+    const slugs = await readRemovedStaticSlugs();
+    res.set('Cache-Control', 'private, no-store');
+    res.json({ slugs });
   } catch (error) {
     next(error);
   }
@@ -26,6 +40,16 @@ categoriesRouter.post('/sync-inventory', requireAdmin, async (_req, res, next) =
   try {
     const tree = await syncCategoriesFromInventory();
     res.json({ ok: true, tree });
+  } catch (error) {
+    next(error);
+  }
+});
+
+categoriesRouter.post('/sync-catalog', requireAdmin, async (_req, res, next) => {
+  try {
+    const tree = await syncCategoriesFromCatalog();
+    const removedStaticSlugs = await readRemovedStaticSlugs();
+    res.json({ ok: true, tree, removedStaticSlugs });
   } catch (error) {
     next(error);
   }
@@ -51,9 +75,12 @@ categoriesRouter.patch('/:id', requireAdmin, async (req, res, next) => {
 
 categoriesRouter.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
-    await deleteStoreCategory(req.params.id);
-    res.json({ ok: true });
+    const result = await deleteStoreCategory(req.params.id);
+    res.json(result);
   } catch (error) {
+    if (error instanceof Error && error.statusCode) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
     next(error);
   }
 });

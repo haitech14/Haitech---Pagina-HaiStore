@@ -39,21 +39,6 @@ export function ProductConditionTabs({
       role="tablist"
       aria-label="Filtrar por condición del producto"
     >
-      <button
-        type="button"
-        role="tab"
-        aria-selected={activeCondition === null}
-        className={cn(
-          'min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-          activeCondition === null
-            ? 'border-neutral-900 bg-neutral-900 text-white'
-            : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300',
-        )}
-        onClick={() => selectCondition(null)}
-      >
-        Todos
-      </button>
       {PRODUCT_CONDITIONS.map((condition) => {
         const count = counts?.[condition];
         const disabled = count === 0;

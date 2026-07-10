@@ -21,6 +21,7 @@ interface InventorySalePriceProps {
   priceRole?: PriceRole;
   /** En tabla inline: sin foco propio; el clic lo maneja la celda. */
   embedded?: boolean;
+  category?: string | null;
 }
 
 export function InventorySalePrice({
@@ -28,6 +29,7 @@ export function InventorySalePrice({
   purchaseUsd,
   priceRole,
   embedded = false,
+  category,
 }: InventorySalePriceProps) {
   const { data: company } = useCompanySettings();
   const saleRate = normalizeUsdToPenRate(
@@ -45,7 +47,9 @@ export function InventorySalePrice({
   const purchasePen = usdToPenPrecise(purchase, purchaseRate);
   const profitPen = salePen - purchasePen;
 
-  const priceDisplay = <InventoryDualPrice usd={sale} exchangeRate={saleRate} />;
+  const priceDisplay = (
+    <InventoryDualPrice usd={sale} exchangeRate={saleRate} category={category} />
+  );
 
   return (
     <span

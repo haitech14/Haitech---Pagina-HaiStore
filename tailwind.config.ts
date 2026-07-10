@@ -18,6 +18,7 @@ const config: Config = {
         display: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         heading: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         hero: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        myriad: ['"Myriad Pro"', 'Myriad', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         landing: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         celebration: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },

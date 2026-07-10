@@ -280,10 +280,7 @@ export async function persistProductMedia(product) {
 
   let finalImageUrl = image_url;
   if (finalImageUrl && isImageProductUrl(finalImageUrl)) {
-    const refreshed = await refreshProductCardVariantsForUrl(finalImageUrl, publicDir);
-    if (refreshed && finalImageUrl.includes('?')) {
-      finalImageUrl = mediaPathname(finalImageUrl);
-    }
+    await refreshProductCardVariantsForUrl(finalImageUrl, publicDir);
   }
 
   return {

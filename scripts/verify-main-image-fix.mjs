@@ -119,6 +119,40 @@ function testNormalizeAlignsWithSanitize() {
   console.log('✓ normalizeProductGalleryFields y sanitize están alineados');
 }
 
+function testBlocklistedProductWithGalleryExtras() {
+  const product = {
+    id: '328f41ef-d935-4807-85d0-e1db5bdf73fb',
+    image_url: '/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp',
+    gallery: [
+      '/products/328f41ef-d935-4807-85d0-e1db5bdf73fb-2.webp',
+      '/products/328f41ef-d935-4807-85d0-e1db5bdf73fb-3.webp',
+    ],
+  };
+
+  const result = sanitizeStoredProductMedia(product);
+  assert(
+    result.image_url === product.image_url,
+    `blocklist+galería: esperaba ${product.image_url}, obtuvo ${result.image_url}`,
+  );
+  console.log('✓ productos en blocklist con galería real conservan la imagen principal');
+}
+
+function testBlocklistedProductWithCacheBustedMain() {
+  const cacheBusted = '/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp?v=1234567890';
+  const product = {
+    id: '328f41ef-d935-4807-85d0-e1db5bdf73fb',
+    image_url: cacheBusted,
+    gallery: [],
+  };
+
+  const result = sanitizeStoredProductMedia(product);
+  assert(
+    result.image_url === cacheBusted,
+    `blocklist+cache bust: esperaba ${cacheBusted}, obtuvo ${result.image_url}`,
+  );
+  console.log('✓ productos en blocklist con ?v= conservan la imagen principal');
+}
+
 function testCacheBustedMainUrlIsNotSynthetic() {
   const cacheBusted = '/products/ricoh-im-430f.webp?v=1234567890';
   const product = {
@@ -152,6 +186,8 @@ async function testAlbumUrlIsCopiedToProducts() {
 
 try {
   testSanitizePreservesExplicitMain();
+  testBlocklistedProductWithGalleryExtras();
+  testBlocklistedProductWithCacheBustedMain();
   testCacheBustedMainUrlIsNotSynthetic();
   testMigratePreservesExplicitMain();
   testSupabaseRowPrefersColumnsOverStaleSnapshot();

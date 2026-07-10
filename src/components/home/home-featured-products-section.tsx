@@ -67,9 +67,9 @@ const FEATURED_DISPLAY_LIMIT = 12;
 const FEATURED_POOL_LIMIT = 64;
 
 const FEATURED_PRODUCTS_CAROUSEL_GAP = 'gap-3 sm:gap-3.5 xl:gap-4';
-/** 2 móvil · 3 md · 4 lg · 5 xl visibles por vista. */
+/** ~1.8 móvil · 3 md · 5 lg/xl visibles por vista */
 const FEATURED_PRODUCT_SLIDE_CLASS =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] md:flex-[0_0_calc((100%-1.75rem)/3)] lg:flex-[0_0_calc((100%-2.625rem)/4)] xl:flex-[0_0_calc((100%-4rem)/5)]';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/1.8)] md:flex-[0_0_calc((100%-1.75rem)/3)] lg:flex-[0_0_calc((100%-3.5rem)/5)] xl:flex-[0_0_calc((100%-4rem)/5)]';
 
 const EQUIPMENT_SECTION_IDS = new Set(['multifuncionales', 'impresoras']);
 const CONSUMABLES_SECTION_IDS = new Set(['toner-suministros', 'repuestos']);
@@ -297,7 +297,7 @@ function HomeFeaturedConditionFilters<T extends string>({
   return (
     <div className="mb-4 flex justify-center overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-5 [&::-webkit-scrollbar]:hidden">
       <div
-        className={cn('flex', isCompact ? 'gap-1.5 sm:gap-2' : 'gap-2 sm:gap-2.5')}
+        className={cn('flex justify-center', isCompact ? 'gap-1.5 sm:gap-2' : 'gap-1 sm:gap-1.5')}
         role="tablist"
         aria-label={ariaLabel}
       >
@@ -315,7 +315,7 @@ function HomeFeaturedConditionFilters<T extends string>({
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
                 isCompact
                   ? 'px-2.5 py-1 text-[0.6875rem] sm:px-3 sm:py-1.5 sm:text-xs'
-                  : 'px-3.5 py-2 text-xs sm:px-4 sm:text-sm',
+                  : 'px-2.5 py-1 text-xs sm:px-3 sm:py-1.5',
                 isActive
                   ? 'border-[#E30613] bg-[#E30613] text-white'
                   : 'border-border/80 bg-white text-[#333333] hover:border-[#E30613]/40 hover:bg-[#FFF5F5]',

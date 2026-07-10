@@ -5,6 +5,8 @@ export type AdminListaPreciosRoleKey = 'public' | 'distribuidor' | 'mayorista' |
 export interface AdminListaPreciosRecord {
   id: string;
   parentCategory: string;
+  /** Agrupación de filas: B/N|Color · Formato A4|A3, Sin clasificar, o categoría padre. */
+  divisionLabel: string;
   name: string;
   subtitle: string;
   sku: string;

@@ -4,6 +4,7 @@ import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { findProductBySlugOrId } from '@/lib/product-slug';
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { InventoryProduct } from '@/types/product';
+import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
 
 export type CatalogRow = InventoryProduct & {
   compare_at_price_usd?: number;
@@ -73,7 +74,7 @@ export function preloadCatalogIndex(): void {
 
 /** Filas del índice en caché (vacío hasta que termine la precarga). */
 export function getCatalogRows(): CatalogRow[] {
-  return catalogCache ?? [];
+  return (catalogCache ?? []).filter((row) => isProductVisibleOnStorefront(row));
 }
 
 export function normalizeCategoryName(value: string): string {
@@ -124,6 +125,7 @@ export function catalogRowToFeatured(
     brand: product.brand ?? null,
     code: product.code?.trim() || null,
     price: publicPrice,
+    stock: product.stock,
     isNew: meta?.isNew ?? row.is_new ?? false,
     rating: meta?.rating ?? 5,
     reviews: meta?.reviews ?? stableReviewCount(product.id),
@@ -161,6 +163,7 @@ export function getCatalogProductById(id: string): CatalogRow | undefined {
 
 export async function getCatalogProductByIdAsync(id: string): Promise<CatalogRow | undefined> {
   const rows = await loadCatalogIndex();
-  const match = findProductBySlugOrId(rows, id);
+  const visible = rows.filter((row) => isProductVisibleOnStorefront(row));
+  const match = findProductBySlugOrId(visible, id);
   return match as CatalogRow | undefined;
 }

@@ -1,4 +1,5 @@
 import type { MediaAlbumItem, MediaAlbumItemKind, MediaAlbumItemSource } from '@/types/media-album';
+import { dedupeMediaAlbumItems } from '../../shared/media-album-dedupe.js';
 
 export interface AdminMediosKpi {
   title: string;
@@ -163,4 +164,8 @@ export function sourceLabel(source: MediaAlbumItemSource): string {
 
 export function kindLabel(kind: MediaAlbumItemKind): string {
   return KIND_LABELS[kind];
+}
+
+export function dedupeMediosForDisplay(items: MediaAlbumItem[]): MediaAlbumItem[] {
+  return dedupeMediaAlbumItems(items) as MediaAlbumItem[];
 }

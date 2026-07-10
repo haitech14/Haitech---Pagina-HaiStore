@@ -1,11 +1,18 @@
 import * as React from 'react';
 
-import { readDisplayCurrency, writeDisplayCurrency } from '@/lib/display-currency-storage';
-import type { DisplayCurrency } from '@/types/display-currency';
+import {
+  readDisplayCurrency,
+  readDualPriceOrder,
+  writeDisplayCurrency,
+  writeDualPriceOrder,
+} from '@/lib/display-currency-storage';
+import type { DisplayCurrency, DualPriceOrder } from '@/types/display-currency';
 
 interface DisplayCurrencyContextValue {
   displayCurrency: DisplayCurrency;
   setDisplayCurrency: (currency: DisplayCurrency) => void;
+  dualPriceOrder: DualPriceOrder;
+  toggleDualPriceOrder: () => void;
 }
 
 const DisplayCurrencyContext = React.createContext<DisplayCurrencyContextValue | null>(null);
@@ -14,15 +21,26 @@ export function DisplayCurrencyProvider({ children }: { children: React.ReactNod
   const [displayCurrency, setDisplayCurrencyState] = React.useState<DisplayCurrency>(() =>
     readDisplayCurrency(),
   );
+  const [dualPriceOrder, setDualPriceOrderState] = React.useState<DualPriceOrder>(() =>
+    readDualPriceOrder(),
+  );
 
   const setDisplayCurrency = React.useCallback((currency: DisplayCurrency) => {
     setDisplayCurrencyState(currency);
     writeDisplayCurrency(currency);
   }, []);
 
+  const toggleDualPriceOrder = React.useCallback(() => {
+    setDualPriceOrderState((current) => {
+      const next: DualPriceOrder = current === 'pen-usd' ? 'usd-pen' : 'pen-usd';
+      writeDualPriceOrder(next);
+      return next;
+    });
+  }, []);
+
   const value = React.useMemo(
-    () => ({ displayCurrency, setDisplayCurrency }),
-    [displayCurrency, setDisplayCurrency],
+    () => ({ displayCurrency, setDisplayCurrency, dualPriceOrder, toggleDualPriceOrder }),
+    [displayCurrency, setDisplayCurrency, dualPriceOrder, toggleDualPriceOrder],
   );
 
   return (

@@ -4,11 +4,6 @@ import { InventoryInlineField } from '@/components/admin/inventory/inventory-inl
 import { InventoryInlinePriceEdit } from '@/components/admin/inventory/inventory-inline-price-edit';
 import { InventoryPurchasePriceDisplay } from '@/components/admin/inventory/inventory-purchase-price-display';
 import { InventorySalePrice } from '@/components/admin/inventory/inventory-sale-price';
-import {
-  discountVsPublic,
-  formatDiscountLabel,
-  ROLE_HEADER_META,
-} from '@/lib/admin-listas-precios-utils';
 import { isBundleProduct } from '@/lib/product-bundle';
 import { PRICE_ROLE_LABELS } from '@/lib/roles';
 import type { AdminListaPreciosRoleKey } from '@/types/admin-listas-precios';
@@ -46,17 +41,11 @@ export function AdminListasPreciosPriceCell({
   onPatch,
 }: AdminListasPreciosPriceCellProps) {
   const key = fieldKey(product.id, role);
-  const publicUsd = product.prices.public ?? 0;
   const isPurchase = role === 'compra';
   const priceRole = SALE_ROLE_MAP[role];
   const usd = isPurchase ? product.purchase_price_usd ?? 0 : product.prices[priceRole!] ?? 0;
   const exchangeRate = isPurchase ? purchaseExchangeRate : saleExchangeRate;
   const bundleProduct = !isPurchase && isBundleProduct(product);
-  const discount = role === 'public' ? null : discountVsPublic(publicUsd, usd);
-  const hint =
-    role === 'public'
-      ? 'Precio más alto'
-      : formatDiscountLabel(discount, ROLE_HEADER_META[role].hint);
 
   const saveUsd = async (nextUsd: number) => {
     if (isPurchase) {
@@ -108,9 +97,9 @@ export function AdminListasPreciosPriceCell({
           saleUsd={product.prices[priceRole]}
           purchaseUsd={product.purchase_price_usd}
           priceRole={priceRole}
+          category={product.category}
           embedded
         />
-        <p className="mt-0.5 text-[0.5625rem] text-muted-foreground">{hint}</p>
       </div>
     );
   }
@@ -125,22 +114,20 @@ export function AdminListasPreciosPriceCell({
       onClose={onClose}
       align="end"
       display={
-        <div>
-          {isPurchase ? (
-            <InventoryPurchasePriceDisplay
-              product={product}
-              exchangeRate={purchaseExchangeRate}
-            />
-          ) : priceRole ? (
-            <InventorySalePrice
-              saleUsd={usd}
-              purchaseUsd={product.purchase_price_usd}
-              priceRole={priceRole}
-              embedded
-            />
-          ) : null}
-          <p className="mt-0.5 text-[0.5625rem] text-muted-foreground">{hint}</p>
-        </div>
+        isPurchase ? (
+          <InventoryPurchasePriceDisplay
+            product={product}
+            exchangeRate={purchaseExchangeRate}
+          />
+        ) : priceRole ? (
+          <InventorySalePrice
+            saleUsd={usd}
+            purchaseUsd={product.purchase_price_usd}
+            priceRole={priceRole}
+            category={product.category}
+            embedded
+          />
+        ) : null
       }
       edit={
         <InventoryInlinePriceEdit

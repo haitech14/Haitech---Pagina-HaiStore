@@ -17,6 +17,8 @@ export interface FeaturedProduct {
   rating: number;
   reviews: number;
   image: string | null;
+  /** Stock en inventario (desde bundle API o índice de catálogo). */
+  stock?: number;
 }
 
 /** Orden del carrusel en inicio (debe existir en inventory-index.json). */

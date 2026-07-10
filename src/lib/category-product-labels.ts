@@ -129,7 +129,7 @@ export function findStoreSubcategoryBySlug(
 }
 
 function resolveSubcategoryLabels(
-  category: Category,
+  category: Category | undefined,
   storeCategory: StoreCategoryTreeNode | undefined,
   categoryTree: StoreCategoryTreeNode[],
   subSlug: string,
@@ -150,6 +150,8 @@ function resolveSubcategoryLabels(
   const staticLabels = resolveSubcategoryInventoryLabels(subSlug);
   if (staticLabels.length > 0) return [...staticLabels];
 
+  if (!category) return null;
+
   const parentLabels = getCategoryProductLabels(category).filter((label) =>
     label.toLowerCase().includes(subSlug.replace(/-/g, ' ')),
   );
@@ -160,12 +162,12 @@ function resolveSubcategoryLabels(
 
 /** Etiquetas de inventario para filtrar productos en `/categoria/:slug` (estáticas + árbol de tienda). */
 export function resolveCategoryPageProductLabels(
-  category: Category,
+  category: Category | undefined,
   storeCategory: StoreCategoryTreeNode | undefined,
   subSlug: string | null,
   categoryTree: StoreCategoryTreeNode[] = [],
 ): string[] {
-  const staticLabels = [...getCategoryProductLabels(category)];
+  const staticLabels = category ? [...getCategoryProductLabels(category)] : [];
 
   if (subSlug) {
     const subLabels = resolveSubcategoryLabels(category, storeCategory, categoryTree, subSlug);

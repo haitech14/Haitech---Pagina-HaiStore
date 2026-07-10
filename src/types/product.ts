@@ -47,6 +47,8 @@ export interface Product {
   sort_order?: number;
   /** Destacado manual en vitrina (carrusel del inicio). */
   is_featured?: boolean;
+  /** Estado de publicación (`inactiva` = oculto en tienda). */
+  status?: 'activa' | 'borrador' | 'inactiva';
   /** Visitas acumuladas a la ficha del producto. */
   view_count?: number;
   attributes?: ProductAttribute[];
@@ -130,6 +132,11 @@ export interface InventoryProduct extends Omit<Product, 'price' | 'price_role' |
   sort_order: number;
   is_featured?: boolean;
   view_count?: number;
+  /**
+   * Estado de publicación en tienda.
+   * `inactiva` no se muestra en la página pública.
+   */
+  status?: 'activa' | 'borrador' | 'inactiva';
   /** Cantidades por almacén (el total en `stock` es la suma). */
   stock_by_warehouse?: ProductStockByWarehouse[];
   /** Código interno / SKU. */

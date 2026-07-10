@@ -1,6 +1,6 @@
-import { FolderTree, Package, Tags, TrendingDown, TrendingUp, Unlink } from 'lucide-react';
+import { FolderTree, Package, Tags, Unlink } from 'lucide-react';
 
-import { ADMIN_CATEGORIAS_KPIS } from '@/data/admin-categorias-data';
+import type { AdminCategoriaKpi, AdminCategoriaRecord } from '@/types/admin-categorias';
 import { cn } from '@/lib/utils';
 
 const iconMap = {
@@ -17,61 +17,55 @@ const iconStyles = {
   unassigned: 'bg-sky-50 text-sky-600',
 } as const;
 
-const sparklineColors = {
-  active: '#3B82F6',
-  subcategories: '#F59E0B',
-  products: '#8B5CF6',
-  unassigned: '#0EA5E9',
-} as const;
+function buildKpis(records: AdminCategoriaRecord[]): AdminCategoriaKpi[] {
+  const roots = records.filter((record) => !record.parentName).length;
+  const subcategories = records.filter((record) => Boolean(record.parentName)).length;
+  const products = records.reduce((sum, record) => sum + record.productCount, 0);
+  const unassigned = records.filter((record) => record.productCount <= 0).length;
 
-function formatTrend(trend: number, isPercent?: boolean) {
-  const sign = trend > 0 ? '+' : '';
-  if (isPercent) return `${sign}${trend}%`;
-  return `${sign}${trend}`;
+  return [
+    {
+      title: 'Categorías activas',
+      value: String(roots),
+      trend: 0,
+      trendLabel: 'raíces',
+      icon: 'active',
+      sparkline: [roots],
+    },
+    {
+      title: 'Subcategorías',
+      value: String(subcategories),
+      trend: 0,
+      trendLabel: 'en árbol',
+      icon: 'subcategories',
+      sparkline: [subcategories],
+    },
+    {
+      title: 'Productos asociados',
+      value: String(products),
+      trend: 0,
+      trendLabel: 'en catálogo',
+      icon: 'products',
+      sparkline: [products],
+    },
+    {
+      title: 'Sin productos',
+      value: String(unassigned),
+      trend: 0,
+      trendLabel: 'categorías',
+      icon: 'unassigned',
+      sparkline: [unassigned],
+    },
+  ];
 }
 
-function Sparkline({ values, color }: { values: number[]; color: string }) {
-  if (values.length < 2) return null;
+export function AdminCategoriasKpis({ records = [] }: { records?: AdminCategoriaRecord[] }) {
+  const kpis = buildKpis(records);
 
-  const width = 88;
-  const height = 32;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-
-  const points = values
-    .map((value, index) => {
-      const x = (index / (values.length - 1)) * width;
-      const y = height - ((value - min) / range) * (height - 4) - 2;
-      return `${x},${y}`;
-    })
-    .join(' ');
-
-  return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      className="h-6 w-[4.5rem]"
-      aria-hidden="true"
-      preserveAspectRatio="none"
-    >
-      <polyline
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        points={points}
-      />
-    </svg>
-  );
-}
-
-export function AdminCategoriasKpis() {
   return (
     <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-      {ADMIN_CATEGORIAS_KPIS.map((kpi) => {
+      {kpis.map((kpi) => {
         const Icon = iconMap[kpi.icon];
-        const trendPositive = kpi.trend >= 0;
 
         return (
           <article
@@ -96,25 +90,7 @@ export function AdminCategoriasKpis() {
               </span>
             </div>
 
-            <div className="mt-2.5 flex items-end justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                {trendPositive ? (
-                  <TrendingUp className="size-3.5 text-emerald-600" aria-hidden="true" />
-                ) : (
-                  <TrendingDown className="size-3.5 text-red-600" aria-hidden="true" />
-                )}
-                <span
-                  className={cn(
-                    'text-xs font-semibold',
-                    trendPositive ? 'text-emerald-600' : 'text-red-600',
-                  )}
-                >
-                  {formatTrend(kpi.trend, kpi.trendIsPercent)}
-                </span>
-                <span className="text-xs text-muted-foreground">{kpi.trendLabel}</span>
-              </div>
-              <Sparkline values={kpi.sparkline} color={sparklineColors[kpi.icon]} />
-            </div>
+            <p className="mt-2.5 text-xs text-muted-foreground">{kpi.trendLabel}</p>
           </article>
         );
       })}

@@ -57,6 +57,7 @@ export function CategoriesAdminPanel() {
   const { data: tree, isLoading, isError, error } = useStoreCategoriesTree();
   const {
     syncFromInventory,
+    syncFromCatalog,
     createCategory,
     updateCategory,
     deleteCategory,
@@ -103,14 +104,15 @@ export function CategoriesAdminPanel() {
 
   const handleDelete = async (category: StoreCategory) => {
     if (!window.confirm(`¿Eliminar la categoría «${category.name}»?`)) return;
-    await deleteCategory.mutateAsync(category.id);
+    await deleteCategory.mutateAsync({ id: category.id, slug: category.slug });
   };
 
   const isSaving =
     createCategory.isPending ||
     updateCategory.isPending ||
     reorderCategories.isPending ||
-    syncFromInventory.isPending;
+    syncFromInventory.isPending ||
+    syncFromCatalog.isPending;
 
   return (
     <div className="flex flex-col gap-4">
@@ -122,6 +124,16 @@ export function CategoriesAdminPanel() {
         >
           <Plus className="size-4" aria-hidden="true" />
           Nueva categoría
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="gap-2"
+          disabled={syncFromCatalog.isPending}
+          onClick={() => void syncFromCatalog.mutateAsync()}
+        >
+          <RefreshCw className="size-4" aria-hidden="true" />
+          Sincronizar catálogo
         </Button>
         <Button
           type="button"

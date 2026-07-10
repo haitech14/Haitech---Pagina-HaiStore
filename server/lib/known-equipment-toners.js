@@ -64,7 +64,7 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
     name: 'Tóner compatible RICOH IM 550 / IM 600',
     description: 'Tóner compatible negro — Rendimiento según modelo — IM-550F / IM-600F',
     category: CATEGORY_COMPATIBLE_TONER,
-    brand: 'HaiPrint',
+    brand: '',
     image_url: '/categories/toner-suministros.png',
     gallery: ['/categories/toner-suministros.png'],
     attributes: [
@@ -85,10 +85,10 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
   {
     id: 'compat-tc-m-320f-haiprint',
     code: '901033',
-    name: 'Toner cartucho compatible RICOH M 320F / SP 3710 / P-311 HaiPrint',
+    name: 'Toner cartucho compatible RICOH M 320F / SP 3710 / P-311',
     description: 'Tóner compatible negro — Rendimiento según modelo — M-320F / SP-3710 / P-311',
     category: CATEGORY_COMPATIBLE_TONER,
-    brand: 'HaiPrint',
+    brand: '',
     image_url: '/categories/toner-suministros.png',
     gallery: ['/categories/toner-suministros.png'],
     attributes: [

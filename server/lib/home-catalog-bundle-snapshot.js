@@ -89,9 +89,31 @@ export async function writeHomeBundleSnapshot(bundle, meta = {}) {
     ...meta,
   };
 
-  const tmpPath = `${filePath}.tmp`;
-  await fs.writeFile(tmpPath, `${JSON.stringify(payload)}\n`, 'utf8');
-  await fs.rename(tmpPath, filePath);
+  const body = `${JSON.stringify(payload)}\n`;
+  const tmpPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  await fs.writeFile(tmpPath, body, 'utf8');
+  try {
+    await fs.rename(tmpPath, filePath);
+  } catch (error) {
+    // Windows/OneDrive: rename sobre destino existente suele fallar con EPERM.
+    if (error && (error.code === 'EPERM' || error.code === 'EEXIST')) {
+      try {
+        await fs.copyFile(tmpPath, filePath);
+        await fs.unlink(tmpPath).catch(() => {});
+      } catch {
+        await fs.unlink(tmpPath).catch(() => {});
+        await fs.writeFile(filePath, body, 'utf8');
+      }
+    } else {
+      await fs.unlink(tmpPath).catch(() => {});
+      await fs.writeFile(filePath, body, 'utf8');
+    }
+  }
+  // Evitar dejar el snapshot en ceros (fallos de sync OneDrive tras copy/rename).
+  const written = await fs.readFile(filePath, 'utf8');
+  if (!written.trim() || written.charCodeAt(0) === 0) {
+    await fs.writeFile(filePath, body, 'utf8');
+  }
   invalidateHomeApiCache();
   return filePath;
 }

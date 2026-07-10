@@ -152,14 +152,26 @@ function resolveApiErrorStatus(message) {
   ) {
     return 503;
   }
+  if (
+    /categoría no encontrada|elimina primero|padre no es válida|no se puede asignar|orden inválido/i.test(
+      message,
+    )
+  ) {
+    return 400;
+  }
   return 500;
 }
 
-function resolveApiErrorBody(message, isProductRoute) {
-  if (message.includes('JSON')) {
+function resolveApiErrorBody(message, isProductRoute, err) {
+  // Solo body JSON inválido del cliente (express.json), no SyntaxError al leer inventory.json.
+  if (err?.type === 'entity.parse.failed') {
     return isProductRoute ? 'Datos del producto inválidos' : 'Datos de la solicitud inválidos';
   }
-  if (/catálogo vacío|supabase|migraci[oó]n|tabla products no encontrada/i.test(message)) {
+  if (
+    /catálogo vacío|supabase|migraci[oó]n|tabla products no encontrada|categoría no encontrada|elimina primero|padre no es válida|no se puede asignar|orden inválido/i.test(
+      message,
+    )
+  ) {
     return message;
   }
   return 'Error interno del servidor';
@@ -173,10 +185,16 @@ app.use((err, _req, res, _next) => {
         'El producto es demasiado grande (suele ser por imágenes pegadas). Usa URLs o archivos más livianos.',
     });
   }
+  if (err.type === 'entity.parse.failed') {
+    const isProductRoute = _req.path?.startsWith('/api/products');
+    return res.status(400).json({
+      error: resolveApiErrorBody(err.message ?? '', isProductRoute, err),
+    });
+  }
   const message = typeof err.message === 'string' ? err.message : 'Error interno del servidor';
   const isProductRoute = _req.path?.startsWith('/api/products');
   res.status(resolveApiErrorStatus(message)).json({
-    error: resolveApiErrorBody(message, isProductRoute),
+    error: resolveApiErrorBody(message, isProductRoute, err),
   });
 });
 

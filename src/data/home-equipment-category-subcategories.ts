@@ -3,7 +3,7 @@ import type {
   HomeFeaturedEquipmentConditionFilterId,
 } from '@/data/home-featured-quick-filters-equipment';
 import { HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS } from '@/lib/home-equipment-category-links';
-import { categoryLandingPath, categoryPath } from '@/lib/category-path';
+import { categoryPath } from '@/lib/category-path';
 
 export type HomeEquipmentSubcategoryId = HomeFeaturedEquipmentConditionFilterId;
 
@@ -14,27 +14,19 @@ export type HomeEquipmentSubcategory = {
   href?: string;
 };
 
-type HomeFeaturedEquipmentProductConditionId = Exclude<
-  HomeFeaturedEquipmentConditionFilterId,
-  'todas'
->;
-
-const CONDITION_SUBCATEGORY_LABELS: Record<HomeFeaturedEquipmentProductConditionId, string> = {
+const CONDITION_SUBCATEGORY_LABELS: Record<HomeFeaturedEquipmentConditionFilterId, string> = {
   nuevas: 'Nuevas',
   seminuevas: 'Seminuevas',
   remanufacturadas: 'Remanufacturadas',
 };
 
-const MULTIFUNCIONALES_CONDITION_SLUGS: Record<
-  HomeFeaturedEquipmentProductConditionId,
-  string
-> = {
+const MULTIFUNCIONALES_CONDITION_SLUGS: Record<HomeFeaturedEquipmentConditionFilterId, string> = {
   nuevas: 'multifuncionales-nuevas',
   seminuevas: 'multifuncionales-seminuevas',
   remanufacturadas: 'multifuncionales-remanufacturadas',
 };
 
-const IMPRESORAS_CONDITION_SLUGS: Record<HomeFeaturedEquipmentProductConditionId, string> = {
+const IMPRESORAS_CONDITION_SLUGS: Record<HomeFeaturedEquipmentConditionFilterId, string> = {
   nuevas: 'impresoras-laser-nuevas',
   seminuevas: 'impresoras-laser-seminuevas',
   remanufacturadas: 'impresoras-laser-remanufacturadas',
@@ -42,22 +34,19 @@ const IMPRESORAS_CONDITION_SLUGS: Record<HomeFeaturedEquipmentProductConditionId
 
 function buildConditionSubcategories(
   categorySlug: string,
-  slugByCondition: Record<HomeFeaturedEquipmentProductConditionId, string>,
+  slugByCondition: Record<HomeFeaturedEquipmentConditionFilterId, string>,
 ): HomeEquipmentSubcategory[] {
-  const conditions: HomeFeaturedEquipmentProductConditionId[] = [
+  const conditions: HomeFeaturedEquipmentConditionFilterId[] = [
     'nuevas',
     'seminuevas',
     'remanufacturadas',
   ];
 
-  return [
-    { id: 'todas', label: 'Todas', href: categoryLandingPath(categorySlug) },
-    ...conditions.map((condition) => ({
-      id: condition,
-      label: CONDITION_SUBCATEGORY_LABELS[condition],
-      href: categoryPath(categorySlug, slugByCondition[condition]),
-    })),
-  ];
+  return conditions.map((condition) => ({
+    id: condition,
+    label: CONDITION_SUBCATEGORY_LABELS[condition],
+    href: categoryPath(categorySlug, slugByCondition[condition]),
+  }));
 }
 
 export const HOME_EQUIPMENT_SUBCATEGORIES_BY_CATEGORY: Partial<
@@ -73,7 +62,7 @@ export const HOME_EQUIPMENT_SUBCATEGORIES_BY_CATEGORY: Partial<
   ),
 };
 
-export const HOME_EQUIPMENT_DEFAULT_SUBCATEGORY: HomeEquipmentSubcategoryId = 'todas';
+export const HOME_EQUIPMENT_DEFAULT_SUBCATEGORY: HomeEquipmentSubcategoryId = 'nuevas';
 
 export function getHomeEquipmentSubcategories(
   categoryId: HomeFeaturedEquipmentCategoryFilterId,

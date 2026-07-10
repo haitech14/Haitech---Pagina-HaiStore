@@ -23,7 +23,11 @@ interface ProductQuantityAddFooterProps {
   hideQuantity?: boolean;
   /** Etiqueta del botón de carrito (p. ej. «Comprar ahora»). */
   addLabel?: string;
+  /** Etiqueta corta al hover de la tarjeta (`group`) cuando `revealQuantityOnHover`. */
+  addLabelHover?: string;
   addButtonClassName?: string;
+  /** Clases extra del stepper de cantidad (p. ej. `h-10 rounded-lg`). */
+  quantityClassName?: string;
 }
 
 export function ProductQuantityAddFooter({
@@ -34,12 +38,17 @@ export function ProductQuantityAddFooter({
   revealQuantityOnHover = true,
   hideQuantity = false,
   addLabel,
+  addLabelHover,
   addButtonClassName,
+  quantityClassName,
 }: ProductQuantityAddFooterProps) {
   const [quantity, setQuantity] = useState(1);
   const includesOnRequest = hasOnRequestQuantity(product, quantity);
   const orderHint = formatOrderQuantityHint(product, quantity);
   const cartLabel = addLabel ?? getAddToCartLabel(product, 'short', quantity);
+  const cartLabelHover = addLabelHover ?? null;
+  const swapLabelOnHover = Boolean(cartLabelHover && revealQuantityOnHover && !hideQuantity);
+  const tallQuantity = quantityClassName?.includes('h-10') ?? false;
 
   const adjustQuantity = (delta: number) => {
     setQuantity((current) => {
@@ -49,8 +58,9 @@ export function ProductQuantityAddFooter({
     });
   };
 
-  const qtyButtonClass =
-    size === 'sm'
+  const qtyButtonClass = tallQuantity
+    ? 'flex w-9 shrink-0 items-center justify-center text-muted-foreground hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40'
+    : size === 'sm'
       ? 'flex size-7 shrink-0 items-center justify-center text-muted-foreground hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40 sm:size-8'
       : 'flex size-8 shrink-0 items-center justify-center text-muted-foreground hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-40';
 
@@ -79,15 +89,20 @@ export function ProductQuantityAddFooter({
       {hideQuantity ? null : (
         <div
           className={cn(
-            'flex shrink-0 items-center rounded-md border bg-white',
+            'flex shrink-0 rounded-md border bg-white',
+            tallQuantity ? 'items-stretch' : 'items-center',
+            quantityClassName,
             revealQuantityOnHover
               ? cn(
                   'max-w-0 overflow-hidden border-transparent opacity-0',
                   'transition-[max-width,opacity,border-color] duration-200 ease-out motion-reduce:transition-none',
-                  'group-hover:max-w-[7.5rem] group-hover:border-border group-hover:opacity-100',
-                  'group-focus-within:max-w-[7.5rem] group-focus-within:border-border group-focus-within:opacity-100',
-                  'focus-within:max-w-[7.5rem] focus-within:border-border focus-within:opacity-100',
-                  'max-md:max-w-[7.5rem] max-md:border-border max-md:opacity-100',
+                  tallQuantity
+                    ? 'group-hover:max-w-[8.25rem] group-focus-within:max-w-[8.25rem] focus-within:max-w-[8.25rem] max-md:max-w-[8.25rem]'
+                    : 'group-hover:max-w-[7.5rem] group-focus-within:max-w-[7.5rem] focus-within:max-w-[7.5rem] max-md:max-w-[7.5rem]',
+                  'group-hover:border-border group-hover:opacity-100',
+                  'group-focus-within:border-border group-focus-within:opacity-100',
+                  'focus-within:border-border focus-within:opacity-100',
+                  'max-md:border-border max-md:opacity-100',
                 )
               : 'border-border',
           )}
@@ -108,7 +123,7 @@ export function ProductQuantityAddFooter({
             <Minus className="size-3.5" aria-hidden="true" />
           </button>
           <span
-            className={qtyValueClass}
+            className={cn(qtyValueClass, tallQuantity && 'flex items-center justify-center')}
             aria-live="polite"
             aria-atomic="true"
             title={orderHint ?? undefined}
@@ -140,9 +155,24 @@ export function ProductQuantityAddFooter({
         )}
       >
         {!includesOnRequest ? (
-          <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+          <ShoppingCart
+            className={cn(
+              'size-4 shrink-0',
+              swapLabelOnHover && 'max-md:hidden group-hover:hidden group-focus-within:hidden',
+            )}
+            aria-hidden="true"
+          />
         ) : null}
-        {cartLabel}
+        {swapLabelOnHover ? (
+          <>
+            <span className="max-md:hidden group-hover:hidden group-focus-within:hidden">{cartLabel}</span>
+            <span className="hidden max-md:inline group-hover:inline group-focus-within:inline">
+              {cartLabelHover}
+            </span>
+          </>
+        ) : (
+          cartLabel
+        )}
       </AddToCartButton>
     </div>
   );

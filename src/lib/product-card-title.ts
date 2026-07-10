@@ -1,5 +1,9 @@
 import { formatProductNameSentenceCase } from '@/lib/format-product-name-sentence-case';
-import { inferColor } from '@/lib/category-catalog-filters';
+import {
+  inferColor,
+  inferFormatoPapelFromModel,
+  resolveProductSpeedPpm,
+} from '@/lib/category-catalog-filters';
 import { resolveHomeLandingConsumableSubtitle } from '@/lib/home-featured-product-filter';
 import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
@@ -77,6 +81,39 @@ function capitalizeEquipmentDescriptorWords(text: string): string {
     .replace(/\bmonocrom[aá]tica\b/gi, 'Monocromática');
 }
 
+function resolveSubtitleFormatoLabel(
+  product: ProductBadgeSource & { name: string },
+): string | null {
+  for (const attr of product.attributes ?? []) {
+    const name = attr.name?.trim() ?? '';
+    if (!/^formato(\s+papel)?$/i.test(name)) continue;
+    const value = attr.value?.trim() ?? '';
+    if (/^a4$/i.test(value)) return 'A4';
+    if (/^a3$/i.test(value)) return 'A3';
+  }
+
+  const fromModel = inferFormatoPapelFromModel(product);
+  if (fromModel) return fromModel;
+
+  const explicitInName = product.name.match(/\b(A[34])\b/i);
+  if (explicitInName) return explicitInName[1]!.toUpperCase();
+
+  return null;
+}
+
+function resolveSubtitleSpeedLabel(product: ProductBadgeSource & { name: string }): string | null {
+  for (const attr of product.attributes ?? []) {
+    const name = attr.name?.trim().toLowerCase() ?? '';
+    if (!name.includes('velocidad') && name !== 'ppm') continue;
+    const value = attr.value?.trim() ?? '';
+    const match = value.match(/(\d{1,3})\s*ppm/i) ?? value.match(/^(\d{1,3})$/);
+    if (match) return `${match[1]} ppm`;
+  }
+
+  const ppm = resolveProductSpeedPpm(product);
+  return ppm != null ? `${ppm} ppm` : null;
+}
+
 /** Título en vitrina home: oración con marca y modelo preservados. */
 export function formatHomeLandingProductCardTitle(
   product: ProductBadgeSource & { name: string; category?: string | null; brand?: string | null },
@@ -134,9 +171,21 @@ export function getHomeLandingProductCardLines(
   if (condition) subtitleParts.push(condition.toLowerCase());
   subtitleParts.push(inferColor(product) === 'Color' ? 'Color' : 'B/N');
 
+  const subtitleExtras: string[] = [];
+  const formato = resolveSubtitleFormatoLabel(product);
+  if (formato) subtitleExtras.push(formato);
+  const speed = resolveSubtitleSpeedLabel(product);
+  if (speed) subtitleExtras.push(speed);
+
+  const subtitleMain = subtitleParts.join(' ');
+  const subtitle =
+    subtitleMain && subtitleExtras.length > 0
+      ? [subtitleMain, ...subtitleExtras].join(' · ')
+      : subtitleMain || (subtitleExtras.length > 0 ? subtitleExtras.join(' · ') : null);
+
   return {
     headline,
-    subtitle: subtitleParts.length > 0 ? subtitleParts.join(' ') : null,
+    subtitle,
   };
 }
 

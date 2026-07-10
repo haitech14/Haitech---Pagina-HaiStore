@@ -22,6 +22,7 @@ export function InventoryPurchasePriceDisplay({
       usd={product.purchase_price_usd}
       exchangeRate={exchangeRate}
       useCharm={false}
+      category={product.category}
     />
   );
 

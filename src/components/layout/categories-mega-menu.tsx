@@ -57,10 +57,15 @@ export function CategoriesMegaMenu({
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
-  const columnGroups = useMemo(
+  const allColumnGroups = useMemo(
     () => buildDesktopMegaMenuColumns(menu, 'sidebar-as-columns'),
     [menu],
   );
+
+  const columnGroups = useMemo(() => {
+    const group = allColumnGroups.find((item) => item.slug === activeCategorySlug);
+    return group ? [group] : [];
+  }, [allColumnGroups, activeCategorySlug]);
 
   const featuredContent = useMemo(
     () => menu.getFeaturedContent(activeCategorySlug),
@@ -91,8 +96,9 @@ export function CategoriesMegaMenu({
     prefetchStoreRoute();
     clearCloseTimer();
     updateMenuWidth();
+    setActiveCategorySlug(menu.defaultCategorySlug);
     setOpen(true);
-  }, [clearCloseTimer, updateMenuWidth]);
+  }, [clearCloseTimer, menu.defaultCategorySlug, updateMenuWidth]);
 
   useEffect(() => {
     if (!open) return;
@@ -169,6 +175,7 @@ export function CategoriesMegaMenu({
             columnGroups={columnGroups}
             featuredContent={featuredContent}
             onNavigate={closeMenu}
+            desktopContentMode="summary"
           />
         </DropdownMenuContent>
       </DropdownMenu>
@@ -235,6 +242,7 @@ export function CategoriesMegaMenu({
           columnGroups={columnGroups}
           featuredContent={featuredContent}
           onNavigate={closeMenu}
+          desktopContentMode="summary"
         />
       </DropdownMenuContent>
     </DropdownMenu>

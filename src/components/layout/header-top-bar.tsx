@@ -61,7 +61,7 @@ export function HeaderTopBar({ className }: { className?: string }) {
             </span>
           </a>
 
-          <HeaderStoreCurrencyExchangeBlock className="hidden px-0 py-0 lg:inline-flex" />
+          <HeaderStoreCurrencyExchangeBlock className="inline-flex px-0 py-0" />
         </div>
       </div>
     </div>

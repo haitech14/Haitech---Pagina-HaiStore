@@ -1,7 +1,9 @@
+import { resolveInventoryTableDivisionLabel } from '@/lib/inventory-equipment-sections';
 import { inventoryCategoryParentLabel } from '@/lib/inventory-stock-status';
 import { ensureFullPrices } from '@/lib/pricing';
 import { usdToPenCharm } from '@/lib/pen-pricing';
 import { PRICE_ROLE_LABELS } from '@/lib/roles';
+import { normalizeProductCatalogStatus } from '../../shared/product-catalog-status.js';
 import type {
   AdminListaPreciosCurrencySlice,
   AdminListaPreciosKpi,
@@ -16,25 +18,18 @@ import type { InventoryProduct } from '@/types/product';
 
 const CATEGORY_COLORS = ['#3B82F6', '#8B5CF6', '#22C55E', '#F59E0B', '#EC4899', '#14B8A6'];
 
-const ROLE_HEADER_META: Record<
-  AdminListaPreciosRoleKey,
-  { tone: string; hint: string }
-> = {
+const ROLE_HEADER_META: Record<AdminListaPreciosRoleKey, { tone: string }> = {
   public: {
     tone: 'text-blue-600',
-    hint: 'Precio más alto',
   },
   distribuidor: {
     tone: 'text-emerald-600',
-    hint: '-7% vs. Público',
   },
   mayorista: {
     tone: 'text-violet-600',
-    hint: '-12% vs. Público',
   },
   compra: {
     tone: 'text-orange-600',
-    hint: '-20% vs. Público',
   },
 };
 
@@ -75,10 +70,8 @@ function productSubtitle(product: InventoryProduct): string {
   return product.category?.split(',')[1]?.trim() ?? product.category ?? '';
 }
 
-function resolveStatus(prices: Record<AdminListaPreciosRoleKey, number>): AdminListaPreciosStatus {
-  if (prices.public > 0) return 'activa';
-  const hasAnyPrice = Object.values(prices).some((value) => value > 0);
-  return hasAnyPrice ? 'borrador' : 'inactiva';
+function resolveStatus(product: InventoryProduct): AdminListaPreciosStatus {
+  return normalizeProductCatalogStatus(product.status);
 }
 
 export function mapProductToListaPreciosRecord(product: InventoryProduct): AdminListaPreciosRecord {
@@ -93,24 +86,15 @@ export function mapProductToListaPreciosRecord(product: InventoryProduct): Admin
   return {
     id: product.id,
     parentCategory: inventoryCategoryParentLabel(product.category),
+    divisionLabel: resolveInventoryTableDivisionLabel(product),
     name: product.name,
     subtitle: productSubtitle(product),
     sku: product.code?.trim() || product.id,
     imageUrl: product.image_url,
     imageColor: hashColor(product.id),
     prices,
-    status: resolveStatus(prices),
+    status: resolveStatus(product),
   };
-}
-
-export function discountVsPublic(publicUsd: number, roleUsd: number): number | null {
-  if (publicUsd <= 0 || roleUsd <= 0) return null;
-  return Math.round((1 - roleUsd / publicUsd) * 100);
-}
-
-export function formatDiscountLabel(discount: number | null, fallback: string): string {
-  if (discount == null || discount <= 0) return fallback;
-  return `-${discount}% vs. Público`;
 }
 
 function buildSparkline(total: number, points = 8): number[] {
@@ -126,7 +110,7 @@ export function buildListaPreciosKpis(
 ): AdminListaPreciosKpi[] {
   const records = products.map(mapProductToListaPreciosRecord);
   const pricedCount = records.filter((record) => record.prices.public > 0).length;
-  const activeRoles = (['public', 'distribuidor', 'mayorista', 'compra'] as const).filter((role) =>
+  const activeRoles = (['compra', 'mayorista', 'distribuidor', 'public'] as const).filter((role) =>
     records.some((record) => record.prices[role] > 0),
   );
 
@@ -170,7 +154,7 @@ export function buildRoleComparisonSlices(
   products: InventoryProduct[],
   exchangeRate: number,
 ): AdminListaPreciosRoleSlice[] {
-  const roles: AdminListaPreciosRoleKey[] = ['public', 'distribuidor', 'mayorista', 'compra'];
+  const roles: AdminListaPreciosRoleKey[] = ['compra', 'mayorista', 'distribuidor', 'public'];
 
   return roles.map((role) => {
     const values = products

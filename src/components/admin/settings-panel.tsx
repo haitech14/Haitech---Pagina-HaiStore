@@ -1,9 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
-import { Building2, Coins, Link2, Palette, Save } from 'lucide-react';
+import { Building2, Coins, Palette, Save } from 'lucide-react';
 
-import { HaiSalesIntegrationCard } from '@/components/admin/integrations/haisales-integration-card';
-import { HaiSupportIntegrationCard } from '@/components/admin/integrations/haisupport-integration-card';
-import { IntegrationsSyncAllCard } from '@/components/admin/integrations/integrations-sync-all-card';
 import { BulkDiscountTiersPanel } from '@/components/admin/bulk-discount-tiers-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -389,49 +386,6 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
                   pattern="^#[0-9A-Fa-f]{6}$"
                 />
               </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {section === 'integraciones' && (
-        <section className="rounded-lg border p-3">
-          <div className="mb-4 flex items-center gap-2">
-            <Link2 className="size-5 text-[hsl(var(--admin-accent))]" aria-hidden="true" />
-            <h3 className="text-lg font-semibold">Integraciones y enlaces</h3>
-          </div>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Servicios externos conectados a HaiStore. El QR de soporte se imprime en cotizaciones
-            PDF.
-          </p>
-
-          <div className="grid max-w-2xl gap-4">
-            <IntegrationsSyncAllCard />
-            <HaiSalesIntegrationCard />
-            <HaiSupportIntegrationCard />
-            <div className="space-y-2">
-              <Label htmlFor="supportUrl">URL de soporte (QR en PDF)</Label>
-              <Input
-                id="supportUrl"
-                type="url"
-                value={form.supportUrl}
-                onChange={(event) => updateField('supportUrl', event.target.value)}
-              />
-            </div>
-            <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Supabase y API admin</p>
-              <p className="mt-1">
-                La conexión a base de datos y el servidor admin se configuran con variables de
-                entorno (<code className="text-xs">SUPABASE_URL</code>,{' '}
-                <code className="text-xs">SUPABASE_SERVICE_ROLE_KEY</code>) en el despliegue.
-              </p>
-            </div>
-            <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">WooCommerce / tienda externa</p>
-              <p className="mt-1">
-                Sincroniza el inventario desde el módulo Inventario con «Sincronizar con tienda» cuando
-                el catálogo maestro esté listo.
-              </p>
             </div>
           </div>
         </section>

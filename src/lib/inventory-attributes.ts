@@ -5,7 +5,11 @@ export const COMMON_ATTRIBUTE_NAMES = [
   'Tecnología',
   'Color',
   'Velocidad',
+  'Formato',
   'Formato papel',
+  'Condición',
+  'Generación',
+  'Año de Fabricación',
   'Producción',
   'Volumen mensual',
   'Impresión dúplex',
@@ -17,8 +21,19 @@ export const COMMON_ATTRIBUTE_NAMES = [
 
 /** Valores sugeridos por nombre de atributo (listas desplegables). */
 export const ATTRIBUTE_PRESET_VALUES: Record<string, readonly string[]> = {
-  Color: ['B/N', 'Color'],
+  Color: ['Color', 'B/N'],
+  Formato: ['A4', 'A3'],
   'Formato papel': ['A4', 'A3'],
+  Condición: [
+    'Nueva',
+    'Seminueva',
+    'Remanufacturada',
+    'Original',
+    'Compatible',
+    'Recarga',
+  ],
+  Generación: ['Linea IM', 'Linea Smart'],
+  'Año de Fabricación': ['2024', '2026', '2022', '2014', '2016', '2020'],
   Producción: [
     'Basico (>5000 páginas)',
     'Mediano (15,000 páginas aprox)',

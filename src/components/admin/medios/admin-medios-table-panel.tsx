@@ -37,7 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatMediosBytes, kindLabel, sourceLabel } from '@/lib/admin-medios-utils';
+import { formatMediosBytes, kindLabel, sourceLabel, dedupeMediosForDisplay } from '@/lib/admin-medios-utils';
 import { cn } from '@/lib/utils';
 import type { MediaAlbumItem, MediaAlbumItemKind, MediaAlbumItemSource } from '@/types/media-album';
 
@@ -100,8 +100,10 @@ export function AdminMediosTablePanel({
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(12);
 
+  const dedupedItems = useMemo(() => dedupeMediosForDisplay(items), [items]);
+
   const filteredItems = useMemo(() => {
-    let list = items.filter((item) => {
+    let list = dedupedItems.filter((item) => {
       if (kindFilter !== 'todos' && item.kind !== kindFilter) return false;
       if (sourceFilter !== 'todos' && item.source !== sourceFilter) return false;
       return matchesSearch(item, search);
@@ -114,7 +116,7 @@ export function AdminMediosTablePanel({
     });
 
     return list;
-  }, [items, kindFilter, search, sortBy, sourceFilter]);
+  }, [dedupedItems, kindFilter, search, sortBy, sourceFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -212,11 +214,16 @@ export function AdminMediosTablePanel({
             No hay archivos que coincidan con los filtros seleccionados.
           </p>
         ) : viewMode === 'grid' ? (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {paginatedItems.map((item) => (
-              <li key={item.id} className="group overflow-hidden rounded-lg border border-border/70 bg-muted/10">
+              <li key={item.mergedIds?.join(':') ?? item.id} className="group overflow-hidden rounded-lg border border-border/70 bg-muted/10">
                 <div className="relative aspect-square">
                   <MediaThumb item={item} />
+                  {(item.duplicateCount ?? 1) > 1 ? (
+                    <span className="absolute left-1.5 top-1.5 rounded-full bg-background/90 px-1.5 py-0.5 text-[0.625rem] font-semibold text-foreground shadow-sm">
+                      ×{item.duplicateCount}
+                    </span>
+                  ) : null}
                   {item.source !== 'inventory' ? (
                     <button
                       type="button"

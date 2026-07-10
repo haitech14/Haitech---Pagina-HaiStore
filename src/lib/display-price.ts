@@ -15,8 +15,8 @@ export function formatDisplayPriceFromUsd(
 ): string {
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
-  if (showPen) parts.push(formatPenFromUsd(usd));
   if (showUsd) parts.push(formatUsd(usd));
+  if (showPen) parts.push(formatPenFromUsd(usd));
   return parts.join(' · ');
 }
 
@@ -93,11 +93,11 @@ export function formatVolumeUnitPrice(
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
 
-  if (showPen) {
-    parts.push(formatPenInteger(discountedPenPrice(unitPriceUsd, discountPercent)));
-  }
   if (showUsd) {
     parts.push(formatUsd(discountedUsdPrice(unitPriceUsd, discountPercent)));
+  }
+  if (showPen) {
+    parts.push(formatPenInteger(discountedPenPrice(unitPriceUsd, discountPercent)));
   }
 
   return parts.join(' · ');

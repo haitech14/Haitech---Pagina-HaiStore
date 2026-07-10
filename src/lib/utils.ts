@@ -30,6 +30,14 @@ export function formatUsd(usd: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(usd);
 }
 
+export function formatUsdInteger(usd: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(usd);
+}
+
 export function formatPenFromUsd(usd: number, rate = getUsdToPenSaleRate()): string {
   return new Intl.NumberFormat('es-PE', {
     style: 'currency',

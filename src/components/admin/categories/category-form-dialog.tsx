@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { categoryFieldsFromName } from '@/lib/category-form-utils';
 import type { StoreCategory } from '@/types/store-category';
 
 export interface CategoryFormValues {
@@ -32,6 +33,13 @@ interface CategoryFormDialogProps {
   isSaving: boolean;
 }
 
+interface FieldTouchedState {
+  slug: boolean;
+  inventoryLabels: boolean;
+  tagline: boolean;
+  image: boolean;
+}
+
 function toFormValues(
   initial?: Partial<StoreCategory>,
   parentId?: string | null,
@@ -46,6 +54,15 @@ function toFormValues(
   };
 }
 
+function touchedFromInitial(initial?: Partial<StoreCategory>): FieldTouchedState {
+  return {
+    slug: Boolean(initial?.slug?.trim()),
+    inventoryLabels: Boolean((initial?.inventoryLabels ?? []).length),
+    tagline: Boolean(initial?.tagline?.trim()),
+    image: Boolean(initial?.image?.trim()),
+  };
+}
+
 export function CategoryFormDialog({
   open,
   onOpenChange,
@@ -57,20 +74,45 @@ export function CategoryFormDialog({
   isSaving,
 }: CategoryFormDialogProps) {
   const [form, setForm] = useState<CategoryFormValues>(() => toFormValues(initial, parentId));
+  const [touched, setTouched] = useState<FieldTouchedState>(() => touchedFromInitial(initial));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setForm(toFormValues(initial, parentId));
+      setTouched(touchedFromInitial(initial));
       setError(null);
     }
   }, [open, initial, parentId]);
 
+  const handleNameChange = (name: string) => {
+    const derived = categoryFieldsFromName(name);
+
+    setForm((prev) => ({
+      ...prev,
+      name,
+      slug: touched.slug ? prev.slug : derived.slug,
+      inventoryLabels: touched.inventoryLabels ? prev.inventoryLabels : derived.inventoryLabels,
+      tagline: touched.tagline ? prev.tagline : derived.tagline,
+      image: touched.image ? prev.image : derived.image,
+    }));
+  };
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
+
+    const derived = categoryFieldsFromName(form.name);
+    const payload: CategoryFormValues = {
+      ...form,
+      slug: form.slug.trim() || derived.slug,
+      inventoryLabels: form.inventoryLabels.trim() || derived.inventoryLabels,
+      tagline: form.tagline.trim() || derived.tagline,
+      image: form.image.trim() || derived.image,
+    };
+
     try {
-      await onSubmit(form);
+      await onSubmit(payload);
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar la categoría');
@@ -91,7 +133,7 @@ export function CategoryFormDialog({
             <Input
               id="cat-name"
               value={form.name}
-              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              onChange={(event) => handleNameChange(event.target.value)}
               required
             />
           </div>
@@ -100,7 +142,10 @@ export function CategoryFormDialog({
             <Input
               id="cat-slug"
               value={form.slug}
-              onChange={(event) => setForm((prev) => ({ ...prev, slug: event.target.value }))}
+              onChange={(event) => {
+                setTouched((prev) => ({ ...prev, slug: true }));
+                setForm((prev) => ({ ...prev, slug: event.target.value }));
+              }}
               placeholder="multifuncionales"
             />
           </div>
@@ -109,9 +154,10 @@ export function CategoryFormDialog({
             <Input
               id="cat-labels"
               value={form.inventoryLabels}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, inventoryLabels: event.target.value }))
-              }
+              onChange={(event) => {
+                setTouched((prev) => ({ ...prev, inventoryLabels: true }));
+                setForm((prev) => ({ ...prev, inventoryLabels: event.target.value }));
+              }}
               placeholder="Multifuncionales, Impresoras láser"
             />
             <p className="text-xs text-muted-foreground">
@@ -123,7 +169,10 @@ export function CategoryFormDialog({
             <Input
               id="cat-tagline"
               value={form.tagline}
-              onChange={(event) => setForm((prev) => ({ ...prev, tagline: event.target.value }))}
+              onChange={(event) => {
+                setTouched((prev) => ({ ...prev, tagline: true }));
+                setForm((prev) => ({ ...prev, tagline: event.target.value }));
+              }}
             />
           </div>
           <div className="space-y-2">
@@ -131,7 +180,10 @@ export function CategoryFormDialog({
             <Input
               id="cat-image"
               value={form.image}
-              onChange={(event) => setForm((prev) => ({ ...prev, image: event.target.value }))}
+              onChange={(event) => {
+                setTouched((prev) => ({ ...prev, image: true }));
+                setForm((prev) => ({ ...prev, image: event.target.value }));
+              }}
               placeholder="/categories/multifuncionales.png"
             />
           </div>

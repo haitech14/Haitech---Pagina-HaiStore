@@ -118,22 +118,6 @@ const EQUIPMENT_SUBCATEGORIES: Record<
       ],
     },
   ],
-  'toner-compatibles': [
-    {
-      slug: 'toner-compatibles',
-      name: 'Tóner Compatible',
-      inventoryLabels: [
-        'Toner Compatible',
-        'Toner, Toner Compatible',
-        'Toner y Suministros, Toner Compatible',
-        'Suministros, Toner Compatible',
-        'Toner Compatibles',
-        'Toner, Toner Compatibles',
-        'Toner Compatibles HaiPrint',
-        'Toner Compatibles Haitone',
-      ],
-    },
-  ],
   escaneres: [
     {
       slug: 'escaneres-nuevos',
@@ -188,29 +172,59 @@ function buildSubcategoryNodes(
   }));
 }
 
-/** Inyecta subcategorías de equipos cuando el snapshot/API no trae hijos. */
-export function enrichStoreCategoryTree(tree: StoreCategoryTreeNode[]): StoreCategoryTreeNode[] {
+/** Quita nodos cuyo slug (o id) fue eliminado explícitamente. */
+export function pruneRemovedCategorySlugs(
+  tree: StoreCategoryTreeNode[],
+  removedSlugs: readonly string[],
+): StoreCategoryTreeNode[] {
+  const removed = new Set(removedSlugs);
+
+  const walk = (nodes: StoreCategoryTreeNode[]): StoreCategoryTreeNode[] =>
+    nodes
+      .filter((node) => !removed.has(node.slug) && !removed.has(node.id))
+      .map((node) => ({
+        ...node,
+        children: walk(node.children ?? []),
+      }));
+
+  return walk(tree);
+}
+
+/** Fusiona hijos de la API con subcategorías estáticas de equipos (sin pisar las creadas). */
+export function enrichStoreCategoryTree(
+  tree: StoreCategoryTreeNode[],
+  removedStaticSlugs: readonly string[] = [],
+): StoreCategoryTreeNode[] {
+  const removed = new Set(removedStaticSlugs);
+
   function enrichNode(node: StoreCategoryTreeNode): StoreCategoryTreeNode {
-    const children = node.children ?? [];
+    const children = (node.children ?? []).map(enrichNode);
     const staticSubEntries = EQUIPMENT_SUBCATEGORIES[node.slug] ?? [];
 
-    return {
-      ...node,
-      children:
-        children.length > 0
-          ? children.map(enrichNode)
-          : staticSubEntries.length > 0
-            ? buildSubcategoryNodes(node.id, staticSubEntries)
-            : children,
-    };
+    if (staticSubEntries.length === 0) {
+      return { ...node, children };
+    }
+
+    const existingSlugs = new Set(children.map((child) => child.slug));
+    const missing = staticSubEntries.filter(
+      (entry) => !existingSlugs.has(entry.slug) && !removed.has(entry.slug),
+    );
+    const merged =
+      missing.length > 0
+        ? [...children, ...buildSubcategoryNodes(node.id, missing)]
+        : children;
+
+    return { ...node, children: merged };
   }
 
-  return tree.map(enrichNode);
+  return pruneRemovedCategorySlugs(tree.map(enrichNode), removedStaticSlugs);
 }
 
 /** Árbol mínimo embebido cuando la API de categorías no responde. */
-export function buildStaticStoreCategoryTree(): StoreCategoryTreeNode[] {
-  return categories
+export function buildStaticStoreCategoryTree(
+  removedStaticSlugs: readonly string[] = [],
+): StoreCategoryTreeNode[] {
+  const tree = categories
     .filter((category) => category.inventoryCategories?.length || EQUIPMENT_SUBCATEGORIES[category.slug])
     .map((category, index) => {
       const id = `static-${category.slug}`;
@@ -230,4 +244,25 @@ export function buildStaticStoreCategoryTree(): StoreCategoryTreeNode[] {
         children: buildSubcategoryNodes(id, subEntries),
       };
     });
+
+  return pruneRemovedCategorySlugs(
+    enrichStoreCategoryTree(tree, removedStaticSlugs),
+    removedStaticSlugs,
+  );
+}
+
+export function removeCategoryFromTree(
+  tree: StoreCategoryTreeNode[],
+  id: string,
+  slug?: string,
+): StoreCategoryTreeNode[] {
+  const walk = (nodes: StoreCategoryTreeNode[]): StoreCategoryTreeNode[] =>
+    nodes
+      .filter((node) => node.id !== id && (!slug || node.slug !== slug))
+      .map((node) => ({
+        ...node,
+        children: walk(node.children ?? []),
+      }));
+
+  return walk(tree);
 }

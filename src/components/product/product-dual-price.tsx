@@ -21,10 +21,8 @@ export function RentalEstimateDualPrice({
 
   return (
     <span className={cn('inline-flex flex-nowrap items-baseline gap-x-1.5 whitespace-nowrap', className)}>
-      {showPen ? (
-        <span className="text-red-600">
-          S/ {formatEquipmentRentalPen(estimatedMonthlyPen)}
-        </span>
+      {showUsd ? (
+        <span className="text-foreground">{formatUsd(usd)}</span>
       ) : null}
       {showUsd && showPen ? (
         <span aria-hidden="true" className="font-normal text-muted-foreground">
@@ -32,8 +30,10 @@ export function RentalEstimateDualPrice({
           ·{' '}
         </span>
       ) : null}
-      {showUsd ? (
-        <span className="text-foreground">{formatUsd(usd)}</span>
+      {showPen ? (
+        <span className="text-red-600">
+          S/ {formatEquipmentRentalPen(estimatedMonthlyPen)}
+        </span>
       ) : null}
     </span>
   );
@@ -57,15 +57,23 @@ export function DualPrice({
   alwaysBoth = false,
   stacked = false,
 }: DualPriceProps) {
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const visibility = getDisplayPriceVisibility(displayCurrency);
   const showUsd = alwaysBoth || visibility.showUsd;
   const showPen = alwaysBoth || visibility.showPen;
+  const penFirst = dualPriceOrder === 'pen-usd';
   const strike = strikethrough
     ? 'line-through decoration-muted-foreground decoration-solid'
     : undefined;
 
   if (stacked && showUsd && showPen) {
+    const primary = penFirst
+      ? { label: formatPenFromUsd(usd), className: 'text-red-600' }
+      : { label: formatUsd(usd), className: 'text-foreground' };
+    const secondary = penFirst
+      ? { label: formatUsd(usd), className: 'text-foreground' }
+      : { label: formatPenFromUsd(usd), className: 'text-red-600' };
+
     return (
       <span
         className={cn(
@@ -73,17 +81,17 @@ export function DualPrice({
           className,
         )}
       >
-        <span className={cn(strike, 'text-red-600')}>{formatPenFromUsd(usd)}</span>
-        <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>
+        <span className={cn(strike, primary.className)}>{primary.label}</span>
+        <span className={cn(strike, secondary.className)}>{secondary.label}</span>
       </span>
     );
   }
 
   return (
     <span className={cn('inline-flex flex-nowrap items-baseline gap-x-1.5 whitespace-nowrap', className)}>
-      {showPen ? (
-        <span className={cn(strike, 'text-red-600')}>
-          {formatPenFromUsd(usd)}
+      {showUsd ? (
+        <span className={cn(strike, 'text-foreground')}>
+          {formatUsd(usd)}
         </span>
       ) : null}
       {showUsd && showPen ? (
@@ -92,9 +100,9 @@ export function DualPrice({
           ·{' '}
         </span>
       ) : null}
-      {showUsd ? (
-        <span className={cn(strike, 'text-foreground')}>
-          {formatUsd(usd)}
+      {showPen ? (
+        <span className={cn(strike, 'text-red-600')}>
+          {formatPenFromUsd(usd)}
         </span>
       ) : null}
     </span>

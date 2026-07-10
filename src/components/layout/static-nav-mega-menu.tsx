@@ -20,10 +20,9 @@ import {
   type MegaMenuDropdownLayout,
   megaMenuDropdownStyle,
 } from '@/components/layout/main-nav-styles';
-import type { NavMegaMenuModel } from '@/lib/mega-menu-from-store-categories';
 import {
   buildDesktopMegaMenuColumns,
-  type DesktopMegaMenuColumnMode,
+  type NavMegaMenuModel,
 } from '@/lib/mega-menu-from-store-categories';
 
 const HOVER_CLOSE_DELAY_MS = 180;
@@ -35,7 +34,6 @@ type StaticNavMegaMenuProps = {
   isRouteActive: boolean;
   navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
   showIcon?: boolean;
-  desktopColumnMode?: DesktopMegaMenuColumnMode;
 };
 
 export function StaticNavMegaMenu({
@@ -45,7 +43,6 @@ export function StaticNavMegaMenu({
   isRouteActive,
   navRow = 'default',
   showIcon = true,
-  desktopColumnMode = 'flatten-groups',
 }: StaticNavMegaMenuProps) {
   const [open, setOpen] = useState(false);
   const [activeCategorySlug, setActiveCategorySlug] = useState(menu.defaultCategorySlug);
@@ -53,10 +50,15 @@ export function StaticNavMegaMenu({
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const columnGroups = useMemo(
-    () => buildDesktopMegaMenuColumns(menu, desktopColumnMode),
-    [menu, desktopColumnMode],
+  const allColumnGroups = useMemo(
+    () => buildDesktopMegaMenuColumns(menu, 'sidebar-as-columns'),
+    [menu],
   );
+
+  const columnGroups = useMemo(() => {
+    const group = allColumnGroups.find((item) => item.slug === activeCategorySlug);
+    return group ? [group] : [];
+  }, [allColumnGroups, activeCategorySlug]);
 
   const featuredContent = useMemo(
     () => menu.getFeaturedContent(activeCategorySlug),
@@ -86,8 +88,9 @@ export function StaticNavMegaMenu({
   const openMenu = useCallback(() => {
     clearCloseTimer();
     updateMenuWidth();
+    setActiveCategorySlug(menu.defaultCategorySlug);
     setOpen(true);
-  }, [clearCloseTimer, updateMenuWidth]);
+  }, [clearCloseTimer, menu.defaultCategorySlug, updateMenuWidth]);
 
   useEffect(() => {
     if (!open) return;
@@ -156,6 +159,7 @@ export function StaticNavMegaMenu({
           columnGroups={columnGroups}
           featuredContent={featuredContent}
           onNavigate={closeMenu}
+          desktopContentMode="summary"
         />
       </DropdownMenuContent>
     </DropdownMenu>

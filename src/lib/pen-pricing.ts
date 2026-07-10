@@ -1,3 +1,27 @@
+import { categories } from '@/data/categories';
+import { normalizeCategoryName } from '@/lib/catalog-featured';
+import { productCategoryTags } from '@/lib/inventory-categories';
+
+const IMPRESORA_MULTIFUNCIONAL_INVENTORY_LABELS = categories
+  .filter((category) => category.slug === 'impresoras' || category.slug === 'multifuncionales')
+  .flatMap((category) => category.inventoryCategories ?? [category.name])
+  .map((label) => normalizeCategoryName(label));
+
+/** Impresoras y multifuncionales: precios en enteros (sin centavos) en tablas de inventario. */
+export function isImpresoraOrMultifuncionalCategory(
+  category: string | null | undefined,
+): boolean {
+  const tags = productCategoryTags({ category: category ?? null });
+  if (tags.length === 0) {
+    return IMPRESORA_MULTIFUNCIONAL_INVENTORY_LABELS.includes(
+      normalizeCategoryName(category ?? ''),
+    );
+  }
+  return tags.some((tag) =>
+    IMPRESORA_MULTIFUNCIONAL_INVENTORY_LABELS.includes(normalizeCategoryName(tag)),
+  );
+}
+
 /**
  * Redondeo comercial en soles enteros al dígito 9 más cercano.
  * Ej.: 2287 → 2289; 2190 → 2189; 2429 (ya termina en 9) se mantiene.
@@ -88,4 +112,13 @@ export function formatPenInteger(pen: number): string {
     minimumFractionDigits: hasFraction ? 2 : 0,
     maximumFractionDigits: 2,
   }).format(rounded);
+}
+
+/** Soles redondeados al entero más cercano, sin centavos. */
+export function formatPenWhole(pen: number): string {
+  return new Intl.NumberFormat('es-PE', {
+    style: 'currency',
+    currency: 'PEN',
+    maximumFractionDigits: 0,
+  }).format(Math.round(pen));
 }

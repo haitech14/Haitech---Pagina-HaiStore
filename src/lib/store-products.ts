@@ -26,6 +26,7 @@ export function productToFeatured(product: Product): FeaturedProduct {
     price: product.price,
     ...(product.prices ? { prices: product.prices } : {}),
     ...(product.price_role ? { price_role: product.price_role } : {}),
+    stock: product.stock,
     image: resolveProductImageUrl(product),
     rating: 5,
     reviews: 0,

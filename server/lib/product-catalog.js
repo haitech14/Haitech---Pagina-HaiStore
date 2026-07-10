@@ -26,6 +26,7 @@ import {
   resolveCanonicalProductId,
 } from '../../shared/product-lookup.js';
 import { deriveProductSlug } from '../../shared/product-slug.js';
+import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
 
 export { shouldPreferSupabaseCatalog };
 
@@ -317,7 +318,10 @@ async function listFromSupabase(role, adminView) {
     return rows.map((row) => rowToInventoryProduct(row));
   }
 
-  return rows.map((row) => rowToPublicProduct(row, role, { listView: true }));
+  return rows
+    .map((row) => rowToInventoryProduct(row))
+    .filter((product) => isProductVisibleOnStorefront(product))
+    .map((product) => toPublicProductList(product, role));
 }
 
 async function listFromInventory(role, adminView) {
@@ -325,9 +329,10 @@ async function listFromInventory(role, adminView) {
   if (adminView) {
     return products.map((product) => migrateInventoryProduct(product));
   }
-  return products.map((product) =>
-    toPublicProductList(withResolvedMedia(product), role),
-  );
+  return products
+    .map((product) => migrateInventoryProduct(product))
+    .filter((product) => isProductVisibleOnStorefront(product))
+    .map((product) => toPublicProductList(withResolvedMedia(product), role));
 }
 
 /**
@@ -407,14 +412,18 @@ async function getFromSupabase(lookupKey, role) {
   }
 
   if (!data) return undefined;
-  return rowToPublicProduct(data, role);
+  const product = rowToInventoryProduct(data);
+  if (!isProductVisibleOnStorefront(product)) return undefined;
+  return toPublicProduct(product, role);
 }
 
 async function getPublicProductFromInventory(lookupKey, role) {
   const { products } = await readInventory();
   const product = findInventoryProductByLookupKey(products, lookupKey);
   if (!product) return undefined;
-  return toPublicProduct(withResolvedMedia(product), role);
+  const migrated = migrateInventoryProduct(product);
+  if (!isProductVisibleOnStorefront(migrated)) return undefined;
+  return toPublicProduct(withResolvedMedia(migrated), role);
 }
 
 export async function getPublicProductById(id, role = 'public') {

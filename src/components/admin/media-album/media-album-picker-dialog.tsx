@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useMediaAlbum } from '@/hooks/use-media-album';
+import { dedupeMediosForDisplay } from '@/lib/admin-medios-utils';
 import { cn } from '@/lib/utils';
 import type { MediaAlbumItem, MediaAlbumItemKind } from '@/types/media-album';
 
@@ -40,10 +41,10 @@ export function MediaAlbumPickerDialog({
 
   const excluded = useMemo(() => new Set(excludeUrls), [excludeUrls]);
 
-  const visibleItems = useMemo(
-    () => items.filter((item) => !excluded.has(item.url)),
-    [items, excluded],
-  );
+  const visibleItems = useMemo(() => {
+    const deduped = dedupeMediosForDisplay(items);
+    return deduped.filter((item) => !excluded.has(item.url));
+  }, [items, excluded]);
 
   const toggleItem = (id: string) => {
     setSelectedIds((prev) => {
@@ -95,11 +96,11 @@ export function MediaAlbumPickerDialog({
               <p className="text-xs">Sube archivos, sincroniza Google Drive o usa las imágenes ya guardadas en inventario.</p>
             </div>
           ) : (
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
               {visibleItems.map((item) => {
                 const selected = selectedIds.has(item.id);
                 return (
-                  <li key={item.id}>
+                  <li key={item.mergedIds?.join(':') ?? item.id}>
                     <button
                       type="button"
                       className={cn(

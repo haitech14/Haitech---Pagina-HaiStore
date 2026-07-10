@@ -606,6 +606,7 @@ export function InventoryRowCells({
             saleUsd={product.prices[role]}
             purchaseUsd={product.purchase_price_usd}
             priceRole={role}
+            category={product.category}
             embedded
           />
         </div>
@@ -624,6 +625,7 @@ export function InventoryRowCells({
             saleUsd={product.prices[role]}
             purchaseUsd={product.purchase_price_usd}
             priceRole={role}
+            category={product.category}
             embedded
           />
         }

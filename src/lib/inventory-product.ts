@@ -2,6 +2,7 @@ import { optimizeImageDataUrl, optimizeImageFile } from '@/lib/optimize-image-fo
 import { randomId } from '@/lib/random-id';
 import { normalizeAttributes } from '@/lib/inventory-attributes';
 import { sanitizeStoredProductMedia } from '@/lib/product-media-sanitize';
+import { normalizeProductCatalogStatus } from '../../shared/product-catalog-status.js';
 import {
   isImageMediaUrl,
   isVideoMediaUrl,
@@ -109,6 +110,7 @@ export function createEmptyInventoryProduct(): InventoryProduct {
     attributes: [],
     created_at: new Date().toISOString(),
     sort_order: 0,
+    status: 'inactiva',
     prices: ensureFullPrices({}),
     volume_role_prices: [],
   };
@@ -158,6 +160,7 @@ export function normalizeInventoryProduct(
       created_at: raw.created_at ?? new Date().toISOString(),
       sort_order: Number.isFinite(Number(raw.sort_order)) ? Number(raw.sort_order) : 0,
       is_featured: raw.is_featured === true,
+      status: normalizeProductCatalogStatus(raw.status),
       view_count: Number.isFinite(Number(raw.view_count))
         ? Math.max(0, Math.floor(Number(raw.view_count)))
         : 0,

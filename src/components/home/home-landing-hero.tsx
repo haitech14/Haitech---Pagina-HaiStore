@@ -86,7 +86,7 @@ export function HomeLandingHeroSlideContent({
             <div className="flex flex-col">
               <h1
                 id={headingId}
-                className="text-pretty font-hero text-[2.25rem] font-bold leading-[1.06] tracking-tight text-[#111111] sm:text-[2.875rem] lg:text-[3.375rem] xl:text-[3.75rem]"
+                className="text-pretty font-hero text-[2.25rem] font-bold leading-[1.06] tracking-[-0.02em] text-[#111111] sm:text-[2.875rem] lg:text-[3.375rem] xl:text-[3.75rem]"
               >
                 Tu empresa no se detiene, tu{' '}
                 <span className="text-[#E30613]">impresión</span> tampoco

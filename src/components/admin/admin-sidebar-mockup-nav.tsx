@@ -12,7 +12,6 @@ import {
   Layers,
   Newspaper,
   PackagePlus,
-  Plug,
   Settings,
   ShoppingBag,
   SlidersHorizontal,
@@ -29,6 +28,7 @@ import { useAdminOrdersList } from '@/hooks/use-admin-orders';
 import {
   ADMIN_ROUTES,
   ADMIN_SIDEBAR_DASHBOARD_GROUP,
+  ADMIN_SIDEBAR_MURAL,
   ADMIN_SIDEBAR_PRODUCTOS_GROUP,
   ADMIN_SIDEBAR_SECTIONS,
   type AdminSidebarMockupNavItem,
@@ -55,7 +55,6 @@ const ICONS: Record<string, LucideIcon> = {
   'building-2': Building2,
   truck: Truck,
   user: User,
-  plug: Plug,
   settings: Settings,
 };
 
@@ -135,15 +134,11 @@ function isItemActive(
   if (key === 'discounts') {
     return pathname.startsWith(ADMIN_ROUTES.MARKETING_COUPONS);
   }
-  if (key === 'integrations') {
-    return pathname.startsWith(ADMIN_ROUTES.SETTINGS_INTEGRATIONS);
-  }
   if (key === 'users') return pathname.startsWith(ADMIN_ROUTES.SETTINGS_USUARIOS);
   if (key === 'settings') {
     return (
       pathname.startsWith(ADMIN_ROUTES.SETTINGS) &&
-      !pathname.startsWith(ADMIN_ROUTES.SETTINGS_USUARIOS) &&
-      !pathname.startsWith(ADMIN_ROUTES.SETTINGS_INTEGRATIONS)
+      !pathname.startsWith(ADMIN_ROUTES.SETTINGS_USUARIOS)
     );
   }
 
@@ -415,6 +410,18 @@ export function AdminSidebarMockupNav({ onNavigate }: AdminSidebarMockupNavProps
   return (
     <div className="space-y-0.5">
       <DashboardCollapsibleGroup {...(onNavigate ? { onNavigate } : {})} />
+
+      <NavItemLink
+        item={ADMIN_SIDEBAR_MURAL}
+        isActive={isItemActive(
+          location.pathname,
+          location.search,
+          ADMIN_SIDEBAR_MURAL.href,
+          ADMIN_SIDEBAR_MURAL.key,
+        )}
+        badgeCount={null}
+        {...(onNavigate ? { onNavigate } : {})}
+      />
 
       {ADMIN_SIDEBAR_SECTIONS.map((section) => (
         <div key={section.key} className="pt-3">

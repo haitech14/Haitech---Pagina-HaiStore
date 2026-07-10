@@ -36,10 +36,12 @@ create index if not exists store_product_categories_slug_idx
 
 alter table public.store_product_categories enable row level security;
 
+drop policy if exists "Categorías visibles para todos" on public.store_product_categories;
 create policy "Categorías visibles para todos"
   on public.store_product_categories for select
   using (is_active = true or public.is_admin());
 
+drop policy if exists "Admins gestionan categorías" on public.store_product_categories;
 create policy "Admins gestionan categorías"
   on public.store_product_categories for all
   using (public.is_admin())
@@ -106,15 +108,18 @@ create index if not exists store_customers_created_at_idx on public.store_custom
 
 alter table public.store_customers enable row level security;
 
+drop policy if exists "Usuarios leen su cliente" on public.store_customers;
 create policy "Usuarios leen su cliente"
   on public.store_customers for select
   using (profile_id = auth.uid() or public.is_admin());
 
+drop policy if exists "Usuarios actualizan su cliente" on public.store_customers;
 create policy "Usuarios actualizan su cliente"
   on public.store_customers for update
   using (profile_id = auth.uid())
   with check (profile_id = auth.uid());
 
+drop policy if exists "Admins gestionan clientes" on public.store_customers;
 create policy "Admins gestionan clientes"
   on public.store_customers for all
   using (public.is_admin())

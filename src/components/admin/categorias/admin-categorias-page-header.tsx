@@ -1,4 +1,4 @@
-import { Bell, CircleHelp, LayoutPanelLeft, Plus, Search } from 'lucide-react';
+import { Bell, CircleHelp, LayoutPanelLeft, Plus, RefreshCw, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,8 @@ interface AdminCategoriasPageHeaderProps {
   search: string;
   onSearchChange: (value: string) => void;
   onNewCategory?: () => void;
+  onSyncCatalog?: () => void;
+  isSyncingCatalog?: boolean;
 }
 
 export function AdminCategoriasPageHeader({
@@ -17,6 +19,8 @@ export function AdminCategoriasPageHeader({
   search,
   onSearchChange,
   onNewCategory,
+  onSyncCatalog,
+  isSyncingCatalog = false,
 }: AdminCategoriasPageHeaderProps) {
   const { open: sidebarOpen, toggle: toggleSidebar } = useAdminSidebar();
 
@@ -32,7 +36,7 @@ export function AdminCategoriasPageHeader({
           Categorías
         </h1>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Gestiona las categorías y estructura de tu catálogo de productos.
+          Árbol taxonómico del catálogo: ordena, anida y edita categorías.
         </p>
       </div>
 
@@ -82,6 +86,20 @@ export function AdminCategoriasPageHeader({
           aria-label="Ayuda"
         >
           <CircleHelp className="size-3.5" aria-hidden="true" />
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="h-8 gap-1.5 bg-card text-xs"
+          disabled={isSyncingCatalog}
+          onClick={onSyncCatalog}
+        >
+          <RefreshCw
+            className={cn('size-3.5', isSyncingCatalog && 'animate-spin')}
+            aria-hidden="true"
+          />
+          {isSyncingCatalog ? 'Sincronizando…' : 'Sincronizar catálogo'}
         </Button>
 
         <Button

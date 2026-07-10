@@ -9,12 +9,15 @@
  * Opción B — URI de Postgres:
  *   Settings → Database → Connection string (URI) en .env como SUPABASE_DB_URL
  */
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+dotenv.config({ path: resolve(root, '.env') });
+dotenv.config({ path: resolve(root, '.env.local'), override: true });
 const sqlFile = process.argv[2];
 
 if (!sqlFile) {
