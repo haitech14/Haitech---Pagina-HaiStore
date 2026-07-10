@@ -1,10 +1,10 @@
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
-import { Award, ChevronRight, Headphones, ShieldCheck, ShoppingCart, Users, type LucideIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Award, ChevronRight, Headphones, KeyRound, ShieldCheck, ShoppingCart, Users, type LucideIcon } from 'lucide-react';
 
 import { HomeHeroPartnerBrands } from '@/components/home/home-hero-partner-brands';
 import { StorePrefetchLink } from '@/components/store-prefetch-link';
 import { Button } from '@/components/ui/button';
+import { serviceHubPath } from '@/lib/service-hub';
 import { cn } from '@/lib/utils';
 
 const HERO_BACKGROUND = '/hero/home-hero-scene.png';
@@ -46,12 +46,10 @@ export const HOME_LANDING_HERO_MIN_HEIGHT_CLASS =
 
 type HomeLandingHeroSlideContentProps = {
   headingId?: string;
-  onWhatsAppClick: () => void;
 };
 
 export function HomeLandingHeroSlideContent({
   headingId = 'hero-titulo',
-  onWhatsAppClick,
 }: HomeLandingHeroSlideContentProps) {
   return (
     <div
@@ -97,25 +95,37 @@ export function HomeLandingHeroSlideContent({
                 instalación y atención especializada para empresas.
               </p>
 
-              <div className="mt-2 flex w-full flex-col gap-1.5 sm:mt-2.5 sm:w-auto sm:flex-row sm:items-stretch sm:gap-2">
-                <Button
-                  type="button"
-                  className="min-h-9 gap-1.5 rounded-lg bg-[#22C55E] px-4 text-sm font-medium text-white shadow-[0_4px_12px_rgba(34,197,94,0.24)] hover:bg-[#16A34A]"
-                  onClick={onWhatsAppClick}
-                >
-                  <Icon path={mdiWhatsapp} size={0.75} className="text-white" aria-hidden="true" />
-                  <span>Cotizar por WhatsApp</span>
-                  <ChevronRight className="ml-0.5 size-3.5 shrink-0 opacity-90" aria-hidden="true" />
-                </Button>
+              <div className="mt-2 flex w-full flex-col gap-1.5 sm:mt-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-stretch sm:gap-2">
                 <Button
                   asChild
                   className="min-h-9 gap-1.5 rounded-lg bg-[#E30613] px-4 text-sm font-medium text-white shadow-[0_4px_12px_rgba(227,6,19,0.2)] hover:bg-[#c90511]"
                 >
                   <StorePrefetchLink to="/tienda">
                     <ShoppingCart className="size-3 shrink-0" aria-hidden="true" />
-                    <span>Ver equipos</span>
+                    <span>Comprar</span>
                     <ChevronRight className="ml-0.5 size-3.5 shrink-0 opacity-90" aria-hidden="true" />
                   </StorePrefetchLink>
+                </Button>
+                <Button
+                  asChild
+                  className="min-h-9 gap-1.5 rounded-lg bg-[#111111] px-4 text-sm font-medium text-white shadow-[0_4px_12px_rgba(17,17,17,0.18)] hover:bg-[#2a2a2a]"
+                >
+                  <Link to={serviceHubPath('alquiler')}>
+                    <KeyRound className="size-3 shrink-0" aria-hidden="true" />
+                    <span>Alquilar</span>
+                    <ChevronRight className="ml-0.5 size-3.5 shrink-0 opacity-90" aria-hidden="true" />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="min-h-9 gap-1.5 rounded-lg border-[#DDDDDD] bg-white px-4 text-sm font-medium text-[#111111] shadow-[0_2px_8px_rgba(17,17,17,0.06)] hover:bg-[#F8F9FA]"
+                >
+                  <Link to={serviceHubPath('servicio-tecnico')}>
+                    <Headphones className="size-3 shrink-0" aria-hidden="true" />
+                    <span>Soporte Técnico</span>
+                    <ChevronRight className="ml-0.5 size-3.5 shrink-0 opacity-90" aria-hidden="true" />
+                  </Link>
                 </Button>
               </div>
 

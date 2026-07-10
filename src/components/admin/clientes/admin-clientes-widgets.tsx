@@ -17,7 +17,7 @@ import type { StoreCustomerWithRole } from '@/types/store';
 const roleChartConfig = {
   admin: { label: 'Administrador', color: '#8B5CF6' },
   tecnico: { label: 'Técnico', color: '#3B82F6' },
-  distribuidor: { label: 'Distribuidor', color: '#F59E0B' },
+  distribuidor: { label: 'Técnico', color: '#F59E0B' },
   mayorista: { label: 'Mayorista', color: '#22C55E' },
   public: { label: 'Público', color: '#0EA5E9' },
   guest: { label: 'Sin cuenta', color: '#94A3B8' },

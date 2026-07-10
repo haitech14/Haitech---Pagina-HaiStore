@@ -4,7 +4,10 @@ import { ProductCardHoverImage } from '@/components/product/product-card-hover-i
 import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail/product-detail-hero-collapsible-section';
 import { TonerCardRolePrices } from '@/components/product-detail/product-detail-role-prices';
 import { cn } from '@/lib/utils';
-import type { ConfigureTonerCard } from '@/lib/product-configure-toner';
+import {
+  formatTonerCardDisplayTitle,
+  type ConfigureTonerCard,
+} from '@/lib/product-configure-toner';
 
 interface ProductDetailHeroTonerSelectorProps {
   cards: ConfigureTonerCard[];
@@ -82,7 +85,7 @@ export function ProductDetailHeroTonerSelector({
 
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="line-clamp-3 text-[0.6875rem] font-medium leading-snug text-[#0f1f3d] sm:text-xs">
-                    {card.title}
+                    {formatTonerCardDisplayTitle(card.title)}
                     {card.code ? (
                       <span className="font-normal text-muted-foreground"> ({card.code})</span>
                     ) : null}

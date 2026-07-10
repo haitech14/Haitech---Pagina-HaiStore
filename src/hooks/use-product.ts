@@ -18,7 +18,10 @@ import type { Product } from '@/types/product';
 
 export async function fetchProductById(id: string): Promise<Product | null> {
   try {
-    return await apiFetch<Product>(`/api/products/${encodeURIComponent(id)}`);
+    // Bypass HTTP cache so admin saves are visible without a hard refresh.
+    return await apiFetch<Product>(`/api/products/${encodeURIComponent(id)}`, {
+      cache: 'no-store',
+    });
   } catch {
     return null;
   }

@@ -33,7 +33,6 @@ export function ProductDetailPriceBlock({
           <DualPrice
             usd={penToUsd(detail.oldPricePen)}
             strikethrough
-            alwaysBoth
             className="inline"
           />
         </p>
@@ -42,7 +41,7 @@ export function ProductDetailPriceBlock({
       <div className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <AdminRolePricesTooltip productId={product.id} displayUsd={displayUsd}>
           <span className="text-[1.625rem] font-bold leading-none text-foreground sm:text-[1.75rem]">
-            <DualPrice usd={displayUsd} alwaysBoth />
+            <DualPrice usd={displayUsd} />
           </span>
         </AdminRolePricesTooltip>
         {detail.discountPercent != null ? (

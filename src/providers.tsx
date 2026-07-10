@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { Toaster } from 'sonner';
 
-import { CartProvider } from '@/context/cart-context';
 import { ServicesQuoteProvider } from '@/context/services-quote-context';
 import { SoftwareQuoteProvider } from '@/context/software-quote-context';
 import { AuthProvider } from '@/context/auth-context';
@@ -32,18 +31,16 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <ExchangeRateSync />
       <AuthProvider>
         <DisplayCurrencyProvider>
-          <CartProvider>
-            <ServicesQuoteProvider>
-            <SoftwareQuoteProvider>
-            <WishlistProvider>
-              <ProductCompareProvider>
-                {children}
-                <Toaster richColors closeButton position="top-center" />
-              </ProductCompareProvider>
-            </WishlistProvider>
-            </SoftwareQuoteProvider>
-            </ServicesQuoteProvider>
-          </CartProvider>
+          <ServicesQuoteProvider>
+          <SoftwareQuoteProvider>
+          <WishlistProvider>
+            <ProductCompareProvider>
+              {children}
+              <Toaster richColors closeButton position="top-center" />
+            </ProductCompareProvider>
+          </WishlistProvider>
+          </SoftwareQuoteProvider>
+          </ServicesQuoteProvider>
         </DisplayCurrencyProvider>
       </AuthProvider>
     </QueryClientProvider>

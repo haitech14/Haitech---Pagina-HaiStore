@@ -11,9 +11,9 @@ import {
 } from '@/components/product-detail/product-quote-pdf-viewer';
 import { ProductDetailAdvisorBanner } from '@/components/product-detail/product-detail-advisor-banner';
 import { ProductDetailConsumables } from '@/components/product-detail/product-detail-consumables';
-import { ProductDetailConsumablesStrip } from '@/components/product-detail/product-detail-consumables-strip';
 import { ProductDetailDescription } from '@/components/product-detail/product-detail-description';
 import { ProductDetailDescriptionPanel } from '@/components/product-detail/product-detail-description-panel';
+import { ProductDetailDescriptionStory } from '@/components/product-detail/product-detail-description-story';
 import { ProductDetailOptionalProducts, type PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
 import type { EquipmentRentalEstimate } from '@/components/product-detail/product-detail-rental-configurator';
 import { computeEquipmentRentalEstimate } from '@/components/product-detail/product-detail-rental-configurator';
@@ -23,6 +23,7 @@ import { ProductDetailMobilePurchaseBar } from '@/components/product-detail/prod
 import { ProductDetailMockupTabs } from '@/components/product-detail/product-detail-mockup-tabs';
 import { ProductDetailSocialProofToast } from '@/components/product-detail/product-detail-social-proof-toast';
 import { ProductDetailPurchaseCard } from '@/components/product-detail/product-detail-purchase-card';
+import { ProductDetailShippingRows } from '@/components/product-detail/product-detail-shipping-info';
 import { ProductEquipmentRentalQuoteDialog } from '@/components/product-detail/product-equipment-rental-quote-dialog';
 import { ProductRentalQuoteDialog } from '@/components/product-detail/product-rental-quote-dialog';
 import { ProductDetailResources } from '@/components/product-detail/product-detail-resources';
@@ -99,9 +100,11 @@ import type { FeaturedProduct } from '@/data/featured-products';
 import type { Product } from '@/types/product';
 
 type DetailTab =
+  | 'description'
   | 'specifications'
   | 'configuration'
   | 'consumables'
+  | 'shipping'
   | 'options'
   | 'resources'
   | 'warranty'
@@ -218,7 +221,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     () => buildProductBreadcrumbs(product, detail.displayTitle, categoryTree),
     [product, detail.displayTitle, categoryTree],
   );
-  const [activeTab, setActiveTab] = useState<DetailTab>('specifications');
+  const [activeTab, setActiveTab] = useState<DetailTab>('description');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [maintenanceQuoteOpen, setMaintenanceQuoteOpen] = useState(false);
@@ -313,50 +316,31 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [detail.isPrinterEquipment, product, catalogProducts, detail.specs],
   );
 
-  const showConsumablesTab = detail.isPrinterEquipment;
   const useRicohTabs = detail.isPrinterEquipment;
 
-  const tabs = useMemo(() => {
-    const items: { id: DetailTab; label: string }[] = [
+  const tabs = useMemo(
+    (): { id: DetailTab; label: string }[] => [
+      { id: 'description', label: 'Descripción' },
       { id: 'specifications', label: 'Especificaciones' },
-    ];
-
-    if (useRicohTabs) {
-      items.push(
-        { id: 'consumables', label: 'Repuestos' },
-        { id: 'resources', label: 'Descargas' },
-        { id: 'warranty', label: 'Garantía y soporte' },
-      );
-      return items;
-    }
-
-    if (equipmentSteps.length > 0) {
-      items.push({ id: 'configuration', label: 'Configuración' });
-    }
-
-    if (showConsumablesTab) {
-      items.push({ id: 'consumables', label: 'Repuestos' });
-    }
-
-    if (detail.reviews > 0) {
-      items.push({ id: 'reviews', label: `Opiniones (${detail.reviews})` });
-    }
-    return items;
-  }, [useRicohTabs, equipmentSteps.length, showConsumablesTab, detail.reviews]);
+      { id: 'consumables', label: 'Consumibles' },
+      { id: 'shipping', label: 'Envíos' },
+      { id: 'warranty', label: 'Garantía' },
+    ],
+    [],
+  );
 
   const handleTechnicalSheetFallback = useCallback(() => {
-    const hasResourcesTab = tabs.some((tab) => tab.id === 'resources');
-    setActiveTab(hasResourcesTab ? 'resources' : 'specifications');
+    setActiveTab('description');
     requestAnimationFrame(() => {
       productInfoSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
-  }, [tabs]);
+  }, []);
 
   const tabIds = useMemo(() => tabs.map((tab) => tab.id).join(','), [tabs]);
 
   useEffect(() => {
     if (!tabIds.split(',').includes(activeTab)) {
-      setActiveTab('specifications');
+      setActiveTab('description');
     }
   }, [activeTab, tabIds]);
 
@@ -724,63 +708,69 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               aria-labelledby={`tab-${activeTab}`}
               className="w-full py-4 sm:py-5"
             >
+              {activeTab === 'description' ? (
+                <div className="w-full space-y-4 sm:space-y-5">
+                  <h2 className="text-base font-bold text-neutral-900 sm:text-lg">Descripción</h2>
+                  {detail.descriptionContent?.storyBlocks &&
+                  detail.descriptionContent.storyBlocks.length > 0 ? (
+                    <ProductDetailDescriptionStory
+                      blocks={detail.descriptionContent.storyBlocks}
+                      cta={detail.descriptionContent.storyCta}
+                    />
+                  ) : useRicohTabs && detail.descriptionContent ? (
+                    <div className="space-y-4">
+                      <ProductDetailDescriptionPanel
+                        content={detail.descriptionContent}
+                        specs={detail.specs}
+                        sku={detail.sku}
+                        showSpecs={false}
+                        compact
+                      />
+                      <ProductDetailDescription
+                        content={detail.descriptionContent}
+                        omitPanelSummary
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-2 text-xs leading-relaxed text-neutral-700 sm:text-sm">
+                      <p className={cn(!descriptionExpanded && 'line-clamp-6')}>{descriptionText}</p>
+                      {descriptionText.length > 280 ? (
+                        <button
+                          type="button"
+                          onClick={() => setDescriptionExpanded((value) => !value)}
+                          className="text-xs font-bold text-blue-600 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 sm:text-sm"
+                        >
+                          {descriptionExpanded ? 'Ver menos' : 'Ver más'}
+                        </button>
+                      ) : null}
+                    </div>
+                  )}
+                  <ProductDetailAdvisorBanner />
+                </div>
+              ) : null}
+
               {activeTab === 'specifications' ? (
                 <div className="w-full space-y-4 sm:space-y-5">
-                  <div className="grid w-full grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">
-                    <div className="min-w-0 space-y-3">
-                      <h2 className="text-base font-bold text-neutral-900 sm:text-lg">Descripción</h2>
-                      {useRicohTabs && detail.descriptionContent ? (
-                        <div className="space-y-4">
-                          <ProductDetailDescriptionPanel
-                            content={detail.descriptionContent}
-                            specs={detail.specs}
-                            sku={detail.sku}
-                            showSpecs={false}
-                            compact
-                          />
-                          <ProductDetailDescription
-                            content={detail.descriptionContent}
-                            omitPanelSummary
-                          />
-                        </div>
-                      ) : (
-                        <div className="space-y-2 text-xs leading-relaxed text-neutral-700 sm:text-sm">
-                          <p className={cn(!descriptionExpanded && 'line-clamp-6')}>{descriptionText}</p>
-                          {descriptionText.length > 280 ? (
-                            <button
-                              type="button"
-                              onClick={() => setDescriptionExpanded((value) => !value)}
-                              className="text-xs font-bold text-blue-600 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 sm:text-sm"
-                            >
-                              {descriptionExpanded ? 'Ver menos' : 'Ver más'}
-                            </button>
-                          ) : null}
-                        </div>
-                      )}
-                    </div>
+                  <h2 className="text-base font-bold text-neutral-900 sm:text-lg">
+                    Especificaciones Técnicas
+                  </h2>
+                  {detail.specs.length > 0 ? (
+                    <ProductDetailSpecsTable specs={detail.specs} variant="ficha" />
+                  ) : (
+                    <p className="text-xs text-neutral-600 sm:text-sm">
+                      No hay especificaciones técnicas registradas para este producto.
+                    </p>
+                  )}
+                  <ProductDetailAdvisorBanner />
+                </div>
+              ) : null}
 
-                    <div className="min-w-0 space-y-3">
-                      <h2 className="text-base font-bold text-neutral-900 sm:text-lg">Ficha técnica</h2>
-                      {detail.specs.length > 0 ? (
-                        <ProductDetailSpecsTable specs={detail.specs} variant="ficha" />
-                      ) : (
-                        <p className="text-xs text-neutral-600 sm:text-sm">
-                          No hay especificaciones técnicas registradas para este producto.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {!catalogLoading &&
-                  useRicohTabs &&
-                  consumableGroups.some(
-                    (group) => group.items.length > 0 || group.subgroups.length > 0,
-                  ) ? (
-                    <ProductDetailConsumablesStrip
-                      groups={consumableGroups}
-                      onViewAll={() => setActiveTab('consumables')}
-                    />
-                  ) : null}
+              {activeTab === 'shipping' ? (
+                <div className="w-full max-w-xl space-y-4">
+                  <h2 className="text-base font-bold text-neutral-900 sm:text-lg">
+                    Envíos y tiempos de entrega
+                  </h2>
+                  <ProductDetailShippingRows variant="mockup" />
                   <ProductDetailAdvisorBanner />
                 </div>
               ) : null}
@@ -822,7 +812,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               {activeTab === 'consumables' ? (
                 <div className="w-full space-y-6">
                   {catalogLoading ? (
-                    <div className="space-y-6" role="status" aria-live="polite" aria-label="Cargando repuestos">
+                    <div className="space-y-6" role="status" aria-live="polite" aria-label="Cargando consumibles">
                       {Array.from({ length: 3 }).map((_, index) => (
                         <div key={index} className="space-y-3">
                           <div className="h-6 w-40 animate-pulse rounded bg-muted" />
@@ -843,7 +833,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
               {activeTab === 'warranty' ? (
                 <div className="w-full space-y-4">
-                  <h3 className="text-lg font-bold text-[#0f1f3d]">Garantía y soporte</h3>
+                  <h3 className="text-lg font-bold text-[#0f1f3d]">Garantía</h3>
                   {detail.warrantyBullets.length > 0 ? (
                     <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
                       {detail.warrantyBullets.map((bullet) => (

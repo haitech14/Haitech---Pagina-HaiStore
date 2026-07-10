@@ -67,8 +67,9 @@ export default defineConfig({
       '/api': {
         target: 'http://127.0.0.1:3080',
         changeOrigin: true,
-        timeout: 30_000,
-        proxyTimeout: 30_000,
+        // Subidas grandes (vídeo/adjuntos en data URL) pueden superar 30s.
+        timeout: 600_000,
+        proxyTimeout: 600_000,
       },
     },
   },

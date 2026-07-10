@@ -25,7 +25,7 @@ export function CheckoutCartLineDiscountHint({
   variant = 'default',
 }: CheckoutCartLineDiscountHintProps) {
   const { updateQuantity } = useCart();
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const settingsQuery = useCompanySettings();
   const tiers = settingsQuery.data?.bulkDiscountTiers ?? [];
 
@@ -37,7 +37,7 @@ export function CheckoutCartLineDiscountHint({
   const message = useMemo(() => {
     if (!hint) return null;
 
-    const unitAmount = formatDisplayPriceFromUsd(hint.volumeUnitUsd, displayCurrency);
+    const unitAmount = formatDisplayPriceFromUsd(hint.volumeUnitUsd, displayCurrency, dualPriceOrder);
 
     if (hint.isActive) {
       return `Llevas ${hint.targetQuantity} unidades · ${unitAmount} c/u`;
@@ -47,7 +47,7 @@ export function CheckoutCartLineDiscountHint({
     return unitsNeeded === 1
       ? `Lleva ${hint.targetQuantity} y llévate en ${unitAmount} c/u`
       : `Lleva ${hint.targetQuantity} unidades y llévate en ${unitAmount} c/u`;
-  }, [hint, item.quantity, displayCurrency]);
+  }, [hint, item.quantity, displayCurrency, dualPriceOrder]);
 
   if (!hint || !message) return null;
 

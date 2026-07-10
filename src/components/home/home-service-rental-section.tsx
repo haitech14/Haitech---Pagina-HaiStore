@@ -95,10 +95,10 @@ export function HomeServiceRentalSection() {
       className="home-landing-sans bg-[#F5F5F5]"
     >
       <div className="container py-8 sm:py-10 lg:py-12">
-        <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12">
-          <article className="overflow-hidden rounded-xl border border-border/40 bg-white shadow-[0_4px_18px_rgba(15,31,61,0.06)]">
-            <div className="grid md:grid-cols-[minmax(0,0.44fr)_minmax(0,1fr)] md:min-h-[28rem]">
-              <div className="relative min-h-[16rem] md:min-h-full">
+        <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12">
+          <article className="flex h-full flex-col overflow-hidden rounded-xl border border-border/40 bg-white shadow-[0_4px_18px_rgba(15,31,61,0.06)]">
+            <div className="grid h-full md:grid-cols-[minmax(0,0.44fr)_minmax(0,1fr)]">
+              <div className="relative min-h-[16rem] md:h-full md:min-h-0">
                 <img
                   src={HOME_LANDING_SERVICE_IMAGE}
                   alt="Técnico especializado realizando mantenimiento a un equipo de impresión"
@@ -149,7 +149,7 @@ export function HomeServiceRentalSection() {
             </div>
           </article>
 
-          <article>
+          <article className="flex h-full flex-col">
             <p className="text-[0.6875rem] font-bold uppercase tracking-wide text-red-600 sm:text-xs">
               Alquileres para oficinas y negocios
             </p>
@@ -176,7 +176,7 @@ export function HomeServiceRentalSection() {
               })}
             </ul>
 
-            <div className="mt-5 grid grid-cols-3 gap-3 sm:mt-6 sm:gap-4">
+            <div className="mt-5 grid flex-1 grid-cols-3 items-stretch gap-3 sm:mt-6 sm:gap-4">
               {HOME_LANDING_RENTAL_PLANS.map((plan) => (
                 <RentalPlanCard key={plan.id} plan={plan} />
               ))}

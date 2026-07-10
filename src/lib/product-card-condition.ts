@@ -42,3 +42,17 @@ export function resolveProductCardEstadoLabel(
 
   return null;
 }
+
+/** Etiqueta de badge en tarjetas de catálogo (Original/Compatible o condición de equipo). */
+export function resolveProductCardBadgeLabel(
+  product: ProductBadgeSource & { name: string; category?: string | null },
+): string | null {
+  const estado = resolveProductCardEstadoLabel(product);
+  if (estado) return estado;
+
+  if (isConsumableProductForCardSpec(product)) {
+    return 'Original';
+  }
+
+  return null;
+}

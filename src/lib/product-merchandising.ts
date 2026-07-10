@@ -1,12 +1,19 @@
 import { ShoppingBag, TrendingUp } from 'lucide-react';
 
+import { isColorPrinterEquipment } from '@/lib/build-product-detail';
 import {
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
   IM550F_ORIGINAL_TONER_PRODUCT_ID,
+  IM_C320F_COMPATIBLE_TONER_IDS,
+  IM_C320F_EQUIPMENT_PRODUCT_ID,
+  IM_C320F_ORIGINAL_TONER_IDS,
   M320F_COMPATIBLE_TONER_PRODUCT_ID,
   M320F_EQUIPMENT_PRODUCT_ID,
   M320F_ORIGINAL_TONER_PRODUCT_ID,
+  MPC407_COMPATIBLE_TONER_IDS,
+  MPC407_EQUIPMENT_PRODUCT_ID,
+  MPC407_ORIGINAL_TONER_IDS,
 } from '@/lib/equipment-config-catalog';
 import {
   flattenConsumableGroupItems,
@@ -72,37 +79,82 @@ function normalizeEquipmentName(value: string): string {
     .trim();
 }
 
-export function resolveKnownOriginalTonerProductId(equipment: Product): string | null {
+/** Varios tóneres originales conocidos (p. ej. CMYK en equipos color). */
+export function resolveKnownOriginalTonerProductIds(equipment: Product): string[] {
+  if (
+    equipment.id === IM_C320F_EQUIPMENT_PRODUCT_ID ||
+    /\bim\s*c\s*320\s*f\b/i.test(equipment.name)
+  ) {
+    return [...IM_C320F_ORIGINAL_TONER_IDS];
+  }
+
+  if (
+    equipment.id === MPC407_EQUIPMENT_PRODUCT_ID ||
+    /\bmp\s*c\s*407\b/i.test(equipment.name) ||
+    /\bmp\s*c\s*306\b/i.test(equipment.name) ||
+    /\bmp\s*c\s*406\b/i.test(equipment.name) ||
+    /\bmp\s*c\s*307\b/i.test(equipment.name)
+  ) {
+    return [...MPC407_ORIGINAL_TONER_IDS];
+  }
+
   if (equipment.id === M320F_EQUIPMENT_PRODUCT_ID || /\bm\s*320\s*f\b/i.test(equipment.name)) {
-    return M320F_ORIGINAL_TONER_PRODUCT_ID;
+    return [M320F_ORIGINAL_TONER_PRODUCT_ID];
   }
 
   if (equipment.id === 'ricoh-im-430f' || /\bim\s*430f\b/i.test(equipment.name)) {
-    return IM430F_ORIGINAL_TONER_PRODUCT_ID;
+    return [IM430F_ORIGINAL_TONER_PRODUCT_ID];
   }
 
   if (/\bim\s*550f\b/i.test(equipment.name) || /\bim\s*600f\b/i.test(equipment.name)) {
-    return IM550F_ORIGINAL_TONER_PRODUCT_ID;
+    return [IM550F_ORIGINAL_TONER_PRODUCT_ID];
   }
 
   const normalized = normalizeEquipmentName(equipment.name);
   if (/\bim\s*c\s*3000\b/.test(normalized) || /\bmp\s*c\s*3003\b/.test(normalized)) {
-    return 'ricoh-toner-mp';
+    return ['ricoh-toner-mp'];
   }
 
-  return null;
+  return [];
+}
+
+export function resolveKnownOriginalTonerProductId(equipment: Product): string | null {
+  return resolveKnownOriginalTonerProductIds(equipment)[0] ?? null;
 }
 
 export function resolveKnownCompatibleTonerProductId(equipment: Product): string | null {
+  const ids = resolveKnownCompatibleTonerProductIds(equipment);
+  return ids[0] ?? null;
+}
+
+/** Varios tóneres compatibles conocidos (p. ej. CMYK en equipos color). */
+export function resolveKnownCompatibleTonerProductIds(equipment: Product): string[] {
+  if (
+    equipment.id === IM_C320F_EQUIPMENT_PRODUCT_ID ||
+    /\bim\s*c\s*320\s*f\b/i.test(equipment.name)
+  ) {
+    return [...IM_C320F_COMPATIBLE_TONER_IDS];
+  }
+
+  if (
+    equipment.id === MPC407_EQUIPMENT_PRODUCT_ID ||
+    /\bmp\s*c\s*407\b/i.test(equipment.name) ||
+    /\bmp\s*c\s*306\b/i.test(equipment.name) ||
+    /\bmp\s*c\s*406\b/i.test(equipment.name) ||
+    /\bmp\s*c\s*307\b/i.test(equipment.name)
+  ) {
+    return [...MPC407_COMPATIBLE_TONER_IDS];
+  }
+
   if (equipment.id === M320F_EQUIPMENT_PRODUCT_ID || /\bm\s*320\s*f\b/i.test(equipment.name)) {
-    return M320F_COMPATIBLE_TONER_PRODUCT_ID;
+    return [M320F_COMPATIBLE_TONER_PRODUCT_ID];
   }
 
   if (/\bim\s*550f\b/i.test(equipment.name) || /\bim\s*600f\b/i.test(equipment.name)) {
-    return IM550F_COMPATIBLE_TONER_PRODUCT_ID;
+    return [IM550F_COMPATIBLE_TONER_PRODUCT_ID];
   }
 
-  return null;
+  return [];
 }
 
 function isCompatibleTonerName(name: string): boolean {
@@ -155,23 +207,30 @@ export function suggestCrossSellProductIds(
   const equipmentProduct = toCatalogProduct(equipment);
   const catalogProducts = catalog.map(toCatalogProduct);
   const ids: string[] = [];
-  const knownOriginalId = resolveKnownOriginalTonerProductId(equipmentProduct);
-  if (knownOriginalId && !ids.includes(knownOriginalId)) {
-    ids.push(knownOriginalId);
+  for (const tonerId of resolveKnownOriginalTonerProductIds(equipmentProduct)) {
+    if (!ids.includes(tonerId)) ids.push(tonerId);
   }
 
-  const knownCompatibleId = resolveKnownCompatibleTonerProductId(equipmentProduct);
-  if (knownCompatibleId && !ids.includes(knownCompatibleId)) {
-    ids.push(knownCompatibleId);
+  for (const tonerId of resolveKnownCompatibleTonerProductIds(equipmentProduct)) {
+    if (!ids.includes(tonerId)) ids.push(tonerId);
   }
 
   const groups = resolveEquipmentConsumables(equipmentProduct, catalogProducts);
   const tonerGroup = groups.find((group) => group.id === 'toner');
   if (tonerGroup) {
     const { original, compatible } = splitTonerItemsBySupplyType(
-      flattenConsumableGroupItems([tonerGroup]),
+      flattenConsumableGroupItems([tonerGroup]).filter(
+        (item) => !/\bPack x04\b/i.test(item.name),
+      ),
     );
-    for (const item of [original[0], compatible[0]]) {
+    const takeOriginal = isColorPrinterEquipment(equipmentProduct)
+      ? original
+      : original.slice(0, 1);
+    const takeCompatible = isColorPrinterEquipment(equipmentProduct)
+      ? compatible
+      : compatible.slice(0, 1);
+
+    for (const item of [...takeOriginal, ...takeCompatible]) {
       if (item?.productId && !ids.includes(item.productId)) {
         ids.push(item.productId);
       }

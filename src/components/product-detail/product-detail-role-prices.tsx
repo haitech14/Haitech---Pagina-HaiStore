@@ -3,13 +3,16 @@ import { useMemo } from 'react';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { useAuth } from '@/context/auth-context';
+import { useDisplayCurrency } from '@/context/display-currency-context';
 import type { CatalogRolePriceLine } from '@/hooks/use-catalog-display-price';
 import { resolveCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
+import { getDisplayPriceVisibility } from '@/lib/display-price';
 import { PRICE_ROLE_LABELS, type PriceRole, type ProductRolePrices } from '@/lib/roles';
 import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
 import type { BulkDiscountTier } from '@/types/product-detail';
 import type { Product } from '@/types/product';
+
 interface ProductDetailRolePriceLinesProps {
   product: Pick<Product, 'id' | 'price' | 'prices' | 'price_role'>;
   quantity: number;
@@ -145,32 +148,94 @@ function DiscountBadge({ percent }: { percent: number }) {
 }
 
 function BuySidebarInlineDualPrice({ usd, className }: { usd: number; className?: string }) {
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
+  const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
+  const penFirst = dualPriceOrder === 'pen-usd';
+  const both = showUsd && showPen;
+
+  const penPrimary = (
+    <span className="text-[1.625rem] font-bold leading-none tabular-nums text-red-600 sm:text-[1.75rem]">
+      {formatPenFromUsd(usd)}
+    </span>
+  );
+  const usdPrimary = (
+    <span className="text-[1.625rem] font-bold leading-none tabular-nums text-red-600 sm:text-[1.75rem]">
+      {formatUsd(usd)}
+    </span>
+  );
+  const penSecondary = (
+    <span className="text-sm font-medium leading-none tabular-nums text-neutral-400">
+      {formatPenFromUsd(usd)}
+    </span>
+  );
+  const usdSecondary = (
+    <span className="text-sm font-medium leading-none tabular-nums text-neutral-400">
+      {formatUsd(usd)}
+    </span>
+  );
+
   return (
-    <div className={cn('flex flex-wrap items-baseline gap-2', className)}>
-      <span className="text-[1.625rem] font-bold leading-none tabular-nums text-red-600 sm:text-[1.75rem]">
-        {formatPenFromUsd(usd)}
-      </span>
-      <span className="h-5 w-px shrink-0 self-center bg-neutral-300" aria-hidden="true" />
-      <span className="text-[1.625rem] font-bold leading-none tabular-nums text-[#001b44] sm:text-[1.75rem]">
-        {formatUsd(usd)}
-      </span>
+    <div className={cn('flex flex-wrap items-baseline gap-x-2 gap-y-0.5', className)}>
+      {!both ? (
+        <>
+          {showPen ? penPrimary : null}
+          {showUsd ? usdPrimary : null}
+        </>
+      ) : penFirst ? (
+        <>
+          {penPrimary}
+          {usdSecondary}
+        </>
+      ) : (
+        <>
+          {usdPrimary}
+          {penSecondary}
+        </>
+      )}
     </div>
   );
 }
 
 function TecnicoDualPrice({ usd, className }: { usd: number; className?: string }) {
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
+  const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
+  const penFirst = dualPriceOrder === 'pen-usd';
+
+  const penSpan = showPen ? (
+    <span className="font-medium text-neutral-500">{formatPenFromUsd(usd)}</span>
+  ) : null;
+  const usdSpan = showUsd ? (
+    <span className="font-medium text-neutral-500">{formatUsd(usd)}</span>
+  ) : null;
+  const separator =
+    showUsd && showPen ? (
+      <span className="text-neutral-300" aria-hidden="true">
+        ·
+      </span>
+    ) : null;
+
   return (
-    <span className={cn('inline-flex flex-wrap items-baseline gap-x-1.5 tabular-nums', className)}>
-      <span className="font-semibold text-red-600">{formatPenFromUsd(usd)}</span>
-      <span className="h-3 w-px shrink-0 self-center bg-neutral-300" aria-hidden="true" />
-      <span className="font-semibold text-[#001b44]">{formatUsd(usd)}</span>
+    <span className={cn('inline-flex flex-wrap items-baseline gap-x-1 tabular-nums', className)}>
+      {penFirst ? (
+        <>
+          {penSpan}
+          {separator}
+          {usdSpan}
+        </>
+      ) : (
+        <>
+          {usdSpan}
+          {separator}
+          {penSpan}
+        </>
+      )}
     </span>
   );
 }
 
 function BuySidebarTecnicoPrice({ usd }: { usd: number }) {
   return (
-    <p className="mt-1.5 text-xs text-neutral-500">
+    <p className="mt-1 text-[0.6875rem] text-neutral-400">
       Precio técnico: <TecnicoDualPrice usd={usd} />
     </p>
   );
@@ -205,7 +270,7 @@ export function PurchaseSidebarRolePrices({
   catalogPublicUsd = 0,
   offerUnitUsd = 0,
 }: PurchaseSidebarRolePricesProps) {
-  const { user } = useAuth();
+  const { user, viewAsRoles } = useAuth();
   const { publicTotalUsd, tecnicoTotalUsd, visitorTotalUsd, viewAsTotals, showAdminBreakdown } =
     useProductDetailRoleTotals({
       product,
@@ -218,6 +283,9 @@ export function PurchaseSidebarRolePrices({
 
   const isBuySidebar = variant === 'buy-sidebar';
   const isLoggedIn = user != null;
+  const previewAsRole = viewAsRoles.length > 0;
+  /** Solo mostrar precio técnico extra fuera de vista previa (p. ej. no al ver solo Público). */
+  const showTecnicoSecondary = isLoggedIn && !previewAsRole && !showAdminBreakdown;
 
   const normalPriceUsd =
     oldPricePen != null
@@ -266,16 +334,11 @@ export function PurchaseSidebarRolePrices({
             <DualPrice
               usd={antesTotalUsd}
               strikethrough
-              alwaysBoth
               className="inline font-medium text-muted-foreground"
             />
           </p>
         ) : null}
-        <ViewAsRolePrices
-          rolePrices={viewAsTotals}
-          alwaysBoth
-          compact={compact}
-        />
+        <ViewAsRolePrices rolePrices={viewAsTotals} compact={compact} />
       </div>
     );
   }
@@ -289,7 +352,6 @@ export function PurchaseSidebarRolePrices({
             <DualPrice
               usd={antesTotalUsd}
               strikethrough
-              alwaysBoth
               className="inline font-medium text-muted-foreground"
             />
           </p>
@@ -314,7 +376,6 @@ export function PurchaseSidebarRolePrices({
             <DualPrice
               usd={antesTotalUsd}
               strikethrough
-              alwaysBoth
               className="inline font-medium text-muted-foreground"
             />
           </p>
@@ -325,7 +386,7 @@ export function PurchaseSidebarRolePrices({
             <DiscountBadge percent={displayDiscountPercent} />
           ) : null}
         </div>
-        {isLoggedIn ? <BuySidebarTecnicoPrice usd={tecnicoTotalUsd} /> : null}
+        {showTecnicoSecondary ? <BuySidebarTecnicoPrice usd={tecnicoTotalUsd} /> : null}
       </div>
     );
   }
@@ -336,7 +397,7 @@ export function PurchaseSidebarRolePrices({
         <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
           <span className={roleLabelClass}>{PRICE_ROLE_LABELS.public}:</span>
           <span className={mainPriceClass}>
-            <DualPrice usd={publicTotalUsd} alwaysBoth />
+            <DualPrice usd={publicTotalUsd} />
           </span>
           {discountPercent != null && discountPercent > 0 ? (
             <DiscountBadge percent={discountPercent} />
@@ -344,7 +405,7 @@ export function PurchaseSidebarRolePrices({
         </div>
         <div className="mt-0.5 flex flex-wrap items-baseline gap-x-1">
           <span className={roleLabelClass}>{PRICE_ROLE_LABELS.tecnico}:</span>
-          <DualPrice usd={tecnicoTotalUsd} alwaysBoth className={secondaryPriceClass} />
+          <DualPrice usd={tecnicoTotalUsd} className={secondaryPriceClass} />
         </div>
       </div>
     );
@@ -354,13 +415,13 @@ export function PurchaseSidebarRolePrices({
     <div className={className}>
       <div className="flex flex-wrap items-baseline gap-1.5">
         <span className={mainPriceClass}>
-          <DualPrice usd={visitorTotalUsd} alwaysBoth />
+          <DualPrice usd={visitorTotalUsd} />
         </span>
         {discountPercent != null && discountPercent > 0 ? (
           <DiscountBadge percent={discountPercent} />
         ) : null}
       </div>
-      {isLoggedIn ? (
+      {showTecnicoSecondary ? (
         <p
           className={cn(
             'mt-0.5 text-muted-foreground',

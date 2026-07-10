@@ -2,6 +2,73 @@ import { CATEGORY_COMPATIBLE_TONER } from '../../shared/compatible-toner.js';
 import { normalizeProductInput } from './inventory-store.js';
 import { roundSalePriceToNinety } from './toner-products-excel.js';
 
+/** Equipo MP C407 (seminueva) en inventario. */
+export const MPC407_EQUIPMENT_PRODUCT_ID = '92070b52-ac0d-4bc1-94d3-d51e69091bb4';
+
+/** Equipo IM C320F (color A4) en inventario. */
+export const IMC320F_EQUIPMENT_PRODUCT_ID = '481dbc77-436b-464d-b76f-930f7d79f4ff';
+
+/** Tóneres CMYK Intercopy compatibles con MP C306/C406/C307/C407. */
+export const MPC407_COMPATIBLE_TONER_IDS = [
+  'intercopy-mp-c306-cyan',
+  'intercopy-mp-c306-magenta',
+  'intercopy-mp-c306-yellow',
+  'intercopy-mp-c306-negro',
+];
+
+/** Tóneres CMYK compatibles con IM C320F (Cyan / Magenta / Amarillo / Negro). */
+export const IMC320F_COMPATIBLE_TONER_IDS = [
+  'compat-im-c320f-cyan',
+  'compat-im-c320f-magenta',
+  'compat-im-c320f-yellow',
+  'compat-im-c320f-negro',
+];
+
+const MPC407_COMPATIBLE_TONER_PRICE_USD = 39.9;
+const IMC320F_COMPATIBLE_TONER_PRICE_USD = 39.9;
+
+const MPC407_COMPATIBLE_TONER_META = {
+  'intercopy-mp-c306-cyan': {
+    color: 'Cyan',
+    name: 'Toner cartucho compatible RICOH MP C407 — Cyan',
+  },
+  'intercopy-mp-c306-magenta': {
+    color: 'Magenta',
+    name: 'Toner cartucho compatible RICOH MP C407 — Magenta',
+  },
+  'intercopy-mp-c306-yellow': {
+    color: 'Amarillo',
+    name: 'Toner cartucho compatible RICOH MP C407 — Amarillo',
+  },
+  'intercopy-mp-c306-negro': {
+    color: 'Negro',
+    name: 'Toner cartucho compatible RICOH MP C407 — Negro',
+  },
+};
+
+const IMC320F_COMPATIBLE_TONER_META = {
+  'compat-im-c320f-cyan': {
+    color: 'Cyan',
+    code: '901050',
+    name: 'Toner cartucho compatible RICOH IM C320F — Cyan',
+  },
+  'compat-im-c320f-magenta': {
+    color: 'Magenta',
+    code: '901051',
+    name: 'Toner cartucho compatible RICOH IM C320F — Magenta',
+  },
+  'compat-im-c320f-yellow': {
+    color: 'Amarillo',
+    code: '901052',
+    name: 'Toner cartucho compatible RICOH IM C320F — Amarillo',
+  },
+  'compat-im-c320f-negro': {
+    color: 'Negro',
+    code: '901053',
+    name: 'Toner cartucho compatible RICOH IM C320F — Negro',
+  },
+};
+
 /** Tóneres vinculados a equipos Ricoh A4 (IDs usados en equipment-config-catalog). */
 export const KNOWN_EQUIPMENT_TONER_SEEDS = [
   {
@@ -106,6 +173,34 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
     equipmentIds: ['bfb264b8-70dc-4ad4-9686-2df02df8c75e'],
     supplyType: 'compatible',
   },
+  ...IMC320F_COMPATIBLE_TONER_IDS.map((tonerId) => {
+    const meta = IMC320F_COMPATIBLE_TONER_META[tonerId];
+    return {
+      id: tonerId,
+      code: meta.code,
+      name: meta.name,
+      description: `${meta.name} — Print Cartridge IM C320 (OEM 842726–842729)`,
+      category: CATEGORY_COMPATIBLE_TONER,
+      brand: '',
+      image_url: null,
+      gallery: [],
+      attributes: [
+        { name: 'Modelo de equipo', value: 'IM C320F / IM C320' },
+        { name: 'Rendimiento (5%)', value: meta.color === 'Negro' ? '16,000' : '10,000' },
+        { name: 'Color', value: meta.color },
+      ],
+      prices: {
+        public: roundSalePriceToNinety(IMC320F_COMPATIBLE_TONER_PRICE_USD),
+        tecnico: roundSalePriceToNinety(33.5),
+        mayorista: roundSalePriceToNinety(31.9),
+        distribuidor: roundSalePriceToNinety(29.5),
+      },
+      purchase_price_usd: 22.9,
+      suppliers: [{ name: 'MICAMERB', purchase_price_usd: 22.9 }],
+      equipmentIds: [IMC320F_EQUIPMENT_PRODUCT_ID],
+      supplyType: 'compatible',
+    };
+  }),
 ];
 
 /** Vincula tóneres ya existentes en inventario con equipos (sin reescribir el producto). */
@@ -114,7 +209,170 @@ export const KNOWN_EQUIPMENT_TONER_CROSS_SELL = [
     equipmentId: 'bfb264b8-70dc-4ad4-9686-2df02df8c75e',
     tonerIds: ['408284', 'compat-tc-m-320f-haiprint'],
   },
+  {
+    equipmentId: MPC407_EQUIPMENT_PRODUCT_ID,
+    tonerIds: [
+      '842092',
+      '842093',
+      '842094',
+      '842091',
+      ...MPC407_COMPATIBLE_TONER_IDS,
+    ],
+  },
+  {
+    equipmentId: IMC320F_EQUIPMENT_PRODUCT_ID,
+    tonerIds: [
+      '842718',
+      '842719',
+      '842720',
+      '842725',
+      ...IMC320F_COMPATIBLE_TONER_IDS,
+    ],
+  },
 ];
+
+/**
+ * Crea o actualiza los 4 tóneres CMYK IM C320F (precios, nombres, color).
+ * Nota: OneDrive a veces revierte `server/data/inventory.json` — volver a correr
+ * `node scripts/seed-known-equipment-toners.mjs` si desaparecen.
+ * @param {Array<Record<string, unknown>>} products
+ */
+export function ensureImC320FCompatibleTonerProducts(products) {
+  const byId = new Map(products.map((product) => [product.id, { ...product }]));
+  let created = 0;
+  let updated = 0;
+
+  const publicPrice = roundSalePriceToNinety(IMC320F_COMPATIBLE_TONER_PRICE_USD);
+  const prices = {
+    public: publicPrice,
+    tecnico: roundSalePriceToNinety(33.5),
+    mayorista: roundSalePriceToNinety(31.9),
+    distribuidor: roundSalePriceToNinety(29.5),
+  };
+
+  for (const tonerId of IMC320F_COMPATIBLE_TONER_IDS) {
+    const meta = IMC320F_COMPATIBLE_TONER_META[tonerId];
+    const existing = byId.get(tonerId);
+    const attributes = Array.isArray(existing?.attributes)
+      ? existing.attributes.map((attr) => ({ ...attr }))
+      : [];
+
+    const upsertAttr = (name, value) => {
+      const found = attributes.find(
+        (attr) => String(attr?.name ?? '').trim().toLowerCase() === name.toLowerCase(),
+      );
+      if (found) {
+        found.value = value;
+      } else {
+        attributes.push({ id: `${name.toLowerCase()}-${tonerId}`, name, value });
+      }
+    };
+
+    upsertAttr('Color', meta.color);
+    upsertAttr('Modelo de equipo', 'IM C320F / IM C320');
+    upsertAttr('Rendimiento (5%)', meta.color === 'Negro' ? '16,000' : '10,000');
+
+    const next = normalizeProductInput(
+      {
+        ...(existing ?? {}),
+        id: tonerId,
+        code: meta.code,
+        name: meta.name,
+        description: `${meta.name} — Print Cartridge IM C320 (OEM 842726–842729)`,
+        category: existing?.category || CATEGORY_COMPATIBLE_TONER,
+        brand: existing?.brand ?? '',
+        image_url: null,
+        gallery: [],
+        prices,
+        purchase_price_usd:
+          Number(existing?.purchase_price_usd) > 0 ? existing.purchase_price_usd : 22.9,
+        suppliers: existing?.suppliers ?? [{ name: 'MICAMERB', purchase_price_usd: 22.9 }],
+        attributes,
+      },
+      existing,
+    );
+
+    byId.set(tonerId, next);
+    if (existing) updated += 1;
+    else created += 1;
+  }
+
+  return {
+    products: [...byId.values()],
+    created,
+    updated,
+  };
+}
+
+/**
+ * Actualiza precios/nombres de los 4 tóneres CMYK MP C407 y quita imágenes demo de pack.
+ * @param {Array<Record<string, unknown>>} products
+ */
+export function ensureMpC407CompatibleTonerProducts(products) {
+  const byId = new Map(products.map((product) => [product.id, { ...product }]));
+  let updated = 0;
+
+  const publicPrice = roundSalePriceToNinety(MPC407_COMPATIBLE_TONER_PRICE_USD);
+  const prices = {
+    public: publicPrice,
+    tecnico: roundSalePriceToNinety(33.5),
+    mayorista: roundSalePriceToNinety(31.9),
+    distribuidor: roundSalePriceToNinety(29.5),
+  };
+
+  for (const tonerId of MPC407_COMPATIBLE_TONER_IDS) {
+    const existing = byId.get(tonerId);
+    if (!existing) continue;
+
+    const meta = MPC407_COMPATIBLE_TONER_META[tonerId];
+    const attributes = Array.isArray(existing.attributes)
+      ? existing.attributes.map((attr) => ({ ...attr }))
+      : [];
+    const colorAttr = attributes.find(
+      (attr) => String(attr?.name ?? '').trim().toLowerCase() === 'color',
+    );
+    if (colorAttr) {
+      colorAttr.value = meta.color;
+    } else {
+      attributes.push({ id: `color-${tonerId}`, name: 'Color', value: meta.color });
+    }
+
+    const next = normalizeProductInput(
+      {
+        ...existing,
+        name: meta.name,
+        description: `${meta.name} — MP C306/C406, MP C307/C407`,
+        category: existing.category || CATEGORY_COMPATIBLE_TONER,
+        // Sin imagen demo de pack/bundle: la UI muestra «Sin imagen» hasta subir foto real.
+        image_url: null,
+        gallery: [],
+        prices,
+        purchase_price_usd:
+          Number(existing.purchase_price_usd) > 0 ? existing.purchase_price_usd : 22.9,
+        attributes,
+      },
+      existing,
+    );
+
+    byId.set(tonerId, next);
+    updated += 1;
+  }
+
+  // El pack x04 no debe usarse como tarjeta única de cross-sell / demo.
+  const pack = byId.get('toner-pack-mp-c306-pack04');
+  if (pack) {
+    byId.set('toner-pack-mp-c306-pack04', {
+      ...pack,
+      image_url: null,
+      gallery: [],
+    });
+  }
+
+  return {
+    products: [...byId.values()],
+    updated,
+  };
+}
 
 /**
  * @param {typeof KNOWN_EQUIPMENT_TONER_SEEDS[number]} seed

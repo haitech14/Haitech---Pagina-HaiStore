@@ -101,3 +101,37 @@ export function formatYieldLabel(pages: number | null, label: string | null): st
   }
   return '—';
 }
+
+const TONER_YIELD_CARD_EMPTY = 'Rinde: — págs al 5%';
+
+function parseYieldPagesFromText(text: string): number | null {
+  const stripped = text
+    .replace(/^rend(?:imiento)?:?\s*/i, '')
+    .replace(/^rinde:?\s*/i, '')
+    .trim();
+  const numMatch = stripped.match(/([\d][\d.,\s]*\d|\d+)/);
+  if (!numMatch) return null;
+  const pages = Number.parseInt(numMatch[1].replace(/[^\d]/g, ''), 10);
+  return Number.isFinite(pages) && pages > 0 ? pages : null;
+}
+
+/** Texto de rendimiento para cards de tóner en ficha de producto. */
+export function formatTonerYieldCardLabel(
+  raw: string | null | undefined,
+  pages?: number | null,
+): string {
+  if (pages != null && pages > 0) {
+    return `Rinde: ${pages.toLocaleString('es-PE')} págs al 5%`;
+  }
+
+  const trimmed = raw?.trim();
+  if (!trimmed || trimmed === '—' || trimmed === '-') return TONER_YIELD_CARD_EMPTY;
+  if (/^rinde:/i.test(trimmed)) return trimmed;
+
+  const parsed = parseYieldPagesFromText(trimmed);
+  if (parsed != null) {
+    return `Rinde: ${parsed.toLocaleString('es-PE')} págs al 5%`;
+  }
+
+  return TONER_YIELD_CARD_EMPTY;
+}

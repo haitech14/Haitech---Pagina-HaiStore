@@ -12,14 +12,11 @@ import {
 } from '@/components/layout/main-nav-styles';
 import { HeaderBrandLogos } from '@/components/layout/site-logo';
 import { SiteSearchForm } from '@/components/layout/site-search-form';
-import { useCart } from '@/context/cart-context';
-import { useDisplayCurrency } from '@/context/display-currency-context';
 import { FORUM_HEADER_NAV } from '@/data/forum-home-layout';
 import {
   getHeaderNavSubmenuDefaultHref,
   PRODUCTOS_NAV_SUBMENU,
 } from '@/data/header-nav-submenus';
-import { formatPenFromUsd } from '@/lib/utils';
 export type { HeaderMainNavLink } from '@/components/layout/header-main-menu';
 
 export const headerMainNavLinks: HeaderMainNavLink[] = [
@@ -55,14 +52,18 @@ function HeaderBrandLogo() {
   );
 }
 
-export function HeaderCategoryNav() {
+type HeaderCategoryNavProps = {
+  cartCount?: number;
+  cartAriaLabel?: string;
+  onOpenCart?: () => void;
+};
+
+export function HeaderCategoryNav({
+  cartCount = 0,
+  cartAriaLabel = 'Carrito de compras',
+  onOpenCart,
+}: HeaderCategoryNavProps) {
   const { pathname } = useLocation();
-  const { totalItems, totalPrice, openCart } = useCart();
-  const { displayCurrency } = useDisplayCurrency();
-  const cartTotalAria =
-    displayCurrency === 'PEN'
-      ? `${formatPenFromUsd(totalPrice)}, tipo de cambio venta`
-      : `${totalPrice.toFixed(2)} dólares`;
   const forumMode = isForumPath(pathname);
   const navLinks = forumMode ? forumHeaderNavLinks : headerMainNavLinks;
   const linkClassName = forumMode ? mainNavLinkClass : darkNavSecondaryLinkClass;
@@ -81,7 +82,7 @@ export function HeaderCategoryNav() {
 
             <div
               id="header-store-search"
-              className="min-w-0 w-full max-w-[30rem] flex-1 ml-5 lg:ml-7 xl:ml-9 lg:max-w-[32rem] xl:max-w-[36rem]"
+              className="min-w-0 w-full max-w-[34rem] flex-1 ml-5 lg:ml-7 xl:ml-9 lg:max-w-[38rem] xl:max-w-[44rem]"
             >
               <SiteSearchForm
                 className="w-full"
@@ -93,9 +94,9 @@ export function HeaderCategoryNav() {
 
             <div className="ml-auto flex shrink-0 items-center justify-end gap-3 xl:gap-4">
               <HeaderStoreDesktopActions
-                cartCount={totalItems}
-                cartAriaLabel={`Carrito de compras, ${totalItems} artículos, total ${cartTotalAria}`}
-                onOpenCart={openCart}
+                cartCount={cartCount}
+                cartAriaLabel={cartAriaLabel}
+                onOpenCart={onOpenCart ?? (() => undefined)}
               />
             </div>
           </div>

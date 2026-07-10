@@ -13,28 +13,42 @@ export function RentalEstimateDualPrice({
   estimatedMonthlyPen,
   className,
 }: RentalEstimateDualPriceProps) {
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const visibility = getDisplayPriceVisibility(displayCurrency);
   const showUsd = visibility.showUsd;
   const showPen = visibility.showPen;
   const usd = penToUsd(estimatedMonthlyPen);
+  const penFirst = dualPriceOrder === 'pen-usd';
+
+  const usdSpan = showUsd ? (
+    <span className="text-foreground">{formatUsd(usd)}</span>
+  ) : null;
+  const penSpan = showPen ? (
+    <span className="text-red-600">S/ {formatEquipmentRentalPen(estimatedMonthlyPen)}</span>
+  ) : null;
+  const separator =
+    showUsd && showPen ? (
+      <span aria-hidden="true" className="font-normal text-muted-foreground">
+        {' '}
+        ·{' '}
+      </span>
+    ) : null;
 
   return (
     <span className={cn('inline-flex flex-nowrap items-baseline gap-x-1.5 whitespace-nowrap', className)}>
-      {showUsd ? (
-        <span className="text-foreground">{formatUsd(usd)}</span>
-      ) : null}
-      {showUsd && showPen ? (
-        <span aria-hidden="true" className="font-normal text-muted-foreground">
-          {' '}
-          ·{' '}
-        </span>
-      ) : null}
-      {showPen ? (
-        <span className="text-red-600">
-          S/ {formatEquipmentRentalPen(estimatedMonthlyPen)}
-        </span>
-      ) : null}
+      {penFirst ? (
+        <>
+          {penSpan}
+          {separator}
+          {usdSpan}
+        </>
+      ) : (
+        <>
+          {usdSpan}
+          {separator}
+          {penSpan}
+        </>
+      )}
     </span>
   );
 }
@@ -66,6 +80,13 @@ export function DualPrice({
     ? 'line-through decoration-muted-foreground decoration-solid'
     : undefined;
 
+  const usdSpan = showUsd ? (
+    <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>
+  ) : null;
+  const penSpan = showPen ? (
+    <span className={cn(strike, 'text-red-600')}>{formatPenFromUsd(usd)}</span>
+  ) : null;
+
   if (stacked && showUsd && showPen) {
     const primary = penFirst
       ? { label: formatPenFromUsd(usd), className: 'text-red-600' }
@@ -87,24 +108,29 @@ export function DualPrice({
     );
   }
 
+  const separator =
+    showUsd && showPen ? (
+      <span aria-hidden="true" className="font-normal text-muted-foreground">
+        {' '}
+        ·{' '}
+      </span>
+    ) : null;
+
   return (
     <span className={cn('inline-flex flex-nowrap items-baseline gap-x-1.5 whitespace-nowrap', className)}>
-      {showUsd ? (
-        <span className={cn(strike, 'text-foreground')}>
-          {formatUsd(usd)}
-        </span>
-      ) : null}
-      {showUsd && showPen ? (
-        <span aria-hidden="true" className="font-normal text-muted-foreground">
-          {' '}
-          ·{' '}
-        </span>
-      ) : null}
-      {showPen ? (
-        <span className={cn(strike, 'text-red-600')}>
-          {formatPenFromUsd(usd)}
-        </span>
-      ) : null}
+      {penFirst ? (
+        <>
+          {penSpan}
+          {separator}
+          {usdSpan}
+        </>
+      ) : (
+        <>
+          {usdSpan}
+          {separator}
+          {penSpan}
+        </>
+      )}
     </span>
   );
 }

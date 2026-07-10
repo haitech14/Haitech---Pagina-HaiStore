@@ -6,7 +6,7 @@ export const RICOH_TONER_408214 = {
   name: 'CARTUCHO DE TONER AMARILLO ORIGINAL RICOH SP C352',
   brand: 'Ricoh',
   category: 'Toner Original',
-  publicPen: 110.2,
+  publicPen: 376.09,
   stock: 0,
   heroAssetToken: '069f7d06',
   galleryAssetTokens: [

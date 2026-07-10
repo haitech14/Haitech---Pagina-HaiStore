@@ -47,7 +47,7 @@ export function InventoryPhotoUploadBox({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <Label className="text-sm font-medium">{label}</Label>
+      {label ? <Label className="text-sm font-medium">{label}</Label> : null}
       <div className="flex flex-col gap-2">
         <button
           type="button"

@@ -840,6 +840,7 @@ export function normalizeProductInput(body, existing, warehouses) {
       bundle_components: body.bundle_components ?? existing?.bundle_components,
       cross_sell_product_ids: body.cross_sell_product_ids ?? existing?.cross_sell_product_ids,
       upsell_product_ids: body.upsell_product_ids ?? existing?.upsell_product_ids,
+      variant_product_ids: body.variant_product_ids ?? existing?.variant_product_ids,
       cross_sell_optional_products:
         body.cross_sell_optional_products !== undefined
           ? normalizeMerchandisingOptionalProducts(body.cross_sell_optional_products)

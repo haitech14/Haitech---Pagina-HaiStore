@@ -4,9 +4,8 @@ import { Pencil } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
-import { useAdminInventory } from '@/hooks/use-products';
 import {
-  buildAttributeNameCatalog,
+  areAttributesEqual,
   formatAttributeLabel,
   normalizeAttributes,
 } from '@/lib/inventory-attributes';
@@ -18,10 +17,23 @@ import { InventoryAttributesEditor } from './inventory-attributes-editor';
 interface InventoryAttributesCellProps {
   attributes: ProductAttribute[];
   onSave: (attributes: ProductAttribute[]) => void | Promise<void>;
+  /** Catálogo de nombres compartido desde el panel (evita escanear todo el inventario por celda). */
+  nameOptions?: string[];
+  /** Productos del inventario solo para opciones de valor al abrir el editor. */
+  catalogProducts?: readonly { attributes?: ProductAttribute[] }[];
 }
 
 const VISIBLE_COUNT = 2;
 const TEXT_SAVE_MS = 350;
+
+function isSelectPortalTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+  return Boolean(
+    target.closest('[data-radix-select-content]') ||
+      target.closest('[data-radix-popper-content-wrapper]') ||
+      target.closest('[role="listbox"]'),
+  );
+}
 
 function AttributesPreview({ attributes }: { attributes: ProductAttribute[] }) {
   if (attributes.length === 0) {
@@ -32,17 +44,20 @@ function AttributesPreview({ attributes }: { attributes: ProductAttribute[] }) {
   const rest = attributes.length - visible.length;
 
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
-      {visible.map((attribute) => (
-        <Badge
-          key={attribute.id}
-          variant="outline"
-          className="max-w-full justify-start truncate font-normal"
-          title={formatAttributeLabel(attribute)}
-        >
-          {formatAttributeLabel(attribute)}
-        </Badge>
-      ))}
+    <div className="flex w-full min-w-0 max-w-[11rem] flex-col gap-0.5">
+      {visible.map((attribute) => {
+        const label = formatAttributeLabel(attribute);
+        return (
+          <Badge
+            key={attribute.id}
+            variant="outline"
+            className="h-5 max-w-full justify-start truncate px-1.5 text-[0.625rem] font-normal"
+            title={label}
+          >
+            <span className="truncate">{label}</span>
+          </Badge>
+        );
+      })}
       {rest > 0 && (
         <span className="text-[0.65rem] text-muted-foreground">+{rest} más</span>
       )}
@@ -50,8 +65,12 @@ function AttributesPreview({ attributes }: { attributes: ProductAttribute[] }) {
   );
 }
 
-export function InventoryAttributesCell({ attributes, onSave }: InventoryAttributesCellProps) {
-  const { data: products = [] } = useAdminInventory();
+export function InventoryAttributesCell({
+  attributes,
+  onSave,
+  nameOptions: sharedNameOptions,
+  catalogProducts = [],
+}: InventoryAttributesCellProps) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(attributes);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -60,6 +79,9 @@ export function InventoryAttributesCell({ attributes, onSave }: InventoryAttribu
   const savedTimerRef = useRef<number | null>(null);
   const draftRef = useRef(draft);
   const wasOpenRef = useRef(false);
+  const lastSavedRef = useRef(normalizeAttributes(attributes));
+  const pendingSaveRef = useRef<ProductAttribute[] | null>(null);
+  const savingRef = useRef(false);
 
   const normalized = useMemo(() => normalizeAttributes(attributes), [attributes]);
 
@@ -68,18 +90,15 @@ export function InventoryAttributesCell({ attributes, onSave }: InventoryAttribu
     [open, draft, normalized],
   );
 
-  const nameOptions = useMemo(() => {
-    const catalog = buildAttributeNameCatalog(products);
-    for (const row of draft) {
-      const name = row.name?.trim();
-      if (name && !catalog.includes(name)) catalog.push(name);
-    }
-    return catalog.sort((a, b) => a.localeCompare(b, 'es'));
-  }, [products, draft]);
+  const nameOptions = useMemo(() => sharedNameOptions ?? [], [sharedNameOptions]);
 
   useEffect(() => {
     draftRef.current = draft;
   }, [draft]);
+
+  useEffect(() => {
+    lastSavedRef.current = normalized;
+  }, [normalized]);
 
   useEffect(() => {
     if (open && !wasOpenRef.current) {
@@ -101,14 +120,40 @@ export function InventoryAttributesCell({ attributes, onSave }: InventoryAttribu
 
   const persist = useCallback(
     async (next: ProductAttribute[]) => {
+      pendingSaveRef.current = next;
+      if (savingRef.current) return;
+
+      savingRef.current = true;
       setSaveState('saving');
+      let didSave = false;
       try {
-        await onSave(normalizeAttributes(next));
-        setSaveState('saved');
-        if (savedTimerRef.current) window.clearTimeout(savedTimerRef.current);
-        savedTimerRef.current = window.setTimeout(() => setSaveState('idle'), 1500);
+        while (pendingSaveRef.current) {
+          const candidate = normalizeAttributes(pendingSaveRef.current);
+          pendingSaveRef.current = null;
+
+          // Filas vacías (recién agregadas) no deben disparar PATCH que pise un guardado válido.
+          if (areAttributesEqual(candidate, lastSavedRef.current)) {
+            continue;
+          }
+
+          await onSave(candidate);
+          lastSavedRef.current = candidate;
+          didSave = true;
+        }
+        if (didSave) {
+          setSaveState('saved');
+          if (savedTimerRef.current) window.clearTimeout(savedTimerRef.current);
+          savedTimerRef.current = window.setTimeout(() => setSaveState('idle'), 1500);
+        } else {
+          setSaveState('idle');
+        }
       } catch {
         setSaveState('error');
+      } finally {
+        savingRef.current = false;
+        if (pendingSaveRef.current) {
+          void persist(pendingSaveRef.current);
+        }
       }
     },
     [onSave],
@@ -148,6 +193,12 @@ export function InventoryAttributesCell({ attributes, onSave }: InventoryAttribu
     setOpen(nextOpen);
   };
 
+  const preventSelectDismiss = (event: Event) => {
+    if (isSelectPortalTarget(event.target)) {
+      event.preventDefault();
+    }
+  };
+
   const saveHint =
     saveState === 'saving'
       ? 'Guardando…'
@@ -158,13 +209,13 @@ export function InventoryAttributesCell({ attributes, onSave }: InventoryAttribu
           : null;
 
   return (
-    <div className="group flex min-h-9 min-w-0 items-center gap-1">
+    <div className="group flex min-h-9 w-full min-w-0 max-w-[12rem] items-center gap-1">
       <Popover open={open} onOpenChange={handleOpenChange} modal={false}>
         <PopoverAnchor asChild>
           <button
             type="button"
             className={cn(
-              'min-h-9 w-full flex-1 cursor-pointer rounded-sm text-left outline-none',
+              'min-h-9 min-w-0 flex-1 cursor-pointer rounded-sm text-left outline-none',
               'hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring',
             )}
             onClick={() => setOpen(true)}
@@ -179,6 +230,9 @@ export function InventoryAttributesCell({ attributes, onSave }: InventoryAttribu
           side="bottom"
           onOpenAutoFocus={(event) => event.preventDefault()}
           onCloseAutoFocus={(event) => event.preventDefault()}
+          onPointerDownOutside={preventSelectDismiss}
+          onFocusOutside={preventSelectDismiss}
+          onInteractOutside={preventSelectDismiss}
         >
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-sm font-medium">Atributos del producto</p>
@@ -199,7 +253,7 @@ export function InventoryAttributesCell({ attributes, onSave }: InventoryAttribu
             attributes={draft}
             onChange={handleDraftChange}
             nameOptions={nameOptions}
-            products={products}
+            products={open ? catalogProducts : []}
             idPrefix="table-attr"
           />
           <div className="mt-3 flex justify-end">

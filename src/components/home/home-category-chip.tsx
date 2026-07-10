@@ -62,7 +62,7 @@ export function homeCategoryChipIconClassName({
   return cn(
     'shrink-0',
     size === 'lg' && isVertical
-      ? 'size-7 sm:size-8'
+      ? 'size-10 sm:size-12'
       : size === 'xl' && isVertical
         ? 'size-8 sm:size-9'
         : size === 'xs' && isVertical

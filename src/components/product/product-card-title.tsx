@@ -1,14 +1,18 @@
 import {
   getProductCardTitleContent,
   PRODUCT_CARD_BRAND_CLASS,
+  PRODUCT_CARD_BRAND_ROW_CLASS,
   PRODUCT_CARD_CODE_CLASS,
   PRODUCT_CARD_STOCK_CLASS,
   PRODUCT_CARD_TITLE_CLAMP_CLASS,
   PRODUCT_CARD_TITLE_FEATURED_CLASS,
   PRODUCT_CARD_TITLE_MAIN_CLASS,
 } from '@/lib/product-card-title';
+import { ProductCardEstadoBadge } from '@/components/product/product-card-estado-badge';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';
 import { cn } from '@/lib/utils';
+
 interface ProductCardTitleProps {
   product: ProductBadgeSource & { name: string; category?: string | null };
   className?: string;
@@ -18,12 +22,41 @@ interface ProductCardTitleProps {
   variant?: 'card' | 'table' | 'featured';
   stock?: number;
   outOfStock?: boolean;
+  /** Mostrar badge de condición junto a la marca (grilla de catálogo). */
+  showConditionBadge?: boolean;
 }
 
 function formatCardStockLabel(outOfStock: boolean, stock: number): string {
   const quantity = outOfStock ? 0 : Math.max(0, Math.floor(Number(stock) || 0));
   if (quantity <= 0) return 'A pedido';
   return `${quantity} unids.`;
+}
+
+interface ProductCardBrandLineProps {
+  brand: string | null;
+  conditionLabel?: string | null;
+  brandClassName?: string;
+}
+
+/** Marca y badge de condición en la misma fila (p. ej. RICOH + Nueva). */
+export function ProductCardBrandLine({
+  brand,
+  conditionLabel,
+  brandClassName,
+}: ProductCardBrandLineProps) {
+  const trimmedLabel = conditionLabel?.trim();
+  if (!brand && !trimmedLabel) return null;
+
+  return (
+    <div className={PRODUCT_CARD_BRAND_ROW_CLASS}>
+      {brand ? (
+        <p className={cn(PRODUCT_CARD_BRAND_CLASS, 'min-w-0 shrink truncate leading-none', brandClassName)}>
+          {brand}
+        </p>
+      ) : null}
+      {trimmedLabel ? <ProductCardEstadoBadge label={trimmedLabel} /> : null}
+    </div>
+  );
 }
 
 export function ProductCardTitle({
@@ -33,6 +66,7 @@ export function ProductCardTitle({
   variant = 'card',
   stock,
   outOfStock = false,
+  showConditionBadge = false,
 }: ProductCardTitleProps) {
   const { brand, code, title } = getProductCardTitleContent(product);
   const isTable = variant === 'table';
@@ -48,27 +82,27 @@ export function ProductCardTitle({
       ? cn(PRODUCT_CARD_TITLE_FEATURED_CLASS, PRODUCT_CARD_TITLE_CLAMP_CLASS)
       : cn(PRODUCT_CARD_TITLE_MAIN_CLASS, PRODUCT_CARD_TITLE_CLAMP_CLASS);
 
-  const showBrandLine = Boolean(brand);
+  const conditionLabel =
+    showConditionBadge && !isTable ? resolveProductCardBadgeLabel(product) : null;
   const showStock = stock != null && !isTable;
+  const showCodeStockRow = !isTable && (Boolean(code) || showStock);
 
   return (
     <div className={cn(isTable ? 'space-y-0' : 'space-y-0.5 sm:space-y-1', className)}>
-      {showBrandLine ? (
-        <p className="min-w-0">
-          <span className={cn(brandClass, 'block leading-none')}>{brand}</span>
-        </p>
-      ) : null}
-      <h3 className={titleClass}>
-        {title}
-        {!isTable && code ? (
-          <span className={cn(PRODUCT_CARD_CODE_CLASS, 'inline font-normal')}> ({code})</span>
-        ) : null}
-      </h3>
-      {showStock ? (
-        <div className="mt-0.5 flex min-w-0 justify-end">
-          <span className={cn(PRODUCT_CARD_STOCK_CLASS, 'tabular-nums')}>
-            {formatCardStockLabel(outOfStock, stock ?? 0)}
-          </span>
+      <ProductCardBrandLine
+        brand={brand}
+        conditionLabel={conditionLabel}
+        brandClassName={brandClass}
+      />
+      <h3 className={titleClass}>{title}</h3>
+      {showCodeStockRow ? (
+        <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
+          {code ? <span className={PRODUCT_CARD_CODE_CLASS}>{code}</span> : <span className="min-w-0" />}
+          {showStock ? (
+            <span className={cn(PRODUCT_CARD_STOCK_CLASS, 'tabular-nums')}>
+              {formatCardStockLabel(outOfStock, stock ?? 0)}
+            </span>
+          ) : null}
         </div>
       ) : null}
     </div>

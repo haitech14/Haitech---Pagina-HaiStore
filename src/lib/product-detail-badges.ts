@@ -59,7 +59,7 @@ export function isPrinterProduct(product: ProductBadgeSource): boolean {
   );
 }
 
-function isSupplyBadgeProduct(product: ProductBadgeSource): boolean {
+export function isSupplyBadgeProduct(product: ProductBadgeSource): boolean {
   const haystack = `${product.category ?? ''} ${product.name}`.toLowerCase();
   return (
     haystack.includes('toner') ||

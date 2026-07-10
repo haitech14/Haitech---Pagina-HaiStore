@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   BadgeCheck,
-  Building2,
   CalendarDays,
   ChevronDown,
   FileText,
@@ -11,7 +10,6 @@ import {
   LayoutDashboard,
   Layers,
   Newspaper,
-  PackagePlus,
   Settings,
   ShoppingBag,
   SlidersHorizontal,
@@ -51,8 +49,6 @@ const ICONS: Record<string, LucideIcon> = {
   users: Users,
   'file-text': FileText,
   star: Star,
-  'package-plus': PackagePlus,
-  'building-2': Building2,
   truck: Truck,
   user: User,
   settings: Settings,
@@ -102,12 +98,6 @@ function isItemActive(
   }
   if (key === 'bandeja') {
     return pathname.startsWith(ADMIN_ROUTES.BANDEJA);
-  }
-  if (key === 'inventory') {
-    return pathname === ADMIN_ROUTES.INVENTORY && inventoryVista(search) === 'stock';
-  }
-  if (key === 'suppliers') {
-    return pathname === ADMIN_ROUTES.INVENTORY && inventoryVista(search) === 'proveedores';
   }
   if (key === 'brands') {
     return pathname === ADMIN_ROUTES.CATEGORIES && search.includes('vista=marcas');

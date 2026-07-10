@@ -26,6 +26,7 @@ import {
   readAttachmentFile,
 } from '@/lib/inventory-attachments';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
+import { PRODUCT_ATTACHMENT_UPLOAD_HINT } from '@/lib/product-media-upload-limits';
 import type { InventoryProduct, ProductAttachment, ProductAttachmentKind } from '@/types/product';
 
 interface InventoryAttachmentsDialogProps {
@@ -134,7 +135,7 @@ export function InventoryAttachmentsDialog({
           </div>
 
           <p className="text-xs text-muted-foreground">
-            PDF, Word o imágenes. Máximo 4 MB por archivo.
+            PDF, Word o imágenes. {PRODUCT_ATTACHMENT_UPLOAD_HINT} por archivo.
           </p>
 
           {attachments.length > 0 ? (

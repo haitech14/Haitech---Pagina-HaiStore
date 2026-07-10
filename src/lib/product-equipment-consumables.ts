@@ -1,4 +1,5 @@
 import { isPrinterEquipment } from '@/lib/build-product-detail';
+import { isTonerPackProduct } from '@/lib/product-bundle';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { computeCostPerCopyPen, extractProductYield } from '@/lib/product-cost-per-copy';
 import type { Product } from '@/types/product';
@@ -46,7 +47,7 @@ interface CategoryRule {
 const CATEGORY_RULES: CategoryRule[] = [
   {
     id: 'toner',
-    label: 'Tóner',
+    label: 'Toner',
     keywords: ['toner', 'tóner', 'cartucho', 'cartridge', 'botella toner', 'waste toner', 'residual'],
   },
   {
@@ -56,7 +57,7 @@ const CATEGORY_RULES: CategoryRule[] = [
   },
   {
     id: 'imaging-unit',
-    label: 'Unidad de imagen',
+    label: 'Unidad de Imagen',
     keywords: [
       'unidad de imagen',
       'imaging unit',
@@ -69,12 +70,12 @@ const CATEGORY_RULES: CategoryRule[] = [
   },
   {
     id: 'fuser-unit',
-    label: 'Unidad fusora',
+    label: 'Unidad Fusora',
     keywords: ['unidad fusora', 'fusor', 'fuser', 'fusing unit', 'kit fusor'],
   },
   {
     id: 'transfer-unit',
-    label: 'Unidad de transferencia',
+    label: 'Unidad de Transferencia',
     keywords: [
       'unidad de transferencia',
       'transfer unit',
@@ -109,6 +110,82 @@ const CATEGORY_RULES: CategoryRule[] = [
   },
 ];
 
+/** Orden y títulos de sección en la pestaña Repuestos. */
+const SPARE_PARTS_DISPLAY_ORDER: { id: ConsumableCategoryId; label: string }[] = [
+  { id: 'toner', label: 'Toner' },
+  { id: 'imaging-unit', label: 'Unidad de Imagen' },
+  { id: 'fuser-unit', label: 'Unidad Fusora' },
+  { id: 'transfer-unit', label: 'Unidad de Transferencia' },
+  { id: 'rollers', label: 'Ruedas' },
+  { id: 'adf', label: 'ADF' },
+  { id: 'repuestos', label: 'Repuestos' },
+  { id: 'accesorios', label: 'Accesorios' },
+];
+
+const TONER_COLOR_DISPLAY: Record<string, string> = {
+  amarillo: 'Amarillo',
+  yellow: 'Amarillo',
+  cyan: 'Cyan',
+  magenta: 'Magenta',
+  negro: 'Negro',
+  black: 'Negro',
+};
+
+/**
+ * Limpia títulos redundantes de inventario (p. ej. Intercopy «Toner Cartucho… TONER CARTUCHO…»).
+ * Ej.: «Toner Cartucho Intercopy TONER CARTUCHO MP 320F … + Amarillo» → «Toner Compatible MP 320F — Amarillo».
+ */
+export function formatConsumableListDisplayName(name: string): string {
+  let n = name.trim();
+  if (!n) return n;
+
+  const colorMatch = n.match(/\+\s*(Amarillo|Cyan|Magenta|Negro|Yellow|Black)\s*$/i);
+  let color: string | null = null;
+  if (colorMatch?.[1]) {
+    color = TONER_COLOR_DISPLAY[colorMatch[1].toLowerCase()] ?? colorMatch[1];
+    n = n.slice(0, colorMatch.index).trim();
+  }
+
+  const isIntercopyToner =
+    /toner\s+cartucho\s+intercopy/i.test(name) ||
+    (/intercopy/i.test(name) && /\btoner\b/i.test(name));
+
+  if (isIntercopyToner) {
+    n = n
+      .replace(/^Pack\s*x0?4\s+/i, '')
+      .replace(/^Toner\s+Cartucho\s+Intercopy\s+/i, '')
+      .replace(/^TONER\s+CARTUCHO\s+/i, '')
+      .replace(/\bTONER\s+CARTUCHO\b/gi, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
+    const primary = n.match(
+      /^(MP\s*C?\s*\d{3,4}[A-Z]?|IM\s*C?\s*\d{3,4}[A-Z]?|M\s*\d{3,4}F?)\b/i,
+    );
+    if (primary?.[1]) {
+      n = primary[1]
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/^M\s*(\d)/i, 'M $1')
+        .toUpperCase()
+        .replace(/^M\s+(\d)/, 'M $1');
+    }
+
+    const title = `Toner Compatible ${n}`.replace(/\s{2,}/g, ' ').trim();
+    return color ? `${title} — ${color}` : title;
+  }
+
+  n = n
+    .replace(/\bToner\s+Cartucho\s+(?=[\s\S]*\bTONER\s+CARTUCHO\b)/i, '')
+    .replace(/\bTONER\s+CARTUCHO\b/gi, 'Toner')
+    .replace(/\bToner\s+Cartucho\b/gi, 'Toner')
+    .replace(/\bToner\s+cartucho\b/gi, 'Toner')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
+  return color ? `${n} — ${color}` : n;
+}
+
 const COMPONENT_PATTERNS: { pattern: RegExp; label: string }[] = [
   { pattern: /pickup|alimentaci[oó]n|feed roller/i, label: 'Rodillo de alimentación' },
   { pattern: /separation|separaci[oó]n/i, label: 'Rodillo de separación' },
@@ -130,6 +207,28 @@ function normalizeText(value: string): string {
     .trim();
 }
 
+/**
+ * Conjunto/hopper de suministro de tóner (repuesto), no cartucho CMYK para Original/Compatible.
+ */
+export function isTonerSupplyAssemblyName(name: string): boolean {
+  const n = normalizeText(name);
+  if (
+    /toner\s+supply/.test(n) ||
+    /toner\s+hopper/.test(n) ||
+    /conjunto\s+suministro/.test(n) ||
+    /supply\s+assembly/.test(n)
+  ) {
+    return true;
+  }
+  return /ass.?y/.test(n) && /toner|hopper|conjunto|suministro/.test(n);
+}
+
+export function isTonerSupplyAssemblyProduct(
+  product: Pick<Product, 'name'> | { name?: string | null },
+): boolean {
+  return isTonerSupplyAssemblyName(product.name ?? '');
+}
+
 function productHaystack(product: Product): string {
   const attributes = product.attributes?.map((attr) => `${attr.name} ${attr.value}`).join(' ') ?? '';
   return normalizeText(
@@ -137,7 +236,7 @@ function productHaystack(product: Product): string {
   );
 }
 
-function extractSearchKeys(equipment: Product): string[] {
+export function extractEquipmentConsumableSearchKeys(equipment: Product): string[] {
   const keys = new Set<string>();
   const name = equipment.name;
 
@@ -197,7 +296,7 @@ function isEquipmentConsumable(product: Product): boolean {
   );
 }
 
-function consumableMatchesEquipment(consumable: Product, keys: string[]): boolean {
+export function consumableMatchesEquipment(consumable: Product, keys: string[]): boolean {
   const haystack = productHaystack(consumable);
   const compactHaystack = haystack.replace(/\s+/g, '');
 
@@ -217,6 +316,7 @@ function classifyConsumable(product: Product): ConsumableCategoryId | null {
 
   for (const rule of CATEGORY_RULES) {
     if (rule.id === 'toner' && rule.keywords.some((keyword) => haystack.includes(normalizeText(keyword)))) {
+      if (isTonerSupplyAssemblyProduct(product)) return 'repuestos';
       return 'toner';
     }
   }
@@ -293,41 +393,28 @@ export function flattenConsumableGroupItems(groups: ConsumableGroup[]): Consumab
   return items;
 }
 
-/** Agrupa consumibles en Tóner, Repuestos y Accesorios para la pestaña del equipo. */
+/** Agrupa consumibles por tipo de repuesto (Toner, Unidad de Imagen, Fusora, etc.). */
 export function buildSparePartsDisplayGroups(groups: ConsumableGroup[]): ConsumableGroup[] {
-  const tonerItems = flattenConsumableGroupItems(groups.filter((group) => group.id === 'toner'));
-  const accesorioItems = flattenConsumableGroupItems(
-    groups.filter((group) => group.id === 'accesorios'),
-  ).sort((a, b) => a.name.localeCompare(b.name, 'es'));
-  const repuestoItems = flattenConsumableGroupItems(
-    groups.filter((group) => group.id !== 'toner' && group.id !== 'accesorios'),
-  ).sort((a, b) => a.name.localeCompare(b.name, 'es'));
-
+  const byId = new Map(groups.map((group) => [group.id, group]));
   const result: ConsumableGroup[] = [];
 
-  if (tonerItems.length > 0) {
-    result.push({
-      id: 'toner',
-      label: 'Tóner',
-      items: tonerItems.sort((a, b) => a.name.localeCompare(b.name, 'es')),
-      subgroups: [],
-    });
-  }
+  for (const entry of SPARE_PARTS_DISPLAY_ORDER) {
+    const group = byId.get(entry.id);
+    if (!group) continue;
 
-  if (repuestoItems.length > 0) {
-    result.push({
-      id: 'repuestos',
-      label: 'Repuestos',
-      items: repuestoItems,
-      subgroups: [],
-    });
-  }
+    const items = flattenConsumableGroupItems([group])
+      .map((item) => ({
+        ...item,
+        name: formatConsumableListDisplayName(item.name),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
-  if (accesorioItems.length > 0) {
+    if (items.length === 0) continue;
+
     result.push({
-      id: 'accesorios',
-      label: 'Accesorios',
-      items: accesorioItems,
+      id: entry.id,
+      label: entry.label,
+      items,
       subgroups: [],
     });
   }
@@ -344,6 +431,7 @@ function isCompatibleConsumableItem(item: ConsumableItem): boolean {
   return (
     haystack.includes('compatible') ||
     haystack.includes('compatibles') ||
+    haystack.includes('intercopy') ||
     haystack.includes('alternativ') ||
     haystack.includes('->')
   );
@@ -376,10 +464,11 @@ export function resolveEquipmentConsumables(
 ): ConsumableGroup[] {
   if (!isPrinterEquipment(equipment)) return [];
 
-  const keys = extractSearchKeys(equipment);
+  const keys = extractEquipmentConsumableSearchKeys(equipment);
   const matched = catalog
     .filter((row) => row.id !== equipment.id)
     .filter(isEquipmentConsumable)
+    .filter((row) => !isTonerPackProduct(row))
     .filter((row) => consumableMatchesEquipment(row, keys));
 
   const byCategory = new Map<ConsumableCategoryId, ConsumableItem[]>();
@@ -420,4 +509,46 @@ export function hasEquipmentConsumables(equipment: Product, catalog: Product[]):
   return resolveEquipmentConsumables(equipment, catalog).some(
     (group) => group.items.length > 0 || group.subgroups.length > 0,
   );
+}
+
+const KNOWN_TONER_EQUIPMENT_MODEL_ATTR = /modelo de equipo/i;
+
+/** Tóner del inventario compatible con el modelo/marca del equipo actual. */
+export function tonerProductMatchesEquipment(
+  toner: Product,
+  equipment: Product,
+  options?: { allowKnownTonerId?: boolean; knownTonerIds?: readonly string[] },
+): boolean {
+  if (options?.allowKnownTonerId && options.knownTonerIds?.includes(toner.id)) {
+    return true;
+  }
+
+  const equipmentModelAttr = equipment.attributes?.find((attribute) =>
+    /^modelo$/i.test(attribute.name.trim()),
+  )?.value;
+  const tonerEquipmentAttr = toner.attributes?.find((attribute) =>
+    KNOWN_TONER_EQUIPMENT_MODEL_ATTR.test(attribute.name.trim()),
+  )?.value;
+
+  const keys = extractEquipmentConsumableSearchKeys(equipment);
+  if (keys.length === 0) return false;
+
+  if (consumableMatchesEquipment(toner, keys)) return true;
+
+  if (tonerEquipmentAttr && equipmentModelAttr) {
+    const tonerModels = normalizeText(tonerEquipmentAttr);
+    const equipmentModel = normalizeText(equipmentModelAttr);
+    if (tonerModels.includes(equipmentModel)) return true;
+  }
+
+  if (tonerEquipmentAttr) {
+    return keys.some((key) => {
+      const compactKey = key.replace(/\s+/g, '');
+      if (compactKey.length < 3) return false;
+      const normalizedAttr = normalizeText(tonerEquipmentAttr);
+      return normalizedAttr.includes(key) || normalizedAttr.replace(/\s+/g, '').includes(compactKey);
+    });
+  }
+
+  return false;
 }

@@ -29,8 +29,8 @@ export const CUSTOMER_ROLE_SECTIONS: CustomerRoleSection[] = [
   },
   {
     key: 'distribuidor',
-    label: 'Distribuidor',
-    description: 'Lista distribuidor (incluye rol VIP).',
+    label: 'Técnico',
+    description: 'Lista técnico (incluye rol VIP / distribuidor).',
   },
   {
     key: 'mayorista',

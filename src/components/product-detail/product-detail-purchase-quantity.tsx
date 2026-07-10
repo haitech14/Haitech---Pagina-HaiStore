@@ -30,10 +30,10 @@ export function ProductDetailPurchaseQuantity({
   };
 
   return (
-    <div className={cn('space-y-1', className)}>
-      <p className="text-xs font-semibold text-neutral-700">Cantidad</p>
+    <div className={cn('space-y-0.5', className)}>
+      <p className="text-[0.6875rem] font-medium text-neutral-500">Cantidad</p>
       <div
-        className="flex h-10 w-full items-stretch overflow-hidden rounded-lg border border-neutral-200 bg-white"
+        className="flex h-10 w-full items-stretch overflow-hidden rounded-lg border border-neutral-200/80 bg-white"
         role="group"
         aria-label={
           orderHint
@@ -51,7 +51,7 @@ export function ProductDetailPurchaseQuantity({
           <Minus className="size-3.5" aria-hidden="true" />
         </button>
         <span
-          className="flex flex-1 items-center justify-center border-x border-neutral-200 text-sm font-semibold tabular-nums text-neutral-900"
+          className="flex flex-1 items-center justify-center border-x border-neutral-100 text-sm font-semibold tabular-nums text-neutral-900"
           aria-live="polite"
           aria-atomic="true"
           title={orderHint ?? undefined}

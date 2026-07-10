@@ -97,6 +97,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
                 product={product}
                 stock={product.stock}
                 outOfStock={outOfStock}
+                showConditionBadge
               />
             </Link>
             <div className="relative z-[3] pointer-events-auto">
@@ -151,6 +152,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
               product={product}
               stock={product.stock}
               outOfStock={outOfStock}
+              showConditionBadge
             />
           </Link>
 

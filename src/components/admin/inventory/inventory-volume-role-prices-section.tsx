@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Layers, Plus, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,8 @@ interface InventoryVolumeRolePricesSectionProps {
   tiers: ProductVolumeRolePriceTier[];
   basePrices: ProductRolePrices;
   onChange: (tiers: ProductVolumeRolePriceTier[]) => void;
+  /** Collapsed row with «Configurar tramos» matching the mockup. */
+  compact?: boolean;
 }
 
 function TierRolePenInput({
@@ -129,7 +131,7 @@ function VolumeTierCard({
   };
 
   return (
-    <div className="rounded-lg border border-border/70 bg-muted/15 p-3">
+    <div className="rounded-md border border-border/70 bg-muted/15 p-3">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
         <div className="min-w-[8rem] flex-1">
           <Label htmlFor={`volume-tier-range-${tier.id}`} className="text-xs font-medium">
@@ -213,12 +215,14 @@ export function InventoryVolumeRolePricesSection({
   tiers,
   basePrices,
   onChange,
+  compact = false,
 }: InventoryVolumeRolePricesSectionProps) {
   const { data: company } = useCompanySettings();
   const saleRate = normalizeUsdToPenRate(
     company?.usdToPenExchangeRate ?? getUsdToPenSaleRate(),
   );
   const normalizedBase = useMemo(() => ensureFullPrices(basePrices), [basePrices]);
+  const [expanded, setExpanded] = useState(tiers.length > 0);
 
   const updateTier = (index: number, patch: Partial<ProductVolumeRolePriceTier>) => {
     onChange(
@@ -235,30 +239,19 @@ export function InventoryVolumeRolePricesSection({
         prices: { ...normalizedBase },
       },
     ]);
+    setExpanded(true);
   };
 
   const removeTier = (index: number) => {
     onChange(tiers.filter((_, tierIndex) => tierIndex !== index));
   };
 
-  return (
-    <div className="space-y-3 border-t border-border/60 pt-4">
-      <div className="flex items-start gap-2">
-        <Layers className="mt-0.5 size-4 shrink-0 text-red-600" aria-hidden="true" />
-        <div>
-          <h4 className="text-sm font-semibold text-foreground">Precios por volumen por rol</h4>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            Opcional. Define precios unitarios por cantidad y rol (mayorista, técnico, etc.). Si no
-            configuras tramos, se aplican los descuentos globales de la tienda sobre el precio
-            público.
-          </p>
-        </div>
-      </div>
-
+  const editor = (
+    <div className="space-y-3">
       {tiers.length === 0 ? (
         <p
           className={cn(
-            'rounded-lg border border-dashed border-border/70 bg-muted/10 px-3 py-4 text-xs text-muted-foreground',
+            'rounded-md border border-dashed border-border/70 bg-muted/10 px-3 py-4 text-xs text-muted-foreground',
           )}
         >
           Sin tramos personalizados. Agrega uno para fijar precios por volumen en este producto.
@@ -283,6 +276,55 @@ export function InventoryVolumeRolePricesSection({
         <Plus className="size-4" aria-hidden="true" />
         Agregar tramo
       </Button>
+    </div>
+  );
+
+  if (compact) {
+    return (
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-start gap-2">
+            <Layers className="mt-0.5 size-4 shrink-0 text-slate-500" aria-hidden="true" />
+            <div>
+              <h4 className="text-sm font-semibold text-foreground">
+                Precios por volumen por rol (opcional)
+              </h4>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {tiers.length > 0
+                  ? `${tiers.length} tramo${tiers.length === 1 ? '' : 's'} configurado${tiers.length === 1 ? '' : 's'}.`
+                  : 'Define precios unitarios por cantidad y rol.'}
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-9 shrink-0"
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? 'Ocultar tramos' : 'Configurar tramos'}
+          </Button>
+        </div>
+        {expanded ? editor : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 border-t border-border/60 pt-4">
+      <div className="flex items-start gap-2">
+        <Layers className="mt-0.5 size-4 shrink-0 text-red-600" aria-hidden="true" />
+        <div>
+          <h4 className="text-sm font-semibold text-foreground">Precios por volumen por rol</h4>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            Opcional. Define precios unitarios por cantidad y rol (mayorista, técnico, etc.). Si no
+            configuras tramos, se aplican los descuentos globales de la tienda sobre el precio
+            público.
+          </p>
+        </div>
+      </div>
+      {editor}
     </div>
   );
 }

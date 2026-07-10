@@ -1,11 +1,8 @@
 import { useMemo } from 'react';
 
 import { HeroBanner } from '@/components/hero-banner';
-import { HomeBenefitsBlackBar } from '@/components/home/home-benefits-black-bar';
-import { HomeFeaturedProductsSection } from '@/components/home/home-featured-products-section';
-import { HomeEquipmentQuickNavSection } from '@/components/home/home-equipment-quick-nav-section';
+import { HomeFindWhatYouNeedSection } from '@/components/home/home-find-what-you-need-section';
 import { HomeHeroCatalogBanners } from '@/components/home/home-hero-catalog-banners';
-import { HomeHeroPromoStrip } from '@/components/home/home-hero-promo-strip';
 import { HomeServiceRentalSection } from '@/components/home/home-service-rental-section';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
 import { FooterBrandsSection } from '@/components/layout/footer-brands-section';
@@ -45,24 +42,15 @@ export function HomePage() {
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <HeroBanner />
-      <HomeHeroPromoStrip />
       <div className="home-landing-sans relative bg-white shadow-[0_8px_32px_rgba(15,31,61,0.08)]">
-        <HomeEquipmentQuickNavSection />
-        <HomeHeroCatalogBanners />
+        <HomeFindWhatYouNeedSection />
       </div>
-      <HomeBenefitsBlackBar />
-      <div className="home-landing-sans bg-white">
-        <HomeFeaturedProductsSection
-          key="featured-consumables-after-equipment"
-          variant="consumables"
-          instanceId="consumables-after-equipment"
-          advisoryPlacement="none"
-        />
-      </div>
+      <HomeServiceRentalSection />
       <LazyHomeSection minHeight="120px">
         <FooterBrandsSection />
       </LazyHomeSection>
-      <HomeServiceRentalSection />
+
+      <HomeHeroCatalogBanners />
 
       <LazyHomeSection minHeight="280px">
         <ClientRecommendationsSection />

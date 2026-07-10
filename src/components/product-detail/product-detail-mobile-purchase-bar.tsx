@@ -203,7 +203,7 @@ export function ProductDetailMobilePurchaseBar({
     ...(preparationType && preparationType !== 'acondicionado' ? { preparationType } : {}),
   };
 
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
 
   const savingsMessage = useMemo(() => {
     if (bulkDiscountTiers.length === 0) {
@@ -225,6 +225,7 @@ export function ProductDetailMobilePurchaseBar({
       hint.targetQuantity,
       unitUsd,
       displayCurrency,
+      dualPriceOrder,
     );
     return hint.isActive ? `Volumen activo · ${promo}` : promo;
   }, [
@@ -234,6 +235,7 @@ export function ProductDetailMobilePurchaseBar({
     floorPriceUsd,
     equipmentExtrasUsd,
     displayCurrency,
+    dualPriceOrder,
   ]);
 
   const offerUnitUsd = volumePricing.unitUsd;
@@ -293,7 +295,6 @@ export function ProductDetailMobilePurchaseBar({
               <DualPrice
                 usd={compareUnitUsd * quantity}
                 strikethrough
-                alwaysBoth
                 className="inline text-xs"
               />
             </p>

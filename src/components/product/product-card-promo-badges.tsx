@@ -1,27 +1,17 @@
-import { ProductConditionBadge } from '@/components/product/product-condition-badge';
+import { ProductCardEstadoBadge } from '@/components/product/product-card-estado-badge';
 import {
   HOME_LANDING_PROMO_BADGE_LABELS,
   type HomeLandingPromoBadgeId,
 } from '@/lib/home-landing-product-badges';
-import type { ProductEquipmentConditionLabel } from '@/lib/product-hero-meta';
 import { cn } from '@/lib/utils';
 
 const BADGE_BASE_CLASS =
   'inline-flex shrink-0 rounded px-1 py-px text-[0.5rem] font-semibold uppercase leading-tight tracking-wide sm:text-[0.5625rem]';
 
-const GENERIC_ESTADO_BADGE_CLASS =
-  'bg-neutral-200 font-semibold normal-case tracking-normal text-neutral-700';
-
 const PROMO_BADGE_STYLES: Record<HomeLandingPromoBadgeId, string> = {
   'free-shipping': 'bg-[#16A34A] text-white',
   'best-seller': 'bg-[#FF9500] text-white',
 };
-
-const EQUIPMENT_CONDITION_LABELS = new Set<string>(['Nueva', 'Seminueva', 'Remanufacturada']);
-
-function isEquipmentConditionLabel(label: string): label is ProductEquipmentConditionLabel {
-  return EQUIPMENT_CONDITION_LABELS.has(label);
-}
 
 export function ProductCardPromoBadges({
   badges,
@@ -42,13 +32,7 @@ export function ProductCardPromoBadges({
         className,
       )}
     >
-      {trimmedEstado ? (
-        isEquipmentConditionLabel(trimmedEstado) ? (
-          <ProductConditionBadge label={trimmedEstado} size="card" />
-        ) : (
-          <span className={cn(BADGE_BASE_CLASS, GENERIC_ESTADO_BADGE_CLASS)}>{trimmedEstado}</span>
-        )
-      ) : null}
+      {trimmedEstado ? <ProductCardEstadoBadge label={trimmedEstado} /> : null}
       {badges.map((badgeId) => (
         <span key={badgeId} className={cn(BADGE_BASE_CLASS, PROMO_BADGE_STYLES[badgeId])}>
           {HOME_LANDING_PROMO_BADGE_LABELS[badgeId]}

@@ -10,7 +10,7 @@ export const PRODUCT_CARD_IMAGE_CLASS =
 
 interface ProductCardHoverImageProps {
   candidates: string[];
-  /** Inventario real (sin stock genérico); solo estas URLs se usan como fallback de hover. */
+  /** Inventario real (sin stock genérico); invalida estado al cambiar. */
   storedCandidates?: string[];
   /** Segunda foto de galería al pasar el cursor sobre la imagen. */
   hoverSrc?: string | null;
@@ -50,8 +50,6 @@ export function ProductCardHoverImage({
     setHoverFailed(false);
   }, [candidates.join('|'), hoverSrc, storedCandidates?.join('|')]);
 
-  const hoverPool = storedCandidates ?? candidates;
-
   const displayIndex = useMemo(() => {
     for (let index = 0; index < candidates.length; index += 1) {
       if (!failedIndices.has(index)) return index;
@@ -61,24 +59,9 @@ export function ProductCardHoverImage({
 
   const primarySrc = displayIndex >= 0 ? candidates[displayIndex] : null;
 
-  const fallbackHoverSrc = useMemo(() => {
-    if (displayIndex < 0 || !primarySrc) return null;
-    for (const url of hoverPool) {
-      if (url !== primarySrc && !failedIndices.has(candidates.indexOf(url))) {
-        return url;
-      }
-    }
-    for (const url of hoverPool) {
-      if (url !== primarySrc) return url;
-    }
-    return null;
-  }, [candidates, displayIndex, failedIndices, hoverPool, primarySrc]);
-
-  const resolvedHoverSrc: string | null = hoverCapable
-    ? !hoverFailed && hoverSrc && hoverSrc !== primarySrc
-      ? hoverSrc
-      : fallbackHoverSrc
-    : null;
+  /** Solo segunda foto de galería explícita; sin fallback a otros candidatos. */
+  const resolvedHoverSrc: string | null =
+    hoverCapable && !hoverFailed && hoverSrc && hoverSrc !== primarySrc ? hoverSrc : null;
 
   const markFailed = (index: number) => {
     setFailedIndices((previous) => {
@@ -97,21 +80,32 @@ export function ProductCardHoverImage({
     );
   }
 
-  const hasHover = hoverCapable && Boolean(resolvedHoverSrc);
+  const hasHoverSwap = Boolean(resolvedHoverSrc);
+  const hasHoverZoom = hoverCapable && !hasHoverSwap;
 
   return (
-    <div className={cn('group/image relative size-full min-h-0 min-w-0', className)}>
+    <div
+      className={cn(
+        'group/image relative size-full min-h-0 min-w-0',
+        hasHoverZoom && 'overflow-hidden',
+        className,
+      )}
+    >
       <div
         className={cn(
           'absolute inset-0 flex items-center justify-center',
-          hasHover &&
+          hasHoverSwap &&
             'transition-opacity duration-300 ease-out group-hover/image:opacity-0 motion-reduce:transition-none motion-reduce:group-hover/image:opacity-100',
         )}
       >
         <ProductCardImage
           src={primarySrc}
           alt={alt}
-          className={imageClassName}
+          className={cn(
+            imageClassName,
+            hasHoverZoom &&
+              'transition-transform duration-300 ease-out group-hover/image:scale-105 motion-reduce:transition-none motion-reduce:transform-none',
+          )}
           {...(overlayClassName ? { overlayClassName } : {})}
           {...(watermarkClassName ? { watermarkClassName } : {})}
           onError={() => markFailed(displayIndex)}

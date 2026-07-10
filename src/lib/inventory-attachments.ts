@@ -1,5 +1,9 @@
 import { randomId } from '@/lib/random-id';
 import {
+  formatUploadBytes,
+  MAX_PRODUCT_ATTACHMENT_UPLOAD_BYTES,
+} from '@/lib/product-media-upload-limits';
+import {
   PRODUCT_ATTACHMENT_KINDS,
   type InventoryProduct,
   type ProductAttachment,
@@ -16,8 +20,6 @@ export const PRODUCT_ATTACHMENT_LABELS: Record<ProductAttachmentKind, string> = 
   brochure: 'Brochure',
   other: 'Otro',
 };
-
-const MAX_ATTACHMENT_BYTES = 4 * 1024 * 1024;
 
 function toProductAttachment(row: Partial<ProductAttachment>): ProductAttachment | null {
   const url = typeof row.url === 'string' ? row.url.trim() : '';
@@ -92,6 +94,12 @@ export function isPdfAttachment(
   if (mimeType?.toLowerCase().includes('pdf')) return true;
   if (fileName?.toLowerCase().endsWith('.pdf')) return true;
   if (url.toLowerCase().startsWith('data:application/pdf')) return true;
+  try {
+    const path = new URL(url, 'https://local.invalid').pathname.toLowerCase();
+    if (path.endsWith('.pdf')) return true;
+  } catch {
+    if (url.toLowerCase().includes('.pdf')) return true;
+  }
   return false;
 }
 
@@ -130,8 +138,10 @@ export function readAttachmentFile(
   file: File,
   kind: ProductAttachmentKind,
 ): Promise<ProductAttachment> {
-  if (file.size > MAX_ATTACHMENT_BYTES) {
-    return Promise.reject(new Error('El archivo no debe superar 4 MB.'));
+  if (file.size > MAX_PRODUCT_ATTACHMENT_UPLOAD_BYTES) {
+    return Promise.reject(
+      new Error(`El archivo no debe superar ${formatUploadBytes(MAX_PRODUCT_ATTACHMENT_UPLOAD_BYTES)}.`),
+    );
   }
 
   return new Promise((resolve, reject) => {

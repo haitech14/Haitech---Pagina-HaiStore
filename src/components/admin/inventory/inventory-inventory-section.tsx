@@ -55,7 +55,7 @@ export function InventoryInventorySection({
   const stockValue = list.length === 1 ? stock : principalQty;
 
   return (
-    <div id="inv-stock-section" className="space-y-2 sm:max-w-xs">
+    <div id="inv-stock-section" className="space-y-2">
       <Label htmlFor="inv-stock-total">Stock (unidades)</Label>
       <Input
         id="inv-stock-total"

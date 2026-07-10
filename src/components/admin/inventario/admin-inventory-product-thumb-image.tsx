@@ -18,7 +18,7 @@ export function AdminInventoryProductThumbImage({
   product,
   optimisticSrc = null,
   className,
-  loading = 'eager',
+  loading = 'lazy',
 }: AdminInventoryProductThumbImageProps) {
   const candidates = useMemo(
     () => buildAdminInventoryImageCandidates(product, optimisticSrc),

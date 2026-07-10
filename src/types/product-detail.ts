@@ -99,6 +99,25 @@ export interface ProductFeatureCard {
   description: string;
 }
 
+/** Bloque de historia / marketing en la pestaña Descripción (texto + imagen alternados). */
+export interface ProductDescriptionStoryBlock {
+  id: string;
+  title: string;
+  body: string;
+  /** `start` = imagen a la izquierda; `end` = imagen a la derecha. */
+  imagePosition: 'start' | 'end';
+  imageSrc?: string;
+  imageAlt?: string;
+  /** Panel ilustrado sin foto (p. ej. icono sobre color). */
+  visual?: 'smartphone-cloud' | 'sustainability';
+  footnote?: string;
+}
+
+export interface ProductDescriptionStoryCta {
+  title: string;
+  body: string;
+}
+
 export interface ProductHeroSpecBullet {
   icon?: LucideIcon;
   /** Formato con icono: una sola línea. */
@@ -119,6 +138,9 @@ export interface ProductDescriptionContent {
   overviewParagraphs?: string[];
   overviewLink?: { label: string; href: string };
   featureCards?: ProductFeatureCard[];
+  /** Bloques largos tipo brochure (p. ej. RICOH M 320F). */
+  storyBlocks?: ProductDescriptionStoryBlock[];
+  storyCta?: ProductDescriptionStoryCta;
 }
 
 export interface ProductDescriptionVisualItem {

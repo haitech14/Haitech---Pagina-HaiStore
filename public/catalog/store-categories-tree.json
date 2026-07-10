@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-10T10:03:42.218Z",
+  "generatedAt": "2026-07-10T22:29:58.283Z",
   "tree": [
     {
       "id": "cat-multifuncionales",
@@ -15,7 +15,7 @@
       "image": "/categories/multifuncionales.png",
       "tagline": "Imprime, escanea y copia en un solo equipo",
       "children": [],
-      "productCount": 125
+      "productCount": 124
     },
     {
       "id": "cat-impresoras",
@@ -67,7 +67,7 @@
           "image": "/categories/accesorios-impresoras.png",
           "tagline": "Cartuchos originales para tu equipo",
           "children": [],
-          "productCount": 8
+          "productCount": 128
         },
         {
           "id": "cat-toner-compatibles",
@@ -81,7 +81,7 @@
           "image": "/categories/toner-suministros.png",
           "tagline": "Cartuchos y recargas compatibles",
           "children": [],
-          "productCount": 1
+          "productCount": 6
         },
         {
           "id": "cat-toner-remanufacturado",
@@ -160,7 +160,7 @@
           "productCount": 0
         }
       ],
-      "productCount": 9
+      "productCount": 134
     },
     {
       "id": "cat-repuestos",

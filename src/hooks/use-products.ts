@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
-import { normalizeInventoryProduct, mergeInventoryProductPatch } from '@/lib/inventory-product';
+import { normalizeInventoryProductForAdminList, mergeInventoryProductPatch } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
 import { toPublicProduct } from '@/lib/pricing';
@@ -17,7 +17,7 @@ function catalogRowsToPublicProducts(rows: InventoryProduct[], role: string): Pr
 
 export async function fetchProductsForRole(role = 'public'): Promise<Product[]> {
   try {
-    return await apiFetch<Product[]>('/api/products');
+    return await apiFetch<Product[]>('/api/products', { cache: 'no-store' });
   } catch {
     const rows = getCatalogRows().length > 0 ? getCatalogRows() : await loadCatalogIndex();
     return catalogRowsToPublicProducts(rows, role);
@@ -57,7 +57,7 @@ async function fetchAdminInventory(): Promise<InventoryProduct[]> {
   const normalized: InventoryProduct[] = [];
   for (const row of rows) {
     try {
-      normalized.push(normalizeInventoryProduct(row, DEFAULT_WAREHOUSES));
+      normalized.push(normalizeInventoryProductForAdminList(row, DEFAULT_WAREHOUSES));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'dato inválido';
       console.warn(`[inventario] producto omitido (${row.id ?? 'sin id'}): ${message}`);
@@ -67,6 +67,11 @@ async function fetchAdminInventory(): Promise<InventoryProduct[]> {
     throw new Error('No se pudo normalizar ningún producto del inventario.');
   }
   return normalized;
+}
+
+/** Producto completo (adjuntos, descripción) para el diálogo de edición. */
+export async function fetchAdminInventoryProductById(id: string): Promise<InventoryProduct> {
+  return apiFetch<InventoryProduct>(`/api/products/admin/${encodeURIComponent(id)}`);
 }
 
 export function useAdminInventory() {

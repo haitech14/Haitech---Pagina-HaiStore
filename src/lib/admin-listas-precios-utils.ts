@@ -22,7 +22,7 @@ const ROLE_HEADER_META: Record<AdminListaPreciosRoleKey, { tone: string }> = {
   public: {
     tone: 'text-blue-600',
   },
-  distribuidor: {
+  tecnico: {
     tone: 'text-emerald-600',
   },
   mayorista: {
@@ -35,21 +35,21 @@ const ROLE_HEADER_META: Record<AdminListaPreciosRoleKey, { tone: string }> = {
 
 const ROLE_COLORS: Record<AdminListaPreciosRoleKey, string> = {
   public: '#3B82F6',
-  distribuidor: '#22C55E',
+  tecnico: '#22C55E',
   mayorista: '#8B5CF6',
   compra: '#F97316',
 };
 
 const ROLE_BG: Record<AdminListaPreciosRoleKey, string> = {
   public: 'bg-blue-50 text-blue-700',
-  distribuidor: 'bg-emerald-50 text-emerald-700',
+  tecnico: 'bg-emerald-50 text-emerald-700',
   mayorista: 'bg-violet-50 text-violet-700',
   compra: 'bg-orange-50 text-orange-700',
 };
 
 const ROLE_LABELS: Record<AdminListaPreciosRoleKey, string> = {
   public: PRICE_ROLE_LABELS.public,
-  distribuidor: PRICE_ROLE_LABELS.distribuidor,
+  tecnico: PRICE_ROLE_LABELS.tecnico,
   mayorista: PRICE_ROLE_LABELS.mayorista,
   compra: 'Compra',
 };
@@ -78,7 +78,7 @@ export function mapProductToListaPreciosRecord(product: InventoryProduct): Admin
   const fullPrices = ensureFullPrices(product.prices);
   const prices: Record<AdminListaPreciosRoleKey, number> = {
     public: Number(fullPrices.public) || 0,
-    distribuidor: Number(fullPrices.distribuidor) || 0,
+    tecnico: Number(fullPrices.tecnico) || 0,
     mayorista: Number(fullPrices.mayorista) || 0,
     compra: Number(product.purchase_price_usd) || 0,
   };
@@ -110,7 +110,7 @@ export function buildListaPreciosKpis(
 ): AdminListaPreciosKpi[] {
   const records = products.map(mapProductToListaPreciosRecord);
   const pricedCount = records.filter((record) => record.prices.public > 0).length;
-  const activeRoles = (['compra', 'mayorista', 'distribuidor', 'public'] as const).filter((role) =>
+  const activeRoles = (['compra', 'mayorista', 'tecnico', 'public'] as const).filter((role) =>
     records.some((record) => record.prices[role] > 0),
   );
 
@@ -154,7 +154,7 @@ export function buildRoleComparisonSlices(
   products: InventoryProduct[],
   exchangeRate: number,
 ): AdminListaPreciosRoleSlice[] {
-  const roles: AdminListaPreciosRoleKey[] = ['compra', 'mayorista', 'distribuidor', 'public'];
+  const roles: AdminListaPreciosRoleKey[] = ['compra', 'mayorista', 'tecnico', 'public'];
 
   return roles.map((role) => {
     const values = products

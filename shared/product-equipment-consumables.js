@@ -3,7 +3,7 @@
 const CATEGORY_RULES = [
   {
     id: 'toner',
-    label: 'Tóner',
+    label: 'Toner',
     keywords: ['toner', 'tóner', 'cartucho', 'cartridge', 'botella toner', 'waste toner', 'residual'],
   },
   {
@@ -13,7 +13,7 @@ const CATEGORY_RULES = [
   },
   {
     id: 'imaging-unit',
-    label: 'Unidad de imagen',
+    label: 'Unidad de Imagen',
     keywords: [
       'unidad de imagen',
       'imaging unit',
@@ -26,12 +26,12 @@ const CATEGORY_RULES = [
   },
   {
     id: 'fuser-unit',
-    label: 'Unidad fusora',
+    label: 'Unidad Fusora',
     keywords: ['unidad fusora', 'fusor', 'fuser', 'fusing unit', 'kit fusor'],
   },
   {
     id: 'transfer-unit',
-    label: 'Unidad de transferencia',
+    label: 'Unidad de Transferencia',
     keywords: [
       'unidad de transferencia',
       'transfer unit',
@@ -70,6 +70,12 @@ const COMPONENT_PATTERNS = [
   { pattern: /adf|alimentador/i, label: 'Kit ADF' },
 ];
 
+function isTonerPackProduct(product) {
+  const components = product?.bundle_components;
+  if (Array.isArray(components) && components.length > 0) return true;
+  return /\bPack x04\b/i.test(String(product?.name ?? ''));
+}
+
 function normalizeText(value) {
   return String(value ?? '')
     .toLowerCase()
@@ -77,6 +83,24 @@ function normalizeText(value) {
     .replace(/\p{M}/gu, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/** Conjunto/hopper de suministro de tóner (repuesto), no cartucho CMYK para Original/Compatible. */
+export function isTonerSupplyAssemblyName(name) {
+  const n = normalizeText(name);
+  if (
+    /toner\s+supply/.test(n) ||
+    /toner\s+hopper/.test(n) ||
+    /conjunto\s+suministro/.test(n) ||
+    /supply\s+assembly/.test(n)
+  ) {
+    return true;
+  }
+  return /ass.?y/.test(n) && /toner|hopper|conjunto|suministro/.test(n);
+}
+
+export function isTonerSupplyAssemblyProduct(product) {
+  return isTonerSupplyAssemblyName(product?.name ?? '');
 }
 
 function productHaystack(product) {
@@ -171,6 +195,7 @@ function classifyConsumable(product) {
 
   for (const rule of CATEGORY_RULES) {
     if (rule.id === 'toner' && rule.keywords.some((keyword) => haystack.includes(normalizeText(keyword)))) {
+      if (isTonerSupplyAssemblyProduct(product)) return 'repuestos';
       return 'toner';
     }
   }
@@ -232,6 +257,7 @@ export function resolveEquipmentConsumables(equipment, catalog) {
   const matched = catalog
     .filter((row) => row.id !== equipment.id)
     .filter(isEquipmentConsumable)
+    .filter((row) => !isTonerPackProduct(row))
     .filter((row) => consumableMatchesEquipment(row, keys));
 
   const byCategory = new Map();

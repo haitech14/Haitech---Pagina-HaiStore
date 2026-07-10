@@ -2,11 +2,14 @@ import { ShieldCheck } from 'lucide-react';
 
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail/product-detail-hero-collapsible-section';
+import { useDisplayCurrency } from '@/context/display-currency-context';
+import { formatDisplayPriceFromPen } from '@/lib/display-price';
 import { cn } from '@/lib/utils';
 import {
   HERO_WARRANTY_BASE_OPTION_ID,
   type ConfigureHeroWarrantyUpgrade,
 } from '@/lib/product-configure-hero-options';
+import type { DisplayCurrency, DualPriceOrder } from '@/types/display-currency';
 
 interface ProductDetailHeroWarrantySelectorProps {
   baseLabel: string;
@@ -16,12 +19,16 @@ interface ProductDetailHeroWarrantySelectorProps {
   className?: string;
 }
 
-function formatUpgradePrice(upgrade: ConfigureHeroWarrantyUpgrade): string | null {
+function formatUpgradePrice(
+  upgrade: ConfigureHeroWarrantyUpgrade,
+  displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder,
+): string | null {
   if (upgrade.priceUsd != null && upgrade.priceUsd > 0) {
-    return `+$${upgrade.priceUsd.toLocaleString('en-US')} / S/ ${upgrade.pricePen.toLocaleString('es-PE')}`;
+    return null; // rendered via DualPrice
   }
   if (upgrade.pricePen > 0) {
-    return `+ S/ ${upgrade.pricePen.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    return `+ ${formatDisplayPriceFromPen(upgrade.pricePen, displayCurrency, dualPriceOrder)}`;
   }
   return null;
 }
@@ -33,6 +40,7 @@ export function ProductDetailHeroWarrantySelector({
   onSelectOption,
   className,
 }: ProductDetailHeroWarrantySelectorProps) {
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   if (upgrades.length === 0) return null;
 
   const baseInputId = `hero-warranty-${HERO_WARRANTY_BASE_OPTION_ID}`;
@@ -81,7 +89,7 @@ export function ProductDetailHeroWarrantySelector({
 
           {upgrades.map((upgrade) => {
             const selected = selectedOptionId === upgrade.optionId;
-            const priceLabel = formatUpgradePrice(upgrade);
+            const priceLabel = formatUpgradePrice(upgrade, displayCurrency, dualPriceOrder);
             const inputId = `hero-warranty-${upgrade.optionId}`;
 
             return (

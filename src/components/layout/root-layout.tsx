@@ -6,6 +6,7 @@ import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { ShoppingCartDrawer } from '@/components/cart/shopping-cart-drawer';
 import { ProductCompareTray } from '@/components/product/product-compare-tray';
+import { CartProvider } from '@/context/cart-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { cn } from '@/lib/utils';
@@ -56,6 +57,7 @@ export function RootLayout() {
   const showMobileBottomNav = shouldShowMobileBottomNav(pathname);
 
   return (
+    <CartProvider>
     <MobileBottomInsetProvider>
     <div className="flex min-h-dvh flex-col bg-background">
       <ScrollToTop />
@@ -86,5 +88,6 @@ export function RootLayout() {
       <ProductCompareTray />
     </div>
     </MobileBottomInsetProvider>
+    </CartProvider>
   );
 }

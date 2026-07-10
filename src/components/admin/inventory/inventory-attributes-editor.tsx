@@ -67,7 +67,8 @@ export function InventoryAttributesEditor({
   };
 
   const add = () => {
-    onChange([...attributes, createEmptyAttribute()], true);
+    // No persistir de inmediato: la fila vacía se normaliza a [] y puede pisar un PATCH válido.
+    onChange([...attributes, createEmptyAttribute()], false);
   };
 
   const showCustomName = (attribute: ProductAttribute) =>

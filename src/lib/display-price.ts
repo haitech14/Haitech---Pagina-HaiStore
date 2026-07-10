@@ -1,4 +1,8 @@
-import type { DisplayCurrency } from '@/types/display-currency';
+import {
+  DEFAULT_DUAL_PRICE_ORDER,
+  type DisplayCurrency,
+  type DualPriceOrder,
+} from '@/types/display-currency';
 import { formatPenFromUsd, formatUsd, penToUsd, usdToPen } from '@/lib/utils';
 
 export function getDisplayPriceVisibility(displayCurrency: DisplayCurrency) {
@@ -8,15 +12,24 @@ export function getDisplayPriceVisibility(displayCurrency: DisplayCurrency) {
   };
 }
 
-/** Precio formateado según moneda activa ($, S/ o ambos). */
+/** Precio formateado según moneda activa ($, S/ o ambos) y orden dual. */
 export function formatDisplayPriceFromUsd(
   usd: number,
   displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder = DEFAULT_DUAL_PRICE_ORDER,
 ): string {
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
-  if (showUsd) parts.push(formatUsd(usd));
-  if (showPen) parts.push(formatPenFromUsd(usd));
+  const penFirst = dualPriceOrder === 'pen-usd';
+
+  if (penFirst) {
+    if (showPen) parts.push(formatPenFromUsd(usd));
+    if (showUsd) parts.push(formatUsd(usd));
+  } else {
+    if (showUsd) parts.push(formatUsd(usd));
+    if (showPen) parts.push(formatPenFromUsd(usd));
+  }
+
   return parts.join(' · ');
 }
 
@@ -24,8 +37,9 @@ export function formatDisplayPriceFromUsd(
 export function formatDisplayPriceFromPen(
   pen: number,
   displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder = DEFAULT_DUAL_PRICE_ORDER,
 ): string {
-  return formatDisplayPriceFromUsd(penToUsd(pen), displayCurrency);
+  return formatDisplayPriceFromUsd(penToUsd(pen), displayCurrency, dualPriceOrder);
 }
 
 export function formatPenInteger(pen: number): string {
@@ -41,8 +55,9 @@ export function formatVolumeQuantityPromoMessage(
   quantity: number,
   unitPriceUsd: number,
   displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder = DEFAULT_DUAL_PRICE_ORDER,
 ): string {
-  const amount = formatDisplayPriceFromUsd(unitPriceUsd, displayCurrency);
+  const amount = formatDisplayPriceFromUsd(unitPriceUsd, displayCurrency, dualPriceOrder);
   return `Si llevas ${quantity}, llévate en ${amount}`;
 }
 
@@ -51,8 +66,9 @@ export function formatVolumePerUnitPromoMessage(
   quantity: number,
   unitPriceUsd: number,
   displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder = DEFAULT_DUAL_PRICE_ORDER,
 ): string {
-  const amount = formatDisplayPriceFromUsd(unitPriceUsd, displayCurrency);
+  const amount = formatDisplayPriceFromUsd(unitPriceUsd, displayCurrency, dualPriceOrder);
   const unitLabel = quantity === 1 ? 'unidad' : 'unidades';
   return `Llévate ${quantity} ${unitLabel} a ${amount} c/u`;
 }
@@ -89,15 +105,20 @@ export function formatVolumeUnitPrice(
   unitPriceUsd: number,
   discountPercent: number,
   displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder = DEFAULT_DUAL_PRICE_ORDER,
 ): string {
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
+  const penFirst = dualPriceOrder === 'pen-usd';
+  const usdPart = formatUsd(discountedUsdPrice(unitPriceUsd, discountPercent));
+  const penPart = formatPenInteger(discountedPenPrice(unitPriceUsd, discountPercent));
 
-  if (showUsd) {
-    parts.push(formatUsd(discountedUsdPrice(unitPriceUsd, discountPercent)));
-  }
-  if (showPen) {
-    parts.push(formatPenInteger(discountedPenPrice(unitPriceUsd, discountPercent)));
+  if (penFirst) {
+    if (showPen) parts.push(penPart);
+    if (showUsd) parts.push(usdPart);
+  } else {
+    if (showUsd) parts.push(usdPart);
+    if (showPen) parts.push(penPart);
   }
 
   return parts.join(' · ');

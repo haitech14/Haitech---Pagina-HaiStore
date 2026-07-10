@@ -1,11 +1,11 @@
-import { Gift, ShieldCheck, Truck, type LucideIcon } from 'lucide-react';
+import { useId, useState } from 'react';
+import { Gift, ShieldCheck, type LucideIcon } from 'lucide-react';
 
-import { DEFAULT_TRUST_WARRANTY_LABEL } from '@/lib/build-product-detail';
-import { GIFT_TRUST_SUBTITLE, GIFT_TRUST_TITLE } from '@/lib/product-storefront-detail';
+import { TRUST_GIFT_CHIP_LABEL, TRUST_WARRANTY_CHIP_LABEL } from '@/lib/build-product-detail';
+import { GIFT_TRUST_SUBTITLE } from '@/lib/product-storefront-detail';
 import { cn } from '@/lib/utils';
 
 interface ProductDetailHeroTrustStripProps {
-  warrantyLabel?: string;
   giftSubtitle?: string;
   className?: string;
 }
@@ -13,71 +13,89 @@ interface ProductDetailHeroTrustStripProps {
 interface TrustItem {
   id: string;
   icon: LucideIcon;
-  title: string;
-  subtitle: string;
+  label: string;
+  detail: string;
 }
 
-function buildTrustItems(warrantyLabel: string, giftSubtitle: string): TrustItem[] {
+function buildTrustItems(giftSubtitle: string): TrustItem[] {
   return [
     {
       id: 'garantia',
       icon: ShieldCheck,
-      title: 'Garantía',
-      subtitle: warrantyLabel,
-    },
-    {
-      id: 'envio',
-      icon: Truck,
-      title: 'Envío gratis',
-      subtitle: 'a Lima',
+      label: TRUST_WARRANTY_CHIP_LABEL,
+      detail: `${TRUST_WARRANTY_CHIP_LABEL}. Soporte técnico pre y postventa.`,
     },
     {
       id: 'regalo',
       icon: Gift,
-      title: GIFT_TRUST_TITLE,
-      subtitle: giftSubtitle,
+      label: TRUST_GIFT_CHIP_LABEL,
+      detail: giftSubtitle || TRUST_GIFT_CHIP_LABEL,
     },
   ];
 }
 
+function TrustChip({ item }: { item: TrustItem }) {
+  const [open, setOpen] = useState(false);
+  const tipId = useId();
+  const Icon = item.icon;
+
+  return (
+    <div className="relative min-w-0">
+      <button
+        type="button"
+        className={cn(
+          'inline-flex max-w-[11.5rem] items-start gap-1.5 whitespace-normal rounded-full px-0.5 py-0 text-left text-[11px] leading-snug text-[#0f1f3d] sm:max-w-[15rem] sm:text-xs md:max-w-[18rem] lg:max-w-none',
+          'hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
+        )}
+        aria-expanded={open}
+        aria-describedby={open ? tipId : undefined}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <Icon className="mt-0.5 size-3.5 shrink-0 text-red-600" strokeWidth={2} aria-hidden="true" />
+        <span>{item.label}</span>
+      </button>
+      {open ? (
+        <p
+          id={tipId}
+          role="tooltip"
+          className="absolute left-1/2 top-full z-20 mt-1.5 w-max max-w-[16rem] -translate-x-1/2 rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-[0.6875rem] leading-snug text-neutral-600 shadow-md"
+        >
+          {item.detail}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export function ProductDetailHeroTrustStrip({
-  warrantyLabel = DEFAULT_TRUST_WARRANTY_LABEL,
   giftSubtitle = GIFT_TRUST_SUBTITLE,
   className,
 }: ProductDetailHeroTrustStripProps) {
-  const items = buildTrustItems(warrantyLabel, giftSubtitle);
+  const items = buildTrustItems(giftSubtitle);
 
   return (
     <section
-      aria-label="Beneficios de compra"
+      aria-label="Beneficios comerciales"
       className={cn(
-        'flex justify-center rounded-lg bg-white px-2.5 py-3 sm:px-3 sm:py-3.5',
+        'px-2 py-0 sm:px-3',
         className,
       )}
     >
-      <ul className="flex flex-row items-center justify-center gap-x-5 sm:gap-x-7">
-        {items.map((item) => {
-          const Icon = item.icon;
-          return (
-            <li key={item.id} className="flex min-w-0 items-center gap-2 sm:gap-2.5">
-              <Icon
-                className="size-5 shrink-0 text-red-600 sm:size-6"
-                strokeWidth={2}
-                aria-hidden="true"
-              />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold leading-tight text-[#0f1f3d]">
-                  {item.title}
-                </p>
-                {item.subtitle ? (
-                  <p className="text-[10px] leading-tight text-neutral-500 sm:text-[11px]">
-                    {item.subtitle}
-                  </p>
-                ) : null}
-              </div>
-            </li>
-          );
-        })}
+      <ul className="flex flex-wrap items-start justify-center gap-y-1.5">
+        {items.map((item, index) => (
+          <li key={item.id} className="flex min-w-0 items-start">
+            <TrustChip item={item} />
+            {index < items.length - 1 ? (
+              <span className="mx-1.5 mt-0.5 shrink-0 text-neutral-300 sm:mx-2" aria-hidden="true">
+                |
+              </span>
+            ) : null}
+          </li>
+        ))}
       </ul>
     </section>
   );

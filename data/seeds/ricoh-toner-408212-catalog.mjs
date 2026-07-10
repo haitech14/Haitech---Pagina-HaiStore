@@ -6,7 +6,7 @@ export const RICOH_TONER_408212 = {
   name: 'CARTUCHO DE TONER CIAN ORIGINAL RICOH SP C352',
   brand: 'Ricoh',
   category: 'Toner Original',
-  publicPen: 110.2,
+  publicPen: 376.09,
   stock: 0,
   heroAssetToken: '_408212__CARTUCHO',
   galleryAssetTokens: [

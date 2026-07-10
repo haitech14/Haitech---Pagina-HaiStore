@@ -8,7 +8,14 @@ import { getCatalogProductById } from '@/lib/catalog-featured';
 import { getCatalogUrgencyLabel } from '@/lib/product-catalog-card-meta';
 import { ProductCardQuickSpecBadges } from '@/components/product/product-card-quick-spec-badges';
 import { isPrinterProduct } from '@/lib/product-detail-badges';
-import { PRODUCT_CARD_CODE_CLASS, PRODUCT_CARD_STOCK_CLASS } from '@/lib/product-card-title';
+import { ProductCardBrandLine } from '@/components/product/product-card-title';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
+import {
+  formatProductCardTitle,
+  getProductCardTitleContent,
+  PRODUCT_CARD_CODE_CLASS,
+  PRODUCT_CARD_STOCK_CLASS,
+} from '@/lib/product-card-title';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
@@ -87,7 +94,6 @@ export function HomeCategoryShowcaseProductCard({
     isPrinterProduct(productSource) && !isTonerOrRepuestosCategory(cartProduct.category);
   const stockCount = Math.max(0, Math.floor(cartProduct.stock ?? 0));
   const outOfStock = stockCount <= 0;
-  const code = cartProduct.code ?? null;
   const urgencyLabel = getCatalogUrgencyLabel(cartProduct);
   const showLimitedStock = stockCount > 0 && stockCount <= LOW_STOCK_THRESHOLD;
 
@@ -114,6 +120,9 @@ export function HomeCategoryShowcaseProductCard({
     [imageSource],
   );
   const hasValidImage = imageCandidates.length > 0;
+  const displayTitle = formatProductCardTitle(productSource);
+  const { brand, code: cardCode } = getProductCardTitleContent(productSource);
+  const badgeLabel = resolveProductCardBadgeLabel(productSource);
 
   return (
     <article className="group flex h-full w-full min-w-[9.5rem] flex-col overflow-hidden rounded-xl border border-border/50 bg-white shadow-[0_2px_14px_rgba(15,31,61,0.07)] sm:min-w-0">
@@ -150,23 +159,27 @@ export function HomeCategoryShowcaseProductCard({
       </div>
 
       <div className="flex flex-1 flex-col px-3 pb-3 pt-1.5 sm:px-3.5 sm:pb-3.5 sm:pt-2">
+        <ProductCardBrandLine brand={brand} conditionLabel={badgeLabel} />
+
         <Link
           to={product.href}
-          className="mt-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
+          className={cn(
+            'rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2',
+            (brand || badgeLabel) && 'mt-0.5',
+            !(brand || badgeLabel) && 'mt-1',
+          )}
         >
           <h3 className="line-clamp-2 min-h-[2rem] text-pretty text-left text-[0.8125rem] font-bold leading-snug text-[#111111] sm:min-h-[2.25rem] sm:text-sm">
-            {product.name}
-            {code ? (
-              <span className={cn(PRODUCT_CARD_CODE_CLASS, 'inline font-normal')}> ({code})</span>
-            ) : null}
+            {displayTitle}
           </h3>
         </Link>
 
         <ProductCardQuickSpecBadges product={productSource} revealOnHover />
 
-        <div className="mt-0.5 flex justify-end">
+        <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
+          {cardCode ? <span className={PRODUCT_CARD_CODE_CLASS}>{cardCode}</span> : <span className="min-w-0" />}
           <span className={PRODUCT_CARD_STOCK_CLASS}>
-            {outOfStock ? 'A pedido' : `${stockCount} en stock`}
+            {outOfStock ? 'A pedido' : `${stockCount} unids.`}
           </span>
         </div>
 

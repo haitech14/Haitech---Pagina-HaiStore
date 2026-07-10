@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Pencil } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { InventoryProductFormDialog } from '@/components/admin/inventory/inventory-product-form-dialog';
 import { ProductDetailBreadcrumbs } from '@/components/product-detail/product-detail-breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { useAdminInventoryCatalogMap } from '@/hooks/use-admin-inventory-price-map';
+import { fetchAdminInventoryProductById } from '@/hooks/use-products';
+import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
 import { cn } from '@/lib/utils';
+import type { InventoryProduct } from '@/types/product';
 import type { ProductBreadcrumb } from '@/types/product-detail';
 
 interface ProductDetailBreadcrumbsBarProps {
@@ -21,10 +26,43 @@ export function ProductDetailBreadcrumbsBar({
   className,
 }: ProductDetailBreadcrumbsBarProps) {
   const { isAdmin } = useAuth();
+  const queryClient = useQueryClient();
   const catalogMap = useAdminInventoryCatalogMap();
   const catalogEntry = catalogMap?.get(productId) ?? null;
-  const inventoryProduct = catalogEntry?.product ?? null;
+  const listProduct = catalogEntry?.product ?? null;
   const [editOpen, setEditOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<InventoryProduct | null>(null);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+
+  const openEdit = useCallback(async () => {
+    if (!listProduct) return;
+    setLoadingEdit(true);
+    try {
+      // Admin list omits description/storefront; load full row before editing.
+      const full = await fetchAdminInventoryProductById(listProduct.id);
+      setEditingProduct(full);
+      setEditOpen(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'No se pudo cargar el detalle completo del producto',
+      );
+    } finally {
+      setLoadingEdit(false);
+    }
+  }, [listProduct]);
+
+  const handleSaved = useCallback(
+    (saved: InventoryProduct) => {
+      // Mutation already invalidates; reinforce so the open product page updates immediately.
+      void notifyProductCatalogChanged(queryClient, {
+        productId: saved.id,
+        inventoryProduct: saved,
+      });
+    },
+    [queryClient],
+  );
 
   if (items.length === 0) return null;
 
@@ -32,25 +70,32 @@ export function ProductDetailBreadcrumbsBar({
     <>
       <div className={cn('flex flex-wrap items-center justify-between gap-x-4 gap-y-2', className)}>
         <ProductDetailBreadcrumbs items={items} className="mb-0 min-w-0 flex-1" />
-        {isAdmin && inventoryProduct ? (
+        {isAdmin && listProduct ? (
           <Button
             type="button"
             variant="outline"
             size="sm"
             className="h-9 shrink-0 gap-1.5 border-border text-foreground hover:bg-muted/50 focus-visible:ring-red-600"
-            onClick={() => setEditOpen(true)}
+            disabled={loadingEdit}
+            onClick={() => {
+              void openEdit();
+            }}
           >
             <Pencil className="size-3.5" aria-hidden="true" />
-            Editar producto
+            {loadingEdit ? 'Cargando…' : 'Editar producto'}
           </Button>
         ) : null}
       </div>
 
-      {isAdmin && inventoryProduct ? (
+      {isAdmin && editingProduct ? (
         <InventoryProductFormDialog
           open={editOpen}
-          onOpenChange={setEditOpen}
-          initial={inventoryProduct}
+          onOpenChange={(open) => {
+            setEditOpen(open);
+            if (!open) setEditingProduct(null);
+          }}
+          initial={editingProduct}
+          onSaved={handleSaved}
         />
       ) : null}
     </>

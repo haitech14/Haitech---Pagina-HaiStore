@@ -4,8 +4,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, FolderOpen, Loader2, Plus, Search, Wrench, X } from 'lucide-react';
 
 import { ProductCardImage } from '@/components/product/product-card-image';
+import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
 import { useAuth } from '@/context/auth-context';
+import { useDisplayCurrency } from '@/context/display-currency-context';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { prefetchProductSearch, useProductSearch } from '@/hooks/use-product-search';
@@ -16,11 +18,13 @@ import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
 import {
   filterCategoriesBySearch,
   filterServicesBySearch,
+  groupSearchProductsByPanelSection,
   MIN_PRODUCT_SEARCH_LENGTH,
   normalizeSearchText,
   PRODUCT_SEARCH_INITIAL_VISIBLE,
   PRODUCT_SEARCH_LOAD_MORE_STEP,
   PRODUCT_SEARCH_MAX_LIMIT,
+  PRODUCT_SEARCH_PER_SECTION_LIMIT,
   type SearchCategorySuggestion,
   type SearchServiceSuggestion,
 } from '@/lib/product-search';
@@ -28,14 +32,14 @@ import {
   buildProductCardImageCandidates,
   buildProductCardImageSource,
 } from '@/lib/product-card-images';
-import { formatProductCardTitle, PRODUCT_CARD_STOCK_CLASS } from '@/lib/product-card-title';
+import { getHomeLandingProductCardLines } from '@/lib/product-card-title';
 import { getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
 import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
 import { sanitizeStoredProductMedia } from '@/lib/product-media-sanitize';
 import { productPath } from '@/lib/product-path';
-import { ensureFullPrices } from '@/lib/roles';
-import type { Product, UserRole } from '@/types/product';
-import { cn, formatPenFromUsdDisplay, formatUsd } from '@/lib/utils';
+import { formatDisplayPriceFromUsd } from '@/lib/display-price';
+import type { Product } from '@/types/product';
+import { cn } from '@/lib/utils';
 
 const ALL_CATEGORIES_VALUE = 'all';
 
@@ -117,13 +121,10 @@ const SEARCH_SUGGESTION_THUMB_CLASS =
   'size-8 shrink-0 overflow-hidden rounded border border-border/50 bg-white sm:size-9';
 
 const SEARCH_SUGGESTION_CELL_CLASS =
-  'flex w-full items-start gap-1.5 px-2.5 py-1.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:px-3 sm:py-2';
+  'flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset';
 
-function formatSearchSuggestionStockLabel(stock: number): string {
-  const quantity = Math.max(0, Math.floor(Number(stock) || 0));
-  if (quantity <= 0) return 'A pedido';
-  return `${quantity} unids.`;
-}
+const SEARCH_DROPDOWN_PANEL_CLASS =
+  'absolute left-0 right-0 top-full z-[60] mt-2 max-h-[min(80vh,36rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,42rem)] sm:-translate-x-1/2 lg:w-[min(100vw-1rem,44rem)]';
 
 function SuggestionSectionHeading({ children }: { children: string }) {
   return (
@@ -165,16 +166,6 @@ function highlightSearchTerms(text: string, query: string): React.ReactNode {
   }
 
   return segments.length > 0 ? segments : text;
-}
-
-function resolveSearchDisplayPriceUsd(
-  product: Product,
-  isAdmin: boolean,
-  viewAsRoles: readonly UserRole[],
-) {
-  const showAdminPublicPrice = isAdmin && viewAsRoles.length === 0;
-  if (!showAdminPublicPrice) return product.price;
-  return ensureFullPrices(product.prices ? product.prices : { public: product.price }).public;
 }
 
 type SearchProductSuggestionCellProps = {
@@ -267,25 +258,14 @@ function SearchProductSuggestionCell({
   onMouseEnter,
   onNavigateProduct,
 }: SearchProductSuggestionCellProps) {
-  const { isAdmin, viewAsRoles } = useAuth();
-  const displayUsd = resolveSearchDisplayPriceUsd(product, isAdmin, viewAsRoles);
-  const pricing = getCatalogCardPricing({ id: product.id, price: displayUsd });
-  const showPrice = displayUsd > 0;
-  const hasDiscount = showPrice && pricing.compareUsd > pricing.currentUsd && pricing.currentUsd > 0;
-  const title = formatProductCardTitle(product);
-  const currentPen = showPrice
-    ? formatPenFromUsdDisplay(pricing.currentUsd, product.category)
-    : null;
-  const comparePen = showPrice
-    ? formatPenFromUsdDisplay(pricing.compareUsd, product.category)
-    : null;
-  const currentUsd = showPrice ? formatUsd(pricing.currentUsd) : null;
-  const stockLabel = formatSearchSuggestionStockLabel(product.stock);
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
+  const pricing = getCatalogCardPricing({ id: product.id, price: product.price });
+  const showPrice = product.price > 0;
+  const { headline, subtitle } = getHomeLandingProductCardLines(product);
+  const title = subtitle ? `${headline} · ${subtitle}` : headline;
   const priceAria = showPrice
-    ? hasDiscount
-      ? `Antes ${comparePen}, ahora ${currentPen}, ${currentUsd}, ${stockLabel}`
-      : `${currentPen}, ${currentUsd}, ${stockLabel}`
-    : 'Consultar Precio';
+    ? formatDisplayPriceFromUsd(pricing.currentUsd, displayCurrency, dualPriceOrder)
+    : 'Consultar precio';
 
   return (
     <button
@@ -299,37 +279,27 @@ function SearchProductSuggestionCell({
       onClick={onNavigateProduct}
     >
       <SearchProductSuggestionThumb product={product} />
-      <span className="min-w-0 flex-1">
-        <span className="line-clamp-2 text-[0.8125rem] font-medium leading-snug text-foreground sm:text-sm">
-          {highlightSearchTerms(title, query)}
-        </span>
-        <span className="mt-0.5 block space-y-0">
-          {hasDiscount && comparePen ? (
-            <span className="block text-[0.6875rem] font-normal tabular-nums text-muted-foreground line-through decoration-muted-foreground sm:text-xs">
-              {comparePen}
-            </span>
-          ) : null}
-          {showPrice && currentPen ? (
-            <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0 leading-tight">
-              <span
-                className={cn(
-                  'text-sm font-bold tabular-nums sm:text-[0.9375rem]',
-                  'text-red-600',
-                )}
-              >
-                {currentPen}
+      <span className="flex min-w-0 flex-1 items-start gap-2">
+        <span className="min-w-0 flex-1">
+          <span className="line-clamp-1 text-[0.75rem] font-medium leading-snug text-foreground sm:text-[0.8125rem]">
+            {highlightSearchTerms(headline, query)}
+            {subtitle ? (
+              <span className="font-normal text-muted-foreground">
+                {' · '}
+                {subtitle}
               </span>
-              {currentUsd ? (
-                <span className="text-[0.6875rem] font-medium tabular-nums text-muted-foreground sm:text-xs">
-                  {currentUsd}
-                </span>
-              ) : null}
-              <span className={cn(PRODUCT_CARD_STOCK_CLASS, 'tabular-nums')}>{stockLabel}</span>
-            </span>
-          ) : (
-            <span className="text-[0.6875rem] font-medium text-[#E30613] sm:text-xs">Consultar Precio</span>
-          )}
+            ) : null}
+          </span>
         </span>
+        {showPrice ? (
+          <span className="shrink-0 text-[0.6875rem] font-semibold tabular-nums sm:text-xs">
+            <DualPrice usd={pricing.currentUsd} />
+          </span>
+        ) : (
+          <span className="shrink-0 text-[0.6875rem] font-medium text-[#E30613]">
+            Consultar precio
+          </span>
+        )}
       </span>
     </button>
   );
@@ -340,8 +310,7 @@ function SearchProductSuggestionSkeleton() {
     <div className={cn(SEARCH_SUGGESTION_CELL_CLASS)} aria-hidden="true">
       <div className={cn('animate-pulse bg-muted', SEARCH_SUGGESTION_THUMB_CLASS)} />
       <div className="min-w-0 flex-1 space-y-1.5">
-        <div className="h-3.5 w-full animate-pulse rounded bg-muted" />
-        <div className="h-3 w-4/5 animate-pulse rounded bg-muted" />
+        <div className="h-3.5 w-4/5 animate-pulse rounded bg-muted" />
         <div className="h-3.5 w-14 animate-pulse rounded bg-muted" />
       </div>
     </div>
@@ -440,6 +409,26 @@ export function SiteSearchForm({
     productSuggestions.length < totalMatches &&
     productDisplayLimit < Math.min(totalMatches, PRODUCT_SEARCH_MAX_LIMIT);
 
+  const productSectionGroups = useMemo(() => {
+    const groups = groupSearchProductsByPanelSection(
+      productSuggestions,
+      trimmedDebouncedQuery,
+    );
+    return groups.map((group) => {
+      const visible = group.products.slice(0, PRODUCT_SEARCH_PER_SECTION_LIMIT);
+      return {
+        category: group.category,
+        products: visible,
+        hiddenCount: Math.max(0, group.products.length - visible.length),
+      };
+    });
+  }, [productSuggestions, trimmedDebouncedQuery]);
+
+  const visibleProductSuggestions = useMemo(
+    () => productSectionGroups.flatMap((group) => group.products),
+    [productSectionGroups],
+  );
+
   useEffect(() => {
     if (!autoFocusInput) return;
     const timer = window.setTimeout(() => inputRef.current?.focus(), 100);
@@ -448,19 +437,28 @@ export function SiteSearchForm({
 
   const productSuggestionsWithIndices = useMemo(() => {
     const baseIndex = categorySuggestions.length + serviceSuggestions.length;
-    return productSuggestions.map((product, productIndex) => ({
-      product,
-      suggestionIndex: baseIndex + productIndex,
-    }));
-  }, [productSuggestions, categorySuggestions.length, serviceSuggestions.length]);
+    let offset = 0;
+    return productSectionGroups.map((group) => {
+      const products = group.products.map((product, productIndex) => ({
+        product,
+        suggestionIndex: baseIndex + offset + productIndex,
+      }));
+      offset += group.products.length;
+      return {
+        category: group.category,
+        hiddenCount: group.hiddenCount,
+        products,
+      };
+    });
+  }, [productSectionGroups, categorySuggestions.length, serviceSuggestions.length]);
 
   const suggestions = useMemo<SearchSuggestionItem[]>(
     () => [
       ...categorySuggestions,
       ...serviceSuggestions,
-      ...productSuggestions.map((product) => ({ type: 'product' as const, product })),
+      ...visibleProductSuggestions.map((product) => ({ type: 'product' as const, product })),
     ],
-    [categorySuggestions, serviceSuggestions, productSuggestions],
+    [categorySuggestions, serviceSuggestions, visibleProductSuggestions],
   );
 
   const showEmptyResults =
@@ -590,6 +588,9 @@ export function SiteSearchForm({
     !queryTooShort &&
     !showEmptyResults &&
     (suggestions.length > 0 || isProductsLoading);
+
+  const showViewAllResultsButton =
+    trimmedQuery.length >= MIN_PRODUCT_SEARCH_LENGTH && showSuggestionsList;
 
   const showLeadingIcon = showSearchIcons && variant === 'segmented';
   const showSubmitIcon = showSearchIcons && variant === 'segmented';
@@ -788,10 +789,7 @@ export function SiteSearchForm({
       </form>
 
       {showPanel ? (
-        <div
-          className="absolute left-0 right-0 top-full z-[60] mt-2 max-h-[min(80vh,44rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,48rem)] sm:-translate-x-1/2"
-          role="presentation"
-        >
+        <div className={SEARCH_DROPDOWN_PANEL_CLASS} role="presentation">
           {queryTooShort ? (
             <p className="px-3 py-2.5 text-sm text-muted-foreground" role="status">
               Escribe al menos {MIN_PRODUCT_SEARCH_LENGTH} caracteres para buscar.
@@ -817,7 +815,7 @@ export function SiteSearchForm({
                 id={listboxId}
                 role="listbox"
                 aria-label="Resultados de búsqueda"
-                className="max-h-[min(72vh,40rem)] overflow-y-auto"
+                className="max-h-[min(72vh,32rem)] overflow-y-auto"
               >
                 {categorySuggestions.length > 0 ? (
                   <>
@@ -834,22 +832,22 @@ export function SiteSearchForm({
                             role="option"
                             aria-selected={isActive}
                             className={cn(
-                              'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors',
+                              'flex w-full items-center gap-2 px-3 py-1.5 text-left text-[0.8125rem] transition-colors',
                               isActive ? 'bg-accent' : 'hover:bg-muted/60',
                             )}
                             onMouseEnter={() => setActiveIndex(index)}
                             onClick={() => activateSuggestion(item)}
                           >
-                            <span className="flex size-9 shrink-0 items-center justify-center rounded border border-border/60 bg-muted/40 text-foreground/70 sm:size-10">
+                            <span className="flex size-8 shrink-0 items-center justify-center rounded border border-border/60 bg-muted/40 text-foreground/70 sm:size-9">
                               <FolderOpen
-                                className="size-4"
+                                className="size-3.5"
                                 strokeWidth={1.75}
                                 aria-hidden="true"
                               />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="block font-medium text-foreground">{item.name}</span>
-                              <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                              <span className="mt-0.5 line-clamp-1 text-[0.6875rem] text-muted-foreground">
                                 {item.subtitle}
                               </span>
                             </span>
@@ -876,18 +874,18 @@ export function SiteSearchForm({
                             role="option"
                             aria-selected={isActive}
                             className={cn(
-                              'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors',
+                              'flex w-full items-center gap-2 px-3 py-1.5 text-left text-[0.8125rem] transition-colors',
                               isActive ? 'bg-accent' : 'hover:bg-muted/60',
                             )}
                             onMouseEnter={() => setActiveIndex(suggestionIndex)}
                             onClick={() => activateSuggestion(item)}
                           >
-                            <span className="flex size-9 shrink-0 items-center justify-center rounded border border-border/60 bg-red-600/10 text-red-600 sm:size-10">
-                              <Wrench className="size-4" strokeWidth={1.75} aria-hidden="true" />
+                            <span className="flex size-8 shrink-0 items-center justify-center rounded border border-border/60 bg-red-600/10 text-red-600 sm:size-9">
+                              <Wrench className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="block font-medium text-foreground">{item.name}</span>
-                              <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                              <span className="mt-0.5 line-clamp-1 text-[0.6875rem] text-muted-foreground">
                                 {item.subtitle}
                               </span>
                             </span>
@@ -899,31 +897,40 @@ export function SiteSearchForm({
                 ) : null}
 
                 {productSuggestionsWithIndices.length > 0 ? (
-                  <li role="presentation">
-                    <ul
-                      role="group"
-                      aria-label="Productos"
-                      className="grid grid-cols-1 divide-y divide-border/50 sm:grid-cols-2 sm:divide-x"
-                    >
-                      {productSuggestionsWithIndices.map(({ product, suggestionIndex }) => {
-                        const isActive = suggestionIndex === resolvedActiveIndex;
-                        return (
-                          <li key={product.id} role="presentation" className="min-w-0">
-                            <SearchProductSuggestionCell
-                              product={product}
-                              query={trimmedQuery}
-                              optionId={`${listboxId}-option-${suggestionIndex}`}
-                              isActive={isActive}
-                              onMouseEnter={() => setActiveIndex(suggestionIndex)}
-                              onNavigateProduct={() =>
-                                activateSuggestion({ type: 'product', product })
-                              }
-                            />
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
+                  productSuggestionsWithIndices.map((group) => (
+                    <li key={`product-section-${group.category}`} role="presentation">
+                      <SuggestionSectionHeading>{group.category}</SuggestionSectionHeading>
+                      <ul role="group" aria-label={group.category} className="divide-y divide-border/50">
+                        {group.products.map(({ product, suggestionIndex }) => {
+                          const isActive = suggestionIndex === resolvedActiveIndex;
+                          return (
+                            <li key={product.id} role="presentation" className="min-w-0">
+                              <SearchProductSuggestionCell
+                                product={product}
+                                query={trimmedQuery}
+                                optionId={`${listboxId}-option-${suggestionIndex}`}
+                                isActive={isActive}
+                                onMouseEnter={() => setActiveIndex(suggestionIndex)}
+                                onNavigateProduct={() =>
+                                  activateSuggestion({ type: 'product', product })
+                                }
+                              />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {group.hiddenCount > 0 ? (
+                        <button
+                          type="button"
+                          className="w-full border-b border-border/50 px-3 py-1.5 text-left text-xs font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+                          onClick={() => goToSearchResults(query, categoryFilter)}
+                        >
+                          Ver más en {group.category}
+                          {group.hiddenCount > 0 ? ` (+${group.hiddenCount})` : ''}
+                        </button>
+                      ) : null}
+                    </li>
+                  ))
                 ) : null}
 
                 {isProductsLoading ? (
@@ -932,11 +939,8 @@ export function SiteSearchForm({
                       <SuggestionSectionHeading>Productos</SuggestionSectionHeading>
                     </li>
                     <li role="presentation">
-                      <ul
-                        className="grid grid-cols-1 divide-y divide-border/50 sm:grid-cols-2 sm:divide-x"
-                        aria-hidden="true"
-                      >
-                        {[0, 1, 2, 3].map((index) => (
+                      <ul className="divide-y divide-border/50" aria-hidden="true">
+                        {[0, 1, 2].map((index) => (
                           <li key={`product-skeleton-${index}`} role="presentation">
                             <SearchProductSuggestionSkeleton />
                           </li>
@@ -946,25 +950,29 @@ export function SiteSearchForm({
                   </>
                 ) : null}
               </ul>
-              {canLoadMoreProducts || totalMatches > productSuggestions.length ? (
-                <div className="space-y-0.5 border-t border-border/80 bg-muted/10 px-3 py-2">
+              {canLoadMoreProducts || showViewAllResultsButton ? (
+                <div className="border-t border-border/80 bg-muted/10">
                   {canLoadMoreProducts ? (
                     <button
                       type="button"
-                      className="flex w-full items-center justify-center gap-1.5 rounded-md py-2 text-center text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                      className="flex w-full items-center justify-center gap-1.5 px-3 py-2 text-center text-xs font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
                       onClick={loadMoreProducts}
                     >
-                      <Plus className="size-4" aria-hidden="true" />
+                      <Plus className="size-3.5" aria-hidden="true" />
                       Agregar más productos
                     </button>
                   ) : null}
-                  {totalMatches > productSuggestions.length ? (
+                  {showViewAllResultsButton ? (
                     <button
                       type="button"
-                      className="w-full rounded-md py-2 text-center text-sm font-semibold text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                      className={cn(
+                        'flex w-full items-center justify-center px-3 py-2.5 text-center text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset sm:text-[0.8125rem]',
+                        canLoadMoreProducts && 'border-t border-border/60',
+                      )}
                       onClick={() => goToSearchResults(query, categoryFilter)}
                     >
-                      Ver todos los resultados ({totalMatches})
+                      Ver todos los resultados
+                      {totalMatches > 0 ? ` (${totalMatches})` : ''}
                     </button>
                   ) : null}
                 </div>

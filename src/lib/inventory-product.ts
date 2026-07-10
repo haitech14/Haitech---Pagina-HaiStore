@@ -150,6 +150,7 @@ export function normalizeInventoryProduct(
       bundle_components: normalizeBundleComponents(raw.bundle_components),
       cross_sell_product_ids: normalizeMerchandisingProductIds(raw.cross_sell_product_ids),
       upsell_product_ids: normalizeMerchandisingProductIds(raw.upsell_product_ids),
+      variant_product_ids: normalizeMerchandisingProductIds(raw.variant_product_ids),
       cross_sell_optional_products: normalizeMerchandisingOptionalProducts(
         raw.cross_sell_optional_products,
       ),
@@ -168,6 +169,7 @@ export function normalizeInventoryProduct(
       volume_role_prices: normalizeVolumeRolePrices(raw.volume_role_prices),
       storefront_feature_bar: normalizeStorefrontFeatureBar(raw.storefront_feature_bar),
       storefront_hero_bullets: normalizeStorefrontHeroBullets(raw.storefront_hero_bullets),
+      updated_at: raw.updated_at,
     };
 
   return applyStockFields(
@@ -177,6 +179,63 @@ export function normalizeInventoryProduct(
     },
     warehouses,
   );
+}
+
+/**
+ * Normalización ligera para el listado admin (sin sanitize de media ni attachments/storefront).
+ */
+export function normalizeInventoryProductForAdminList(
+  raw: Partial<InventoryProduct> & Pick<InventoryProduct, 'id' | 'name' | 'prices'>,
+  warehouses = DEFAULT_WAREHOUSES,
+): InventoryProduct {
+  const prices = ensureFullPrices(raw.prices ?? { public: 0 });
+  const publicPrice = prices.public ?? 0;
+  const galleryFields = normalizeProductGalleryFields(raw.image_url, raw.gallery);
+  const fallbackPurchase = Number(
+    raw.purchase_price_usd ?? Math.round(publicPrice * 0.72 * 100) / 100,
+  );
+  const suppliers = normalizeSuppliers(raw.suppliers, fallbackPurchase);
+
+  const withStock: InventoryProduct = {
+    id: raw.id,
+    slug: raw.slug?.trim() || null,
+    code: raw.code?.trim() || raw.id.toUpperCase().replace(/-/g, ''),
+    name: raw.name,
+    description: null,
+    currency: raw.currency ?? 'USD',
+    stock: Number(raw.stock ?? 0),
+    stock_by_warehouse: raw.stock_by_warehouse ?? [],
+    category: raw.category ?? null,
+    brand: raw.brand ?? null,
+    image_url: galleryFields.image_url,
+    gallery: galleryFields.gallery,
+    suppliers,
+    attachments: [],
+    attributes: normalizeAttributes(raw.attributes),
+    bundle_components: normalizeBundleComponents(raw.bundle_components),
+    cross_sell_product_ids: normalizeMerchandisingProductIds(raw.cross_sell_product_ids),
+    upsell_product_ids: normalizeMerchandisingProductIds(raw.upsell_product_ids),
+    variant_product_ids: normalizeMerchandisingProductIds(raw.variant_product_ids),
+    cross_sell_optional_products: normalizeMerchandisingOptionalProducts(
+      raw.cross_sell_optional_products,
+    ),
+    upsell_optional_products: normalizeMerchandisingOptionalProducts(
+      raw.upsell_optional_products,
+    ),
+    purchase_price_usd: resolvePurchasePriceUsd(suppliers, fallbackPurchase),
+    created_at: raw.created_at ?? new Date().toISOString(),
+    sort_order: Number.isFinite(Number(raw.sort_order)) ? Number(raw.sort_order) : 0,
+    is_featured: raw.is_featured === true,
+    status: normalizeProductCatalogStatus(raw.status),
+    view_count: Number.isFinite(Number(raw.view_count))
+      ? Math.max(0, Math.floor(Number(raw.view_count)))
+      : 0,
+    prices,
+    volume_role_prices: normalizeVolumeRolePrices(raw.volume_role_prices),
+    updated_at: raw.updated_at,
+  };
+
+  return applyStockFields(withStock, warehouses);
 }
 
 /** Fusiona un patch parcial sin perder precios u otros campos anidados. */
@@ -206,6 +265,9 @@ export function mergeInventoryProductPatch(
   }
   if (patch.upsell_product_ids !== undefined) {
     merged.upsell_product_ids = patch.upsell_product_ids;
+  }
+  if (patch.variant_product_ids !== undefined) {
+    merged.variant_product_ids = patch.variant_product_ids;
   }
   if (patch.cross_sell_optional_products !== undefined) {
     merged.cross_sell_optional_products = patch.cross_sell_optional_products;
@@ -382,7 +444,9 @@ export function readVideoFile(file: File): Promise<string> {
     throw new Error('Solo se admiten vídeos MP4');
   }
   if (file.size > MAX_VIDEO_BYTES) {
-    throw new Error('El vídeo supera el límite de 80 MB');
+    throw new Error(
+      `El vídeo supera el límite de ${Math.round(MAX_VIDEO_BYTES / (1024 * 1024))} MB`,
+    );
   }
 
   return new Promise((resolve, reject) => {

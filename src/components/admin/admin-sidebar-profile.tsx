@@ -16,7 +16,7 @@ const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
   tecnico: 'Técnico',
   mayorista: 'Mayorista',
-  distribuidor: 'Distribuidor',
+  distribuidor: 'Técnico',
   public: 'Usuario',
 };
 

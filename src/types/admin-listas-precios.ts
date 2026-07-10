@@ -1,6 +1,6 @@
 export type AdminListaPreciosStatus = 'activa' | 'borrador' | 'inactiva';
 
-export type AdminListaPreciosRoleKey = 'public' | 'distribuidor' | 'mayorista' | 'compra';
+export type AdminListaPreciosRoleKey = 'public' | 'tecnico' | 'mayorista' | 'compra';
 
 export interface AdminListaPreciosRecord {
   id: string;

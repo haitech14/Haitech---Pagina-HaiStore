@@ -1,7 +1,7 @@
 import type { ProductSpecRow } from '@/types/product-detail';
 
 export const FICHA_TECNICA_SECTION_ORDER = [
-  'Especificaciones Generales',
+  'General',
   'Impresora',
   'Escáner',
   'Fax',
@@ -44,6 +44,11 @@ function resolveFichaTecnicaSection(label: string): FichaTecnicaSectionTitle {
       'peso',
       'cpu',
       'tiempo de calentamiento',
+      'primera copia',
+      'velocidad continua',
+      'hdd',
+      'spdf',
+      'fuente de energia',
       'funciones',
       'produccion',
       'disponibilidad',
@@ -52,7 +57,7 @@ function resolveFichaTecnicaSection(label: string): FichaTecnicaSectionTitle {
       'tipo',
     ])
   ) {
-    return 'Especificaciones Generales';
+    return 'General';
   }
 
   if (labelMatches(label, ['fax', 'grupo 3', 'modem', 'transmision fax'])) {
@@ -114,7 +119,8 @@ function resolveFichaTecnicaSection(label: string): FichaTecnicaSectionTitle {
       'rendimiento',
       'tambor',
       'unidad de imagen',
-      'compatibilidad',
+      'norma',
+      'iso/iec',
     ])
   ) {
     return 'Consumibles';
@@ -140,12 +146,21 @@ function resolveFichaTecnicaSection(label: string): FichaTecnicaSectionTitle {
     return 'Impresora';
   }
 
-  return 'Especificaciones Generales';
+  return 'General';
+}
+
+function normalizeSectionTitle(section: string): FichaTecnicaSectionTitle | null {
+  if (section === 'Especificaciones Generales') return 'General';
+  if (FICHA_TECNICA_SECTION_ORDER.includes(section as FichaTecnicaSectionTitle)) {
+    return section as FichaTecnicaSectionTitle;
+  }
+  return null;
 }
 
 function resolveSpecSection(row: ProductSpecRow): FichaTecnicaSectionTitle {
-  if (row.section && FICHA_TECNICA_SECTION_ORDER.includes(row.section as FichaTecnicaSectionTitle)) {
-    return row.section as FichaTecnicaSectionTitle;
+  if (row.section) {
+    const normalized = normalizeSectionTitle(row.section);
+    if (normalized) return normalized;
   }
   return resolveFichaTecnicaSection(row.label);
 }

@@ -4,8 +4,10 @@ import {
   Camera,
   CircleDollarSign,
   ClipboardList,
+  Copy,
+  Eye,
+  Link2,
   ListTree,
-  Users,
 } from 'lucide-react';
 
 import { MediaAlbumPickerDialog } from '@/components/admin/media-album/media-album-picker-dialog';
@@ -39,6 +41,7 @@ import { useAdminInventory, useInventoryMutations } from '@/hooks/use-products';
 import { uploadFileToMediaAlbum } from '@/hooks/use-media-album';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { useWarehouses } from '@/hooks/use-warehouses';
+import { isPrinterEquipment } from '@/lib/build-product-detail';
 import { buildBrandSelectOptions } from '@/lib/inventory-brand-options';
 import {
   buildCategorySelectGroups,
@@ -59,6 +62,7 @@ import {
   removeProductMediaUrl,
 } from '@/lib/inventory-product';
 import { isImageMediaUrl } from '@/lib/product-media';
+import { descriptionTextToHeroBullets } from '@/lib/product-storefront-detail';
 import {
   buildProductMetaDescriptionSeo,
   formatProductPageTitleSeo,
@@ -86,6 +90,8 @@ interface InventoryProductFormDialogProps {
   initial?: InventoryProduct | null;
   /** Tras crear un producto (no en edición). */
   onCreated?: (product: InventoryProduct) => void;
+  /** Tras guardar una edición (la mutación ya invalida el catálogo). */
+  onSaved?: (product: InventoryProduct) => void;
   /** Desplaza el foco a una sección al abrir (edición rápida desde tabla). */
   focusSection?: InventoryProductFormFocusSection | null;
 }
@@ -107,6 +113,7 @@ export function InventoryProductFormDialog({
   onOpenChange,
   initial,
   onCreated,
+  onSaved,
   focusSection = null,
 }: InventoryProductFormDialogProps) {
   const isEdit = Boolean(initial?.id);
@@ -117,6 +124,7 @@ export function InventoryProductFormDialog({
   const [form, setForm] = useState<InventoryProduct>(initial ?? createEmptyInventoryProduct());
   const [error, setError] = useState<string | null>(null);
   const [albumPicker, setAlbumPicker] = useState<'main' | 'gallery' | null>(null);
+  const [slugCopied, setSlugCopied] = useState(false);
 
   const categoryGroups = useMemo(() => {
     const orphans = collectOrphanCategoryLabels(categoryTree, [form.category ?? '']);
@@ -133,6 +141,7 @@ export function InventoryProductFormDialog({
       const base = initial ?? createEmptyInventoryProduct();
       setForm(normalizeInventoryProduct(base, warehouses));
       setError(null);
+      setSlugCopied(false);
     }
   }, [open, initial, warehouses]);
 
@@ -189,8 +198,36 @@ export function InventoryProductFormDialog({
     };
   }, [form]);
 
+  const slugPath = `/tienda/producto/${form.slug?.trim() || seoPreview.slug || '…'}`;
+
   const updateField = <K extends keyof InventoryProduct>(key: K, value: InventoryProduct[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const updateDescription = (description: string) => {
+    setForm((prev) => {
+      const catalogProduct = {
+        ...prev,
+        price: prev.prices.public ?? 0,
+        description: prev.description ?? null,
+      };
+      const shouldSyncHeroBullets =
+        isPrinterEquipment(catalogProduct) ||
+        (Array.isArray(prev.storefront_hero_bullets) && prev.storefront_hero_bullets.length > 0);
+
+      if (!shouldSyncHeroBullets) {
+        return { ...prev, description };
+      }
+
+      return {
+        ...prev,
+        description,
+        storefront_hero_bullets: descriptionTextToHeroBullets(
+          description,
+          prev.storefront_hero_bullets ?? [],
+        ),
+      };
+    });
   };
 
   const updatePrice = (key: keyof ProductRolePrices, value: string) => {
@@ -269,15 +306,28 @@ export function InventoryProductFormDialog({
     setForm((prev) => ({ ...prev, ...removeProductMediaUrl(prev, url) }));
   };
 
+  const copySlug = async () => {
+    const value = form.slug?.trim() || seoPreview.slug;
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      setSlugCopied(true);
+      window.setTimeout(() => setSlugCopied(false), 1500);
+    } catch {
+      setError('No se pudo copiar el slug.');
+    }
+  };
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
     try {
       if (isEdit && initial) {
-        await updateProduct.mutateAsync({
+        const saved = await updateProduct.mutateAsync({
           id: initial.id,
           payload: await prepareInventoryPayloadForApi(form),
         });
+        onSaved?.(saved);
       } else {
         const saved = await createProduct.mutateAsync(
           await prepareInventoryPayloadForApi(form, { isCreate: true }),
@@ -296,11 +346,15 @@ export function InventoryProductFormDialog({
   };
 
   const isSaving = createProduct.isPending || updateProduct.isPending;
+  const galleryImages = form.gallery.filter((url) => isImageMediaUrl(url));
 
   return (
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[92vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[72rem]">
+      <DialogContent
+        className="flex max-h-[92vh] w-[min(100vw-1.5rem,72rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-[72rem]"
+        overlayClassName="bg-black/45"
+      >
         <DialogHeader className="shrink-0 space-y-1 border-b border-border/60 bg-card px-6 py-5 pr-14 text-left">
           <DialogTitle className="text-xl font-bold tracking-tight text-foreground">
             {isEdit ? 'Editar producto' : 'Nuevo producto'}
@@ -312,12 +366,17 @@ export function InventoryProductFormDialog({
 
         <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
           <div
-            className="min-h-0 flex-1 overflow-y-auto bg-muted/35 px-6 py-5"
+            className="min-h-0 flex-1 overflow-y-auto bg-slate-100/80 px-5 py-5 sm:px-6"
             onPaste={(event) => void handlePhotosPaste(event)}
           >
-            <div className="grid gap-4 md:grid-cols-2 md:items-start">
+            <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+              {/* —— Left column —— */}
               <div className="space-y-4">
-                <InventoryFormSection title="Información del producto" icon={ClipboardList}>
+                <InventoryFormSection
+                  number={1}
+                  title="Información principal"
+                  icon={ClipboardList}
+                >
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="inv-code">Código</Label>
@@ -332,6 +391,32 @@ export function InventoryProductFormDialog({
                         required
                       />
                     </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="inv-slug">URL amigable (slug SEO)</Label>
+                      <div className="relative">
+                        <Input
+                          id="inv-slug"
+                          className="h-10 bg-background pr-10 font-mono text-sm"
+                          value={form.slug ?? ''}
+                          onChange={(event) =>
+                            updateField('slug', event.target.value.toLowerCase().trim() || null)
+                          }
+                          placeholder={seoPreview.slug}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1/2 size-8 -translate-y-1/2 text-muted-foreground"
+                          aria-label={slugCopied ? 'Slug copiado' : 'Copiar slug'}
+                          onClick={() => void copySlug()}
+                        >
+                          <Copy className="size-3.5" aria-hidden="true" />
+                        </Button>
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="inv-name">Nombre</Label>
                       <Input
@@ -358,42 +443,56 @@ export function InventoryProductFormDialog({
                         required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="inv-slug">URL amigable (slug SEO)</Label>
-                      <Input
-                        id="inv-slug"
-                        className="h-10 bg-background font-mono text-sm"
-                        value={form.slug ?? ''}
-                        onChange={(event) =>
-                          updateField('slug', event.target.value.toLowerCase().trim() || null)
-                        }
-                        placeholder={seoPreview.slug}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        /tienda/producto/{form.slug?.trim() || seoPreview.slug || '…'}
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Vista previa SEO
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-[#0f1f3d]">{seoPreview.title}</p>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        {seoPreview.description}
-                      </p>
-                    </div>
+
+                    <InventoryStorefrontDetailSection
+                      embedded
+                      variant="horizontal"
+                      form={form}
+                      onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+                    />
+
                     <div className="space-y-2">
                       <Label htmlFor="inv-description">Descripción</Label>
                       <Textarea
                         id="inv-description"
                         className="min-h-[6.5rem] resize-y bg-background"
                         value={form.description ?? ''}
-                        onChange={(event) => updateField('description', event.target.value)}
-                        placeholder="Describe las características del producto..."
+                        onChange={(event) => updateDescription(event.target.value)}
+                        placeholder="Una línea por especificación destacada…"
                         rows={4}
                       />
+                      <p className="text-[0.7rem] text-muted-foreground">
+                        Se sincroniza en vivo con las especificaciones destacadas (una línea por
+                        ítem).
+                      </p>
                     </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
+
+                    <div className="relative rounded-md border border-slate-200 bg-slate-50/80 px-3 py-3 pr-10">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Vista previa SEO
+                      </p>
+                      <Eye
+                        className="absolute right-3 top-3 size-4 text-muted-foreground"
+                        aria-hidden="true"
+                      />
+                      <p className="text-sm font-semibold leading-snug text-[#1a0dab]">
+                        {seoPreview.title}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-[#006621]">{slugPath}</p>
+                      <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                        {seoPreview.description}
+                      </p>
+                    </div>
+                  </div>
+                </InventoryFormSection>
+
+                <InventoryFormSection
+                  number={2}
+                  title="Clasificación y atributos"
+                  icon={ListTree}
+                >
+                  <div className="space-y-4">
+                    <div className="grid gap-3 sm:grid-cols-3">
                       <InventorySelectField
                         id="inv-category"
                         label="Categoría"
@@ -410,141 +509,175 @@ export function InventoryProductFormDialog({
                         onChange={(value) => updateField('brand', value || null)}
                         options={brandOptions}
                       />
+                      <InventoryInventorySection
+                        form={form}
+                        warehouses={warehouses}
+                        onChange={(stockFields) =>
+                          setForm((current) => ({ ...current, ...stockFields }))
+                        }
+                      />
                     </div>
-                    <InventoryInventorySection
-                      form={form}
-                      warehouses={warehouses}
-                      onChange={(stockFields) =>
-                        setForm((current) => ({ ...current, ...stockFields }))
+
+                    <div className="space-y-2">
+                      <Label>Atributos</Label>
+                      <InventoryAttributesFieldset
+                        embedded
+                        attributes={form.attributes ?? []}
+                        onChange={(attributes: ProductAttribute[]) =>
+                          updateField('attributes', attributes)
+                        }
+                      />
+                    </div>
+                  </div>
+                </InventoryFormSection>
+              </div>
+
+              {/* —— Right column —— */}
+              <div className="space-y-4">
+                <InventoryFormSection
+                  id="inv-prices-section"
+                  number={3}
+                  title="Proveedor y precios"
+                  icon={CircleDollarSign}
+                >
+                  <div className="space-y-4">
+                    <InventorySuppliersFieldset
+                      embedded
+                      suppliers={form.suppliers ?? []}
+                      onChange={handleSuppliersChange}
+                    />
+
+                    <InventoryPricesGrid
+                      purchasePriceUsd={form.purchase_price_usd}
+                      onPurchaseChange={(value) =>
+                        updateField('purchase_price_usd', Number(value) || 0)
                       }
+                      prices={form.prices}
+                      onPriceChange={updatePrice}
+                      purchaseFromSuppliers={supplierCount > 0}
+                    />
+
+                    <InventoryVolumeRolePricesSection
+                      compact
+                      tiers={form.volume_role_prices ?? []}
+                      basePrices={form.prices}
+                      onChange={updateVolumeRolePrices}
                     />
                   </div>
                 </InventoryFormSection>
 
-              <InventoryFormSection
-                id="inv-photos-section"
-                title="Fotos y recursos"
-                icon={Camera}
-              >
-                <div className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <InventoryPhotoUploadBox
-                      label="Foto principal"
-                      uploadLabel="Subir imagen"
-                      hint="Arrastra o selecciona la foto principal del producto."
-                      uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
-                      onFiles={(files) => void handleMainImageFiles(files)}
-                      onPickFromAlbum={() => setAlbumPicker('main')}
-                      preview={
-                        form.image_url ? (
+                <InventoryFormSection
+                  number={4}
+                  title="Productos relacionados"
+                  icon={Link2}
+                >
+                  <InventoryMerchandisingSection
+                    embedded
+                    compact
+                    form={form}
+                    products={inventoryProducts}
+                    onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+                  />
+                </InventoryFormSection>
+
+                <InventoryFormSection
+                  id="inv-photos-section"
+                  number={5}
+                  title="Fotos y recursos"
+                  icon={Camera}
+                >
+                  <div className="space-y-4">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Foto principal</Label>
+                        {form.image_url ? (
                           <InventoryPhotoPreview
                             src={form.image_url}
                             alt="Vista previa de la foto principal"
                             onRemove={() => setMainImage(null)}
                           />
-                        ) : null
-                      }
-                    />
-                    <InventoryPhotoUploadBox
-                      label="Galería"
-                      uploadLabel="Subir imágenes"
-                      hint="Múltiples archivos. No repite la foto principal."
-                      uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
-                      multiple
-                      onFiles={(files) => void handleGalleryFiles(files)}
-                      onPickFromAlbum={() => setAlbumPicker('gallery')}
-                      preview={
-                        form.gallery.filter((url) => isImageMediaUrl(url)).length > 0 ? (
-                          <ul className="mt-2 flex flex-wrap gap-2">
-                            {form.gallery
-                              .filter((url) => isImageMediaUrl(url))
-                              .map((url) => (
-                              <li key={url}>
-                                <InventoryPhotoPreview
-                                  src={url}
-                                  alt=""
-                                  size="thumb"
-                                  onRemove={() => removeGalleryUrl(url)}
-                                />
-                              </li>
-                            ))}
-                          </ul>
-                        ) : null
-                      }
-                    />
+                        ) : (
+                          <InventoryPhotoUploadBox
+                            label=""
+                            uploadLabel="Subir imagen"
+                            hint="Foto principal del producto."
+                            uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
+                            onFiles={(files) => void handleMainImageFiles(files)}
+                            onPickFromAlbum={() => setAlbumPicker('main')}
+                            className="[&_button]:min-h-[7rem] [&_button]:py-4"
+                          />
+                        )}
+                        {form.image_url ? (
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8"
+                              onClick={() => setAlbumPicker('main')}
+                            >
+                              Cambiar desde álbum
+                            </Button>
+                            <label className="inline-flex h-8 cursor-pointer items-center rounded-md border border-input bg-background px-3 text-xs font-medium hover:bg-muted">
+                              Subir otra
+                              <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/*"
+                                className="sr-only"
+                                onChange={(event) => {
+                                  const files = event.target.files;
+                                  if (files?.length) void handleMainImageFiles(files);
+                                  event.target.value = '';
+                                }}
+                              />
+                            </label>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <InventoryPhotoUploadBox
+                        label="Galería"
+                        uploadLabel="Subir imágenes"
+                        hint="Múltiples archivos."
+                        uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
+                        multiple
+                        onFiles={(files) => void handleGalleryFiles(files)}
+                        onPickFromAlbum={() => setAlbumPicker('gallery')}
+                        className="[&_button]:min-h-[7rem] [&_button]:py-4"
+                        preview={
+                          galleryImages.length > 0 ? (
+                            <ul className="mt-2 flex flex-wrap gap-2">
+                              {galleryImages.map((url) => (
+                                <li key={url}>
+                                  <InventoryPhotoPreview
+                                    src={url}
+                                    alt=""
+                                    size="thumb"
+                                    onRemove={() => removeGalleryUrl(url)}
+                                  />
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Recursos del producto</Label>
+                      <InventoryProductResourceFields
+                        compact
+                        form={form}
+                        onAttachmentsChange={(attachments) => updateField('attachments', attachments)}
+                        onVideoChange={(media) =>
+                          setForm((prev) => ({ ...prev, ...media }))
+                        }
+                        onError={setError}
+                      />
+                    </div>
                   </div>
-                  <InventoryProductResourceFields
-                    form={form}
-                    onAttachmentsChange={(attachments) => updateField('attachments', attachments)}
-                    onVideoChange={(media) =>
-                      setForm((prev) => ({ ...prev, ...media }))
-                    }
-                    onError={setError}
-                  />
-                </div>
-              </InventoryFormSection>
-            </div>
-
-            <div className="space-y-4">
-              <InventoryFormSection
-                title="Proveedores"
-                icon={Users}
-                description="Asocia uno o más proveedores con tu precio de compra."
-              >
-                <InventorySuppliersFieldset
-                  embedded
-                  suppliers={form.suppliers ?? []}
-                  onChange={handleSuppliersChange}
-                />
-              </InventoryFormSection>
-
-              <InventoryFormSection
-                title="Atributos"
-                icon={ListTree}
-                description="Especificaciones del producto (color, velocidad, tamaño, etc.)."
-              >
-                <InventoryAttributesFieldset
-                  embedded
-                  attributes={form.attributes ?? []}
-                  onChange={(attributes: ProductAttribute[]) =>
-                    updateField('attributes', attributes)
-                  }
-                />
-              </InventoryFormSection>
-
-              <InventoryStorefrontDetailSection
-                form={form}
-                onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
-              />
-
-              <InventoryMerchandisingSection
-                form={form}
-                products={inventoryProducts}
-                onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
-              />
-
-              <InventoryFormSection
-                id="inv-prices-section"
-                title="Precios"
-                icon={CircleDollarSign}
-                description="Los precios de venta en soles se redondean a la centésima más cercana terminada en 9 (ej. 10.04 → 10.09). El precio de compra usa el tipo de cambio exacto."
-              >
-                <InventoryPricesGrid
-                  purchasePriceUsd={form.purchase_price_usd}
-                  onPurchaseChange={(value) =>
-                    updateField('purchase_price_usd', Number(value) || 0)
-                  }
-                  prices={form.prices}
-                  onPriceChange={updatePrice}
-                  purchaseFromSuppliers={supplierCount > 0}
-                />
-                <InventoryVolumeRolePricesSection
-                  tiers={form.volume_role_prices ?? []}
-                  basePrices={form.prices}
-                  onChange={updateVolumeRolePrices}
-                />
-              </InventoryFormSection>
-            </div>
+                </InventoryFormSection>
+              </div>
             </div>
           </div>
 
@@ -554,13 +687,18 @@ export function InventoryProductFormDialog({
             </p>
           ) : null}
 
-          <DialogFooter className="shrink-0 gap-2 border-t border-border/60 bg-card px-6 py-4 sm:justify-end">
-            <Button type="button" variant="outline" className="h-10 px-5" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="shrink-0 gap-3 border-t border-border/60 bg-card px-6 py-4 sm:justify-end">
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-10 px-4 text-muted-foreground hover:text-foreground"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button
               type="submit"
-              className="h-10 min-w-[9.5rem] bg-red-600 px-5 text-white hover:bg-red-500"
+              className="h-10 min-w-[9.5rem] rounded-md bg-red-600 px-5 text-white hover:bg-red-500"
               disabled={isSaving}
             >
               {isSaving ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear producto'}

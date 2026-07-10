@@ -25,7 +25,7 @@ export function ProductBulkDiscountIncentives({
   tiers,
   className,
 }: ProductBulkDiscountIncentivesProps) {
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const fullPrices = ensureFullPrices(
     product.prices ? product.prices : { public: product.price },
   );
@@ -75,7 +75,12 @@ export function ProductBulkDiscountIncentives({
         <ul id={panelId} className="mt-1 space-y-0.5" aria-label="Promociones por cantidad">
           {incentives.map(({ quantity, pricing }) => (
             <li key={quantity} className="text-xs text-muted-foreground">
-              {formatVolumeQuantityPromoMessage(quantity, pricing.unitUsd, displayCurrency)}
+              {formatVolumeQuantityPromoMessage(
+                quantity,
+                pricing.unitUsd,
+                displayCurrency,
+                dualPriceOrder,
+              )}
             </li>
           ))}
         </ul>

@@ -7,6 +7,7 @@ import { ProductCardPricing } from '@/components/product/product-card-pricing';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { useCart } from '@/context/cart-context';
 import { useWishlist } from '@/context/wishlist-context';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
@@ -16,15 +17,21 @@ import {
   buildProductCardStoredImageCandidates,
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
-import { ProductConditionBadge } from '@/components/product/product-condition-badge';
-import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
-import { PRODUCT_CARD_CODE_CLASS, PRODUCT_CARD_STOCK_CLASS } from '@/lib/product-card-title';
-import { getProductCardTitleContent } from '@/lib/product-card-title';
+import { ProductCardBrandLine } from '@/components/product/product-card-title';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
+import {
+  getProductCardTitleContent,
+  PRODUCT_CARD_CODE_CLASS,
+  PRODUCT_CARD_STOCK_CLASS,
+} from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
 import { productToFeatured } from '@/lib/store-products';
 import { productToWishlistItem } from '@/lib/wishlist-product';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
+
+const whatsappRevealClass =
+  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-150 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
 
 interface StoreCatalogProductCardProps {
   product: Product;
@@ -36,6 +43,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
   const { addItem } = useCart();
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const catalogProduct = getCatalogProductById(product.id);
   const catalogFeatured = useMemo(
     () => (catalogProduct ? catalogRowToFeatured(catalogProduct) : null),
@@ -59,7 +67,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
     attributes: product.attributes ?? [],
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
-  const conditionLabel = resolveProductCardConditionLabel(titleProduct);
+  const badgeLabel = resolveProductCardBadgeLabel(titleProduct);
   const buyNowLabel = outOfStock ? 'Reservar Ahora' : 'Comprar Ahora';
 
   return (
@@ -94,31 +102,19 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col px-3 pb-3 pt-2">
-        {brand ? (
-          <p className="truncate text-[0.625rem] font-semibold uppercase tracking-wide text-muted-foreground sm:text-[0.6875rem]">
-            {brand}
-          </p>
-        ) : null}
+        <ProductCardBrandLine brand={brand} conditionLabel={badgeLabel} />
 
         <Link
           to={detailHref}
           className="mt-0.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
         >
-          <h3 className="line-clamp-2 text-pretty text-[0.8125rem] font-bold leading-snug text-foreground sm:text-sm">
+          <h3 className="line-clamp-2 text-pretty text-[0.8125rem] font-semibold leading-snug text-foreground sm:text-sm">
             {title}
-            {code ? (
-              <span className={cn(PRODUCT_CARD_CODE_CLASS, 'inline font-normal')}> ({code})</span>
-            ) : null}
           </h3>
         </Link>
 
-        {conditionLabel ? (
-          <div className="mt-1 flex min-w-0 flex-nowrap items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <ProductConditionBadge label={conditionLabel} size="card" />
-          </div>
-        ) : null}
-
-        <div className="mt-1 flex min-w-0 justify-end">
+        <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
+          {code ? <span className={PRODUCT_CARD_CODE_CLASS}>{code}</span> : <span className="min-w-0" />}
           <span className={PRODUCT_CARD_STOCK_CLASS}>
             {outOfStock ? 'A pedido' : `${Math.max(0, Math.floor(product.stock))} unids.`}
           </span>
@@ -133,7 +129,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
           />
         </div>
 
-        <div className="mt-auto pt-3">
+        <div className="relative z-[2] mt-auto flex flex-col gap-0 pt-3 transition-[gap] duration-150 ease-out group-hover:gap-2 group-focus-within:gap-2 max-md:gap-2">
           <p
             className={cn(
               'mb-1 text-[0.625rem] font-medium text-muted-foreground opacity-0 transition-opacity duration-200 ease-out motion-reduce:opacity-100 motion-reduce:transition-none',
@@ -147,11 +143,29 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
             size="sm"
             revealQuantityOnHover
             addLabel={buyNowLabel}
+            onQuantityChange={setQuantity}
             addButtonClassName={cn(
               'h-9 min-h-9 rounded-md px-2 shadow-none sm:px-2.5',
               outOfStock && 'font-semibold',
             )}
           />
+          <div className={whatsappRevealClass}>
+            <div className="min-h-0 overflow-hidden">
+              <ProductWhatsAppButton
+                stopPropagation
+                quantity={quantity}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  priceUsd: displayPrice.priceUsd,
+                  category: product.category,
+                  brand: product.brand ?? catalogProduct?.brand ?? null,
+                }}
+                className="h-9 min-h-9 w-full rounded-md bg-[#25D366] px-2 text-[0.625rem] font-semibold normal-case tracking-normal text-white shadow-none hover:bg-[#20bd5a] focus-visible:ring-[#25D366] sm:px-2.5 sm:text-xs [&_span]:truncate-none"
+                label="Cotizar por WhatsApp"
+              />
+            </div>
+          </div>
         </div>
       </div>
 

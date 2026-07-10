@@ -198,7 +198,7 @@ export function ProductDetailMaintenanceSupplyPlans({
                       ) : null}
                       {priceAvailable ? (
                         <span className="text-[0.625rem] font-semibold text-muted-foreground sm:text-[0.6875rem]">
-                          <DualPrice usd={option.priceUsd!} alwaysBoth className="inline font-semibold" />
+                          <DualPrice usd={option.priceUsd!} className="inline font-semibold" />
                         </span>
                       ) : (
                         <span className="text-[0.625rem] text-muted-foreground sm:text-[0.6875rem]">

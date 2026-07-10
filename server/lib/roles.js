@@ -9,7 +9,8 @@ export const PRICE_ROLE_LABELS = {
   public: 'Público',
   tecnico: 'Técnico',
   mayorista: 'Mayorista',
-  distribuidor: 'Distribuidor',
+  /** Misma etiqueta que `tecnico` en UI; la clave interna se mantiene. */
+  distribuidor: 'Técnico',
 };
 
 export function isPriceRole(value) {

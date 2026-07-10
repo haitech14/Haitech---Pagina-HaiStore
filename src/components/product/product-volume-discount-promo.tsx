@@ -41,7 +41,7 @@ export function ProductVolumeDiscountPromo({
   className,
 }: ProductVolumeDiscountPromoProps) {
   const panelId = useId();
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const settingsQuery = useCompanySettings();
   const tiers = tiersProp ?? settingsQuery.data?.bulkDiscountTiers ?? DEFAULT_BULK_DISCOUNT_TIERS;
 
@@ -74,23 +74,23 @@ export function ProductVolumeDiscountPromo({
           id: tier.range,
           rangeLabel: formatTierRangeLabel(tier.range),
           discountLabel: effective.discount,
-          unitAmount: formatDisplayPriceFromUsd(effective.unitUsd, displayCurrency),
+          unitAmount: formatDisplayPriceFromUsd(effective.unitUsd, displayCurrency, dualPriceOrder),
         };
       }),
-    [tiers, resolvedBasePriceUsd, resolvedFloorPriceUsd, displayCurrency],
+    [tiers, resolvedBasePriceUsd, resolvedFloorPriceUsd, displayCurrency, dualPriceOrder],
   );
 
   const message = useMemo(() => {
     if (!hint) return null;
 
-    const unitAmount = formatDisplayPriceFromUsd(hint.volumeUnitUsd, displayCurrency);
+    const unitAmount = formatDisplayPriceFromUsd(hint.volumeUnitUsd, displayCurrency, dualPriceOrder);
 
     if (hint.isActive) {
       return `Llevas ${hint.targetQuantity} unidades · ${unitAmount} c/u`;
     }
 
     return `Lleva ${hint.targetQuantity} y llévate en ${unitAmount} c/u`;
-  }, [hint, displayCurrency]);
+  }, [hint, displayCurrency, dualPriceOrder]);
 
   if (!hint || !message || tiers.length === 0) return null;
 

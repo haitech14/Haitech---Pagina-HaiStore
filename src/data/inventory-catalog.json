@@ -45287,10 +45287,10 @@
       "created_at": "2026-06-26T05:41:00.924Z",
       "sort_order": 1960,
       "prices": {
-        "public": 29.9,
-        "tecnico": 25.9,
-        "mayorista": 24.9,
-        "distribuidor": 22.9
+        "public": 109,
+        "tecnico": 91.9,
+        "mayorista": 88.9,
+        "distribuidor": 81.9
       }
     },
     {
@@ -45356,10 +45356,10 @@
       "created_at": "2026-06-26T05:41:32.277Z",
       "sort_order": 1961,
       "prices": {
-        "public": 29.9,
-        "tecnico": 25.9,
-        "mayorista": 24.9,
-        "distribuidor": 22.9
+        "public": 109,
+        "tecnico": 91.9,
+        "mayorista": 88.9,
+        "distribuidor": 81.9
       }
     },
     {
@@ -45425,10 +45425,10 @@
       "created_at": "2026-06-26T05:45:29.842Z",
       "sort_order": 1962,
       "prices": {
-        "public": 29.9,
-        "tecnico": 25.9,
-        "mayorista": 24.9,
-        "distribuidor": 22.9
+        "public": 109,
+        "tecnico": 91.9,
+        "mayorista": 88.9,
+        "distribuidor": 81.9
       }
     },
     {
@@ -45493,10 +45493,10 @@
       "created_at": "2026-06-26T05:47:20.041Z",
       "sort_order": 1963,
       "prices": {
-        "public": 19.9,
-        "tecnico": 16.9,
-        "mayorista": 16.9,
-        "distribuidor": 14.9
+        "public": 99,
+        "tecnico": 83.9,
+        "mayorista": 79.9,
+        "distribuidor": 73.9
       }
     },
     {

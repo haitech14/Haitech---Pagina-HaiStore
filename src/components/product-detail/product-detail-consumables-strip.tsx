@@ -4,8 +4,12 @@ import { ChevronRight, ShoppingCart } from 'lucide-react';
 
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { DualPrice } from '@/components/product/product-dual-price';
+import { formatTonerYieldCardLabel } from '@/lib/product-cost-per-copy';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
-import type { ConsumableGroup } from '@/lib/product-equipment-consumables';
+import {
+  formatConsumableListDisplayName,
+  type ConsumableGroup,
+} from '@/lib/product-equipment-consumables';
 import { productPath } from '@/lib/product-path';
 import { useProductsByIds } from '@/hooks/use-products-by-ids';
 import type { Product } from '@/types/product';
@@ -42,6 +46,11 @@ function ConsumableStripCard({
   product?: Product;
 }) {
   const yieldLabel = extractYieldLabel(item.name);
+  const yieldDisplay = formatTonerYieldCardLabel(
+    item.yieldLabel ?? yieldLabel,
+    item.yieldPages ?? null,
+  );
+  const displayName = formatConsumableListDisplayName(item.name);
   const displaySku =
     formatProductDisplayCode(item.sku, {
       name: item.name,
@@ -54,7 +63,7 @@ function ConsumableStripCard({
       <Link
         to={productPath(item.productId)}
         className="flex size-16 shrink-0 items-center justify-center rounded-md border border-border/50 bg-muted/20 p-1.5 sm:size-[4.5rem]"
-        aria-label={`Ver ${item.name}`}
+        aria-label={`Ver ${displayName}`}
       >
         {item.image ? (
           <img
@@ -72,13 +81,9 @@ function ConsumableStripCard({
           to={productPath(item.productId)}
           className="line-clamp-2 text-sm font-semibold leading-snug text-[#0f1f3d] no-underline hover:text-red-600"
         >
-          {item.name}
+          {displayName}
         </Link>
-        {yieldLabel ? (
-          <p className="mt-1 text-[0.6875rem] text-muted-foreground">
-            Rendimiento: {yieldLabel}
-          </p>
-        ) : null}
+        <p className="mt-1 text-[0.6875rem] text-muted-foreground">{yieldDisplay}</p>
         {displaySku ? (
           <p className="mt-0.5 font-mono text-[0.6875rem] text-muted-foreground">{displaySku}</p>
         ) : null}

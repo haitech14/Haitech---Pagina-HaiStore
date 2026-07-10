@@ -21,6 +21,7 @@ import { applyBulkPatch } from '../lib/inventory-bulk-patch.js';
 import {
   getPublicProductById,
   incrementProductViewCount,
+  getAdminInventoryProductById,
   listProducts,
   searchPublicProducts,
   syncProductsToSupabase,
@@ -108,6 +109,16 @@ productsRouter.get('/admin/all', requireAdmin, async (_req, res, next) => {
   try {
     const products = await listProducts({ role: 'public', adminView: true });
     res.json(products);
+  } catch (error) {
+    next(error);
+  }
+});
+
+productsRouter.get('/admin/:id', requireAdmin, async (req, res, next) => {
+  try {
+    const product = await getAdminInventoryProductById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json(product);
   } catch (error) {
     next(error);
   }
@@ -423,7 +434,8 @@ productsRouter.get('/:id', async (req, res, next) => {
       res.set('X-Product-Canonical-Slug', canonicalSlug);
     }
 
-    res.set('Cache-Control', LIST_CACHE_CONTROL);
+    // Role-aware payload: never share via public/shared caches (admin edits must show immediately).
+    res.set('Cache-Control', 'private, no-cache');
     res.json(product);
   } catch (error) {
     next(error);

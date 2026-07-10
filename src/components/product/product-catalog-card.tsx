@@ -37,14 +37,41 @@ import type { Product } from '@/types/product';
 function CatalogCardPricing({ product }: { product: Product }) {
   const displayPrice = useCatalogDisplayPrice(product);
   const pricing = getCatalogCardPricing({ ...product, price: displayPrice.priceUsd });
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const showUsd = displayCurrency !== 'PEN';
   const showPen = displayCurrency !== 'USD';
+  const penFirst = dualPriceOrder === 'pen-usd';
 
-  const compareParts = [
-    ...(showPen ? [formatPenFromUsd(pricing.compareUsd)] : []),
-    ...(showUsd ? [formatUsd(pricing.compareUsd)] : []),
-  ];
+  const compareParts =
+    penFirst
+      ? [
+          ...(showPen ? [formatPenFromUsd(pricing.compareUsd)] : []),
+          ...(showUsd ? [formatUsd(pricing.compareUsd)] : []),
+        ]
+      : [
+          ...(showUsd ? [formatUsd(pricing.compareUsd)] : []),
+          ...(showPen ? [formatPenFromUsd(pricing.compareUsd)] : []),
+        ];
+
+  const usdColumn = showUsd ? (
+    <div className={cn('min-w-0', showPen && penFirst && 'border-l border-border/50 pl-2')}>
+      <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground">USD</p>
+      <AdminRolePricesTooltip productId={product.id} displayUsd={pricing.currentUsd}>
+        <p className="text-base font-bold tabular-nums leading-tight text-foreground xl:text-lg">
+          {formatUsd(pricing.currentUsd)}
+        </p>
+      </AdminRolePricesTooltip>
+    </div>
+  ) : null;
+
+  const penColumn = showPen ? (
+    <div className={cn('min-w-0', showUsd && !penFirst && 'border-l border-border/50 pl-2')}>
+      <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground">PEN</p>
+      <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
+        {formatPenFromUsd(pricing.currentUsd)}
+      </p>
+    </div>
+  ) : null;
 
   return (
     <div className="space-y-1">
@@ -60,24 +87,17 @@ function CatalogCardPricing({ product }: { product: Product }) {
           {displayPrice.viewAsLabel ? <ViewAsRoleBadge label={displayPrice.viewAsLabel} /> : null}
           <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
             <div className={cn('grid gap-2', showUsd && showPen ? 'grid-cols-2' : 'grid-cols-1')}>
-              {showUsd ? (
-                <div className="min-w-0">
-                  <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground">USD</p>
-                  <AdminRolePricesTooltip productId={product.id} displayUsd={pricing.currentUsd}>
-                    <p className="text-base font-bold tabular-nums leading-tight text-foreground xl:text-lg">
-                      {formatUsd(pricing.currentUsd)}
-                    </p>
-                  </AdminRolePricesTooltip>
-                </div>
-              ) : null}
-              {showPen ? (
-                <div className={cn('min-w-0', showUsd && 'border-l border-border/50 pl-2')}>
-                  <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground">PEN</p>
-                  <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
-                    {formatPenFromUsd(pricing.currentUsd)}
-                  </p>
-                </div>
-              ) : null}
+              {penFirst ? (
+                <>
+                  {penColumn}
+                  {usdColumn}
+                </>
+              ) : (
+                <>
+                  {usdColumn}
+                  {penColumn}
+                </>
+              )}
             </div>
           </div>
         </>
@@ -97,7 +117,7 @@ function CatalogCardPricing({ product }: { product: Product }) {
 }
 
 function CatalogVolumePricing({ priceUsd }: { priceUsd: number }) {
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
 
   return (
     <div className="rounded-md border border-border/70 bg-muted/30 px-2 py-1.5">
@@ -109,7 +129,7 @@ function CatalogVolumePricing({ priceUsd }: { priceUsd: number }) {
           <li key={tier.range} className="flex items-center justify-between gap-1 text-[0.65rem]">
             <span className="text-muted-foreground">{tier.range}</span>
             <span className="font-semibold tabular-nums text-foreground">
-              {formatVolumeUnitPrice(priceUsd, tier.discountPercent, displayCurrency)}
+              {formatVolumeUnitPrice(priceUsd, tier.discountPercent, displayCurrency, dualPriceOrder)}
             </span>
           </li>
         ))}

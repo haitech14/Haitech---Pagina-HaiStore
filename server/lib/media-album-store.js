@@ -13,10 +13,11 @@ import {
   isYoutubeMediaUrl,
 } from '../../shared/product-media.js';
 import { dedupeMediaAlbumItems } from '../../shared/media-album-dedupe.js';
+import { MAX_PRODUCT_VIDEO_UPLOAD_BYTES } from '../../shared/product-media-upload-limits.js';
 
 const WEBP_QUALITY = 82;
 const MAX_EDGE = 1200;
-const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
+const MAX_VIDEO_BYTES = MAX_PRODUCT_VIDEO_UPLOAD_BYTES;
 const INVENTORY_ALBUM_CACHE_MS = 60 * 1000;
 const INVENTORY_ALBUM_ID_PREFIX = 'inventory:';
 
@@ -225,7 +226,9 @@ async function exportImageBufferToAlbum(buffer, id) {
 
 async function exportVideoBufferToAlbum(buffer, id) {
   if (buffer.length > MAX_VIDEO_BYTES) {
-    throw new Error('El vídeo supera el tamaño máximo de 80MB');
+    throw new Error(
+      `El vídeo supera el tamaño máximo de ${Math.round(MAX_VIDEO_BYTES / (1024 * 1024))}MB`,
+    );
   }
 
   const publicPath = publicAlbumMediaPath(id, 'video');

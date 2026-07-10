@@ -29,6 +29,7 @@ const MODEL_PATTERNS: RegExp[] = [
   /\bSP\s+C\s*\d{3,4}[A-Z]?\b/gi,
   /\bSP\s*\d{3,4}[A-Z]?\b/gi,
   /\b(?:M|P)\s+C\s*\d{3,4}[A-Z]{0,3}\b/gi,
+  /\b(?:M|P)\s+C\s*\d{3,4}\s+[A-Z]\b/gi,
   /\b(?:M|P)\s*\d{3,4}[A-Z]{0,3}\b/gi,
   /\bBIZHUB\s+[A-Z]?\d{3,4}[A-Z]?\b/gi,
   /\bAFICIO\s+SP\s+C\s*\d{3,4}[A-Z]?\b/gi,
@@ -71,9 +72,12 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function resolveBrandDisplay(brand: string): string {
+export type ProductNameBrandDisplay = 'title' | 'uppercase';
+
+function resolveBrandDisplay(brand: string, display: ProductNameBrandDisplay = 'title'): string {
   const trimmed = brand.trim();
   if (!trimmed) return trimmed;
+  if (display === 'uppercase') return trimmed.toUpperCase();
   const mapped = KNOWN_BRAND_DISPLAY[trimmed.toLowerCase()];
   return mapped ?? trimmed;
 }
@@ -87,23 +91,36 @@ function addSpan(spans: ProtectedSpan[], start: number, end: number, text: strin
   spans.push({ start, end, text });
 }
 
-function collectBrandSpans(text: string, brand: string | null | undefined, spans: ProtectedSpan[]): void {
+function collectBrandSpans(
+  text: string,
+  brand: string | null | undefined,
+  spans: ProtectedSpan[],
+  brandDisplay: ProductNameBrandDisplay,
+): void {
   const candidates = new Set<string>();
 
   if (brand?.trim()) {
     candidates.add(brand.trim());
-    candidates.add(resolveBrandDisplay(brand));
+    candidates.add(resolveBrandDisplay(brand, brandDisplay));
   }
 
   for (const display of Object.values(KNOWN_BRAND_DISPLAY)) {
     candidates.add(display);
+    if (brandDisplay === 'uppercase') {
+      candidates.add(display.toUpperCase());
+    }
   }
 
   for (const candidate of candidates) {
     const pattern = new RegExp(`\\b${escapeRegExp(candidate).replace(/\s+/g, '\\s+')}\\b`, 'gi');
     for (const match of text.matchAll(pattern)) {
       if (match.index == null) continue;
-      addSpan(spans, match.index, match.index + match[0].length, resolveBrandDisplay(match[0]));
+      addSpan(
+        spans,
+        match.index,
+        match.index + match[0].length,
+        resolveBrandDisplay(match[0], brandDisplay),
+      );
     }
   }
 }
@@ -160,20 +177,26 @@ function mergeProtectedSpans(spans: ProtectedSpan[]): ProtectedSpan[] {
 function restoreSpanishProductAccents(text: string): string {
   return text.replace(/\b([a-záéíóúñ]+)\b/gi, (word) => {
     const mapped = SPANISH_PRODUCT_ACCENT_WORDS[word.toLowerCase()];
-    return mapped ?? word;
+    if (!mapped) return word;
+    if (word === word.toUpperCase()) return mapped.toUpperCase();
+    if (word[0] === word[0]?.toUpperCase()) {
+      return mapped.charAt(0).toUpperCase() + mapped.slice(1);
+    }
+    return mapped;
   });
 }
 
 /** Primera letra en mayúscula; resto en minúsculas salvo marcas y códigos de modelo. */
 export function formatProductNameSentenceCase(
   name: string,
-  options?: { brand?: string | null },
+  options?: { brand?: string | null; brandDisplay?: ProductNameBrandDisplay },
 ): string {
   const trimmed = name.trim().replace(/\s{2,}/g, ' ');
   if (!trimmed) return trimmed;
 
+  const brandDisplay = options?.brandDisplay ?? 'title';
   const spans: ProtectedSpan[] = [];
-  collectBrandSpans(trimmed, options?.brand, spans);
+  collectBrandSpans(trimmed, options?.brand, spans, brandDisplay);
   collectPatternSpans(trimmed, MODEL_PATTERNS, spans, normalizeModelDisplay);
   collectPatternSpans(trimmed, LITERAL_PATTERNS, spans, (value) => value.toUpperCase());
 

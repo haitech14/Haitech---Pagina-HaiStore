@@ -281,6 +281,28 @@ export async function ensureSupabaseCatalogSeeded() {
   return bootstrapPromise;
 }
 
+/**
+ * DTO ligero para la tabla admin: omite attachments, description y storefront pesado.
+ * El detalle completo se obtiene con getAdminInventoryProductById.
+ */
+export function toAdminListProduct(product) {
+  if (!product || typeof product !== 'object') return product;
+  const {
+    attachments: _attachments,
+    description: _description,
+    storefront_feature_bar: _featureBar,
+    storefront_hero_bullets: _heroBullets,
+    ...rest
+  } = product;
+  return {
+    ...rest,
+    description: null,
+    attachments: [],
+    storefront_feature_bar: undefined,
+    storefront_hero_bullets: undefined,
+  };
+}
+
 async function listFromSupabase(role, adminView) {
   const supabase = getSupabaseAdmin();
   if (!supabase) return null;
@@ -315,7 +337,7 @@ async function listFromSupabase(role, adminView) {
   }
 
   if (adminView) {
-    return rows.map((row) => rowToInventoryProduct(row));
+    return rows.map((row) => toAdminListProduct(rowToInventoryProduct(row)));
   }
 
   return rows
@@ -327,12 +349,23 @@ async function listFromSupabase(role, adminView) {
 async function listFromInventory(role, adminView) {
   const { products } = await readInventory();
   if (adminView) {
-    return products.map((product) => migrateInventoryProduct(product));
+    return products.map((product) => toAdminListProduct(migrateInventoryProduct(product)));
   }
   return products
     .map((product) => migrateInventoryProduct(product))
     .filter((product) => isProductVisibleOnStorefront(product))
     .map((product) => toPublicProductList(withResolvedMedia(product), role));
+}
+
+/** Producto completo para el diálogo de edición admin. */
+export async function getAdminInventoryProductById(id) {
+  const normalizedId = String(id ?? '').trim();
+  if (!normalizedId) return undefined;
+
+  const { products } = await readInventory();
+  const found = findInventoryProductByLookupKey(products, normalizedId);
+  if (!found) return undefined;
+  return migrateInventoryProduct(found);
 }
 
 /**

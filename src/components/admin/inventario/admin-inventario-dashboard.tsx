@@ -9,7 +9,11 @@ import { AdminInventarioWidgets } from '@/components/admin/inventario/admin-inve
 import { useAdminUtilityPanel } from '@/context/admin-utility-panel-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { cn } from '@/lib/utils';
-import { useAdminInventory, useInventoryMutations } from '@/hooks/use-products';
+import {
+  fetchAdminInventoryProductById,
+  useAdminInventory,
+  useInventoryMutations,
+} from '@/hooks/use-products';
 import {
   getUsdToPenPurchaseRate,
   getUsdToPenSaleRate,
@@ -17,6 +21,7 @@ import {
 } from '@/lib/exchange-rate';
 import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
 import type { InventoryProduct } from '@/types/product';
+import { toast } from 'sonner';
 
 export function AdminInventarioDashboard() {
   const [productDialogOpen, setProductDialogOpen] = useState(false);
@@ -54,9 +59,19 @@ export function AdminInventarioDashboard() {
     setProductDialogOpen(true);
   }, []);
 
-  const openEditProduct = useCallback((product: InventoryProduct) => {
+  const openEditProduct = useCallback(async (product: InventoryProduct) => {
     setEditingProduct(product);
     setProductDialogOpen(true);
+    try {
+      const full = await fetchAdminInventoryProductById(product.id);
+      setEditingProduct(full);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'No se pudo cargar el detalle completo del producto',
+      );
+    }
   }, []);
 
   const handleProductDialogOpenChange = useCallback((open: boolean) => {

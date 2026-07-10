@@ -13,7 +13,7 @@ const roleStyles: Record<CustomerRoleGroupKey, string> = {
 const roleLabels: Record<CustomerRoleGroupKey, string> = {
   admin: 'Administrador',
   tecnico: 'Técnico',
-  distribuidor: 'Distribuidor',
+  distribuidor: 'Técnico',
   mayorista: 'Mayorista',
   public: 'Público',
   guest: 'Sin cuenta',

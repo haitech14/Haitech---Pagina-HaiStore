@@ -11,7 +11,7 @@ import type { InventoryProduct, PriceRole } from '@/types/product';
 
 const SALE_ROLE_MAP: Partial<Record<AdminListaPreciosRoleKey, PriceRole>> = {
   public: 'public',
-  distribuidor: 'distribuidor',
+  tecnico: 'tecnico',
   mayorista: 'mayorista',
 };
 

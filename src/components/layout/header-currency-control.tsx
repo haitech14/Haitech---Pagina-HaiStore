@@ -34,7 +34,7 @@ function useSystemExchangeRates() {
   return { saleRate, purchaseRate };
 }
 
-/** Orden del selector: S/ · $ · $-S/ (etiqueta del modo dual refleja el orden apilado). */
+/** Orden del selector: S/ · $ · dual (etiqueta del modo dual refleja el orden activo). */
 export const CURRENCY_SYMBOL_TOGGLE_OPTIONS: {
   id: DisplayCurrency;
   label: string;
@@ -42,17 +42,22 @@ export const CURRENCY_SYMBOL_TOGGLE_OPTIONS: {
 }[] = [
   { id: 'PEN', label: 'S/', ariaLabel: 'Mostrar precios en soles' },
   { id: 'USD', label: '$', ariaLabel: 'Mostrar precios en dólares' },
-  { id: 'BOTH', label: '$-S/', ariaLabel: 'Mostrar precios en dólares y soles' },
+  { id: 'BOTH', label: 'S/-$', ariaLabel: 'Mostrar precios en soles y dólares' },
 ];
 
 function getBothModeLabel(dualPriceOrder: DualPriceOrder): string {
   return dualPriceOrder === 'pen-usd' ? 'S/-$' : '$-S/';
 }
 
-function getBothModeAriaLabel(dualPriceOrder: DualPriceOrder): string {
+function getBothModeAriaLabel(dualPriceOrder: DualPriceOrder, isActive: boolean): string {
+  if (!isActive) {
+    return dualPriceOrder === 'pen-usd'
+      ? 'Mostrar precios en soles y dólares'
+      : 'Mostrar precios en dólares y soles';
+  }
   return dualPriceOrder === 'pen-usd'
-    ? 'Mostrar precios en soles y dólares (soles arriba). Clic para invertir orden'
-    : 'Mostrar precios en dólares y soles (dólares arriba). Clic para invertir orden';
+    ? 'Mostrar precios en soles y dólares (soles primero). Clic para invertir orden'
+    : 'Mostrar precios en dólares y soles (dólares primero). Clic para invertir orden';
 }
 
 const darkCurrencyToggleGroupClass = 'inline-flex shrink-0 items-center gap-0.5';
@@ -92,10 +97,10 @@ function CurrencySymbolToggle({
       {CURRENCY_SYMBOL_TOGGLE_OPTIONS.map((option) => {
         const isActive = displayCurrency === option.id;
         const label =
-          option.id === 'BOTH' && isActive ? getBothModeLabel(dualPriceOrder) : option.label;
+          option.id === 'BOTH' ? getBothModeLabel(dualPriceOrder) : option.label;
         const ariaLabel =
-          option.id === 'BOTH' && isActive
-            ? getBothModeAriaLabel(dualPriceOrder)
+          option.id === 'BOTH'
+            ? getBothModeAriaLabel(dualPriceOrder, isActive)
             : option.ariaLabel;
 
         return (

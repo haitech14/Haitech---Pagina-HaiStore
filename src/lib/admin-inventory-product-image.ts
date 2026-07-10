@@ -14,7 +14,9 @@ function isResponsiveVariantPath(path: string): boolean {
   return /-(?:256|512|1024)\.webp$/i.test(path);
 }
 
-/** Variantes locales para reintento si la imagen principal aún no está disponible. */
+/** Variantes locales para reintento si la imagen principal aún no está disponible.
+ * Prioriza -256 (rápido en tabla) y limita a 3 candidatos para evitar cascadas de 404.
+ */
 function productImageVariantPaths(url: string): string[] {
   const path = pathnameOf(url);
   if (!path.startsWith('/products/') || isResponsiveVariantPath(path)) {
@@ -24,10 +26,9 @@ function productImageVariantPaths(url: string): string[] {
   const base = imageBasePath(path);
   const query = url.includes('?') ? url.slice(url.indexOf('?')) : '';
   return [
-    url,
     `${base}-256.webp${query}`,
+    url,
     `${base}-512.webp${query}`,
-    `${base}-1024.webp${query}`,
   ];
 }
 
@@ -128,9 +129,10 @@ export function buildAdminInventoryImageCandidates(
 
   if (optimisticSrc) push(optimisticSrc);
   push(product.image_url);
-  for (const item of product.gallery ?? []) push(item);
+  const firstGallery = (product.gallery ?? []).find((item) => isImageMediaUrl(item));
+  if (firstGallery && firstGallery !== product.image_url) push(firstGallery);
 
-  return candidates;
+  return candidates.slice(0, 3);
 }
 
 export function hasAdminInventoryProductImage(

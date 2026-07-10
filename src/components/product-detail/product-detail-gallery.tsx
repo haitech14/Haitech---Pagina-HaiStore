@@ -7,8 +7,6 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ProductDetailFeatureBar } from '@/components/product-detail/product-detail-feature-bar';
-import { ProductDetailHeroFeatures } from '@/components/product-detail/product-detail-hero-features';
 import { youtubeThumbnailUrl } from '@/lib/product-media';
 import {
   productDetailMainImageSources,
@@ -19,7 +17,6 @@ import { extractProductModel } from '@/lib/seo';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
-import type { ProductDescriptionHighlight } from '@/types/product-detail';
 import type { ProductGalleryItem } from '@/types/product-detail';
 
 interface ProductDetailGalleryProps {
@@ -28,8 +25,6 @@ interface ProductDetailGalleryProps {
   product?: Pick<Product, 'name' | 'attributes' | 'brand' | 'category'>;
   showOriginalBadge?: boolean;
   brandLabel?: string;
-  featureBar?: ProductDescriptionHighlight[];
-  secondaryFeatureBar?: ProductDescriptionHighlight[];
   viewer3dUrl?: string | null;
 }
 
@@ -264,8 +259,6 @@ export function ProductDetailGallery({
   product,
   showOriginalBadge = false,
   brandLabel = '',
-  featureBar = [],
-  secondaryFeatureBar = [],
   viewer3dUrl = null,
 }: ProductDetailGalleryProps) {
   const galleryItems = items.filter(Boolean);
@@ -286,10 +279,6 @@ export function ProductDetailGallery({
   useEffect(() => {
     setImageError(false);
   }, [safeIndex, activeItem?.type === 'image' ? activeItem.src : null]);
-
-  const featureBarItems = featureBar;
-  const secondaryFeatureBarItems =
-    featureBarItems.length > 0 ? [] : secondaryFeatureBar.slice(0, 4);
 
   const thumbnailList = (
     <ul
@@ -321,15 +310,6 @@ export function ProductDetailGallery({
             <p className="text-sm font-semibold text-muted-foreground">Sin Imagen</p>
           </div>
         </div>
-        {featureBarItems.length > 0 ? (
-          <ProductDetailFeatureBar items={featureBarItems} columns={6} className="mt-3" />
-        ) : null}
-        {secondaryFeatureBarItems.length > 0 ? (
-          <ProductDetailHeroFeatures
-            highlights={secondaryFeatureBarItems}
-            className="mt-2 rounded-lg border border-border/60 bg-muted/15 px-3 py-3 sm:px-4"
-          />
-        ) : null}
       </div>
     );
   }
@@ -430,16 +410,6 @@ export function ProductDetailGallery({
           ) : null}
         </DialogContent>
       </Dialog>
-
-      {featureBarItems.length > 0 ? (
-        <ProductDetailFeatureBar items={featureBarItems} columns={6} className="mt-3" />
-      ) : null}
-      {secondaryFeatureBarItems.length > 0 ? (
-        <ProductDetailHeroFeatures
-          highlights={secondaryFeatureBarItems}
-          className="mt-2 rounded-lg border border-border/60 bg-muted/15 px-3 py-3 sm:px-4"
-        />
-      ) : null}
     </div>
   );
 }

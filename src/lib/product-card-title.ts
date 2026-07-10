@@ -5,7 +5,7 @@ import {
   resolveProductSpeedPpm,
 } from '@/lib/category-catalog-filters';
 import { resolveHomeLandingConsumableSubtitle } from '@/lib/home-featured-product-filter';
-import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
+import { isPrinterProduct, isSupplyBadgeProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
 import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
@@ -19,6 +19,9 @@ export const PRODUCT_CARD_TITLE_FEATURED_CLASS =
 
 export const PRODUCT_CARD_BRAND_CLASS =
   'truncate text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground sm:text-[0.625rem]';
+
+/** Fila marca + badge de condición (misma línea, gap compacto). */
+export const PRODUCT_CARD_BRAND_ROW_CLASS = 'flex min-w-0 items-center gap-1';
 
 /** Alias de marca en vitrina destacada (mismo estilo gris compacto). */
 export const PRODUCT_CARD_BRAND_ACCENT_CLASS = PRODUCT_CARD_BRAND_CLASS;
@@ -58,6 +61,24 @@ export interface ProductCardTitleContent {
   brand: string | null;
   code: string | null;
   title: string;
+}
+
+const CARTUCHO_DE_DISPLAY_PREFIX = /^cartucho\s+de\s+/i;
+
+/** Quita «Cartucho de» / «CARTUCHO DE» del inicio del título mostrado en tarjetas. */
+export function stripCartuchoDeProductDisplayPrefix(name: string): string {
+  return name.replace(CARTUCHO_DE_DISPLAY_PREFIX, '').trim();
+}
+
+function formatProductCardDisplayName(
+  name: string,
+  options?: { brand?: string | null },
+): string {
+  const normalized = stripCartuchoDeProductDisplayPrefix(formatInventoryProductName(name.trim()));
+  return formatProductNameSentenceCase(normalized, {
+    brand: options?.brand ?? null,
+    brandDisplay: 'uppercase',
+  });
 }
 
 function isColorPrinter(product: ProductBadgeSource): boolean {
@@ -118,8 +139,7 @@ function resolveSubtitleSpeedLabel(product: ProductBadgeSource & { name: string 
 export function formatHomeLandingProductCardTitle(
   product: ProductBadgeSource & { name: string; category?: string | null; brand?: string | null },
 ): string {
-  const normalized = formatInventoryProductName(product.name.trim());
-  return formatProductNameSentenceCase(normalized, { brand: product.brand });
+  return formatProductCardDisplayName(product.name, { brand: product.brand ?? null });
 }
 
 /** Título en dos líneas para vitrina home: «Ricoh MP 401» + «Multifuncional seminueva B/N». */
@@ -127,7 +147,25 @@ export function getHomeLandingProductCardLines(
   product: ProductBadgeSource & { name: string; category?: string | null; brand?: string | null },
 ): { headline: string; subtitle: string | null } {
   const brand = product.brand?.trim() || null;
-  const rawName = formatInventoryProductName(product.name.trim());
+
+  const consumableSubtitle = resolveHomeLandingConsumableSubtitle({
+    id: product.id,
+    name: product.name,
+    category: product.category ?? '',
+    brand: product.brand ?? null,
+    code: 'code' in product ? (product.code ?? null) : null,
+    attributes: product.attributes ?? [],
+  });
+  if (consumableSubtitle) {
+    return {
+      headline: formatProductCardDisplayName(product.name, { brand }),
+      subtitle: consumableSubtitle,
+    };
+  }
+
+  const rawName = stripCartuchoDeProductDisplayPrefix(
+    formatInventoryProductName(product.name.trim()),
+  );
   let headline = rawName;
 
   if (brand) {
@@ -154,12 +192,7 @@ export function getHomeLandingProductCardLines(
       .trim();
   }
 
-  headline = formatProductNameSentenceCase(headline, { brand });
-
-  const consumableSubtitle = resolveHomeLandingConsumableSubtitle(product);
-  if (consumableSubtitle) {
-    return { headline, subtitle: consumableSubtitle };
-  }
+  headline = formatProductNameSentenceCase(headline, { brand, brandDisplay: 'uppercase' });
 
   const haystack = `${product.category ?? ''} ${product.name}`.toLowerCase();
   const isMultifunctional = haystack.includes('multifunc') || haystack.includes('copiadora');
@@ -191,12 +224,21 @@ export function getHomeLandingProductCardLines(
 
 /** Añade «B/N» en equipos monocromáticos si el nombre aún no lo incluye. */
 export function formatProductCardTitle(
-  product: ProductBadgeSource & { name: string; category?: string | null },
+  product: ProductBadgeSource & {
+    name: string;
+    category?: string | null;
+    brand?: string | null;
+  },
 ): string {
-  const title = capitalizeEquipmentDescriptorWords(
-    formatInventoryProductName(product.name.trim()),
+  let title = capitalizeEquipmentDescriptorWords(
+    formatProductCardDisplayName(product.name, { brand: product.brand ?? null }),
   );
-  if (!isPrinterProduct(product) || isColorPrinter(product) || /\bB\/N\b/i.test(title)) {
+  if (
+    isSupplyBadgeProduct(product) ||
+    !isPrinterProduct(product) ||
+    isColorPrinter(product) ||
+    /\bB\/N\b/i.test(title)
+  ) {
     return title;
   }
 
@@ -213,6 +255,26 @@ export function formatProductCardTitle(
   }
 
   return `${title} B/N`;
+}
+
+/** Quita el código embebido en el título, p. ej. «… (418787)». */
+export function stripEmbeddedProductCodeFromTitle(
+  title: string,
+  code: string | null,
+): string {
+  let next = title.trim();
+  if (!next) return next;
+
+  if (code) {
+    const escaped = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    next = next
+      .replace(new RegExp(`\\s*\\(\\s*${escaped}\\s*\\)`, 'gi'), ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  // Sufijo numérico tipo SKU entre paréntesis al final del nombre.
+  return next.replace(/\s*\(\s*\d[\w./-]{2,}\s*\)\s*$/g, '').trim();
 }
 
 export function getProductCardTitleContent(
@@ -232,6 +294,6 @@ export function getProductCardTitleContent(
   return {
     brand: brand ? brand.toUpperCase() : null,
     code,
-    title: formatProductCardTitle(product),
+    title: stripEmbeddedProductCodeFromTitle(formatProductCardTitle(product), code),
   };
 }

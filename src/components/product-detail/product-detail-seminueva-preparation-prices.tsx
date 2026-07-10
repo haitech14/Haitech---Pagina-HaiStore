@@ -1,10 +1,12 @@
 import { resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
+import { getDisplayPriceVisibility } from '@/lib/display-price';
 import {
   SEMINUEVA_PREPARATION_LABELS,
   SEMINUEVA_PREPARATION_OPTIONS,
   resolveSeminuevaPreparationSurchargeUsd,
   type SeminuevaPreparationType,
 } from '@/lib/seminueva-preparation';
+import { useDisplayCurrency } from '@/context/display-currency-context';
 import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
 import type { BulkDiscountTier } from '@/types/product-detail';
 import type { Product } from '@/types/product';
@@ -27,25 +29,50 @@ function PreparationDualPrice({
   usd: number;
   active: boolean;
 }) {
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
+  const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
+  const penFirst = dualPriceOrder === 'pen-usd';
+
+  const penSpan = showPen ? (
+    <span
+      className={cn(
+        'font-bold leading-none',
+        active ? 'text-base text-red-600 sm:text-lg' : 'text-sm text-muted-foreground',
+      )}
+    >
+      {formatPenFromUsd(usd)}
+    </span>
+  ) : null;
+  const usdSpan = showUsd ? (
+    <span
+      className={cn(
+        'font-bold leading-none',
+        active ? 'text-base text-[#001b44] sm:text-lg' : 'text-sm text-muted-foreground',
+      )}
+    >
+      {formatUsd(usd)}
+    </span>
+  ) : null;
+  const separator =
+    showUsd && showPen ? (
+      <span className="h-3.5 w-px shrink-0 self-center bg-neutral-300" aria-hidden="true" />
+    ) : null;
+
   return (
     <span className="inline-flex flex-wrap items-baseline gap-1.5 tabular-nums">
-      <span
-        className={cn(
-          'font-bold leading-none',
-          active ? 'text-base text-red-600 sm:text-lg' : 'text-sm text-muted-foreground',
-        )}
-      >
-        {formatPenFromUsd(usd)}
-      </span>
-      <span className="h-3.5 w-px shrink-0 self-center bg-neutral-300" aria-hidden="true" />
-      <span
-        className={cn(
-          'font-bold leading-none',
-          active ? 'text-base text-[#001b44] sm:text-lg' : 'text-sm text-muted-foreground',
-        )}
-      >
-        {formatUsd(usd)}
-      </span>
+      {penFirst ? (
+        <>
+          {penSpan}
+          {separator}
+          {usdSpan}
+        </>
+      ) : (
+        <>
+          {usdSpan}
+          {separator}
+          {penSpan}
+        </>
+      )}
     </span>
   );
 }

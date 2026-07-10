@@ -207,12 +207,9 @@ export function ProductShowcaseCard({
               product={badgeSource}
               brandTone={brandTone}
               variant={isFeatured ? 'featured' : 'card'}
-              {...(isFeatured
-                ? {
-                    stock,
-                    outOfStock: stock <= 0,
-                  }
-                : {})}
+              showConditionBadge
+              stock={stock}
+              outOfStock={stock <= 0}
             />
           </Link>
 

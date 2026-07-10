@@ -4,22 +4,25 @@ import { Star } from 'lucide-react';
 
 import { ProductDetailComplementaCompra } from '@/components/product-detail/product-detail-complementa-compra';
 import { ProductDetailHeroSpecs } from '@/components/product-detail/product-detail-hero-specs';
-import { resolveTrustWarrantyLabel } from '@/lib/build-product-detail';
 import { ProductDetailHeroTrustStrip } from '@/components/product-detail/product-detail-hero-trust-strip';
 import { ProductDetailPreparationTypeSelector } from '@/components/product-detail/product-detail-preparation-type-selector';
 import type { PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
 import type { ConfigureHeroAccessoryCard, ConfigureHeroWarrantyUpgrade } from '@/lib/product-configure-hero-options';
 import { HERO_WARRANTY_BASE_OPTION_ID } from '@/lib/product-configure-hero-options';
 import { ProductDetailMaintenanceSupplyPlans } from '@/components/product-detail/product-detail-maintenance-supply-plans';
-import type { ConfigureTonerCard } from '@/lib/product-configure-toner';
+import {
+  resolveDefaultTonerSupplyTypeForEquipment,
+  type ConfigureTonerCard,
+} from '@/lib/product-configure-toner';
 import type { EquipmentSelectionState } from '@/lib/equipment-config-selection';
 import type { ConsumableGroup } from '@/lib/product-equipment-consumables';
 import type { MaintenanceSupplyPlanSelection } from '@/lib/maintenance-supply-plan-calculator';
 import type { Product } from '@/types/product';
-import { resolveProductHeroBrand } from '@/lib/product-hero-meta';
+import { resolveProductHeroBrand, resolveProductHeroConditionLabel } from '@/lib/product-hero-meta';
 import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
 import type { ProductDetailViewModel } from '@/types/product-detail';
 import type { FeaturedProduct } from '@/data/featured-products';
+import { cn } from '@/lib/utils';
 
 interface ProductDetailHeroInfoProps {
   product: Product;
@@ -88,12 +91,19 @@ export function ProductDetailHeroInfo({
   const reviewCount = featuredMeta?.reviews ?? detail.reviews;
   const showBestSeller = resolveBestSellerBadge(detail, featuredMeta);
   const skuLabel = detail.sku?.trim() || product.code?.trim();
+  const conditionLabel = resolveProductHeroConditionLabel(product);
+  const defaultTonerSupplyType = resolveDefaultTonerSupplyTypeForEquipment(product);
   const showBuyHeroOptions = purchaseMode !== 'rent';
 
   const hasTonerSection = tonerCards.length > 0;
   const hasAccessorySection = accessoryCards.length > 0;
   const hasWarrantySection = warrantyUpgrades.length > 0 && onWarrantySelect != null;
-  const hasComplementaItems = hasTonerSection || hasAccessorySection || hasWarrantySection;
+  const hasMaintenanceSection =
+    showMaintenanceSupplyPlans &&
+    maintenanceSupplyPlan != null &&
+    onMaintenanceSupplyPlanChange != null;
+  const hasComplementaItems =
+    hasTonerSection || hasAccessorySection || hasWarrantySection || hasMaintenanceSection;
   const showComplementaCompra =
     showBuyHeroOptions &&
     hasComplementaItems &&
@@ -111,32 +121,38 @@ export function ProductDetailHeroInfo({
       />
     ) : null;
 
+  const maintenanceSlot =
+    hasMaintenanceSection && maintenanceSupplyPlan && onMaintenanceSupplyPlanChange ? (
+      <ProductDetailMaintenanceSupplyPlans
+        tonerCards={tonerCards}
+        catalog={tonerCatalog}
+        consumableGroups={consumableGroups}
+        selection={maintenanceSupplyPlan}
+        onSelectionChange={onMaintenanceSupplyPlanChange}
+      />
+    ) : null;
+
+  const heroMetaSegments = [
+    skuLabel ? { label: 'Código', value: skuLabel } : null,
+    brandLabel ? { label: 'Marca', value: brandLabel } : null,
+    conditionLabel ? { label: 'Condición', value: conditionLabel } : null,
+  ].filter((segment): segment is { label: string; value: string } => segment != null);
+
   return (
     <div className="flex min-w-0 flex-col">
-      <div className="flex flex-wrap items-center gap-2.5">
-        {showBestSeller ? (
-          <span className="inline-flex rounded-md bg-orange-500 px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-white">
-            Más vendido
-          </span>
-        ) : null}
-
-        <p className="text-[0.6875rem] text-neutral-500 sm:text-xs">
-          {skuLabel ? (
-            <>
-              <span className="font-semibold text-neutral-600">CODIGO:</span> {skuLabel}
-            </>
-          ) : null}
-          {skuLabel && brandLabel ? <span className="mx-2 text-neutral-300">|</span> : null}
-          {brandLabel ? (
-            <>
-              <span className="font-semibold text-neutral-600">MARCA:</span> {brandLabel}
-            </>
-          ) : null}
-        </p>
-      </div>
+      {showBestSeller ? (
+        <span className="inline-flex w-fit rounded-md bg-orange-500 px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-white">
+          Más vendido
+        </span>
+      ) : null}
 
       {reviewCount > 0 ? (
-        <div className="mt-2.5 flex min-w-0 flex-wrap items-center gap-2">
+        <div
+          className={cn(
+            'flex min-w-0 flex-wrap items-center gap-2',
+            showBestSeller && 'mt-2.5',
+          )}
+        >
           <div
             className="flex min-w-0 items-center gap-1.5"
             aria-label={`Valoración ${displayRating} de 5, ${reviewCount} valoraciones`}
@@ -160,14 +176,29 @@ export function ProductDetailHeroInfo({
         </div>
       ) : null}
 
-      <h1 className="mt-2.5 text-pretty text-lg font-bold leading-snug text-[#0f1f3d] sm:text-xl lg:text-2xl">
+      <h1
+        className={cn(
+          'text-pretty text-lg font-bold leading-snug text-[#0f1f3d] sm:text-xl lg:text-2xl',
+          (showBestSeller || reviewCount > 0) && 'mt-2.5',
+        )}
+      >
         {detail.heroTitle ?? product.name}
       </h1>
+
+      {heroMetaSegments.length > 0 ? (
+        <p className="mt-1 text-xs text-neutral-500">
+          {heroMetaSegments.map((segment, index) => (
+            <span key={segment.label}>
+              {index > 0 ? <span className="mx-1.5 text-neutral-300">·</span> : null}
+              <span className="font-medium text-neutral-600">{segment.label}:</span> {segment.value}
+            </span>
+          ))}
+        </p>
+      ) : null}
 
       <ProductDetailHeroSpecs bullets={detail.heroSpecBullets} className="mt-3" />
 
       <ProductDetailHeroTrustStrip
-        warrantyLabel={resolveTrustWarrantyLabel(warrantyBaseLabel)}
         giftSubtitle={detail.giftTrustSubtitle}
         className="mt-3"
       />
@@ -175,6 +206,7 @@ export function ProductDetailHeroInfo({
       {showComplementaCompra ? (
         <ProductDetailComplementaCompra
           tonerCards={tonerCards}
+          defaultTonerSupplyType={defaultTonerSupplyType}
           accessoryCards={accessoryCards}
           selectedTonerOptionIds={selectedTonerOptionIds ?? new Set<string>()}
           equipmentSelection={equipmentSelection}
@@ -186,24 +218,11 @@ export function ProductDetailHeroInfo({
           {...(onWarrantySelect ? { onWarrantySelect } : {})}
           beforeTonerSlot={hasTonerSection ? preparationSelector : undefined}
           leadingSlot={!hasTonerSection ? preparationSelector : undefined}
-          className="mt-3"
+          maintenanceSlot={maintenanceSlot}
+          className="mt-4"
         />
       ) : preparationSelector ? (
         <div className="mt-3">{preparationSelector}</div>
-      ) : null}
-
-      {showBuyHeroOptions &&
-      showMaintenanceSupplyPlans &&
-      maintenanceSupplyPlan &&
-      onMaintenanceSupplyPlanChange ? (
-        <ProductDetailMaintenanceSupplyPlans
-          tonerCards={tonerCards}
-          catalog={tonerCatalog}
-          consumableGroups={consumableGroups}
-          selection={maintenanceSupplyPlan}
-          onSelectionChange={onMaintenanceSupplyPlanChange}
-          className="mt-3"
-        />
       ) : null}
 
       {showBuyHeroOptions ? afterTonerSlot : null}

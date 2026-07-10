@@ -58,10 +58,8 @@ export function ProductDetailHeroCollapsibleSection({
         <span className="flex min-w-0 flex-1 items-center gap-1.5">
           <span
             className={cn(
-              'text-[#0f1f3d]',
-              compact
-                ? 'whitespace-nowrap text-sm font-semibold'
-                : 'text-sm font-semibold',
+              'text-xs font-semibold text-[#0f1f3d]',
+              compact && 'whitespace-nowrap',
             )}
           >
             {title}
@@ -69,8 +67,7 @@ export function ProductDetailHeroCollapsibleSection({
           {badge ? (
             <span
               className={cn(
-                'shrink-0 rounded-full bg-neutral-100 font-medium text-neutral-500',
-                'px-1.5 py-0.5 text-[10px]',
+                'shrink-0 rounded-full bg-neutral-100 px-1.5 py-px text-[9px] font-medium text-neutral-500',
               )}
             >
               {badge}

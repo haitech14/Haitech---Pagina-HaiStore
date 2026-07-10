@@ -12,6 +12,7 @@ import {
   buildProductCardStoredImageCandidates,
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
+import { formatProductCardTitle } from '@/lib/product-card-title';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -68,6 +69,12 @@ export function HomeBestSellerProductCard({
     [imageSource],
   );
   const hasValidImage = imageCandidates.length > 0;
+  const displayTitle = formatProductCardTitle({
+    id: product.id,
+    name: product.name,
+    category: catalog?.category ?? 'Equipos',
+    brand: product.brand ?? catalog?.brand ?? null,
+  });
 
   return (
     <article className="group flex h-full w-full min-w-[9.5rem] flex-col overflow-hidden rounded-xl border border-border/50 bg-white shadow-[0_2px_14px_rgba(15,31,61,0.07)] sm:min-w-0">
@@ -106,7 +113,7 @@ export function HomeBestSellerProductCard({
           className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
         >
           <h3 className="line-clamp-2 min-h-[2.5rem] text-pretty text-left text-[0.8125rem] font-semibold leading-snug text-[#111111] sm:min-h-[2.75rem] sm:text-sm">
-            {product.name}
+            {displayTitle}
           </h3>
         </Link>
 

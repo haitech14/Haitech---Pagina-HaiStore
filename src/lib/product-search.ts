@@ -13,13 +13,26 @@ import {
 } from '../../shared/catalog-search.js';
 
 export const MIN_PRODUCT_SEARCH_LENGTH = 3;
-export const PRODUCT_SEARCH_INITIAL_VISIBLE = 12;
-export const PRODUCT_SEARCH_LOAD_MORE_STEP = 5;
-export const PRODUCT_SEARCH_MAX_LIMIT = 24;
+export const PRODUCT_SEARCH_INITIAL_VISIBLE = 16;
+export const PRODUCT_SEARCH_LOAD_MORE_STEP = 8;
+export const PRODUCT_SEARCH_MAX_LIMIT = 32;
+/** Máximo de productos visibles por sección en el panel de sugerencias. */
+export const PRODUCT_SEARCH_PER_SECTION_LIMIT = 3;
 /** @deprecated Usar PRODUCT_SEARCH_INITIAL_VISIBLE + paginación en el panel. */
 export const PRODUCT_SEARCH_SUGGESTION_LIMIT = PRODUCT_SEARCH_MAX_LIMIT;
 export const SEARCH_CATEGORY_SUGGESTION_LIMIT = 3;
 export const SEARCH_SERVICE_SUGGESTION_LIMIT = 2;
+
+/** Secciones sintetizadas del panel de búsqueda (orden de visualización). */
+export const SEARCH_PANEL_SECTION_ORDER = [
+  'Equipos',
+  'Tóner original',
+  'Tóner compatible',
+  'Repuestos',
+  'Otros',
+] as const;
+
+export type SearchPanelSectionLabel = (typeof SEARCH_PANEL_SECTION_ORDER)[number];
 
 export function normalizeSearchText(value: string): string {
   return normalizeCatalogSearchText(value);
@@ -109,6 +122,47 @@ function isTonerCategory(category: string): boolean {
   return /(toner|t[oó]ner)/i.test(category);
 }
 
+/** Etiqueta de sección compacta para el dropdown del header. */
+export function resolveSearchPanelSectionLabel(category: string): SearchPanelSectionLabel {
+  const normalized = normalizeSearchCategoryLabel(category);
+  if (!normalized) return 'Otros';
+
+  if (
+    /multifuncion|impresor|formato ancho|plotter|copiadora|esc[aá]ner|scanner|\bequipo/.test(
+      normalized,
+    )
+  ) {
+    return 'Equipos';
+  }
+
+  if (isTonerCategory(normalized)) {
+    if (/(original|genuin|oem|oficial)/.test(normalized)) return 'Tóner original';
+    if (/(compatible|compatibl|alternativ|gen[eé]ric)/.test(normalized)) {
+      return 'Tóner compatible';
+    }
+    return 'Tóner compatible';
+  }
+
+  if (
+    /repuesto|refacci[oó]n|pieza|partes|pcdu|unidad de imagen|drum|rodillo|filtro/.test(
+      normalized,
+    )
+  ) {
+    return 'Repuestos';
+  }
+
+  if (/(consumible|suministro|cartucho|tinta|accesorio)/.test(normalized)) {
+    return 'Repuestos';
+  }
+
+  return 'Otros';
+}
+
+function getSearchPanelSectionRank(label: SearchPanelSectionLabel): number {
+  const index = SEARCH_PANEL_SECTION_ORDER.indexOf(label);
+  return index >= 0 ? index : SEARCH_PANEL_SECTION_ORDER.length;
+}
+
 function getSearchCategorySortRank(category: string): number {
   const normalized = normalizeSearchCategoryLabel(category);
   if (!normalized) return 999;
@@ -183,6 +237,40 @@ export function groupSearchProductsByCategory(
       if (rankDiff !== 0) return rankDiff;
       return a.localeCompare(b, 'es');
     })
+    .map(([category, items]) => ({
+      category,
+      products: sortProducts(items),
+    }));
+}
+
+/**
+ * Agrupa productos en secciones sintetizadas (Equipos / Tóner / Repuestos)
+ * para el dropdown del header.
+ */
+export function groupSearchProductsByPanelSection(
+  products: Product[],
+  query?: string,
+): SearchProductCategoryGroup[] {
+  const groups = new Map<SearchPanelSectionLabel, Product[]>();
+
+  for (const product of products) {
+    const section = resolveSearchPanelSectionLabel(product.category ?? '');
+    const bucket = groups.get(section) ?? [];
+    bucket.push(product);
+    groups.set(section, bucket);
+  }
+
+  const sortProducts = (items: Product[]) => {
+    if (query?.trim()) {
+      return sortProductsBySearchRelevance(items, query);
+    }
+    return [...items].sort((a, b) => compareProductsForSearchPanel(a, b));
+  };
+
+  return Array.from(groups.entries())
+    .sort(
+      ([a], [b]) => getSearchPanelSectionRank(a) - getSearchPanelSectionRank(b),
+    )
     .map(([category, items]) => ({
       category,
       products: sortProducts(items),

@@ -19,14 +19,7 @@ export function InventoryAttributesFieldset({
 }: InventoryAttributesFieldsetProps) {
   const { data: products = [] } = useAdminInventory();
 
-  const nameOptions = useMemo(() => {
-    const catalog = buildAttributeNameCatalog(products);
-    for (const row of attributes) {
-      const name = row.name?.trim();
-      if (name && !catalog.includes(name)) catalog.push(name);
-    }
-    return catalog.sort((a, b) => a.localeCompare(b, 'es'));
-  }, [products, attributes]);
+  const nameOptions = useMemo(() => buildAttributeNameCatalog(products), [products]);
 
   const content = (
     <div className={embedded ? undefined : 'mt-3'}>

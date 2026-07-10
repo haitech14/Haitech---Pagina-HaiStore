@@ -164,7 +164,11 @@ export function Header() {
           <div className="container border-t border-white/15 pb-2.5 pt-2 lg:hidden">
             <SiteSearchForm variant="header-dark" onNavigate={() => setMobileOpen(false)} />
           </div>
-          <HeaderCategoryNav />
+          <HeaderCategoryNav
+            cartCount={totalItems}
+            cartAriaLabel={`Carrito de compras, ${totalItems} artículos, total ${cartTotalAria}`}
+            onOpenCart={openCart}
+          />
         </>
       ) : (
         <>

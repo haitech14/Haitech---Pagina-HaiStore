@@ -26,17 +26,17 @@ function PurchaseModeCard({
       aria-checked={selected}
       onClick={onSelect}
       className={cn(
-        'flex min-h-[3.25rem] w-full items-center gap-2 rounded-lg border-2 px-2.5 py-2 text-left transition-all',
+        'flex min-h-[2.75rem] w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1',
         selected
-          ? 'border-red-600 bg-white'
-          : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300',
+          ? 'border-red-600 bg-red-50/40'
+          : 'border-transparent bg-neutral-50 hover:bg-neutral-100',
       )}
     >
       <Icon
         className={cn(
-          'size-5 shrink-0',
-          selected ? 'text-red-600' : 'text-neutral-600',
+          'size-4 shrink-0',
+          selected ? 'text-red-600' : 'text-neutral-500',
         )}
         strokeWidth={2}
         aria-hidden="true"
@@ -44,13 +44,13 @@ function PurchaseModeCard({
       <span className="min-w-0 flex-1 leading-tight">
         <span
           className={cn(
-            'block text-xs font-bold',
-            selected ? 'text-red-600' : 'text-neutral-900',
+            'block text-xs font-semibold',
+            selected ? 'text-red-600' : 'text-neutral-800',
           )}
         >
           {title}
         </span>
-        <span className="mt-0.5 block text-[0.6875rem] leading-snug text-neutral-500">
+        <span className="mt-0.5 block text-[0.625rem] leading-snug text-neutral-500">
           {subtitle}
         </span>
       </span>

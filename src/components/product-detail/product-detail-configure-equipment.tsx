@@ -34,6 +34,7 @@ import {
   type ConfigureEquipmentCard,
 } from '@/lib/product-configure-equipment-cards';
 import {
+  formatTonerCardDisplayTitle,
   resolveConfigureTonerCards,
   type ConfigureTonerCard,
 } from '@/lib/product-configure-toner';
@@ -132,7 +133,7 @@ function SelectableTonerCard({
       )}
     >
       <h3 className="line-clamp-2 text-pretty text-xs font-bold leading-snug text-[#0f1f3d] sm:text-sm">
-        {card.title}
+        {formatTonerCardDisplayTitle(card.title)}
       </h3>
 
       <div className="mt-2 flex flex-1 gap-2.5">
@@ -671,7 +672,7 @@ export function ProductDetailConfigureEquipment({
           >
             <ul className="flex touch-pan-y gap-2.5 sm:gap-3">
               {purchasableTonerCards.map((card) => (
-                <li key={card.optionId} className={carouselSlideClass}>
+                <li key={`${card.supplyType}-${card.productId}`} className={carouselSlideClass}>
                   <SelectableTonerCard
                     card={card}
                     selected={selectedTonerIds.has(card.optionId)}

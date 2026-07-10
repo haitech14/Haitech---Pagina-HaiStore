@@ -19,8 +19,14 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
-import { formatProductCardTitle } from '@/lib/product-card-title';
-import { formatProductDisplayCode } from '@/lib/product-display-code';
+import { ProductCardBrandLine } from '@/components/product/product-card-title';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
+import {
+  formatProductCardTitle,
+  getProductCardTitleContent,
+  PRODUCT_CARD_CODE_CLASS,
+  PRODUCT_CARD_STOCK_CLASS,
+} from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -52,7 +58,6 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
   const code = product.code ?? catalogProduct?.code ?? null;
   const stock = catalogProduct?.stock ?? product.stock ?? 0;
   const stockCount = Math.max(0, Math.floor(Number(stock) || 0));
-  const showStockLabel = stockCount > 0;
 
   const productSource = {
     id: product.id,
@@ -65,11 +70,9 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
 
   const showBestSellerBadge = productQualifiesForBestSeller(product, catalogProduct);
   const productTitle = formatProductCardTitle(productSource);
-  const sku = formatProductDisplayCode(code, {
-    brand: productSource.brand,
-    category: product.category,
-    name: product.name,
-  });
+  const { brand, code: cardCode } = getProductCardTitleContent(productSource);
+  const badgeLabel = resolveProductCardBadgeLabel(productSource);
+  const outOfStock = stockCount <= 0;
 
   const catalogGallery = catalogProduct?.gallery ?? null;
   const catalogGalleryKey = catalogGallery?.join('|') ?? '';
@@ -207,28 +210,25 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
       </div>
 
       <div className="flex flex-1 flex-col px-3 pb-3 pt-1.5 sm:px-3.5 sm:pb-3.5 sm:pt-2">
+        <ProductCardBrandLine brand={brand} conditionLabel={badgeLabel} />
+
         <Link
           to={detailPath}
-          className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
+          className={cn(
+            'rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+            (brand || badgeLabel) && 'mt-0.5',
+          )}
         >
           <h3 className="line-clamp-2 text-pretty text-left text-sm font-semibold leading-snug text-[#111111]">
             {productTitle}
           </h3>
         </Link>
 
-        <div className="mt-2 flex items-baseline justify-between gap-2">
-          {sku ? (
-            <p className="min-w-0 truncate text-[0.625rem] font-medium tabular-nums text-[#888888] sm:text-[0.6875rem]">
-              {sku}
-            </p>
-          ) : (
-            <span className="min-w-0" />
-          )}
-          {showStockLabel ? (
-            <p className="shrink-0 text-right text-[0.625rem] font-medium tabular-nums text-[#16A34A] sm:text-[0.6875rem]">
-              {stockCount} unids.
-            </p>
-          ) : null}
+        <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
+          {cardCode ? <span className={PRODUCT_CARD_CODE_CLASS}>{cardCode}</span> : <span className="min-w-0" />}
+          <span className={PRODUCT_CARD_STOCK_CLASS}>
+            {outOfStock ? 'A pedido' : `${stockCount} unids.`}
+          </span>
         </div>
 
         <div className="mt-2">

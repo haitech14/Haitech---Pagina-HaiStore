@@ -6,7 +6,7 @@ export const RICOH_TONER_408213 = {
   name: 'CARTUCHO DE TONER MAGENTA ORIGINAL RICOH SP C352',
   brand: 'Ricoh',
   category: 'Toner Original',
-  publicPen: 110.2,
+  publicPen: 376.09,
   stock: 0,
   heroAssetToken: 'ec0f7945',
   galleryAssetTokens: [

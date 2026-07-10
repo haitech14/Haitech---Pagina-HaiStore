@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
+  ExternalLink,
   ListFilter,
   Layers,
   Loader2,
@@ -35,6 +36,7 @@ import { InventoryBulkEditDialog } from '@/components/admin/inventory/inventory-
 import { AdminInventoryProductThumbHoverPreview } from '@/components/admin/inventario/admin-inventory-product-thumb-hover-preview';
 import { AdminInventoryProductThumbImage } from '@/components/admin/inventario/admin-inventory-product-thumb-image';
 import { AdminInventarioCategoryTreePopover } from '@/components/admin/inventario/admin-inventario-category-tree-popover';
+import { AdminInventarioVariantsCell } from '@/components/admin/inventario/admin-inventario-variants-cell';
 import { InventoryAttributesCell } from '@/components/admin/inventory/inventory-attributes-cell';
 import { AdminListasPreciosCategoryCell } from '@/components/admin/inventario/admin-listas-precios-category-cell';
 import { AdminListasPreciosMerchandisingCell } from '@/components/admin/inventario/admin-listas-precios-merchandising-cell';
@@ -96,23 +98,24 @@ import {
   setProductMainMediaUrl,
 } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
+import { buildProductPath } from '@/lib/product-slug';
 import { cn } from '@/lib/utils';
 import type { AdminListaPreciosRoleKey } from '@/types/admin-listas-precios';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct, ProductAttribute } from '@/types/product';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
-/** Orden: Compra → Mayorista → Distribuidor → Público */
+/** Orden: Compra → Mayorista → Técnico → Público */
 const PRICE_ROLES: AdminListaPreciosRoleKey[] = [
   'compra',
   'mayorista',
-  'distribuidor',
+  'tecnico',
   'public',
 ];
 
 const ROLE_HEADER_ICONS = {
   public: User,
-  distribuidor: Building2,
+  tecnico: Building2,
   mayorista: Building2,
   compra: ShoppingCart,
 } as const;
@@ -169,11 +172,6 @@ function PriceColumnHeader({
 }
 
 const BASE_TABLE_COLUMN_COUNT = 15;
-
-function VariantsCountCell() {
-  // Variantes aún no viven en el modelo de inventario.
-  return <span className="text-[0.6875rem] text-muted-foreground">—</span>;
-}
 
 function EditableProductThumb({
   product,
@@ -267,7 +265,7 @@ function EditableProductThumb({
             product={product}
             optimisticSrc={optimisticPreviewSrc}
             className="size-full"
-            loading="eager"
+            loading={optimisticPreviewSrc ? 'eager' : 'lazy'}
           />
         ) : (
           <ProductNoImagePlaceholder size="md" className="w-full max-w-none" />
@@ -346,6 +344,21 @@ export function AdminInventarioTablePanel({
 
   const productsById = useMemo(
     () => new Map(products.map((product) => [product.id, product])),
+    [products],
+  );
+
+  const merchandisingProductById = useMemo(
+    () => new Map(products.map((product) => [product.id, product.name])),
+    [products],
+  );
+
+  const merchandisingCatalog = useMemo(
+    () =>
+      products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        code: product.code,
+      })),
     [products],
   );
 
@@ -915,7 +928,7 @@ export function AdminInventarioTablePanel({
               <TableHead className="h-8 min-w-[4.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
                 Producto
               </TableHead>
-              <TableHead className="h-8 w-[460px] max-w-[460px] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-8 min-w-[22rem] w-[460px] max-w-[460px] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
                 Nombre
               </TableHead>
               <TableHead className="h-8 min-w-[4.5rem] text-center text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -940,10 +953,10 @@ export function AdminInventarioTablePanel({
               <TableHead className="h-8 min-w-[5.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
                 Upsells
               </TableHead>
-              <TableHead className="h-8 min-w-[6rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-8 w-[12rem] max-w-[12rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
                 Atributos
               </TableHead>
-              <TableHead className="h-8 min-w-[4.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-8 min-w-[6.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
                 Variantes
               </TableHead>
               <TableHead className="h-8 w-auto shrink px-1.5 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -1033,7 +1046,7 @@ export function AdminInventarioTablePanel({
                         onUpload={(file) => uploadProductImage(product, file)}
                       />
                     </TableCell>
-                    <TableCell className="max-w-[460px] py-2">
+                    <TableCell className="min-w-[22rem] max-w-[460px] py-2">
                       <AdminListasPreciosNameCell
                         product={product}
                         name={record.name}
@@ -1071,7 +1084,8 @@ export function AdminInventarioTablePanel({
                     <TableCell className="py-2">
                       <AdminListasPreciosMerchandisingCell
                         product={product}
-                        products={products}
+                        catalog={merchandisingCatalog}
+                        productById={merchandisingProductById}
                         kind="cross_sell"
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
@@ -1079,14 +1093,17 @@ export function AdminInventarioTablePanel({
                     <TableCell className="py-2">
                       <AdminListasPreciosMerchandisingCell
                         product={product}
-                        products={products}
+                        catalog={merchandisingCatalog}
+                        productById={merchandisingProductById}
                         kind="upsell"
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>
-                    <TableCell className="py-2">
+                    <TableCell className="w-[12rem] max-w-[12rem] py-2">
                       <InventoryAttributesCell
                         attributes={product.attributes ?? []}
+                        nameOptions={attributeNameOptions}
+                        catalogProducts={products}
                         onSave={async (attributes: ProductAttribute[]) => {
                           await patchProduct(product.id, {
                             attributes: normalizeAttributes(attributes),
@@ -1095,7 +1112,12 @@ export function AdminInventarioTablePanel({
                       />
                     </TableCell>
                     <TableCell className="py-2">
-                      <VariantsCountCell />
+                      <AdminInventarioVariantsCell
+                        product={product}
+                        catalog={merchandisingCatalog}
+                        productById={merchandisingProductById}
+                        onPatch={(patch) => patchProduct(product.id, patch)}
+                      />
                     </TableCell>
                     <TableCell className="w-auto shrink px-1.5 py-2">
                       <AdminListasPreciosStatusBadge
@@ -1125,6 +1147,16 @@ export function AdminInventarioTablePanel({
                           >
                             <Pencil className="size-3.5" aria-hidden="true" />
                             Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <a
+                              href={buildProductPath(product)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="size-3.5" aria-hidden="true" />
+                              Ver el producto
+                            </a>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onSelect={() => void handleDuplicateProduct(product)}

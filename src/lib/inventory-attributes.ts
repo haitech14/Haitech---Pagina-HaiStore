@@ -1,29 +1,27 @@
 import { randomId } from '@/lib/random-id';
 import type { ProductAttribute } from '@/types/product';
 
+/** Nombres seleccionables al agregar/editar atributos en inventario. */
 export const COMMON_ATTRIBUTE_NAMES = [
-  'Tecnología',
+  'Tipo',
   'Color',
-  'Velocidad',
   'Formato',
-  'Formato papel',
   'Condición',
-  'Generación',
-  'Año de Fabricación',
-  'Producción',
-  'Volumen mensual',
-  'Impresión dúplex',
-  'Alimentador (ADF)',
-  'Conectividad',
-  'Memoria',
-  'Capacidad bandeja',
+  'ADF',
 ] as const;
 
 /** Valores sugeridos por nombre de atributo (listas desplegables). */
 export const ATTRIBUTE_PRESET_VALUES: Record<string, readonly string[]> = {
+  Tipo: [
+    'Unidad de imagen',
+    'Tóner',
+    'Repuesto',
+    'Equipo',
+    'Accesorio',
+    'Consumible',
+  ],
   Color: ['Color', 'B/N'],
   Formato: ['A4', 'A3'],
-  'Formato papel': ['A4', 'A3'],
   Condición: [
     'Nueva',
     'Seminueva',
@@ -32,18 +30,7 @@ export const ATTRIBUTE_PRESET_VALUES: Record<string, readonly string[]> = {
     'Compatible',
     'Recarga',
   ],
-  Generación: ['Linea IM', 'Linea Smart'],
-  'Año de Fabricación': ['2024', '2026', '2022', '2014', '2016', '2020'],
-  Producción: [
-    'Basico (>5000 páginas)',
-    'Mediano (15,000 páginas aprox)',
-    'Alta Producción (50,000 páginas aprox)',
-    'Producción (200,000 a 500,000 páginas aprox)',
-  ],
-  'Alimentador (ADF)': ['Estándar', 'Doble Scan'],
-  'Impresión dúplex': ['Sí', 'No', 'Automático'],
-  Tecnología: ['Láser', 'Inkjet', 'Plotter'],
-  Conectividad: ['USB', 'Ethernet', 'Wi-Fi', 'Wi-Fi Direct'],
+  ADF: ['Estándar', 'Doble Scan', 'Sí', 'No'],
 };
 
 export const ATTRIBUTE_CUSTOM_OPTION = '__custom__';
@@ -75,6 +62,19 @@ export function normalizeAttributes(value: unknown): ProductAttribute[] {
     .filter((row): row is ProductAttribute => row != null);
 }
 
+/** Compara atributos normalizados por nombre/valor (ignora ids). */
+export function areAttributesEqual(
+  left: ProductAttribute[] | undefined,
+  right: ProductAttribute[] | undefined,
+): boolean {
+  const a = normalizeAttributes(left);
+  const b = normalizeAttributes(right);
+  if (a.length !== b.length) return false;
+  return a.every(
+    (row, index) => row.name === b[index]?.name && row.value === b[index]?.value,
+  );
+}
+
 export function formatAttributeLabel(attribute: ProductAttribute): string {
   const name = attribute.name?.trim() ?? '';
   const value = attribute.value?.trim() ?? '';
@@ -82,19 +82,14 @@ export function formatAttributeLabel(attribute: ProductAttribute): string {
   return name || value;
 }
 
+/**
+ * Catálogo fijo de nombres para el selector de atributos.
+ * No escanea productos: nombres legacy siguen visibles en preview/custom, pero no en el picker.
+ */
 export function buildAttributeNameCatalog(
-  products: readonly { attributes?: ProductAttribute[] }[],
+  _products?: readonly { attributes?: ProductAttribute[] }[],
 ): string[] {
-  const seen = new Set<string>(COMMON_ATTRIBUTE_NAMES);
-
-  for (const product of products) {
-    for (const attribute of product.attributes ?? []) {
-      const name = attribute.name?.trim();
-      if (name) seen.add(name);
-    }
-  }
-
-  return [...seen].sort((a, b) => a.localeCompare(b, 'es'));
+  return [...COMMON_ATTRIBUTE_NAMES];
 }
 
 export function getAttributeValueOptions(

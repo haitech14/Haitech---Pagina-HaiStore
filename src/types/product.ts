@@ -64,6 +64,8 @@ export interface Product {
   cross_sell_product_ids?: string[];
   /** Productos sugeridos en upselling (carrusel «Configura tu equipo»). */
   upsell_product_ids?: string[];
+  /** Productos vinculados como variantes (mismo modelo / opciones). */
+  variant_product_ids?: string[];
   /** Complementos opcionales sin ficha en inventario (venta cruzada). */
   cross_sell_optional_products?: MerchandisingOptionalProduct[];
   /** Complementos opcionales sin ficha en inventario (upselling). */
@@ -155,6 +157,8 @@ export interface InventoryProduct extends Omit<Product, 'price' | 'price_role' |
   cross_sell_product_ids?: string[];
   /** Upselling: IDs de productos en el carrusel «Configura tu equipo». */
   upsell_product_ids?: string[];
+  /** Productos vinculados como variantes (mismo modelo / opciones). */
+  variant_product_ids?: string[];
   /** Venta cruzada opcional sin inventario. */
   cross_sell_optional_products?: MerchandisingOptionalProduct[];
   /** Upselling opcional sin inventario. */

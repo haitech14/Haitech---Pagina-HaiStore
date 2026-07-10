@@ -347,8 +347,6 @@ export const ADMIN_SIDEBAR_SECTIONS: AdminSidebarMockupSection[] = [
     label: 'OPERACIONES',
     items: [
       { key: 'bandeja', label: 'Bandeja', href: ADMIN_ROUTES.BANDEJA, icon: 'inbox', badge: 'support-open' },
-      { key: 'inventory', label: 'Inventario', href: `${ADMIN_ROUTES.INVENTORY}?vista=stock`, icon: 'package-plus' },
-      { key: 'suppliers', label: 'Proveedores', href: `${ADMIN_ROUTES.INVENTORY}?vista=proveedores`, icon: 'building-2' },
       { key: 'shipping', label: 'Envíos', href: ADMIN_ROUTES.SHIPPING, icon: 'truck' },
     ],
   },

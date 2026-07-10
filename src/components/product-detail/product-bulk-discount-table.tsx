@@ -126,7 +126,6 @@ export function ProductBulkDiscountTable({
                   <td className="px-3 py-2 font-bold">
                     <DualPrice
                       usd={effective.unitUsd}
-                      alwaysBoth
                       className="text-xs font-bold text-foreground sm:text-[0.8125rem]"
                     />
                     <span className="sr-only">{effective.unitUsd} dólares por unidad</span>

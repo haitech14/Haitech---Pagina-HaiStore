@@ -96,10 +96,7 @@ function HeroSlideContent({
 
   if (slide.layout === 'home-landing') {
     return (
-      <HomeLandingHeroSlideContent
-        headingId={headingId}
-        onWhatsAppClick={() => onWhatsAppClick('home-hero-cotizacion')}
-      />
+      <HomeLandingHeroSlideContent headingId={headingId} />
     );
   }
 

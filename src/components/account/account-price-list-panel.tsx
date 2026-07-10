@@ -20,7 +20,7 @@ import { PRICE_ROLE_LABELS, resolvePriceRole, USER_ROLE_LABELS } from '@/lib/rol
 
 export function AccountPriceListPanel() {
   const { role } = useAuth();
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { data: products = [], isLoading } = useProducts();
   const [query, setQuery] = useState('');
 
@@ -111,7 +111,7 @@ export function AccountPriceListPanel() {
                       </Link>
                     </TableCell>
                     <TableCell className="text-right font-semibold tabular-nums text-foreground">
-                      {formatDisplayPriceFromUsd(product.price, displayCurrency)}
+                      {formatDisplayPriceFromUsd(product.price, displayCurrency, dualPriceOrder)}
                     </TableCell>
                   </TableRow>
                 ))}

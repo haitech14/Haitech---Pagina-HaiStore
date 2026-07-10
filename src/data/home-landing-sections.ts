@@ -1,50 +1,8 @@
-import {
-  CalendarDays,
-  Droplets,
-  FileText,
-  Headphones,
-  Printer,
-  ShieldCheck,
-  Truck,
-} from 'lucide-react';
+import { CalendarDays, Droplets, Printer } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
-
-export type HomeLandingBenefitItem = {
-  id: string;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-};
-
-export const HOME_LANDING_BLACK_BENEFITS: HomeLandingBenefitItem[] = [
-  {
-    id: 'entrega',
-    title: 'Entrega rápida',
-    description: 'Envíos a todo el país en 24 a 48 horas.',
-    icon: Truck,
-  },
-  {
-    id: 'soporte',
-    title: 'Soporte técnico especializado',
-    description: 'Asistencia profesional cuando la necesites.',
-    icon: Headphones,
-  },
-  {
-    id: 'garantia',
-    title: 'Garantía asegurada',
-    description: 'Equipos y repuestos con respaldo oficial.',
-    icon: ShieldCheck,
-  },
-  {
-    id: 'facturacion',
-    title: 'Facturación para empresas',
-    description: 'Boletas y facturas para tu contabilidad.',
-    icon: FileText,
-  },
-];
 
 export const HOME_LANDING_SERVICE_FEATURES = [
   'Mantenimiento preventivo',

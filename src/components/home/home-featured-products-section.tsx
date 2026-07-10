@@ -135,7 +135,7 @@ function getVariantConfig(variant: FeaturedVariant): FeaturedVariantConfig {
   if (variant === 'consumables') {
     return {
       variant: 'consumables',
-      title: 'Explora nuestras categorías de Consumibles y Repuestos',
+      title: 'Amplio Stock en Toner y Repuestos',
       catalogLink: HOME_LANDING_LINKS.tonerCatalog,
       catalogLinkLabel: 'Ver catálogo de tóner',
       emptyMessage: 'No hay consumibles en esta categoría por ahora.',
@@ -277,6 +277,29 @@ function HomeFeaturedProductsCarousel({ products }: { products: FeaturedProduct[
   );
 }
 
+function HomeFeaturedCatalogLink({
+  to,
+  label,
+  className,
+}: {
+  to: string;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className={cn(
+        'inline-flex min-h-9 shrink-0 items-center justify-center gap-1 text-sm font-semibold text-[#E30613] transition-colors hover:text-[#ff4d57] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 focus-visible:ring-offset-white',
+        className,
+      )}
+    >
+      {label}
+      <ArrowRight className="size-3.5" aria-hidden="true" />
+    </Link>
+  );
+}
+
 function HomeFeaturedConditionFilters<T extends string>({
   filters,
   activeFilter,
@@ -284,6 +307,8 @@ function HomeFeaturedConditionFilters<T extends string>({
   ariaLabel = 'Filtros por condición',
   size = 'default',
   counts,
+  align = 'center',
+  className,
 }: {
   filters: ReadonlyArray<{ id: T; label: string }>;
   activeFilter: T;
@@ -291,13 +316,25 @@ function HomeFeaturedConditionFilters<T extends string>({
   ariaLabel?: string;
   size?: 'default' | 'compact';
   counts?: Partial<Record<T, number>>;
+  align?: 'center' | 'start';
+  className?: string;
 }) {
   const isCompact = size === 'compact';
 
   return (
-    <div className="mb-4 flex justify-center overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-5 [&::-webkit-scrollbar]:hidden">
+    <div
+      className={cn(
+        'mb-4 flex overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-5 [&::-webkit-scrollbar]:hidden',
+        align === 'start' ? 'justify-start' : 'justify-center',
+        className,
+      )}
+    >
       <div
-        className={cn('flex justify-center', isCompact ? 'gap-1.5 sm:gap-2' : 'gap-1 sm:gap-1.5')}
+        className={cn(
+          'flex',
+          align === 'start' ? 'justify-start' : 'justify-center',
+          isCompact ? 'gap-1.5 sm:gap-2' : 'gap-1 sm:gap-1.5',
+        )}
         role="tablist"
         aria-label={ariaLabel}
       >
@@ -707,18 +744,25 @@ export function HomeFeaturedProductsSection({
           <span className="hidden sm:block" aria-hidden="true" />
           <h2
             id={titleId}
-            className="home-section-title text-center text-xl font-bold tracking-tight text-[#111111] sm:text-2xl lg:text-[1.75rem] lg:leading-none"
+            className={cn(
+              'home-section-title text-center font-bold tracking-tight text-[#111111]',
+              config.variant === 'consumables'
+                ? 'text-lg sm:text-xl lg:text-2xl lg:leading-none'
+                : 'text-xl sm:text-2xl lg:text-[1.75rem] lg:leading-none',
+            )}
           >
             {config.title}
           </h2>
 
-          <Link
-            to={config.catalogLink}
-            className="inline-flex min-h-9 items-center justify-center gap-1 self-center text-sm font-semibold text-[#E30613] transition-colors hover:text-[#ff4d57] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:justify-self-end sm:self-auto"
-          >
-            {config.catalogLinkLabel}
-            <ArrowRight className="size-3.5" aria-hidden="true" />
-          </Link>
+          {config.variant === 'equipment' ? (
+            <HomeFeaturedCatalogLink
+              to={config.catalogLink}
+              label={config.catalogLinkLabel}
+              className="self-center sm:justify-self-end sm:self-auto"
+            />
+          ) : (
+            <span className="hidden sm:block" aria-hidden="true" />
+          )}
         </div>
 
         {config.variant === 'equipment' ? (
@@ -749,12 +793,21 @@ export function HomeFeaturedProductsSection({
               fullWidthCarousel
               carouselSlideClass={CONSUMABLES_CATEGORY_CAROUSEL_SLIDE_CLASS}
             />
-            <HomeFeaturedConditionFilters
-              filters={config.conditionFilters}
-              activeFilter={activeCondition as HomeFeaturedConsumablesConditionFilterId}
-              onFilterChange={setActiveCondition}
-              size="compact"
-            />
+            <div className="mb-4 grid grid-cols-1 items-center gap-y-2 sm:mb-5 sm:grid-cols-[1fr_auto_1fr] sm:gap-x-4">
+              <span className="hidden sm:block" aria-hidden="true" />
+              <HomeFeaturedConditionFilters
+                filters={config.conditionFilters}
+                activeFilter={activeCondition as HomeFeaturedConsumablesConditionFilterId}
+                onFilterChange={setActiveCondition}
+                size="compact"
+                className="mb-0 col-span-full sm:col-span-1 sm:col-start-2"
+              />
+              <HomeFeaturedCatalogLink
+                to={config.catalogLink}
+                label={config.catalogLinkLabel}
+                className="col-span-full justify-self-end sm:col-span-1 sm:col-start-3 sm:justify-self-end"
+              />
+            </div>
           </>
         )}
 

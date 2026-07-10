@@ -22,17 +22,39 @@ function FeaturedDualCurrencyLine({
   separatorClassName?: string;
   strikethrough?: boolean;
 }) {
+  const { dualPriceOrder } = useDisplayCurrency();
+  const penFirst = dualPriceOrder === 'pen-usd';
   const strike = strikethrough
     ? 'line-through decoration-[#888888] decoration-solid'
     : undefined;
 
+  const usdSpan = (
+    <span className={cn(usdClassName, strike)}>{formatUsd(usd)}</span>
+  );
+  const penSpan = (
+    <span className={cn(penClassName, strike)}>{formatPenFromUsd(usd)}</span>
+  );
+  const separator = (
+    <span className={cn('font-normal', separatorClassName)} aria-hidden="true">
+      ·
+    </span>
+  );
+
   return (
     <span className="inline-flex flex-nowrap items-baseline gap-2 whitespace-nowrap">
-      <span className={cn(usdClassName, strike)}>{formatUsd(usd)}</span>
-      <span className={cn('font-normal', separatorClassName)} aria-hidden="true">
-        ·
-      </span>
-      <span className={cn(penClassName, strike)}>{formatPenFromUsd(usd)}</span>
+      {penFirst ? (
+        <>
+          {penSpan}
+          {separator}
+          {usdSpan}
+        </>
+      ) : (
+        <>
+          {usdSpan}
+          {separator}
+          {penSpan}
+        </>
+      )}
     </span>
   );
 }

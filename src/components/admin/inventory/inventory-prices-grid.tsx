@@ -1,4 +1,7 @@
+import { Info } from 'lucide-react';
+
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useLinkedPenUsdPrice } from '@/hooks/use-linked-pen-usd-price';
 import {
@@ -9,7 +12,6 @@ import {
 import { cn } from '@/lib/utils';
 import {
   PRICE_ROLE_LABELS,
-  PRICE_ROLES_EDIT_ORDER,
   type PriceRole,
   type ProductRolePrices,
 } from '@/types/product';
@@ -22,14 +24,11 @@ interface InventoryPricesGridProps {
   purchaseFromSuppliers?: boolean;
 }
 
-type PriceColumn = 'purchase' | PriceRole;
-
-const PRICE_COLUMNS: { key: PriceColumn; label: string }[] = [
-  { key: 'purchase', label: 'Compra' },
-  ...PRICE_ROLES_EDIT_ORDER.map((role) => ({
-    key: role,
-    label: PRICE_ROLE_LABELS[role],
-  })),
+/** Sale columns matching the mockup: Público · Mayorista · Técnico. */
+const SALE_PRICE_COLUMNS: { key: PriceRole; label: string }[] = [
+  { key: 'public', label: PRICE_ROLE_LABELS.public },
+  { key: 'mayorista', label: PRICE_ROLE_LABELS.mayorista },
+  { key: 'tecnico', label: PRICE_ROLE_LABELS.tecnico },
 ];
 
 function UsdPriceInput({
@@ -142,73 +141,89 @@ export function InventoryPricesGrid({
       getUsdToPenPurchaseRate(),
   );
   const purchaseUsd = Number(purchasePriceUsd) || 0;
-
-  const columnTemplate = `3.25rem repeat(${PRICE_COLUMNS.length}, minmax(0, 1fr))`;
-
-  const getUsdValue = (key: PriceColumn) =>
-    key === 'purchase' ? purchaseUsd : Number(prices[key]) || 0;
-
-  const handleUsdChange = (key: PriceColumn, value: string) => {
-    if (key === 'purchase') {
-      onPurchaseChange(value);
-      return;
-    }
-    onPriceChange(key, value);
-  };
+  const saleColumnTemplate = `3.25rem repeat(${SALE_PRICE_COLUMNS.length}, minmax(0, 1fr))`;
 
   return (
-    <div className="space-y-3">
-      <div className="overflow-x-auto">
-        <div className="min-w-[32rem] space-y-2.5">
-          <div className="grid gap-2" style={{ gridTemplateColumns: columnTemplate }}>
-            <div />
-            {PRICE_COLUMNS.map((column) => (
-              <p
-                key={column.key}
-                className="px-0.5 text-center text-xs font-medium text-muted-foreground"
-              >
-                {column.label}
-              </p>
-            ))}
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Precio de compra</Label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-muted-foreground">USD</p>
+            <UsdPriceInput
+              id="price-purchase-usd"
+              value={purchaseUsd}
+              onChange={onPurchaseChange}
+              readOnly={purchaseFromSuppliers}
+            />
           </div>
-
-          <div className="grid gap-2" style={{ gridTemplateColumns: columnTemplate }}>
-            <p className="flex items-center text-xs font-semibold text-muted-foreground">USD</p>
-            {PRICE_COLUMNS.map((column) => (
-              <UsdPriceInput
-                key={`usd-${column.key}`}
-                id={`price-${column.key}-usd`}
-                value={getUsdValue(column.key)}
-                onChange={(value) => handleUsdChange(column.key, value)}
-                readOnly={column.key === 'purchase' && purchaseFromSuppliers}
-                required={column.key === 'public'}
-              />
-            ))}
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-muted-foreground">PEN</p>
+            <PenPriceInput
+              id="price-purchase-pen"
+              usdValue={purchaseUsd}
+              onUsdChange={onPurchaseChange}
+              exchangeRate={purchaseRate}
+              readOnly={purchaseFromSuppliers}
+              useCharm={false}
+            />
           </div>
+        </div>
+        {purchaseFromSuppliers ? (
+          <p className="text-xs text-muted-foreground">
+            El costo de compra se calcula del menor valor entre proveedores.
+          </p>
+        ) : null}
+      </div>
 
-          <div className="grid gap-2" style={{ gridTemplateColumns: columnTemplate }}>
-            <p className="flex items-center text-xs font-semibold text-muted-foreground">PEN</p>
-            {PRICE_COLUMNS.map((column) => (
-              <PenPriceInput
-                key={`pen-${column.key}`}
-                id={`price-${column.key}-pen`}
-                usdValue={getUsdValue(column.key)}
-                onUsdChange={(value) => handleUsdChange(column.key, value)}
-                exchangeRate={column.key === 'purchase' ? purchaseRate : saleRate}
-                readOnly={column.key === 'purchase' && purchaseFromSuppliers}
-                useCharm={column.key !== 'purchase'}
-              />
-            ))}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Precios de venta (PEN)</Label>
+        <div className="overflow-x-auto rounded-md border border-border/60 bg-muted/10 p-3">
+          <div className="min-w-[28rem] space-y-2.5">
+            <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
+              <p className="flex items-center text-xs font-medium text-muted-foreground">Rol</p>
+              {SALE_PRICE_COLUMNS.map((column) => (
+                <p
+                  key={column.key}
+                  className="px-0.5 text-center text-xs font-medium text-muted-foreground"
+                >
+                  {column.label}
+                </p>
+              ))}
+            </div>
+
+            <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
+              <p className="flex items-center text-xs font-semibold text-muted-foreground">USD</p>
+              {SALE_PRICE_COLUMNS.map((column) => (
+                <UsdPriceInput
+                  key={`usd-${column.key}`}
+                  id={`price-${column.key}-usd`}
+                  value={Number(prices[column.key]) || 0}
+                  onChange={(value) => onPriceChange(column.key, value)}
+                  required={column.key === 'public'}
+                />
+              ))}
+            </div>
+
+            <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
+              <p className="flex items-center text-xs font-semibold text-muted-foreground">PEN</p>
+              {SALE_PRICE_COLUMNS.map((column) => (
+                <PenPriceInput
+                  key={`pen-${column.key}`}
+                  id={`price-${column.key}-pen`}
+                  usdValue={Number(prices[column.key]) || 0}
+                  onUsdChange={(value) => onPriceChange(column.key, value)}
+                  exchangeRate={saleRate}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Puedes ingresar el precio en dólares o en soles; al editar una moneda se actualiza la otra
-        según el tipo de cambio configurado. Los precios de venta en soles se redondean a la
-        centésima más cercana terminada en 9 (ej. 10.04 → 10.09) al salir del campo. El precio de
-        compra usa el tipo de cambio de compra sin ese redondeo.
-        {purchaseFromSuppliers ? ' El costo de compra se calcula del menor valor entre proveedores.' : ''}
+      <p className="flex items-start gap-2 rounded-md border border-sky-200/80 bg-sky-50 px-3 py-2.5 text-xs leading-relaxed text-sky-900">
+        <Info className="mt-0.5 size-3.5 shrink-0 text-sky-600" aria-hidden="true" />
+        Los precios de venta se redondean a la centésima más cercana.
       </p>
     </div>
   );

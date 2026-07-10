@@ -11,6 +11,7 @@ import {
   probeHaiSupportConnection,
 } from './lib/haitech-integrations-config.js';
 import { getSupabaseAdmin, isSupabaseAuthEnabled } from './lib/supabase-auth.js';
+import { MAX_PRODUCT_UPLOAD_JSON_BODY } from '../shared/product-media-upload-limits.js';
 import { supportRouter } from './routes/support.js';
 import { productsRouter } from './routes/products.js';
 import { authRouter } from './routes/auth.js';
@@ -47,8 +48,8 @@ app.use(
     },
   }),
 );
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+app.use(express.json({ limit: MAX_PRODUCT_UPLOAD_JSON_BODY }));
+app.use(express.urlencoded({ extended: true, limit: MAX_PRODUCT_UPLOAD_JSON_BODY }));
 
 app.use((req, _res, next) => {
   console.log(`[api] ${req.method} ${req.url}`);

@@ -89,27 +89,53 @@ function fuzzySubstringScore(needle, haystackCompact) {
   return best;
 }
 
-const EQUIPMENT_MODEL_PREFIX_PATTERN = /(?:^|[^a-z])(mp|im|sp|aficio)(\d{3,5})(\d{3})?(?:v)?(?=[^a-z]|$)/gi;
+/** mp2501, mpc407, mp c407 220v — optional series letter between prefix and digits. */
+const EQUIPMENT_MODEL_PREFIX_PATTERN =
+  /(?:^|[^a-z])(mp|im|sp|aficio)\s*([a-z]?)(\d{3,5})\s*(\d{3})?(?:v)?(?=[^a-z]|$)/gi;
 
-function extractEquipmentModelTokens(compactText) {
+function extractEquipmentModelTokens(text) {
   const tokens = new Set();
-  for (const match of compactText.matchAll(EQUIPMENT_MODEL_PREFIX_PATTERN)) {
-    const [, prefix, modelDigits, voltageDigits] = match;
+  for (const match of String(text ?? '').matchAll(EQUIPMENT_MODEL_PREFIX_PATTERN)) {
+    const [, prefix, seriesLetter, modelDigits, voltageDigits] = match;
     const prefixLower = prefix.toLowerCase();
-    tokens.add(`${prefixLower}${modelDigits}`);
+    const series = (seriesLetter || '').toLowerCase();
+    tokens.add(`${prefixLower}${series}${modelDigits}`);
+    if (series) tokens.add(`${series}${modelDigits}`);
     tokens.add(modelDigits);
     if (voltageDigits) {
-      tokens.add(`${prefixLower}${modelDigits}${voltageDigits}`);
+      tokens.add(`${prefixLower}${series}${modelDigits}${voltageDigits}`);
     }
   }
   return [...tokens];
 }
 
-function extractModelTokens(compactText) {
-  const tokens = new Set(extractEquipmentModelTokens(compactText));
-  for (const match of compactText.match(/[a-z]*\d+[a-z0-9]*/gi) ?? []) {
-    tokens.add(match.toLowerCase());
+/**
+ * Extrae tokens de modelo desde texto con espacios y desde compacto.
+ * Importante: no tokenizar solo el haystack compacto — al pegar palabras,
+ * `mp c407 220v` vira un solo token y `407` deja de coincidir con `c407`.
+ */
+function extractModelTokens(text, compactText = null) {
+  const spaced = String(text ?? '');
+  const compact = compactText ?? spaced.replace(/\s+/g, '');
+  const tokens = new Set(extractEquipmentModelTokens(spaced));
+  for (const token of extractEquipmentModelTokens(compact)) tokens.add(token);
+
+  for (const word of spaced.split(/\s+/)) {
+    if (!word || !/\d/.test(word)) continue;
+    const cleaned = word.replace(/[^a-z0-9]+/gi, '').toLowerCase();
+    if (!cleaned || cleaned.length > 24) continue;
+    tokens.add(cleaned);
+    for (const match of cleaned.match(/[a-z]*\d+[a-z0-9]*/gi) ?? []) {
+      tokens.add(match.toLowerCase());
+    }
   }
+
+  // Islas cortas en compacto (evita tragar todo el haystack como un solo token).
+  for (const match of compact.matchAll(/[a-z]{0,6}\d{3,5}(?:(?:220|110|100|240)v?|v)?/gi)) {
+    const island = match[0].toLowerCase();
+    if (island.length >= 3 && island.length <= 16) tokens.add(island);
+  }
+
   return [...tokens];
 }
 
@@ -143,7 +169,19 @@ function numericPartMatches(termDigits, tokenDigits) {
 function numericTermMatchesModelToken(term, token) {
   if (!term || !token || !/^\d+$/.test(term)) return false;
   if (token === term) return true;
-  return numericPartMatches(term, token.replace(/^[a-z]+/i, ''));
+
+  const strippedLeading = token.replace(/^[a-z]+/i, '');
+  if (numericPartMatches(term, strippedLeading)) return true;
+  if (numericPartMatches(term, strippedLeading.replace(/v$/i, ''))) return true;
+
+  // Subcadenas numéricas dentro de tokens alfanuméricos (p. ej. 407 ⊂ c407 / mpc407).
+  if (/[a-z]/i.test(token)) {
+    for (const digits of token.match(/\d+/g) ?? []) {
+      if (numericPartMatches(term, digits)) return true;
+    }
+  }
+
+  return false;
 }
 
 /** Evita que «c6000» coincida con el token numérico «600» o «6000» sin prefijo de letras. */
@@ -197,7 +235,7 @@ function termMatchesHaystack(
   }
 
   if (/\d/.test(term)) {
-    const tokens = modelTokens ?? extractModelTokens(haystackCompact);
+    const tokens = modelTokens ?? extractModelTokens(haystack, haystackCompact);
     for (const token of tokens) {
       if (isNumericTerm) {
         if (numericTermMatchesModelToken(term, token)) return true;
@@ -280,8 +318,8 @@ function isUnrelatedCategoryForPrinterModelSearch(product) {
 
 function productHasNumericModelTokenMatch(product, compactQuery) {
   if (!/^\d+$/.test(compactQuery)) return false;
-  const nameCompact = compactSearchText(product.name ?? '');
-  const tokens = extractModelTokens(nameCompact);
+  const name = normalizeCatalogSearchText(product.name ?? '');
+  const tokens = extractModelTokens(name, compactSearchText(name));
   return tokens.some((token) => numericTermMatchesModelToken(compactQuery, token));
 }
 
@@ -570,7 +608,7 @@ function compareSearchResultEntries(a, b, query) {
 
 function countTermsMatched(terms, text, compact, { allowFuzzy = true } = {}) {
   if (terms.length === 0) return 0;
-  const modelTokens = /\d/.test(terms.join('')) ? extractModelTokens(compact) : null;
+  const modelTokens = /\d/.test(terms.join('')) ? extractModelTokens(text, compact) : null;
   return terms.filter((term) =>
     termMatchesHaystack(term, text, compact, modelTokens, { allowFuzzy }),
   ).length;
@@ -697,7 +735,7 @@ function resolveProductHaystackFields(product) {
   const rawHaystack = productSearchHaystack(product);
   const haystack = normalizeCatalogSearchText(rawHaystack);
   const haystackCompact = compactSearchText(haystack);
-  const modelTokens = extractModelTokens(haystackCompact);
+  const modelTokens = extractModelTokens(haystack, haystackCompact);
   const fields = { haystack, haystackCompact, modelTokens };
 
   if (typeof id === 'string' && id.length > 0) {

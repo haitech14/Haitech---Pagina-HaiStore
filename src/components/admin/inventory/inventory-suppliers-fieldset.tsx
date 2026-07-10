@@ -77,7 +77,7 @@ export function InventorySuppliersFieldset({
                 >
                   <InventorySupplierCombobox
                     id={nameId}
-                    label={`Proveedor ${index + 1}`}
+                    label={index === 0 ? 'Proveedor principal' : `Proveedor ${index + 1}`}
                     value={supplier.name}
                     onChange={(name) => updateSupplier(supplier.id, { name })}
                     options={mergedCatalog}

@@ -3,7 +3,6 @@ import {
   BookOpen,
   Cloud,
   Copy,
-  Droplets,
   FileText,
   Gauge,
   Inbox,
@@ -29,12 +28,12 @@ import {
   inferPpmLabelFromRicohModelName,
   resolveRicohMonthlyProductionFromModel,
 } from '@/lib/ricoh-model-ppm';
+import { M320F_DESCRIPTION } from '@/lib/m320f-description-story';
 import {
   applyTitlePredominanceToSpecs,
   resolveTitlePredominantPrinterFields,
   shouldPreferTitleSyncedHeroBullets,
 } from '@/lib/product-title-spec-sync';
-import { extractProductYield, formatYieldLabel } from '@/lib/product-cost-per-copy';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import {
   CASETERA_250_PB1110_PRODUCT_ID,
@@ -45,9 +44,11 @@ import {
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
   IM550F_ORIGINAL_TONER_PRODUCT_ID,
+  IM_C320F_EQUIPMENT_PRODUCT_ID,
   M320F_COMPATIBLE_TONER_PRODUCT_ID,
   M320F_EQUIPMENT_PRODUCT_ID,
   M320F_ORIGINAL_TONER_PRODUCT_ID,
+  MPC407_EQUIPMENT_PRODUCT_ID,
   ROUTER_WIFI_PRODUCT_ID,
   TALL_CABINET_IM430_PRODUCT_ID,
   TALL_CABINET_IM550_PRODUCT_ID,
@@ -117,7 +118,8 @@ const IM430F_BULLETS = [
 
 const IM_BN_A4_FORMAT_BULLET: ProductHeroSpecBullet = {
   icon: FileText,
-  text: 'Formato A4, A5, A6 Bypass Formato A4-Carta',
+  label: 'Formato',
+  value: 'A4, A5, A6 / Bypass 80 - 300 gr',
 };
 
 const IM_BN_A4_MONTHLY_PRODUCTION_BULLET: ProductHeroSpecBullet = {
@@ -125,8 +127,6 @@ const IM_BN_A4_MONTHLY_PRODUCTION_BULLET: ProductHeroSpecBullet = {
   label: 'Producción mensual',
   value: '50,000 páginas',
 };
-
-const DEFAULT_TONER_YIELD_DESCRIPTION = '7,000 páginas';
 
 const IM430F_HERO_LEAD = '';
 
@@ -177,89 +177,38 @@ function resolveFormatFeatureBarTile(
   return { title: format, subtitle: 'Formato de impresión' };
 }
 
+function resolvePaperFormatSpecValue(specs: ProductSpecRow[]): string {
+  const preferred = specs.find((entry) => {
+    const label = entry.label.toLowerCase();
+    const value = entry.value?.trim() ?? '';
+    if (!value) return false;
+    if (/tiff|jpeg|pdf|png/i.test(value) && !/\ba[345]\b/i.test(value)) return false;
+    return (
+      /^formato(\s+de\s+papel)?$/i.test(entry.label.trim()) ||
+      /formato\s*(de\s*)?papel/i.test(label) ||
+      (/^formato$/i.test(entry.label.trim()) && /\ba[345]\b/i.test(value))
+    );
+  });
+  return preferred?.value?.trim() ?? '';
+}
+
 function resolveFormatBulletText(product: Product, specs: ProductSpecRow[]): string {
   const titleSync = resolveTitlePredominantPrinterFields(product);
   if (titleSync.active && titleSync.format) {
     if (titleSync.format === 'A4') {
-      return IM_BN_A4_FORMAT_BULLET.text ?? 'Formato A4, A5, A6 Bypass Formato A4-Carta';
+      return `Formato ${IM_BN_A4_FORMAT_BULLET.value}`;
     }
     return `Formato ${titleSync.format}`;
   }
 
   const format =
-    specValue(specs, 'formato') || findProductAttribute(product, 'formato') || '';
-  if (!format || format.toLowerCase().includes('a4')) {
-    return IM_BN_A4_FORMAT_BULLET.text ?? 'Formato A4, A5, A6 Bypass Formato A4-Carta';
+    resolvePaperFormatSpecValue(specs) ||
+    findProductAttribute(product, 'formato papel', 'formato') ||
+    '';
+  if (!format || /a4/i.test(format) || /tiff|jpeg|pdf/i.test(format)) {
+    return `Formato ${IM_BN_A4_FORMAT_BULLET.value}`;
   }
   return `Formato ${format}`;
-}
-
-function formatTonerYieldDescription(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-
-  const yieldInfo = extractProductYield({ name: trimmed, attributes: [], description: trimmed });
-  const formatted = formatYieldLabel(yieldInfo.pages, yieldInfo.label);
-  if (formatted !== '—') return formatted;
-  if (/p[aá]ginas?/i.test(trimmed)) return trimmed;
-  return null;
-}
-
-function parseStarterTonerYieldFromDescription(description: string | null | undefined): string | null {
-  if (!description?.trim()) return null;
-
-  for (const line of description.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!/toner|t[oó]ner/i.test(trimmed) || /regalo/i.test(trimmed)) continue;
-    const formatted = formatTonerYieldDescription(trimmed);
-    if (formatted) return formatted;
-  }
-
-  return null;
-}
-
-function resolveKnownStarterTonerYield(product: Product): string | null {
-  if (isIm430f(product)) return '8,000 páginas';
-  if (isM320f(product)) return '5,600 páginas';
-  return null;
-}
-
-function resolveTonerYieldBulletDescription(product: Product, specs: ProductSpecRow[]): string {
-  const fromSpec = specValue(
-    specs,
-    'rendimiento de toner',
-    'rendimiento toner',
-    'rendimiento tóner',
-    'toner de inicio',
-    'toner inicio',
-    'tóner de inicio',
-  );
-  if (fromSpec) {
-    const formatted = formatTonerYieldDescription(fromSpec);
-    if (formatted) return formatted;
-  }
-
-  const fromAttr = findProductAttribute(
-    product,
-    'rendimiento toner',
-    'rendimiento tóner',
-    'rendimiento de toner',
-    'toner inicio',
-    'toner de inicio',
-    'tóner de inicio',
-  );
-  if (fromAttr) {
-    const formatted = formatTonerYieldDescription(fromAttr);
-    if (formatted) return formatted;
-  }
-
-  const fromKnown = resolveKnownStarterTonerYield(product);
-  if (fromKnown) return fromKnown;
-
-  const fromDescription = parseStarterTonerYieldFromDescription(product.description);
-  if (fromDescription) return fromDescription;
-
-  return DEFAULT_TONER_YIELD_DESCRIPTION;
 }
 
 function resolveMonthlyProductionBullet(
@@ -383,11 +332,10 @@ function buildPrinterFeatureBar(product: Product, specs: ProductSpecRow[]): Prod
 
 function resolveHeroFormatValue(product: Product, specs: ProductSpecRow[]): string {
   const raw = resolveFormatBulletText(product, specs).replace(/^Formato\s+/i, '');
-  const a4Match = raw.match(/A4[^,]*/i);
-  if (a4Match && /a5|a6/i.test(raw)) {
-    return 'A4, A5, A6';
+  if (/a4/i.test(raw) || /bypass/i.test(raw) || !raw) {
+    return 'A4, A5, A6 / Bypass 80 - 300 gr';
   }
-  return raw.replace(/\s+bypass.*/i, '').trim() || 'A4, A5, A6';
+  return raw.trim();
 }
 
 function resolveHeroConnectivityValue(specs: ProductSpecRow[]): string {
@@ -421,7 +369,7 @@ function buildPrinterHeroSpecBullets(product: Product, specs: ProductSpecRow[]):
     },
     {
       icon: FileText,
-      label: 'Formato de Papel',
+      label: 'Formato',
       value: resolveHeroFormatValue(product, specs),
     },
     {
@@ -433,11 +381,6 @@ function buildPrinterHeroSpecBullets(product: Product, specs: ProductSpecRow[]):
       icon: Gauge,
       label: 'Producción mensual',
       value: resolveHeroMonthlyProductionValue(product, specs),
-    },
-    {
-      icon: Droplets,
-      label: 'Rendimiento de tóner',
-      value: resolveTonerYieldBulletDescription(product, specs),
     },
   ];
 }
@@ -458,15 +401,12 @@ function postProcessHeroSpecBullets(
     if (/regalo/i.test(line)) return false;
     if (/alimentador de originales/i.test(line) && !/ppm/i.test(line)) return false;
     if (/\bspdf\b/i.test(line) && !/ppm|velocidad/i.test(line)) return false;
+    if (/rendimiento de t[oó]ner/i.test(line)) return false;
     return true;
   });
 
   const processed = cleaned.map((bullet) => {
     let next = bullet;
-
-    if (next.label === 'Formato') {
-      next = { ...next, label: 'Formato de Papel' };
-    }
 
     const line = heroBulletLine(next);
     const isSpeed =
@@ -635,17 +575,18 @@ const IM430F_SPECS: ProductSpecRow[] = [
   { label: 'Volumen mensual recomendado', value: 'Hasta 10,000 páginas' },
 ];
 
-const M320F_SPECS: ProductSpecRow[] = [
-  { section: 'Especificaciones Generales', label: 'Tiempo de calentamiento', value: '30 s' },
-  { section: 'Especificaciones Generales', label: 'Primera copia B/N', value: 'Menos de 8 s' },
-  { section: 'Especificaciones Generales', label: 'Velocidad continua', value: '32 ppm' },
-  { section: 'Especificaciones Generales', label: 'Memoria', value: '256 MB' },
-  { section: 'Especificaciones Generales', label: 'HDD', value: 'Opcional' },
-  { section: 'Especificaciones Generales', label: 'SPDF', value: '35 hojas' },
-  { section: 'Especificaciones Generales', label: 'Dimensiones', value: '404 x 391 x 419 mm' },
-  { section: 'Especificaciones Generales', label: 'Peso', value: '18 kg' },
-  { section: 'Especificaciones Generales', label: 'Fuente de energía', value: '220-240V / 12A / 60Hz' },
-  { section: 'Especificaciones Generales', label: 'CPU', value: 'QB6640-23UF 1.2GHz.' },
+/** Ficha técnica tipo datasheet (mockup Especificaciones técnicas). */
+const DATASHEET_CORE_SPECS: ProductSpecRow[] = [
+  { section: 'General', label: 'Tiempo de calentamiento', value: '30 s' },
+  { section: 'General', label: 'Primera copia B/N', value: 'Menos de 8 s' },
+  { section: 'General', label: 'Velocidad continua', value: '32 ppm' },
+  { section: 'General', label: 'Memoria', value: '256 MB' },
+  { section: 'General', label: 'HDD', value: 'Opcional' },
+  { section: 'General', label: 'SPDF', value: '35 hojas' },
+  { section: 'General', label: 'Dimensiones', value: '404 x 391 x 419 mm' },
+  { section: 'General', label: 'Peso', value: '18 kg' },
+  { section: 'General', label: 'Fuente de energía', value: '220-240V / 12A / 50Hz' },
+  { section: 'General', label: 'CPU', value: 'QB6640-23UF 1.2GHz' },
   { section: 'Impresora', label: 'Lenguajes estándar', value: 'PCL5e, PCL6, PS3, PDF Direct' },
   { section: 'Impresora', label: 'Lenguajes opcionales', value: 'Adobe PS3 genuino, IPDS' },
   { section: 'Impresora', label: 'Resolución', value: '1200 x 1200 dpi' },
@@ -661,50 +602,82 @@ const M320F_SPECS: ProductSpecRow[] = [
   { section: 'Manejo de Papel', label: 'Entrada estándar', value: '300 hojas' },
   { section: 'Manejo de Papel', label: 'Máxima entrada', value: '550 hojas' },
   { section: 'Manejo de Papel', label: 'Salida', value: '250 hojas' },
-  { section: 'Manejo de Papel', label: 'Tamaños', value: 'A6–A4, B6–B5, personalizados' },
+  { section: 'Manejo de Papel', label: 'Tamaños', value: 'A6-A4, B6-B5, personalizados' },
   { section: 'Manejo de Papel', label: 'Peso admitido', value: '52 - 162 g/m2' },
-  { section: 'Consumo Eléctrico', label: 'Consumo máximo', value: '520 W' },
-  { section: 'Consumo Eléctrico', label: 'Operación', value: '514 W' },
-  { section: 'Consumo Eléctrico', label: 'Reposo', value: '0,87 W' },
-  { section: 'Consumo Eléctrico', label: 'TEC', value: '0.423 kWh' },
+];
+
+const MONO_CONSUMIBLE_SPECS: ProductSpecRow[] = [
+  { section: 'Consumibles', label: 'Cartucho de toner', value: '3500 páginas' },
+  { section: 'Consumibles', label: 'Norma', value: 'ISO/IEC 19752' },
+];
+
+const COLOR_CONSUMIBLE_SPECS: ProductSpecRow[] = [
+  { section: 'Consumibles', label: 'Cartucho Cyan', value: '3500 páginas' },
+  { section: 'Consumibles', label: 'Cartucho Magenta', value: '3500 páginas' },
+  { section: 'Consumibles', label: 'Cartucho Amarillo', value: '3500 páginas' },
+  { section: 'Consumibles', label: 'Cartucho Negro', value: '3500 páginas' },
+  { section: 'Consumibles', label: 'Norma', value: 'ISO/IEC 19752' },
+];
+
+const M320F_SPECS: ProductSpecRow[] = [
+  ...DATASHEET_CORE_SPECS,
   { section: 'Consumibles', label: 'Cartucho de toner', value: '5,600 páginas' },
   { section: 'Consumibles', label: 'Norma', value: 'ISO/IEC 19752' },
 ];
 
-export const DEFAULT_TRUST_WARRANTY_LABEL = '12 meses y/o 30,000 páginas';
+function buildDatasheetSpecs(product: Product): ProductSpecRow[] {
+  const rows = DATASHEET_CORE_SPECS.map((row) => ({ ...row }));
+  const speedAttr =
+    findProductAttribute(product, 'velocidad') ?? inferPpmLabelFromRicohModelName(product.name);
+  if (speedAttr) {
+    const speedRow = rows.find((row) => row.label === 'Velocidad continua');
+    if (speedRow) speedRow.value = speedAttr;
+  }
 
-const DEFAULT_TRUST_WARRANTY_PAGES = '30,000';
+  const memoryAttr = findProductAttribute(product, 'memoria');
+  if (memoryAttr) {
+    const memoryRow = rows.find((row) => row.label === 'Memoria');
+    if (memoryRow) memoryRow.value = memoryAttr;
+  }
 
-function formatTrustWarrantyLabel(months: number, pages?: string): string {
-  const pagesLabel = pages?.trim() || DEFAULT_TRUST_WARRANTY_PAGES;
-  return `${months} meses y/o ${pagesLabel} páginas`;
+  const connectivityAttr = findProductAttribute(product, 'conectividad');
+  if (connectivityAttr) {
+    const connectivityRow = rows.find(
+      (row) => row.section === 'Impresora' && row.label === 'Conectividad',
+    );
+    if (connectivityRow) connectivityRow.value = connectivityAttr;
+  }
+
+  const consumibles = isColorPrinterEquipment(product)
+    ? COLOR_CONSUMIBLE_SPECS
+    : MONO_CONSUMIBLE_SPECS;
+
+  return [...rows, ...consumibles.map((row) => ({ ...row }))];
 }
 
-export function resolveTrustWarrantyLabel(warrantyBaseLabel?: string): string {
-  const label = warrantyBaseLabel?.trim();
-  if (!label) return DEFAULT_TRUST_WARRANTY_LABEL;
+function hasDatasheetSections(specs: ProductSpecRow[]): boolean {
+  return specs.some(
+    (row) =>
+      row.section === 'General' ||
+      row.section === 'Especificaciones Generales' ||
+      row.section === 'Impresora' ||
+      row.section === 'Escáner' ||
+      row.section === 'Fax' ||
+      row.section === 'Manejo de Papel' ||
+      row.section === 'Consumibles',
+  );
+}
 
-  const formattedMatch = label.match(/^(\d+)\s*mes(?:es)?\s+y\/o\s+([\d.,]+)\s*pág/i);
-  if (formattedMatch?.[1] && formattedMatch[2]) {
-    return formatTrustWarrantyLabel(Number(formattedMatch[1]), formattedMatch[2]);
-  }
+export const TRUST_WARRANTY_CHIP_LABEL =
+  'Garantía de Fábrica 1 año y/o 20,000 páginas para Multifuncionales e impresoras Nuevas';
 
-  const yearPagesMatch = label.match(/(\d+)\s*añ[oa]s?.*?y\/o\s+([\d.,]+)\s*pág/i);
-  if (yearPagesMatch?.[1] && yearPagesMatch[2]) {
-    return formatTrustWarrantyLabel(Number(yearPagesMatch[1]) * 12, yearPagesMatch[2]);
-  }
+export const TRUST_GIFT_CHIP_LABEL = 'Regalo: Envio Gratis, Cable de Red, Calendario';
 
-  const monthsOnlyMatch = label.match(/^(\d+)\s*mes/i);
-  if (monthsOnlyMatch?.[1]) {
-    return formatTrustWarrantyLabel(Number(monthsOnlyMatch[1]));
-  }
+/** @deprecated Use TRUST_WARRANTY_CHIP_LABEL */
+export const DEFAULT_TRUST_WARRANTY_LABEL = TRUST_WARRANTY_CHIP_LABEL;
 
-  const yearOnlyMatch = label.match(/(\d+)\s*añ[oa]/i);
-  if (yearOnlyMatch?.[1]) {
-    return formatTrustWarrantyLabel(Number(yearOnlyMatch[1]) * 12);
-  }
-
-  return label;
+export function resolveTrustWarrantyLabel(_warrantyBaseLabel?: string): string {
+  return TRUST_WARRANTY_CHIP_LABEL;
 }
 
 const WARRANTY_BULLETS = [
@@ -857,6 +830,7 @@ const IM430F_DESCRIPTION: ProductDescriptionContent = {
 
 function buildDescriptionContent(product: Product, isPrinter: boolean): ProductDescriptionContent | null {
   if (isIm430f(product)) return IM430F_DESCRIPTION;
+  if (isM320f(product)) return M320F_DESCRIPTION;
 
   if (isPrinter) {
     const highlights = [
@@ -983,6 +957,20 @@ function isM320f(product: Product): boolean {
   return /\bm\s*320\s*f\b/i.test(product.name);
 }
 
+function isImC320f(product: Product): boolean {
+  if (product.id === IM_C320F_EQUIPMENT_PRODUCT_ID) return true;
+  return /\bim\s*c\s*320\s*f\b/i.test(product.name);
+}
+
+function isMpc407Color(product: Product): boolean {
+  if (product.id === MPC407_EQUIPMENT_PRODUCT_ID) return true;
+  return /\bmp\s*c\s*(306|406|307|407)\b/i.test(product.name);
+}
+
+function hasKnownColorTonerSet(product: Product): boolean {
+  return isImC320f(product) || isMpc407Color(product);
+}
+
 const PRINTER_CATEGORY_PREFIX_PATTERN = /^(?:impresora\s+)?multifuncional(?:es)?\s+/i;
 
 function normalizeModelToken(model: string): string {
@@ -1062,7 +1050,9 @@ function buildTagPills(
 
   if (!isPrinter) return pills;
 
-  const speed = specs.find((row) => row.label === 'Velocidad')?.value;
+  const speed =
+    specs.find((row) => row.label === 'Velocidad')?.value ??
+    specs.find((row) => row.label === 'Velocidad continua')?.value;
   if (speed) pills.push(speed);
 
   const formato =
@@ -1358,7 +1348,7 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
           pricePen: 0,
         },
       ]
-    : isM320f(product)
+      : isM320f(product)
       ? [
           {
             id: 'toner-inicio',
@@ -1370,18 +1360,28 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
           {
             id: 'toner-original-m320f',
             productId: M320F_ORIGINAL_TONER_PRODUCT_ID,
-            name: 'Toner Cartucho Original RICOH M 320F',
+            name: 'Toner Original RICOH M 320F',
             description: 'Cartucho original — Rend 5,600',
             pricePen: 0,
           },
           {
             id: 'toner-compatible-m320f',
             productId: M320F_COMPATIBLE_TONER_PRODUCT_ID,
-            name: 'Toner cartucho compatible RICOH M 320F',
+            name: 'Toner compatible RICOH M 320F',
             description: 'Rendimiento según modelo',
             pricePen: 0,
           },
         ]
+      : hasKnownColorTonerSet(product)
+        ? [
+            {
+              id: 'toner-inicio',
+              name: `Tóner de inicio (${starterToner})`,
+              description: 'Incluido con el equipo',
+              pricePen: 0,
+              included: true,
+            },
+          ]
       : isImBnA4Sibling(product)
       ? [
           {
@@ -1416,7 +1416,7 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
           },
         ];
 
-  const tonerSubtitle = isImBnA4Sibling(product) || isM320f(product)
+  const tonerSubtitle = isImBnA4Sibling(product) || isM320f(product) || hasKnownColorTonerSet(product)
     ? 'Tóner original RICOH y compatibles'
     : 'Tóner de inicio y compatibles';
 
@@ -1589,11 +1589,13 @@ export function buildProductDetail(
       : isSupply
         ? buildSupplySpecs(product)
         : isPrinter
-          ? buildPrinterSpecs(product, brandLabel, sku)
+          ? buildDatasheetSpecs(product)
           : buildGenericSpecs(product, brandLabel, sku);
 
   const syncedSpecs =
-    isPrinter && !isM320f(product) ? applyTitlePredominanceToSpecs(product, specs) : specs;
+    isPrinter && !isM320f(product) && !hasDatasheetSections(specs)
+      ? applyTitlePredominanceToSpecs(product, specs)
+      : specs;
 
   const generatedHeroBullets = buildHeroSpecBullets(product, syncedSpecs, isPrinter).map(
     (bullet) => ({

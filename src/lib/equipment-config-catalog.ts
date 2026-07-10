@@ -3,6 +3,7 @@ import { ensureFullPrices } from '@/lib/roles';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
 import { normalizeSearchText } from '@/lib/product-search';
+import { tonerProductMatchesEquipment, isTonerSupplyAssemblyProduct } from '@/lib/product-equipment-consumables';
 import { usdToPen } from '@/lib/utils';
 import type { EquipmentConfigOption, EquipmentConfigStep } from '@/types/product-detail';
 import type { Product } from '@/types/product';
@@ -21,6 +22,41 @@ export const M320F_EQUIPMENT_PRODUCT_ID = 'bfb264b8-70dc-4ad4-9686-2df02df8c75e'
 
 /** Equipo IM C320F (color A4) en inventario. */
 export const IM_C320F_EQUIPMENT_PRODUCT_ID = '481dbc77-436b-464d-b76f-930f7d79f4ff';
+
+/** Tóneres CMYK originales IM C320F (Cyan / Magenta / Amarillo / Negro). */
+export const IM_C320F_ORIGINAL_TONER_IDS = [
+  '842718',
+  '842719',
+  '842720',
+  '842725',
+] as const;
+
+/** Tóneres CMYK compatibles IM C320F (Cyan / Magenta / Amarillo / Negro). */
+export const IM_C320F_COMPATIBLE_TONER_IDS = [
+  'compat-im-c320f-cyan',
+  'compat-im-c320f-magenta',
+  'compat-im-c320f-yellow',
+  'compat-im-c320f-negro',
+] as const;
+
+/** Equipo MP C407 (seminueva) en inventario. */
+export const MPC407_EQUIPMENT_PRODUCT_ID = '92070b52-ac0d-4bc1-94d3-d51e69091bb4';
+
+/** Tóneres CMYK originales MP C306/C307/C406/C407 (Cyan / Magenta / Amarillo / Negro). */
+export const MPC407_ORIGINAL_TONER_IDS = [
+  '842092',
+  '842093',
+  '842094',
+  '842091',
+] as const;
+
+/** Tóneres CMYK Intercopy compatibles MP C306/C406/C307/C407. */
+export const MPC407_COMPATIBLE_TONER_IDS = [
+  'intercopy-mp-c306-cyan',
+  'intercopy-mp-c306-magenta',
+  'intercopy-mp-c306-yellow',
+  'intercopy-mp-c306-negro',
+] as const;
 
 /** Equipo M C320FW (color A4) en inventario. */
 export const MC320FW_EQUIPMENT_PRODUCT_ID = 'cb1e47b2-d784-4bef-ae18-d4dae08723e4';
@@ -144,12 +180,13 @@ const OPTION_CATALOG_HINTS: Record<string, OptionCatalogHint> = {
     fallbackImage: '/categories/toner-suministros.png',
   },
   'toner-compatible': {
-    keywords: ['toner', 'tóner', 'compatible', 'cartucho', 'im 550', 'im550'],
+    keywords: ['toner', 'tóner', 'compatible', 'cartucho'],
     categories: [
       'Toner Compatible',
       'Toner Compatibles',
       'Toner, Toner Compatible',
       'Toner y Suministros, Toner Compatible',
+      'Suministros, Toner Compatible',
     ],
     fallbackImage: '/categories/toner-suministros.png',
   },
@@ -316,12 +353,24 @@ function findCatalogProduct(
   catalog: Product[],
   hint: OptionCatalogHint,
   mainProduct: Product,
+  options?: { requireEquipmentMatch?: boolean },
 ): Product | null {
   let best: Product | null = null;
   let bestScore = 0;
 
   for (const product of catalog) {
     if (product.id === mainProduct.id) continue;
+    if (isTonerSupplyAssemblyProduct(product)) continue;
+    // Evitar packs demo y productos sin precio público como match genérico.
+    if (/\bPack x04\b/i.test(product.name) || (product.bundle_components?.length ?? 0) > 0) {
+      continue;
+    }
+    const publicPrice = product.prices?.public ?? product.price;
+    if (!(publicPrice > 0)) continue;
+    if (options?.requireEquipmentMatch && !tonerProductMatchesEquipment(product, mainProduct)) {
+      continue;
+    }
+
     const score = scoreCatalogMatch(product, hint, mainProduct);
     if (score > bestScore) {
       bestScore = score;
@@ -332,30 +381,10 @@ function findCatalogProduct(
   return bestScore >= 10 ? best : null;
 }
 
-function extractEquipmentSearchKeys(mainProduct: Product): string[] {
-  const keys = new Set<string>();
-  const name = mainProduct.name ?? '';
-
-  const regexes = [
-    /\bIM\s*C?\s*\d{3,4}[A-Z]?\b/gi,
-    /\bMP\s*C?\s*\d{3,4}[A-Z]?\b/gi,
-    /\b[A-Z]{1,5}\s*-?\s*\d{3,4}[A-Z]{0,4}\b/g,
-  ];
-
-  for (const pattern of regexes) {
-    for (const match of name.matchAll(pattern)) {
-      const raw = match[0].trim();
-      keys.add(normalizeSearchText(raw));
-      keys.add(raw.replace(/\s+/g, '').toLowerCase());
-    }
-  }
-
-  return [...keys].filter((key) => key.replace(/\s+/g, '').length >= 3);
-}
-
 function isConsumableCatalogProduct(product: Product): boolean {
   const text = haystack(product);
   if (text.includes('impresora') || text.includes('multifuncional')) return false;
+  if (isTonerSupplyAssemblyProduct(product)) return false;
   return (
     text.includes('toner') ||
     text.includes('cartucho') ||
@@ -366,24 +395,14 @@ function isConsumableCatalogProduct(product: Product): boolean {
   );
 }
 
-function consumableMatchesEquipment(consumable: Product, keys: string[]): boolean {
-  const text = haystack(consumable);
-  const compact = text.replace(/\s+/g, '');
-  return keys.some((key) => {
-    const compactKey = key.replace(/\s+/g, '');
-    if (compactKey.length < 3) return false;
-    return text.includes(key) || compact.includes(compactKey);
-  });
-}
-
 function findTonerForEquipment(catalog: Product[], mainProduct: Product): Product | null {
-  const keys = extractEquipmentSearchKeys(mainProduct);
-  if (keys.length === 0) return null;
-
   const matched = catalog
     .filter((product) => product.id !== mainProduct.id)
     .filter(isConsumableCatalogProduct)
-    .filter((product) => consumableMatchesEquipment(product, keys));
+    .filter((product) => !/\bPack x04\b/i.test(product.name))
+    .filter((product) => (product.bundle_components?.length ?? 0) === 0)
+    .filter((product) => (product.prices?.public ?? product.price) > 0)
+    .filter((product) => tonerProductMatchesEquipment(product, mainProduct));
 
   return matched[0] ?? null;
 }
@@ -392,6 +411,8 @@ function applyOptionImageFallback(
   option: EquipmentConfigOption,
   hint?: OptionCatalogHint,
 ): EquipmentConfigOption {
+  // No inyectar imágenes demo genéricas de tóner (pack / categoría).
+  if (option.id.startsWith('toner-')) return option;
   if (option.image || !hint?.fallbackImage) return option;
   return { ...option, image: hint.fallbackImage };
 }
@@ -488,7 +509,9 @@ function enrichOption(
         mergeFromCatalog(skuMatch);
       }
     } else if (hint) {
-      const match = findCatalogProduct(catalog, hint, mainProduct);
+      const match = findCatalogProduct(catalog, hint, mainProduct, {
+        requireEquipmentMatch: option.id.startsWith('toner-'),
+      });
       if (match && (!option.id.startsWith('toner-') || isTonerMerchandisingProduct(match))) {
         mergeFromCatalog(match);
       }

@@ -1,6 +1,6 @@
 import { useMemo, useState, type Ref, type RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Lock, MessageCircle, ShoppingCart } from 'lucide-react';
+import { FileText, MessageCircle, ShoppingCart } from 'lucide-react';
 
 import {
   formatOrderQuantityHint,
@@ -9,9 +9,6 @@ import {
 } from '@/components/cart/add-to-cart-button';
 import { AttachmentPdfViewer } from '@/components/product-detail/attachment-pdf-viewer';
 import { PurchaseSidebarRolePrices } from '@/components/product-detail/product-detail-role-prices';
-import {
-  ProductDetailShippingRows,
-} from '@/components/product-detail/product-detail-shipping-info';
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Button } from '@/components/ui/button';
@@ -34,6 +31,7 @@ import { ProductDetailRentalConfigurator,
 import { SeminuevaPreparationPriceRows } from '@/components/product-detail/product-detail-seminueva-preparation-prices';
 import { ProductDetailPurchaseMode } from '@/components/product-detail/product-detail-purchase-mode';
 import { ProductDetailPurchaseQuantity } from '@/components/product-detail/product-detail-purchase-quantity';
+import { ProductDetailPurchasePaymentShipping } from '@/components/product-detail/product-detail-purchase-payment-shipping';
 import { ProductDetailVolumePurchaseHint } from '@/components/product-detail/product-detail-volume-purchase-hint';
 import type { PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
 import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
@@ -122,28 +120,30 @@ export function ProductDetailPurchaseCard({
     onTechnicalSheetFallback?.();
   };
 
-  const fichaTecnicaLabel = 'Especificaciones Tecnicas';
+  const fichaTecnicaLabel = 'Ficha Técnica';
 
   const purchaseSidebarLinks =
     onQuoteClick || onTechnicalSheetFallback || fichaLink?.href ? (
-      <div className="mt-3 flex items-center justify-center gap-3 border-t border-neutral-200 pt-3">
+      <div className="mt-5 flex flex-row flex-nowrap items-center justify-center gap-2.5 border-t border-neutral-100 pt-4">
         <button
           type="button"
           onClick={handleTechnicalSheetClick}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-700 underline-offset-2 transition-colors hover:text-neutral-900 hover:underline"
+          className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[0.6875rem] font-medium text-neutral-500 underline-offset-2 transition-colors hover:text-neutral-800 hover:underline"
         >
-          <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+          <FileText className="size-3 shrink-0" aria-hidden="true" />
           {fichaTecnicaLabel}
         </button>
         {onQuoteClick ? (
           <>
-            <span className="h-4 w-px shrink-0 bg-neutral-300" aria-hidden="true" />
+            <span className="text-neutral-300" aria-hidden="true">
+              ·
+            </span>
             <button
               type="button"
               onClick={onQuoteClick}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-700 underline-offset-2 transition-colors hover:text-neutral-900 hover:underline"
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[0.6875rem] font-medium text-neutral-500 underline-offset-2 transition-colors hover:text-neutral-800 hover:underline"
             >
-              <MessageCircle className="size-3.5 shrink-0" aria-hidden="true" />
+              <MessageCircle className="size-3 shrink-0" aria-hidden="true" />
               Generar Cotización
             </button>
           </>
@@ -255,12 +255,12 @@ export function ProductDetailPurchaseCard({
           offerUnitUsd={offerUnitUsd}
         />
       )}
-      <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+      <p className="mt-1.5 flex items-center gap-1.5 text-[0.6875rem] font-medium text-emerald-700">
         {outOfStock ? (
           'Disponible bajo pedido'
         ) : stockCount > 0 ? (
           <>
-            <span className="size-2 shrink-0 rounded-full bg-emerald-600" aria-hidden="true" />
+            <span className="size-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden="true" />
             {stockCount} disponibles
           </>
         ) : (
@@ -282,7 +282,7 @@ export function ProductDetailPurchaseCard({
         Comprar {product.name}
       </h2>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-3 shadow-sm sm:p-4">
+      <div className="rounded-xl border border-neutral-100 bg-white p-4 sm:p-5">
         {purchaseMode != null && onPurchaseModeChange ? (
           <ProductDetailPurchaseMode
             purchaseMode={purchaseMode}
@@ -292,12 +292,12 @@ export function ProductDetailPurchaseCard({
             showMaintenancePlan={showMaintenancePlanAction && Boolean(onMaintenancePlanClick)}
             showRentalTab={showRentalTab}
             {...(onMaintenancePlanClick ? { onMaintenancePlanClick } : {})}
-            className="mb-3"
+            className="mb-4"
           />
         ) : null}
 
         {isRentMode ? (
-          <div ref={rentalConfiguratorRef} className="mb-3">
+          <div ref={rentalConfiguratorRef} className="mb-4">
             <ProductDetailRentalConfigurator
               variant="full"
               rentalPlans={detail.rentalPlans}
@@ -318,10 +318,10 @@ export function ProductDetailPurchaseCard({
               bulkDiscountTiers={detail.bulkDiscountTiers}
               floorPriceUsd={fullPrices.tecnico}
               equipmentExtrasUsd={equipmentExtrasUsd}
-              className="mt-3"
+              className="mt-3.5"
             />
 
-            <div className="mt-3 flex w-full items-end gap-2">
+            <div className="mt-4 flex w-full items-end gap-2">
               <ProductDetailPurchaseQuantity
                 product={product}
                 quantity={quantity}
@@ -338,7 +338,7 @@ export function ProductDetailPurchaseCard({
               </Button>
             </div>
 
-            <div className="mt-2 w-full">
+            <div className="mt-3 w-full">
               <ProductWhatsAppButton
                 stopPropagation={false}
                 accent="outline"
@@ -364,38 +364,13 @@ export function ProductDetailPurchaseCard({
                   ...(equipmentConfiguration ? { equipmentConfiguration } : {}),
                 }}
                 {...(onQuoteGenerated ? { onQuoteGenerated } : {})}
-                className="h-10 min-h-10 w-full gap-1.5 rounded-lg border-green-600 bg-white text-sm font-semibold normal-case tracking-normal text-green-700 hover:border-green-600 hover:bg-green-50 hover:text-green-700 focus-visible:ring-green-600"
+                className="h-10 min-h-10 w-full gap-1.5 rounded-lg border-green-600/80 bg-white text-sm font-semibold normal-case tracking-normal text-green-700 hover:border-green-600 hover:bg-green-50 hover:text-green-700 focus-visible:ring-green-600"
               />
             </div>
 
-            <div className="mt-4">
-              <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-neutral-200" aria-hidden="true" />
-                <p className="shrink-0 text-xs font-semibold text-neutral-700">
-                  Pagos 100% seguros
-                </p>
-                <div className="h-px flex-1 bg-neutral-200" aria-hidden="true" />
-              </div>
-              <div className="mt-2 rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-2">
-                <img
-                  src="/mediosdepago2.png"
-                  alt="Medios de pago: Visa, Mastercard, American Express, Yape, Plin y más"
-                  className="mx-auto block h-auto max-h-9 w-full max-w-full object-contain sm:max-h-10"
-                  loading="lazy"
-                  width={1200}
-                  height={96}
-                />
-              </div>
+            <div className="mt-5">
+              <ProductDetailPurchasePaymentShipping />
             </div>
-
-            <div className="mt-4">
-              <ProductDetailShippingRows variant="mockup" />
-            </div>
-
-            <p className="mt-3 flex items-center gap-2 text-xs text-neutral-600">
-              <Lock className="size-3.5 shrink-0 text-neutral-500" aria-hidden="true" />
-              Compra segura y protegida
-            </p>
 
             {purchaseSidebarLinks}
 
@@ -484,6 +459,7 @@ export function ProductDetailPurchaseCard({
           onOpenChange={setTechnicalSheetOpen}
           url={fichaLink.href}
           filename={fichaFileName}
+          title={fichaTecnicaLabel}
         />
       ) : null}
     </aside>

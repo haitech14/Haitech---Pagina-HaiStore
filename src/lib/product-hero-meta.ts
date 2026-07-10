@@ -1,6 +1,8 @@
 import { getProductCardTitleContent } from '@/lib/product-card-title';
+import { resolveProductCardEstadoLabel } from '@/lib/product-card-condition';
 import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { stripProductCodeDisplayPrefix } from '@/lib/product-display-code';
+import { normalizeAttributes } from '@/lib/inventory-attributes';
 import {
   productQualifiesAsNuevaEquipment,
   productQualifiesAsRemanufacturadaEquipment,
@@ -69,6 +71,64 @@ export function resolveProductEquipmentConditionLabel(
   if (category.includes('nuevas') || category.includes('nuevos')) return 'Nueva';
 
   return 'Nueva';
+}
+
+const CONDITION_ATTRIBUTE_MATCH = ['condición', 'condicion', 'estado'] as const;
+
+function normalizeConditionAttributeKey(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .trim();
+}
+
+function resolveConditionAttributeValue(product: ProductBadgeSource): string | null {
+  const attributes = normalizeAttributes(product.attributes);
+  for (const row of attributes) {
+    const key = normalizeConditionAttributeKey(row.name ?? '');
+    if (!key) continue;
+    if (
+      CONDITION_ATTRIBUTE_MATCH.some((needle) => key === needle || key.includes(needle))
+    ) {
+      const value = row.value?.trim();
+      if (value) return value;
+    }
+  }
+  return null;
+}
+
+function formatConditionAttributeValue(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return trimmed;
+  if (/^nuevo$/i.test(trimmed)) return 'Nueva';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+const NUEVA_SEALED_LABEL = 'Nueva (Sellada en caja)';
+
+function enrichNuevaConditionLabel(label: string): string {
+  if (/^nueva\b/i.test(label)) return NUEVA_SEALED_LABEL;
+  return label;
+}
+
+/** Condición visible bajo el título en ficha (atributo de inventario o inferencia de catálogo). */
+export function resolveProductHeroConditionLabel(
+  product: ProductBadgeSource & {
+    description?: string | null;
+    name: string;
+    category?: string | null;
+  },
+): string | null {
+  const fromAttribute = resolveConditionAttributeValue(product);
+  if (fromAttribute) {
+    return enrichNuevaConditionLabel(formatConditionAttributeValue(fromAttribute));
+  }
+
+  const inferred = resolveProductCardEstadoLabel(product);
+  if (!inferred) return null;
+
+  return enrichNuevaConditionLabel(inferred);
 }
 
 /** Etiqueta de stock alineada al inventario real. */

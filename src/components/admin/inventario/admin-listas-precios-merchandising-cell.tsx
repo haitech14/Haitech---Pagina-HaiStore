@@ -13,9 +13,19 @@ import type { InventoryProduct } from '@/types/product';
 
 export type MerchandisingRelationKind = 'cross_sell' | 'upsell';
 
+/** Entrada ligera para el selector de venta cruzada / upsells. */
+export type MerchandisingCatalogEntry = {
+  id: string;
+  name: string;
+  code?: string | null;
+};
+
 interface AdminListasPreciosMerchandisingCellProps {
   product: InventoryProduct;
-  products: InventoryProduct[];
+  /** @deprecated Preferir `catalog` + `productById` compartidos desde el panel. */
+  products?: InventoryProduct[];
+  catalog?: MerchandisingCatalogEntry[];
+  productById?: Map<string, string>;
   kind: MerchandisingRelationKind;
   onPatch: (patch: Partial<InventoryProduct>) => Promise<void>;
 }
@@ -90,6 +100,8 @@ function MerchandisingPreview({
 export function AdminListasPreciosMerchandisingCell({
   product,
   products,
+  catalog,
+  productById: sharedProductById,
   kind,
   onPatch,
 }: AdminListasPreciosMerchandisingCellProps) {
@@ -105,22 +117,32 @@ export function AdminListasPreciosMerchandisingCell({
   const [query, setQuery] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const productById = useMemo(
-    () => new Map(products.map((entry) => [entry.id, entry.name])),
-    [products],
-  );
+  const productById = useMemo(() => {
+    if (sharedProductById) return sharedProductById;
+    return new Map((products ?? []).map((entry) => [entry.id, entry.name]));
+  }, [products, sharedProductById]);
+
+  const catalogEntries = useMemo((): MerchandisingCatalogEntry[] => {
+    if (catalog) return catalog;
+    return (products ?? []).map((entry) => ({
+      id: entry.id,
+      name: entry.name,
+      code: entry.code,
+    }));
+  }, [catalog, products]);
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    const sorted = [...products]
+    const sorted = catalogEntries
       .filter((entry) => entry.id !== product.id)
+      .slice()
       .sort((a, b) => a.name.localeCompare(b.name, 'es'));
     if (!normalizedQuery) return sorted;
     return sorted.filter((entry) => {
       const haystack = `${entry.name} ${entry.code ?? ''} ${entry.id}`.toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [product.id, products, query]);
+  }, [catalogEntries, product.id, query]);
 
   const handleOpenChange = (next: boolean) => {
     if (next) {
@@ -229,12 +251,12 @@ export function AdminListasPreciosMerchandisingCell({
                       className="mt-0.5"
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="line-clamp-2 block font-medium text-foreground">
-                        {entry.name}
-                      </span>
-                      <span className="mt-0.5 block text-[0.625rem] text-muted-foreground">
-                        {entry.code || entry.id}
-                      </span>
+                      <span className="block truncate font-medium text-foreground">{entry.name}</span>
+                      {entry.code ? (
+                        <span className="block truncate text-[0.65rem] text-muted-foreground">
+                          {entry.code}
+                        </span>
+                      ) : null}
                     </span>
                   </label>
                 </li>
@@ -242,31 +264,14 @@ export function AdminListasPreciosMerchandisingCell({
             })
           )}
         </ul>
-        {optionalCount > 0 ? (
-          <p className="border-t px-3 py-2 text-[0.625rem] text-muted-foreground">
-            {optionalCount} producto{optionalCount === 1 ? '' : 's'} opcional
-            {optionalCount === 1 ? '' : 'es'} (editar en ficha del producto).
+        <div className="flex items-center justify-between gap-2 border-t p-2">
+          <p className="text-[0.65rem] text-muted-foreground">
+            {draftIds.length === 0
+              ? meta.emptyLabel
+              : `${draftIds.length} seleccionado${draftIds.length === 1 ? '' : 's'}`}
           </p>
-        ) : null}
-        <div className="flex justify-end gap-2 border-t p-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8"
-            disabled={saving}
-            onClick={() => setOpen(false)}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            className="h-8"
-            disabled={saving}
-            onClick={() => void handleApply()}
-          >
-            {saving ? 'Guardando…' : 'Aplicar'}
+          <Button type="button" size="sm" disabled={saving} onClick={() => void handleApply()}>
+            Aplicar
           </Button>
         </div>
       </PopoverContent>

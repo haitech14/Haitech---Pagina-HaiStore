@@ -1,11 +1,14 @@
 import { useState, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 
+import { useDisplayCurrency } from '@/context/display-currency-context';
+import { formatDisplayPriceFromUsd } from '@/lib/display-price';
 import {
   selectEquipmentOption,
   type EquipmentSelectionState,
 } from '@/lib/equipment-config-selection';
-import { cn } from '@/lib/utils';
+import { cn, penToUsd } from '@/lib/utils';
+import type { DisplayCurrency, DualPriceOrder } from '@/types/display-currency';
 import type { EquipmentConfigStep } from '@/types/product-detail';
 
 export type PurchaseMode = 'buy' | 'rent';
@@ -17,12 +20,15 @@ interface ProductDetailOptionalProductsProps {
   className?: string;
 }
 
-function formatOptionPrice(pricePen: number, priceUsd?: number): string | null {
+function formatOptionPrice(
+  pricePen: number,
+  priceUsd: number | undefined,
+  displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder,
+): string | null {
   if (pricePen <= 0 && (priceUsd == null || priceUsd <= 0)) return null;
-  if (priceUsd != null && priceUsd > 0) {
-    return `+$${priceUsd.toLocaleString('en-US')} / S/ ${pricePen.toLocaleString('es-PE')}`;
-  }
-  return `+ S/ ${pricePen.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const usd = priceUsd != null && priceUsd > 0 ? priceUsd : penToUsd(pricePen);
+  return `+${formatDisplayPriceFromUsd(usd, displayCurrency, dualPriceOrder)}`;
 }
 
 function OptionPill({
@@ -135,6 +141,7 @@ export function ProductDetailOptionalProducts({
   onSelectionChange,
   className,
 }: ProductDetailOptionalProductsProps) {
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const [garantiaOpen, setGarantiaOpen] = useState(false);
   const tonerStep = steps.find((step) => step.id === 'toner');
   const accesoriosStep = steps.find((step) => step.id === 'accesorios');
@@ -163,7 +170,12 @@ export function ProductDetailOptionalProducts({
             {...(option.description ? { description: option.description } : {})}
             selected={selectedIds.has(option.id)}
             {...(option.included ? { included: true } : {})}
-            priceLabel={formatOptionPrice(option.pricePen, option.priceUsd)}
+            priceLabel={formatOptionPrice(
+              option.pricePen,
+              option.priceUsd,
+              displayCurrency,
+              dualPriceOrder,
+            )}
             onSelect={(id) => handleSelect(step, id)}
           />
         ))}

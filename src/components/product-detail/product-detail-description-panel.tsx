@@ -30,7 +30,7 @@ export function ProductDetailDescriptionPanel({
     <div
       className={cn(
         showSpecs
-          ? 'grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start'
+          ? 'grid gap-8 lg:grid-cols-2 lg:items-start'
           : 'space-y-5',
         className,
       )}
@@ -115,10 +115,10 @@ export function ProductDetailDescriptionPanel({
       {showSpecs ? (
         <aside className="lg:sticky lg:top-24">
           <h3 className="mb-3 text-base font-bold text-[#0f1f3d] sm:text-lg">
-            Especificaciones técnicas
+            Especificaciones Técnicas
           </h3>
           {specs.length > 0 ? (
-            <ProductDetailSpecsTable specs={specs} />
+            <ProductDetailSpecsTable specs={specs} variant="ficha" />
           ) : (
             <p className="text-sm text-muted-foreground">
               No hay especificaciones técnicas registradas para este producto.
