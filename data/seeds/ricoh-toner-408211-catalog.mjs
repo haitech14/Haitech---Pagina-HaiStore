@@ -6,7 +6,7 @@ export const RICOH_TONER_408211 = {
   name: 'CARTUCHO DE TONER NEGRO ORIGINAL RICOH SP C352',
   brand: 'Ricoh',
   category: 'Toner Original',
-  publicPen: 341.59,
+  publicPen: 344.69,
   stock: 0,
   heroAssetToken: '_408211__CARTUCHO',
   galleryAssetTokens: [
