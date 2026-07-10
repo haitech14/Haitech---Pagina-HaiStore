@@ -237,7 +237,7 @@ function HomeFindFilterPills<T extends string>({
       )}
     >
       <div
-        className="flex flex-wrap justify-start gap-1 sm:gap-1.5"
+        className="flex flex-wrap justify-center gap-1 sm:gap-1.5"
         role="tablist"
         aria-label={ariaLabel}
       >
@@ -561,7 +561,7 @@ export function HomeFindWhatYouNeedSection() {
               activeFilter={activeEquipmentCondition}
               onFilterChange={setActiveEquipmentCondition}
               ariaLabel="Condición de equipos"
-              className="mb-4 justify-start sm:mb-5"
+              className="mb-4 justify-center sm:mb-5"
             />
           </>
         ) : null}
@@ -581,7 +581,7 @@ export function HomeFindWhatYouNeedSection() {
               activeFilter={activeConsumablesCondition}
               onFilterChange={setActiveConsumablesCondition}
               ariaLabel="Tipo de consumibles"
-              className="mb-4 justify-start sm:mb-5"
+              className="mb-4 justify-center sm:mb-5"
             />
           </>
         ) : null}
@@ -602,7 +602,7 @@ export function HomeFindWhatYouNeedSection() {
               activeFilter={activeSparePartsFilter}
               onFilterChange={setActiveSparePartsFilter}
               ariaLabel="Filtros de repuestos"
-              className="mb-4 justify-start sm:mb-5"
+              className="mb-4 justify-center sm:mb-5"
             />
           </>
         ) : null}
