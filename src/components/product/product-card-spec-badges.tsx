@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
+import { ProductCardPill } from '@/components/product/product-card-pill';
 import { buildProductCardSpecBadges } from '@/lib/product-card-spec-badges';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';
 import { cn } from '@/lib/utils';
@@ -21,20 +22,16 @@ export function ProductCardSpecBadges({ product, className }: ProductCardSpecBad
 
   return (
     <ul
-      className={cn(
-        'flex min-w-0 flex-wrap gap-0.5',
-        className,
-      )}
+      className={cn('flex min-w-0 flex-wrap gap-0.5', className)}
       aria-label="Especificaciones del equipo"
     >
       {badges.map((badge) => (
         <li key={badge.id}>
-          <Badge
-            variant="secondary"
-            className="rounded px-1 py-0 text-[0.5625rem] font-medium leading-tight text-muted-foreground sm:text-[0.6rem]"
-          >
-            {badge.label}
-          </Badge>
+          {badge.id === 'condicion' ? (
+            <ProductCardPill label={badge.label} variant="primary" />
+          ) : (
+            <ProductCardPill label={badge.label} variant="secondary" />
+          )}
         </li>
       ))}
     </ul>

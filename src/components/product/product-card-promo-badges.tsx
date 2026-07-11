@@ -1,43 +1,54 @@
-import { ProductCardEstadoBadge } from '@/components/product/product-card-estado-badge';
+import { useMemo } from 'react';
+
+import { ProductCardPillRow } from '@/components/product/product-card-pill';
 import {
   HOME_LANDING_PROMO_BADGE_LABELS,
   type HomeLandingPromoBadgeId,
 } from '@/lib/home-landing-product-badges';
+import {
+  buildProductCardPillBadges,
+  type ProductCardPillBadge,
+} from '@/lib/product-card-pill-badges';
+import type { ProductBadgeSource } from '@/lib/product-detail-badges';
 import { cn } from '@/lib/utils';
 
-const BADGE_BASE_CLASS =
-  'inline-flex shrink-0 rounded px-1 py-px text-[0.5rem] font-semibold uppercase leading-tight tracking-wide sm:text-[0.5625rem]';
+export { HOME_LANDING_PROMO_BADGE_LABELS };
 
-const PROMO_BADGE_STYLES: Record<HomeLandingPromoBadgeId, string> = {
-  'free-shipping': 'bg-[#16A34A] text-white',
-  'best-seller': 'bg-[#FF9500] text-white',
-};
-
-export function ProductCardPromoBadges({
-  badges,
-  estadoLabel,
-  className,
-}: {
-  badges: readonly HomeLandingPromoBadgeId[];
+interface ProductCardPromoBadgesProps {
+  product?: ProductBadgeSource & { name: string; category?: string | null };
+  pillBadges?: readonly ProductCardPillBadge[];
+  promoBadges?: readonly HomeLandingPromoBadgeId[];
+  /** @deprecated Usar `product` o `pillBadges`; se mantiene por compatibilidad. */
   estadoLabel?: string | null;
   className?: string;
-}) {
-  const trimmedEstado = estadoLabel?.trim();
-  if (!trimmedEstado && badges.length === 0) return null;
+  size?: 'card' | 'image';
+}
+
+export function ProductCardPromoBadges({
+  product,
+  pillBadges,
+  promoBadges = [],
+  estadoLabel,
+  className,
+  size = 'card',
+}: ProductCardPromoBadgesProps) {
+  const resolvedPillBadges = useMemo(() => {
+    if (pillBadges) return pillBadges;
+    if (product) return buildProductCardPillBadges(product);
+
+    const trimmedEstado = estadoLabel?.trim();
+    if (!trimmedEstado) return [];
+    return [{ id: 'estado', label: trimmedEstado, variant: 'primary' as const }];
+  }, [estadoLabel, pillBadges, product]);
+
+  if (resolvedPillBadges.length === 0 && promoBadges.length === 0) return null;
 
   return (
-    <div
-      className={cn(
-        'flex min-w-0 flex-nowrap items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-        className,
-      )}
-    >
-      {trimmedEstado ? <ProductCardEstadoBadge label={trimmedEstado} /> : null}
-      {badges.map((badgeId) => (
-        <span key={badgeId} className={cn(BADGE_BASE_CLASS, PROMO_BADGE_STYLES[badgeId])}>
-          {HOME_LANDING_PROMO_BADGE_LABELS[badgeId]}
-        </span>
-      ))}
-    </div>
+    <ProductCardPillRow
+      badges={resolvedPillBadges}
+      promoBadges={promoBadges}
+      size={size}
+      className={className}
+    />
   );
 }

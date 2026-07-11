@@ -3,7 +3,6 @@ import {
   resolveFormatoPapel,
   resolveProductSpeedPpm,
 } from '@/lib/category-catalog-filters';
-import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
 import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
 import type { ProductAttribute } from '@/types/product';
@@ -53,14 +52,6 @@ export function buildProductCardQuickSpecBadges(
   }
 
   const badges: ProductCardQuickSpecBadge[] = [];
-  const conditionLabel = resolveProductCardConditionLabel(product);
-  if (conditionLabel) {
-    badges.push({
-      id: 'estado',
-      label: conditionLabel,
-      tone: 'condition',
-    });
-  }
 
   badges.push({
     id: 'color',

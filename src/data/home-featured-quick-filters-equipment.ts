@@ -34,7 +34,7 @@ export const HOME_FEATURED_EQUIPMENT_CONDITION_FILTERS: HomeFeaturedEquipmentCon
 ];
 
 export const HOME_FEATURED_EQUIPMENT_CATEGORY_FILTERS: HomeFeaturedEquipmentCategoryFilter[] = [
-  { id: 'multifuncionales', label: 'Multifuncionales' },
+  { id: 'multifuncionales', label: 'Impresora Multifuncional Láser' },
   { id: 'impresora-laser', label: 'Impresora Laser' },
   { id: 'impresora-tinta', label: 'Impresora de Tinta' },
   { id: 'impresora-termica', label: 'Impresora Térmica' },

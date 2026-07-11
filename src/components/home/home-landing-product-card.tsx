@@ -19,8 +19,8 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
+import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
 import { ProductCardBrandLine } from '@/components/product/product-card-title';
-import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import {
   formatProductCardTitle,
   getProductCardTitleContent,
@@ -71,8 +71,8 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
   const showBestSellerBadge = productQualifiesForBestSeller(product, catalogProduct);
   const productTitle = formatProductCardTitle(productSource);
   const { brand, code: cardCode } = getProductCardTitleContent(productSource);
-  const badgeLabel = resolveProductCardBadgeLabel(productSource);
   const outOfStock = stockCount <= 0;
+  const buyNowLabel = outOfStock ? 'Reservar Ahora' : 'Comprar Ahora';
 
   const catalogGallery = catalogProduct?.gallery ?? null;
   const catalogGalleryKey = catalogGallery?.join('|') ?? '';
@@ -167,6 +167,8 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
                 </span>
               ) : null}
 
+              <ProductCardImageConditionBadge product={productSource} />
+
               <ProductCardHoverImage
                 candidates={imageCandidates}
                 storedCandidates={storedImageCandidates}
@@ -210,13 +212,13 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
       </div>
 
       <div className="flex flex-1 flex-col px-3 pb-3 pt-1.5 sm:px-3.5 sm:pb-3.5 sm:pt-2">
-        <ProductCardBrandLine brand={brand} conditionLabel={badgeLabel} />
+        <ProductCardBrandLine brand={brand} />
 
         <Link
           to={detailPath}
           className={cn(
             'rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-            (brand || badgeLabel) && 'mt-0.5',
+            brand && 'mt-0.5',
           )}
         >
           <h3 className="line-clamp-2 text-pretty text-left text-sm font-semibold leading-snug text-[#111111]">
@@ -248,8 +250,8 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
           <ProductQuantityAddFooter
             product={cartProduct}
             size="sm"
-            addLabel="Agregar al carrito"
-            addLabelHover="Agregar"
+            addLabel={buyNowLabel}
+            addLabelHover="Comprar"
             revealQuantityOnHover
             quantityClassName="h-10 rounded-lg"
             addButtonClassName="h-10 min-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"

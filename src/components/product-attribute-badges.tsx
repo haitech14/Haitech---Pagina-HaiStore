@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import { ProductCardPill } from '@/components/product/product-card-pill';
 import {
   buildProductDetailBadges,
   formatBadgeDisplayValue,
@@ -23,6 +23,11 @@ function badgeDisplayText(badge: ProductDetailBadge, compact: boolean): string {
     return formatBadgeDisplayValue(badge, { compact });
   }
   return badge.value.trim();
+}
+
+function badgeVariant(badge: ProductDetailBadge): 'primary' | 'secondary' {
+  if (badge.id === 'condicion') return 'primary';
+  return 'secondary';
 }
 
 export function ProductAttributeBadges({
@@ -51,32 +56,12 @@ export function ProductAttributeBadges({
     >
       {brand ? (
         <li className="shrink-0">
-          <Badge
-            variant="outline"
-            className={cn(
-              'whitespace-nowrap rounded-md border-red-200 bg-red-50 font-semibold text-red-600 hover:bg-red-50',
-              compact
-                ? 'px-1 py-0 text-[0.5rem] leading-tight sm:text-[0.55rem]'
-                : 'px-2 py-0.5 text-xs',
-            )}
-          >
-            {brand}
-          </Badge>
+          <ProductCardPill label={brand} variant="primary" />
         </li>
       ) : null}
       {badges.map((badge) => (
         <li key={badge.id} className="shrink-0">
-          <Badge
-            variant="secondary"
-            className={cn(
-              'whitespace-nowrap rounded-md border border-neutral-300 bg-neutral-200 font-medium text-neutral-700',
-              compact
-                ? 'px-1 py-0 text-[0.5rem] leading-tight sm:text-[0.55rem]'
-                : 'px-2 py-0.5 text-xs',
-            )}
-          >
-            {badgeDisplayText(badge, compact)}
-          </Badge>
+          <ProductCardPill label={badgeDisplayText(badge, compact)} variant={badgeVariant(badge)} />
         </li>
       ))}
     </ul>

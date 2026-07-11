@@ -92,7 +92,6 @@ export function ProductHighlightCard({ product, variant = 'default' }: ProductHi
             brandTone="accent"
             stock={product.stock}
             outOfStock={outOfStock}
-            showConditionBadge
           />
         </Link>
 

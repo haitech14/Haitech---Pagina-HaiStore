@@ -271,7 +271,6 @@ function HomeFindCategoryPills<T extends string>({
   categories,
   activeCategory,
   onCategoryChange,
-  allCategoriesHref,
   ariaLabel,
   resolveImage,
   resolveIcon,
@@ -279,74 +278,94 @@ function HomeFindCategoryPills<T extends string>({
   categories: ReadonlyArray<{ id: T; label: string }>;
   activeCategory: T;
   onCategoryChange: (categoryId: T) => void;
-  allCategoriesHref: string;
   ariaLabel: string;
   resolveImage?: (categoryId: T) => string | undefined;
   resolveIcon?: (categoryId: T) => LucideIcon | undefined;
 }) {
-  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [page, setPage] = useState(0);
 
-  const visibleCategories = showAllCategories
-    ? categories
-    : categories.slice(0, HOME_FIND_VISIBLE_CATEGORY_LIMIT);
+  const categoriesKey = useMemo(() => categories.map((category) => category.id).join('|'), [categories]);
 
-  const hasHiddenCategories = categories.length > HOME_FIND_VISIBLE_CATEGORY_LIMIT;
+  useEffect(() => {
+    setPage(0);
+  }, [categoriesKey]);
+
+  const totalPages = Math.ceil(categories.length / HOME_FIND_VISIBLE_CATEGORY_LIMIT);
+  const canPaginate = categories.length > HOME_FIND_VISIBLE_CATEGORY_LIMIT;
+  const canGoPrev = page > 0;
+  const canGoNext = page < totalPages - 1;
+
+  const visibleCategories = categories.slice(
+    page * HOME_FIND_VISIBLE_CATEGORY_LIMIT,
+    page * HOME_FIND_VISIBLE_CATEGORY_LIMIT + HOME_FIND_VISIBLE_CATEGORY_LIMIT,
+  );
 
   return (
-    <div className="mb-3 flex w-full justify-center overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-4 [&::-webkit-scrollbar]:hidden">
-      <div
-        className="flex flex-wrap justify-center gap-2 sm:gap-3"
-        role="tablist"
-        aria-label={ariaLabel}
-      >
-        {visibleCategories.map((category) => {
-          const isActive = activeCategory === category.id;
-          const imageSrc = resolveImage?.(category.id);
-          const Icon = !imageSrc ? resolveIcon?.(category.id) : undefined;
-
-          return (
-            <button
-              key={category.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              className={homeCategoryChipClassName({
-                layout: 'vertical',
-                size: 'lg',
-                isActive,
-              })}
-              onClick={() => onCategoryChange(category.id)}
-            >
-              <HomeCategoryChipContent
-                icon={Icon}
-                imageSrc={imageSrc}
-                label={category.label}
-                layout="vertical"
-                size="lg"
-                isActive={isActive}
-              />
-            </button>
-          );
-        })}
-
-        {hasHiddenCategories && !showAllCategories ? (
+    <div
+      className={cn(
+        'relative mb-3 flex w-full justify-center sm:mb-4',
+        canPaginate && 'px-10 sm:px-12',
+      )}
+    >
+      {canPaginate ? (
+        <>
           <button
             type="button"
-            className="inline-flex shrink-0 items-center justify-center rounded-lg border border-dashed border-[#E30613]/50 bg-white px-2.5 py-1.5 text-xs font-semibold text-[#E30613] transition-colors hover:bg-[#FFF5F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:px-3 sm:py-2"
-            onClick={() => setShowAllCategories(true)}
+            className={cn(carouselArrowClass, 'left-0')}
+            aria-label="Categorías anteriores"
+            disabled={!canGoPrev}
+            onClick={() => setPage((currentPage) => currentPage - 1)}
           >
-            Ver todas las categorías
+            <ChevronLeft className="size-4" aria-hidden="true" />
           </button>
-        ) : null}
-
-        {hasHiddenCategories && showAllCategories ? (
-          <Link
-            to={allCategoriesHref}
-            className="inline-flex shrink-0 items-center justify-center rounded-lg border border-[#E30613]/30 bg-white px-2.5 py-1.5 text-xs font-semibold text-[#E30613] transition-colors hover:bg-[#FFF5F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:px-3 sm:py-2"
+          <button
+            type="button"
+            className={cn(carouselArrowClass, 'right-0')}
+            aria-label="Categorías siguientes"
+            disabled={!canGoNext}
+            onClick={() => setPage((currentPage) => currentPage + 1)}
           >
-            Ver catálogo completo
-          </Link>
-        ) : null}
+            <ChevronRight className="size-4" aria-hidden="true" />
+          </button>
+        </>
+      ) : null}
+
+      <div className="overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          className="flex flex-wrap justify-center gap-2 sm:gap-3"
+          role="tablist"
+          aria-label={ariaLabel}
+        >
+          {visibleCategories.map((category) => {
+            const isActive = activeCategory === category.id;
+            const imageSrc = resolveImage?.(category.id);
+            const Icon = !imageSrc ? resolveIcon?.(category.id) : undefined;
+
+            return (
+              <button
+                key={category.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={homeCategoryChipClassName({
+                  layout: 'vertical',
+                  size: 'lg',
+                  isActive,
+                })}
+                onClick={() => onCategoryChange(category.id)}
+              >
+                <HomeCategoryChipContent
+                  icon={Icon}
+                  imageSrc={imageSrc}
+                  label={category.label}
+                  layout="vertical"
+                  size="lg"
+                  isActive={isActive}
+                />
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -416,7 +435,7 @@ export function HomeFindWhatYouNeedSection() {
   const [activeConsumablesCondition, setActiveConsumablesCondition] =
     useState<HomeFeaturedConsumablesConditionFilterId>(HOME_FEATURED_CONSUMABLES_DEFAULT_CONDITION);
   const [activeSparePartsCategory, setActiveSparePartsCategory] =
-    useState<HomeFindSparePartsCategoryId>('kit-mantenimiento');
+    useState<HomeFindSparePartsCategoryId>('kits-unidades-imagen');
   const [activeSparePartsFilter, setActiveSparePartsFilter] =
     useState<HomeFindSparePartsFilterId>('originales');
 
@@ -552,7 +571,6 @@ export function HomeFindWhatYouNeedSection() {
               categories={HOME_FIND_EQUIPMENT_CATEGORIES}
               activeCategory={activeEquipmentCategory}
               onCategoryChange={setActiveEquipmentCategory}
-              allCategoriesHref={catalogLink.allCategoriesHref}
               ariaLabel="Categorías de equipos"
               resolveImage={resolveHomeFindEquipmentCategoryImage}
             />
@@ -572,7 +590,6 @@ export function HomeFindWhatYouNeedSection() {
               categories={HOME_FIND_CONSUMABLES_CATEGORIES}
               activeCategory={activeConsumablesCategory}
               onCategoryChange={setActiveConsumablesCategory}
-              allCategoriesHref={catalogLink.allCategoriesHref}
               ariaLabel="Categorías de consumibles"
               resolveImage={resolveHomeFindConsumablesCategoryImage}
             />
@@ -592,7 +609,6 @@ export function HomeFindWhatYouNeedSection() {
               categories={HOME_FIND_SPARE_PARTS_CATEGORIES}
               activeCategory={activeSparePartsCategory}
               onCategoryChange={setActiveSparePartsCategory}
-              allCategoriesHref={catalogLink.allCategoriesHref}
               ariaLabel="Categorías de repuestos"
               resolveImage={resolveHomeFindSparePartsCategoryImage}
               resolveIcon={resolveHomeFindSparePartsCategoryIcon}

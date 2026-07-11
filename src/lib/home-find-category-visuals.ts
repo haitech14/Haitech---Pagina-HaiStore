@@ -24,11 +24,10 @@ export function resolveHomeFindConsumablesCategoryImage(
 const SPARE_PARTS_CONSUMABLES_IMAGE_MAP: Partial<
   Record<HomeFindSparePartsCategoryId, HomeFeaturedConsumablesCategoryFilterId>
 > = {
-  'kit-mantenimiento': 'unidad-imagen-kit-mantenimiento',
+  'kits-unidades-imagen': 'unidad-imagen-kit-mantenimiento',
   fusoras: 'unidad-fusora',
   transferencia: 'unidad-transferencia',
   tarjetas: 'tarjetas',
-  'unidades-imagen': 'unidad-imagen-kit-mantenimiento',
 };
 
 export function resolveHomeFindSparePartsCategoryImage(

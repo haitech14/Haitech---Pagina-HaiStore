@@ -1,13 +1,13 @@
 import type { HomeFeaturedConsumablesCategoryFilterId } from '@/data/home-featured-quick-filters-consumables';
-import type { HomeFeaturedEquipmentCategoryFilterId } from '@/data/home-featured-quick-filters-equipment';
+import {
+  HOME_FEATURED_EQUIPMENT_CATEGORY_FILTERS,
+  type HomeFeaturedEquipmentCategoryFilterId,
+} from '@/data/home-featured-quick-filters-equipment';
 import { categoryLandingPath } from '@/lib/category-path';
 
 export type HomeFindMainTabId = 'equipos' | 'consumibles' | 'repuestos';
 
-export type HomeFindEquipmentCategoryId = Extract<
-  HomeFeaturedEquipmentCategoryFilterId,
-  'multifuncionales' | 'escaneres' | 'plotter' | 'pantallas-interactivas' | 'videoconferencia'
->;
+export type HomeFindEquipmentCategoryId = HomeFeaturedEquipmentCategoryFilterId;
 
 export type HomeFindConsumablesCategoryId = Extract<
   HomeFeaturedConsumablesCategoryFilterId,
@@ -15,8 +15,7 @@ export type HomeFindConsumablesCategoryId = Extract<
 >;
 
 export type HomeFindSparePartsCategoryId =
-  | 'kit-mantenimiento'
-  | 'unidades-imagen'
+  | 'kits-unidades-imagen'
   | 'fusoras'
   | 'transferencia'
   | 'tarjetas'
@@ -32,16 +31,20 @@ export const HOME_FIND_MAIN_TABS: ReadonlyArray<{ id: HomeFindMainTabId; label: 
   { id: 'repuestos', label: 'Repuestos' },
 ];
 
+const HOME_FIND_EQUIPMENT_CATEGORY_LABEL_OVERRIDES: Partial<
+  Record<HomeFindEquipmentCategoryId, string>
+> = {
+  multifuncionales: 'Impresora Multifuncional Láser',
+  'pantallas-interactivas': 'Pantallas',
+};
+
 export const HOME_FIND_EQUIPMENT_CATEGORIES: ReadonlyArray<{
   id: HomeFindEquipmentCategoryId;
   label: string;
-}> = [
-  { id: 'multifuncionales', label: 'Multifuncionales' },
-  { id: 'escaneres', label: 'Escáneres' },
-  { id: 'plotter', label: 'Plotter' },
-  { id: 'pantallas-interactivas', label: 'Pantallas' },
-  { id: 'videoconferencia', label: 'Videoconferencia' },
-];
+}> = HOME_FEATURED_EQUIPMENT_CATEGORY_FILTERS.map((filter) => ({
+  id: filter.id,
+  label: HOME_FIND_EQUIPMENT_CATEGORY_LABEL_OVERRIDES[filter.id] ?? filter.label,
+}));
 
 export const HOME_FIND_CONSUMABLES_CATEGORIES: ReadonlyArray<{
   id: HomeFindConsumablesCategoryId;
@@ -55,8 +58,7 @@ export const HOME_FIND_SPARE_PARTS_CATEGORIES: ReadonlyArray<{
   id: HomeFindSparePartsCategoryId;
   label: string;
 }> = [
-  { id: 'kit-mantenimiento', label: 'Kits de mantenimiento' },
-  { id: 'unidades-imagen', label: 'Unidades de imagen' },
+  { id: 'kits-unidades-imagen', label: 'Kits y unidades de imagen' },
   { id: 'fusoras', label: 'Fusoras' },
   { id: 'transferencia', label: 'Transferencia' },
   { id: 'tarjetas', label: 'Tarjetas' },
@@ -86,6 +88,6 @@ export const HOME_FIND_CATALOG_LINKS: Record<
 
 export const HOME_FIND_DEFAULT_TAB: HomeFindMainTabId = 'equipos';
 
-export const HOME_FIND_VISIBLE_CATEGORY_LIMIT = 6;
+export const HOME_FIND_VISIBLE_CATEGORY_LIMIT = 5;
 
 export const HOME_FIND_PRODUCT_DISPLAY_LIMIT = 5;

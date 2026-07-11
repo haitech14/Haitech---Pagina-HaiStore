@@ -6,10 +6,9 @@ import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import type { HomeCategoryShowcaseProduct } from '@/data/home-category-showcase';
 import { getCatalogProductById } from '@/lib/catalog-featured';
 import { getCatalogUrgencyLabel } from '@/lib/product-catalog-card-meta';
-import { ProductCardQuickSpecBadges } from '@/components/product/product-card-quick-spec-badges';
+import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
 import { isPrinterProduct } from '@/lib/product-detail-badges';
 import { ProductCardBrandLine } from '@/components/product/product-card-title';
-import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import {
   formatProductCardTitle,
   getProductCardTitleContent,
@@ -122,7 +121,6 @@ export function HomeCategoryShowcaseProductCard({
   const hasValidImage = imageCandidates.length > 0;
   const displayTitle = formatProductCardTitle(productSource);
   const { brand, code: cardCode } = getProductCardTitleContent(productSource);
-  const badgeLabel = resolveProductCardBadgeLabel(productSource);
 
   return (
     <article className="group flex h-full w-full min-w-[9.5rem] flex-col overflow-hidden rounded-xl border border-border/50 bg-white shadow-[0_2px_14px_rgba(15,31,61,0.07)] sm:min-w-0">
@@ -155,26 +153,26 @@ export function HomeCategoryShowcaseProductCard({
             className="size-full"
             imageClassName="size-full object-contain"
           />
+
+          <ProductCardImageConditionBadge product={productSource} />
         </Link>
       </div>
 
       <div className="flex flex-1 flex-col px-3 pb-3 pt-1.5 sm:px-3.5 sm:pb-3.5 sm:pt-2">
-        <ProductCardBrandLine brand={brand} conditionLabel={badgeLabel} />
+        <ProductCardBrandLine brand={brand} />
 
         <Link
           to={product.href}
           className={cn(
             'rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2',
-            (brand || badgeLabel) && 'mt-0.5',
-            !(brand || badgeLabel) && 'mt-1',
+            brand && 'mt-0.5',
+            !brand && 'mt-1',
           )}
         >
           <h3 className="line-clamp-2 min-h-[2rem] text-pretty text-left text-[0.8125rem] font-bold leading-snug text-[#111111] sm:min-h-[2.25rem] sm:text-sm">
             {displayTitle}
           </h3>
         </Link>
-
-        <ProductCardQuickSpecBadges product={productSource} revealOnHover />
 
         <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
           {cardCode ? <span className={PRODUCT_CARD_CODE_CLASS}>{cardCode}</span> : <span className="min-w-0" />}

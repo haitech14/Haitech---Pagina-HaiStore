@@ -4021,27 +4021,55 @@
     },
     {
       "id": "compat-tc-im-550-intercopy",
-      "code": "TC-IM-550-INTERCOPY",
+      "code": "973428",
       "name": "Tóner compatible RICOH IM 550 / IM 600",
       "description": "Tóner compatible negro — Rendimiento según modelo — IM-550F / IM-600F",
       "currency": "USD",
       "stock": 0,
-      "category": "Toner, Toner Compatibles",
+      "category": "Suministros, Toner Compatible",
       "brand": "",
-      "image_url": "/categories/toner-suministros.png",
-      "gallery": [
-        "/categories/toner-suministros.png"
-      ],
+      "image_url": null,
+      "gallery": [],
       "purchase_price_usd": 22.9,
       "created_at": "2026-06-24T00:00:00.000Z",
       "prices": {
-        "public": 39.9,
-        "tecnico": 33.9,
-        "mayorista": 31.9,
-        "distribuidor": 29.9,
-        "vip": 27.9
+        "public": 49.8,
+        "tecnico": 43.8,
+        "mayorista": 41.8,
+        "distribuidor": 39.8
       },
-      "slug": "compat-tc-im-550-intercopy"
+      "slug": "compat-tc-im-550-intercopy",
+      "sort_order": 745,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "78a27065-4569-4cc8-bc8a-3cc082949292",
+          "name": "MICAMERB",
+          "purchase_price_usd": 22.9
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "4914eaf8-7c06-4dce-aa25-5224cde7c675",
+          "name": "Modelo de equipo",
+          "value": "IM-550F / IM-600F"
+        },
+        {
+          "id": "135449eb-5897-4f80-9b53-d1ebfb735433",
+          "name": "Color",
+          "value": "Negro"
+        }
+      ],
+      "status": "activa",
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "price": 49.8
     },
     {
       "id": "d36419ae-6c63-423c-9bc7-eef07dcde222",
@@ -5057,21 +5085,37 @@
       "stock": 30,
       "category": "Accesorios",
       "brand": "TechPro",
-      "image_url": "/products/mochila-techpro.png",
-      "gallery": [
-        "/products/mochila-techpro.png"
-      ],
+      "image_url": null,
+      "gallery": [],
       "purchase_price_usd": 35.99,
       "created_at": "2026-06-01T00:00:00.000Z",
       "prices": {
-        "public": 49.99,
-        "corporativo": 46,
-        "tecnico": 44,
-        "mayorista": 42,
-        "distribuidor": 39,
-        "vip": 36
+        "public": 59.89,
+        "tecnico": 53.9,
+        "mayorista": 51.9,
+        "distribuidor": 48.9
       },
-      "slug": "mochila-techpro"
+      "slug": "mochila-techpro",
+      "sort_order": 19,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "principal",
+          "quantity": 30
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "99ce6b1b-f2d5-4a14-9fc6-609e59150a7d",
+          "name": "",
+          "purchase_price_usd": 35.99
+        }
+      ],
+      "attachments": [],
+      "attributes": [],
+      "status": "activa",
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "price": 59.89
     },
     {
       "id": "oki-c332dn",
@@ -5294,24 +5338,40 @@
       "description": "Tóner cyan compatible de alto rendimiento para Ricoh MP C6003 / C4503.",
       "currency": "USD",
       "stock": 45,
-      "category": "Suministros",
+      "category": "Toner y suministros",
       "brand": "Ricoh",
-      "image_url": "/categories/toner-suministros.png",
-      "gallery": [
-        "/categories/toner-suministros.png"
-      ],
+      "image_url": null,
+      "gallery": [],
       "compare_at_price_usd": 80.81,
       "purchase_price_usd": 28.99,
       "created_at": "2026-06-01T00:00:00.000Z",
       "prices": {
-        "public": 40.27,
-        "corporativo": 37,
-        "tecnico": 35,
-        "mayorista": 34,
-        "distribuidor": 31,
-        "vip": 29
+        "public": 50.17,
+        "tecnico": 44.9,
+        "mayorista": 43.9,
+        "distribuidor": 40.9
       },
-      "slug": "toner-ricoh-c6003-cyan"
+      "slug": "toner-ricoh-c6003-cyan",
+      "sort_order": 28,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "principal",
+          "quantity": 45
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "94171f0a-1821-4961-8989-1cfdcec0c0dc",
+          "name": "",
+          "purchase_price_usd": 28.99
+        }
+      ],
+      "attachments": [],
+      "attributes": [],
+      "status": "activa",
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "price": 50.17
     },
     {
       "id": "intercopy-sp-5200",
@@ -45502,7 +45562,7 @@
     {
       "id": "ricoh-d6063112",
       "code": "D6063112",
-      "name": "Almohadilla De Separación De ADF Original Ricoh — Ricoh MP 301SPF / Ricoh MP 305SP / Ricoh MP 305SPF / Ricoh MP 401SPF / Ricoh MP 402SPF / Ricoh MP C306 / Ricoh MP C307 / Ricoh MP C406 / Ricoh MP C407 / Ricoh IM 350F / Ricoh IM 430F / Ricoh P 501 / Ricoh P 502 / Ricoh DF1030",
+      "name": "FRICTION PAD (BYPASS TRAY) Original P - 502 / IM 430F / MP C307/ MP C406/ MP C407 / IM C300/ IM C400 / IM C401 (30,000 págs al 5%)",
       "description": "El Friction Pad Original Ricoh D6063112 (ADF) es una almohadilla de separación diseñada para el alimentador automático de documentos (ADF) de equipos Ricoh compatibles. Su función es trabajar junto con las ruedas de alimentación para garantizar que los documentos sean recogidos de forma individual, evitando la alimentación múltiple de hojas durante los procesos de copia, escaneo y fax. Como repuesto original Ricoh, ofrece un ajuste preciso, alta resistencia al desgaste y un rendimiento confiable, contribuyendo a reducir atascos de papel, mejorar la precisión del alimentador y mantener la productividad del equipo.\nProducto: Friction Pad (ADF)\nNro. parte: D6063112\nTipo: ADF Separation Pad\nUbicación: ADF\nFunción: separar hojas\nVida útil: hasta 200,000 páginas\nCondición: nuevo original sellado",
       "currency": "USD",
       "stock": 0,
@@ -45512,7 +45572,7 @@
           "quantity": 0
         }
       ],
-      "category": "Repuestos, Repuestos Originales",
+      "category": "Repuestos",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-d6063112.webp",
       "gallery": [
@@ -45520,57 +45580,49 @@
         "/products/ricoh-d6063112-3.webp",
         "/products/ricoh-d6063112-4.webp"
       ],
-      "purchase_price_usd": 5.9,
+      "purchase_price_usd": 2.18,
       "suppliers": [
         {
-          "id": "e65f8f0a-8b36-438b-a6a0-a20283689afe",
-          "name": "Proveedor Ricoh del Peru",
-          "purchase_price_usd": 5.9
+          "id": "0cfb2826-6daf-46d1-b30d-c501c50b262e",
+          "name": "Ricoh del Perú",
+          "purchase_price_usd": 2.18
         }
       ],
       "attachments": [],
       "attributes": [
         {
-          "id": "da83f248-5f53-4a4a-9075-f2814250797b",
-          "name": "Rendimiento estimado",
-          "value": "200.000 Páginas al 5%"
-        },
-        {
-          "id": "ec50ebb6-0420-49eb-921e-2d810e61aa3d",
-          "name": "Origen",
-          "value": "Hecho en China"
-        },
-        {
-          "id": "8811a26b-2b47-49fe-a7ed-a11bfee9d305",
-          "name": "Soporte",
-          "value": "a Rueda de Alimentación"
-        },
-        {
-          "id": "8541518d-32f3-4832-8f08-f7b2cccb64b3",
-          "name": "Peso",
-          "value": "30 g"
-        },
-        {
-          "id": "1a2f7a35-08f6-418c-b9e3-3209a934a85c",
+          "id": "ab319d5f-31b9-4406-84a7-2c8d2af57156",
           "name": "Modelo de equipo",
-          "value": "Ricoh MP 301SPF / Ricoh MP 305SP / Ricoh MP 305SPF / Ricoh MP 401SPF / Ricoh MP 402SPF / Ricoh MP C306 / Ricoh MP C307 / Ricoh MP C406 / Ricoh MP C407 / Ricoh IM 350F / Ricoh IM 430F / Ricoh P 501 / Ricoh P 502 / Ricoh DF1030"
+          "value": "P - 502 / IM 430F / MP C307/ MP C406/ MP C407 / IM C300/ IM C400 / IM C401"
+        },
+        {
+          "id": "4fcf50cb-c2b7-4b06-ac79-0616bf7965fd",
+          "name": "Rendimiento (5%)",
+          "value": "30,000"
+        },
+        {
+          "id": "f23528e6-3cfb-4d97-bb20-ae5c335c2e06",
+          "name": "Traducción",
+          "value": "BYPASS TRAY"
         }
       ],
       "bundle_components": [],
       "volume_role_prices": [],
       "created_at": "2026-06-26T05:55:50.128Z",
-      "sort_order": 1964,
+      "sort_order": 722,
       "prices": {
-        "public": 8.9,
-        "tecnico": 7.9,
-        "mayorista": 7.9,
-        "distribuidor": 6.9
-      }
+        "public": 18.8,
+        "tecnico": 17.8,
+        "mayorista": 17.8,
+        "distribuidor": 16.8
+      },
+      "status": "activa",
+      "price": 18.8
     },
     {
       "id": "ricoh-842831",
       "code": "842831",
-      "name": "Cartucho De Tóner Monocromatico Ricoh IM 3510 Original — IM 3010 / IM 3510",
+      "name": "Toner Original RICOH Negro IM 2510-IM 3510 (30,100 págs al 5%)",
       "description": "El Print Cartridge Black Original Ricoh IM 3510 N.º de Parte 842831 es un cartucho de tóner negro diseñado para ofrecer impresiones de alta calidad con textos nítidos, negros intensos y una excelente definición en cada página. Desarrollado específicamente para los equipos multifuncionales Ricoh de la serie IM 3010 e IM 3510, este consumible original garantiza compatibilidad total, rendimiento confiable y resultados consistentes durante todo su ciclo de vida. Su formulación OEM ayuda a optimizar el funcionamiento del equipo, reducir el desgaste de los componentes internos y mantener la productividad en entornos empresariales con altos volúmenes de impresión.\nCompatible: IM 3010 / IM 3510\nEDP: 842831\nColor: Black\nPeso neto caja: 575 g",
       "currency": "USD",
       "stock": 0,
@@ -45589,52 +45641,44 @@
         "/products/toner-842831-4.webp",
         "/products/toner-842831-5.webp"
       ],
-      "purchase_price_usd": 0.9,
+      "purchase_price_usd": 58.35,
       "suppliers": [
         {
-          "id": "97b53464-7955-4c64-b685-f43089541e35",
-          "name": "Proveedor Ricoh del Peru",
-          "purchase_price_usd": 0.9
+          "id": "fd6b6d73-1033-48e3-adb4-297baedc7259",
+          "name": "Ricoh del Perú",
+          "purchase_price_usd": 58.35
         }
       ],
       "attachments": [],
       "attributes": [
         {
-          "id": "27e073eb-4f22-4361-8ffa-17d28a939f2a",
-          "name": "Rendimiento",
-          "value": "30.100 páginas al 5%"
-        },
-        {
-          "id": "465664a8-731a-4279-80e0-6bf36d1247b8",
-          "name": "Gramaje del cartucho",
-          "value": "430 g"
-        },
-        {
-          "id": "03cec146-9670-47d6-a197-9b4d6ae9c251",
-          "name": "Color del cartucho",
-          "value": "Negro"
-        },
-        {
-          "id": "b9a1c7b6-9f66-489d-852f-4276b022d8a3",
-          "name": "Tecnología",
-          "value": "Láser"
-        },
-        {
-          "id": "ca74b2f9-1dca-4482-ae31-2acb7a3140ec",
+          "id": "57e4051b-043d-487c-9419-d99e95b8bb41",
           "name": "Modelo de equipo",
-          "value": "Ricoh IM 3010, Ricoh IM 3510"
+          "value": "IM 2510-IM 3510"
+        },
+        {
+          "id": "0f2087cd-1772-4cd1-8851-6e472615ee4b",
+          "name": "Rendimiento (5%)",
+          "value": "30,100"
+        },
+        {
+          "id": "93a33a5d-947f-4d95-b3ff-c3bf3eec5525",
+          "name": "Color",
+          "value": "Negro"
         }
       ],
       "bundle_components": [],
       "volume_role_prices": [],
       "created_at": "2026-06-26T05:56:07.268Z",
-      "sort_order": 1965,
+      "sort_order": 723,
       "prices": {
-        "public": 0.9,
-        "tecnico": 0.9,
-        "mayorista": 0.9,
-        "distribuidor": 0.9
-      }
+        "public": 10.8,
+        "tecnico": 10.8,
+        "mayorista": 10.8,
+        "distribuidor": 10.8
+      },
+      "status": "activa",
+      "price": 10.8
     },
     {
       "id": "408339",

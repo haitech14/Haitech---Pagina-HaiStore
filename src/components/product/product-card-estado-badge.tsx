@@ -1,17 +1,19 @@
-import { ProductConditionBadge } from '@/components/product/product-condition-badge';
+import { ProductCardPill } from '@/components/product/product-card-pill';
 import type { ProductEquipmentConditionLabel } from '@/lib/product-hero-meta';
 import { cn } from '@/lib/utils';
 
-const BADGE_BASE_CLASS =
-  'inline-flex shrink-0 rounded px-1 py-px text-[0.5rem] font-semibold uppercase leading-tight tracking-wide sm:text-[0.5625rem]';
+const PRIMARY_ESTADO_LABELS = new Set([
+  'Nueva',
+  'Seminueva',
+  'Remanufacturada',
+  'Original',
+  'Compatible',
+  'Remanufacturado',
+  'Recarga',
+]);
 
-const GENERIC_ESTADO_BADGE_CLASS =
-  'bg-neutral-200 font-semibold normal-case tracking-normal text-neutral-700';
-
-const EQUIPMENT_CONDITION_LABELS = new Set<string>(['Nueva', 'Seminueva', 'Remanufacturada']);
-
-function isEquipmentConditionLabel(label: string): label is ProductEquipmentConditionLabel {
-  return EQUIPMENT_CONDITION_LABELS.has(label);
+function isPrimaryEstadoLabel(label: string): label is ProductEquipmentConditionLabel | 'Original' | 'Compatible' | 'Remanufacturado' | 'Recarga' {
+  return PRIMARY_ESTADO_LABELS.has(label);
 }
 
 interface ProductCardEstadoBadgeProps {
@@ -20,7 +22,7 @@ interface ProductCardEstadoBadgeProps {
   className?: string;
 }
 
-/** Badge de condición comercial en tarjetas (equipos y consumibles). */
+/** Badge primario navy en tarjetas (condición de equipo o Original/Compatible). */
 export function ProductCardEstadoBadge({
   label,
   size = 'card',
@@ -29,17 +31,18 @@ export function ProductCardEstadoBadge({
   const trimmed = label.trim();
   if (!trimmed) return null;
 
-  if (isEquipmentConditionLabel(trimmed)) {
+  if (isPrimaryEstadoLabel(trimmed)) {
     return (
-      <ProductConditionBadge
+      <ProductCardPill
         label={trimmed}
-        size={size === 'card' ? 'card' : 'default'}
+        variant="primary"
+        size={size === 'card' ? 'card' : 'image'}
         className={className}
       />
     );
   }
 
   return (
-    <span className={cn(BADGE_BASE_CLASS, GENERIC_ESTADO_BADGE_CLASS, className)}>{trimmed}</span>
+    <ProductCardPill label={trimmed} variant="secondary" size={size === 'card' ? 'card' : 'image'} className={className} />
   );
 }

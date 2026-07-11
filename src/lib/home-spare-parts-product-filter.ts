@@ -192,16 +192,17 @@ export function matchesHomeFindSparePartsCategoryFilter(
   if (!isHomeFeaturedSparePartsProduct(product)) return false;
 
   switch (filterId) {
-    case 'kit-mantenimiento':
-      return isSparePartsKitMantenimientoProduct(product);
+    case 'kits-unidades-imagen':
+      return (
+        isSparePartsKitMantenimientoProduct(product) ||
+        isSparePartsUnidadesImagenProduct(product)
+      );
     case 'fusoras':
       return isSparePartsFusorasProduct(product);
     case 'tarjetas':
       return isSparePartsTarjetasProduct(product);
     case 'rodillos':
       return isSparePartsRodillosProduct(product);
-    case 'unidades-imagen':
-      return isSparePartsUnidadesImagenProduct(product);
     case 'transferencia':
       return isSparePartsTransferenciaProduct(product);
     default: {

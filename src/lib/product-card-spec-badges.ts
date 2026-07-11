@@ -33,19 +33,19 @@ function productMatchesPatterns(product: Product, patterns: readonly RegExp[]): 
 
 function resolveConditionBadge(product: Product): ProductCardSpecBadge | null {
   if (productQualifiesAsSeminuevaEquipment(product)) {
-    return { id: 'condicion', label: 'Seminuevo' };
+    return { id: 'condicion', label: 'Seminueva' };
   }
   if (productQualifiesAsNuevaEquipment(product)) {
-    return { id: 'condicion', label: 'Nuevo' };
+    return { id: 'condicion', label: 'Nueva' };
   }
 
   const fromAttr = buildProductDetailBadges(product, { primaryOnly: true }).find(
     (row) => row.id === 'condicion',
   );
   const value = fromAttr?.value.trim() ?? '';
-  if (/seminov/i.test(value)) return { id: 'condicion', label: 'Seminuevo' };
+  if (/seminov/i.test(value)) return { id: 'condicion', label: 'Seminueva' };
   if (/^nuevo$/i.test(value) || /^nueva$/i.test(value)) {
-    return { id: 'condicion', label: 'Nuevo' };
+    return { id: 'condicion', label: 'Nueva' };
   }
 
   return null;

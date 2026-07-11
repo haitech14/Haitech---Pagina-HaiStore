@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { Badge } from '@/components/ui/badge';
+import { ProductCardPill } from '@/components/product/product-card-pill';
 import { buildProductCardQuickSpecBadges } from '@/lib/product-card-quick-specs';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,10 @@ export function ProductCardQuickSpecBadges({
   className,
   revealOnHover = false,
 }: ProductCardQuickSpecBadgesProps) {
-  const badges = useMemo(() => buildProductCardQuickSpecBadges(product), [product]);
+  const badges = useMemo(
+    () => buildProductCardQuickSpecBadges(product).filter((badge) => badge.tone === 'spec'),
+    [product],
+  );
 
   if (badges.length === 0) return null;
 
@@ -36,15 +39,7 @@ export function ProductCardQuickSpecBadges({
     >
       {badges.map((badge) => (
         <li key={badge.id} className="shrink-0">
-          <Badge
-            variant="secondary"
-            className={cn(
-              'whitespace-nowrap rounded border border-[#E5E7EB] bg-[#F5F5F7] px-1 py-px text-[0.5625rem] font-normal leading-none text-[#555555] sm:text-[0.625rem]',
-              badge.tone === 'condition' && 'font-semibold',
-            )}
-          >
-            {badge.label}
-          </Badge>
+          <ProductCardPill label={badge.label} variant="secondary" />
         </li>
       ))}
     </ul>

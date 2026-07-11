@@ -17,8 +17,8 @@ import {
   buildProductCardStoredImageCandidates,
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
+import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
 import { ProductCardBrandLine } from '@/components/product/product-card-title';
-import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import {
   getProductCardTitleContent,
   PRODUCT_CARD_CODE_CLASS,
@@ -67,7 +67,6 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
     attributes: product.attributes ?? [],
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
-  const badgeLabel = resolveProductCardBadgeLabel(titleProduct);
   const buyNowLabel = outOfStock ? 'Reservar Ahora' : 'Comprar Ahora';
 
   return (
@@ -86,6 +85,8 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
             className="size-full"
             imageClassName="size-full object-contain"
           />
+
+          <ProductCardImageConditionBadge product={titleProduct} />
         </Link>
 
         <ProductCardOverlayActions
@@ -102,7 +103,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col px-3 pb-3 pt-2">
-        <ProductCardBrandLine brand={brand} conditionLabel={badgeLabel} />
+        <ProductCardBrandLine brand={brand} />
 
         <Link
           to={detailHref}

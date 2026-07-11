@@ -27,7 +27,7 @@ export interface Category {
 export const categories: Category[] = [
   {
     slug: 'multifuncionales',
-    name: 'Multifuncionales',
+    name: 'Impresora Multifuncional Láser',
     tagline: 'Imprime, escanea y copia en un solo equipo',
     icon: Copy,
     image: '/categories/multifuncionales.png',
