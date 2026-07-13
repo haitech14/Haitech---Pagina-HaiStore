@@ -55,7 +55,7 @@ export function AdminListasPreciosStockCell({
   if (bundleProduct) {
     return (
       <div className="flex justify-center" title="Stock derivado de los componentes del pack">
-        <InventoryStockBadge product={product} warehouses={warehouses} />
+        <InventoryStockBadge product={product} warehouses={warehouses} compact />
       </div>
     );
   }
@@ -68,7 +68,7 @@ export function AdminListasPreciosStockCell({
       onClose={onClose}
       display={
         <div className="flex justify-center">
-          <InventoryStockBadge product={product} warehouses={warehouses} />
+          <InventoryStockBadge product={product} warehouses={warehouses} compact />
         </div>
       }
       edit={

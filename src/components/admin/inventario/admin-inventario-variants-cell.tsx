@@ -137,7 +137,7 @@ export function AdminInventarioVariantsCell({
             aria-expanded={open}
             aria-label={`Variantes de ${product.name}`}
             className={cn(
-              'h-auto min-h-7 w-full min-w-[4.5rem] justify-between gap-1 px-1 py-0.5 text-left font-normal shadow-none hover:bg-muted/50',
+              'h-auto min-h-5 w-full min-w-[4.5rem] justify-between gap-1 px-1 py-0.5 text-left text-[0.6875rem] leading-tight font-normal shadow-none hover:bg-muted/50',
             )}
           >
             <VariantsPreview selectedIds={selectedIds} productById={productById} />

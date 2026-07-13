@@ -6,11 +6,13 @@ import type { InventoryProduct } from '@/types/product';
 interface InventoryPurchasePriceDisplayProps {
   product: InventoryProduct;
   exchangeRate: number;
+  compact?: boolean;
 }
 
 export function InventoryPurchasePriceDisplay({
   product,
   exchangeRate,
+  compact = false,
 }: InventoryPurchasePriceDisplayProps) {
   const suppliers = product.suppliers ?? [];
   const hasSuppliers = suppliers.some(
@@ -23,6 +25,7 @@ export function InventoryPurchasePriceDisplay({
       exchangeRate={exchangeRate}
       useCharm={false}
       category={product.category}
+      compact={compact}
     />
   );
 

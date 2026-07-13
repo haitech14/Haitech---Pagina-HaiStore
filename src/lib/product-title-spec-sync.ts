@@ -1,4 +1,7 @@
-import { inferFormatoPapelFromModel } from '@/lib/category-catalog-filters';
+import {
+  inferFormatoPapelFromModel,
+  isDualFormatA4PrimaryProduct,
+} from '@/lib/category-catalog-filters';
 import {
   inferMonthlyProductionLabelFromRicohModelName,
   inferPpmLabelFromRicohModelName,
@@ -60,7 +63,9 @@ export function resolveTitlePredominantPrinterFields(
     speed: inferPpmLabelFromRicohModelName(title),
     volume: inferMonthlyProductionLabelFromRicohModelName(title),
     color: inferColorFromProductTitle(title),
-    format: inferFormatoPapelFromModel({ name: title, category: product.category }),
+    format: isDualFormatA4PrimaryProduct(product)
+      ? 'A4'
+      : inferFormatoPapelFromModel({ name: title, category: product.category }),
   };
 }
 

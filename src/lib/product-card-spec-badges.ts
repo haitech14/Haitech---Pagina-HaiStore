@@ -1,14 +1,9 @@
 import {
-  CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS,
-} from '@/data/catalog-format-spotlight';
-import {
-  FORMATO_PAPEL_ATTR,
   inferColor,
-  inferFormatoPapelFromModel,
   inferProduccionTier,
   PRODUCTION_FILTER_OPTIONS,
   productAttributeKeys,
-  resolveFormatoPapel,
+  resolveFormatoPapelBadgeLabels,
 } from '@/lib/category-catalog-filters';
 import {
   productQualifiesAsNuevaEquipment,
@@ -17,18 +12,9 @@ import {
 import { buildProductDetailBadges, isPrinterProduct } from '@/lib/product-detail-badges';
 import type { Product } from '@/types/product';
 
-function attributeKey(name: string, value: string): string {
-  return `${name}::${value}`;
-}
-
 export interface ProductCardSpecBadge {
   id: string;
   label: string;
-}
-
-function productMatchesPatterns(product: Product, patterns: readonly RegExp[]): boolean {
-  const haystack = `${product.name} ${product.category ?? ''}`;
-  return patterns.some((pattern) => pattern.test(haystack));
 }
 
 function resolveConditionBadge(product: Product): ProductCardSpecBadge | null {
@@ -51,29 +37,11 @@ function resolveConditionBadge(product: Product): ProductCardSpecBadge | null {
   return null;
 }
 
-function resolveFormatoBadge(product: Product): ProductCardSpecBadge | null {
-  const keys = productAttributeKeys(product);
-  const hasA4Attr = keys.has(attributeKey(FORMATO_PAPEL_ATTR, 'A4'));
-  const hasA3Attr = keys.has(attributeKey(FORMATO_PAPEL_ATTR, 'A3'));
-  const fromModel = inferFormatoPapelFromModel(product);
-  const crossList =
-    fromModel === 'A3' && productMatchesPatterns(product, CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS);
-
-  if (hasA4Attr && hasA3Attr) {
-    return { id: 'formato', label: 'A4 · A3' };
-  }
-  if (crossList) {
-    return { id: 'formato', label: 'A4 · A3' };
-  }
-  if (hasA3Attr || fromModel === 'A3') {
-    return { id: 'formato', label: 'A3' };
-  }
-  if (hasA4Attr || fromModel === 'A4') {
-    return { id: 'formato', label: 'A4' };
-  }
-
-  const resolved = resolveFormatoPapel(product);
-  return { id: 'formato', label: resolved };
+function resolveFormatoBadges(product: Product): ProductCardSpecBadge[] {
+  return resolveFormatoPapelBadgeLabels(product).map((label, index) => ({
+    id: index === 0 ? 'formato' : `formato-${label.toLowerCase()}`,
+    label,
+  }));
 }
 
 function resolveColorBadge(product: Product): ProductCardSpecBadge {
@@ -101,9 +69,7 @@ export function buildProductCardSpecBadges(product: Product): ProductCardSpecBad
   const condicion = resolveConditionBadge(product);
   if (condicion) badges.push(condicion);
 
-  const formato = resolveFormatoBadge(product);
-  if (formato) badges.push(formato);
-
+  badges.push(...resolveFormatoBadges(product));
   badges.push(resolveColorBadge(product));
 
   const produccion = resolveProduccionBadge(product);

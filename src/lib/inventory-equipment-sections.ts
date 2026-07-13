@@ -2,6 +2,7 @@ import {
   buildCatalogFormatSections,
   inferColor,
   inferFormatoPapelFromModel,
+  isDualFormatA4PrimaryProduct,
   type CatalogFormatSectionGroup,
 } from '@/lib/category-catalog-filters';
 import { resolveCategoryFilterLabels } from '@/lib/inventory-categories';
@@ -78,7 +79,9 @@ export function detectInventoryPaperFormat(
   product: Pick<InventoryProduct, 'name' | 'category' | 'brand' | 'attributes' | 'code'>,
 ): 'A4' | 'A3' | null {
   const fromModel = inferFormatoPapelFromModel(product as Product);
-  if (fromModel) return fromModel;
+  if (fromModel) {
+    return isDualFormatA4PrimaryProduct(product as Product) ? 'A4' : fromModel;
+  }
 
   const formatAttr =
     findAttributeValue(product.attributes, /^formato(\s+papel)?$/i) ??

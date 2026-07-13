@@ -2,6 +2,7 @@ import { formatProductNameSentenceCase } from '@/lib/format-product-name-sentenc
 import {
   inferColor,
   inferFormatoPapelFromModel,
+  resolveFormatoPapelDisplayLabel,
   resolveProductSpeedPpm,
 } from '@/lib/category-catalog-filters';
 import { resolveHomeLandingConsumableSubtitle } from '@/lib/home-featured-product-filter';
@@ -105,6 +106,9 @@ function capitalizeEquipmentDescriptorWords(text: string): string {
 function resolveSubtitleFormatoLabel(
   product: ProductBadgeSource & { name: string },
 ): string | null {
+  const dualLabel = resolveFormatoPapelDisplayLabel(product);
+  if (dualLabel) return dualLabel;
+
   for (const attr of product.attributes ?? []) {
     const name = attr.name?.trim() ?? '';
     if (!/^formato(\s+papel)?$/i.test(name)) continue;

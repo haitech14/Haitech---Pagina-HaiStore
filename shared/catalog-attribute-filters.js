@@ -15,6 +15,7 @@ export const ADF_ATTR = 'Alimentador (ADF)';
 const CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS = [
   /\bim\s*430\s*f\b/i,
   /\bim\s*460\s*f\b/i,
+  /\bmp\s*305\s*\+(?!\d)/i,
 ];
 
 function attributeKey(name, value) {
@@ -72,7 +73,8 @@ export function inferFormatoPapelFromModel(product) {
   const haystack = productFormatoHaystack(product);
 
   if (
-    /\b(mp\s*305\s*\+|mp\s*3055|mp\s*3555|mp\s*5055|mp\s*6055|mp\s*7503)\b/.test(haystack) ||
+    /\bmp\s*305\s*\+(?!\d)/i.test(haystack) ||
+    /\b(mp\s*3055|mp\s*3555|mp\s*5055|mp\s*6055|mp\s*7503)\b/.test(haystack) ||
     /\b(im\s*460\s*f|im\s*2500|im\s*3000|im\s*4000|im\s*5000|im\s*6000|im\s*7000|im\s*8000|im\s*9000)\b/.test(
       haystack,
     ) ||
@@ -117,6 +119,36 @@ export function resolveFormatoPapel(product) {
   }
 
   return inferFormatoPapel(product);
+}
+
+/** Formato para listados, filtros y paginación del catálogo (A4 principal en dual-format). */
+export function resolveCatalogListFormatoPapel(product) {
+  if (isDualFormatA4PrimaryProduct(product)) return 'A4';
+  return resolveFormatoPapel(product);
+}
+
+/** Equipo A3 por modelo que se comercializa y muestra como A4 principal (también A3). */
+export function isDualFormatA4PrimaryProduct(product) {
+  return (
+    inferFormatoPapelFromModel(product) === 'A3' &&
+    productMatchesModelPatterns(product, CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS)
+  );
+}
+
+/** Etiquetas de formato para tarjetas: A4 primero; A3 adicional si aplica. */
+export function resolveFormatoPapelBadgeLabels(product) {
+  if (isDualFormatA4PrimaryProduct(product)) {
+    return ['A4', 'A3'];
+  }
+  const resolved = resolveFormatoPapel(product);
+  return resolved ? [resolved] : [];
+}
+
+/** Texto compacto de formato (p. ej. subtítulo o quick-spec line). */
+export function resolveFormatoPapelDisplayLabel(product) {
+  const labels = resolveFormatoPapelBadgeLabels(product);
+  if (labels.length === 0) return null;
+  return labels.join(' · ');
 }
 
 export function inferProduccionTier(product) {
@@ -190,13 +222,6 @@ function productMatchesModelPatterns(product, patterns) {
   return patterns.some((pattern) => pattern.test(haystack));
 }
 
-function isCrossListedToA4(product) {
-  return (
-    inferFormatoPapelFromModel(product) === 'A3' &&
-    productMatchesModelPatterns(product, CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS)
-  );
-}
-
 /** Claves de filtro de catálogo (atributos almacenados + inferencia por modelo). */
 export function resolveProductCatalogAttributeKeys(product) {
   const keys = productAttributeKeys(product);
@@ -210,13 +235,9 @@ export function resolveProductCatalogAttributeKeys(product) {
     for (const key of [...keys]) {
       if (key.startsWith(`${FORMATO_PAPEL_ATTR}::`)) keys.delete(key);
     }
-    keys.add(attributeKey(FORMATO_PAPEL_ATTR, formatoFromModel));
+    keys.add(attributeKey(FORMATO_PAPEL_ATTR, resolveCatalogListFormatoPapel(product)));
   } else if (![...keys].some((key) => key.startsWith(`${FORMATO_PAPEL_ATTR}::`))) {
-    keys.add(attributeKey(FORMATO_PAPEL_ATTR, resolveFormatoPapel(product)));
-  }
-
-  if (isCrossListedToA4(product)) {
-    keys.add(attributeKey(FORMATO_PAPEL_ATTR, 'A4'));
+    keys.add(attributeKey(FORMATO_PAPEL_ATTR, resolveCatalogListFormatoPapel(product)));
   }
 
   if (![...keys].some((key) => key.startsWith('Color::'))) {

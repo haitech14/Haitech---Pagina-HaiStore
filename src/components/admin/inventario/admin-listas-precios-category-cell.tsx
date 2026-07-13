@@ -132,7 +132,7 @@ export function AdminListasPreciosCategoryCell({
           aria-expanded={open}
           aria-label={`Categorías de ${product.name}`}
           className={cn(
-            'h-auto min-h-7 w-full min-w-[6.5rem] items-start justify-between gap-1 px-1 py-1 text-xs font-normal text-muted-foreground shadow-none hover:bg-muted/50',
+            'h-auto min-h-5 w-full min-w-[6.5rem] items-start justify-between gap-1 px-1 py-0.5 text-[0.6875rem] leading-tight font-normal text-muted-foreground shadow-none hover:bg-muted/50',
             selectedNodes.length === 0 && 'text-muted-foreground/80',
           )}
         >

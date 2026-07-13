@@ -74,7 +74,7 @@ export function AdminListasPreciosStatusBadge({
     >
       <SelectTrigger
         className={cn(
-          'h-7 w-auto min-w-0 border px-1.5 text-[0.625rem] font-semibold shadow-none',
+          'h-6 w-auto min-w-0 border px-1.5 text-[0.625rem] font-semibold leading-none shadow-none',
           STATUS_STYLES[status],
           className,
         )}

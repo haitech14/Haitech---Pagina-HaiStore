@@ -1,6 +1,6 @@
 import {
   inferColor,
-  resolveFormatoPapel,
+  resolveFormatoPapelBadgeLabels,
   resolveProductSpeedPpm,
 } from '@/lib/category-catalog-filters';
 import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
@@ -58,11 +58,13 @@ export function buildProductCardQuickSpecBadges(
     label: inferColor(product) === 'Color' ? 'Color' : 'B/N',
     tone: 'spec',
   });
-  badges.push({
-    id: 'formato',
-    label: resolveFormatoPapel(product),
-    tone: 'spec',
-  });
+  for (const [index, label] of resolveFormatoPapelBadgeLabels(product).entries()) {
+    badges.push({
+      id: index === 0 ? 'formato' : `formato-${label.toLowerCase()}`,
+      label,
+      tone: 'spec',
+    });
+  }
 
   const ppm = resolveProductSpeedPpm(product);
   if (ppm != null) badges.push({ id: 'ppm', label: `${ppm} ppm`, tone: 'spec' });

@@ -9,7 +9,7 @@ import type {
 } from '@/data/home-featured-quick-filters-equipment';
 import { HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS } from '@/lib/home-equipment-category-links';
 import type { HomeFeaturedSpecFilterId } from '@/data/home-featured-quick-filters-spec';
-import { inferColor, resolveFormatoPapel } from '@/lib/category-catalog-filters';
+import { inferColor, resolveCatalogListFormatoPapel } from '@/lib/category-catalog-filters';
 import { findCategoryBySlug, getCategoryProductLabels } from '@/lib/category-product-labels';
 import { productMatchesCategoryFilter } from '@/lib/inventory-categories';
 import { isPrinterProduct } from '@/lib/product-detail-badges';
@@ -391,7 +391,7 @@ export function matchesHomeFeaturedSpecFilter(
 
   switch (filterId) {
     case 'a4':
-      return resolveFormatoPapel(row) === 'A4' || /\ba4\b/.test(haystack);
+      return resolveCatalogListFormatoPapel(row) === 'A4' || /\ba4\b/.test(haystack);
     case 'color':
       return inferColor(row) === 'Color';
     case 'bn':

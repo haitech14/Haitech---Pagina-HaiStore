@@ -1,10 +1,4 @@
 import {
-  CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS,
-} from '@/data/catalog-format-spotlight';
-// @ts-ignore módulo JS compartido sin declaración de tipos
-import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
-// @ts-ignore módulo JS compartido sin declaración de tipos
-import {
   ADF_ATTR,
   FORMATO_PAPEL_ATTR,
   PRODUCCION_ATTR,
@@ -16,7 +10,11 @@ import {
   inferProduccionTier,
   productAttributeKeys,
   productMatchesCatalogAttributeFilters,
+  isDualFormatA4PrimaryProduct,
+  resolveCatalogListFormatoPapel,
   resolveFormatoPapel,
+  resolveFormatoPapelBadgeLabels,
+  resolveFormatoPapelDisplayLabel,
   resolveProductCatalogAttributeKeys,
 } from '../../shared/catalog-attribute-filters.js';
 // @ts-ignore módulo JS compartido sin declaración de tipos
@@ -25,6 +23,8 @@ import {
   productHasMostViewedOfferAttribute,
   resolveMostViewedOfferProductIds,
 } from '../../shared/catalog-most-viewed-offers.js';
+// @ts-ignore módulo JS compartido sin declaración de tipos
+import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
 import { sortProductsByPublicPriceAsc } from '@/lib/inventory-product-order';
 import type { Product } from '@/types/product';
 
@@ -38,7 +38,11 @@ export {
   inferFormatoPapelFromModel,
   inferProduccionTier,
   productAttributeKeys,
+  isDualFormatA4PrimaryProduct,
+  resolveCatalogListFormatoPapel,
   resolveFormatoPapel,
+  resolveFormatoPapelBadgeLabels,
+  resolveFormatoPapelDisplayLabel,
   resolveProductCatalogAttributeKeys,
 };
 export const MODELO_EQUIPO_ATTR = 'Modelo de equipo';
@@ -221,11 +225,6 @@ export {
   resolveProductSpeedPpm,
 } from '../../shared/catalog-speed-filter.js';
 
-function productMatchesModelPatterns(product: Product, patterns: readonly RegExp[]): boolean {
-  const haystack = `${product.name} ${product.code ?? ''} ${product.id}`;
-  return patterns.some((pattern) => pattern.test(haystack));
-}
-
 export function splitProductsByCatalogColor(products: readonly Product[]): {
   bn: Product[];
   color: Product[];
@@ -282,7 +281,7 @@ function splitProductsByPaperFormat(products: readonly Product[]): {
   const a3: Product[] = [];
 
   for (const product of products) {
-    if (resolveFormatoPapel(product) === 'A3') {
+    if (resolveCatalogListFormatoPapel(product) === 'A3') {
       a3.push(product);
     } else {
       a4.push(product);
@@ -292,32 +291,12 @@ function splitProductsByPaperFormat(products: readonly Product[]): {
   return { a4, a3, ordered: [...a4, ...a3] };
 }
 
-/** Incluye en A4 equipos cross-list (mismo id) que ya están en A3 u otro bucket. */
-function mergeCrossListedIntoA4(a4: Product[], sourceProducts: readonly Product[]): Product[] {
-  const a4Ids = new Set(a4.map((product) => product.id));
-  const crossListed: Product[] = [];
-
-  for (const product of sourceProducts) {
-    if (
-      productMatchesModelPatterns(product, CATALOG_FORMAT_CROSS_LIST_TO_A4_PATTERNS) &&
-      !a4Ids.has(product.id)
-    ) {
-      crossListed.push(product);
-      a4Ids.add(product.id);
-    }
-  }
-
-  if (crossListed.length === 0) return a4;
-  return [...crossListed, ...a4];
-}
-
 export function buildCatalogFormatSections(
   products: readonly Product[],
 ): CatalogFormatSectionGroup[] {
   const visibleProducts = products.filter((product) => !isHomeCarouselExcludedProduct(product));
   const { bn, color } = splitProductsByCatalogColor(visibleProducts);
   const bnByPaper = splitProductsByPaperFormat(bn);
-  const bnA4WithCrossList = mergeCrossListedIntoA4(bnByPaper.a4, bn);
   const colorByPaper = splitProductsByPaperFormat(color);
 
   return [
@@ -328,7 +307,7 @@ export function buildCatalogFormatSections(
         {
           id: 'bn-a4',
           title: 'A4',
-          products: sortCatalogSubsectionProducts(bnA4WithCrossList),
+          products: sortCatalogSubsectionProducts(bnByPaper.a4),
         },
         {
           id: 'bn-a3',
@@ -361,7 +340,8 @@ export function findProductCatalogFormatPlacement(
   }
 
   const colorId = inferColor(product) === 'Color' ? 'color' : 'bn';
-  const paperId = resolveFormatoPapel(product) === 'A3' ? `${colorId}-a3` : `${colorId}-a4`;
+  const paperId =
+    resolveCatalogListFormatoPapel(product) === 'A3' ? `${colorId}-a3` : `${colorId}-a4`;
   const section = sections.find((row) => row.id === colorId);
   const subsection = section?.subsections.find((row) => row.id === paperId);
   if (!section || !subsection) return null;

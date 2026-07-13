@@ -1,4 +1,7 @@
-import { inferColor, resolveFormatoPapel } from '@/lib/category-catalog-filters';
+import {
+  inferColor,
+  resolveFormatoPapelBadgeLabels,
+} from '@/lib/category-catalog-filters';
 import {
   isConsumableProductForCardSpec,
 } from '@/lib/format-consumable-product-spec-label';
@@ -54,9 +57,12 @@ export function buildProductCardPillBadges(
       variant: 'secondary',
     });
 
-    const formato = resolveFormatoPapel(product);
-    if (formato) {
-      badges.push({ id: 'formato', label: formato, variant: 'secondary' });
+    for (const [index, label] of resolveFormatoPapelBadgeLabels(product).entries()) {
+      badges.push({
+        id: index === 0 ? 'formato' : `formato-${label.toLowerCase()}`,
+        label,
+        variant: 'secondary',
+      });
     }
   } else if (isConsumableProductForCardSpec(product)) {
     const tonerColor = resolveTonerColorLabel(asProduct(product), product.name);

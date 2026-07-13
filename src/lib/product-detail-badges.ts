@@ -1,4 +1,8 @@
 import { normalizeAttributes } from '@/lib/inventory-attributes';
+import {
+  isDualFormatA4PrimaryProduct,
+  resolveFormatoPapelBadgeLabels,
+} from '@/lib/category-catalog-filters';
 import type { ProductAttribute } from '@/types/product';
 
 /** Datos mínimos para generar badges (ficha, tarjetas, carrusel). */
@@ -166,9 +170,19 @@ export function buildProductDetailBadges(
   for (const spec of BADGE_SPECS) {
     const fromAttr = attributeValue(attributes, spec.match);
     const fallback = defaults.find((row) => row.id === spec.id);
-    const value = fromAttr ?? (printer ? fallback?.value : null);
+    let value = fromAttr ?? (printer ? fallback?.value : null);
+    if (spec.id === 'formato' && isDualFormatA4PrimaryProduct(product)) {
+      value = 'A4';
+    }
     if (value) {
       badges.push({ id: spec.id, label: spec.label, value });
+    }
+  }
+
+  if (isDualFormatA4PrimaryProduct(product)) {
+    const formatoLabels = resolveFormatoPapelBadgeLabels(product);
+    if (formatoLabels.includes('A3') && !badges.some((row) => row.id === 'formato-a3')) {
+      badges.push({ id: 'formato-a3', label: 'Formato', value: 'A3' });
     }
   }
 

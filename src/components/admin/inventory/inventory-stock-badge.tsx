@@ -7,9 +7,10 @@ import type { InventoryProduct, InventoryWarehouse } from '@/types/product';
 interface InventoryStockBadgeProps {
   product: InventoryProduct;
   warehouses: InventoryWarehouse[];
+  compact?: boolean;
 }
 
-export function InventoryStockBadge({ product, warehouses }: InventoryStockBadgeProps) {
+export function InventoryStockBadge({ product, warehouses, compact = false }: InventoryStockBadgeProps) {
   const breakdown = getStockBreakdown(product, warehouses);
   const total = product.stock;
   const hasMultiple = breakdown.filter((line) => line.quantity > 0).length > 1;
@@ -18,7 +19,8 @@ export function InventoryStockBadge({ product, warehouses }: InventoryStockBadge
     <Badge
       variant="outline"
       className={cn(
-        'min-w-[2rem] justify-center border px-2.5 tabular-nums font-semibold',
+        'min-w-[1.75rem] justify-center border tabular-nums font-semibold',
+        compact ? 'h-5 px-1.5 text-[0.6875rem] leading-none' : 'px-2.5',
         total > 0
           ? 'border-green-200 bg-green-50 text-green-800'
           : 'border-destructive/30 bg-destructive/10 text-destructive',

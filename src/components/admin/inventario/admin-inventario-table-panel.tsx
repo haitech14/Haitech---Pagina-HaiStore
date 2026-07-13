@@ -155,7 +155,7 @@ function PriceColumnHeader({
       type="button"
       onClick={() => onSort(role)}
       className={cn(
-        'flex min-w-[5.5rem] items-center justify-end gap-1 rounded-sm transition-colors',
+        'flex min-w-[5.5rem] items-center justify-end gap-0.5 rounded-sm text-[0.625rem] leading-none transition-colors',
         'hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         meta.tone,
         active && 'text-foreground',
@@ -250,7 +250,7 @@ function EditableProductThumb({
         onMouseLeave={() => setIsHovered(false)}
         disabled={isUploading}
         className={cn(
-          'relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-muted/30 transition-colors',
+          'relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded border border-border/70 bg-muted/30 transition-colors',
           'hover:border-[hsl(var(--admin-accent))]/50 hover:bg-muted/50',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-accent))] focus-visible:ring-offset-2',
           showPasteHint &&
@@ -268,11 +268,11 @@ function EditableProductThumb({
             loading={optimisticPreviewSrc ? 'eager' : 'lazy'}
           />
         ) : (
-          <ProductNoImagePlaceholder size="md" className="w-full max-w-none" />
+          <ProductNoImagePlaceholder size="sm" className="w-full max-w-none opacity-70" />
         )}
         {isUploading ? (
           <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/55">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden="true" />
+            <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
           </span>
         ) : null}
         {showPasteHint ? (
@@ -909,7 +909,7 @@ export function AdminInventarioTablePanel({
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               {batchMode ? (
-                <TableHead className="h-8 w-10 px-3">
+                <TableHead className="h-7 w-9 px-2 py-1">
                   <Checkbox
                     checked={
                       allPageSelected ? true : somePageSelected ? 'indeterminate' : false
@@ -919,25 +919,25 @@ export function AdminInventarioTablePanel({
                   />
                 </TableHead>
               ) : null}
-              <TableHead className="h-8 min-w-[6.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[6.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Código
               </TableHead>
-              <TableHead className="h-8 min-w-[7rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[7rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Categorías
               </TableHead>
-              <TableHead className="h-8 min-w-[4.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[4.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Producto
               </TableHead>
-              <TableHead className="h-8 min-w-[22rem] w-[460px] max-w-[460px] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[22rem] w-[460px] max-w-[460px] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Nombre
               </TableHead>
-              <TableHead className="h-8 min-w-[4.5rem] text-center text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[4.5rem] px-1.5 py-1 text-center text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Stock
               </TableHead>
               {PRICE_ROLES.map((role) => (
                 <TableHead
                   key={role}
-                  className="h-8 min-w-[6.5rem] text-right text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground"
+                  className="h-7 min-w-[6.5rem] px-1.5 py-1 text-right text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground"
                 >
                   <PriceColumnHeader
                     role={role}
@@ -947,22 +947,22 @@ export function AdminInventarioTablePanel({
                   />
                 </TableHead>
               ))}
-              <TableHead className="h-8 min-w-[6.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[6.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Venta Cruzada
               </TableHead>
-              <TableHead className="h-8 min-w-[5.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[5.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Upsells
               </TableHead>
-              <TableHead className="h-8 w-[12rem] max-w-[12rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 w-[12rem] max-w-[12rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Atributos
               </TableHead>
-              <TableHead className="h-8 min-w-[6.5rem] text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[6.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Variantes
               </TableHead>
-              <TableHead className="h-8 w-auto shrink px-1.5 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <TableHead className="h-7 w-auto shrink px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Estado
               </TableHead>
-              <TableHead className="h-8 w-10 px-3" aria-label="Acciones" />
+              <TableHead className="h-7 w-9 px-2 py-1" aria-label="Acciones" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -1014,7 +1014,7 @@ export function AdminInventarioTablePanel({
                       className={cn(batchMode && isSelected && 'bg-red-50/50 dark:bg-red-950/20')}
                     >
                     {batchMode ? (
-                      <TableCell className="px-3 py-2">
+                      <TableCell className="px-2 py-1">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={(checked) => toggleRow(record.id, checked === true)}
@@ -1022,21 +1022,21 @@ export function AdminInventarioTablePanel({
                         />
                       </TableCell>
                     ) : null}
-                    <TableCell className="py-2">
+                    <TableCell className="px-1.5 py-1">
                       <span
-                        className="block max-w-[8rem] truncate font-mono text-xs text-muted-foreground"
+                        className="block max-w-[8rem] truncate font-mono text-[0.6875rem] leading-tight text-muted-foreground"
                         title={record.sku}
                       >
                         {formatProductCodeCardDisplay(record.sku)}
                       </span>
                     </TableCell>
-                    <TableCell className="py-2">
+                    <TableCell className="px-1.5 py-1">
                       <AdminListasPreciosCategoryCell
                         product={product}
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>
-                    <TableCell className="py-2.5">
+                    <TableCell className="px-1.5 py-1">
                       <EditableProductThumb
                         product={product}
                         name={record.name}
@@ -1046,7 +1046,7 @@ export function AdminInventarioTablePanel({
                         onUpload={(file) => uploadProductImage(product, file)}
                       />
                     </TableCell>
-                    <TableCell className="min-w-[22rem] max-w-[460px] py-2">
+                    <TableCell className="min-w-[22rem] max-w-[460px] px-1.5 py-1">
                       <AdminListasPreciosNameCell
                         product={product}
                         name={record.name}
@@ -1057,7 +1057,7 @@ export function AdminInventarioTablePanel({
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>
-                    <TableCell className="py-2">
+                    <TableCell className="px-1.5 py-1">
                       <AdminListasPreciosStockCell
                         product={product}
                         warehouses={warehouses}
@@ -1068,7 +1068,7 @@ export function AdminInventarioTablePanel({
                       />
                     </TableCell>
                     {PRICE_ROLES.map((role) => (
-                      <TableCell key={role} className="py-2">
+                      <TableCell key={role} className="px-1.5 py-1">
                         <AdminListasPreciosPriceCell
                           product={product}
                           role={role}
@@ -1081,7 +1081,7 @@ export function AdminInventarioTablePanel({
                         />
                       </TableCell>
                     ))}
-                    <TableCell className="py-2">
+                    <TableCell className="px-1.5 py-1">
                       <AdminListasPreciosMerchandisingCell
                         product={product}
                         catalog={merchandisingCatalog}
@@ -1090,7 +1090,7 @@ export function AdminInventarioTablePanel({
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>
-                    <TableCell className="py-2">
+                    <TableCell className="px-1.5 py-1">
                       <AdminListasPreciosMerchandisingCell
                         product={product}
                         catalog={merchandisingCatalog}
@@ -1099,7 +1099,7 @@ export function AdminInventarioTablePanel({
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>
-                    <TableCell className="w-[12rem] max-w-[12rem] py-2">
+                    <TableCell className="w-[12rem] max-w-[12rem] px-1.5 py-1">
                       <InventoryAttributesCell
                         attributes={product.attributes ?? []}
                         nameOptions={attributeNameOptions}
@@ -1111,7 +1111,7 @@ export function AdminInventarioTablePanel({
                         }}
                       />
                     </TableCell>
-                    <TableCell className="py-2">
+                    <TableCell className="px-1.5 py-1">
                       <AdminInventarioVariantsCell
                         product={product}
                         catalog={merchandisingCatalog}
@@ -1119,21 +1119,21 @@ export function AdminInventarioTablePanel({
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>
-                    <TableCell className="w-auto shrink px-1.5 py-2">
+                    <TableCell className="w-auto shrink px-1.5 py-1">
                       <AdminListasPreciosStatusBadge
                         status={record.status}
                         product={product}
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>
-                    <TableCell className="px-3 py-2 text-right">
+                    <TableCell className="px-2 py-1 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="size-7"
+                            className="size-6"
                             disabled={rowBusyId === product.id || bulkBusy}
                             aria-label={`Acciones para ${record.name}`}
                           >

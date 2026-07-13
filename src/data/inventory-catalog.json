@@ -2127,7 +2127,7 @@
     {
       "id": "71289ec2-dbca-4780-b319-eb3d259fadb5",
       "name": "Impresora Multifuncional NUEVA RICOH IM 460F",
-      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A3\nProducción mensual 50,000 páginas al mes\nRegalo: 01 Toner de Inicio 5,000 páginas y Envio Gratis",
+      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4 (también A3)\nProducción mensual 50,000 páginas al mes\nRegalo: 01 Toner de Inicio 5,000 páginas y Envio Gratis",
       "currency": "USD",
       "stock": 11,
       "category": "Multifuncionales Nuevas",
@@ -2157,7 +2157,7 @@
         {
           "id": "070453e4-0753-461e-a90d-f3b35fb93726",
           "name": "Formato papel",
-          "value": "A3"
+          "value": "A4"
         },
         {
           "id": "c842f4f5-f501-4fbc-8bc0-0f8a09f13614",
@@ -2200,8 +2200,8 @@
         },
         {
           "icon": "FileText",
-          "title": "A3",
-          "subtitle": "Formato de impresión"
+          "title": "A4",
+          "subtitle": "También A3"
         },
         {
           "icon": "ScanLine",
@@ -3008,7 +3008,24 @@
         "distribuidor": 859
       },
       "sort_order": 3,
-      "slug": "impresora-multifuncional-b-n-nueva-ricoh-mp-305-03455e1da407"
+      "slug": "impresora-multifuncional-b-n-nueva-ricoh-mp-305-03455e1da407",
+      "attributes": [
+        {
+          "id": "mp305-color",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "mp305-formato",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "mp305-adf",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        }
+      ]
     },
     {
       "id": "ad23e3ac-84c6-4a54-9d84-64bf6990c418",

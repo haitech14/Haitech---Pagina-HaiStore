@@ -99,6 +99,7 @@ export function AdminListasPreciosPriceCell({
           priceRole={priceRole}
           category={product.category}
           embedded
+          compact
         />
       </div>
     );
@@ -118,6 +119,7 @@ export function AdminListasPreciosPriceCell({
           <InventoryPurchasePriceDisplay
             product={product}
             exchangeRate={purchaseExchangeRate}
+            compact
           />
         ) : priceRole ? (
           <InventorySalePrice
@@ -126,6 +128,7 @@ export function AdminListasPreciosPriceCell({
             priceRole={priceRole}
             category={product.category}
             embedded
+            compact
           />
         ) : null
       }

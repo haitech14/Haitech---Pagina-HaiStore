@@ -62,13 +62,13 @@ export function AdminListasPreciosNameCell({
           display={
             <div className="min-w-0 max-w-[420px]">
               <p
-                className="line-clamp-2 text-sm font-semibold leading-snug text-foreground"
+                className="line-clamp-2 text-xs font-semibold leading-tight text-foreground"
                 title={formatInventoryProductName(name)}
               >
                 {formatInventoryProductName(name)}
               </p>
               {subtitle ? (
-                <p className="truncate text-xs text-muted-foreground" title={subtitle}>
+                <p className="truncate text-[0.6875rem] leading-tight text-muted-foreground" title={subtitle}>
                   {subtitle}
                 </p>
               ) : null}
@@ -99,7 +99,7 @@ export function AdminListasPreciosNameCell({
         type="button"
         variant="ghost"
         size="icon"
-        className="size-7 shrink-0 text-muted-foreground hover:text-foreground"
+        className="size-6 shrink-0 text-muted-foreground hover:text-foreground"
         asChild
       >
         <a

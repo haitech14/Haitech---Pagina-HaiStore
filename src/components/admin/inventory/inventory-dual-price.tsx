@@ -8,7 +8,7 @@ import {
   usdToPenCharm,
   usdToPenPrecise,
 } from '@/lib/pen-pricing';
-import { formatUsd, formatUsdInteger } from '@/lib/utils';
+import { cn, formatUsd, formatUsdInteger } from '@/lib/utils';
 
 interface InventoryDualPriceProps {
   usd: number;
@@ -18,6 +18,8 @@ interface InventoryDualPriceProps {
   useCharm?: boolean;
   /** Categoría de inventario; impresoras y multifuncionales muestran precios sin centavos. */
   category?: string | null;
+  /** Tipografía más compacta para tablas densas. */
+  compact?: boolean;
 }
 
 export function InventoryDualPrice({
@@ -25,6 +27,7 @@ export function InventoryDualPrice({
   exchangeRate,
   useCharm = true,
   category,
+  compact = false,
 }: InventoryDualPriceProps) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
@@ -35,9 +38,12 @@ export function InventoryDualPrice({
   const usdLabel = integerDisplay ? formatUsdInteger(usd) : formatUsd(usd);
   const penFirst = dualPriceOrder === 'pen-usd';
 
+  const priceClass = compact ? 'text-xs leading-none' : 'leading-tight';
+  const secondaryClass = compact ? 'text-[0.625rem] leading-none' : 'text-[0.65rem]';
+
   if (showPen && !showUsd) {
     return (
-      <div className="inline-block text-right leading-tight tabular-nums">
+      <div className={cn('inline-block text-right tabular-nums', priceClass)}>
         <p className="whitespace-nowrap font-semibold text-foreground">{penLabel}</p>
       </div>
     );
@@ -45,7 +51,7 @@ export function InventoryDualPrice({
 
   if (showUsd && !showPen) {
     return (
-      <div className="inline-block text-right leading-tight tabular-nums">
+      <div className={cn('inline-block text-right tabular-nums', priceClass)}>
         <p className="whitespace-nowrap font-semibold text-foreground">{usdLabel}</p>
       </div>
     );
@@ -55,9 +61,9 @@ export function InventoryDualPrice({
   const secondaryLabel = penFirst ? usdLabel : penLabel;
 
   return (
-    <div className="inline-block text-right leading-tight tabular-nums">
+    <div className={cn('inline-block text-right tabular-nums', priceClass)}>
       <p className="whitespace-nowrap font-semibold text-foreground">{primaryLabel}</p>
-      <p className="whitespace-nowrap text-[0.65rem] text-muted-foreground">{secondaryLabel}</p>
+      <p className={cn('whitespace-nowrap text-muted-foreground', secondaryClass)}>{secondaryLabel}</p>
     </div>
   );
 }
