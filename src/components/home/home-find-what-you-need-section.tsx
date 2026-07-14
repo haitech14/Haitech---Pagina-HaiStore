@@ -8,6 +8,7 @@ import {
   HomeCategoryChipContent,
 } from '@/components/home/home-category-chip';
 import { HomeLandingProductCard } from '@/components/home/home-landing-product-card';
+import { CarouselDots } from '@/components/ui/carousel-dots';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getFeaturedProducts, type FeaturedProduct } from '@/data/featured-products';
 import {
@@ -138,17 +139,21 @@ function HomeFindProductsSkeleton() {
 function HomeFindProductsCarousel({ products }: { products: FeaturedProduct[] }) {
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
+    // En desktop caben 5 slides: `auto` avanza una “página” (5 en lg/xl).
     slidesToScroll: 'auto',
     watchDrag: emblaShouldWatchDrag,
   });
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
   const productIdsKey = useMemo(() => products.map((product) => product.id).join('|'), [products]);
 
@@ -158,14 +163,19 @@ function HomeFindProductsCarousel({ products }: { products: FeaturedProduct[] })
     const onSelect = () => {
       setCanScrollPrev(emblaApi.canScrollPrev());
       setCanScrollNext(emblaApi.canScrollNext());
+      setSelectedIndex(emblaApi.selectedScrollSnap());
     };
+    const updateSnaps = () => setScrollSnaps(emblaApi.scrollSnapList());
 
+    updateSnaps();
     onSelect();
     emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', updateSnaps);
     emblaApi.on('reInit', onSelect);
 
     return () => {
       emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', updateSnaps);
       emblaApi.off('reInit', onSelect);
     };
   }, [emblaApi]);
@@ -212,6 +222,15 @@ function HomeFindProductsCarousel({ products }: { products: FeaturedProduct[] })
           ))}
         </ul>
       </div>
+
+      <CarouselDots
+        count={scrollSnaps.length}
+        selectedIndex={selectedIndex}
+        onSelect={scrollTo}
+        ariaLabel="Páginas de productos"
+        theme="dark"
+        className="mt-4 sm:mt-5"
+      />
     </div>
   );
 }

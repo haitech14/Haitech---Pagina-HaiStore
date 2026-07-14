@@ -90,4 +90,5 @@ export const HOME_FIND_DEFAULT_TAB: HomeFindMainTabId = 'equipos';
 
 export const HOME_FIND_VISIBLE_CATEGORY_LIMIT = 5;
 
-export const HOME_FIND_PRODUCT_DISPLAY_LIMIT = 5;
+/** Varias páginas de 5 productos visibles en desktop (carrusel + bullets). */
+export const HOME_FIND_PRODUCT_DISPLAY_LIMIT = 15;
