@@ -13,6 +13,8 @@ export interface MediaAlbumItem {
   bytes?: number | null;
   width?: number | null;
   height?: number | null;
+  /** SHA-256 del archivo persistido (para fusionar duplicados byte a byte). */
+  content_hash?: string | null;
   /** Repeticiones agrupadas con la misma URL. */
   duplicateCount?: number;
   /** IDs fusionados al deduplicar (para eliminar todas las copias). */

@@ -1604,7 +1604,8 @@ export function buildProductDetail(
     }),
   );
   const heroSpecBullets = postProcessHeroSpecBullets(
-    shouldPreferTitleSyncedHeroBullets(product)
+    shouldPreferTitleSyncedHeroBullets(product) &&
+      !Array.isArray(product.storefront_hero_bullets)
       ? generatedHeroBullets
       : resolveStoredHeroBullets(product, generatedHeroBullets).map((bullet) => ({
           ...bullet,

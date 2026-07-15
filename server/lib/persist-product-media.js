@@ -11,11 +11,20 @@ import {
   isYoutubeMediaUrl,
   normalizeYoutubeMediaUrl,
 } from '../../shared/product-media.js';
+import {
+  deriveProductMediaModelStem,
+  publicProductMediaPathForProduct,
+} from '../../shared/product-media-filename.js';
+import {
+  PRODUCT_IMAGE_MAX_EDGE,
+  PRODUCT_IMAGE_WEBP_QUALITY,
+} from '../../shared/product-media-upload-limits.js';
+import { sanitizeProductId } from '../../shared/product-stock-images.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const WEBP_QUALITY = 82;
-const MAX_EDGE = 1200;
+const WEBP_QUALITY = PRODUCT_IMAGE_WEBP_QUALITY;
+const MAX_EDGE = PRODUCT_IMAGE_MAX_EDGE;
 const PRODUCT_CARD_VARIANTS = [
   { suffix: '-256', width: 256 },
   { suffix: '-512', width: 512 },
@@ -29,15 +38,7 @@ export function getPublicProductsDir() {
   return path.join(__dirname, '../../public/products');
 }
 
-function sanitizeProductId(productId) {
-  return String(productId ?? 'product')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9_-]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
+/** @deprecated Preferir publicProductMediaPathForProduct(product). */
 export function publicProductMediaPath(productId, index = 0) {
   const base = sanitizeProductId(productId);
   const suffix = index > 0 ? `-${index + 1}` : '';
@@ -88,7 +89,7 @@ async function exportBufferToProductWebp(input, filePath, sourceUrl) {
   const watermarked = await applyHaitechWatermark(resized, { sourceUrl });
 
   const output = await sharp(watermarked)
-    .webp({ quality: WEBP_QUALITY })
+    .webp({ quality: WEBP_QUALITY, effort: 4 })
     .toBuffer();
 
   await fs.writeFile(filePath, output);
@@ -129,14 +130,34 @@ async function exportAlbumUrlToProductFile(albumUrl, filePath) {
   return exportBufferToProductWebp(input, filePath, '/album/import');
 }
 
-async function resolveProductImageCacheSuffix(absolutePath, imageIndex) {
+async function exportLocalProductUrlToFile(productUrl, filePath, publicDir) {
+  const sourcePath = path.join(publicDir, path.basename(mediaPathname(productUrl)));
+  const input = await fs.readFile(sourcePath);
+  return exportBufferToProductWebp(input, filePath, '/products/import');
+}
+
+function productOwnsMediaUrl(product, url) {
+  const pathName = mediaPathname(url);
+  if (!pathName.startsWith('/products/')) return true;
+  const file = path.basename(pathName);
+  const stems = [
+    deriveProductMediaModelStem(product),
+    sanitizeProductId(product.id),
+    sanitizeProductId(product.code),
+  ].filter(Boolean);
+
+  return stems.some(
+    (base) =>
+      file === `${base}.webp` ||
+      file.startsWith(`${base}-`),
+  );
+}
+
+async function resolveProductImageCacheSuffix(_absolutePath, imageIndex) {
+  // Siempre versionar la imagen principal: evita que sanitizeStoredProductMedia
+  // la trate como placeholder sync/donor (isDuplicateMainProductGallery) y la borre.
   if (imageIndex !== 0) return '';
-  try {
-    await fs.access(absolutePath);
-    return `?v=${Date.now()}`;
-  } catch {
-    return '';
-  }
+  return `?v=${Date.now()}`;
 }
 
 async function exportVideoDataUrlToFile(dataUrl, filePath) {
@@ -214,7 +235,7 @@ export async function persistProductMedia(product) {
   for (const url of sourceUrls) {
     if (url.startsWith('data:image/')) {
       const imageIndex = countPersistedImages(nextGallery);
-      const publicPath = publicProductMediaPath(product.id, imageIndex);
+      const publicPath = publicProductMediaPathForProduct(product, imageIndex);
       const absolutePath = path.join(publicDir, path.basename(publicPath.split('?')[0]));
       const cacheSuffix = await resolveProductImageCacheSuffix(absolutePath, imageIndex);
       try {
@@ -243,7 +264,7 @@ export async function persistProductMedia(product) {
 
     if (mediaPathname(url).startsWith('/album/')) {
       const imageIndex = countPersistedImages(nextGallery);
-      const publicPath = publicProductMediaPath(product.id, imageIndex);
+      const publicPath = publicProductMediaPathForProduct(product, imageIndex);
       const absolutePath = path.join(publicDir, path.basename(publicPath.split('?')[0]));
       const cacheSuffix = await resolveProductImageCacheSuffix(absolutePath, imageIndex);
       try {
@@ -251,6 +272,29 @@ export async function persistProductMedia(product) {
         nextGallery.push(`${publicPath}${cacheSuffix}`);
       } catch (error) {
         console.warn('[persist-media] album', product.id, error?.message ?? error);
+        nextGallery.push(url);
+      }
+      continue;
+    }
+
+    // Imagen de otro producto (/products/otro-id.webp): copiar a ruta propia.
+    if (
+      mediaPathname(url).startsWith('/products/') &&
+      isImageProductUrl(url) &&
+      !productOwnsMediaUrl(product, url) &&
+      !/-(?:256|512|768|1024|1280|1920)\.webp$/i.test(mediaPathname(url))
+    ) {
+      const imageIndex = countPersistedImages(nextGallery);
+      const publicPath = publicProductMediaPathForProduct(product, imageIndex);
+      const absolutePath = path.join(publicDir, path.basename(publicPath.split('?')[0]));
+      const cacheSuffix = await resolveProductImageCacheSuffix(absolutePath, imageIndex);
+      try {
+        await persistProductImageFile(absolutePath, () =>
+          exportLocalProductUrlToFile(url, absolutePath, publicDir),
+        );
+        nextGallery.push(`${publicPath}${cacheSuffix}`);
+      } catch (error) {
+        console.warn('[persist-media] foreign-product', product.id, error?.message ?? error);
         nextGallery.push(url);
       }
       continue;
@@ -281,6 +325,11 @@ export async function persistProductMedia(product) {
   let finalImageUrl = image_url;
   if (finalImageUrl && isImageProductUrl(finalImageUrl)) {
     await refreshProductCardVariantsForUrl(finalImageUrl, publicDir);
+    // Asegura cache-bust aunque la URL ya fuera /products/... sin ?v=
+    if (!String(finalImageUrl).includes('?v=')) {
+      const bare = mediaPathname(finalImageUrl);
+      finalImageUrl = `${bare}?v=${Date.now()}`;
+    }
   }
 
   return {

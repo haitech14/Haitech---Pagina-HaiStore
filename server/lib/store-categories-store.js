@@ -232,6 +232,42 @@ const DEFAULT_CATEGORIES = [
     image: '/categories/servicio-tecnico.png',
     tagline: 'Mantenimiento, instalación y soporte especializado',
   },
+  {
+    id: 'cat-formato-ancho',
+    name: 'Formato Ancho',
+    slug: 'formato-ancho',
+    parentId: null,
+    sortOrder: 5,
+    inventoryLabels: ['Formato Ancho', 'Plotter y Multifuncional de Planos'],
+    image: '/categories/formato-ancho.png',
+    tagline: 'Plotters y equipos para gran formato',
+  },
+  {
+    id: 'cat-escaneres',
+    name: 'Escáneres',
+    slug: 'escaneres',
+    parentId: null,
+    sortOrder: 6,
+    inventoryLabels: [
+      'Escáneres',
+      'Escáneres Nuevos',
+      'Escáneres, Escáneres Nuevos',
+      'Escaneres',
+      'Escaner',
+    ],
+    image: '/categories/escaneres.png',
+    tagline: 'Digitalización rápida y precisa de documentos',
+  },
+  {
+    id: 'cat-escaneres-nuevos',
+    name: 'Escáneres Nuevos',
+    slug: 'escaneres-nuevos',
+    parentId: 'cat-escaneres',
+    sortOrder: 0,
+    inventoryLabels: ['Escáneres Nuevos', 'Escáneres, Escáneres Nuevos'],
+    image: '/categories/escaneres.png',
+    tagline: 'Escáneres de documentos nuevos',
+  },
 ];
 
 function slugify(value) {
@@ -303,6 +339,43 @@ function mergeMissingSupplyCategories(categories, removedSlugs = []) {
     if (removed.has(seed.slug) || removed.has(seed.id)) continue;
     byId.set(seed.id, normalizeCategory(seed));
     changed = true;
+  }
+
+  return changed ? [...byId.values()] : categories;
+}
+
+/** Inserta raíces/subcategorías del seed ausentes (p. ej. Escáneres, Formato Ancho). */
+function mergeMissingDefaultCategories(categories, removedSlugs = []) {
+  const removed = new Set(removedSlugs);
+  const byId = new Map(categories.map((row) => [row.id, row]));
+  const bySlug = new Map(categories.map((row) => [row.slug, row]));
+  let changed = false;
+
+  const tryAdd = (seed) => {
+    if (byId.has(seed.id) || bySlug.has(seed.slug)) return;
+    if (removed.has(seed.slug) || removed.has(seed.id)) return;
+    if (seed.parentId) {
+      const parent =
+        byId.get(seed.parentId) ||
+        DEFAULT_CATEGORIES.find((entry) => entry.id === seed.parentId);
+      if (!parent) return;
+      if (removed.has(parent.slug) || removed.has(parent.id)) return;
+      if (!byId.has(parent.id) && !bySlug.has(parent.slug)) {
+        tryAdd(parent);
+      }
+      if (!byId.has(parent.id) && !bySlug.has(parent.slug)) return;
+    }
+    const normalized = normalizeCategory(seed);
+    byId.set(normalized.id, normalized);
+    bySlug.set(normalized.slug, normalized);
+    changed = true;
+  };
+
+  for (const seed of DEFAULT_CATEGORIES.filter((entry) => !entry.parentId)) {
+    tryAdd(seed);
+  }
+  for (const seed of DEFAULT_CATEGORIES.filter((entry) => entry.parentId)) {
+    tryAdd(seed);
   }
 
   return changed ? [...byId.values()] : categories;
@@ -574,6 +647,12 @@ export async function readStoreCategories() {
   const supplyMerged = mergeMissingSupplyCategories(categories, removedStaticSlugs);
   if (supplyMerged !== categories) {
     categories = supplyMerged;
+    needsWrite = true;
+  }
+
+  const defaultMerged = mergeMissingDefaultCategories(categories, removedStaticSlugs);
+  if (defaultMerged !== categories) {
+    categories = defaultMerged;
     needsWrite = true;
   }
 

@@ -94,6 +94,7 @@ export function mapProductToListaPreciosRecord(product: InventoryProduct): Admin
     imageColor: hashColor(product.id),
     prices,
     status: resolveStatus(product),
+    searchHaystack: `${product.name} ${product.code?.trim() || product.id}`.toLowerCase(),
   };
 }
 

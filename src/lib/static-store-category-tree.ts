@@ -122,7 +122,13 @@ const EQUIPMENT_SUBCATEGORIES: Record<
     {
       slug: 'escaneres-nuevos',
       name: 'Escáneres Nuevos',
-      inventoryLabels: ['Escáneres Nuevos', 'Escáneres, Escáneres Nuevos'],
+      inventoryLabels: [
+        'Escáneres Nuevos',
+        'Escáneres, Escáneres Nuevos',
+        'Escaneres Nuevos',
+        'Escaner',
+        'Escáner',
+      ],
     },
   ],
   'equipos-de-oficina': [
@@ -217,7 +223,54 @@ export function enrichStoreCategoryTree(
     return { ...node, children: merged };
   }
 
-  return pruneRemovedCategorySlugs(tree.map(enrichNode), removedStaticSlugs);
+  const enrichedChildren = tree.map(enrichNode);
+  const withMissingRoots = mergeMissingStaticCategoryRoots(
+    enrichedChildren,
+    removedStaticSlugs,
+  );
+
+  return pruneRemovedCategorySlugs(withMissingRoots, removedStaticSlugs);
+}
+
+/**
+ * Añade raíces del catálogo estático ausentes en la API (p. ej. Escáneres),
+ * para que el árbol taxonómico del inventario esté completo.
+ */
+export function mergeMissingStaticCategoryRoots(
+  tree: StoreCategoryTreeNode[],
+  removedStaticSlugs: readonly string[] = [],
+): StoreCategoryTreeNode[] {
+  const removed = new Set(removedStaticSlugs);
+  const existingSlugs = new Set(tree.map((node) => node.slug));
+  const missingRoots: StoreCategoryTreeNode[] = [];
+
+  for (const [index, category] of categories.entries()) {
+    const hasInventory =
+      Boolean(category.inventoryCategories?.length) ||
+      Boolean(EQUIPMENT_SUBCATEGORIES[category.slug]);
+    if (!hasInventory) continue;
+    if (existingSlugs.has(category.slug) || removed.has(category.slug)) continue;
+
+    const id = `static-${category.slug}`;
+    const inventoryLabels = category.inventoryCategories ?? [category.name];
+    const subEntries = EQUIPMENT_SUBCATEGORIES[category.slug] ?? [];
+
+    missingRoots.push({
+      id,
+      name: category.name,
+      slug: category.slug,
+      parentId: null,
+      sortOrder: tree.length + index,
+      inventoryLabels: [...inventoryLabels],
+      image: category.image ?? null,
+      tagline: category.tagline ?? null,
+      productCount: countProductsForLabels(inventoryLabels),
+      children: buildSubcategoryNodes(id, subEntries.filter((entry) => !removed.has(entry.slug))),
+    });
+  }
+
+  if (missingRoots.length === 0) return tree;
+  return [...tree, ...missingRoots];
 }
 
 /** Árbol mínimo embebido cuando la API de categorías no responde. */

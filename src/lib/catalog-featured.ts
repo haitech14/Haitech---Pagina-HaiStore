@@ -21,6 +21,27 @@ export const INVENTORY_INDEX_URL = '/catalog/inventory-index.json';
 
 let catalogCache: CatalogRow[] | null = null;
 let catalogLoadPromise: Promise<CatalogRow[]> | null = null;
+let catalogMediaEpoch = 0;
+
+const CATALOG_MEDIA_UPDATED_EVENT = 'haistore-catalog-media-updated';
+
+function bumpCatalogMediaEpoch(): void {
+  catalogMediaEpoch += 1;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(CATALOG_MEDIA_UPDATED_EVENT, { detail: catalogMediaEpoch }));
+  }
+}
+
+export function getCatalogMediaEpoch(): number {
+  return catalogMediaEpoch;
+}
+
+export function subscribeCatalogMediaUpdates(listener: () => void): () => void {
+  if (typeof window === 'undefined') return () => undefined;
+  const handler = () => listener();
+  window.addEventListener(CATALOG_MEDIA_UPDATED_EVENT, handler);
+  return () => window.removeEventListener(CATALOG_MEDIA_UPDATED_EVENT, handler);
+}
 
 function normalizeCatalogRows(rawProducts: CatalogJsonRow[]): CatalogRow[] {
   return rawProducts.map((raw) => {
@@ -72,6 +93,32 @@ export function preloadCatalogIndex(): void {
   });
 }
 
+/**
+ * Actualiza image_url/gallery en la caché del índice (tarjetas home/tienda)
+ * tras aplicar foto desde el álbum u otra mutación de medios.
+ */
+export function patchCatalogIndexProductMedia(
+  product: Pick<InventoryProduct, 'id' | 'image_url' | 'gallery'>,
+): void {
+  if (!catalogCache) return;
+  const index = catalogCache.findIndex((row) => row.id === product.id);
+  if (index < 0) return;
+
+  const current = catalogCache[index];
+  if (!current) return;
+
+  catalogCache = [
+    ...catalogCache.slice(0, index),
+    {
+      ...current,
+      image_url: product.image_url ?? current.image_url,
+      gallery: Array.isArray(product.gallery) ? product.gallery : current.gallery,
+    },
+    ...catalogCache.slice(index + 1),
+  ];
+  bumpCatalogMediaEpoch();
+}
+
 /** Filas del índice en caché (vacío hasta que termine la precarga). */
 export function getCatalogRows(): CatalogRow[] {
   return (catalogCache ?? []).filter((row) => isProductVisibleOnStorefront(row));
@@ -118,6 +165,10 @@ export function catalogRowToFeatured(
       ? Math.round((1 - publicPrice / compareAt) * 100)
       : undefined;
 
+  const gallery = Array.isArray(product.gallery)
+    ? product.gallery.filter((url): url is string => typeof url === 'string' && url.length > 0)
+    : [];
+
   const featured: FeaturedProduct = {
     id: product.id,
     name: product.name,
@@ -130,6 +181,7 @@ export function catalogRowToFeatured(
     rating: meta?.rating ?? 5,
     reviews: meta?.reviews ?? stableReviewCount(product.id),
     image: resolveProductImageUrl(product),
+    ...(gallery.length > 0 ? { gallery } : {}),
   };
 
   if (product.attributes?.length) {

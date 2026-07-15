@@ -1,6 +1,10 @@
 import { formatEquipmentRentalPen } from '@/lib/rental-calculator';
 import { useDisplayCurrency } from '@/context/display-currency-context';
-import { getDisplayPriceVisibility } from '@/lib/display-price';
+import {
+  CONSULTAR_PRECIO_LABEL,
+  getDisplayPriceVisibility,
+  isPriceOnRequest,
+} from '@/lib/display-price';
 import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
 
 export interface RentalEstimateDualPriceProps {
@@ -61,6 +65,11 @@ export interface DualPriceProps {
   alwaysBoth?: boolean;
   /** Apila PEN y USD en líneas separadas (sidebar checkout). */
   stacked?: boolean;
+  /**
+   * When true, keep rendering $0 / S/ 0 (checkout totals, discounts, IGV).
+   * Default: storefront product prices show «Consultar Precio» instead.
+   */
+  allowZero?: boolean;
 }
 
 /** Precio en USD, PEN o ambos según la moneda activa del header. */
@@ -70,6 +79,7 @@ export function DualPrice({
   strikethrough = false,
   alwaysBoth = false,
   stacked = false,
+  allowZero = false,
 }: DualPriceProps) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const visibility = getDisplayPriceVisibility(displayCurrency);
@@ -79,6 +89,12 @@ export function DualPrice({
   const strike = strikethrough
     ? 'line-through decoration-muted-foreground decoration-solid'
     : undefined;
+
+  if (!allowZero && isPriceOnRequest(usd)) {
+    return (
+      <span className={cn('whitespace-nowrap', className)}>{CONSULTAR_PRECIO_LABEL}</span>
+    );
+  }
 
   const usdSpan = showUsd ? (
     <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>

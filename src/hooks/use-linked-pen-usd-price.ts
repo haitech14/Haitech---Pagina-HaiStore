@@ -25,12 +25,14 @@ export function useLinkedPenUsdPrice({
     ? usdToPenCharm(usdValue, exchangeRate)
     : usdToPenPrecise(usdValue, exchangeRate);
 
-  const [penInput, setPenInput] = useState(penFromUsd > 0 ? String(penFromUsd) : '');
+  const [penInput, setPenInput] = useState(
+    Number.isFinite(penFromUsd) ? String(penFromUsd) : '',
+  );
   const [penFocused, setPenFocused] = useState(false);
 
   useEffect(() => {
     if (penFocused) return;
-    setPenInput(penFromUsd > 0 ? String(penFromUsd) : '');
+    setPenInput(Number.isFinite(penFromUsd) ? String(penFromUsd) : '');
   }, [penFromUsd, penFocused]);
 
   const handlePenChange = (raw: string) => {
@@ -56,7 +58,7 @@ export function useLinkedPenUsdPrice({
 
     if (!penInput.trim()) {
       onUsdChange('0');
-      setPenInput('');
+      setPenInput('0');
       return;
     }
 

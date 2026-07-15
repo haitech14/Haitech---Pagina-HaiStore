@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiFetchWithRetry } from '@/lib/api';
 import type {
   MediaAlbumDriveConfig,
   MediaAlbumDriveSyncResult,
@@ -16,9 +16,13 @@ export function useMediaAlbum(kind?: MediaAlbumItemKind) {
     queryKey: [...MEDIA_ALBUM_QUERY_KEY, kind ?? 'all'],
     queryFn: () => {
       const params = kind ? `?kind=${encodeURIComponent(kind)}` : '';
-      return apiFetch<{ items: MediaAlbumItem[] }>(`/api/media-album${params}`);
+      return apiFetchWithRetry<{ items: MediaAlbumItem[] }>(`/api/media-album${params}`);
     },
     select: (data) => data.items,
+    staleTime: 30_000,
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 4000),
+    refetchOnMount: 'always',
   });
 }
 
@@ -79,9 +83,16 @@ export async function uploadFileToMediaAlbum(
   readAsDataUrl: (file: File) => Promise<string>,
 ): Promise<MediaAlbumItem> {
   const dataUrl = await readAsDataUrl(file);
+  if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
+    throw new Error('No se pudo leer el archivo de imagen');
+  }
   const kind: MediaAlbumItemKind | undefined = file.type.startsWith('video/') ? 'video' : 'image';
-  return apiFetch<MediaAlbumItem>('/api/media-album/upload', {
-    method: 'POST',
-    body: JSON.stringify({ dataUrl, name: file.name, kind }),
-  });
+  return apiFetchWithRetry<MediaAlbumItem>(
+    '/api/media-album/upload',
+    {
+      method: 'POST',
+      body: JSON.stringify({ dataUrl, name: file.name, kind }),
+    },
+    { retries: 3, delayMs: 500 },
+  );
 }

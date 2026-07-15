@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Pencil } from 'lucide-react';
+import { ChevronLeft, Pencil } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { InventoryProductFormDialog } from '@/components/admin/inventory/inventory-product-form-dialog';
@@ -20,11 +21,25 @@ interface ProductDetailBreadcrumbsBarProps {
   className?: string;
 }
 
+function canNavigateBack(): boolean {
+  const state = window.history.state as { idx?: number } | null;
+  return typeof state?.idx === 'number' && state.idx > 0;
+}
+
+function parentCatalogHref(items: ProductBreadcrumb[]): string {
+  for (let index = items.length - 2; index >= 0; index -= 1) {
+    const href = items[index]?.href;
+    if (href) return href;
+  }
+  return '/tienda';
+}
+
 export function ProductDetailBreadcrumbsBar({
   items,
   productId,
   className,
 }: ProductDetailBreadcrumbsBarProps) {
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const catalogMap = useAdminInventoryCatalogMap();
@@ -64,12 +79,32 @@ export function ProductDetailBreadcrumbsBar({
     [queryClient],
   );
 
+  const handleBack = useCallback(() => {
+    if (canNavigateBack()) {
+      navigate(-1);
+      return;
+    }
+    navigate(parentCatalogHref(items));
+  }, [items, navigate]);
+
   if (items.length === 0) return null;
 
   return (
     <>
       <div className={cn('flex flex-wrap items-center justify-between gap-x-4 gap-y-2', className)}>
-        <ProductDetailBreadcrumbs items={items} className="mb-0 min-w-0 flex-1" />
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9 shrink-0 gap-0.5 px-2 text-neutral-500 hover:bg-muted/50 hover:text-neutral-700 focus-visible:ring-blue-600"
+            onClick={handleBack}
+          >
+            <ChevronLeft className="size-4" aria-hidden="true" />
+            Atrás
+          </Button>
+          <ProductDetailBreadcrumbs items={items} className="mb-0 min-w-0 flex-1" />
+        </div>
         {isAdmin && listProduct ? (
           <Button
             type="button"

@@ -132,17 +132,16 @@ export function AdminListasPreciosMerchandisingCell({
   }, [catalog, products]);
 
   const filteredProducts = useMemo(() => {
+    if (!open) return [];
     const normalizedQuery = query.trim().toLowerCase();
-    const sorted = catalogEntries
-      .filter((entry) => entry.id !== product.id)
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name, 'es'));
-    if (!normalizedQuery) return sorted;
-    return sorted.filter((entry) => {
+    // El catálogo del panel ya viene ordenado; no volver a sort por celda.
+    const withoutSelf = catalogEntries.filter((entry) => entry.id !== product.id);
+    if (!normalizedQuery) return withoutSelf;
+    return withoutSelf.filter((entry) => {
       const haystack = `${entry.name} ${entry.code ?? ''} ${entry.id}`.toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [catalogEntries, product.id, query]);
+  }, [catalogEntries, open, product.id, query]);
 
   const handleOpenChange = (next: boolean) => {
     if (next) {

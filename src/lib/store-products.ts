@@ -28,6 +28,13 @@ export function productToFeatured(product: Product): FeaturedProduct {
     ...(product.price_role ? { price_role: product.price_role } : {}),
     stock: product.stock,
     image: resolveProductImageUrl(product),
+    ...(Array.isArray(product.gallery) && product.gallery.length > 0
+      ? {
+          gallery: product.gallery.filter(
+            (url): url is string => typeof url === 'string' && url.length > 0,
+          ),
+        }
+      : {}),
     rating: 5,
     reviews: 0,
   };

@@ -68,17 +68,15 @@ export function AdminInventarioVariantsCell({
   const [saving, setSaving] = useState(false);
 
   const filteredProducts = useMemo(() => {
+    if (!open) return [];
     const normalizedQuery = query.trim().toLowerCase();
-    const sorted = catalog
-      .filter((entry) => entry.id !== product.id)
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name, 'es'));
-    if (!normalizedQuery) return sorted;
-    return sorted.filter((entry) => {
+    const withoutSelf = catalog.filter((entry) => entry.id !== product.id);
+    if (!normalizedQuery) return withoutSelf;
+    return withoutSelf.filter((entry) => {
       const haystack = `${entry.name} ${entry.code ?? ''} ${entry.id}`.toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [catalog, product.id, query]);
+  }, [catalog, open, product.id, query]);
 
   const handleOpenChange = (next: boolean) => {
     if (next) {

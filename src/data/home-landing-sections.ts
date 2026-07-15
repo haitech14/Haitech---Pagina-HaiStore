@@ -1,19 +1,68 @@
-import { CalendarDays, Droplets, Printer } from 'lucide-react';
+import {
+  BadgeCheck,
+  CircleDollarSign,
+  Clock3,
+  Headset,
+  Printer,
+  RefreshCw,
+  Settings2,
+  ShieldCheck,
+  Star,
+  Truck,
+  UserCog,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
 
+export const HOME_LANDING_SERVICE_EYEBROW = 'Soporte técnico certificado';
+
+export const HOME_LANDING_SERVICE_TITLE = {
+  lead: 'Soluciones técnicas',
+  accent: 'en las que puedes confiar',
+} as const;
+
+export const HOME_LANDING_SERVICE_DESCRIPTION =
+  'Técnicos certificados, experiencia comprobada y atención oportuna para que tus equipos de impresión funcionen sin interrupciones.';
+
 export const HOME_LANDING_SERVICE_FEATURES = [
+  'Diagnóstico preciso',
   'Mantenimiento preventivo',
-  'Reparación',
-  'Instalación',
-  'Diagnóstico',
-  'Repuestos',
+  'Reparaciones con repuestos originales',
+  'Instalación y configuración',
+  'Asesoría personalizada',
+  'Soporte técnico continuo',
 ] as const;
+
+export const HOME_LANDING_SERVICE_TRUST_ITEMS = [
+  { id: 'certificados', label: 'Técnicos certificados', icon: UserCog },
+  { id: 'garantia', label: 'Garantía en cada servicio', icon: ShieldCheck },
+  { id: 'respuesta', label: 'Respuesta rápida', icon: Clock3 },
+] as const;
+
+export type HomeLandingServiceHighlight = {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+export const HOME_LANDING_SERVICE_HIGHLIGHTS: HomeLandingServiceHighlight[] = [
+  { id: 'tecnicos', label: 'Técnicos certificados', icon: UserCog },
+  { id: 'respuesta', label: 'Respuesta rápida', icon: Clock3 },
+  { id: 'repuestos', label: 'Repuestos originales', icon: Star },
+  { id: 'garantia', label: 'Garantía en cada servicio', icon: BadgeCheck },
+];
 
 export const HOME_LANDING_SERVICE_WHATSAPP_MESSAGE =
   'Hola, vengo desde HaiStore. Necesito solicitar un diagnóstico técnico para mi equipo de impresión.';
+
+export const HOME_LANDING_RENTAL_EYEBROW = 'Alquiler de equipos';
+
+export const HOME_LANDING_RENTAL_TITLE = 'Equipos profesionales para cada necesidad';
+
+export const HOME_LANDING_RENTAL_DESCRIPTION =
+  'Equipo de impresión de alta calidad con planes flexibles y mantenimiento incluido.';
 
 export type HomeLandingRentalFeature = {
   id: string;
@@ -22,9 +71,9 @@ export type HomeLandingRentalFeature = {
 };
 
 export const HOME_LANDING_RENTAL_FEATURES: HomeLandingRentalFeature[] = [
-  { id: 'planes', label: 'Planes mensuales flexibles', icon: CalendarDays },
-  { id: 'equipos', label: 'Equipos multifuncionales incluidos', icon: Printer },
-  { id: 'mantenimiento', label: 'Mantenimiento y tóner incluidos', icon: Droplets },
+  { id: 'marcas', label: 'Equipos de las mejores marcas', icon: Printer },
+  { id: 'mantenimiento', label: 'Mantenimiento y tóner incluidos', icon: Settings2 },
+  { id: 'planes', label: 'Planes flexibles para tu empresa', icon: CircleDollarSign },
 ];
 
 export type HomeLandingRentalPlanCard = {
@@ -42,7 +91,7 @@ export const HOME_LANDING_RENTAL_PLANS: HomeLandingRentalPlanCard[] = [
   {
     id: 'basico',
     name: 'Plan Oficina Pequeña',
-    subtitle: 'Para 1 a 5 usuarios',
+    subtitle: 'Todo incluido',
     priceFromPen: 499,
     image: '/services/alquiler/impresoras.png',
     imageAlt: 'Impresora multifuncional para plan oficina pequeña',
@@ -51,7 +100,7 @@ export const HOME_LANDING_RENTAL_PLANS: HomeLandingRentalPlanCard[] = [
   {
     id: 'profesional',
     name: 'Plan Empresa',
-    subtitle: 'Para equipos de trabajo exigentes',
+    subtitle: 'Para equipos de mayor rendimiento',
     priceFromPen: 899,
     image: '/categories/multifuncionales.png',
     imageAlt: 'Fotocopiadora multifuncional para plan empresa',
@@ -61,12 +110,25 @@ export const HOME_LANDING_RENTAL_PLANS: HomeLandingRentalPlanCard[] = [
   {
     id: 'empresarial',
     name: 'Plan Alto Volumen',
-    subtitle: 'Para impresión constante',
+    subtitle: 'Para trabajos exigentes',
     priceFromPen: 1399,
     image: '/services/alquiler/plotters.png',
     imageAlt: 'Equipos de impresión de alto volumen en alquiler',
     href: serviceHubPath('alquiler'),
   },
+];
+
+export type HomeLandingRentalFooterItem = {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+export const HOME_LANDING_RENTAL_FOOTER: HomeLandingRentalFooterItem[] = [
+  { id: 'entrega', label: 'Entrega e instalación incluida', icon: Truck },
+  { id: 'cobertura', label: 'Cobertura a nivel nacional', icon: ShieldCheck },
+  { id: 'soporte', label: 'Soporte técnico permanente', icon: Headset },
+  { id: 'renueva', label: 'Renueva o cambia tu plan cuando lo necesites', icon: RefreshCw },
 ];
 
 export const HOME_LANDING_TONER_HIGHLIGHTS = [
@@ -78,6 +140,7 @@ export const HOME_LANDING_TONER_HIGHLIGHTS = [
 export const HOME_LANDING_LINKS = {
   allProducts: '/tienda',
   technicalService: '/servicio-tecnico',
+  rentalCatalog: serviceHubPath('alquiler'),
   tonerCatalog: categoryLandingPath('toner-suministros'),
   sparePartsCatalog: categoryLandingPath('repuestos'),
 } as const;

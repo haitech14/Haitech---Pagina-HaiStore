@@ -1,11 +1,15 @@
 import sharp from 'sharp';
 
 import { isImageMediaUrl } from '../../shared/product-media.js';
+import {
+  PRODUCT_IMAGE_MAX_EDGE,
+  PRODUCT_IMAGE_WEBP_QUALITY,
+} from '../../shared/product-media-upload-limits.js';
 import { applyHaitechWatermark } from './image-watermark.js';
 
-const WEBP_QUALITY = 82;
+const WEBP_QUALITY = PRODUCT_IMAGE_WEBP_QUALITY;
 /** Por debajo de esto no reoptimizar (ya es liviano para web). */
-const MAX_BYTES_BEFORE_OPTIMIZE = 140_000;
+const MAX_BYTES_BEFORE_OPTIMIZE = 220_000;
 
 /**
  * Redimensiona y comprime data URLs de imagen para inventario / settings.
@@ -14,7 +18,7 @@ const MAX_BYTES_BEFORE_OPTIMIZE = 140_000;
  * @returns {Promise<string | null | undefined>}
  */
 export async function optimizeImageDataUrl(dataUrl, options = {}) {
-  const maxEdge = options.maxEdge ?? 1200;
+  const maxEdge = options.maxEdge ?? PRODUCT_IMAGE_MAX_EDGE;
   if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/')) {
     return dataUrl;
   }
@@ -56,7 +60,7 @@ export async function optimizeImageDataUrl(dataUrl, options = {}) {
     });
 
     const output = await sharp(watermarked)
-      .webp({ quality: WEBP_QUALITY })
+      .webp({ quality: WEBP_QUALITY, effort: 4 })
       .toBuffer();
 
     return `data:image/webp;base64,${output.toString('base64')}`;

@@ -37,6 +37,9 @@ export function buildProductCardImageSource(
   const sanitized = sanitizeStoredProductMedia({
     id: source.id ?? product.id ?? '',
     code: source.code,
+    name: source.name,
+    category: source.category,
+    brand: source.brand,
     image_url: source.image_url,
     gallery: source.gallery,
   });

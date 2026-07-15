@@ -109,15 +109,17 @@ export function InventoryStorefrontDetailSection({
 
   useEffect(() => {
     if (!isPrinter) return;
-    const hasBullets = normalizeStorefrontHeroBullets(form.storefront_hero_bullets).length > 0;
+    // Solo auto-rellenar si nunca hubo override (undefined/null).
+    // [] significa «el usuario las eliminó»: no volver a generar.
+    if (Array.isArray(form.storefront_hero_bullets)) return;
     const hasDescription = Boolean(form.description?.trim());
-    if (hasBullets || hasDescription) return;
+    if (hasDescription) return;
 
     const generated = generateDefaultStorefrontDetail(inventoryProductAsCatalogProduct(form));
     if (generated.heroBullets.length === 0) return;
 
     commitHeroBullets(generated.heroBullets);
-  }, [commitHeroBullets, form.id, isPrinter]);
+  }, [commitHeroBullets, form.description, form.id, form.storefront_hero_bullets, isPrinter]);
 
   const updateHeroBullet = (index: number, patch: Partial<StoredHeroBullet>) => {
     const next = heroBullets.map((item, i) => (i === index ? { ...item, ...patch } : item));

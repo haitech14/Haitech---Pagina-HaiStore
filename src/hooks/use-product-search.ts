@@ -34,6 +34,11 @@ export async function fetchProductSearch(
   limit: number,
   role = 'public',
 ): Promise<ProductSearchResponse> {
+  // Prefer in-memory catalog index for instant autocomplete when already warm.
+  if (getCatalogRows().length > 0) {
+    return searchProductsFromCatalogIndex(query, categoryFilter, limit, role);
+  }
+
   const params = new URLSearchParams();
   params.set('q', query);
   params.set('limit', String(limit));

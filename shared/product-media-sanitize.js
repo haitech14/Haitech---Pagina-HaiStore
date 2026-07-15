@@ -11,7 +11,10 @@ import {
   resolveProductModelStockImage,
   sanitizeProductId,
 } from './product-stock-images.js';
-import { DUPLICATE_MAIN_PRODUCT_IDS } from './product-media-duplicate-main-ids.js';
+import {
+  ownedProductMediaStems,
+  publicProductMediaPathForProduct,
+} from './product-media-filename.js';
 
 function isCategoryStockImageUrl(url) {
   return (
@@ -44,24 +47,6 @@ function productMediaFilenameStem(url) {
   return match ? match[1].toLowerCase() : null;
 }
 
-function ownedProductMediaStems(product) {
-  const stems = new Set();
-  const id = sanitizeProductId(product?.id);
-  if (id) stems.add(id);
-
-  const code = String(product?.code ?? '')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  if (code) {
-    stems.add(code);
-    stems.add(`toner-${code}`);
-  }
-
-  return stems;
-}
-
 function isExtraAuthenticProductPhotoPath(url) {
   const path = productMediaPathname(url);
   if (/^https?:\/\//i.test(path)) return true;
@@ -74,7 +59,10 @@ function isExtraAuthenticProductPhotoPath(url) {
  * con solo variantes de tarjeta (-256/-512), sin fotos reales adicionales.
  */
 function isSyncGeneratedFallbackProductGallery(product) {
-  const imagePaths = storedMediaUrls(product).filter(
+  const urls = storedMediaUrls(product);
+  if (hasAuthenticUserMedia(urls)) return false;
+
+  const imagePaths = urls.filter(
     (url) =>
       isImageMediaUrl(url) &&
       !isYoutubeMediaUrl(url) &&
@@ -84,10 +72,11 @@ function isSyncGeneratedFallbackProductGallery(product) {
   if (imagePaths.length === 0) return false;
   if (imagePaths.some(isExtraAuthenticProductPhotoPath)) return false;
 
-  const mainPath = productMediaPathname(publicProductMediaPath(product?.id ?? ''));
+  const mainPath = productMediaPathname(publicProductMediaPathForProduct(product));
   if (!mainPath.startsWith('/products/')) return false;
 
   const stem = mainPath.replace(/\.webp$/i, '');
+  const idMainPath = productMediaPathname(publicProductMediaPath(product?.id ?? ''));
   const variant256 = `${stem}-256.webp`;
   const variant512 = `${stem}-512.webp`;
   const variant1024 = `${stem}-1024.webp`;
@@ -97,7 +86,11 @@ function isSyncGeneratedFallbackProductGallery(product) {
   if (normalized.includes(variant1024)) return false;
 
   return normalized.every(
-    (path) => path === mainPath || path === variant256 || path === variant512,
+    (path) =>
+      path === mainPath ||
+      path === idMainPath ||
+      path === variant256 ||
+      path === variant512,
   );
 }
 
@@ -106,20 +99,10 @@ function hasAuthenticUserMedia(urls) {
   return urls.some((url) => {
     if (typeof url !== 'string' || url.length === 0) return false;
     if (url.startsWith('data:')) return true;
+    if (url.startsWith('/album/')) return true;
     if (url.includes('?v=')) return true;
     return isExtraAuthenticProductPhotoPath(url);
   });
-}
-
-/** Imagen principal idéntica a la de otros productos (copia de sync/donor). */
-function isDuplicateMainProductGallery(product) {
-  const id = sanitizeProductId(product?.id);
-  if (!id || !DUPLICATE_MAIN_PRODUCT_IDS.has(id)) return false;
-
-  const urls = storedMediaUrls(product);
-  if (hasAuthenticUserMedia(urls)) return false;
-
-  return !urls.some((url) => /^https?:\/\//i.test(productMediaPathname(url)));
 }
 
 /** Imagen en /products/ que pertenece a este producto (no tomada de otro ítem). */
@@ -133,7 +116,11 @@ export function isOwnedProductMediaPath(product, url) {
   if (owned.has(stem)) return true;
 
   for (const own of owned) {
+    if (!own) continue;
+    // Variantes de galería: `{id}-2`, `{id}-descripcion`, …
     if (stem.startsWith(`${own}-`)) return true;
+    // Nombre descriptivo de persistencia: `impresoras-…-{id}` / `…-{id}-…`
+    if (stem.endsWith(`-${own}`) || stem.includes(`-${own}-`)) return true;
   }
 
   return false;
@@ -149,8 +136,16 @@ export function isSyntheticProductMediaUrl(product, url) {
     if (isCategoryStockImageUrl(url)) return true;
     if (isYoutubeMediaUrl(url) || isVideoMediaUrl(url)) return false;
     if (url.startsWith('/products/')) {
-      if (!isOwnedProductMediaPath(product, url)) return true;
-      if (isDuplicateMainProductGallery(product)) return true;
+      // URL ajena al stem (p. ej. elegida desde la galería/álbum de inventario):
+      // SIEMPRE conservar si ya está en image_url/gallery. migrate corre ANTES de
+      // persistProductMedia; si la marcamos sintética aquí, se borra image_url y
+      // el PATCH «aplicar desde galería» no llega a copiar la foto al stem propio.
+      if (!isOwnedProductMediaPath(product, url)) {
+        return false;
+      }
+      // Solo descartar galerías sync (-256/-512 sin foto real). No usar el blocklist
+      // duplicate-main: borraba mains propias sin ?v= y dejaba «Sin Imagen» pese a
+      // existir /products/{id}.webp (p. ej. tras elegir imagen del álbum).
       if (isSyncGeneratedFallbackProductGallery(product)) return true;
       return false;
     }

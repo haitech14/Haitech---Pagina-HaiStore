@@ -13,11 +13,15 @@ import {
 } from '../../shared/catalog-search.js';
 
 export const MIN_PRODUCT_SEARCH_LENGTH = 3;
-export const PRODUCT_SEARCH_INITIAL_VISIBLE = 16;
-export const PRODUCT_SEARCH_LOAD_MORE_STEP = 8;
-export const PRODUCT_SEARCH_MAX_LIMIT = 32;
-/** Máximo de productos visibles por sección en el panel de sugerencias. */
-export const PRODUCT_SEARCH_PER_SECTION_LIMIT = 3;
+/** Carga inicial del panel: todos los resultados visibles hasta el tope. */
+export const PRODUCT_SEARCH_INITIAL_VISIBLE = 48;
+export const PRODUCT_SEARCH_LOAD_MORE_STEP = 12;
+export const PRODUCT_SEARCH_MAX_LIMIT = 48;
+/**
+ * Máximo por sección en el panel. Alto a propósito para mostrar secciones
+ * completas desplegadas (Equipos / Tóner / Repuestos) sin recortar a 3.
+ */
+export const PRODUCT_SEARCH_PER_SECTION_LIMIT = 48;
 /** @deprecated Usar PRODUCT_SEARCH_INITIAL_VISIBLE + paginación en el panel. */
 export const PRODUCT_SEARCH_SUGGESTION_LIMIT = PRODUCT_SEARCH_MAX_LIMIT;
 export const SEARCH_CATEGORY_SUGGESTION_LIMIT = 3;

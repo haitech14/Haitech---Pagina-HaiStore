@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
 import {
   buildAdminInventoryImageCandidates,
   withProductImageCacheBust,
@@ -22,12 +23,14 @@ export function AdminInventoryProductThumbImage({
 }: AdminInventoryProductThumbImageProps) {
   const candidates = useMemo(
     () => buildAdminInventoryImageCandidates(product, optimisticSrc),
-    [optimisticSrc, product.gallery, product.image_url],
+    [optimisticSrc, product.gallery, product.image_url, product.id],
   );
+  const candidatesKey = candidates.join('|');
   const [candidateIndex, setCandidateIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [exhausted, setExhausted] = useState(false);
   const previousSrcRef = useRef<string | null>(null);
+  const candidatesKeyRef = useRef(candidatesKey);
 
   const rawSrc = exhausted ? null : (candidates[candidateIndex] ?? null);
   const displaySrc = rawSrc
@@ -35,10 +38,12 @@ export function AdminInventoryProductThumbImage({
     : null;
 
   useEffect(() => {
+    if (candidatesKeyRef.current === candidatesKey) return;
+    candidatesKeyRef.current = candidatesKey;
     setCandidateIndex(0);
-    setLoaded(false);
     setExhausted(false);
-  }, [candidates]);
+    setLoaded(false);
+  }, [candidatesKey]);
 
   const handleLoad = () => {
     if (displaySrc) previousSrcRef.current = displaySrc;
@@ -55,7 +60,11 @@ export function AdminInventoryProductThumbImage({
     setLoaded(true);
   };
 
-  if (!displaySrc && !previousSrcRef.current) return null;
+  if (!displaySrc && !previousSrcRef.current) {
+    return (
+      <ProductNoImagePlaceholder size="sm" className="w-full max-w-none opacity-70" />
+    );
+  }
 
   const showSkeleton = Boolean(displaySrc) && !loaded && !previousSrcRef.current;
   const showPrevious = !loaded && Boolean(previousSrcRef.current);

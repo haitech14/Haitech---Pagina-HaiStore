@@ -133,6 +133,13 @@ export function normalizeStorefrontHeroBullets(
     .slice(0, 12);
 }
 
+/** `true` si el admin guardó override (incluye lista vacía = eliminadas a propósito). */
+export function hasExplicitStorefrontHeroBullets(
+  value: StoredHeroBullet[] | null | undefined,
+): boolean {
+  return Array.isArray(value);
+}
+
 export function storedFeatureBarToHighlights(
   items: StoredFeatureBarItem[],
 ): ProductDescriptionHighlight[] {
@@ -261,20 +268,26 @@ export function resolveStoredHeroBullets(
   product: Product,
   fallback: ProductHeroSpecBullet[],
 ): ProductHeroSpecBullet[] {
-  const stored = normalizeStorefrontHeroBullets(product.storefront_hero_bullets);
-  const descriptionLines = (product.description ?? '')
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const descriptionText = descriptionLines.join('\n');
-  const storedText = heroBulletsToDescriptionText(stored);
+  // Override explícito del admin: [] = sin destacadas (no regenerar).
+  if (hasExplicitStorefrontHeroBullets(product.storefront_hero_bullets)) {
+    const stored = normalizeStorefrontHeroBullets(product.storefront_hero_bullets);
+    if (stored.length === 0) return [];
 
-  if (descriptionLines.length > 1 && (stored.length === 0 || storedText !== descriptionText)) {
-    return storedHeroBulletsToRuntime(
-      descriptionTextToHeroBullets(product.description, stored),
-    );
+    const descriptionLines = (product.description ?? '')
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const descriptionText = descriptionLines.join('\n');
+    const storedText = heroBulletsToDescriptionText(stored);
+
+    if (descriptionLines.length > 1 && storedText !== descriptionText) {
+      return storedHeroBulletsToRuntime(
+        descriptionTextToHeroBullets(product.description, stored),
+      );
+    }
+
+    return storedHeroBulletsToRuntime(stored);
   }
 
-  if (stored.length > 0) return storedHeroBulletsToRuntime(stored);
   return fallback;
 }

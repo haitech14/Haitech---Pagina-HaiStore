@@ -48,6 +48,9 @@ function withSanitizedProductMedia(product: ResolveProductImageInput): ResolvePr
   const sanitized = sanitizeStoredProductMedia({
     id: product.id ?? '',
     code: product.code,
+    name: product.name,
+    category: product.category,
+    brand: product.brand,
     image_url: product.image_url,
     gallery: product.gallery,
   });
@@ -98,6 +101,31 @@ export function buildProductImageCandidates(
     pushStored(url);
   }
 
+  // Si sanitize vació la media pero el inventario aún declara URLs, reintentarlas
+  // contra el producto original (p. ej. foto elegida del álbum/inventario).
+  if (candidates.length === 0) {
+    const pushDeclared = (url: string | null | undefined) => {
+      if (!url || seen.has(url)) return;
+      if (!isUsableExplicitImageUrl(url, options)) return;
+      if (isCategoryStockLike(url)) return;
+      if (isSyntheticProductMediaUrl(product, url)) return;
+      seen.add(url);
+      candidates.push(url);
+    };
+    pushDeclared(product.image_url);
+    for (const url of product.gallery ?? []) pushDeclared(url);
+  }
+
+  // Convención local: muchos ítems tienen /products/{id}.webp en disco aunque
+  // inventory-index tenga image_url null. El <img> cae a «Sin Imagen» solo si 404.
+  if (candidates.length === 0 && sanitizedProduct.id) {
+    const ownedPath = publicProductMediaPath(sanitizedProduct.id);
+    if (ownedPath && !seen.has(ownedPath) && isUsableExplicitImageUrl(ownedPath, options)) {
+      seen.add(ownedPath);
+      candidates.push(ownedPath);
+    }
+  }
+
   if (shouldUseStockFallback(options)) {
     pushFallback(resolveProductModelStockImage(sanitizedProduct));
     if (sanitizedProduct.id) {
@@ -107,6 +135,14 @@ export function buildProductImageCandidates(
   }
 
   return candidates;
+}
+
+function isCategoryStockLike(url: string): boolean {
+  return (
+    url.startsWith('/categories/') ||
+    url.startsWith('/promotions/') ||
+    url.startsWith('/promo-cards/')
+  );
 }
 
 /** Solo fotos del inventario (principal + galería), sin placeholders por modelo/categoría. */

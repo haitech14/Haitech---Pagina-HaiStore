@@ -1,9 +1,14 @@
+import {
+  PRODUCT_IMAGE_MAX_EDGE,
+  PRODUCT_IMAGE_WEBP_QUALITY,
+} from '@/lib/product-media-upload-limits';
+
 /** Presets para imágenes en la app (catálogo, inventario, logos). */
 export const WEB_IMAGE_PRESETS = {
   product: {
-    maxWidth: 1200,
-    maxHeight: 1200,
-    quality: 0.82,
+    maxWidth: PRODUCT_IMAGE_MAX_EDGE,
+    maxHeight: PRODUCT_IMAGE_MAX_EDGE,
+    quality: PRODUCT_IMAGE_WEBP_QUALITY / 100,
     mimeType: 'image/webp' as const,
   },
   logo: {
@@ -62,20 +67,24 @@ function canvasToDataUrl(
   return dataUrl;
 }
 
+function readBlobAsDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') resolve(reader.result);
+      else reject(new Error('No se pudo leer la imagen'));
+    };
+    reader.onerror = () => reject(new Error('No se pudo leer la imagen'));
+    reader.readAsDataURL(blob);
+  });
+}
+
 export async function optimizeImageBlob(
   blob: Blob,
   options: OptimizeImageOptions,
 ): Promise<string> {
   if (SKIP_TYPES.has(blob.type)) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') resolve(reader.result);
-        else reject(new Error('No se pudo leer la imagen'));
-      };
-      reader.onerror = () => reject(new Error('No se pudo leer la imagen'));
-      reader.readAsDataURL(blob);
-    });
+    return readBlobAsDataUrl(blob);
   }
 
   const objectUrl = URL.createObjectURL(blob);
@@ -96,6 +105,9 @@ export async function optimizeImageBlob(
     ctx.drawImage(img, 0, 0, width, height);
 
     return canvasToDataUrl(canvas, options.mimeType, options.quality);
+  } catch {
+    // HEIC/CMYK/corruptas: el canvas falla; el servidor aún puede optimizar vía sharp.
+    return readBlobAsDataUrl(blob);
   } finally {
     URL.revokeObjectURL(objectUrl);
   }

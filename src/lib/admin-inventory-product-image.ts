@@ -15,7 +15,7 @@ function isResponsiveVariantPath(path: string): boolean {
 }
 
 /** Variantes locales para reintento si la imagen principal aún no está disponible.
- * Prioriza -256 (rápido en tabla) y limita a 3 candidatos para evitar cascadas de 404.
+ * Prioriza la URL principal (ya versionada con ?v=) y limita a 3 candidatos.
  */
 function productImageVariantPaths(url: string): string[] {
   const path = pathnameOf(url);
@@ -26,8 +26,8 @@ function productImageVariantPaths(url: string): string[] {
   const base = imageBasePath(path);
   const query = url.includes('?') ? url.slice(url.indexOf('?')) : '';
   return [
-    `${base}-256.webp${query}`,
     url,
+    `${base}-256.webp${query}`,
     `${base}-512.webp${query}`,
   ];
 }

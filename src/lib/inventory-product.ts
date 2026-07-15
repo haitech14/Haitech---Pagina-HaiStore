@@ -81,7 +81,7 @@ export async function prepareInventoryPayloadForApi(
       storefront_hero_bullets,
       description,
       purchase_price_usd: resolvePurchasePriceUsd(suppliers, product.purchase_price_usd),
-      code: product.code?.trim() || id.replace(/-/g, '').slice(0, 24).toUpperCase(),
+      code: product.code?.trim() || generateInventoryProductCode(id),
       gallery: product.gallery ?? [],
     },
     DEFAULT_WAREHOUSES,
@@ -90,10 +90,17 @@ export async function prepareInventoryPayloadForApi(
   return optimizeProductImages(base);
 }
 
+/** Código SKU corto a partir del id (UUID sin guiones). */
+export function generateInventoryProductCode(id: string): string {
+  const compact = id.replace(/-/g, '').toUpperCase();
+  return compact.slice(0, 12) || compact;
+}
+
 export function createEmptyInventoryProduct(): InventoryProduct {
+  const id = randomId();
   return {
-    id: '',
-    code: '',
+    id,
+    code: generateInventoryProductCode(id),
     slug: null,
     name: '',
     description: '',
@@ -110,7 +117,7 @@ export function createEmptyInventoryProduct(): InventoryProduct {
     attributes: [],
     created_at: new Date().toISOString(),
     sort_order: 0,
-    status: 'inactiva',
+    status: 'borrador',
     prices: ensureFullPrices({}),
     volume_role_prices: [],
   };
@@ -276,7 +283,7 @@ export function mergeInventoryProductPatch(
     merged.upsell_optional_products = patch.upsell_optional_products;
   }
 
-  return normalizeInventoryProduct(merged, warehouses);
+  return normalizeInventoryProductForAdminList(merged, warehouses);
 }
 
 /** Añade imágenes a la galería (y foto principal si no había). */
@@ -382,6 +389,26 @@ export function setProductMainMediaUrl(
   return {
     image_url: trimmed,
     gallery: getAdditionalGalleryUrls(trimmed, nextGallery),
+  };
+}
+
+const PRODUCT_CARD_VARIANT_SUFFIX = /-(?:256|512|1024)\.webp(?:$|\?)/i;
+
+/** Reemplaza la foto principal y descarta variantes -256/-512/-1024 obsoletas. */
+export function replaceProductMainImage(
+  product: InventoryProduct,
+  url: string,
+): Pick<InventoryProduct, 'image_url' | 'gallery'> {
+  const media = setProductMainMediaUrl(product, url);
+  const cleanedGallery = (media.gallery ?? []).filter((item) => {
+    const path = item.split('?')[0] ?? '';
+    if (!path.startsWith('/products/')) return true;
+    return !PRODUCT_CARD_VARIANT_SUFFIX.test(item);
+  });
+
+  return {
+    image_url: media.image_url,
+    gallery: getAdditionalGalleryUrls(media.image_url, cleanedGallery),
   };
 }
 

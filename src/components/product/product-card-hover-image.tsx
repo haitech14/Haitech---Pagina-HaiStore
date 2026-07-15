@@ -114,7 +114,7 @@ export function ProductCardHoverImage({
       {resolvedHoverSrc ? (
         <div
           className={cn(
-            'pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 ease-out group-hover/image:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none',
+            'pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 ease-out group-hover/image:opacity-100 motion-reduce:transition-none motion-reduce:group-hover/image:opacity-100',
           )}
         >
           <ProductCardImage

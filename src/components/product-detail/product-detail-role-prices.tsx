@@ -7,7 +7,7 @@ import { useDisplayCurrency } from '@/context/display-currency-context';
 import type { CatalogRolePriceLine } from '@/hooks/use-catalog-display-price';
 import { resolveCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
-import { getDisplayPriceVisibility } from '@/lib/display-price';
+import { getDisplayPriceVisibility, CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { PRICE_ROLE_LABELS, type PriceRole, type ProductRolePrices } from '@/lib/roles';
 import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
 import type { BulkDiscountTier } from '@/types/product-detail';
@@ -153,6 +153,16 @@ function BuySidebarInlineDualPrice({ usd, className }: { usd: number; className?
   const penFirst = dualPriceOrder === 'pen-usd';
   const both = showUsd && showPen;
 
+  if (isPriceOnRequest(usd)) {
+    return (
+      <div className={cn('flex flex-wrap items-baseline gap-x-2 gap-y-0.5', className)}>
+        <span className="text-[1.625rem] font-bold leading-none text-red-600 sm:text-[1.75rem]">
+          {CONSULTAR_PRECIO_LABEL}
+        </span>
+      </div>
+    );
+  }
+
   const penPrimary = (
     <span className="text-[1.625rem] font-bold leading-none tabular-nums text-red-600 sm:text-[1.75rem]">
       {formatPenFromUsd(usd)}
@@ -200,6 +210,14 @@ function TecnicoDualPrice({ usd, className }: { usd: number; className?: string 
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const penFirst = dualPriceOrder === 'pen-usd';
+
+  if (isPriceOnRequest(usd)) {
+    return (
+      <span className={cn('inline-flex flex-wrap items-baseline gap-x-1', className)}>
+        {CONSULTAR_PRECIO_LABEL}
+      </span>
+    );
+  }
 
   const penSpan = showPen ? (
     <span className="font-medium text-neutral-500">{formatPenFromUsd(usd)}</span>

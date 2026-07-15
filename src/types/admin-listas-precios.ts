@@ -14,6 +14,8 @@ export interface AdminListaPreciosRecord {
   imageColor: string;
   prices: Record<AdminListaPreciosRoleKey, number>;
   status: AdminListaPreciosStatus;
+  /** Búsqueda precomputada (lowercase) para filtrar sin toLowerCase por tecla. */
+  searchHaystack?: string;
 }
 
 export interface AdminListaPreciosKpi {

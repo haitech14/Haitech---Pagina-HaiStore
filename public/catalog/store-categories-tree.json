@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-13T07:26:03.009Z",
+  "generatedAt": "2026-07-15T11:21:11.393Z",
   "tree": [
     {
       "id": "cat-multifuncionales",
@@ -15,7 +15,7 @@
       "image": "/categories/multifuncionales.png",
       "tagline": "Imprime, escanea y copia en un solo equipo",
       "children": [],
-      "productCount": 124
+      "productCount": 123
     },
     {
       "id": "cat-impresoras",
@@ -29,7 +29,7 @@
       "image": "/categories/impresoras.png",
       "tagline": "Láser, inkjet y soluciones de impresión",
       "children": [],
-      "productCount": 13
+      "productCount": 14
     },
     {
       "id": "cat-toner",
@@ -242,6 +242,55 @@
       "tagline": "Mantenimiento, instalación y soporte especializado",
       "children": [],
       "productCount": 0
+    },
+    {
+      "id": "cat-formato-ancho",
+      "name": "Formato Ancho",
+      "slug": "formato-ancho",
+      "parentId": null,
+      "sortOrder": 5,
+      "inventoryLabels": [
+        "Formato Ancho",
+        "Plotter y Multifuncional de Planos"
+      ],
+      "image": "/categories/formato-ancho.png",
+      "tagline": "Plotters y equipos para gran formato",
+      "children": [],
+      "productCount": 5
+    },
+    {
+      "id": "cat-escaneres",
+      "name": "Escáneres",
+      "slug": "escaneres",
+      "parentId": null,
+      "sortOrder": 6,
+      "inventoryLabels": [
+        "Escáneres",
+        "Escáneres Nuevos",
+        "Escáneres, Escáneres Nuevos",
+        "Escaneres",
+        "Escaner"
+      ],
+      "image": "/categories/escaneres.png",
+      "tagline": "Digitalización rápida y precisa de documentos",
+      "children": [
+        {
+          "id": "cat-escaneres-nuevos",
+          "name": "Escáneres Nuevos",
+          "slug": "escaneres-nuevos",
+          "parentId": "cat-escaneres",
+          "sortOrder": 0,
+          "inventoryLabels": [
+            "Escáneres Nuevos",
+            "Escáneres, Escáneres Nuevos"
+          ],
+          "image": "/categories/escaneres.png",
+          "tagline": "Escáneres de documentos nuevos",
+          "children": [],
+          "productCount": 15
+        }
+      ],
+      "productCount": 15
     }
   ]
 }

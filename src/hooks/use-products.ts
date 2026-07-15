@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
-import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
+import { getCatalogRows, loadCatalogIndex, patchCatalogIndexProductMedia } from '@/lib/catalog-featured';
 import { normalizeInventoryProductForAdminList, mergeInventoryProductPatch } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
-import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
+import { notifyProductCatalogChanged, upsertAdminInventoryProducts } from '@/lib/invalidate-product-queries';
 import { toPublicProduct } from '@/lib/pricing';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
@@ -84,6 +84,7 @@ export function useAdminInventory() {
     staleTime: 60_000,
     refetchInterval: false,
     refetchOnWindowFocus: false,
+    placeholderData: (previous) => previous,
     retry: (failureCount, error) => {
       const message = error instanceof Error ? error.message : '';
       if (message.includes('Sesión') || message.includes('permisos')) return false;
@@ -108,8 +109,18 @@ export function useInventoryMutations() {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    onSuccess: (created) => {
+    onSuccess: async (created) => {
+      upsertAdminInventoryProducts(queryClient, [created], { prepend: true });
+      // Cancelar GET en vuelo para que un snapshot pre-write no gane la carrera.
+      await queryClient.cancelQueries({ queryKey: ['admin-inventory'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['admin-inventory'],
+        refetchType: 'active',
+      });
+      upsertAdminInventoryProducts(queryClient, [created], { prepend: true });
       notifyCatalogChange({ productId: created.id, inventoryProduct: created });
+      // Re-merge tras notify (otros listeners pueden haber disparado refetch).
+      upsertAdminInventoryProducts(queryClient, [created], { prepend: true });
     },
   });
 
@@ -120,26 +131,43 @@ export function useInventoryMutations() {
         body: JSON.stringify(payload),
       }),
     onMutate: async ({ id, payload }) => {
-      await queryClient.cancelQueries({ queryKey: ['admin-inventory'] });
+      // No await: cancelar sin bloquear el hilo mantiene el editor responsive.
+      void queryClient.cancelQueries({ queryKey: ['admin-inventory'] });
       const previousInventory = queryClient.getQueryData<InventoryProduct[]>(['admin-inventory']);
 
-      queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) =>
-        current?.map((product) => {
-          if (product.id !== id) return product;
-          try {
-            return mergeInventoryProductPatch(product, payload, DEFAULT_WAREHOUSES);
-          } catch {
-            return { ...product, ...payload };
-          }
-        }),
-      );
+      // No pintamos data: URLs en caché: son pesadas y hacen parecer “guardado” antes
+      // de que el servidor persista /products/...-256.webp.
+      const hasInlineDataMedia =
+        (typeof payload.image_url === 'string' && payload.image_url.startsWith('data:')) ||
+        (Array.isArray(payload.gallery) &&
+          payload.gallery.some(
+            (url) => typeof url === 'string' && url.startsWith('data:'),
+          ));
+
+      if (!hasInlineDataMedia) {
+        queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) =>
+          current?.map((product) => {
+            if (product.id !== id) return product;
+            try {
+              return mergeInventoryProductPatch(product, payload, DEFAULT_WAREHOUSES);
+            } catch {
+              return { ...product, ...payload };
+            }
+          }),
+        );
+      }
 
       return { previousInventory };
     },
-    onError: (_error, _variables, context) => {
-      if (context?.previousInventory) {
-        queryClient.setQueryData(['admin-inventory'], context.previousInventory);
-      }
+    onError: (_error, { id }, context) => {
+      if (!context?.previousInventory) return;
+      // No restaurar un snapshot viejo si otra mutación ya avanzó la caché.
+      queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) => {
+        if (!current) return context.previousInventory;
+        const previousRow = context.previousInventory.find((product) => product.id === id);
+        if (!previousRow) return current;
+        return current.map((product) => (product.id === id ? previousRow : product));
+      });
     },
     onSuccess: (updated, { id }) => {
       queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) =>
@@ -152,6 +180,7 @@ export function useInventoryMutations() {
           }
         }),
       );
+      patchCatalogIndexProductMedia(updated);
       notifyCatalogChange({ productId: id, inventoryProduct: updated });
     },
   });
@@ -190,11 +219,119 @@ export function useInventoryMutations() {
 
   const bulkUpdateProducts = useMutation({
     mutationFn: ({ ids, patch }: { ids: string[]; patch: InventoryBulkPatch }) =>
-      apiFetch<{ ok: boolean; updated: number }>('/api/products/bulk', {
-        method: 'PATCH',
-        body: JSON.stringify({ ids, patch }),
-      }),
-    onSuccess: () => notifyCatalogChange(),
+      apiFetch<{ ok: boolean; updated: number; products?: InventoryProduct[] }>(
+        '/api/products/bulk',
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ ids, patch }),
+        },
+      ),
+    onMutate: async ({ ids, patch }) => {
+      void queryClient.cancelQueries({ queryKey: ['admin-inventory'] });
+      const previousInventory = queryClient.getQueryData<InventoryProduct[]>(['admin-inventory']);
+      const idSet = new Set(ids);
+
+      if (typeof patch.image_url === 'string' && patch.image_url.trim()) {
+        const imageUrl = patch.image_url.trim();
+        queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) =>
+          current?.map((product) => {
+            if (!idSet.has(product.id)) return product;
+            try {
+              return mergeInventoryProductPatch(
+                product,
+                { image_url: imageUrl, gallery: product.gallery ?? [] },
+                DEFAULT_WAREHOUSES,
+              );
+            } catch {
+              return { ...product, image_url: imageUrl };
+            }
+          }),
+        );
+      }
+
+      return { previousInventory };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousInventory) {
+        queryClient.setQueryData(['admin-inventory'], context.previousInventory);
+      }
+    },
+    onSuccess: (data, { ids, patch }) => {
+      const saved = Array.isArray(data.products) ? data.products : [];
+      const patchImageUrl =
+        typeof patch.image_url === 'string' && patch.image_url.trim()
+          ? patch.image_url.trim()
+          : null;
+
+      const ensureImageUrl = (
+        merged: InventoryProduct,
+        fromServer: InventoryProduct | undefined,
+      ): InventoryProduct => {
+        if (merged.image_url?.trim()) return merged;
+        const serverUrl = fromServer?.image_url?.trim();
+        if (serverUrl) return { ...merged, image_url: serverUrl };
+        if (patchImageUrl) return { ...merged, image_url: patchImageUrl };
+        return merged;
+      };
+
+      if (saved.length > 0) {
+        const byId = new Map(saved.map((product) => [product.id, product]));
+        queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) =>
+          current?.map((product) => {
+            const next = byId.get(product.id);
+            if (!next) return product;
+            try {
+              return ensureImageUrl(
+                mergeInventoryProductPatch(product, next, DEFAULT_WAREHOUSES),
+                next,
+              );
+            } catch {
+              return ensureImageUrl({ ...product, ...next }, next);
+            }
+          }),
+        );
+        for (const product of saved) {
+          patchCatalogIndexProductMedia(product);
+        }
+      } else if (patchImageUrl) {
+        const idSet = new Set(ids);
+        queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) =>
+          current?.map((product) => {
+            if (!idSet.has(product.id)) return product;
+            try {
+              return ensureImageUrl(
+                mergeInventoryProductPatch(
+                  product,
+                  { image_url: patchImageUrl, gallery: product.gallery ?? [] },
+                  DEFAULT_WAREHOUSES,
+                ),
+                undefined,
+              );
+            } catch {
+              return { ...product, image_url: patchImageUrl };
+            }
+          }),
+        );
+      }
+
+      const imageOnlyPatch =
+        Boolean(patchImageUrl) && Object.keys(patch).every((key) => key === 'image_url');
+
+      // Imagen: confiar en el payload del PATCH (con /products/…?v=) y no refetch
+      // inmediato (evita carrera + parpadeo a placeholder).
+      if (!imageOnlyPatch) {
+        void queryClient.invalidateQueries({
+          queryKey: ['admin-inventory'],
+          refetchType: 'active',
+        });
+      }
+      const primary = saved[0];
+      if (primary) {
+        notifyCatalogChange({ productId: primary.id, inventoryProduct: primary });
+      } else {
+        notifyCatalogChange({ productId: ids[0] });
+      }
+    },
   });
 
   const syncCatalog = useMutation({
@@ -211,11 +348,42 @@ export function useInventoryMutations() {
 
   const bulkDuplicateProducts = useMutation({
     mutationFn: (ids: string[]) =>
-      apiFetch<{ ok: boolean; created: number }>('/api/products/bulk/duplicate', {
-        method: 'POST',
-        body: JSON.stringify({ ids }),
-      }),
-    onSuccess: () => notifyCatalogChange(),
+      apiFetch<{ ok: boolean; created: number; products?: InventoryProduct[] }>(
+        '/api/products/bulk/duplicate',
+        {
+          method: 'POST',
+          body: JSON.stringify({ ids }),
+        },
+      ),
+    onSuccess: async (result) => {
+      const created = Array.isArray(result.products) ? result.products : [];
+      // 1) Upsert inmediato — el toast no basta; la tabla debe ver las filas ya.
+      if (created.length > 0) {
+        upsertAdminInventoryProducts(queryClient, created, { prepend: true });
+      }
+      // 2) Cancelar GET pre-write + refetch (el servidor puede aún devolver lista vieja).
+      await queryClient.cancelQueries({ queryKey: ['admin-inventory'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['admin-inventory'],
+        refetchType: 'active',
+      });
+      // 3) Re-merge tras el refetch: si el GET trajo snapshot sin la copia, la reinsertamos.
+      if (created.length > 0) {
+        upsertAdminInventoryProducts(queryClient, created, { prepend: true });
+      }
+      // Con productId + inventoryProduct NO se vuelve a invalidar admin-inventory
+      // (evitaría otro refetch que otra vez pisaría el upsert).
+      const first = created[0];
+      if (first) {
+        notifyCatalogChange({ productId: first.id, inventoryProduct: first });
+        // Fusionar TODAS las copias (notify solo lleva la primera) y sobrevivir a
+        // cualquier listener que dispare otro refetch.
+        upsertAdminInventoryProducts(queryClient, created, { prepend: true });
+      } else {
+        // Sin filas en la respuesta no hay upsert posible: invalidate completo.
+        notifyCatalogChange();
+      }
+    },
   });
 
   const reorderProducts = useMutation({

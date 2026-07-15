@@ -1,5 +1,5 @@
 /** Anchos de variantes responsive generadas en build (no confundir con `-2`, `-3` de galería). */
-const RESPONSIVE_WIDTH_SUFFIX = /-(256|512|768|1280|1920)\.(webp|png|jpe?g)$/i;
+const RESPONSIVE_WIDTH_SUFFIX = /-(256|512|768|1024|1280|1920)\.(webp|png|jpe?g)$/i;
 
 /**
  * Clave canónica para fusionar duplicados (misma imagen en distintas resoluciones).

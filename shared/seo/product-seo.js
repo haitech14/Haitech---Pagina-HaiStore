@@ -192,45 +192,24 @@ export function hasProductInventoryDescription(product) {
 }
 
 /**
- * Title optimizado para búsquedas por modelo (~60 chars).
+ * Title SEO: nombre completo del producto + marca de sitio (~60 chars).
+ * No reescribe el nombre a un template genérico (p. ej. «Equipo Nueva RICOH»).
  */
 export function formatProductPageTitleSeo(product) {
-  const explicitName = String(product?.name ?? 'Producto').trim();
-  if (!isPrinterProductSeo(product)) {
-    const suffix = SITE_SUFFIX;
-    if (explicitName.length + suffix.length <= 60) return `${explicitName}${suffix}`;
-    return `${explicitName.slice(0, 60 - suffix.length - 1)}…${suffix}`;
-  }
-
-  const brand = resolveProductHeroBrandSeo(product) ?? 'RICOH';
-  const model = extractProductModel(product);
-  const condition = resolveProductEquipmentConditionLabelSeo(product);
-  const variant = extractVariantSuffix(explicitName);
-  const typeLabel = resolveEquipmentTypeLabel(product);
-
-  const parts = [typeLabel];
-  if (condition) parts.push(condition);
-  parts.push(brand);
-  if (model) parts.push(model);
-  if (variant) parts.push(`(${variant})`);
-
-  let title = parts.join(' ');
+  const explicitName = String(product?.name ?? 'Producto').trim() || 'Producto';
   const suffix = SITE_SUFFIX;
-  if (title.length + suffix.length <= 60) return `${title}${suffix}`;
 
-  if (model) {
-    title = `${typeLabel} ${condition ?? ''} ${brand} ${model}`.replace(/\s+/g, ' ').trim();
-    if (variant && title.length + variant.length + suffix.length + 3 <= 60) {
-      title = `${title} (${variant})`;
-    }
+  if (explicitName.length + suffix.length <= 60) {
+    return `${explicitName}${suffix}`;
   }
 
-  if (title.length + suffix.length > 60) {
-    title = title.slice(0, 60 - suffix.length - 1).trim();
-    title = `${title}…`;
+  const maxBase = 60 - suffix.length - 1;
+  let base = explicitName.slice(0, maxBase).trim();
+  const lastSpace = base.lastIndexOf(' ');
+  if (lastSpace > Math.floor(maxBase * 0.45)) {
+    base = base.slice(0, lastSpace).trim();
   }
-
-  return `${title}${suffix}`;
+  return `${base}…${suffix}`;
 }
 
 /**

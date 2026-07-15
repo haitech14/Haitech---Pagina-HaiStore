@@ -34,6 +34,7 @@ function ProductosNavMobileAccordion({ onNavigate }: { onNavigate?: () => void }
       label={PRODUCTOS_NAV_SUBMENU.label}
       icon={PRODUCTOS_NAV_SUBMENU.icon}
       menu={menu}
+      labelHref="/tienda"
       {...(onNavigate ? { onNavigate } : {})}
     />
   );

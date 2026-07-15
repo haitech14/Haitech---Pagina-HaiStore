@@ -2,6 +2,8 @@ import { useMemo, useState, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, ShoppingCart } from 'lucide-react';
 
+import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
+import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
@@ -11,6 +13,7 @@ import { useCart } from '@/context/cart-context';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { useCatalogProductRow } from '@/hooks/use-catalog-product-row';
+import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { productQualifiesForBestSeller } from '@/lib/home-landing-product-badges';
 import {
   buildProductCardImageCandidates,
@@ -19,8 +22,11 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
+import { resolveProductCardSpecRows } from '@/lib/product-card-short-description';
 import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
+import { ProductCardSpecTable } from '@/components/product/product-card-spec-table';
 import { ProductCardBrandLine } from '@/components/product/product-card-title';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import {
   formatProductCardTitle,
   getProductCardTitleContent,
@@ -71,11 +77,13 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
   const showBestSellerBadge = productQualifiesForBestSeller(product, catalogProduct);
   const productTitle = formatProductCardTitle(productSource);
   const { brand, code: cardCode } = getProductCardTitleContent(productSource);
+  const clipboardCondition = resolveProductCardBadgeLabel(productSource);
   const outOfStock = stockCount <= 0;
   const buyNowLabel = outOfStock ? 'Reservar Ahora' : 'Comprar Ahora';
 
   const catalogGallery = catalogProduct?.gallery ?? null;
-  const catalogGalleryKey = catalogGallery?.join('|') ?? '';
+  const productGallery = product.gallery ?? null;
+  const galleryKey = [...(productGallery ?? []), ...(catalogGallery ?? [])].join('|');
   const catalogImageUrl = catalogProduct?.image_url ?? null;
   const catalogBrand = catalogProduct?.brand ?? null;
   const productBrand = product.brand ?? catalogBrand ?? null;
@@ -99,10 +107,10 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
         category: product.category,
         brand: productBrand,
         image_url: productImage,
-        gallery: catalogGallery,
+        gallery: [...(productGallery ?? []), ...(catalogGallery ?? [])],
       }),
     [
-      catalogGalleryKey,
+      galleryKey,
       productCode,
       product.category,
       product.id,
@@ -121,8 +129,19 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
     [imageSource],
   );
   const hasValidImage = imageCandidates.length > 0;
-  const showPriceOnRequest =
-    !Number.isFinite(displayPrice.priceUsd) || displayPrice.priceUsd <= 0;
+  const showPriceOnRequest = isPriceOnRequest(displayPrice.priceUsd);
+
+  const shortSpecRows = useMemo(
+    () =>
+      resolveProductCardSpecRows({
+        name: product.name,
+        category: product.category,
+        description: catalogProduct?.description ?? null,
+        attributes: product.attributes ?? catalogProduct?.attributes ?? [],
+        storefront_hero_bullets: catalogProduct?.storefront_hero_bullets,
+      }),
+    [catalogProduct, product.attributes, product.category, product.name],
+  );
 
   const cartProduct: Product = {
     id: product.id,
@@ -207,6 +226,27 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
             >
               <ShoppingCart className="size-4" aria-hidden="true" />
             </button>
+            {imageCandidates[0] ? (
+              <ProductCardCopyImageButton
+                productName={product.name}
+                imageUrl={imageCandidates[0]}
+                className={cn(imageOverlayButtonClass, 'hover:text-[#E30613]')}
+              />
+            ) : null}
+            <ProductCardCopyButton
+              productName={product.name}
+              title={productTitle}
+              stock={stockCount}
+              priceUsd={displayPrice.priceUsd}
+              productId={product.id}
+              productPath={detailPath}
+              {...(cardCode != null ? { code: cardCode } : {})}
+              {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
+              {...(catalogProduct?.volume_role_prices != null
+                ? { volumeRolePrices: catalogProduct.volume_role_prices }
+                : {})}
+              className={cn(imageOverlayButtonClass, 'hover:text-[#E30613]')}
+            />
           </div>
         </div>
       </div>
@@ -233,9 +273,17 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
           </span>
         </div>
 
+        {shortSpecRows.length > 0 ? (
+          <div className={cn(cardHoverRevealClass, 'mt-1')}>
+            <div className="min-h-0 overflow-hidden">
+              <ProductCardSpecTable rows={shortSpecRows} />
+            </div>
+          </div>
+        ) : null}
+
         <div className="mt-2">
           {showPriceOnRequest ? (
-            <p className="text-sm font-bold leading-tight text-[#111111] sm:text-base">Consultar Precio</p>
+            <p className="text-sm font-bold leading-tight text-[#111111] sm:text-base">{CONSULTAR_PRECIO_LABEL}</p>
           ) : (
             <ProductCardFeaturedPricing
               productId={product.id}

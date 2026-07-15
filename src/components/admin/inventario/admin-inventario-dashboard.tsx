@@ -19,7 +19,10 @@ import {
   getUsdToPenSaleRate,
   normalizeUsdToPenRate,
 } from '@/lib/exchange-rate';
-import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
+import {
+  notifyProductCatalogChanged,
+  upsertAdminInventoryProducts,
+} from '@/lib/invalidate-product-queries';
 import type { InventoryProduct } from '@/types/product';
 import { toast } from 'sonner';
 
@@ -137,6 +140,14 @@ export function AdminInventarioDashboard() {
         open={productDialogOpen}
         onOpenChange={handleProductDialogOpenChange}
         initial={editingProduct}
+        onCreated={(product) => {
+          // No hacer refetch a pelo: puede traer snapshot stale y borrar el upsert
+          // de createProduct. Re-merge + invalidate seguro.
+          upsertAdminInventoryProducts(queryClient, [product], { prepend: true });
+        }}
+        onSaved={(product) => {
+          upsertAdminInventoryProducts(queryClient, [product], { prepend: true });
+        }}
       />
     </div>
   );

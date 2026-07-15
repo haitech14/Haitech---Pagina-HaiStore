@@ -17,6 +17,8 @@ export interface FeaturedProduct {
   rating: number;
   reviews: number;
   image: string | null;
+  /** Galería adicional (hover de tarjeta); la principal va en `image`. */
+  gallery?: string[];
   /** Stock en inventario (desde bundle API o índice de catálogo). */
   stock?: number;
 }

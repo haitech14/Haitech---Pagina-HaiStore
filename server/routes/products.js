@@ -12,6 +12,7 @@ import {
   sortProductsByOrder,
 } from '../lib/inventory-product-order.js';
 import {
+  mutateInventory,
   normalizeProductInput,
   readInventory,
   syncInventoryFromCatalog,
@@ -25,6 +26,7 @@ import {
   listProducts,
   searchPublicProducts,
   syncProductsToSupabase,
+  toAdminListProduct,
 } from '../lib/product-catalog.js';
 import {
   queryEquipmentConsumables,
@@ -131,15 +133,48 @@ function parseBulkIds(body) {
   return [...new Set(body.ids.filter((id) => typeof id === 'string' && id.length > 0))];
 }
 
+/** Marca URLs de /products|/album como medio real para que sobrevivan a sanitize al duplicar. */
+function stampAuthenticMediaUrl(url) {
+  if (typeof url !== 'string' || url.length === 0) return url;
+  if (url.startsWith('data:') || url.includes('?v=') || url.startsWith('/album/')) return url;
+  if (url.startsWith('/products/')) {
+    const bare = url.split('?')[0].split('#')[0];
+    return `${bare}?v=${Date.now()}`;
+  }
+  return url;
+}
+
+function buildDuplicateProductCode(sourceCode, sourceId, suffix) {
+  const raw = String(sourceCode ?? sourceId ?? '').trim();
+  // Quitar -CP… previos: si no, cada copia alarga el código y se muestra igual (123421412-CP…).
+  const withoutCopySuffixes = raw.replace(/(?:-CP[A-Z0-9]*)+$/i, '');
+  const base = (withoutCopySuffixes || raw || 'PROD').slice(0, 20);
+  return `${base}-CP${suffix}`;
+}
+
 function duplicateProduct(source, warehouses) {
   const suffix = Date.now().toString(36).slice(-4).toUpperCase();
+  const id = randomUUID();
+  const name = `${source.name} (copia)`;
+  const sourceGallery = Array.isArray(source.gallery)
+    ? source.gallery.filter((url) => typeof url === 'string' && url.length > 0)
+    : [];
   return normalizeProductInput(
     {
       ...source,
-      id: randomUUID(),
-      code: `${String(source.code ?? source.id).slice(0, 24)}-CP${suffix}`,
-      name: `${source.name} (copia)`,
+      id,
+      code: buildDuplicateProductCode(source.code, source.id, suffix),
+      name,
+      // Identidad propia: no heredar slug del origen (colisión = misma URL / claves UI).
+      slug: deriveProductSlug({ id, name, slug: null }),
       created_at: new Date().toISOString(),
+      // Conservar categoría e imagen del origen (sanitize no debe vaciarlas).
+      category: source.category ?? null,
+      image_url:
+        typeof source.image_url === 'string' && source.image_url.length > 0
+          ? stampAuthenticMediaUrl(source.image_url)
+          : source.image_url ?? null,
+      gallery: sourceGallery.map(stampAuthenticMediaUrl),
     },
     undefined,
     warehouses,
@@ -203,34 +238,43 @@ productsRouter.patch('/bulk', requireAdmin, async (req, res, next) => {
     const patch = req.body?.patch ?? {};
     if (!ids) return res.status(400).json({ error: 'Se requiere al menos un id' });
 
-    const inventory = await readInventory();
     const idSet = new Set(ids);
     let updatedCount = 0;
     const updatedProducts = [];
 
-    inventory.products = inventory.products.map((product) => {
-      if (!idSet.has(product.id)) return product;
-      const updated = applyBulkPatch(product, patch, inventory.warehouses);
-      updatedCount += 1;
-      updatedProducts.push(updated);
-      return updated;
-    });
+    const normalized = await mutateInventory(
+      (inventory) => {
+        updatedCount = 0;
+        updatedProducts.length = 0;
+        inventory.products = inventory.products.map((product) => {
+          if (!idSet.has(product.id)) return product;
+          const updated = applyBulkPatch(product, patch, inventory.warehouses);
+          updatedCount += 1;
+          updatedProducts.push(updated);
+          return updated;
+        });
 
-    if (updatedCount === 0) {
-      return res.status(404).json({ error: 'No se encontraron productos seleccionados' });
-    }
+        if (updatedCount === 0) {
+          const err = new Error('No se encontraron productos seleccionados');
+          err.status = 404;
+          throw err;
+        }
 
-    await writeInventory(
-      {
-        products: inventory.products,
-        deletedProductIds: inventory.deletedProductIds ?? [],
-        warehouses: inventory.warehouses,
+        return {
+          products: inventory.products,
+          deletedProductIds: inventory.deletedProductIds ?? [],
+          warehouses: inventory.warehouses,
+        };
       },
-      { syncProductIds: updatedProducts.map((product) => product.id) },
+      { syncProductIds: ids },
     );
 
-    res.json({ ok: true, updated: updatedCount, products: updatedProducts });
+    const saved = normalized.products.filter((product) => idSet.has(product.id));
+    res.json({ ok: true, updated: updatedCount, products: saved });
   } catch (error) {
+    if (error?.status === 404) {
+      return res.status(404).json({ error: error.message });
+    }
     next(error);
   }
 });
@@ -264,16 +308,23 @@ productsRouter.post('/bulk/duplicate', requireAdmin, async (req, res, next) => {
     }
 
     inventory.products = assignProductSortOrders(next);
-    await writeInventory(
+    const createdIds = new Set(created.map((product) => product.id));
+    const written = await writeInventory(
       {
         products: inventory.products,
         deletedProductIds: inventory.deletedProductIds ?? [],
         warehouses: inventory.warehouses,
       },
-      { syncProductIds: created.map((product) => product.id) },
+      { syncProductIds: [...createdIds] },
     );
 
-    res.status(201).json({ ok: true, created: created.length, products: created });
+    // Devolver filas ya persistidas (tras migrate/media) para el upsert del cliente.
+    const saved = written.products.filter((product) => createdIds.has(product.id));
+    res.status(201).json({
+      ok: true,
+      created: saved.length,
+      products: saved.map((product) => toAdminListProduct(product)),
+    });
   } catch (error) {
     next(error);
   }
@@ -483,30 +534,44 @@ productsRouter.post('/', requireAdmin, async (req, res, next) => {
 
 productsRouter.patch('/:id', requireAdmin, async (req, res, next) => {
   try {
-    const inventory = await readInventory();
-    const index = inventory.products.findIndex((entry) => entry.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Producto no encontrado' });
+    const productId = req.params.id;
+    let saved = null;
 
-    const updated = normalizeProductInput(
-      req.body,
-      inventory.products[index],
-      inventory.warehouses,
-    );
-    if (!updated.name) {
-      return res.status(400).json({ error: 'El nombre es obligatorio' });
-    }
+    const normalized = await mutateInventory(
+      (inventory) => {
+        const index = inventory.products.findIndex((entry) => entry.id === productId);
+        if (index === -1) {
+          const err = new Error('Producto no encontrado');
+          err.status = 404;
+          throw err;
+        }
 
-    inventory.products[index] = updated;
-    const normalized = await writeInventory(
-      {
-        products: inventory.products,
-        deletedProductIds: inventory.deletedProductIds ?? [],
-        warehouses: inventory.warehouses,
+        const updated = normalizeProductInput(
+          req.body,
+          inventory.products[index],
+          inventory.warehouses,
+        );
+        if (!updated.name) {
+          const err = new Error('El nombre es obligatorio');
+          err.status = 400;
+          throw err;
+        }
+
+        inventory.products[index] = updated;
+        return {
+          products: inventory.products,
+          deletedProductIds: inventory.deletedProductIds ?? [],
+          warehouses: inventory.warehouses,
+        };
       },
-      { syncProductIds: [req.params.id] },
+      { syncProductIds: [productId] },
     );
-    const saved =
-      normalized.products.find((entry) => entry.id === req.params.id) ?? updated;
+
+    saved =
+      normalized.products.find((entry) => entry.id === productId) ?? null;
+    if (!saved) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
 
     if (!shouldPreferSupabaseCatalog()) {
       await syncProductsToSupabase([saved]);
@@ -515,6 +580,9 @@ productsRouter.patch('/:id', requireAdmin, async (req, res, next) => {
     notifyHaiSupportChange('products', 'update', saved);
     res.json(saved);
   } catch (error) {
+    if (error?.status === 404 || error?.status === 400) {
+      return res.status(error.status).json({ error: error.message });
+    }
     next(error);
   }
 });

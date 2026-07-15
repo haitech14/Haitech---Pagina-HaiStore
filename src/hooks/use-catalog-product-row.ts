@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 
 import {
+  getCatalogMediaEpoch,
   getCatalogProductById,
   loadCatalogIndex,
+  subscribeCatalogMediaUpdates,
   type CatalogRow,
 } from '@/lib/catalog-featured';
 
@@ -22,6 +24,12 @@ export function useCatalogProductRow(productId: string): CatalogRow | undefined 
       cancelled = true;
     };
   }, [productId]);
+
+  useEffect(() => {
+    return subscribeCatalogMediaUpdates(() => {
+      setCatalogVersion(getCatalogMediaEpoch());
+    });
+  }, []);
 
   void catalogVersion;
   return getCatalogProductById(productId);

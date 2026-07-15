@@ -49,7 +49,7 @@ export function CheckoutTotalsBreakdown({
 
   if (baseUsd <= 0) return null;
 
-  const priceProps = { className: 'justify-end' };
+  const priceProps = { className: 'justify-end', allowZero: true as const };
 
   if (section === 'tax') {
     return (
@@ -108,6 +108,7 @@ export function CheckoutTotalsBreakdown({
           <span className="min-w-0 text-muted-foreground">Pago con Tarjeta (5% Adicional)</span>
           <DualPrice
             usd={cardPreview.totalWithCardUsd}
+            allowZero
             className="shrink-0 text-xs font-medium text-foreground [&_.text-red-600]:text-red-600/85"
           />
         </div>
@@ -130,6 +131,7 @@ export function CheckoutTotalsBreakdown({
         <div className="shrink-0 space-y-0.5 text-right">
           <DualPrice
             usd={installmentPreview.perInstallmentUsd}
+            allowZero
             stacked
             className="text-sm font-semibold text-foreground [&_.text-red-600]:text-red-600"
             aria-label={`${INSTALLMENT_COUNT} cuotas de ${formatUsd(installmentPreview.perInstallmentUsd)} o ${formatPenAmount(installmentPreview.perInstallmentPen)} cada una`}

@@ -2,6 +2,7 @@ import { FileText, ShieldCheck, Truck } from 'lucide-react';
 
 import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
 import { DualPrice } from '@/components/product/product-dual-price';
+import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +31,7 @@ export function ProductQuickViewPricingBox({
     ...(oldPriceUsd != null ? { oldPrice: oldPriceUsd } : {}),
     ...(discountPercent != null ? { discount: discountPercent } : {}),
   });
+  const onRequest = isPriceOnRequest(pricing.currentUsd);
 
   return (
     <section
@@ -37,20 +39,30 @@ export function ProductQuickViewPricingBox({
       aria-label="Precio del producto"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <AdminRolePricesTooltip productId={productId} displayUsd={pricing.currentUsd}>
+        {onRequest ? (
           <p className="text-2xl font-bold leading-tight text-foreground sm:text-[1.75rem]">
-            <DualPrice usd={pricing.currentUsd} />
+            {CONSULTAR_PRECIO_LABEL}
           </p>
-        </AdminRolePricesTooltip>
-        <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
-          {pricing.discountPercent}% DSCTO
-        </span>
+        ) : (
+          <AdminRolePricesTooltip productId={productId} displayUsd={pricing.currentUsd}>
+            <p className="text-2xl font-bold leading-tight text-foreground sm:text-[1.75rem]">
+              <DualPrice usd={pricing.currentUsd} />
+            </p>
+          </AdminRolePricesTooltip>
+        )}
+        {!onRequest ? (
+          <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
+            {pricing.discountPercent}% DSCTO
+          </span>
+        ) : null}
       </div>
 
-      <p className="mt-1 text-sm text-muted-foreground">
-        Antes:{' '}
-        <DualPrice usd={pricing.compareUsd} strikethrough className="inline" />
-      </p>
+      {!onRequest ? (
+        <p className="mt-1 text-sm text-muted-foreground">
+          Antes:{' '}
+          <DualPrice usd={pricing.compareUsd} strikethrough className="inline" />
+        </p>
+      ) : null}
 
       <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 border-t border-border/60 pt-3">
         {TRUST_ITEMS.map((item) => {

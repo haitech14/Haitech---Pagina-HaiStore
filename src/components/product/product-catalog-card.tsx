@@ -10,7 +10,7 @@ import { ProductRating } from '@/components/product/product-rating';
 import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { useWishlist } from '@/context/wishlist-context';
-import { formatVolumeUnitPrice } from '@/lib/display-price';
+import { formatVolumeUnitPrice, CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import {
   CATALOG_VOLUME_TIERS,
   getCatalogCardPricing,
@@ -41,6 +41,30 @@ function CatalogCardPricing({ product }: { product: Product }) {
   const showUsd = displayCurrency !== 'PEN';
   const showPen = displayCurrency !== 'USD';
   const penFirst = dualPriceOrder === 'pen-usd';
+
+  if (displayPrice.viewAsRolePrices.length > 1) {
+    return (
+      <div className="space-y-1">
+        <ViewAsRoleBadge labels={displayPrice.viewAsRolePrices.map((line) => line.label)} />
+        <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
+          <ViewAsRolePrices rolePrices={displayPrice.viewAsRolePrices} compact />
+        </div>
+      </div>
+    );
+  }
+
+  if (isPriceOnRequest(pricing.currentUsd)) {
+    return (
+      <div className="space-y-1">
+        {displayPrice.viewAsLabel ? <ViewAsRoleBadge label={displayPrice.viewAsLabel} /> : null}
+        <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
+          <p className="text-base font-bold leading-tight text-foreground xl:text-lg">
+            {CONSULTAR_PRECIO_LABEL}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const compareParts =
     penFirst
@@ -75,33 +99,22 @@ function CatalogCardPricing({ product }: { product: Product }) {
 
   return (
     <div className="space-y-1">
-      {displayPrice.viewAsRolePrices.length > 1 ? (
-        <>
-          <ViewAsRoleBadge labels={displayPrice.viewAsRolePrices.map((line) => line.label)} />
-          <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
-            <ViewAsRolePrices rolePrices={displayPrice.viewAsRolePrices} compact />
-          </div>
-        </>
-      ) : (
-        <>
-          {displayPrice.viewAsLabel ? <ViewAsRoleBadge label={displayPrice.viewAsLabel} /> : null}
-          <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
-            <div className={cn('grid gap-2', showUsd && showPen ? 'grid-cols-2' : 'grid-cols-1')}>
-              {penFirst ? (
-                <>
-                  {penColumn}
-                  {usdColumn}
-                </>
-              ) : (
-                <>
-                  {usdColumn}
-                  {penColumn}
-                </>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+      {displayPrice.viewAsLabel ? <ViewAsRoleBadge label={displayPrice.viewAsLabel} /> : null}
+      <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
+        <div className={cn('grid gap-2', showUsd && showPen ? 'grid-cols-2' : 'grid-cols-1')}>
+          {penFirst ? (
+            <>
+              {penColumn}
+              {usdColumn}
+            </>
+          ) : (
+            <>
+              {usdColumn}
+              {penColumn}
+            </>
+          )}
+        </div>
+      </div>
       {pricing.discountPercent > 0 ? (
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-0.5">
           <p className="text-[0.65rem] tabular-nums text-muted-foreground line-through sm:text-xs">
@@ -299,7 +312,9 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
           )}
         >
           <div className="min-h-0 overflow-hidden">
-            <CatalogVolumePricing priceUsd={displayPrice.priceUsd} />
+            {!isPriceOnRequest(displayPrice.priceUsd) ? (
+              <CatalogVolumePricing priceUsd={displayPrice.priceUsd} />
+            ) : null}
           </div>
         </div>
 

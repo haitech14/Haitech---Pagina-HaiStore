@@ -1,5 +1,5 @@
 import type { ChangeEvent, ClipboardEvent, FormEvent } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Camera,
   CircleDollarSign,
@@ -36,12 +36,18 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAdminInventory, useInventoryMutations } from '@/hooks/use-products';
 import { uploadFileToMediaAlbum } from '@/hooks/use-media-album';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { useWarehouses } from '@/hooks/use-warehouses';
-import { isPrinterEquipment } from '@/lib/build-product-detail';
 import { buildBrandSelectOptions } from '@/lib/inventory-brand-options';
 import {
   buildCategorySelectGroups,
@@ -108,6 +114,12 @@ const FOCUS_SECTION_TARGETS: Record<
   prices: { id: 'inv-prices-section' },
 };
 
+const VISIBILITY_OPTIONS = [
+  { value: 'borrador', label: 'Borrador' },
+  { value: 'activa', label: 'Activa (visible en tienda)' },
+  { value: 'inactiva', label: 'Inactiva (oculta)' },
+] as const;
+
 export function InventoryProductFormDialog({
   open,
   onOpenChange,
@@ -124,7 +136,18 @@ export function InventoryProductFormDialog({
   const [form, setForm] = useState<InventoryProduct>(initial ?? createEmptyInventoryProduct());
   const [error, setError] = useState<string | null>(null);
   const [albumPicker, setAlbumPicker] = useState<'main' | 'gallery' | null>(null);
+  const albumPickerRef = useRef<'main' | 'gallery' | null>(null);
   const [slugCopied, setSlugCopied] = useState(false);
+
+  const openAlbumPicker = (mode: 'main' | 'gallery') => {
+    albumPickerRef.current = mode;
+    setAlbumPicker(mode);
+  };
+
+  const closeAlbumPicker = () => {
+    albumPickerRef.current = null;
+    setAlbumPicker(null);
+  };
 
   const categoryGroups = useMemo(() => {
     const orphans = collectOrphanCategoryLabels(categoryTree, [form.category ?? '']);
@@ -206,14 +229,16 @@ export function InventoryProductFormDialog({
 
   const updateDescription = (description: string) => {
     setForm((prev) => {
-      const catalogProduct = {
-        ...prev,
-        price: prev.prices.public ?? 0,
-        description: prev.description ?? null,
-      };
+      // Lista vacía explícita = el usuario quitó las destacadas: no regenerar desde descripción.
+      if (
+        Array.isArray(prev.storefront_hero_bullets) &&
+        prev.storefront_hero_bullets.length === 0
+      ) {
+        return { ...prev, description };
+      }
+
       const shouldSyncHeroBullets =
-        isPrinterEquipment(catalogProduct) ||
-        (Array.isArray(prev.storefront_hero_bullets) && prev.storefront_hero_bullets.length > 0);
+        Array.isArray(prev.storefront_hero_bullets) && prev.storefront_hero_bullets.length > 0;
 
       if (!shouldSyncHeroBullets) {
         return { ...prev, description };
@@ -257,10 +282,16 @@ export function InventoryProductFormDialog({
   };
 
   const uploadFilesToAlbum = async (files: File[]) => {
-    const items = await Promise.all(
-      files.map((file) => uploadFileToMediaAlbum(file, readImageFile)),
-    );
-    return items.map((item) => item.url);
+    // Secuencial: evita carreras en media-album.json y fallos opacos con Promise.all.
+    const urls: string[] = [];
+    for (const file of files) {
+      const item = await uploadFileToMediaAlbum(file, readImageFile);
+      if (!item?.url) {
+        throw new Error(`La subida de «${file.name}» no devolvió una URL válida`);
+      }
+      urls.push(item.url);
+    }
+    return urls;
   };
 
   const appendImages = async (files: File[]) => {
@@ -275,8 +306,10 @@ export function InventoryProductFormDialog({
       const urls = await uploadFilesToAlbum([file]);
       setMainImage(urls[0] ?? null);
       setError(null);
-    } catch {
-      setError('No se pudo cargar la imagen principal.');
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'No se pudo cargar la imagen principal.',
+      );
     }
   };
 
@@ -285,20 +318,40 @@ export function InventoryProductFormDialog({
     try {
       await appendImages([...files]);
       setError(null);
-    } catch {
-      setError('No se pudieron cargar las imágenes de la galería.');
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'No se pudieron cargar las imágenes de la galería.',
+      );
     }
   };
 
   const handlePhotosPaste = async (event: ClipboardEvent<HTMLDivElement>) => {
+    // No interceptar Ctrl+V / pegar en inputs o Descripción: el portapapeles
+    // a menudo incluye imagen + texto (Word, Excel, web) y preventDefault
+    // bloqueaba el pegado de descripción multilínea.
+    const pasteTarget = event.target;
+    if (
+      pasteTarget instanceof HTMLElement &&
+      (pasteTarget.closest('input, textarea, select, [contenteditable="true"]') ||
+        pasteTarget.isContentEditable)
+    ) {
+      return;
+    }
+
     const files = getImageFilesFromClipboard(event.clipboardData);
     if (files.length === 0) return;
     event.preventDefault();
     try {
       await appendImages(files);
       setError(null);
-    } catch {
-      setError('No se pudo pegar la imagen desde el portapapeles.');
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'No se pudo pegar la imagen desde el portapapeles.',
+      );
     }
   };
 
@@ -346,7 +399,7 @@ export function InventoryProductFormDialog({
   };
 
   const isSaving = createProduct.isPending || updateProduct.isPending;
-  const galleryImages = form.gallery.filter((url) => isImageMediaUrl(url));
+  const galleryImages = (form.gallery ?? []).filter((url) => isImageMediaUrl(url));
 
   return (
     <>
@@ -354,6 +407,16 @@ export function InventoryProductFormDialog({
       <DialogContent
         className="flex max-h-[92vh] w-[min(100vw-1.5rem,72rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-[72rem]"
         overlayClassName="bg-black/45"
+        onPointerDownOutside={(event) => {
+          // El álbum vive en otro Dialog: no cerrar el formulario al interactuar con él.
+          if (albumPickerRef.current !== null) event.preventDefault();
+        }}
+        onInteractOutside={(event) => {
+          if (albumPickerRef.current !== null) event.preventDefault();
+        }}
+        onFocusOutside={(event) => {
+          if (albumPickerRef.current !== null) event.preventDefault();
+        }}
       >
         <DialogHeader className="shrink-0 space-y-1 border-b border-border/60 bg-card px-6 py-5 pr-14 text-left">
           <DialogTitle className="text-xl font-bold tracking-tight text-foreground">
@@ -378,18 +441,49 @@ export function InventoryProductFormDialog({
                   icon={ClipboardList}
                 >
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="inv-code">Código</Label>
-                      <Input
-                        id="inv-code"
-                        className="h-10 bg-background"
-                        value={form.code}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                          updateField('code', event.target.value.toUpperCase())
-                        }
-                        placeholder="Ej. SKU-001"
-                        required
-                      />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="inv-code">Código</Label>
+                        <Input
+                          id="inv-code"
+                          className="h-10 bg-background font-mono text-sm"
+                          value={form.code}
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                            updateField('code', event.target.value.toUpperCase())
+                          }
+                          placeholder="Se genera al crear"
+                          required
+                        />
+                        {!isEdit ? (
+                          <p className="text-xs text-muted-foreground">
+                            Generado automáticamente; puedes editarlo.
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="inv-visibility">Visibilidad</Label>
+                        <Select
+                          value={form.status ?? 'borrador'}
+                          onValueChange={(value) =>
+                            updateField(
+                              'status',
+                              value as NonNullable<InventoryProduct['status']>,
+                            )
+                          }
+                        >
+                          <SelectTrigger id="inv-visibility" className="h-10 bg-background">
+                            <SelectValue placeholder="Visibilidad" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {VISIBILITY_OPTIONS.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -603,7 +697,7 @@ export function InventoryProductFormDialog({
                             hint="Foto principal del producto."
                             uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
                             onFiles={(files) => void handleMainImageFiles(files)}
-                            onPickFromAlbum={() => setAlbumPicker('main')}
+                            onPickFromAlbum={() => openAlbumPicker('main')}
                             className="[&_button]:min-h-[7rem] [&_button]:py-4"
                           />
                         )}
@@ -614,7 +708,7 @@ export function InventoryProductFormDialog({
                               variant="outline"
                               size="sm"
                               className="h-8"
-                              onClick={() => setAlbumPicker('main')}
+                              onClick={() => openAlbumPicker('main')}
                             >
                               Cambiar desde álbum
                             </Button>
@@ -642,7 +736,7 @@ export function InventoryProductFormDialog({
                         uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
                         multiple
                         onFiles={(files) => void handleGalleryFiles(files)}
-                        onPickFromAlbum={() => setAlbumPicker('gallery')}
+                        onPickFromAlbum={() => openAlbumPicker('gallery')}
                         className="[&_button]:min-h-[7rem] [&_button]:py-4"
                         preview={
                           galleryImages.length > 0 ? (
@@ -711,7 +805,7 @@ export function InventoryProductFormDialog({
     <MediaAlbumPickerDialog
       open={albumPicker !== null}
       onOpenChange={(next) => {
-        if (!next) setAlbumPicker(null);
+        if (!next) closeAlbumPicker();
       }}
       mode={albumPicker === 'main' ? 'single' : 'multiple'}
       excludeUrls={
@@ -724,15 +818,18 @@ export function InventoryProductFormDialog({
           : 'Elige una imagen optimizada del álbum interno.'
       }
       onConfirm={(items) => {
-        if (albumPicker === 'main') {
+        const mode = albumPickerRef.current ?? albumPicker;
+        if (mode === 'main') {
           const url = items[0]?.url;
           if (url && isImageMediaUrl(url)) {
             setMainImage(url);
           }
         } else {
-          appendGalleryUrls(items.map((item) => item.url));
+          appendGalleryUrls(
+            items.map((item) => item.url).filter((url): url is string => Boolean(url)),
+          );
         }
-        setAlbumPicker(null);
+        closeAlbumPicker();
         setError(null);
       }}
     />

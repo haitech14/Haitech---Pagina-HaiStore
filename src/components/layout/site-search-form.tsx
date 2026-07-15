@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, FolderOpen, Loader2, Plus, Search, Wrench, X } from 'lucide-react';
 
+import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
+import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductCardImage } from '@/components/product/product-card-image';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
@@ -28,18 +30,34 @@ import {
   type SearchCategorySuggestion,
   type SearchServiceSuggestion,
 } from '@/lib/product-search';
-import {
-  buildProductCardImageCandidates,
-  buildProductCardImageSource,
-} from '@/lib/product-card-images';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { getHomeLandingProductCardLines } from '@/lib/product-card-title';
 import { getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
 import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
-import { sanitizeStoredProductMedia } from '@/lib/product-media-sanitize';
 import { productPath } from '@/lib/product-path';
-import { formatDisplayPriceFromUsd } from '@/lib/display-price';
+import { CONSULTAR_PRECIO_LABEL, formatDisplayPriceFromUsd } from '@/lib/display-price';
 import type { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
+
+/** Thumbnails ligeros para el panel (sin sanitize/candidatos pesados por fila). */
+function buildSearchSuggestionThumbCandidates(product: Product): string[] {
+  const urls: string[] = [];
+  const push = (value?: string | null) => {
+    const raw = value?.trim();
+    if (!raw) return;
+    const cleaned = raw.split('?')[0] ?? raw;
+    if (!urls.includes(cleaned)) urls.push(cleaned);
+  };
+
+  push(product.image_url);
+  for (const item of product.gallery ?? []) push(item);
+  const id = product.id?.trim();
+  if (id) {
+    push(`/products/${id}-256.webp`);
+    push(`/products/${id}.webp`);
+  }
+  return urls;
+}
 
 const ALL_CATEGORIES_VALUE = 'all';
 
@@ -219,27 +237,9 @@ function SearchProductSuggestionThumbInner({ candidates }: { candidates: string[
 }
 
 function SearchProductSuggestionThumb({ product }: { product: Product }) {
-  const imageSource = useMemo(() => {
-    const sanitized = sanitizeStoredProductMedia({
-      id: product.id,
-      code: product.code ?? null,
-      image_url: product.image_url,
-      gallery: product.gallery ?? null,
-    });
-    return buildProductCardImageSource({
-      id: product.id,
-      code: product.code ?? null,
-      name: product.name,
-      category: product.category,
-      brand: product.brand ?? null,
-      image_url: sanitized.image_url,
-      gallery: sanitized.gallery,
-    });
-  }, [product]);
-
   const imageCandidates = useMemo(
-    () => buildProductCardImageCandidates(imageSource),
-    [imageSource],
+    () => buildSearchSuggestionThumbCandidates(product),
+    [product],
   );
 
   return (
@@ -265,16 +265,29 @@ function SearchProductSuggestionCell({
   const title = subtitle ? `${headline} · ${subtitle}` : headline;
   const priceAria = showPrice
     ? formatDisplayPriceFromUsd(pricing.currentUsd, displayCurrency, dualPriceOrder)
-    : 'Consultar precio';
+    : CONSULTAR_PRECIO_LABEL;
+  const clipboardCondition = resolveProductCardBadgeLabel(product);
+  const clipboardCode = product.code?.trim() || null;
+  const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const detailPath = productPath(product);
+  const clipboardImageUrl = useMemo(
+    () => buildSearchSuggestionThumbCandidates(product)[0] ?? null,
+    [product],
+  );
+  const copyActionClass =
+    'shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted/80 hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
 
   return (
-    <button
+    <div
       id={optionId}
-      type="button"
       role="option"
       aria-selected={isActive}
       aria-label={[title, priceAria].filter(Boolean).join(', ')}
-      className={cn(SEARCH_SUGGESTION_CELL_CLASS, isActive && 'bg-accent')}
+      className={cn(
+        SEARCH_SUGGESTION_CELL_CLASS,
+        'cursor-pointer',
+        isActive && 'bg-accent',
+      )}
       onMouseEnter={onMouseEnter}
       onClick={onNavigateProduct}
     >
@@ -297,11 +310,34 @@ function SearchProductSuggestionCell({
           </span>
         ) : (
           <span className="shrink-0 text-[0.6875rem] font-medium text-[#E30613]">
-            Consultar precio
+            {CONSULTAR_PRECIO_LABEL}
           </span>
         )}
       </span>
-    </button>
+      <span className="flex shrink-0 items-center gap-0.5">
+        {clipboardImageUrl ? (
+          <ProductCardCopyImageButton
+            productName={product.name}
+            imageUrl={clipboardImageUrl}
+            className={copyActionClass}
+          />
+        ) : null}
+        <ProductCardCopyButton
+          productName={product.name}
+          title={product.name}
+          stock={stockCount}
+          priceUsd={product.price}
+          productId={product.id}
+          productPath={detailPath}
+          {...(clipboardCode != null ? { code: clipboardCode } : {})}
+          {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
+          {...(product.volume_role_prices != null
+            ? { volumeRolePrices: product.volume_role_prices }
+            : {})}
+          className={copyActionClass}
+        />
+      </span>
+    </div>
   );
 }
 
@@ -350,7 +386,7 @@ export function SiteSearchForm({
     extraLoads: 0,
   });
 
-  const debouncedQuery = useDebouncedValue(query, 200);
+  const debouncedQuery = useDebouncedValue(query, 120);
 
   const categoryOptions = useMemo(() => {
     const fromTree = buildCategorySelectOptions(categoryTree);
@@ -414,8 +450,12 @@ export function SiteSearchForm({
       productSuggestions,
       trimmedDebouncedQuery,
     );
+    // Todas las secciones desplegadas con sus productos (sin recortar a 3).
     return groups.map((group) => {
-      const visible = group.products.slice(0, PRODUCT_SEARCH_PER_SECTION_LIMIT);
+      const visible =
+        group.products.length <= PRODUCT_SEARCH_PER_SECTION_LIMIT
+          ? group.products
+          : group.products.slice(0, PRODUCT_SEARCH_PER_SECTION_LIMIT);
       return {
         category: group.category,
         products: visible,

@@ -43,11 +43,23 @@ let inventoryReadCache = null;
 let inventoryReadCacheAt = 0;
 /** @type {Promise<{ products: unknown[]; deletedProductIds: string[]; warehouses: unknown }> | null} */
 let inventoryReadInFlight = null;
+/**
+ * Sube en cada invalidate/write. Evita que un loadInventoryUncached arrancado
+ * *antes* de un duplicate/create/patch repueble inventoryReadCache con el
+ * snapshot viejo (síntoma: toast «Copia creada» pero la fila no aparece).
+ */
+let inventoryReadEpoch = 0;
 
 function invalidateInventoryReadCache() {
   inventoryReadCache = null;
   inventoryReadCacheAt = 0;
+  inventoryReadEpoch += 1;
+  // No reutilizar el in-flight: los nuevos lectores deben abrir un load nuevo.
+  // El promise viejo sigue vivo pero su .then no debe pisar un caché más fresco.
+  inventoryReadInFlight = null;
 }
+
+export { invalidateInventoryReadCache };
 
 function isUnreadableInventoryRaw(raw) {
   if (typeof raw !== 'string' || !raw.trim()) return true;
@@ -524,20 +536,17 @@ async function readInventoryFromSupabase() {
   };
 }
 
-async function loadInventoryUncached() {
+async function loadInventoryUncached(options = {}) {
+  const allowDeferredPersist = options.allowDeferredPersist !== false;
   let result;
+  let needsPersist = false;
+
   if (shouldPreferSupabaseCatalog()) {
     const loaded = await readInventoryFromSupabase();
     let products = loaded.products;
-    if (loaded._needsPersist) {
-      void writeInventory({
-        products,
-        deletedProductIds: loaded.deletedProductIds,
-        warehouses: loaded.warehouses,
-      }).catch((err) => {
-        const message = err instanceof Error ? err.message : String(err);
-        console.warn('[inventory] supabase persist on read deferred failed:', message);
-      });
+    needsPersist = Boolean(loaded._needsPersist);
+    if (allowDeferredPersist && needsPersist) {
+      scheduleDeferredInventoryPersist('supabase');
     }
     result = {
       products,
@@ -567,15 +576,9 @@ async function loadInventoryUncached() {
     const bundleSync = syncInventoryBundleProducts(products, warehouses);
     const hadStaleDeleted = (data.products ?? []).some((product) => deleted.has(product.id));
 
-    if (hadStaleDeleted || sortChanged || bundleSync.changed) {
-      void writeInventory({
-        products: bundleSync.products,
-        deletedProductIds,
-        warehouses,
-      }).catch((err) => {
-        const message = err instanceof Error ? err.message : String(err);
-        console.warn('[inventory] persist on read deferred failed:', message);
-      });
+    needsPersist = hadStaleDeleted || sortChanged || bundleSync.changed;
+    if (allowDeferredPersist && needsPersist) {
+      scheduleDeferredInventoryPersist('file');
     }
 
     result = { products: bundleSync.products, deletedProductIds, warehouses };
@@ -591,7 +594,7 @@ async function loadInventoryUncached() {
     );
   }
 
-  return { result, shouldCacheResult };
+  return { result, shouldCacheResult, needsPersist };
 }
 
 export async function readInventory() {
@@ -601,8 +604,14 @@ export async function readInventory() {
   }
 
   if (!inventoryReadInFlight) {
-    inventoryReadInFlight = loadInventoryUncached()
+    const epochAtStart = inventoryReadEpoch;
+    const loadPromise = loadInventoryUncached()
       .then(({ result, shouldCacheResult }) => {
+        if (epochAtStart !== inventoryReadEpoch) {
+          // Hubo invalidate/write durante el load: no pisar caché fresco con snapshot viejo.
+          if (inventoryReadCache) return inventoryReadCache;
+          return result;
+        }
         if (shouldCacheResult) {
           inventoryReadCache = result;
           inventoryReadCacheAt = Date.now();
@@ -610,21 +619,94 @@ export async function readInventory() {
         return result;
       })
       .finally(() => {
-        inventoryReadInFlight = null;
+        if (inventoryReadInFlight === loadPromise) {
+          inventoryReadInFlight = null;
+        }
       });
+    inventoryReadInFlight = loadPromise;
   }
 
   return inventoryReadInFlight;
 }
 
+let inventoryWriteChain = Promise.resolve();
+/** Sube en cada escritura exitosa; evita que un persist-on-read obsoleto pise un PATCH recién guardado. */
+let inventoryWriteEpoch = 0;
+
+function enqueueInventoryWrite(task) {
+  const run = inventoryWriteChain.then(task);
+  inventoryWriteChain = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
 /**
+ * Persiste normalizaciones detectadas al leer, pero solo si nadie escribió después.
+ * Si se encola con un snapshot viejo (p. ej. justo antes de un PATCH de imagen), se omite.
+ */
+function scheduleDeferredInventoryPersist(reason) {
+  const epochAtSchedule = inventoryWriteEpoch;
+  void enqueueInventoryWrite(async () => {
+    if (inventoryWriteEpoch !== epochAtSchedule) {
+      console.warn(
+        `[inventory] omitido persist-on-read obsoleto (${reason}): hay una escritura más reciente`,
+      );
+      return;
+    }
+
+    invalidateInventoryReadCache();
+    const { result, needsPersist } = await loadInventoryUncached({
+      allowDeferredPersist: false,
+    });
+    if (!needsPersist) return;
+    if (inventoryWriteEpoch !== epochAtSchedule) {
+      console.warn(
+        `[inventory] omitido persist-on-read obsoleto (${reason}) tras re-lectura`,
+      );
+      return;
+    }
+
+    return writeInventoryUnlocked({
+      products: result.products,
+      deletedProductIds: result.deletedProductIds,
+      warehouses: result.warehouses,
+    });
+  }).catch((err) => {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`[inventory] persist on read deferred failed (${reason}):`, message);
+  });
+}
+
+/**
+ * Serializa escrituras para evitar lost updates cuando hay PATCHes rápidos en serie.
  * @param {object} data
- * @param {{ syncProductIds?: string[] }} [options] IDs a sincronizar en Supabase (por defecto todos).
+ * @param {{ syncProductIds?: string[] }} [options]
  */
 export async function writeInventory(data, options = {}) {
+  return enqueueInventoryWrite(() => writeInventoryUnlocked(data, options));
+}
+
+/**
+ * Read-modify-write atómico: el mutator corre con inventario fresco dentro de la cola.
+ * @param {(inventory: object) => object | Promise<object>} mutator
+ * @param {{ syncProductIds?: string[] }} [options]
+ */
+export async function mutateInventory(mutator, options = {}) {
+  return enqueueInventoryWrite(async () => {
+    invalidateInventoryReadCache();
+    // No programar persist-on-read aquí: usaría el snapshot pre-mutación y pisaría la imagen.
+    const { result } = await loadInventoryUncached({ allowDeferredPersist: false });
+    const next = await mutator(result);
+    return writeInventoryUnlocked(next, options);
+  });
+}
+
+async function writeInventoryUnlocked(data, options = {}) {
   invalidateInventoryReadCache();
-  void import('./product-catalog.js')
-    .then(({ invalidatePublicCatalogCache }) => invalidatePublicCatalogCache())
+  void import('./media-album-store.js')
+    .then(({ invalidateInventoryMediaAlbumCache }) => invalidateInventoryMediaAlbumCache())
     .catch(() => {});
   void import('./home-catalog-bundle-snapshot.js')
     .then(({ regenerateHomeBundleSnapshotQuiet }) => regenerateHomeBundleSnapshotQuiet())
@@ -650,10 +732,27 @@ export async function writeInventory(data, options = {}) {
     migrateInventoryProduct(product, warehouses),
   );
   const bundleSync = syncInventoryBundleProducts(migrated, warehouses);
+  const mediaTargetIds =
+    syncProductIds?.length > 0
+      ? new Set(syncProductIds)
+      : null;
+
   const withPublicMedia = await Promise.all(
-    bundleSync.products.map((product) => persistProductMedia(product)),
+    bundleSync.products.map(async (product) => {
+      if (mediaTargetIds && !mediaTargetIds.has(product.id)) {
+        return product;
+      }
+      return persistProductMedia(product);
+    }),
   );
-  const products = await Promise.all(withPublicMedia.map((product) => optimizeProductMedia(product)));
+  const products = await Promise.all(
+    withPublicMedia.map(async (product) => {
+      if (mediaTargetIds && !mediaTargetIds.has(product.id)) {
+        return product;
+      }
+      return optimizeProductMedia(product);
+    }),
+  );
   const normalized = {
     products,
     deletedProductIds: normalizeDeletedIds(data.deletedProductIds),
@@ -661,7 +760,9 @@ export async function writeInventory(data, options = {}) {
   };
 
   if (preferSupabase) {
-    const { syncProductsToSupabase } = await import('./product-catalog.js');
+    const { syncProductsToSupabase, invalidatePublicCatalogCache } = await import(
+      './product-catalog.js'
+    );
     const productsToSync =
       syncProductIds?.length > 0
         ? products.filter((product) => syncProductIds.includes(product.id))
@@ -673,11 +774,31 @@ export async function writeInventory(data, options = {}) {
       await fs.mkdir(path.dirname(inventoryPath()), { recursive: true });
       await writeJsonFileAtomic(inventoryPath(), normalized);
     }
+    inventoryWriteEpoch += 1;
+    // Bump read epoch al publicar el snapshot: un load arrancado a mitad del write
+    // (epoch post-invalidate) no debe sobrescribir este caché fresco.
+    inventoryReadEpoch += 1;
+    inventoryReadInFlight = null;
+    inventoryReadCache = normalized;
+    inventoryReadCacheAt = Date.now();
+    // Tras persistir: vaciar admin/public cache para que el siguiente GET vea altas/duplicados.
+    invalidatePublicCatalogCache();
     return normalized;
   }
 
   await fs.mkdir(path.dirname(inventoryPath()), { recursive: true });
   await writeJsonFileAtomic(inventoryPath(), normalized);
+  inventoryWriteEpoch += 1;
+  inventoryReadEpoch += 1;
+  inventoryReadInFlight = null;
+  inventoryReadCache = normalized;
+  inventoryReadCacheAt = Date.now();
+  try {
+    const { invalidatePublicCatalogCache } = await import('./product-catalog.js');
+    invalidatePublicCatalogCache();
+  } catch {
+    // ignore
+  }
   return normalized;
 }
 
@@ -757,7 +878,7 @@ export function toPublicProductCard(product, role) {
   };
 }
 
-/** DTO ligero para listados (sin description, gallery ni attachments). */
+/** DTO ligero para listados (sin description ni attachments; sí gallery para hover en cards). */
 export function toPublicProductList(product, role) {
   const full = toPublicProduct(product, role);
   return {
@@ -768,6 +889,7 @@ export function toPublicProductList(product, role) {
     prices: full.prices,
     currency: full.currency,
     image_url: full.image_url,
+    gallery: full.gallery,
     stock: full.stock,
     category: full.category,
     brand: full.brand,
@@ -855,6 +977,10 @@ export function normalizeProductInput(body, existing, warehouses) {
         body.sort_order !== undefined && body.sort_order !== null
           ? body.sort_order
           : existing?.sort_order,
+      slug: body.slug !== undefined ? body.slug : existing?.slug,
+      status: body.status !== undefined ? body.status : existing?.status,
+      is_featured:
+        body.is_featured !== undefined ? body.is_featured : existing?.is_featured,
       prices,
     },
     warehouseList,

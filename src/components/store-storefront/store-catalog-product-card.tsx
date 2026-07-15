@@ -19,6 +19,7 @@ import {
 } from '@/lib/product-card-images';
 import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
 import { ProductCardBrandLine } from '@/components/product/product-card-title';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import {
   getProductCardTitleContent,
   PRODUCT_CARD_CODE_CLASS,
@@ -68,6 +69,8 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
   const buyNowLabel = outOfStock ? 'Reservar Ahora' : 'Comprar Ahora';
+  const clipboardCondition = resolveProductCardBadgeLabel(titleProduct);
+  const clipboardImageUrl = imageCandidates[0] ?? product.image_url ?? null;
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm transition-shadow hover:border-red-600/25 hover:shadow-md">
@@ -95,6 +98,19 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
           isWishlisted={isWishlisted(product.id)}
           revealOnHover
           secondaryAction="buy"
+          clipboard={{
+            title,
+            stock: product.stock,
+            priceUsd: displayPrice.priceUsd,
+            productId: product.id,
+            productPath: detailHref,
+            ...(code != null ? { code } : {}),
+            ...(clipboardCondition != null ? { condition: clipboardCondition } : {}),
+            ...(product.volume_role_prices != null
+              ? { volumeRolePrices: product.volume_role_prices }
+              : {}),
+            ...(clipboardImageUrl != null ? { imageUrl: clipboardImageUrl } : {}),
+          }}
           onWishlist={() => toggleWishlist(productToWishlistItem(product))}
           onQuickView={() => setQuickViewOpen(true)}
           onCompare={() => undefined}

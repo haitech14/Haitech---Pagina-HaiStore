@@ -6,6 +6,7 @@ import { isBundleProduct, TONER_PACK_LABEL } from '@/lib/product-bundle';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
 
 import { InventoryInlinePriceEdit } from '@/components/admin/inventory/inventory-inline-price-edit';
+import { useDisplayCurrency } from '@/context/display-currency-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import {
   getUsdToPenPurchaseRate,
@@ -43,6 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { uploadFileToMediaAlbum } from '@/hooks/use-media-album';
 import {
   categoryInventoryLabel,
   listRootCategories,
@@ -53,6 +55,7 @@ import {
   type InventoryReorderableColumnId,
 } from '@/lib/inventory-table-columns';
 import { normalizeAttributes, getProductAttributeValue, upsertProductAttribute } from '@/lib/inventory-attributes';
+import { buildPurchasePricePatch } from '@/lib/inventory-suppliers';
 import { stockFromTotal } from '@/lib/inventory-stock';
 import {
   PRICE_ROLE_LABELS,
@@ -85,6 +88,7 @@ export function InventoryRowCells({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [addingGallery, setAddingGallery] = useState(false);
   const { data: company } = useCompanySettings();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
 
   const saleExchangeRate = normalizeUsdToPenRate(
     company?.usdToPenExchangeRate ?? getUsdToPenSaleRate(),
@@ -128,9 +132,6 @@ export function InventoryRowCells({
   };
 
   const savePriceUsd = async (role: PriceRole, usd: number) => {
-    const currentUsd = product.prices[role] ?? 0;
-    if (Math.abs(currentUsd - usd) < 0.0001) return;
-
     try {
       await onPatch({
         prices: { ...product.prices, [role]: usd },
@@ -144,22 +145,8 @@ export function InventoryRowCells({
   };
 
   const savePurchaseUsd = async (usd: number) => {
-    const currentUsd = product.purchase_price_usd ?? 0;
-    if (Math.abs(currentUsd - usd) < 0.0001) return;
-
-    const suppliers = product.suppliers ?? [];
-    const syncedSuppliers =
-      suppliers.length > 0
-        ? suppliers.map((supplier, index) =>
-            index === 0 ? { ...supplier, purchase_price_usd: usd } : supplier,
-          )
-        : suppliers;
-
     try {
-      await onPatch({
-        purchase_price_usd: usd,
-        ...(syncedSuppliers.length > 0 ? { suppliers: syncedSuppliers } : {}),
-      });
+      await onPatch(buildPurchasePricePatch(product, usd));
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'No se pudo guardar el precio de compra',
@@ -257,8 +244,8 @@ export function InventoryRowCells({
 
       setAddingGallery(true);
       try {
-        const url = await readImageFile(file);
-        const media = setProductMainMediaUrl(product, url);
+        const albumItem = await uploadFileToMediaAlbum(file, readImageFile);
+        const media = setProductMainMediaUrl(product, albumItem.url);
         await saveMedia(media);
         toast.success('Imagen principal guardada');
       } catch (error) {
@@ -588,6 +575,8 @@ export function InventoryRowCells({
             onSave={savePurchaseUsd}
             onClose={close}
             useCharm={false}
+            displayCurrency={displayCurrency}
+            dualPriceOrder={dualPriceOrder}
           />
         }
       />
@@ -636,6 +625,8 @@ export function InventoryRowCells({
             ariaLabel={PRICE_ROLE_LABELS[role]}
             onSave={(usd) => savePriceUsd(role, usd)}
             onClose={close}
+            displayCurrency={displayCurrency}
+            dualPriceOrder={dualPriceOrder}
           />
         }
       />

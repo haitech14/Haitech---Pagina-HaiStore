@@ -1,6 +1,10 @@
 import type { QueryClient } from '@tanstack/react-query';
 
-import { normalizeInventoryProduct } from '@/lib/inventory-product';
+import {
+  mergeInventoryProductPatch,
+  normalizeInventoryProduct,
+  normalizeInventoryProductForAdminList,
+} from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { toPublicProduct } from '@/lib/pricing';
 import { deriveProductSlug } from '@/lib/product-slug';
@@ -27,6 +31,51 @@ function normalizeInventoryRow(row: InventoryProduct): InventoryProduct | null {
   } catch {
     return null;
   }
+}
+
+function normalizeAdminInventoryRow(row: InventoryProduct): InventoryProduct | null {
+  try {
+    return normalizeInventoryProductForAdminList(row, DEFAULT_WAREHOUSES);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Inserta o fusiona filas en la caché admin-inventory.
+ * Usar tras create / duplicate / update cuando la UI debe verse al instante.
+ */
+export function upsertAdminInventoryProducts(
+  queryClient: QueryClient,
+  rows: InventoryProduct[],
+  options?: { prepend?: boolean },
+): void {
+  if (rows.length === 0) return;
+  const normalized = rows
+    .map((row) => normalizeAdminInventoryRow(row))
+    .filter((row): row is InventoryProduct => row != null);
+  if (normalized.length === 0) return;
+
+  const prepend = options?.prepend !== false;
+
+  queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) => {
+    if (!current) return normalized;
+
+    let next = [...current];
+    for (const row of normalized) {
+      const index = next.findIndex((product) => product.id === row.id);
+      if (index >= 0) {
+        try {
+          next[index] = mergeInventoryProductPatch(next[index]!, row, DEFAULT_WAREHOUSES);
+        } catch {
+          next[index] = row;
+        }
+        continue;
+      }
+      next = prepend ? [row, ...next] : [...next, row];
+    }
+    return next;
+  });
 }
 
 /** Optimistic update for open product detail queries before refetch completes. */
@@ -93,6 +142,19 @@ export async function invalidateProductQueries(
 
   if (inventoryProduct) {
     patchProductDetailCacheFromInventory(queryClient, inventoryProduct);
+    queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) => {
+      if (!current) return current;
+      const index = current.findIndex((product) => product.id === inventoryProduct.id);
+      if (index === -1) return [inventoryProduct, ...current];
+      return current.map((product) => {
+        if (product.id !== inventoryProduct.id) return product;
+        try {
+          return mergeInventoryProductPatch(product, inventoryProduct, DEFAULT_WAREHOUSES);
+        } catch {
+          return { ...product, ...inventoryProduct };
+        }
+      });
+    });
   }
 
   const productPredicate =
@@ -117,7 +179,12 @@ export async function invalidateProductQueries(
     queryClient.invalidateQueries({ queryKey: ['products-by-ids'], ...invalidateOpts }),
     queryClient.invalidateQueries({ queryKey: ['product-search'], ...invalidateOpts }),
     queryClient.invalidateQueries({ queryKey: ['catalog-search'], ...invalidateOpts }),
-    queryClient.invalidateQueries({ queryKey: ['admin-inventory'], ...invalidateOpts }),
+    // No invalidar admin-inventory si el PATCH ya fusionó el row en caché (o hay
+    // productId concreto): un refetch completo congela la tabla y puede pisar
+    // el valor optimista con datos viejos del broadcast en la misma pestaña.
+    ...(inventoryProduct || options?.productId
+      ? []
+      : [queryClient.invalidateQueries({ queryKey: ['admin-inventory'], ...invalidateOpts })]),
     queryClient.invalidateQueries({ queryKey: ['category-catalog'], ...invalidateOpts }),
     queryClient.invalidateQueries({ queryKey: ['warehouses'], ...invalidateOpts }),
   ]);

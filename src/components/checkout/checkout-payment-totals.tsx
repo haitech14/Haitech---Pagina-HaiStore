@@ -46,7 +46,7 @@ export function CheckoutPaymentTotals({
   });
   const showSurcharge = hasCardPaymentSurcharge(paymentProvider);
   const volumeDiscount = showVolumeDiscount ? resolveCartVolumeDiscountSummary(items) : null;
-  const dualPriceProps = { className: 'justify-end', stacked: true as const };
+  const dualPriceProps = { className: 'justify-end', stacked: true as const, allowZero: true as const };
 
   return (
     <div className="space-y-3">

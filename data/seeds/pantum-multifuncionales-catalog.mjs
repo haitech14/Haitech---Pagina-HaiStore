@@ -73,20 +73,6 @@ export const PANTUM_MULTIFUNCIONALES_CATALOG = [
     },
   },
   {
-    slug: 'p2509w',
-    model: 'P2509W',
-    colorMode: 'bn',
-    imageId: '4db9b77a',
-    connectivity: 'Wi-Fi, USB, LAN',
-    specs: {
-      speed: '22 ppm',
-      monthlyVolume: '700 - 15k',
-      memory: '128 MB',
-      paper: 'Principal: 150 hojas, De 60 a 163 g/m2',
-      features: ['Impresión móvil'],
-    },
-  },
-  {
     slug: 'cm2107adw',
     model: 'CM2107ADW',
     colorMode: 'color',

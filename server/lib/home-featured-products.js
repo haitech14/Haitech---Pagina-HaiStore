@@ -6,6 +6,7 @@ import {
   MIN_HOME_FEATURED,
   resolveHomeHighlightedRowProducts,
 } from '../../shared/home-highlighted-products.js';
+import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
 
 /** Etiquetas de inventario por slug de categoría (home destacados). */
 const CATEGORY_LABELS = {
@@ -24,15 +25,16 @@ function productMatchesCategoryLabels(product, labels) {
   return labels.some((label) => category.includes(label.toLowerCase()));
 }
 
-function productInStockWithPrice(product) {
+/** Activa + precio: incluye stock 0 («A pedido»). Excluye borrador/inactiva. */
+function isHomeFeaturedEligible(product) {
+  if (!isProductVisibleOnStorefront(product)) return false;
   const price = Number(product.prices?.public ?? product.price ?? 0);
-  const stock = Number(product.stock ?? 0);
-  return stock > 0 && price > 0;
+  return price > 0;
 }
 
-function filterInStockForLabels(products, labels) {
+function filterEligibleForLabels(products, labels) {
   return products.filter(
-    (product) => productInStockWithPrice(product) && productMatchesCategoryLabels(product, labels),
+    (product) => isHomeFeaturedEligible(product) && productMatchesCategoryLabels(product, labels),
   );
 }
 
@@ -47,7 +49,7 @@ export function buildHomeFeaturedFromProducts(
 ) {
   const labels = CATEGORY_LABELS[categorySlug] ?? CATEGORY_LABELS.multifuncionales;
   const safeLimit = Math.min(Math.max(Number(limit) || HOME_HIGHLIGHTED_ROW_SIZE, 1), 12);
-  const candidates = filterInStockForLabels(products, labels);
+  const candidates = filterEligibleForLabels(products, labels);
   if (candidates.length < MIN_HOME_FEATURED) {
     return [];
   }
@@ -69,7 +71,8 @@ async function listHomeFeaturedProductsUncached({
 }
 
 /**
- * Productos destacados para la home (fila fija de multifuncionales en stock).
+ * Productos destacados para la home (fila fija de multifuncionales vendibles,
+ * incluyendo «A pedido» cuando status es Activa).
  */
 export async function listHomeFeaturedProducts(options = {}) {
   const {

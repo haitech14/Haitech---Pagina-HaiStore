@@ -1,6 +1,10 @@
 import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
 import { useDisplayCurrency } from '@/context/display-currency-context';
-import { getDisplayPriceVisibility } from '@/lib/display-price';
+import {
+  CONSULTAR_PRECIO_LABEL,
+  getDisplayPriceVisibility,
+  isPriceOnRequest,
+} from '@/lib/display-price';
 import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
 
 const FEATURED_PRICE_COMPARE_CLASS =
@@ -100,6 +104,15 @@ export function ProductCardFeaturedPricing({
 }: ProductCardFeaturedPricingProps) {
   const { displayCurrency } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
+
+  if (isPriceOnRequest(currentUsd)) {
+    return (
+      <div className={cn('space-y-0.5', className)}>
+        <p className={FEATURED_PRICE_CURRENT_CLASS}>{CONSULTAR_PRECIO_LABEL}</p>
+      </div>
+    );
+  }
+
   const showBoth = showUsd && showPen;
   const hasDiscount = compareUsd > currentUsd && currentUsd > 0;
 

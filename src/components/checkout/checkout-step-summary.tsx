@@ -85,7 +85,7 @@ function CheckoutOrderTotalsContent({
     freeShipping,
   });
   const volumeDiscount = showVolumeDiscount ? resolveCartVolumeDiscountSummary(items) : null;
-  const dualPriceProps = { className: 'justify-end', stacked: true as const };
+  const dualPriceProps = { className: 'justify-end', stacked: true as const, allowZero: true as const };
 
   return (
     <div className="space-y-3">
@@ -371,7 +371,7 @@ export function CheckoutStepSummary({
           <div className="min-w-0 flex-1">
             <p className="text-xs text-muted-foreground">Total estimado</p>
             <p className="text-lg font-bold leading-tight">
-              <DualPrice usd={totalPrice - (appliedCoupon?.discountUsd ?? 0)} />
+              <DualPrice usd={totalPrice - (appliedCoupon?.discountUsd ?? 0)} allowZero />
             </p>
           </div>
           <Button

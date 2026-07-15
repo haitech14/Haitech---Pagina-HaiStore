@@ -9,6 +9,7 @@ import {
   productMatchesCategoryFilter,
   toFeaturedProduct,
 } from '../../shared/home-catalog-filter.js';
+import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
 
 /** Etiquetas estáticas por slug (paridad con src/data/categories.ts). */
 const SECTION_INVENTORY_LABELS = {
@@ -70,8 +71,10 @@ function inventoryProductRelevantForSection(product, sectionId) {
 }
 
 function filterInventoryForHomeSections(products, sectionIds) {
-  return products.filter((product) =>
-    sectionIds.some((sectionId) => inventoryProductRelevantForSection(product, sectionId)),
+  return products.filter(
+    (product) =>
+      isProductVisibleOnStorefront(product) &&
+      sectionIds.some((sectionId) => inventoryProductRelevantForSection(product, sectionId)),
   );
 }
 

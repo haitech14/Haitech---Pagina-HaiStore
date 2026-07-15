@@ -18,6 +18,7 @@ import { getPaidEquipmentOptions } from '@/lib/equipment-config-selection';
 import { SEMINUEVA_PREPARATION_LABELS } from '@/lib/seminueva-preparation';
 import { resolveCartItemDetailPath } from '@/lib/service-to-cart';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
+import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { cn, formatUsd } from '@/lib/utils';
 
 export function ShoppingCartDrawer() {
@@ -116,7 +117,9 @@ export function ShoppingCartDrawer() {
                                 <DualPrice usd={lineUnitUsd * quantity} />
                               </p>
                               <p className="mt-0.5 text-[0.6875rem] text-muted-foreground">
-                                {formatUsd(lineUnitUsd)} c/u
+                                {isPriceOnRequest(lineUnitUsd)
+                                  ? CONSULTAR_PRECIO_LABEL
+                                  : `${formatUsd(lineUnitUsd)} c/u`}
                               </p>
                             </div>
 
@@ -207,7 +210,7 @@ export function ShoppingCartDrawer() {
               <div className="mb-2.5 flex items-center justify-between gap-2">
                 <span className="text-xs font-medium text-muted-foreground">Subtotal</span>
                 <span className="text-base font-bold">
-                  <DualPrice usd={totalPrice} />
+                  <DualPrice usd={totalPrice} allowZero />
                 </span>
               </div>
               <div className="flex flex-col gap-1.5">

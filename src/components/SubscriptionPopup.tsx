@@ -43,6 +43,12 @@ const OPEN_DELAY_MS = 2000;
 const IDLE_STEP_DEG = 0.45;
 const IDLE_INTERVAL_MS = 32;
 
+/**
+ * Flag temporal: la ruleta «Gira y Gana» queda oculta en toda la tienda.
+ * Volver a `true` para reactivarla.
+ */
+export const SUBSCRIPTION_RULETA_POPUP_ENABLED = false;
+
 const STORE_PATHS = ['/', '/tienda'] as const;
 
 const countryOptions = [
@@ -89,6 +95,11 @@ function wasPopupShown(): boolean {
 }
 
 export function SubscriptionPopup() {
+  if (!SUBSCRIPTION_RULETA_POPUP_ENABLED) return null;
+  return <SubscriptionPopupInner />;
+}
+
+function SubscriptionPopupInner() {
   const { pathname } = useLocation();
   const titleId = useId();
   const revealTimerRef = useRef<number | null>(null);

@@ -675,7 +675,8 @@ export function HomeFeaturedProductsSection({
 
     for (const row of getCatalogRows()) {
       const publicPrice = row.prices?.public ?? 0;
-      if (row.stock <= 0 || publicPrice <= 0) continue;
+      // Incluye stock 0 («A pedido»); getCatalogRows ya excluye borrador/inactiva.
+      if (publicPrice <= 0) continue;
       pushUnique(catalogRowToFeatured(row));
     }
 

@@ -54,7 +54,7 @@ export function HomeBestSellerProductCard({
         name: product.name,
         category: catalog?.category ?? 'Equipos',
         brand: product.brand ?? catalog?.brand ?? null,
-        image_url: catalog?.image_url ?? product.image ?? null,
+        image_url: product.image ?? catalog?.image_url ?? null,
         gallery: catalog?.gallery ?? null,
       }),
     [catalog, product],

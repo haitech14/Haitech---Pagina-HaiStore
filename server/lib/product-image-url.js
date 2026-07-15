@@ -72,9 +72,18 @@ export function buildProductImageCandidates(product, options) {
     pushStored(url);
   }
 
+  // Si inventory tiene image_url null pero el webp propio existe en disco, usarlo.
+  const id = String(product?.id ?? '').trim();
+  if (candidates.length === 0 && id && productWebpExists(id)) {
+    const ownedPath = publicProductMediaPath(id);
+    if (ownedPath && !seen.has(ownedPath)) {
+      seen.add(ownedPath);
+      candidates.push(ownedPath);
+    }
+  }
+
   if (shouldUseStockFallback(options)) {
     pushFallback(resolveProductModelStockImage(product));
-    const id = String(product?.id ?? '').trim();
     if (id && productWebpExists(id)) {
       pushFallback(publicProductMediaPath(id));
     }

@@ -13,10 +13,15 @@ import {
   isYoutubeMediaUrl,
 } from '../../shared/product-media.js';
 import { dedupeMediaAlbumItems } from '../../shared/media-album-dedupe.js';
-import { MAX_PRODUCT_VIDEO_UPLOAD_BYTES } from '../../shared/product-media-upload-limits.js';
+import { productMediaCanonicalKey } from '../../shared/product-media-dedupe.js';
+import {
+  MAX_PRODUCT_VIDEO_UPLOAD_BYTES,
+  PRODUCT_IMAGE_MAX_EDGE,
+  PRODUCT_IMAGE_WEBP_QUALITY,
+} from '../../shared/product-media-upload-limits.js';
 
-const WEBP_QUALITY = 82;
-const MAX_EDGE = 1200;
+const WEBP_QUALITY = PRODUCT_IMAGE_WEBP_QUALITY;
+const MAX_EDGE = PRODUCT_IMAGE_MAX_EDGE;
 const MAX_VIDEO_BYTES = MAX_PRODUCT_VIDEO_UPLOAD_BYTES;
 const INVENTORY_ALBUM_CACHE_MS = 60 * 1000;
 const INVENTORY_ALBUM_ID_PREFIX = 'inventory:';
@@ -60,11 +65,25 @@ function inventoryMediaItemId(url) {
   return `${INVENTORY_ALBUM_ID_PREFIX}${createHash('sha256').update(url).digest('hex').slice(0, 20)}`;
 }
 
+function isResponsiveProductVariantUrl(url) {
+  return /\/products\/.+-(?:256|512|768|1024|1280|1920)\.(webp|png|jpe?g)(?:$|\?)/i.test(
+    String(url),
+  );
+}
+
 function isUsableInventoryMediaUrl(url) {
   if (typeof url !== 'string' || url.length === 0) return false;
   if (url.startsWith('data:')) return false;
   if (isYoutubeMediaUrl(url) || isVideoMediaUrl(url)) return true;
-  return isImageMediaUrl(url);
+  if (!isImageMediaUrl(url)) return false;
+  // Las variantes -256/-512/-1024 son la misma foto: no las listamos aparte.
+  if (isResponsiveProductVariantUrl(url)) return false;
+  return true;
+}
+
+function inventoryMediaGroupKey(url) {
+  const key = productMediaCanonicalKey(url);
+  return key || url.toLowerCase();
 }
 
 function detectKindFromUrl(url) {
@@ -76,7 +95,8 @@ function detectKindFromUrl(url) {
 
 async function listInventoryMediaAlbumItems() {
   const { products } = await readInventory();
-  const byUrl = new Map();
+  /** @type {Map<string, object>} */
+  const byKey = new Map();
 
   for (const product of products) {
     const productName = typeof product.name === 'string' ? product.name.trim() : '';
@@ -92,13 +112,15 @@ async function listInventoryMediaAlbumItems() {
     }
 
     for (const url of urls) {
-      if (!isUsableInventoryMediaUrl(url) || byUrl.has(url)) continue;
+      if (!isUsableInventoryMediaUrl(url)) continue;
+      const key = inventoryMediaGroupKey(url);
+      if (byKey.has(key)) continue;
 
-      byUrl.set(url, {
-        id: inventoryMediaItemId(url),
+      byKey.set(key, {
+        id: inventoryMediaItemId(key),
         url,
         kind: detectKindFromUrl(url),
-        name: productName || path.basename(url),
+        name: productName || path.basename(url.split('?')[0] ?? url),
         source: 'inventory',
         google_drive_file_id: null,
         created_at:
@@ -112,7 +134,7 @@ async function listInventoryMediaAlbumItems() {
     }
   }
 
-  return [...byUrl.values()].sort((a, b) => b.created_at.localeCompare(a.created_at));
+  return [...byKey.values()].sort((a, b) => b.created_at.localeCompare(a.created_at));
 }
 
 async function getCachedInventoryMediaAlbumItems() {
@@ -159,6 +181,10 @@ function normalizeItem(raw) {
     bytes: Number.isFinite(Number(raw.bytes)) ? Number(raw.bytes) : null,
     width: Number.isFinite(Number(raw.width)) ? Number(raw.width) : null,
     height: Number.isFinite(Number(raw.height)) ? Number(raw.height) : null,
+    content_hash:
+      typeof raw.content_hash === 'string' && raw.content_hash.length > 0
+        ? raw.content_hash
+        : null,
   };
 }
 
@@ -189,6 +215,23 @@ async function writeAlbumData(data) {
   await fs.writeFile(albumDataPath(), JSON.stringify(data, null, 2), 'utf8');
 }
 
+/** Serializa mutaciones del álbum para evitar carreras al subir varias imágenes a la vez. */
+let albumWriteChain = Promise.resolve();
+
+/**
+ * @template T
+ * @param {() => Promise<T>} work
+ * @returns {Promise<T>}
+ */
+function withAlbumWriteLock(work) {
+  const run = albumWriteChain.then(work, work);
+  albumWriteChain = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
 export function publicAlbumMediaPath(id, kind = 'image') {
   const ext = kind === 'video' ? 'mp4' : 'webp';
   return `/album/${id}.${ext}`;
@@ -209,18 +252,20 @@ async function exportImageBufferToAlbum(buffer, id) {
   });
 
   const output = await sharp(watermarked)
-    .webp({ quality: WEBP_QUALITY })
+    .webp({ quality: WEBP_QUALITY, effort: 4 })
     .toBuffer();
 
   await fs.writeFile(absolutePath, output);
 
   const meta = await sharp(output).metadata();
+  const content_hash = createHash('sha256').update(output).digest('hex');
 
   return {
     url: publicPath,
     bytes: output.length,
     width: meta.width ?? null,
     height: meta.height ?? null,
+    content_hash,
   };
 }
 
@@ -236,11 +281,14 @@ async function exportVideoBufferToAlbum(buffer, id) {
   await fs.mkdir(path.dirname(absolutePath), { recursive: true });
   await fs.writeFile(absolutePath, buffer);
 
+  const content_hash = createHash('sha256').update(buffer).digest('hex');
+
   return {
     url: publicPath,
     bytes: buffer.length,
     width: null,
     height: null,
+    content_hash,
   };
 }
 
@@ -254,13 +302,107 @@ function parseDataUrl(dataUrl) {
   };
 }
 
+async function ensureItemContentHash(item) {
+  if (item.content_hash) return item;
+  if (!item.url?.startsWith('/album/')) return item;
+
+  const absolutePath = path.join(publicAlbumDir(), path.basename(item.url.split('?')[0]));
+  try {
+    const buffer = await fs.readFile(absolutePath);
+    return {
+      ...item,
+      content_hash: createHash('sha256').update(buffer).digest('hex'),
+      bytes: item.bytes ?? buffer.length,
+    };
+  } catch {
+    return item;
+  }
+}
+
+/**
+ * Fusiona ítems del álbum con el mismo contenido (hash) y borra archivos huérfanos.
+ * @returns {Promise<{ merged: number; removedFiles: number }>}
+ */
+export async function compactMediaAlbumDuplicates() {
+  const data = await readAlbumData();
+  const withHashes = [];
+  for (const item of data.items) {
+    withHashes.push(await ensureItemContentHash(item));
+  }
+
+  /** @type {Map<string, typeof withHashes>} */
+  const byHash = new Map();
+  const keepWithoutHash = [];
+
+  for (const item of withHashes) {
+    if (!item.content_hash) {
+      keepWithoutHash.push(item);
+      continue;
+    }
+    const list = byHash.get(item.content_hash);
+    if (list) list.push(item);
+    else byHash.set(item.content_hash, [item]);
+  }
+
+  const kept = [...keepWithoutHash];
+  const removedFiles = [];
+  let merged = 0;
+
+  for (const group of byHash.values()) {
+    const sorted = [...group].sort((a, b) => a.created_at.localeCompare(b.created_at));
+    const canonical = sorted[0];
+    kept.push(canonical);
+    for (const duplicate of sorted.slice(1)) {
+      merged += 1;
+      if (
+        duplicate.url?.startsWith('/album/') &&
+        duplicate.url !== canonical.url
+      ) {
+        removedFiles.push(duplicate.url);
+      }
+    }
+  }
+
+  if (merged === 0) {
+    const hashesChanged = withHashes.some(
+      (item, index) => item.content_hash !== data.items[index]?.content_hash,
+    );
+    if (!hashesChanged) {
+      return { merged: 0, removedFiles: 0 };
+    }
+  }
+
+  data.items = kept.sort((a, b) => b.created_at.localeCompare(a.created_at));
+  await writeAlbumData(data);
+
+  let deleted = 0;
+  for (const url of removedFiles) {
+    const absolutePath = path.join(publicAlbumDir(), path.basename(url.split('?')[0]));
+    try {
+      await fs.unlink(absolutePath);
+      deleted += 1;
+    } catch {
+      // ya no existe
+    }
+  }
+
+  return { merged, removedFiles: deleted };
+}
+
 export async function listMediaAlbumItems(filters = {}) {
   const data = await readAlbumData();
   const storedUrls = new Set(data.items.map((item) => item.url));
+  const storedKeys = new Set(
+    data.items.map((item) => inventoryMediaGroupKey(item.url)).filter(Boolean),
+  );
   const inventoryItems = await getCachedInventoryMediaAlbumItems();
   let items = [
     ...data.items,
-    ...inventoryItems.filter((item) => !storedUrls.has(item.url)),
+    ...inventoryItems.filter((item) => {
+      if (storedUrls.has(item.url)) return false;
+      const key = inventoryMediaGroupKey(item.url);
+      return !storedKeys.has(key);
+    }),
   ];
 
   if (filters.kind === 'image' || filters.kind === 'video' || filters.kind === 'youtube') {
@@ -340,49 +482,71 @@ export async function addMediaAlbumItem({
   google_drive_file_id = null,
   kind,
 }) {
-  const data = await readAlbumData();
-  const id = randomUUID();
-  const displayName = sanitizeFilename(name) || 'media';
+  return withAlbumWriteLock(async () => {
+    const data = await readAlbumData();
+    const id = randomUUID();
+    const displayName = sanitizeFilename(name) || 'media';
 
-  let parsed = null;
-  if (buffer) {
-    parsed = { mimeType: mimeType ?? 'application/octet-stream', buffer };
-  } else if (dataUrl) {
-    parsed = parseDataUrl(dataUrl);
-  }
+    let parsed = null;
+    if (buffer) {
+      parsed = { mimeType: mimeType ?? 'application/octet-stream', buffer };
+    } else if (dataUrl) {
+      parsed = parseDataUrl(dataUrl);
+    }
 
-  if (!parsed?.buffer?.length) {
-    throw new Error('No se recibió contenido de imagen o vídeo válido');
-  }
+    if (!parsed?.buffer?.length) {
+      throw new Error('No se recibió contenido de imagen o vídeo válido');
+    }
 
-  const resolvedKind =
-    kind === 'image' || kind === 'video' || kind === 'youtube'
-      ? kind
-      : detectKindFromMime(parsed.mimeType);
+    const resolvedKind =
+      kind === 'image' || kind === 'video' || kind === 'youtube'
+        ? kind
+        : detectKindFromMime(parsed.mimeType);
 
-  let persisted;
-  if (resolvedKind === 'video') {
-    persisted = await exportVideoBufferToAlbum(parsed.buffer, id);
-  } else {
-    persisted = await exportImageBufferToAlbum(parsed.buffer, id);
-  }
+    let persisted;
+    if (resolvedKind === 'video') {
+      persisted = await exportVideoBufferToAlbum(parsed.buffer, id);
+    } else {
+      persisted = await exportImageBufferToAlbum(parsed.buffer, id);
+    }
 
-  const item = normalizeItem({
-    id,
-    url: persisted.url,
-    kind: resolvedKind,
-    name: displayName,
-    source,
-    google_drive_file_id,
-    created_at: new Date().toISOString(),
-    bytes: persisted.bytes,
-    width: persisted.width,
-    height: persisted.height,
+    // Misma imagen ya en el álbum: reutiliza y borra el archivo recién escrito.
+    if (persisted.content_hash) {
+      const existing = data.items.find((item) => item.content_hash === persisted.content_hash);
+      if (existing) {
+        const absolutePath = path.join(publicAlbumDir(), path.basename(persisted.url));
+        await fs.unlink(absolutePath).catch(() => {});
+        return existing;
+      }
+    }
+
+    const item = normalizeItem({
+      id,
+      url: persisted.url,
+      kind: resolvedKind,
+      name: displayName,
+      source,
+      google_drive_file_id,
+      created_at: new Date().toISOString(),
+      bytes: persisted.bytes,
+      width: persisted.width,
+      height: persisted.height,
+      content_hash: persisted.content_hash,
+    });
+
+    data.items.unshift(item);
+    await writeAlbumData(data);
+
+    // Compacta en segundo plano con demora: evita borrar el archivo recién
+    // subido mientras un PATCH de inventario aún lo está importando.
+    setTimeout(() => {
+      void compactMediaAlbumDuplicates().catch((error) => {
+        console.warn('[media-album] compact:', error?.message ?? error);
+      });
+    }, 2500);
+
+    return item;
   });
-
-  data.items.unshift(item);
-  await writeAlbumData(data);
-  return item;
 }
 
 export async function deleteMediaAlbumItem(id) {
@@ -390,18 +554,20 @@ export async function deleteMediaAlbumItem(id) {
     return false;
   }
 
-  const data = await readAlbumData();
-  const index = data.items.findIndex((item) => item.id === id);
-  if (index < 0) return false;
+  return withAlbumWriteLock(async () => {
+    const data = await readAlbumData();
+    const index = data.items.findIndex((item) => item.id === id);
+    if (index < 0) return false;
 
-  const [removed] = data.items.splice(index, 1);
-  await writeAlbumData(data);
+    const [removed] = data.items.splice(index, 1);
+    await writeAlbumData(data);
 
-  if (removed?.url?.startsWith('/album/')) {
-    const filename = path.basename(removed.url);
-    const absolutePath = path.join(publicAlbumDir(), filename);
-    await fs.unlink(absolutePath).catch(() => {});
-  }
+    if (removed?.url?.startsWith('/album/')) {
+      const filename = path.basename(removed.url);
+      const absolutePath = path.join(publicAlbumDir(), filename);
+      await fs.unlink(absolutePath).catch(() => {});
+    }
 
-  return true;
+    return true;
+  });
 }

@@ -90,9 +90,26 @@ export function productMatchesCategoryFilterTree(
   filterValue: string,
   tree: StoreCategoryTreeNode[],
 ): boolean {
-  if (filterValue === 'all') return true;
+  if (filterValue === 'all' || filterValue === 'todos') return true;
+  const targets = buildCategoryFilterTargetSet(tree, filterValue);
+  return productMatchesCategoryTargetSet(product, targets);
+}
+
+/** Set de etiquetas normalizadas para un filtro (resolver 1×, no por producto). */
+export function buildCategoryFilterTargetSet(
+  tree: StoreCategoryTreeNode[],
+  filterValue: string,
+): Set<string> | null {
+  if (filterValue === 'all' || filterValue === 'todos') return null;
   const labels = resolveCategoryFilterLabels(tree, filterValue);
-  const targets = new Set(labels.map((label) => normalizeCategoryName(label)));
+  return new Set(labels.map((label) => normalizeCategoryName(label)));
+}
+
+export function productMatchesCategoryTargetSet(
+  product: { category?: string | null },
+  targets: Set<string> | null,
+): boolean {
+  if (!targets) return true;
   return productCategoryTags(product).some((tag) => targets.has(normalizeCategoryName(tag)));
 }
 

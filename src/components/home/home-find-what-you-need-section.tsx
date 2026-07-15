@@ -504,8 +504,8 @@ export function HomeFindWhatYouNeedSection() {
 
     for (const row of getCatalogRows()) {
       const publicPrice = row.prices?.public ?? 0;
+      // Incluye stock 0 («A pedido») en equipos y consumibles; status Activa vía getCatalogRows.
       if (publicPrice <= 0) continue;
-      if (activeTab !== 'repuestos' && row.stock <= 0) continue;
       pushUnique(catalogRowToFeatured(row));
     }
 

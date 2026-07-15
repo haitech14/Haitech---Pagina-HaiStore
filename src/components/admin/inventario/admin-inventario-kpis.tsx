@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   AlertTriangle,
   ArrowLeftRight,
@@ -79,7 +80,7 @@ interface AdminInventarioKpisProps {
 }
 
 export function AdminInventarioKpis({ products, isLoading = false }: AdminInventarioKpisProps) {
-  const kpis = buildInventarioKpis(products);
+  const kpis = useMemo(() => buildInventarioKpis(products), [products]);
 
   return (
     <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">

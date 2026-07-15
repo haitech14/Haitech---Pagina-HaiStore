@@ -1,6 +1,7 @@
 import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
 import { DualPrice } from '@/components/product/product-dual-price';
+import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import {
   PRODUCT_CARD_DISCOUNT_CLASS,
@@ -47,6 +48,24 @@ export function ProductCardPricing({
   });
 
   const isTable = variant === 'table';
+
+  if (isPriceOnRequest(pricing.currentUsd)) {
+    return (
+      <div className={cn(isTable ? 'space-y-0 leading-tight' : 'space-y-0.5')}>
+        <p
+          className={
+            isTable
+              ? 'text-xs font-semibold text-foreground'
+              : featured
+                ? PRODUCT_CARD_PRICE_FEATURED_CLASS
+                : PRODUCT_CARD_PRICE_MAIN_CLASS
+          }
+        >
+          {CONSULTAR_PRECIO_LABEL}
+        </p>
+      </div>
+    );
+  }
 
   if (featured && !penOnly && !isTable) {
     return (

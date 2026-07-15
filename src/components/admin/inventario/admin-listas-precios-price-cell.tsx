@@ -4,6 +4,8 @@ import { InventoryInlineField } from '@/components/admin/inventory/inventory-inl
 import { InventoryInlinePriceEdit } from '@/components/admin/inventory/inventory-inline-price-edit';
 import { InventoryPurchasePriceDisplay } from '@/components/admin/inventory/inventory-purchase-price-display';
 import { InventorySalePrice } from '@/components/admin/inventory/inventory-sale-price';
+import { useDisplayCurrency } from '@/context/display-currency-context';
+import { buildPurchasePricePatch } from '@/lib/inventory-suppliers';
 import { isBundleProduct } from '@/lib/product-bundle';
 import { PRICE_ROLE_LABELS } from '@/lib/roles';
 import type { AdminListaPreciosRoleKey } from '@/types/admin-listas-precios';
@@ -40,6 +42,7 @@ export function AdminListasPreciosPriceCell({
   purchaseExchangeRate,
   onPatch,
 }: AdminListasPreciosPriceCellProps) {
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const key = fieldKey(product.id, role);
   const isPurchase = role === 'compra';
   const priceRole = SALE_ROLE_MAP[role];
@@ -49,22 +52,8 @@ export function AdminListasPreciosPriceCell({
 
   const saveUsd = async (nextUsd: number) => {
     if (isPurchase) {
-      const currentUsd = product.purchase_price_usd ?? 0;
-      if (Math.abs(currentUsd - nextUsd) < 0.0001) return;
-
-      const suppliers = product.suppliers ?? [];
-      const syncedSuppliers =
-        suppliers.length > 0
-          ? suppliers.map((supplier, index) =>
-              index === 0 ? { ...supplier, purchase_price_usd: nextUsd } : supplier,
-            )
-          : suppliers;
-
       try {
-        await onPatch({
-          purchase_price_usd: nextUsd,
-          ...(syncedSuppliers.length > 0 ? { suppliers: syncedSuppliers } : {}),
-        });
+        await onPatch(buildPurchasePricePatch(product, nextUsd));
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : 'No se pudo guardar el precio de compra',
@@ -75,8 +64,6 @@ export function AdminListasPreciosPriceCell({
     }
 
     if (!priceRole) return;
-    const currentUsd = product.prices[priceRole] ?? 0;
-    if (Math.abs(currentUsd - nextUsd) < 0.0001) return;
 
     try {
       await onPatch({
@@ -140,6 +127,8 @@ export function AdminListasPreciosPriceCell({
           onSave={saveUsd}
           onClose={onClose}
           useCharm={!isPurchase}
+          displayCurrency={displayCurrency}
+          dualPriceOrder={dualPriceOrder}
         />
       }
     />

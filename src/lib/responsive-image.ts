@@ -84,7 +84,7 @@ export function productDetailThumbnailSources(imagePath: string) {
 export function productDetailMainImageSources(imagePath: string) {
   const base = imageBasePath(imagePath);
   return {
-    webpSrcSet: `${base}-512.webp 512w, ${base}-1024.webp 1024w`,
+    webpSrcSet: `${base}-512.webp 512w, ${base}-1024.webp 1024w, ${base}.webp ${1920}w`,
     fallbackSrc: imagePath,
     sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 720px',
   };

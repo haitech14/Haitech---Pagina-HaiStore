@@ -13,8 +13,14 @@ export const MAX_PRODUCT_VIDEO_UPLOAD_BYTES = 200 * 1024 * 1024;
  */
 export const MAX_PRODUCT_UPLOAD_JSON_BODY = '300mb';
 
-/** Borde máximo tras optimización (px). */
-export const PRODUCT_IMAGE_MAX_EDGE = 1200;
+/**
+ * Borde máximo Full HD tras optimización (px).
+ * Suficiente para detalle nítido; las variantes -256/-512/-1024 cargan la grilla rápido.
+ */
+export const PRODUCT_IMAGE_MAX_EDGE = 1920;
+
+/** Calidad WebP (0–100): equilibrio tamaño / nitidez de producto. */
+export const PRODUCT_IMAGE_WEBP_QUALITY = 85;
 
 /**
  * @param {number} bytes

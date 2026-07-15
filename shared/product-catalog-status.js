@@ -14,7 +14,7 @@ export function parseProductCatalogStatus(value) {
 /**
  * Normaliza el estado de catálogo.
  * Sin valor explícito → activa (catálogo legacy sin campo status).
- * Los productos nuevos en admin se guardan con status explícito (p. ej. inactiva).
+ * Los productos nuevos en admin se guardan con status explícito (p. ej. borrador).
  * @param {unknown} value
  * @returns {ProductCatalogStatus}
  */

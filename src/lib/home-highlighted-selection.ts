@@ -17,12 +17,9 @@ export const HOME_HIGHLIGHTED_DISPLAY_LIMIT = 10;
 
 export type HomeHighlightedDisplayMode = 'recent' | 'suggested' | 'empty';
 
+/** Activa vendible: incluye stock 0 («A pedido»). El bundle ya viene filtrado por status. */
 function isEligibleHighlightProduct(product: Product): boolean {
-  return (
-    product.stock > 0 &&
-    product.price > 0 &&
-    !isHomeCarouselExcludedProduct(product)
-  );
+  return product.price > 0 && !isHomeCarouselExcludedProduct(product);
 }
 
 function featuredToPoolProduct(featured: FeaturedProduct): Product {
@@ -57,7 +54,7 @@ function featuredToPoolProduct(featured: FeaturedProduct): Product {
   return product;
 }
 
-/** Pool de productos en stock del bundle de inicio (todas las familias). */
+/** Pool de productos vendibles del bundle de inicio (incluye «A pedido»). */
 export function buildHomeHighlightedPool(bundle: HomeCatalogBundleResponse): Product[] {
   const byId = new Map<string, Product>();
 

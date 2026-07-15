@@ -40,27 +40,75 @@ function applyCategoryPatch(next, patch) {
   }
 }
 
-function applyNamePatch(next, patch) {
-  const text = typeof patch.nameText === 'string' ? patch.nameText : '';
-  if (!text && patch.nameMode !== 'replace') return;
+function applyTextTransform(current, patch, {
+  modeKey,
+  textKey,
+  replaceKey,
+  insertAfterKey,
+}) {
+  const mode = patch[modeKey];
+  if (!mode) return current;
 
-  const current = String(next.name ?? '');
+  const text = typeof patch[textKey] === 'string' ? patch[textKey] : '';
+  if (!text && mode !== 'replace') return current;
 
-  switch (patch.nameMode) {
+  const value = String(current ?? '');
+
+  switch (mode) {
     case 'append':
-      next.name = `${current}${text}`;
-      break;
+      return `${value}${text}`;
     case 'prepend':
-      next.name = `${text}${current}`;
-      break;
+      return `${text}${value}`;
+    case 'insert': {
+      const marker =
+        typeof patch[insertAfterKey] === 'string' ? patch[insertAfterKey] : '';
+      if (marker && value.includes(marker)) {
+        const index = value.indexOf(marker) + marker.length;
+        return `${value.slice(0, index)}${text}${value.slice(index)}`;
+      }
+      const mid = Math.floor(value.length / 2);
+      return `${value.slice(0, mid)}${text}${value.slice(mid)}`;
+    }
+    case 'duplicate': {
+      if (!text) return value;
+      if (!value.includes(text)) return `${value}${text}`;
+      return value.split(text).join(`${text}${text}`);
+    }
     case 'remove':
-      next.name = current.split(text).join('').replace(/\s{2,}/g, ' ').trim();
-      break;
+      return value.split(text).join('').replace(/\s{2,}/g, ' ').trim();
     case 'replace':
-      next.name = current.split(text).join(patch.nameReplaceWith ?? '').replace(/\s{2,}/g, ' ').trim();
-      break;
+      return value
+        .split(text)
+        .join(patch[replaceKey] ?? '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
     default:
-      break;
+      return value;
+  }
+}
+
+function applyNamePatch(next, patch) {
+  const updated = applyTextTransform(next.name, patch, {
+    modeKey: 'nameMode',
+    textKey: 'nameText',
+    replaceKey: 'nameReplaceWith',
+    insertAfterKey: 'nameInsertAfter',
+  });
+  if (updated !== String(next.name ?? '')) {
+    next.name = updated;
+  }
+}
+
+function applyCodePatch(next, patch) {
+  if (!patch.codeMode) return;
+  const updated = applyTextTransform(next.code, patch, {
+    modeKey: 'codeMode',
+    textKey: 'codeText',
+    replaceKey: 'codeReplaceWith',
+    insertAfterKey: 'codeInsertAfter',
+  });
+  if (updated !== String(next.code ?? '')) {
+    next.code = updated;
   }
 }
 
@@ -101,12 +149,31 @@ function applyAttributePatch(next, patch) {
   }
 }
 
+function applyImagePatch(next, patch) {
+  const url = typeof patch.image_url === 'string' ? patch.image_url.trim() : '';
+  if (!url) return;
+
+  const variantSuffix = /-(?:256|512|1024)\.webp(?:$|\?)/i;
+  const currentGallery = Array.isArray(next.gallery) ? next.gallery : [];
+  const cleanedGallery = currentGallery.filter((item) => {
+    if (typeof item !== 'string') return false;
+    const path = item.split('?')[0] ?? '';
+    if (!path.startsWith('/products/')) return true;
+    return !variantSuffix.test(item);
+  });
+
+  next.image_url = url;
+  next.gallery = cleanedGallery.filter((item) => item !== url);
+}
+
 export function applyBulkPatch(product, patch, warehouses) {
   const next = { ...product };
 
   applyCategoryPatch(next, patch);
   applyNamePatch(next, patch);
+  applyCodePatch(next, patch);
   applyAttributePatch(next, patch);
+  applyImagePatch(next, patch);
 
   if (patch.stockMode === 'set' && patch.stock !== undefined && patch.stock !== null) {
     const stockPatch = stockFromTotal(patch.stock, warehouses);

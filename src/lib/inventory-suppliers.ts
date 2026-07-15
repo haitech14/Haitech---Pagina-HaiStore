@@ -62,3 +62,24 @@ export function withSyncedPurchasePrice(product: InventoryProduct): InventoryPro
     purchase_price_usd: resolvePurchasePriceUsd(suppliers, product.purchase_price_usd),
   };
 }
+
+/** Patch de compra alineado con todos los proveedores (evita que el mínimo revierta el valor). */
+export function buildPurchasePricePatch(
+  product: InventoryProduct,
+  nextUsd: number,
+): Pick<InventoryProduct, 'purchase_price_usd' | 'suppliers'> {
+  const normalizedUsd = Math.max(0, Number(nextUsd) || 0);
+  const suppliers = product.suppliers ?? [];
+  const syncedSuppliers =
+    suppliers.length > 0
+      ? suppliers.map((supplier) => ({
+          ...supplier,
+          purchase_price_usd: normalizedUsd,
+        }))
+      : suppliers;
+
+  return {
+    purchase_price_usd: normalizedUsd,
+    ...(syncedSuppliers.length > 0 ? { suppliers: syncedSuppliers } : {}),
+  };
+}

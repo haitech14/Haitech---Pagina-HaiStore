@@ -27,7 +27,10 @@ import {
   type MegaMenuDropdownLayout,
   megaMenuDropdownStyle,
 } from '@/components/layout/main-nav-styles';
+import { StorePrefetchLink } from '@/components/store-prefetch-link';
 import { cn } from '@/lib/utils';
+
+const PRODUCTOS_STORE_HREF = '/tienda';
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
@@ -138,26 +141,37 @@ export function CategoriesMegaMenu({
   if (triggerVariant === 'nav') {
     return (
       <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-        <DropdownMenuTrigger asChild>
-          <button
-            ref={(node) => {
-              triggerRef.current = node;
-            }}
-            type="button"
-            aria-haspopup="true"
-            aria-expanded={open}
-            onMouseEnter={openMenu}
-            onMouseLeave={scheduleClose}
-            onFocus={openMenu}
-            className={navTriggerClass(isCatalogRoute, open)}
+        <div
+          ref={(node) => {
+            triggerRef.current = node;
+          }}
+          onMouseEnter={openMenu}
+          onMouseLeave={scheduleClose}
+          className={navTriggerClass(isCatalogRoute, open)}
+        >
+          <StorePrefetchLink
+            to={PRODUCTOS_STORE_HREF}
+            onClick={closeMenu}
+            className="inline-flex items-center gap-1.5"
           >
             {showIcon ? (
               <Package className={navIconClass} strokeWidth={1.75} aria-hidden="true" />
             ) : null}
             Productos
-            <HeaderNavChevron navRow={navRow} open={open} />
-          </button>
-        </DropdownMenuTrigger>
+          </StorePrefetchLink>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={open ? 'Cerrar menú de productos' : 'Abrir menú de productos'}
+              aria-haspopup="true"
+              aria-expanded={open}
+              onFocus={openMenu}
+              className="inline-flex items-center justify-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            >
+              <HeaderNavChevron navRow={navRow} open={open} />
+            </button>
+          </DropdownMenuTrigger>
+        </div>
 
         <DropdownMenuContent
           align="start"

@@ -98,7 +98,10 @@ export function ProductShowcaseCard({
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
     image_url: product.image ?? catalogProduct?.image_url ?? null,
-    gallery: catalogProduct?.gallery ?? null,
+    gallery: [
+      ...(Array.isArray(product.gallery) ? product.gallery : []),
+      ...(catalogProduct?.gallery ?? []),
+    ],
   }), [catalogProduct, product]);
   const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
   const storedImageCandidates = useMemo(

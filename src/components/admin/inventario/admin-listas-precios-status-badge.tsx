@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
@@ -36,6 +37,13 @@ export function AdminListasPreciosStatusBadge({
   onPatch,
   className,
 }: AdminListasPreciosStatusBadgeProps) {
+  const [localStatus, setLocalStatus] = useState<AdminListaPreciosStatus>(status);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setLocalStatus(status);
+  }, [status]);
+
   if (!product || !onPatch) {
     return (
       <span
@@ -52,22 +60,33 @@ export function AdminListasPreciosStatusBadge({
 
   return (
     <Select
-      value={status}
+      value={localStatus}
+      disabled={saving}
       onValueChange={(value) => {
+        const next = value as AdminListaPreciosStatus;
+        if (next === localStatus) return;
+
+        const previous = localStatus;
+        setLocalStatus(next);
+        setSaving(true);
+
         void (async () => {
           try {
-            await onPatch({ status: value as AdminListaPreciosStatus });
+            await onPatch({ status: next });
             toast.success(
-              value === 'activa'
+              next === 'activa'
                 ? 'Producto visible en la tienda'
-                : value === 'inactiva'
+                : next === 'inactiva'
                   ? 'Producto oculto en la tienda'
                   : 'Estado actualizado',
             );
           } catch (error) {
+            setLocalStatus(previous);
             toast.error(
               error instanceof Error ? error.message : 'No se pudo actualizar el estado',
             );
+          } finally {
+            setSaving(false);
           }
         })();
       }}
@@ -75,14 +94,14 @@ export function AdminListasPreciosStatusBadge({
       <SelectTrigger
         className={cn(
           'h-6 w-auto min-w-0 border px-1.5 text-[0.625rem] font-semibold leading-none shadow-none',
-          STATUS_STYLES[status],
+          STATUS_STYLES[localStatus],
           className,
         )}
         aria-label={`Estado de ${product.name}`}
       >
-        <SelectValue />
+        <SelectValue>{STATUS_LABELS[localStatus]}</SelectValue>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper" className="z-[300]">
         {(Object.keys(STATUS_LABELS) as AdminListaPreciosStatus[]).map((value) => (
           <SelectItem key={value} value={value} className="text-xs">
             {STATUS_LABELS[value]}

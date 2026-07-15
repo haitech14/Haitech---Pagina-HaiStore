@@ -22,6 +22,7 @@ import type { InventorySelectOption } from '@/lib/inventory-category-options';
 import type {
   InventoryBulkAttributeMode,
   InventoryBulkCategoryMode,
+  InventoryBulkCodeMode,
   InventoryBulkNameMode,
   InventoryBulkPatch,
   InventoryBulkStockMode,
@@ -31,10 +32,118 @@ interface InventoryBulkEditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedCount: number;
-  categoryOptions: string[];
+  categoryOptions: InventorySelectOption[] | string[];
   attributeNameOptions: string[];
   onApply: (patch: InventoryBulkPatch) => Promise<void>;
   isSaving: boolean;
+  /** Sección inicial al abrir (p. ej. categorías desde el toolbar). */
+  initialFocus?: 'categories' | 'name' | 'code' | null;
+}
+
+type TextFieldMode = InventoryBulkNameMode | 'none';
+
+function TextTransformFields({
+  idPrefix,
+  legend,
+  mode,
+  onModeChange,
+  text,
+  onTextChange,
+  replaceWith,
+  onReplaceWithChange,
+  insertAfter,
+  onInsertAfterChange,
+}: {
+  idPrefix: string;
+  legend: string;
+  mode: TextFieldMode;
+  onModeChange: (mode: TextFieldMode) => void;
+  text: string;
+  onTextChange: (value: string) => void;
+  replaceWith: string;
+  onReplaceWithChange: (value: string) => void;
+  insertAfter: string;
+  onInsertAfterChange: (value: string) => void;
+}) {
+  return (
+    <fieldset className="grid gap-3 rounded-lg border p-4">
+      <legend className="px-1 text-sm font-medium">{legend}</legend>
+      <div className="space-y-2">
+        <Label htmlFor={`${idPrefix}-mode`}>Modo</Label>
+        <Select value={mode} onValueChange={(value) => onModeChange(value as TextFieldMode)}>
+          <SelectTrigger id={`${idPrefix}-mode`} className="h-11">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Sin cambio</SelectItem>
+            <SelectItem value="prepend">Prefijo (al inicio)</SelectItem>
+            <SelectItem value="append">Sufijo (al final)</SelectItem>
+            <SelectItem value="insert">Insertar en el medio</SelectItem>
+            <SelectItem value="duplicate">Duplicar texto</SelectItem>
+            <SelectItem value="remove">Quitar texto</SelectItem>
+            <SelectItem value="replace">Reemplazar texto</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {mode !== 'none' && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor={`${idPrefix}-text`}>
+              {mode === 'replace'
+                ? 'Buscar'
+                : mode === 'duplicate'
+                  ? 'Texto a duplicar'
+                  : mode === 'insert'
+                    ? 'Texto a insertar'
+                    : 'Texto'}
+            </Label>
+            <Input
+              id={`${idPrefix}-text`}
+              value={text}
+              onChange={(event) => onTextChange(event.target.value)}
+              placeholder={
+                mode === 'remove' || mode === 'replace' || mode === 'duplicate'
+                  ? 'Ej. HP LaserJet'
+                  : 'Ej. WiFi'
+              }
+              required
+            />
+          </div>
+          {mode === 'insert' && (
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-insert-after`}>Después de (opcional)</Label>
+              <Input
+                id={`${idPrefix}-insert-after`}
+                value={insertAfter}
+                onChange={(event) => onInsertAfterChange(event.target.value)}
+                placeholder="Vacío = mitad del texto"
+              />
+              <p className="text-xs text-muted-foreground">
+                Si indiques un fragmento, el texto se inserta justo después de la primera
+                coincidencia.
+              </p>
+            </div>
+          )}
+          {mode === 'replace' && (
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-replace`}>Reemplazar por</Label>
+              <Input
+                id={`${idPrefix}-replace`}
+                value={replaceWith}
+                onChange={(event) => onReplaceWithChange(event.target.value)}
+                placeholder="Dejar vacío para eliminar"
+              />
+            </div>
+          )}
+          {mode === 'duplicate' && (
+            <p className="text-xs text-muted-foreground">
+              Duplica cada aparición del texto. Si no aparece, se agrega al final.
+            </p>
+          )}
+        </>
+      )}
+    </fieldset>
+  );
 }
 
 export function InventoryBulkEditDialog({
@@ -45,12 +154,18 @@ export function InventoryBulkEditDialog({
   attributeNameOptions,
   onApply,
   isSaving,
+  initialFocus = null,
 }: InventoryBulkEditDialogProps) {
   const [categoryMode, setCategoryMode] = useState<InventoryBulkCategoryMode | 'none'>('none');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [nameMode, setNameMode] = useState<InventoryBulkNameMode | 'none'>('none');
+  const [nameMode, setNameMode] = useState<TextFieldMode>('none');
   const [nameText, setNameText] = useState('');
   const [nameReplaceWith, setNameReplaceWith] = useState('');
+  const [nameInsertAfter, setNameInsertAfter] = useState('');
+  const [codeMode, setCodeMode] = useState<TextFieldMode>('none');
+  const [codeText, setCodeText] = useState('');
+  const [codeReplaceWith, setCodeReplaceWith] = useState('');
+  const [codeInsertAfter, setCodeInsertAfter] = useState('');
   const [attributeMode, setAttributeMode] = useState<InventoryBulkAttributeMode | 'none'>('none');
   const [attributeName, setAttributeName] = useState('');
   const [attributeValue, setAttributeValue] = useState('');
@@ -61,7 +176,10 @@ export function InventoryBulkEditDialog({
   const [error, setError] = useState<string | null>(null);
 
   const categorySelectOptions = useMemo<InventorySelectOption[]>(
-    () => categoryOptions.map((name) => ({ value: name, label: name })),
+    () =>
+      categoryOptions.map((entry) =>
+        typeof entry === 'string' ? { value: entry, label: entry } : entry,
+      ),
     [categoryOptions],
   );
 
@@ -69,11 +187,16 @@ export function InventoryBulkEditDialog({
 
   useEffect(() => {
     if (!open) return;
-    setCategoryMode('none');
+    setCategoryMode(initialFocus === 'categories' ? 'add' : 'none');
     setSelectedCategories([]);
-    setNameMode('none');
+    setNameMode(initialFocus === 'name' ? 'prepend' : 'none');
     setNameText('');
     setNameReplaceWith('');
+    setNameInsertAfter('');
+    setCodeMode(initialFocus === 'code' ? 'prepend' : 'none');
+    setCodeText('');
+    setCodeReplaceWith('');
+    setCodeInsertAfter('');
     setAttributeMode('none');
     setAttributeName('');
     setAttributeValue('');
@@ -82,7 +205,7 @@ export function InventoryBulkEditDialog({
     setPricePercent('');
     setPurchasePricePercent('');
     setError(null);
-  }, [open]);
+  }, [open, initialFocus]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -104,10 +227,28 @@ export function InventoryBulkEditDialog({
         setError('Indica el texto del nombre del producto.');
         return;
       }
-      patch.nameMode = nameMode;
+      patch.nameMode = nameMode as InventoryBulkNameMode;
       patch.nameText = nameText;
       if (nameMode === 'replace') {
         patch.nameReplaceWith = nameReplaceWith;
+      }
+      if (nameMode === 'insert' && nameInsertAfter.trim()) {
+        patch.nameInsertAfter = nameInsertAfter;
+      }
+    }
+
+    if (codeMode !== 'none') {
+      if (!codeText.trim()) {
+        setError('Indica el texto del código.');
+        return;
+      }
+      patch.codeMode = codeMode as InventoryBulkCodeMode;
+      patch.codeText = codeText;
+      if (codeMode === 'replace') {
+        patch.codeReplaceWith = codeReplaceWith;
+      }
+      if (codeMode === 'insert' && codeInsertAfter.trim()) {
+        patch.codeInsertAfter = codeInsertAfter;
       }
     }
 
@@ -197,9 +338,9 @@ export function InventoryBulkEditDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Sin cambio</SelectItem>
-                  <SelectItem value="add">Agregar a las existentes</SelectItem>
-                  <SelectItem value="remove">Quitar seleccionadas</SelectItem>
-                  <SelectItem value="set">Reemplazar por</SelectItem>
+                  <SelectItem value="add">Agregar categorías</SelectItem>
+                  <SelectItem value="remove">Eliminar categorías</SelectItem>
+                  <SelectItem value="set">Reemplazar todas</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -210,7 +351,7 @@ export function InventoryBulkEditDialog({
                   categoryMode === 'add'
                     ? 'Categorías a agregar'
                     : categoryMode === 'remove'
-                      ? 'Categorías a quitar'
+                      ? 'Categorías a eliminar'
                       : 'Nuevas categorías'
                 }
                 options={categorySelectOptions}
@@ -220,58 +361,31 @@ export function InventoryBulkEditDialog({
             )}
           </fieldset>
 
-          <fieldset className="grid gap-3 rounded-lg border p-4">
-            <legend className="px-1 text-sm font-medium">Nombre del producto</legend>
-            <div className="space-y-2">
-              <Label htmlFor="bulk-name-mode">Modo</Label>
-              <Select
-                value={nameMode}
-                onValueChange={(value) => setNameMode(value as InventoryBulkNameMode | 'none')}
-              >
-                <SelectTrigger id="bulk-name-mode" className="h-11">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Sin cambio</SelectItem>
-                  <SelectItem value="append">Añadir al final</SelectItem>
-                  <SelectItem value="prepend">Añadir al inicio</SelectItem>
-                  <SelectItem value="remove">Quitar texto</SelectItem>
-                  <SelectItem value="replace">Reemplazar texto</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {nameMode !== 'none' && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="bulk-name-text">
-                    {nameMode === 'replace' ? 'Buscar' : 'Texto'}
-                  </Label>
-                  <Input
-                    id="bulk-name-text"
-                    value={nameText}
-                    onChange={(event) => setNameText(event.target.value)}
-                    placeholder={
-                      nameMode === 'remove' || nameMode === 'replace'
-                        ? 'Ej. HP LaserJet'
-                        : 'Ej. WiFi'
-                    }
-                    required
-                  />
-                </div>
-                {nameMode === 'replace' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="bulk-name-replace">Reemplazar por</Label>
-                    <Input
-                      id="bulk-name-replace"
-                      value={nameReplaceWith}
-                      onChange={(event) => setNameReplaceWith(event.target.value)}
-                      placeholder="Dejar vacío para eliminar"
-                    />
-                  </div>
-                )}
-              </>
-            )}
-          </fieldset>
+          <TextTransformFields
+            idPrefix="bulk-name"
+            legend="Nombre del producto"
+            mode={nameMode}
+            onModeChange={setNameMode}
+            text={nameText}
+            onTextChange={setNameText}
+            replaceWith={nameReplaceWith}
+            onReplaceWithChange={setNameReplaceWith}
+            insertAfter={nameInsertAfter}
+            onInsertAfterChange={setNameInsertAfter}
+          />
+
+          <TextTransformFields
+            idPrefix="bulk-code"
+            legend="Código / SKU"
+            mode={codeMode}
+            onModeChange={setCodeMode}
+            text={codeText}
+            onTextChange={setCodeText}
+            replaceWith={codeReplaceWith}
+            onReplaceWithChange={setCodeReplaceWith}
+            insertAfter={codeInsertAfter}
+            onInsertAfterChange={setCodeInsertAfter}
+          />
 
           <fieldset className="grid gap-3 rounded-lg border p-4">
             <legend className="px-1 text-sm font-medium">Atributos</legend>

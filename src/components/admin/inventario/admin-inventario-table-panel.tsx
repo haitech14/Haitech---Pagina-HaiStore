@@ -1,12 +1,12 @@
 import {
-  Fragment,
+  memo,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type ChangeEvent,
   type ClipboardEvent,
+  type DragEvent,
 } from 'react';
 import {
   ArrowDown,
@@ -26,13 +26,21 @@ import {
   Plus,
   Search,
   ShoppingCart,
-  SlidersHorizontal,
   Trash2,
   User,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { InventoryBulkEditDialog } from '@/components/admin/inventory/inventory-bulk-edit-dialog';
+import { InventoryImagePreviewDialog } from '@/components/admin/inventory/inventory-image-preview-dialog';
+import { MediaAlbumPickerDialog } from '@/components/admin/media-album/media-album-picker-dialog';
+import { createAdminInventarioBatchSelectionStore } from '@/components/admin/inventario/admin-inventario-batch-selection';
+import {
+  BatchSelectAllCheckbox,
+  BatchSelectionCheckbox,
+  BatchSelectableTableRow,
+  InventarioBatchToolbar,
+} from '@/components/admin/inventario/admin-inventario-batch-selection-ui';
 import { AdminInventoryProductThumbHoverPreview } from '@/components/admin/inventario/admin-inventory-product-thumb-hover-preview';
 import { AdminInventoryProductThumbImage } from '@/components/admin/inventario/admin-inventory-product-thumb-image';
 import { AdminInventarioCategoryTreePopover } from '@/components/admin/inventario/admin-inventario-category-tree-popover';
@@ -46,9 +54,7 @@ import { AdminListasPreciosStatusBadge } from '@/components/admin/inventario/adm
 import { AdminListasPreciosStockCell } from '@/components/admin/inventario/admin-listas-precios-stock-cell';
 import { HeaderCurrencyControl } from '@/components/layout/header-currency-control';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,6 +79,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { uploadFileToMediaAlbum } from '@/hooks/use-media-album';
+import { useInventarioTableModel } from '@/hooks/use-inventario-table-model';
 import { useInventoryMutations } from '@/hooks/use-products';
 import {
   EMPTY_STORE_CATEGORY_TREE,
@@ -80,22 +88,17 @@ import {
 } from '@/hooks/use-store-categories';
 import { useWarehouses } from '@/hooks/use-warehouses';
 import {
-  getListaPreciosParentCategories,
-  mapProductToListaPreciosRecord,
   ROLE_HEADER_META,
   ROLE_LABELS,
 } from '@/lib/admin-listas-precios-utils';
 import { formatProductCodeCardDisplay } from '@/lib/format-product-code-display';
 import { buildAttributeNameCatalog, normalizeAttributes } from '@/lib/inventory-attributes';
-import { productMatchesCategoryFilterTree } from '@/lib/inventory-categories';
-import { compareInventoryTableDivisionLabels } from '@/lib/inventory-equipment-sections';
-import { listRootCategories } from '@/lib/inventory-product-category';
 import { hasAdminInventoryProductImage } from '@/lib/admin-inventory-product-image';
 import {
   getImageFilesFromClipboard,
   prepareInventoryPayloadForApi,
   readImageFile,
-  setProductMainMediaUrl,
+  replaceProductMainImage,
 } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { buildProductPath } from '@/lib/product-slug';
@@ -105,6 +108,49 @@ import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct, ProductAttribute } from '@/types/product';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+const VIEW_PERSIST_DEBOUNCE_MS = 400;
+
+const INVENTARIO_TABLE_VIEW_KEY = 'haistore:admin-inventario-table-view';
+
+interface InventarioTableViewState {
+  search: string;
+  roleFilter: string;
+  currencyFilter: string;
+  channelFilter: string;
+  validityFilter: string;
+  page: number;
+  pageSize: number;
+  batchMode: boolean;
+  showRelations: boolean;
+}
+
+function readInventarioTableView(): InventarioTableViewState | null {
+  try {
+    const raw = sessionStorage.getItem(INVENTARIO_TABLE_VIEW_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<InventarioTableViewState>;
+    const pageSize = Number(parsed.pageSize);
+    return {
+      search: typeof parsed.search === 'string' ? parsed.search : '',
+      roleFilter: typeof parsed.roleFilter === 'string' ? parsed.roleFilter : 'todos',
+      currencyFilter:
+        typeof parsed.currencyFilter === 'string' ? parsed.currencyFilter : 'ambas',
+      channelFilter:
+        typeof parsed.channelFilter === 'string' ? parsed.channelFilter : 'todos',
+      validityFilter:
+        typeof parsed.validityFilter === 'string' ? parsed.validityFilter : 'todas',
+      page: Math.max(1, Number(parsed.page) || 1),
+      pageSize: PAGE_SIZE_OPTIONS.includes(pageSize as (typeof PAGE_SIZE_OPTIONS)[number])
+        ? pageSize
+        : 10,
+      batchMode: parsed.batchMode === true,
+      showRelations: parsed.showRelations === true,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** Orden: Compra → Mayorista → Técnico → Público */
 const PRICE_ROLES: AdminListaPreciosRoleKey[] = [
   'compra',
@@ -171,15 +217,18 @@ function PriceColumnHeader({
   );
 }
 
-const BASE_TABLE_COLUMN_COUNT = 15;
+const BASE_CORE_COLUMN_COUNT = 11;
+const RELATIONS_COLUMN_COUNT = 4;
 
-function EditableProductThumb({
+function EditableProductThumbComponent({
   product,
   name,
   isUploading,
   optimisticPreviewSrc = null,
   isRowSelected = false,
   onUpload,
+  onOpenGallery,
+  onOpenPreview,
 }: {
   product: InventoryProduct;
   name: string;
@@ -187,27 +236,21 @@ function EditableProductThumb({
   optimisticPreviewSrc?: string | null;
   isRowSelected?: boolean;
   onUpload: (file: File) => Promise<void>;
+  onOpenGallery: () => void;
+  onOpenPreview: () => void;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const thumbRef = useRef<HTMLButtonElement>(null);
+  const dragDepthRef = useRef(0);
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const hasImage = hasAdminInventoryProductImage(product, optimisticPreviewSrc);
   const isDocumentPasteActive =
     !isUploading && !isFocused && (isHovered || isRowSelected);
-  const showPasteHint = !isUploading && (isFocused || isHovered || isRowSelected);
-  const showHoverPreview = hasImage && isHovered && !isUploading;
-
-  const openPicker = () => {
-    if (!isUploading) inputRef.current?.click();
-  };
-
-  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-    await onUpload(file);
-  };
+  const showDropHint = !isUploading && isDragOver;
+  const showPasteHint =
+    !isUploading && !isDragOver && (isFocused || isHovered || isRowSelected);
+  const showHoverPreview = hasImage && isHovered && !isUploading && !isDragOver;
 
   const handlePaste = useCallback(
     (event: ClipboardEvent | globalThis.ClipboardEvent) => {
@@ -220,6 +263,54 @@ function EditableProductThumb({
     [isUploading, onUpload],
   );
 
+  const resetDragState = useCallback(() => {
+    dragDepthRef.current = 0;
+    setIsDragOver(false);
+  }, []);
+
+  const handleDragEnter = useCallback(
+    (event: DragEvent<HTMLButtonElement>) => {
+      if (isUploading) return;
+      if (![...event.dataTransfer.types].includes('Files')) return;
+      event.preventDefault();
+      event.stopPropagation();
+      dragDepthRef.current += 1;
+      setIsDragOver(true);
+    },
+    [isUploading],
+  );
+
+  const handleDragOver = useCallback(
+    (event: DragEvent<HTMLButtonElement>) => {
+      if (isUploading) return;
+      if (![...event.dataTransfer.types].includes('Files')) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.dataTransfer.dropEffect = 'copy';
+    },
+    [isUploading],
+  );
+
+  const handleDragLeave = useCallback((event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (event: DragEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      resetDragState();
+      if (isUploading) return;
+      const files = getImageFilesFromClipboard(event.dataTransfer);
+      if (files.length === 0) return;
+      void onUpload(files[0]);
+    },
+    [isUploading, onUpload, resetDragState],
+  );
+
   useEffect(() => {
     if (!isDocumentPasteActive) return;
     const onPaste = (event: globalThis.ClipboardEvent) => handlePaste(event);
@@ -227,23 +318,38 @@ function EditableProductThumb({
     return () => document.removeEventListener('paste', onPaste);
   }, [handlePaste, isDocumentPasteActive]);
 
+  useEffect(() => {
+    if (!isDragOver) return;
+    const cancelDrag = () => resetDragState();
+    window.addEventListener('dragend', cancelDrag);
+    window.addEventListener('drop', cancelDrag);
+    return () => {
+      window.removeEventListener('dragend', cancelDrag);
+      window.removeEventListener('drop', cancelDrag);
+    };
+  }, [isDragOver, resetDragState]);
+
   return (
     <>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden="true"
-        onChange={(event) => void handleChange(event)}
-      />
       <button
         ref={thumbRef}
         type="button"
         tabIndex={0}
-        onClick={openPicker}
+        onClick={(event) => {
+          if (isUploading) return;
+          // Shift+clic: elegir desde el álbum. Clic normal: ampliar (o álbum si no hay foto).
+          if (event.shiftKey || !hasImage) {
+            onOpenGallery();
+            return;
+          }
+          setIsHovered(false);
+          onOpenPreview();
+        }}
         onPaste={handlePaste}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         onMouseEnter={() => setIsHovered(true)}
@@ -253,15 +359,25 @@ function EditableProductThumb({
           'relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded border border-border/70 bg-muted/30 transition-colors',
           'hover:border-[hsl(var(--admin-accent))]/50 hover:bg-muted/50',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-accent))] focus-visible:ring-offset-2',
-          showPasteHint &&
+          (showPasteHint || showDropHint) &&
             'border-[hsl(var(--admin-accent))]/60 ring-1 ring-[hsl(var(--admin-accent))]/30',
+          showDropHint && 'border-[hsl(var(--admin-accent))] ring-2 ring-[hsl(var(--admin-accent))]/50',
           isUploading && 'cursor-wait opacity-70',
         )}
-        aria-label={`Cambiar foto de ${name}. Clic o Ctrl+V para pegar imagen.`}
-        title="Clic para elegir archivo · Ctrl+V para pegar desde portapapeles"
+        aria-label={
+          hasImage
+            ? `Ver foto ampliada de ${name}. Shift+clic para álbum. Ctrl+V o arrastrar imagen.`
+            : `Elegir foto de ${name} desde el álbum. Ctrl+V o arrastrar imagen.`
+        }
+        title={
+          hasImage
+            ? 'Clic para ampliar · Shift+clic: álbum · Ctrl+V / arrastrar'
+            : 'Clic para abrir álbum · Ctrl+V o arrastrar imagen'
+        }
       >
         {hasImage ? (
           <AdminInventoryProductThumbImage
+            key={`${product.id}:${optimisticPreviewSrc ?? product.image_url ?? 'none'}`}
             product={product}
             optimisticSrc={optimisticPreviewSrc}
             className="size-full"
@@ -273,6 +389,14 @@ function EditableProductThumb({
         {isUploading ? (
           <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/55">
             <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
+          </span>
+        ) : null}
+        {showDropHint ? (
+          <span
+            className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[hsl(var(--admin-accent))]/80 text-[0.5625rem] font-semibold leading-none text-white"
+            aria-hidden="true"
+          >
+            Soltar
           </span>
         ) : null}
         {showPasteHint ? (
@@ -295,6 +419,51 @@ function EditableProductThumb({
   );
 }
 
+const EditableProductThumb = memo(EditableProductThumbComponent);
+
+const SEARCH_DEBOUNCE_MS = 150;
+
+/** Input local: evita refiltrar/re-renderizar la tabla en cada tecla. */
+const InventarioSearchInput = memo(function InventarioSearchInput({
+  value: committedValue,
+  onSearchChange,
+}: {
+  value: string;
+  onSearchChange: (value: string) => void;
+}) {
+  const [draft, setDraft] = useState(committedValue);
+  const onSearchChangeRef = useRef(onSearchChange);
+  onSearchChangeRef.current = onSearchChange;
+
+  useEffect(() => {
+    setDraft(committedValue);
+  }, [committedValue]);
+
+  useEffect(() => {
+    if (draft === committedValue) return;
+    const timer = window.setTimeout(() => {
+      onSearchChangeRef.current(draft);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [committedValue, draft]);
+
+  return (
+    <div className="relative min-w-[12rem] flex-1 sm:max-w-sm">
+      <Search
+        className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <Input
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        placeholder="Buscar por producto, código o SKU..."
+        className="h-8 bg-background pl-8 text-xs"
+        aria-label="Buscar productos"
+      />
+    </div>
+  );
+});
+
 interface AdminInventarioTablePanelProps {
   products: InventoryProduct[];
   saleExchangeRate: number;
@@ -316,136 +485,69 @@ export function AdminInventarioTablePanel({
   isLoading = false,
   isSaving = false,
 }: AdminInventarioTablePanelProps) {
-  const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('todos');
-  const [currencyFilter, setCurrencyFilter] = useState<string>('ambas');
-  const [channelFilter, setChannelFilter] = useState<string>('todos');
-  const [validityFilter, setValidityFilter] = useState<string>('todas');
+  const initialView = useMemo(() => readInventarioTableView(), []);
+  const [search, setSearch] = useState(initialView?.search ?? '');
+  const [roleFilter, setRoleFilter] = useState<string>(initialView?.roleFilter ?? 'todos');
+  const [currencyFilter, setCurrencyFilter] = useState<string>(
+    initialView?.currencyFilter ?? 'ambas',
+  );
+  const [channelFilter, setChannelFilter] = useState<string>(
+    initialView?.channelFilter ?? 'todos',
+  );
+  const [validityFilter, setValidityFilter] = useState<string>(
+    initialView?.validityFilter ?? 'todas',
+  );
   const [sortRole, setSortRole] = useState<AdminListaPreciosRoleKey>('public');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState(initialView?.page ?? 1);
+  const [pageSize, setPageSize] = useState<number>(initialView?.pageSize ?? 10);
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null);
-  const [uploadingProductId, setUploadingProductId] = useState<string | null>(null);
+  const [uploadingProductIds, setUploadingProductIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [optimisticPreviewByProductId, setOptimisticPreviewByProductId] = useState<
     Record<string, string>
   >({});
-  const [batchMode, setBatchMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [batchMode, setBatchMode] = useState(initialView?.batchMode ?? false);
+  const [showRelations, setShowRelations] = useState(initialView?.showRelations ?? false);
+  const batchSelectionStoreRef = useRef(createAdminInventarioBatchSelectionStore());
+  const batchSelectionStore = batchSelectionStoreRef.current;
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [bulkDialogFocus, setBulkDialogFocus] = useState<
+    'categories' | 'name' | 'code' | null
+  >(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [rowBusyId, setRowBusyId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  /** IDs a los que aplicar la imagen elegida en el álbum (uno o varios en lote). */
+  const [albumPickerTargetIds, setAlbumPickerTargetIds] = useState<string[] | null>(null);
+  const [previewProductId, setPreviewProductId] = useState<string | null>(null);
+  const albumPickerTargetIdsRef = useRef<string[] | null>(null);
+  albumPickerTargetIdsRef.current = albumPickerTargetIds;
+  const optimisticHoldTimersRef = useRef<Map<string, number>>(new Map());
 
   const { data: categoryTree = EMPTY_STORE_CATEGORY_TREE } = useStoreCategoriesTree();
   const { data: warehouses = DEFAULT_WAREHOUSES } = useWarehouses();
   const { deleteProduct, bulkDeleteProducts, bulkDuplicateProducts, bulkUpdateProducts } =
     useInventoryMutations();
 
-  const productsById = useMemo(
-    () => new Map(products.map((product) => [product.id, product])),
-    [products],
-  );
-
-  const merchandisingProductById = useMemo(
-    () => new Map(products.map((product) => [product.id, product.name])),
-    [products],
-  );
-
-  const merchandisingCatalog = useMemo(
-    () =>
-      products.map((product) => ({
-        id: product.id,
-        name: product.name,
-        code: product.code,
-      })),
-    [products],
-  );
-
-  const records = useMemo(
-    () => products.map(mapProductToListaPreciosRecord),
-    [products],
-  );
-
-  const categories = useMemo(() => {
-    const fromProducts = getListaPreciosParentCategories(products);
-    const fromTree = listRootCategories(categoryTree).map((node) => node.name);
-    return [...new Set([...fromTree, ...fromProducts])].sort((a, b) =>
-      a.localeCompare(b, 'es'),
-    );
-  }, [categoryTree, products]);
-
-  const filteredRecords = useMemo(() => {
-    const normalized = search.trim().toLowerCase();
-    const hasCategory = channelFilter !== 'todos';
-    const hasSearch = normalized.length > 0;
-
-    return records.filter((record) => {
-      if (roleFilter !== 'todos') {
-        const role = roleFilter as AdminListaPreciosRoleKey;
-        if (record.prices[role] <= 0) return false;
-      }
-
-      if (validityFilter === 'vigente' && record.status === 'inactiva') return false;
-      if (validityFilter === 'activa' && record.status !== 'activa') return false;
-      if (validityFilter === 'borrador' && record.status !== 'borrador') return false;
-      if (validityFilter === 'inactiva' && record.status !== 'inactiva') return false;
-
-      if (currencyFilter === 'pen' && record.prices.public <= 0) return false;
-      if (currencyFilter === 'usd' && record.prices.compra <= 0) return false;
-
-      if (hasCategory) {
-        const product = productsById.get(record.id);
-        if (
-          !productMatchesCategoryFilterTree(
-            { category: product?.category ?? record.parentCategory },
-            channelFilter,
-            categoryTree,
-          )
-        ) {
-          return false;
-        }
-      }
-
-      if (!hasSearch) return true;
-      return (
-        record.name.toLowerCase().includes(normalized) ||
-        record.sku.toLowerCase().includes(normalized)
-      );
-    });
-  }, [
-    categoryTree,
-    channelFilter,
-    currencyFilter,
+  const {
     productsById,
-    records,
-    roleFilter,
+    merchandisingProductById,
+    merchandisingCatalog,
+    categoryOptions: categories,
+    filteredRecords,
+    sortedRecords,
+    divisionCounts,
+  } = useInventarioTableModel(products, categoryTree, {
     search,
+    roleFilter,
+    currencyFilter,
+    channelFilter,
     validityFilter,
-  ]);
-
-  const sortedRecords = useMemo(() => {
-    const direction = sortDir === 'asc' ? 1 : -1;
-    return [...filteredRecords].sort((a, b) => {
-      const divisionDiff = compareInventoryTableDivisionLabels(
-        a.divisionLabel,
-        b.divisionLabel,
-      );
-      if (divisionDiff !== 0) return divisionDiff;
-      const diff =
-        (Number(a.prices[sortRole]) || 0) - (Number(b.prices[sortRole]) || 0);
-      if (diff !== 0) return diff * direction;
-      return a.name.localeCompare(b.name, 'es');
-    });
-  }, [filteredRecords, sortDir, sortRole]);
-
-  const divisionCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const record of sortedRecords) {
-      counts.set(record.divisionLabel, (counts.get(record.divisionLabel) ?? 0) + 1);
-    }
-    return counts;
-  }, [sortedRecords]);
+    sortRole,
+    sortDir,
+  });
 
   const handleSortRole = useCallback(
     (role: AdminListaPreciosRoleKey) => {
@@ -470,6 +572,45 @@ export function AdminInventarioTablePanel({
   const end = Math.min(safePage * pageSize, sortedRecords.length);
   const pageItems = buildPageItems(safePage, totalPages);
 
+  // Solo ajustar página cuando hay datos y el índice quedó fuera de rango
+  // (p. ej. borrados). No bajar a 1 durante un refetch transitorio vacío.
+  useEffect(() => {
+    if (sortedRecords.length === 0) return;
+    if (page > totalPages) setPage(totalPages);
+  }, [page, sortedRecords.length, totalPages]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        const payload: InventarioTableViewState = {
+          search,
+          roleFilter,
+          currencyFilter,
+          channelFilter,
+          validityFilter,
+          page: safePage,
+          pageSize,
+          batchMode,
+          showRelations,
+        };
+        sessionStorage.setItem(INVENTARIO_TABLE_VIEW_KEY, JSON.stringify(payload));
+      } catch {
+        // sessionStorage no disponible
+      }
+    }, VIEW_PERSIST_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [
+    batchMode,
+    channelFilter,
+    currencyFilter,
+    pageSize,
+    roleFilter,
+    safePage,
+    search,
+    showRelations,
+    validityFilter,
+  ]);
+
   const closeEditor = useCallback(() => setActiveFieldId(null), []);
 
   const patchProduct = useCallback(
@@ -479,6 +620,82 @@ export function AdminInventarioTablePanel({
     [onPatchProduct],
   );
 
+  const setProductsUploading = useCallback((productIds: string[], uploading: boolean) => {
+    setUploadingProductIds((current) => {
+      const next = new Set(current);
+      for (const id of productIds) {
+        if (uploading) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const clearOptimisticPreview = useCallback((productId: string, blobUrl?: string) => {
+    const timer = optimisticHoldTimersRef.current.get(productId);
+    if (timer != null) {
+      window.clearTimeout(timer);
+      optimisticHoldTimersRef.current.delete(productId);
+    }
+    setOptimisticPreviewByProductId((current) => {
+      if (!(productId in current)) return current;
+      const next = { ...current };
+      delete next[productId];
+      return next;
+    });
+    if (blobUrl) URL.revokeObjectURL(blobUrl);
+  }, []);
+
+  const isPersistedProductImageUrl = useCallback((url: string | null | undefined) => {
+    const trimmed = url?.trim() ?? '';
+    if (!trimmed) return false;
+    const path = trimmed.split('?')[0]?.split('#')[0] ?? '';
+    return path.startsWith('/products/') && trimmed.includes('?v=');
+  }, []);
+
+  // Quita preview solo cuando la caché ya tiene /products/…?v= (evita flash a “sin imagen”).
+  useEffect(() => {
+    setOptimisticPreviewByProductId((current) => {
+      const ids = Object.keys(current);
+      if (ids.length === 0) return current;
+      let changed = false;
+      const next = { ...current };
+      for (const id of ids) {
+        const product = productsById.get(id);
+        if (!isPersistedProductImageUrl(product?.image_url)) continue;
+        delete next[id];
+        changed = true;
+      }
+      return changed ? next : current;
+    });
+  }, [isPersistedProductImageUrl, productsById]);
+
+  useEffect(() => {
+    return () => {
+      for (const timer of optimisticHoldTimersRef.current.values()) {
+        window.clearTimeout(timer);
+      }
+      optimisticHoldTimersRef.current.clear();
+      for (const url of Object.values(optimisticPreviewByProductId)) {
+        URL.revokeObjectURL(url);
+      }
+    };
+    // Solo al desmontar: no revocar en cada cambio de previews.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- unmount cleanup
+  }, []);
+
+  const applyImageUrlToProduct = useCallback(
+    async (product: InventoryProduct, imageUrl: string) => {
+      const media = replaceProductMainImage(product, imageUrl);
+      const payload = await prepareInventoryPayloadForApi({ ...product, ...media });
+      await patchProduct(product.id, {
+        image_url: payload.image_url,
+        gallery: payload.gallery,
+      });
+    },
+    [patchProduct],
+  );
+
   const uploadProductImage = useCallback(
     async (product: InventoryProduct, file: File) => {
       const optimisticPreviewSrc = URL.createObjectURL(file);
@@ -486,34 +703,191 @@ export function AdminInventarioTablePanel({
         ...current,
         [product.id]: optimisticPreviewSrc,
       }));
-      setUploadingProductId(product.id);
+      setProductsUploading([product.id], true);
 
       try {
-        const url = await readImageFile(file);
-        const media = setProductMainMediaUrl(product, url);
-        const payload = await prepareInventoryPayloadForApi({ ...product, ...media });
-        await patchProduct(product.id, {
-          image_url: payload.image_url,
-          gallery: payload.gallery,
-        });
+        // Sube al álbum (ruta corta) en lugar de embeber data: en el PATCH.
+        const albumItem = await uploadFileToMediaAlbum(file, readImageFile);
+        setOptimisticPreviewByProductId((current) => ({
+          ...current,
+          [product.id]: albumItem.url,
+        }));
+        await applyImageUrlToProduct(product, albumItem.url);
         toast.success('Imagen del producto actualizada');
+        if (optimisticPreviewSrc) URL.revokeObjectURL(optimisticPreviewSrc);
+        // El effect limpia cuando la caché tenga /products/…?v=.
       } catch (error) {
+        clearOptimisticPreview(product.id, optimisticPreviewSrc);
         toast.error(
           error instanceof Error ? error.message : 'No se pudo guardar la imagen del producto',
         );
       } finally {
-        setUploadingProductId(null);
-        setOptimisticPreviewByProductId((current) => {
-          if (!(product.id in current)) return current;
-          const next = { ...current };
-          delete next[product.id];
-          return next;
-        });
-        URL.revokeObjectURL(optimisticPreviewSrc);
+        setProductsUploading([product.id], false);
       }
     },
-    [patchProduct],
+    [
+      applyImageUrlToProduct,
+      clearOptimisticPreview,
+      setProductsUploading,
+    ],
   );
+
+  const applyImageToSelectedProducts = useCallback(
+    async (file: File) => {
+      const ids = [...batchSelectionStore.getSelectedIds()];
+      if (ids.length === 0) return;
+
+      const targets = ids
+        .map((id) => productsById.get(id))
+        .filter((product): product is InventoryProduct => Boolean(product));
+      if (targets.length === 0) {
+        toast.error('No se encontraron los productos seleccionados en el inventario');
+        return;
+      }
+
+      const targetIds = targets.map((product) => product.id);
+      const previewById: Record<string, string> = {};
+      for (const id of targetIds) {
+        previewById[id] = URL.createObjectURL(file);
+      }
+
+      setOptimisticPreviewByProductId((current) => ({ ...current, ...previewById }));
+      setProductsUploading(targetIds, true);
+      setBulkBusy(true);
+
+      try {
+        const albumItem = await uploadFileToMediaAlbum(file, readImageFile);
+        const result = await bulkUpdateProducts.mutateAsync({
+          ids: targetIds,
+          patch: { image_url: albumItem.url },
+        });
+        const persistedById = new Map(
+          (result.products ?? []).map((product) => [product.id, product.image_url ?? null]),
+        );
+        setOptimisticPreviewByProductId((current) => {
+          const next = { ...current };
+          for (const id of targetIds) {
+            const blobUrl = previewById[id];
+            if (blobUrl) URL.revokeObjectURL(blobUrl);
+            const persisted = persistedById.get(id)?.trim();
+            next[id] = persisted || albumItem.url;
+          }
+          return next;
+        });
+        toast.success(
+          targetIds.length === 1
+            ? 'Imagen aplicada al producto seleccionado'
+            : `Imagen aplicada a ${targetIds.length} productos`,
+        );
+      } catch (error) {
+        for (const id of targetIds) {
+          clearOptimisticPreview(id, previewById[id]);
+        }
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'No se pudo aplicar la imagen a los productos seleccionados',
+        );
+      } finally {
+        setProductsUploading(targetIds, false);
+        setBulkBusy(false);
+      }
+    },
+    [
+      batchSelectionStore,
+      bulkUpdateProducts,
+      clearOptimisticPreview,
+      productsById,
+      setProductsUploading,
+    ],
+  );
+
+  const applyAlbumUrlToTargets = useCallback(
+    async (imageUrl: string, productIds: string[]) => {
+      const targetIds = [...new Set(productIds.filter(Boolean))];
+      if (targetIds.length === 0) {
+        toast.error('No hay productos destino para aplicar la imagen');
+        return;
+      }
+
+      const targets = targetIds
+        .map((id) => productsById.get(id))
+        .filter((product): product is InventoryProduct => Boolean(product));
+      if (targets.length === 0) {
+        toast.error('Los productos seleccionados ya no están en el inventario cargado');
+        return;
+      }
+
+      // Preview inmediata mientras el PATCH escribe /products/…webp
+      setOptimisticPreviewByProductId((current) => {
+        const next = { ...current };
+        for (const id of targetIds) next[id] = imageUrl;
+        return next;
+      });
+      setProductsUploading(targetIds, true);
+      if (targetIds.length > 1) setBulkBusy(true);
+
+      try {
+        // Un solo producto: replaceProductMainImage + prepare/persist (igual que subida).
+        if (targets.length === 1) {
+          await applyImageUrlToProduct(targets[0], imageUrl);
+          toast.success('Imagen del álbum aplicada');
+          return;
+        }
+
+        const result = await bulkUpdateProducts.mutateAsync({
+          ids: targetIds,
+          patch: { image_url: imageUrl },
+        });
+        const persistedById = new Map(
+          (result.products ?? []).map((product) => [product.id, product.image_url ?? null]),
+        );
+        // Nunca borrar el preview aquí: si el API no trae image_url, se mantiene el álbum.
+        // El effect limpia solo cuando la caché ya tiene /products/…?v=.
+        setOptimisticPreviewByProductId((current) => {
+          const next = { ...current };
+          for (const id of targetIds) {
+            const persisted = persistedById.get(id)?.trim();
+            next[id] = persisted || imageUrl;
+          }
+          return next;
+        });
+        toast.success(`Imagen del álbum aplicada a ${targetIds.length} productos`);
+      } catch (error) {
+        for (const id of targetIds) {
+          clearOptimisticPreview(id);
+        }
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : `No se pudo aplicar la imagen en ${targetIds.length} productos`,
+        );
+      } finally {
+        setProductsUploading(targetIds, false);
+        setBulkBusy(false);
+      }
+    },
+    [
+      applyImageUrlToProduct,
+      bulkUpdateProducts,
+      clearOptimisticPreview,
+      productsById,
+      setProductsUploading,
+    ],
+  );
+
+  useEffect(() => {
+    if (!batchMode || bulkBusy) return;
+    const onPaste = (event: globalThis.ClipboardEvent) => {
+      if (batchSelectionStore.getSize() < 2) return;
+      const files = getImageFilesFromClipboard(event.clipboardData);
+      if (files.length === 0) return;
+      event.preventDefault();
+      void applyImageToSelectedProducts(files[0]);
+    };
+    document.addEventListener('paste', onPaste);
+    return () => document.removeEventListener('paste', onPaste);
+  }, [applyImageToSelectedProducts, batchMode, batchSelectionStore, bulkBusy]);
 
   const clearFilters = () => {
     setSearch('');
@@ -523,18 +897,15 @@ export function AdminInventarioTablePanel({
     setPage(1);
   };
 
-  const tableColumnCount = BASE_TABLE_COLUMN_COUNT + (batchMode ? 1 : 0);
-  const selectedCount = selectedIds.size;
-  const soleSelectedProductId = useMemo(
-    () => (selectedCount === 1 ? [...selectedIds][0] : null),
-    [selectedCount, selectedIds],
-  );
+  const tableColumnCount =
+    BASE_CORE_COLUMN_COUNT +
+    (showRelations ? RELATIONS_COLUMN_COUNT : 0) +
+    (batchMode ? 1 : 0);
   const pageIds = paginatedRecords.map((record) => record.id);
-  const allPageSelected =
-    pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
-  const somePageSelected = pageIds.some((id) => selectedIds.has(id));
 
-  const clearSelection = () => setSelectedIds(new Set());
+  const clearSelection = () => {
+    batchSelectionStore.clear();
+  };
 
   const toggleBatchMode = () => {
     setBatchMode((prev) => {
@@ -543,39 +914,19 @@ export function AdminInventarioTablePanel({
     });
   };
 
-  const toggleSelectAllPage = (checked: boolean) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      for (const id of pageIds) {
-        if (checked) next.add(id);
-        else next.delete(id);
-      }
-      return next;
-    });
-  };
+  const getSelectedIds = () => [...batchSelectionStore.getSelectedIds()];
 
-  const toggleRow = (id: string, checked: boolean) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (checked) next.add(id);
-      else next.delete(id);
-      return next;
-    });
+  const openBulkDialog = (focus: 'categories' | 'name' | 'code' | null = null) => {
+    setBulkDialogFocus(focus);
+    setBulkDialogOpen(true);
   };
-
-  const getSelectedIds = () => [...selectedIds];
 
   const handleDeleteProduct = async (product: InventoryProduct) => {
     if (!window.confirm(`¿Eliminar «${product.name}» del inventario?`)) return;
     setRowBusyId(product.id);
     try {
       await deleteProduct.mutateAsync(product.id);
-      setSelectedIds((prev) => {
-        if (!prev.has(product.id)) return prev;
-        const next = new Set(prev);
-        next.delete(product.id);
-        return next;
-      });
+      batchSelectionStore.setSelected(product.id, false);
       toast.success(`«${product.name}» eliminado`);
     } catch (error) {
       toast.error(
@@ -655,6 +1006,11 @@ export function AdminInventarioTablePanel({
     [products],
   );
 
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
+  }, []);
+
   const hasHiddenFilters =
     roleFilter !== 'todos' || currencyFilter !== 'ambas' || validityFilter !== 'todas';
 
@@ -664,22 +1020,7 @@ export function AdminInventarioTablePanel({
       aria-busy={isSaving}
     >
       <div className="flex flex-wrap items-center gap-2 border-b bg-muted/20 p-4">
-        <div className="relative min-w-[12rem] flex-1 sm:max-w-sm">
-          <Search
-            className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            placeholder="Buscar por producto, código o SKU..."
-            className="h-8 bg-background pl-8 text-xs"
-            aria-label="Buscar productos"
-          />
-        </div>
+        <InventarioSearchInput value={search} onSearchChange={handleSearchChange} />
 
         <AdminInventarioCategoryTreePopover
           value={channelFilter}
@@ -809,9 +1150,22 @@ export function AdminInventarioTablePanel({
           </PopoverContent>
         </Popover>
 
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <HeaderCurrencyControl className="h-8 shrink-0 bg-background px-1.5 py-0 sm:px-2" />
+        <Button
+          type="button"
+          variant={showRelations ? 'default' : 'outline'}
+          className={cn(
+            'h-8 gap-1 bg-background text-xs',
+            showRelations &&
+              'bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent-hover))]',
+          )}
+          onClick={() => setShowRelations((current) => !current)}
+          aria-pressed={showRelations}
+          title="Mostrar u ocultar venta cruzada, upsells, atributos y variantes"
+        >
+          Relaciones
+        </Button>
 
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant={batchMode ? 'default' : 'outline'}
@@ -836,72 +1190,24 @@ export function AdminInventarioTablePanel({
             <Plus className="size-3.5" aria-hidden="true" />
             Nuevo Producto
           </Button>
+
+          <HeaderCurrencyControl className="h-8 shrink-0 bg-background px-1.5 py-0 sm:px-2" />
         </div>
       </div>
 
       {batchMode ? (
-        <div
-          className="flex flex-wrap items-center gap-2 border-b bg-card px-4 py-2.5"
-          role="region"
-          aria-label="Acciones por lotes"
-        >
-          {selectedCount > 0 ? (
-            <Badge variant="secondary" className="h-7 px-2.5 text-xs">
-              {selectedCount} seleccionado{selectedCount === 1 ? '' : 's'}
-            </Badge>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Marca los productos en la tabla para aplicar una acción.
-            </p>
-          )}
-          <div className="ml-auto flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={selectedCount === 0 || bulkBusy}
-              onClick={() => setBulkDialogOpen(true)}
-              className="h-7 gap-1.5 text-xs"
-            >
-              <SlidersHorizontal className="size-3.5" aria-hidden="true" />
-              Modificar
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={selectedCount === 0 || bulkBusy}
-              onClick={() => void handleBulkDuplicate()}
-              className="h-7 gap-1.5 text-xs"
-            >
-              <Copy className="size-3.5" aria-hidden="true" />
-              Duplicar
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={selectedCount === 0 || bulkBusy}
-              onClick={() => void handleBulkDelete()}
-              className="h-7 gap-1.5 text-xs text-destructive hover:text-destructive"
-            >
-              <Trash2 className="size-3.5" aria-hidden="true" />
-              Eliminar
-            </Button>
-            {selectedCount > 0 ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={clearSelection}
-                disabled={bulkBusy}
-                className="h-7 text-xs"
-              >
-                Limpiar
-              </Button>
-            ) : null}
-          </div>
-        </div>
+        <InventarioBatchToolbar
+          store={batchSelectionStore}
+          bulkBusy={bulkBusy}
+          onOpenAlbum={() => setAlbumPickerTargetIds(getSelectedIds())}
+          onOpenCategories={() => openBulkDialog('categories')}
+          onOpenText={() => openBulkDialog('name')}
+          onOpenModify={() => openBulkDialog(null)}
+          onDuplicate={() => void handleBulkDuplicate()}
+          onDelete={() => void handleBulkDelete()}
+          onClear={clearSelection}
+          onPasteImage={(file) => void applyImageToSelectedProducts(file)}
+        />
       ) : null}
 
       <div className="overflow-x-auto">
@@ -910,19 +1216,13 @@ export function AdminInventarioTablePanel({
             <TableRow className="hover:bg-transparent">
               {batchMode ? (
                 <TableHead className="h-7 w-9 px-2 py-1">
-                  <Checkbox
-                    checked={
-                      allPageSelected ? true : somePageSelected ? 'indeterminate' : false
-                    }
-                    onCheckedChange={(checked) => toggleSelectAllPage(checked === true)}
-                    aria-label="Seleccionar todos los productos de la página"
-                  />
+                  <BatchSelectAllCheckbox store={batchSelectionStore} pageIds={pageIds} />
                 </TableHead>
               ) : null}
               <TableHead className="h-7 min-w-[6.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Código
               </TableHead>
-              <TableHead className="h-7 min-w-[7rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
+              <TableHead className="h-7 min-w-[12rem] max-w-[18rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Categorías
               </TableHead>
               <TableHead className="h-7 min-w-[4.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
@@ -947,18 +1247,22 @@ export function AdminInventarioTablePanel({
                   />
                 </TableHead>
               ))}
-              <TableHead className="h-7 min-w-[6.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
-                Venta Cruzada
-              </TableHead>
-              <TableHead className="h-7 min-w-[5.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
-                Upsells
-              </TableHead>
-              <TableHead className="h-7 w-[12rem] max-w-[12rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
-                Atributos
-              </TableHead>
-              <TableHead className="h-7 min-w-[6.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
-                Variantes
-              </TableHead>
+              {showRelations ? (
+                <>
+                  <TableHead className="h-7 min-w-[6.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
+                    Venta Cruzada
+                  </TableHead>
+                  <TableHead className="h-7 min-w-[5.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
+                    Upsells
+                  </TableHead>
+                  <TableHead className="h-7 w-[12rem] max-w-[12rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
+                    Atributos
+                  </TableHead>
+                  <TableHead className="h-7 min-w-[6.5rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
+                    Variantes
+                  </TableHead>
+                </>
+              ) : null}
               <TableHead className="h-7 w-auto shrink px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Estado
               </TableHead>
@@ -979,45 +1283,79 @@ export function AdminInventarioTablePanel({
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedRecords.map((record, index) => {
-                const product = productsById.get(record.id);
-                if (!product) return null;
-                const isSelected = selectedIds.has(record.id);
+              paginatedRecords.flatMap((record, index) => {
+                let product = productsById.get(record.id);
+                // Nunca silenciar filas: si falta el producto (carrera de caché / id
+                // colisionado en el Map), sintetizamos un stub para que footer N
+                // coincida con filas visibles.
+                if (!product) {
+                  console.warn(
+                    `[inventario] productsById sin ${record.id}; stub desde record`,
+                  );
+                  product = {
+                    id: record.id,
+                    code: record.sku,
+                    name: record.name,
+                    description: null,
+                    currency: 'USD',
+                    image_url: record.imageUrl ?? null,
+                    stock: 0,
+                    category: null,
+                    created_at: new Date(0).toISOString(),
+                    sort_order: 0,
+                    purchase_price_usd: record.prices.compra,
+                    status: record.status,
+                    prices: {
+                      public: record.prices.public,
+                      tecnico: record.prices.tecnico,
+                      mayorista: record.prices.mayorista,
+                      distribuidor: record.prices.public,
+                    },
+                  } satisfies InventoryProduct;
+                }
                 const prevRecord = index > 0 ? paginatedRecords[index - 1] : null;
                 const showDivisionHeader =
                   index === 0 || prevRecord?.divisionLabel !== record.divisionLabel;
                 const divisionCount = divisionCounts.get(record.divisionLabel) ?? 0;
 
-                return (
-                  <Fragment key={record.id}>
-                    {showDivisionHeader ? (
-                      <TableRow className="hover:bg-transparent">
-                        <TableCell
-                          colSpan={tableColumnCount}
-                          className="border-y border-border/60 bg-muted/50 px-3 py-1.5"
-                        >
-                          <span className="inline-flex items-center gap-2 text-[0.6875rem] font-semibold uppercase tracking-wide text-foreground">
-                            <Layers
-                              className="size-3.5 shrink-0 text-muted-foreground"
-                              aria-hidden="true"
-                            />
-                            {record.divisionLabel}
-                            <span className="font-normal normal-case tracking-normal text-muted-foreground">
-                              {divisionCount}{' '}
-                              {divisionCount === 1 ? 'producto' : 'productos'}
-                            </span>
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    ) : null}
+                const rows = [];
+                if (showDivisionHeader) {
+                  rows.push(
                     <TableRow
-                      className={cn(batchMode && isSelected && 'bg-red-50/50 dark:bg-red-950/20')}
+                      key={`division:${record.divisionLabel}:${record.id}`}
+                      className="hover:bg-transparent"
                     >
+                      <TableCell
+                        colSpan={tableColumnCount}
+                        className="border-y border-border/60 bg-muted/50 px-3 py-1.5"
+                      >
+                        <span className="inline-flex items-center gap-2 text-[0.6875rem] font-semibold uppercase tracking-wide text-foreground">
+                          <Layers
+                            className="size-3.5 shrink-0 text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                          {record.divisionLabel}
+                          <span className="font-normal normal-case tracking-normal text-muted-foreground">
+                            {divisionCount}{' '}
+                            {divisionCount === 1 ? 'producto' : 'productos'}
+                          </span>
+                        </span>
+                      </TableCell>
+                    </TableRow>,
+                  );
+                }
+                rows.push(
+                  <BatchSelectableTableRow
+                    key={record.id}
+                    store={batchSelectionStore}
+                    id={record.id}
+                    batchMode={batchMode}
+                  >
                     {batchMode ? (
                       <TableCell className="px-2 py-1">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={(checked) => toggleRow(record.id, checked === true)}
+                        <BatchSelectionCheckbox
+                          store={batchSelectionStore}
+                          id={record.id}
                           aria-label={`Seleccionar ${record.name}`}
                         />
                       </TableCell>
@@ -1030,7 +1368,7 @@ export function AdminInventarioTablePanel({
                         {formatProductCodeCardDisplay(record.sku)}
                       </span>
                     </TableCell>
-                    <TableCell className="px-1.5 py-1">
+                    <TableCell className="min-w-[12rem] max-w-[18rem] px-1.5 py-1 align-top">
                       <AdminListasPreciosCategoryCell
                         product={product}
                         onPatch={(patch) => patchProduct(product.id, patch)}
@@ -1040,10 +1378,12 @@ export function AdminInventarioTablePanel({
                       <EditableProductThumb
                         product={product}
                         name={record.name}
-                        isUploading={uploadingProductId === product.id}
+                        isUploading={uploadingProductIds.has(product.id)}
                         optimisticPreviewSrc={optimisticPreviewByProductId[product.id] ?? null}
-                        isRowSelected={batchMode && soleSelectedProductId === product.id}
+                        isRowSelected={false}
                         onUpload={(file) => uploadProductImage(product, file)}
+                        onOpenGallery={() => setAlbumPickerTargetIds([product.id])}
+                        onOpenPreview={() => setPreviewProductId(product.id)}
                       />
                     </TableCell>
                     <TableCell className="min-w-[22rem] max-w-[460px] px-1.5 py-1">
@@ -1081,44 +1421,48 @@ export function AdminInventarioTablePanel({
                         />
                       </TableCell>
                     ))}
-                    <TableCell className="px-1.5 py-1">
-                      <AdminListasPreciosMerchandisingCell
-                        product={product}
-                        catalog={merchandisingCatalog}
-                        productById={merchandisingProductById}
-                        kind="cross_sell"
-                        onPatch={(patch) => patchProduct(product.id, patch)}
-                      />
-                    </TableCell>
-                    <TableCell className="px-1.5 py-1">
-                      <AdminListasPreciosMerchandisingCell
-                        product={product}
-                        catalog={merchandisingCatalog}
-                        productById={merchandisingProductById}
-                        kind="upsell"
-                        onPatch={(patch) => patchProduct(product.id, patch)}
-                      />
-                    </TableCell>
-                    <TableCell className="w-[12rem] max-w-[12rem] px-1.5 py-1">
-                      <InventoryAttributesCell
-                        attributes={product.attributes ?? []}
-                        nameOptions={attributeNameOptions}
-                        catalogProducts={products}
-                        onSave={async (attributes: ProductAttribute[]) => {
-                          await patchProduct(product.id, {
-                            attributes: normalizeAttributes(attributes),
-                          });
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell className="px-1.5 py-1">
-                      <AdminInventarioVariantsCell
-                        product={product}
-                        catalog={merchandisingCatalog}
-                        productById={merchandisingProductById}
-                        onPatch={(patch) => patchProduct(product.id, patch)}
-                      />
-                    </TableCell>
+                    {showRelations ? (
+                      <>
+                        <TableCell className="px-1.5 py-1">
+                          <AdminListasPreciosMerchandisingCell
+                            product={product}
+                            catalog={merchandisingCatalog}
+                            productById={merchandisingProductById}
+                            kind="cross_sell"
+                            onPatch={(patch) => patchProduct(product.id, patch)}
+                          />
+                        </TableCell>
+                        <TableCell className="px-1.5 py-1">
+                          <AdminListasPreciosMerchandisingCell
+                            product={product}
+                            catalog={merchandisingCatalog}
+                            productById={merchandisingProductById}
+                            kind="upsell"
+                            onPatch={(patch) => patchProduct(product.id, patch)}
+                          />
+                        </TableCell>
+                        <TableCell className="w-[12rem] max-w-[12rem] px-1.5 py-1">
+                          <InventoryAttributesCell
+                            attributes={product.attributes ?? []}
+                            nameOptions={attributeNameOptions}
+                            catalogProducts={products}
+                            onSave={async (attributes: ProductAttribute[]) => {
+                              await patchProduct(product.id, {
+                                attributes: normalizeAttributes(attributes),
+                              });
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell className="px-1.5 py-1">
+                          <AdminInventarioVariantsCell
+                            product={product}
+                            catalog={merchandisingCatalog}
+                            productById={merchandisingProductById}
+                            onPatch={(patch) => patchProduct(product.id, patch)}
+                          />
+                        </TableCell>
+                      </>
+                    ) : null}
                     <TableCell className="w-auto shrink px-1.5 py-1">
                       <AdminListasPreciosStatusBadge
                         status={record.status}
@@ -1177,9 +1521,9 @@ export function AdminInventarioTablePanel({
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
-                    </TableRow>
-                  </Fragment>
+                    </BatchSelectableTableRow>,
                 );
+                return rows;
               })
             )}
           </TableBody>
@@ -1277,12 +1621,57 @@ export function AdminInventarioTablePanel({
 
       <InventoryBulkEditDialog
         open={bulkDialogOpen}
-        onOpenChange={setBulkDialogOpen}
-        selectedCount={selectedCount}
+        onOpenChange={(open) => {
+          setBulkDialogOpen(open);
+          if (!open) setBulkDialogFocus(null);
+        }}
+        selectedCount={batchSelectionStore.getSize()}
         categoryOptions={categories}
         attributeNameOptions={attributeNameOptions}
         onApply={handleBulkApply}
         isSaving={bulkBusy || bulkUpdateProducts.isPending}
+        initialFocus={bulkDialogFocus}
+      />
+
+      <MediaAlbumPickerDialog
+        open={albumPickerTargetIds !== null}
+        onOpenChange={(next) => {
+          if (!next) setAlbumPickerTargetIds(null);
+        }}
+        mode="single"
+        title="Galería de imágenes"
+        description={
+          albumPickerTargetIds && albumPickerTargetIds.length > 1
+            ? `Elige o sube una imagen; se aplicará a ${albumPickerTargetIds.length} productos seleccionados.`
+            : 'Elige una imagen ya guardada, súbela si no está, o elimínala del álbum.'
+        }
+        onConfirm={(items) => {
+          const url = items[0]?.url?.trim();
+          const targetIds = albumPickerTargetIdsRef.current;
+          setAlbumPickerTargetIds(null);
+          if (!url) {
+            toast.error('No se pudo obtener la URL de la imagen seleccionada');
+            return;
+          }
+          if (!targetIds?.length) {
+            toast.error('No hay productos destino para aplicar la imagen');
+            return;
+          }
+          void applyAlbumUrlToTargets(url, targetIds);
+        }}
+      />
+
+      <InventoryImagePreviewDialog
+        product={previewProductId ? productsById.get(previewProductId) ?? null : null}
+        open={previewProductId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPreviewProductId(null);
+        }}
+        onSaveMedia={async (media) => {
+          if (!previewProductId) return;
+          await onPatchProduct(previewProductId, media);
+          toast.success('Medios actualizados');
+        }}
       />
     </section>
   );

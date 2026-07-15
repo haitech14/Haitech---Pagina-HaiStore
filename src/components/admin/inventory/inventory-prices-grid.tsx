@@ -58,7 +58,7 @@ function UsdPriceInput({
         min={0}
         step="0.01"
         inputMode="decimal"
-        value={value || ''}
+        value={Number.isFinite(value) ? value : ''}
         onChange={(event) => onChange(event.target.value)}
         readOnly={readOnly}
         required={required}

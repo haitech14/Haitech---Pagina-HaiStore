@@ -145,6 +145,7 @@ const SUPABASE_CATALOG_LIST_COLUMNS = [
 const SUPABASE_CATALOG_DETAIL_COLUMNS = `${SUPABASE_CATALOG_LIST_COLUMNS},inventory_snapshot`;
 
 const PUBLIC_CATALOG_CACHE_TTL_MS = 5 * 60 * 1000;
+const ADMIN_CATALOG_CACHE_TTL_MS = 45 * 1000;
 const SEARCH_RESULT_CACHE_TTL_MS = 3 * 60 * 1000;
 const SEARCH_RESULT_CACHE_MAX = 256;
 
@@ -152,6 +153,16 @@ const SEARCH_RESULT_CACHE_MAX = 256;
 const publicCatalogCache = new Map();
 /** @type {Map<string, Promise<unknown[]>>} */
 const publicCatalogInFlight = new Map();
+/** @type {{ products: unknown[]; cachedAt: number } | null} */
+let adminCatalogCache = null;
+/** @type {Promise<unknown[]> | null} */
+let adminCatalogInFlight = null;
+/**
+ * Sube en cada invalidate. Evita que un GET admin en vuelo (arrancado antes de un
+ * write/duplicate) repueble adminCatalogCache con la lista vieja y haga que el
+ * refetch del cliente pisotee el upsert de la copia.
+ */
+let adminCatalogGeneration = 0;
 /** @type {Map<string, { result: { products: unknown[]; total: number }; cachedAt: number }>} */
 const searchResultCache = new Map();
 
@@ -161,6 +172,9 @@ const publicCatalogById = new Map();
 export function invalidatePublicCatalogCache() {
   publicCatalogCache.clear();
   publicCatalogInFlight.clear();
+  adminCatalogCache = null;
+  adminCatalogInFlight = null;
+  adminCatalogGeneration += 1;
   searchResultCache.clear();
   publicCatalogById.clear();
   clearProductSearchHaystackCache();
@@ -282,8 +296,8 @@ export async function ensureSupabaseCatalogSeeded() {
 }
 
 /**
- * DTO ligero para la tabla admin: omite attachments, description y storefront pesado.
- * El detalle completo se obtiene con getAdminInventoryProductById.
+ * DTO ligero para la tabla admin: omite attachments, description, storefront,
+ * galería adicional y precios por volumen (el detalle completo va por id).
  */
 export function toAdminListProduct(product) {
   if (!product || typeof product !== 'object') return product;
@@ -292,12 +306,16 @@ export function toAdminListProduct(product) {
     description: _description,
     storefront_feature_bar: _featureBar,
     storefront_hero_bullets: _heroBullets,
+    gallery: _gallery,
+    volume_role_prices: _volumeRolePrices,
     ...rest
   } = product;
   return {
     ...rest,
     description: null,
     attachments: [],
+    gallery: [],
+    volume_role_prices: [],
     storefront_feature_bar: undefined,
     storefront_hero_bullets: undefined,
   };
@@ -349,7 +367,10 @@ async function listFromSupabase(role, adminView) {
 async function listFromInventory(role, adminView) {
   const { products } = await readInventory();
   if (adminView) {
-    return products.map((product) => toAdminListProduct(migrateInventoryProduct(product)));
+    // No volver a migrate/sanitize aquí: en productos del blocklist duplicate-main
+    // sanitize puede anular image_url recién persistida (?v=) en lecturas concurrentes,
+    // y migrate sobre toda la lista hace lento el refetch del inventario admin.
+    return products.map((product) => toAdminListProduct(product));
   }
   return products
     .map((product) => migrateInventoryProduct(product))
@@ -380,9 +401,47 @@ async function listProductsUncached({ role = 'public', adminView = false } = {})
   return listFromInventory(role, adminView);
 }
 
+async function listAdminProducts({ role = 'public', allowStaleRetry = true } = {}) {
+  const now = Date.now();
+  if (adminCatalogCache && now - adminCatalogCache.cachedAt < ADMIN_CATALOG_CACHE_TTL_MS) {
+    return adminCatalogCache.products;
+  }
+  if (adminCatalogInFlight) return adminCatalogInFlight;
+
+  const generationAtStart = adminCatalogGeneration;
+  const promise = listProductsUncached({ role, adminView: true })
+    .then((products) => {
+      if (generationAtStart !== adminCatalogGeneration) {
+        // Lectura cruzada con un write: no cachear ni devolver snapshot viejo.
+        if (adminCatalogInFlight === promise) {
+          adminCatalogInFlight = null;
+        }
+        if (allowStaleRetry) {
+          return listAdminProducts({ role, allowStaleRetry: false });
+        }
+        // Último intento: lectura directa sin reutilizar este promise.
+        return listProductsUncached({ role, adminView: true });
+      }
+      adminCatalogCache = { products, cachedAt: Date.now() };
+      if (adminCatalogInFlight === promise) {
+        adminCatalogInFlight = null;
+      }
+      return products;
+    })
+    .catch((error) => {
+      if (adminCatalogInFlight === promise) {
+        adminCatalogInFlight = null;
+      }
+      throw error;
+    });
+
+  adminCatalogInFlight = promise;
+  return promise;
+}
+
 export async function listProducts({ role = 'public', adminView = false } = {}) {
   if (adminView) {
-    return listProductsUncached({ role, adminView: true });
+    return listAdminProducts({ role });
   }
 
   const cacheKey = role;

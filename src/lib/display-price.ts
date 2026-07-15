@@ -5,6 +5,14 @@ import {
 } from '@/types/display-currency';
 import { formatPenFromUsd, formatUsd, penToUsd, usdToPen } from '@/lib/utils';
 
+/** Copy for public storefront when list price is missing or zero. */
+export const CONSULTAR_PRECIO_LABEL = 'Consultar Precio';
+
+/** True when the storefront should not show a numeric price ($0 / null / NaN). */
+export function isPriceOnRequest(usd: number | null | undefined): boolean {
+  return usd == null || !Number.isFinite(usd) || usd <= 0;
+}
+
 export function getDisplayPriceVisibility(displayCurrency: DisplayCurrency) {
   return {
     showUsd: displayCurrency !== 'PEN',
@@ -18,6 +26,8 @@ export function formatDisplayPriceFromUsd(
   displayCurrency: DisplayCurrency,
   dualPriceOrder: DualPriceOrder = DEFAULT_DUAL_PRICE_ORDER,
 ): string {
+  if (isPriceOnRequest(usd)) return CONSULTAR_PRECIO_LABEL;
+
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
   const penFirst = dualPriceOrder === 'pen-usd';

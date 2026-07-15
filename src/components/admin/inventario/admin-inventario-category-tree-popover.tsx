@@ -41,6 +41,18 @@ function labelsFromForm(values: CategoryFormValues): string[] {
   return values.name.trim() ? [values.name.trim()] : [];
 }
 
+function categoryBreadcrumbLabel(row: FlatStoreCategory, flat: FlatStoreCategory[]): string {
+  const parts: string[] = [row.name];
+  let parentId = row.parentId;
+  while (parentId) {
+    const parent = flat.find((entry) => entry.id === parentId);
+    if (!parent) break;
+    parts.unshift(parent.name);
+    parentId = parent.parentId;
+  }
+  return parts.join(' › ');
+}
+
 function payloadFromForm(values: CategoryFormValues): Partial<StoreCategory> {
   const payload: Partial<StoreCategory> = {
     name: values.name.trim(),
@@ -87,7 +99,8 @@ export function AdminInventarioCategoryTreePopover({
         row.name === value ||
         (row.inventoryLabels ?? []).includes(value),
     );
-    return match?.name ?? value;
+    if (match) return categoryBreadcrumbLabel(match, flat);
+    return value;
   }, [flat, value]);
 
   const persistFlat = async (next: FlatStoreCategory[]) => {
@@ -137,13 +150,16 @@ export function AdminInventarioCategoryTreePopover({
             type="button"
             variant="outline"
             className={cn(
-              'h-8 w-full min-w-[10rem] justify-between gap-2 bg-background px-3 text-xs font-normal sm:w-[16rem]',
+              'h-auto min-h-8 w-auto max-w-full min-w-[12rem] shrink-0 justify-between gap-2 bg-background px-3 py-1.5 text-xs font-normal sm:min-w-[14rem] sm:max-w-[min(36rem,calc(100vw-8rem))]',
               className,
             )}
             aria-label="Categorías"
             aria-expanded={open}
+            title={selectedLabel}
           >
-            <span className="min-w-0 truncate text-left">{selectedLabel}</span>
+            <span className="min-w-0 whitespace-normal break-words text-left leading-snug">
+              {selectedLabel}
+            </span>
             <ChevronDown className="size-3.5 shrink-0 opacity-60" aria-hidden="true" />
           </Button>
         </PopoverTrigger>
@@ -229,7 +245,12 @@ export function AdminInventarioCategoryTreePopover({
                           aria-hidden="true"
                         />
                       ) : null}
-                      <span className={cn('min-w-0 truncate', row.depth === 0 && 'font-medium')}>
+                      <span
+                        className={cn(
+                          'min-w-0 whitespace-normal break-words leading-snug',
+                          row.depth === 0 && 'font-medium',
+                        )}
+                      >
                         {row.name}
                       </span>
                       {isSelected ? (

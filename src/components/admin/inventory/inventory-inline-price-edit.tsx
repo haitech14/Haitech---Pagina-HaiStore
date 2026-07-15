@@ -3,8 +3,12 @@ import { useEffect, useId, useRef, useState, type FocusEvent, type FormEvent } f
 import { Input } from '@/components/ui/input';
 import { penCharmToUsd, roundPenCharm99, usdToPenCharm, usdToPenPrecise } from '@/lib/pen-pricing';
 import { cn } from '@/lib/utils';
+import type { DisplayCurrency, DualPriceOrder } from '@/types/display-currency';
 
-const SAVE_DEBOUNCE_MS = 350;
+/** Debounce corto: conversión inmediata en UI; PATCH agrupado. */
+const SAVE_DEBOUNCE_MS = 120;
+
+export type InlinePricePrimaryCurrency = 'USD' | 'PEN';
 
 interface InventoryInlinePriceEditProps {
   usd: number;
@@ -15,6 +19,38 @@ interface InventoryInlinePriceEditProps {
   className?: string;
   /** Precio de compra: sin redondeo comercial en soles. */
   useCharm?: boolean;
+  /** Moneda del selector global: ordena y enfoca el primer campo. */
+  displayCurrency?: DisplayCurrency;
+  dualPriceOrder?: DualPriceOrder;
+}
+
+function resolvePrimaryCurrency(
+  displayCurrency: DisplayCurrency | undefined,
+  dualPriceOrder: DualPriceOrder | undefined,
+): InlinePricePrimaryCurrency {
+  if (displayCurrency === 'PEN') return 'PEN';
+  if (displayCurrency === 'USD') return 'USD';
+  return dualPriceOrder === 'usd-pen' ? 'USD' : 'PEN';
+}
+
+function parseNumericInput(raw: string): number | null {
+  const normalized = raw.trim().replace(/,/g, '');
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed) || parsed < 0) return null;
+  return parsed;
+}
+
+function formatPenDraft(pen: number): string {
+  if (!Number.isFinite(pen) || pen <= 0) return '';
+  const rounded = Math.round(pen * 100) / 100;
+  return String(rounded);
+}
+
+function formatUsdDraft(usd: number): string {
+  if (!Number.isFinite(usd) || usd <= 0) return '';
+  const rounded = Math.round(usd * 100) / 100;
+  return String(rounded);
 }
 
 export function InventoryInlinePriceEdit({
@@ -25,42 +61,65 @@ export function InventoryInlinePriceEdit({
   onClose,
   className,
   useCharm = true,
+  displayCurrency,
+  dualPriceOrder,
 }: InventoryInlinePriceEditProps) {
   const usdId = useId();
   const penId = useId();
+  const primaryCurrency = resolvePrimaryCurrency(displayCurrency, dualPriceOrder);
+  const penFirst = primaryCurrency === 'PEN';
+
   const penFromUsd = useCharm
     ? usdToPenCharm(usd, exchangeRate)
     : usdToPenPrecise(usd, exchangeRate);
-  const [usdDraft, setUsdDraft] = useState(usd > 0 ? String(usd) : '');
-  const [penDraft, setPenDraft] = useState(penFromUsd > 0 ? String(penFromUsd) : '');
+  const [usdDraft, setUsdDraft] = useState(usd > 0 ? formatUsdDraft(usd) : '');
+  const [penDraft, setPenDraft] = useState(penFromUsd > 0 ? formatPenDraft(penFromUsd) : '');
   const [isSaving, setIsSaving] = useState(false);
 
   const usdDraftRef = useRef(usdDraft);
+  const penDraftRef = useRef(penDraft);
+  const onSaveRef = useRef(onSave);
   const isDirtyRef = useRef(false);
   const saveTimerRef = useRef<number | null>(null);
   const savingRef = useRef(false);
+  const persistQueuedRef = useRef(false);
   const pendingCloseRef = useRef(false);
   const lastCommittedUsdRef = useRef(usd);
 
-  useEffect(() => {
-    usdDraftRef.current = usdDraft;
-  }, [usdDraft]);
+  onSaveRef.current = onSave;
+
+  const setUsdDraftSync = (next: string) => {
+    usdDraftRef.current = next;
+    setUsdDraft(next);
+  };
+
+  const setPenDraftSync = (next: string) => {
+    penDraftRef.current = next;
+    setPenDraft(next);
+  };
 
   useEffect(() => {
     if (isDirtyRef.current) return;
     if (Math.abs(usd - lastCommittedUsdRef.current) > 0.0001) {
       lastCommittedUsdRef.current = usd;
     }
-    setUsdDraft(usd > 0 ? String(usd) : '');
+    setUsdDraftSync(usd > 0 ? formatUsdDraft(usd) : '');
     const pen = useCharm
       ? usdToPenCharm(usd, exchangeRate)
       : usdToPenPrecise(usd, exchangeRate);
-    setPenDraft(pen > 0 ? String(pen) : '');
+    setPenDraftSync(pen > 0 ? formatPenDraft(pen) : '');
   }, [usd, exchangeRate, useCharm]);
 
   useEffect(
     () => () => {
-      if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
+      if (saveTimerRef.current) {
+        window.clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+      if (!isDirtyRef.current || savingRef.current) return;
+      const nextUsd = Math.max(0, Number(usdDraftRef.current) || 0);
+      if (Math.abs(nextUsd - lastCommittedUsdRef.current) < 0.0001) return;
+      void onSaveRef.current(nextUsd);
     },
     [],
   );
@@ -75,8 +134,16 @@ export function InventoryInlinePriceEdit({
       saveTimerRef.current = null;
     }
 
+    if (savingRef.current) {
+      persistQueuedRef.current = true;
+      return;
+    }
+
     const nextUsd = readUsdValue();
-    if (!isDirtyRef.current && Math.abs(nextUsd - lastCommittedUsdRef.current) < 0.0001) {
+    const hasChange =
+      isDirtyRef.current || Math.abs(nextUsd - lastCommittedUsdRef.current) >= 0.0001;
+
+    if (!hasChange) {
       if (closeAfter) {
         pendingCloseRef.current = false;
         onClose?.();
@@ -84,24 +151,34 @@ export function InventoryInlinePriceEdit({
       return;
     }
 
-    if (savingRef.current) return;
-
     savingRef.current = true;
     setIsSaving(true);
     try {
-      await onSave(nextUsd);
-      isDirtyRef.current = false;
+      await onSaveRef.current(nextUsd);
       lastCommittedUsdRef.current = nextUsd;
+      isDirtyRef.current = false;
+    } catch {
+      return;
     } finally {
       savingRef.current = false;
       setIsSaving(false);
-      const shouldClose = pendingCloseRef.current;
-      pendingCloseRef.current = false;
-      if (shouldClose) onClose?.();
+    }
 
-      if (isDirtyRef.current || Math.abs(readUsdValue() - lastCommittedUsdRef.current) > 0.0001) {
-        void persist(false);
-      }
+    if (persistQueuedRef.current) {
+      persistQueuedRef.current = false;
+      void persist(pendingCloseRef.current);
+      return;
+    }
+
+    if (Math.abs(readUsdValue() - lastCommittedUsdRef.current) >= 0.0001) {
+      isDirtyRef.current = true;
+      void persist(false);
+      return;
+    }
+
+    if (pendingCloseRef.current) {
+      pendingCloseRef.current = false;
+      onClose?.();
     }
   };
 
@@ -113,51 +190,64 @@ export function InventoryInlinePriceEdit({
     }, SAVE_DEBOUNCE_MS);
   };
 
+  const syncPenFromUsd = (parsedUsd: number) => {
+    const pen = useCharm
+      ? usdToPenCharm(parsedUsd, exchangeRate)
+      : usdToPenPrecise(parsedUsd, exchangeRate);
+    setPenDraftSync(pen > 0 ? formatPenDraft(pen) : '');
+  };
+
+  const syncUsdFromPen = (parsedPen: number) => {
+    const nextUsd = penCharmToUsd(parsedPen, exchangeRate);
+    setUsdDraftSync(nextUsd > 0 ? formatUsdDraft(nextUsd) : '');
+  };
+
   const handleUsdChange = (raw: string) => {
     isDirtyRef.current = true;
-    setUsdDraft(raw);
-    const parsed = Number(raw);
-    if (!raw.trim() || !Number.isFinite(parsed) || parsed < 0) {
-      if (!raw.trim()) setPenDraft('');
+    setUsdDraftSync(raw);
+    const parsed = parseNumericInput(raw);
+    if (parsed == null) {
+      if (!raw.trim()) setPenDraftSync('');
       scheduleSave();
       return;
     }
-    const pen = useCharm
-      ? usdToPenCharm(parsed, exchangeRate)
-      : usdToPenPrecise(parsed, exchangeRate);
-    setPenDraft(pen > 0 ? String(pen) : '');
+    syncPenFromUsd(parsed);
     scheduleSave();
   };
 
   const handlePenChange = (raw: string) => {
     isDirtyRef.current = true;
-    setPenDraft(raw);
+    setPenDraftSync(raw);
     if (!raw.trim()) {
-      setUsdDraft('');
+      setUsdDraftSync('');
       scheduleSave();
       return;
     }
-    const parsed = Number(raw);
-    if (!Number.isFinite(parsed) || parsed < 0) {
+    const parsed = parseNumericInput(raw);
+    if (parsed == null) {
       scheduleSave();
       return;
     }
-    const nextUsd = penCharmToUsd(parsed, exchangeRate);
-    setUsdDraft(nextUsd > 0 ? String(nextUsd) : '');
+    syncUsdFromPen(parsed);
     scheduleSave();
   };
 
   const handlePenBlur = () => {
-    if (!penDraft.trim()) return;
-    const parsed = Number(penDraft);
-    if (!Number.isFinite(parsed) || parsed < 0) return;
+    const rawPen = penDraftRef.current;
+    if (!rawPen.trim()) {
+      void persist(true);
+      return;
+    }
+    const parsed = parseNumericInput(rawPen);
+    if (parsed == null) {
+      void persist(true);
+      return;
+    }
 
     const pen = useCharm ? roundPenCharm99(parsed) : Math.round(parsed * 100) / 100;
-    const nextUsd = penCharmToUsd(pen, exchangeRate);
     isDirtyRef.current = true;
-    setPenDraft(String(pen));
-    setUsdDraft(nextUsd > 0 ? String(nextUsd) : '');
-    usdDraftRef.current = nextUsd > 0 ? String(nextUsd) : '';
+    setPenDraftSync(formatPenDraft(pen));
+    syncUsdFromPen(pen);
     void persist(true);
   };
 
@@ -172,55 +262,72 @@ export function InventoryInlinePriceEdit({
     void persist(true);
   };
 
+  const priceInputClass =
+    'h-7 w-full pl-5 pr-1 text-right text-[0.65rem] leading-none tabular-nums md:text-[0.65rem]';
+
+  const usdField = (
+    <div key="usd" className="relative w-full min-w-[4.25rem]">
+      <span
+        className="pointer-events-none absolute left-1.5 top-1/2 -translate-y-1/2 text-[0.55rem] font-medium text-muted-foreground"
+        aria-hidden="true"
+      >
+        $
+      </span>
+      <Input
+        id={usdId}
+        type="text"
+        inputMode="decimal"
+        value={usdDraft}
+        onChange={(event) => handleUsdChange(event.target.value)}
+        className={priceInputClass}
+        autoFocus={!penFirst}
+        aria-label={`${ariaLabel} en dólares`}
+        aria-busy={isSaving}
+      />
+    </div>
+  );
+
+  const penField = (
+    <div key="pen" className="relative w-full min-w-[4.25rem]">
+      <span
+        className="pointer-events-none absolute left-1 top-1/2 -translate-y-1/2 text-[0.55rem] font-medium text-muted-foreground"
+        aria-hidden="true"
+      >
+        S/
+      </span>
+      <Input
+        id={penId}
+        type="text"
+        inputMode="decimal"
+        value={penDraft}
+        onChange={(event) => handlePenChange(event.target.value)}
+        onBlur={handlePenBlur}
+        className={cn(priceInputClass, 'pl-5')}
+        autoFocus={penFirst}
+        aria-label={`${ariaLabel} en soles`}
+        aria-busy={isSaving}
+      />
+    </div>
+  );
+
   return (
     <form
       onSubmit={handleSubmit}
       onBlur={handleBlur}
-      className={cn('inline-flex flex-col items-end gap-1', className)}
+      className={cn('inline-flex flex-col items-end gap-0.5', className)}
       aria-label={ariaLabel}
     >
-      <div className="relative w-full min-w-[4.75rem]">
-        <span
-          className="pointer-events-none absolute left-1.5 top-1/2 -translate-y-1/2 text-[0.6rem] font-medium text-muted-foreground"
-          aria-hidden="true"
-        >
-          $
-        </span>
-        <Input
-          id={usdId}
-          type="number"
-          min={0}
-          step="0.01"
-          inputMode="decimal"
-          value={usdDraft}
-          onChange={(event) => handleUsdChange(event.target.value)}
-          className="h-8 w-full pl-4 pr-1 text-right text-xs tabular-nums"
-          autoFocus
-          aria-label={`${ariaLabel} en dólares`}
-          aria-busy={isSaving}
-        />
-      </div>
-      <div className="relative w-full min-w-[4.75rem]">
-        <span
-          className="pointer-events-none absolute left-1 top-1/2 -translate-y-1/2 text-[0.6rem] font-medium text-muted-foreground"
-          aria-hidden="true"
-        >
-          S/
-        </span>
-        <Input
-          id={penId}
-          type="number"
-          min={0}
-          step={0.01}
-          inputMode="decimal"
-          value={penDraft}
-          onChange={(event) => handlePenChange(event.target.value)}
-          onBlur={handlePenBlur}
-          className="h-8 w-full pl-6 pr-1 text-right text-xs tabular-nums"
-          aria-label={`${ariaLabel} en soles`}
-          aria-busy={isSaving}
-        />
-      </div>
+      {penFirst ? (
+        <>
+          {penField}
+          {usdField}
+        </>
+      ) : (
+        <>
+          {usdField}
+          {penField}
+        </>
+      )}
     </form>
   );
 }

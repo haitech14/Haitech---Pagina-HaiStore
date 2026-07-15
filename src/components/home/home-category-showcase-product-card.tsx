@@ -104,7 +104,7 @@ export function HomeCategoryShowcaseProductCard({
         name: cartProduct.name,
         category: cartProduct.category,
         brand: cartProduct.brand ?? null,
-        image_url: catalog?.image_url ?? product.image ?? null,
+        image_url: product.image ?? catalog?.image_url ?? null,
         gallery: catalog?.gallery ?? null,
       }),
     [cartProduct, catalog, product.image],

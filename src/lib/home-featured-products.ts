@@ -13,9 +13,12 @@ import type { Product } from '@/types/product';
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
 // @ts-expect-error módulo JS compartido sin declaración de tipos
 import { resolveHomeHighlightedRowProducts as resolveHighlightedRow } from '../../shared/home-highlighted-products.js';
+// @ts-expect-error módulo JS compartido sin declaración de tipos
+import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
 
 export { HOME_HIGHLIGHTED_ROW_SIZE, MIN_HOME_FEATURED };
 
+/** Activa + precio > 0: incluye stock 0 («A pedido»). */
 export function filterInStockProductsForCategoryLabels(
   products: Product[] | undefined,
   labels: readonly string[],
@@ -24,7 +27,7 @@ export function filterInStockProductsForCategoryLabels(
 
   return products.filter(
     (product) =>
-      product.stock > 0 &&
+      isProductVisibleOnStorefront(product) &&
       product.price > 0 &&
       labels.some((label) => productMatchesCategoryFilter(product, label)),
   );
@@ -46,7 +49,7 @@ export function resolveHomeHighlightedRowProducts(inCategory: Product[]): Produc
 export const HOME_FEATURED_LIMIT = 15;
 
 /**
- * Productos destacados del inicio: solo inventario en vivo con stock,
+ * Productos destacados del inicio: inventario Activa con precio (incluye «A pedido»),
  * prioriza `is_featured` e ids configurados, rellena con orden aleatorio diario.
  */
 export function resolveHomeFeaturedProducts(
@@ -55,13 +58,15 @@ export function resolveHomeFeaturedProducts(
 ): FeaturedProduct[] {
   if (!storeProducts?.length) return [];
 
-  const inStock = storeProducts.filter(
+  const sellable = storeProducts.filter(
     (product) =>
-      product.stock > 0 && product.price > 0 && !isHomeCarouselExcludedProduct(product),
+      isProductVisibleOnStorefront(product) &&
+      product.price > 0 &&
+      !isHomeCarouselExcludedProduct(product),
   );
-  if (inStock.length < MIN_HOME_FEATURED) return [];
+  if (sellable.length < MIN_HOME_FEATURED) return [];
 
-  const byId = new Map(inStock.map((product) => [product.id, product]));
+  const byId = new Map(sellable.map((product) => [product.id, product]));
   const selectedIds = new Set<string>();
   const pool: Product[] = [];
 
@@ -71,7 +76,7 @@ export function resolveHomeFeaturedProducts(
     pool.push(product);
   };
 
-  for (const product of inStock) {
+  for (const product of sellable) {
     if (product.is_featured === true) add(product);
   }
 
@@ -79,7 +84,7 @@ export function resolveHomeFeaturedProducts(
     add(byId.get(id));
   }
 
-  const remaining = shuffleProductsDaily(inStock.filter((product) => !selectedIds.has(product.id)));
+  const remaining = shuffleProductsDaily(sellable.filter((product) => !selectedIds.has(product.id)));
   for (const product of remaining) {
     if (pool.length >= limit) break;
     add(product);

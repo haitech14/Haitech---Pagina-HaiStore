@@ -1,5 +1,8 @@
 import { Eye, GitCompare, Heart, ShoppingCart } from 'lucide-react';
 
+import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
+import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
+import type { ProductClipboardTextInput } from '@/lib/product-clipboard-text';
 import { cn } from '@/lib/utils';
 
 const overlayButtonClass =
@@ -15,6 +18,8 @@ interface ProductCardOverlayActionsProps {
   revealOnHover?: boolean;
   /** Segundo icono: comparar (por defecto) o añadir al carrito. */
   secondaryAction?: 'compare' | 'buy';
+  /** Si se pasa, muestra los botones de copiar imagen / datos. */
+  clipboard?: ProductClipboardTextInput;
   onWishlist?: () => void;
   onQuickView: () => void;
   onCompare: () => void;
@@ -28,11 +33,14 @@ export function ProductCardOverlayActions({
   withConditionBadge = false,
   revealOnHover = false,
   secondaryAction = 'compare',
+  clipboard,
   onWishlist,
   onQuickView,
   onCompare,
   onBuy,
 }: ProductCardOverlayActionsProps) {
+  const clipboardImageUrl = clipboard?.imageUrl?.trim() || null;
+
   return (
     <div
       className={cn(
@@ -95,6 +103,37 @@ export function ProductCardOverlayActions({
       >
         <Eye className="size-4" aria-hidden="true" />
       </button>
+      {clipboardImageUrl ? (
+        <ProductCardCopyImageButton
+          productName={productName}
+          imageUrl={clipboardImageUrl}
+          className={cn(overlayButtonClass, 'text-neutral-700 hover:bg-neutral-50')}
+        />
+      ) : null}
+      {clipboard ? (
+        <ProductCardCopyButton
+          productName={productName}
+          title={clipboard.title}
+          stock={clipboard.stock}
+          priceUsd={clipboard.priceUsd}
+          {...(clipboard.code != null ? { code: clipboard.code } : {})}
+          {...(clipboard.normalPriceUsd != null
+            ? { normalPriceUsd: clipboard.normalPriceUsd }
+            : {})}
+          {...(clipboard.productId != null ? { productId: clipboard.productId } : {})}
+          {...(clipboard.condition != null ? { condition: clipboard.condition } : {})}
+          {...(clipboard.volumeRolePrices != null
+            ? { volumeRolePrices: clipboard.volumeRolePrices }
+            : {})}
+          {...(clipboard.volumeDiscount !== undefined
+            ? { volumeDiscount: clipboard.volumeDiscount }
+            : {})}
+          {...(clipboard.deliveryTime != null ? { deliveryTime: clipboard.deliveryTime } : {})}
+          {...(clipboard.priceValidity != null ? { priceValidity: clipboard.priceValidity } : {})}
+          {...(clipboard.productPath != null ? { productPath: clipboard.productPath } : {})}
+          className={cn(overlayButtonClass, 'text-neutral-700 hover:bg-neutral-50')}
+        />
+      ) : null}
       {secondaryAction === 'compare' ? (
         <button
           type="button"
