@@ -174,8 +174,8 @@ export function AdminMarcasWidgets({
                 {brand.rank}
               </span>
               <TopSellerLogo
-                logoBg={brand.logoBg}
-                logoText={brand.logoText}
+                {...(brand.logoBg != null ? { logoBg: brand.logoBg } : {})}
+                {...(brand.logoText != null ? { logoText: brand.logoText } : {})}
                 name={brand.name}
               />
               <div className="min-w-0 flex-1">

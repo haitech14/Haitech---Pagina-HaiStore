@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 
-import { Badge } from '@/components/ui/badge';
 import { ProductCardPill } from '@/components/product/product-card-pill';
 import { buildProductCardSpecBadges } from '@/lib/product-card-spec-badges';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';

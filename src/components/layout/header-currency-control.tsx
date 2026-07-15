@@ -131,7 +131,12 @@ function DarkCurrencySymbolToggle({
   className?: string;
   buttonClassName?: string;
 }) {
-  return <CurrencySymbolToggle className={className} buttonClassName={buttonClassName} />;
+  return (
+    <CurrencySymbolToggle
+      {...(className != null ? { className } : {})}
+      {...(buttonClassName != null ? { buttonClassName } : {})}
+    />
+  );
 }
 
 export function ExchangeRateDisplay({ className }: { className?: string }) {
@@ -189,7 +194,7 @@ export function HeaderDarkCurrencyControl({ className }: { className?: string })
 export function HeaderCurrencySymbolToggle({ className }: { className?: string }) {
   return (
     <CurrencySymbolToggle
-      className={className}
+      {...(className != null ? { className } : {})}
       buttonClassName="min-h-5 rounded px-1 text-[0.6rem]"
       activeClassName="bg-red-600 text-white"
       inactiveClassName="text-muted-foreground hover:text-foreground"
@@ -245,7 +250,7 @@ export function HeaderCartExchangeBar({ className }: { className?: string }) {
 export function HeaderTopbarCurrencyToggle({ className }: { className?: string }) {
   return (
     <CurrencySymbolToggle
-      className={className}
+      {...(className != null ? { className } : {})}
       buttonClassName="px-1.5"
       activeClassName="bg-red-600 text-white"
       inactiveClassName="text-neutral-400 hover:text-white"

@@ -423,9 +423,9 @@ function postProcessHeroSpecBullets(
     if (!raw || /\/\s*adf/i.test(raw)) return next;
 
     const speed = raw.split('/')[0]?.trim() ?? raw;
+    const { text: _omitText, ...rest } = next;
     return {
-      ...next,
-      text: undefined,
+      ...rest,
       label: 'Velocidad',
       value: `${speed} / ${adf}`,
     };

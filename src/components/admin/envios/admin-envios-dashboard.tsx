@@ -9,6 +9,11 @@ import { ShipmentSuccessDialog } from '@/components/admin/shipping/shipment-succ
 import { useAdminDateRange } from '@/context/admin-date-range-context';
 import { useAdminEnviosList } from '@/hooks/use-admin-envios';
 import { computeEnviosTabCounts, defaultEnviosRange } from '@/lib/admin-envios-utils';
+import {
+  loadShippingCarriers,
+  loadShippingRates,
+  loadShippingZones,
+} from '@/lib/shipping-storage';
 import type { ShipmentRecord } from '@/types/shipping';
 
 export function AdminEnviosDashboard() {
@@ -17,16 +22,22 @@ export function AdminEnviosDashboard() {
   const {
     shipments,
     refresh,
-    handleCreate,
-    handleUpdate,
     handleDelete,
     handleDuplicate,
     handleAdvanceStatus,
   } = useAdminEnviosList();
 
+  const [zones] = useState(() => loadShippingZones());
+  const [carriers] = useState(() => loadShippingCarriers());
+  const [rates] = useState(() => loadShippingRates());
   const [newShipmentOpen, setNewShipmentOpen] = useState(false);
   const [editShipment, setEditShipment] = useState<ShipmentRecord | null>(null);
   const [successShipment, setSuccessShipment] = useState<ShipmentRecord | null>(null);
+
+  const carrierName = useMemo(() => {
+    const map = new Map(carriers.map((c) => [c.id, c.name]));
+    return (id: string) => map.get(id) ?? id;
+  }, [carriers]);
 
   const incidentCount = useMemo(() => {
     const counts = computeEnviosTabCounts(shipments, effectiveRange);
@@ -69,28 +80,25 @@ export function AdminEnviosDashboard() {
           if (!open) setEditShipment(null);
         }}
         editShipment={editShipment}
-        onSaved={(shipment) => {
-          if (editShipment) {
-            handleUpdate(editShipment.id, shipment);
-          } else {
-            handleCreate(shipment);
-          }
-          setSuccessShipment({
-            ...shipment,
-            id: editShipment?.id ?? `shp-${Date.now()}`,
-            status: editShipment?.status ?? 'pending_pickup',
-            createdAt: editShipment?.createdAt ?? new Date().toISOString(),
-            trackingCode: editShipment?.trackingCode ?? shipment.trackingCode,
-            orderRef: editShipment?.orderRef ?? shipment.orderRef,
-          });
+        zones={zones}
+        carriers={carriers}
+        rates={rates}
+        onSaved={(_next, record) => {
+          setEditShipment(null);
+          setSuccessShipment(record);
           refresh();
         }}
       />
 
       <ShipmentSuccessDialog
         shipment={successShipment}
+        carrierName={successShipment ? carrierName(successShipment.carrierId) : ''}
         onOpenChange={(open) => {
           if (!open) setSuccessShipment(null);
+        }}
+        onEdit={(record) => {
+          setEditShipment(record);
+          setNewShipmentOpen(true);
         }}
       />
     </div>

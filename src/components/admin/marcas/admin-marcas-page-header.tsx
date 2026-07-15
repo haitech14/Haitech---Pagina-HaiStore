@@ -180,7 +180,7 @@ export function AdminMarcasPageHeader({
             {products.slice(0, 6).map((product) => (
               <CommandItem
                 key={product.id}
-                value={`${product.name} ${product.sku ?? ''}`}
+                value={`${product.name} ${product.code ?? ''}`}
                 onSelect={() => goTo(ADMIN_ROUTES.INVENTORY)}
               >
                 {product.name}

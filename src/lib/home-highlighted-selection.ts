@@ -10,7 +10,6 @@ import {
 import { readRecentlyViewedProductIds } from '@/lib/recently-viewed-products';
 import { ensureFullPrices } from '@/lib/roles';
 import type { Product } from '@/types/product';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
 
 export const HOME_HIGHLIGHTED_DISPLAY_LIMIT = 10;

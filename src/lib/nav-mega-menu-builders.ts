@@ -513,7 +513,7 @@ export function buildLegacyServicesNavMegaMenu(): NavMegaMenuModel {
         image: firstCard?.image ?? '/Soporte Tecnico v2.png',
         title: landing?.title ?? 'Servicios HaiStore',
         description: landing?.subtitle ?? 'Soluciones profesionales para tu empresa.',
-        href: landing ? serviceHubPath(landing.slug) : '/servicios',
+        href: landing ? serviceHubPath(landing.slug as ServiceLandingSlug) : '/servicios',
       };
     },
   };

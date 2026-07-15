@@ -14,7 +14,6 @@ import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/cart-context';
 import type { BulkDiscountPricing } from '@/lib/bulk-discount-tiers';
-import { resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { calculateInstallmentPreview } from '@/lib/checkout-totals';
 import { ensureFullPrices } from '@/lib/roles';
 import { isColorPrinterEquipment } from '@/lib/build-product-detail';

@@ -144,7 +144,7 @@ export function AdminDashboardPageHeader({ className }: AdminDashboardPageHeader
             {products.slice(0, 8).map((product) => (
               <CommandItem
                 key={product.id}
-                value={`${product.name} ${product.sku ?? ''}`}
+                value={`${product.name} ${product.code ?? ''}`}
                 onSelect={() => goTo(ADMIN_ROUTES.INVENTORY)}
               >
                 {product.name}

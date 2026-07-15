@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node scripts/print-dev-urls.mjs && vite",
     "dev:lan": "powershell -ExecutionPolicy Bypass -File scripts/open-dev-lan.ps1",
-    "build": "vite build",
+    "build": "tsc -b && vite build",
     "build:check": "tsc -b && vite build",
     "prebuild": "node scripts/generate-home-bundle-snapshot.mjs && node scripts/generate-inventory-index-snapshot.mjs && node scripts/generate-seo-snapshot.mjs && node scripts/generate-store-categories-tree-snapshot.mjs && node scripts/generate-sitemap.mjs && node scripts/optimize-public-images.mjs",
     "optimize:images": "node scripts/optimize-public-images.mjs",

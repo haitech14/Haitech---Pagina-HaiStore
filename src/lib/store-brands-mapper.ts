@@ -119,8 +119,8 @@ export function buildMarcasWidgetsFromSummary(summary: StoreBrandsSummary): {
       rank: item.rank,
       name: item.name,
       slug: item.slug,
-      logoBg: item.logoBg ?? undefined,
-      logoText: item.logoText ?? undefined,
+      ...(item.logoBg != null ? { logoBg: item.logoBg } : {}),
+      ...(item.logoText != null ? { logoText: item.logoText } : {}),
       productCount: item.productCount,
     })),
   };

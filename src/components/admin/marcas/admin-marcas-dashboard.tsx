@@ -141,7 +141,7 @@ export function AdminMarcasDashboard() {
   return (
     <div className="space-y-3">
       <AdminMarcasPageHeader onNewBrand={openCreateDialog} brandNames={records.map((r) => r.name)} />
-      <AdminMarcasKpis kpis={kpis} />
+      <AdminMarcasKpis {...(kpis != null ? { kpis } : {})} />
 
       <div
         className={cn(
@@ -160,11 +160,15 @@ export function AdminMarcasDashboard() {
           isRefreshing={isFetching}
         />
         <AdminMarcasWidgets
-          total={widgets?.total}
-          updatedAt={widgets?.updatedAt}
-          originDistribution={widgets?.originDistribution}
-          categoryPresence={widgets?.categoryPresence}
-          topSellers={widgets?.topSellers}
+          {...(widgets?.total != null ? { total: widgets.total } : {})}
+          {...(widgets?.updatedAt != null ? { updatedAt: widgets.updatedAt } : {})}
+          {...(widgets?.originDistribution != null
+            ? { originDistribution: widgets.originDistribution }
+            : {})}
+          {...(widgets?.categoryPresence != null
+            ? { categoryPresence: widgets.categoryPresence }
+            : {})}
+          {...(widgets?.topSellers != null ? { topSellers: widgets.topSellers } : {})}
           onRefresh={() => void refetch()}
           isRefreshing={isFetching}
         />

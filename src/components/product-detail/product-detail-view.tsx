@@ -715,7 +715,9 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   detail.descriptionContent.storyBlocks.length > 0 ? (
                     <ProductDetailDescriptionStory
                       blocks={detail.descriptionContent.storyBlocks}
-                      cta={detail.descriptionContent.storyCta}
+                      {...(detail.descriptionContent.storyCta != null
+                        ? { cta: detail.descriptionContent.storyCta }
+                        : {})}
                     />
                   ) : useRicohTabs && detail.descriptionContent ? (
                     <div className="space-y-4">

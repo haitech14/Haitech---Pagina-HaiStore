@@ -453,7 +453,7 @@ function HomeFeaturedCategoryFilters<T extends string>({
             layout,
             size: chipSize,
             isActive,
-            wide: filter.wide,
+            ...(filter.wide != null ? { wide: filter.wide } : {}),
           }),
           fullWidthCarousel && 'w-full min-w-0',
           chipClassName,
@@ -463,11 +463,11 @@ function HomeFeaturedCategoryFilters<T extends string>({
         <HomeCategoryChipContent
           imageSrc={resolveImage(filter.id)}
           label={filter.label}
-          labelLines={filter.labelLines}
+          {...(filter.labelLines != null ? { labelLines: filter.labelLines } : {})}
           layout={layout}
           size={chipSize}
           isActive={isActive}
-          wide={filter.wide}
+          {...(filter.wide != null ? { wide: filter.wide } : {})}
         />
       </button>
     );
@@ -772,7 +772,9 @@ export function HomeFeaturedProductsSection({
               filters={config.conditionFilters}
               activeFilter={activeCondition as HomeFeaturedEquipmentConditionFilterId}
               onFilterChange={setActiveCondition}
-              counts={equipmentConditionCounts}
+              {...(equipmentConditionCounts != null
+                ? { counts: equipmentConditionCounts }
+                : {})}
             />
             <HomeFeaturedCategoryFilters
               filters={config.categoryFilters}

@@ -1,6 +1,5 @@
 import { ProductCardPill } from '@/components/product/product-card-pill';
 import type { ProductEquipmentConditionLabel } from '@/lib/product-hero-meta';
-import { cn } from '@/lib/utils';
 
 const PRIMARY_ESTADO_LABELS = new Set([
   'Nueva',
@@ -31,18 +30,21 @@ export function ProductCardEstadoBadge({
   const trimmed = label.trim();
   if (!trimmed) return null;
 
+  const pillSize = size === 'card' ? 'card' : 'image';
+  const classNameProp = className != null ? { className } : {};
+
   if (isPrimaryEstadoLabel(trimmed)) {
     return (
       <ProductCardPill
         label={trimmed}
         variant="primary"
-        size={size === 'card' ? 'card' : 'image'}
-        className={className}
+        size={pillSize}
+        {...classNameProp}
       />
     );
   }
 
   return (
-    <ProductCardPill label={trimmed} variant="secondary" size={size === 'card' ? 'card' : 'image'} className={className} />
+    <ProductCardPill label={trimmed} variant="secondary" size={pillSize} {...classNameProp} />
   );
 }

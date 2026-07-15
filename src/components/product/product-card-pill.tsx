@@ -28,6 +28,8 @@ interface ProductCardPillProps {
   promoId?: HomeLandingPromoBadgeId;
   size?: 'card' | 'image';
   className?: string;
+  iconSrc?: string;
+  iconAlt?: string;
 }
 
 export function ProductCardPill({
@@ -36,20 +38,35 @@ export function ProductCardPill({
   promoId,
   size = 'card',
   className,
+  iconSrc,
+  iconAlt,
 }: ProductCardPillProps) {
   const trimmed = label.trim();
-  if (!trimmed) return null;
+  if (!trimmed && !iconSrc) return null;
 
   return (
     <span
       className={cn(
         size === 'image' ? PRODUCT_CARD_PILL_IMAGE_BASE_CLASS : PRODUCT_CARD_PILL_BASE_CLASS,
+        'items-center gap-0.5',
         PILL_VARIANT_CLASS[variant],
         variant === 'promo' && promoId ? PROMO_PILL_CLASS[promoId] : null,
         className,
       )}
     >
-      {trimmed}
+      {iconSrc ? (
+        <img
+          src={iconSrc}
+          alt={iconAlt?.trim() || trimmed || ''}
+          className={cn(
+            'shrink-0 object-contain',
+            size === 'image' ? 'h-3 w-auto max-w-[1.75rem]' : 'h-2.5 w-auto max-w-[1.5rem]',
+          )}
+          loading="lazy"
+          decoding="async"
+        />
+      ) : null}
+      {trimmed ? <span>{trimmed}</span> : null}
     </span>
   );
 }
@@ -80,7 +97,14 @@ export function ProductCardPillRow({
       aria-label={ariaLabel}
     >
       {badges.map((badge) => (
-        <ProductCardPill key={badge.id} label={badge.label} variant={badge.variant} size={size} />
+        <ProductCardPill
+          key={badge.id}
+          label={badge.label}
+          variant={badge.variant}
+          size={size}
+          {...(badge.iconSrc != null ? { iconSrc: badge.iconSrc } : {})}
+          {...(badge.iconAlt != null ? { iconAlt: badge.iconAlt } : {})}
+        />
       ))}
       {promoBadges.map((promoId) => (
         <ProductCardPill

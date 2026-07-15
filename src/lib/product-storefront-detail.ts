@@ -124,7 +124,7 @@ export function normalizeStorefrontFeatureBar(
 }
 
 export function normalizeStorefrontHeroBullets(
-  value: StoredHeroBullet[] | null | undefined,
+  value: StoredHeroBullet[] | null | undefined | unknown,
 ): StoredHeroBullet[] {
   if (!Array.isArray(value)) return [];
   return value

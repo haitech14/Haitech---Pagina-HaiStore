@@ -315,8 +315,12 @@ export function HomeEquipmentCategoryExplorer() {
           subcategories={subcategories}
           activeSubcategory={activeSubcategory}
           onSubcategoryChange={setActiveSubcategory}
-          storeLinkHref={activeSubcategoryDef?.href}
-          storeLinkLabel={activeSubcategoryDef?.label.toLowerCase()}
+          {...(activeSubcategoryDef?.href != null
+            ? { storeLinkHref: activeSubcategoryDef.href }
+            : {})}
+          {...(activeSubcategoryDef?.label != null
+            ? { storeLinkLabel: activeSubcategoryDef.label.toLowerCase() }
+            : {})}
         />
       ) : null}
 

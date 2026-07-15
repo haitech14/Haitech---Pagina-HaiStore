@@ -47,12 +47,12 @@ function isUsableStoredImageUrl(
 function withSanitizedProductMedia(product: ResolveProductImageInput): ResolveProductImageInput {
   const sanitized = sanitizeStoredProductMedia({
     id: product.id ?? '',
-    code: product.code,
-    name: product.name,
-    category: product.category,
-    brand: product.brand,
-    image_url: product.image_url,
-    gallery: product.gallery,
+    ...(product.code !== undefined ? { code: product.code } : {}),
+    ...(product.name != null ? { name: product.name } : {}),
+    ...(product.category !== undefined ? { category: product.category } : {}),
+    ...(product.brand !== undefined ? { brand: product.brand } : {}),
+    ...(product.image_url !== undefined ? { image_url: product.image_url } : {}),
+    ...(product.gallery !== undefined ? { gallery: product.gallery } : {}),
   });
 
   return {

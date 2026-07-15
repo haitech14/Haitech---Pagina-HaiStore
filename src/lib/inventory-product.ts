@@ -176,7 +176,7 @@ export function normalizeInventoryProduct(
       volume_role_prices: normalizeVolumeRolePrices(raw.volume_role_prices),
       storefront_feature_bar: normalizeStorefrontFeatureBar(raw.storefront_feature_bar),
       storefront_hero_bullets: normalizeStorefrontHeroBullets(raw.storefront_hero_bullets),
-      updated_at: raw.updated_at,
+      ...(typeof raw.updated_at === 'string' ? { updated_at: raw.updated_at } : {}),
     };
 
   return applyStockFields(
@@ -239,7 +239,7 @@ export function normalizeInventoryProductForAdminList(
       : 0,
     prices,
     volume_role_prices: normalizeVolumeRolePrices(raw.volume_role_prices),
-    updated_at: raw.updated_at,
+    ...(typeof raw.updated_at === 'string' ? { updated_at: raw.updated_at } : {}),
   };
 
   return applyStockFields(withStock, warehouses);

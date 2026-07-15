@@ -131,7 +131,7 @@ export function MuralFeedPanel({
                 key={post.id}
                 post={post}
                 isSelected={selectedId === post.id}
-                onSelect={onSelect}
+                {...(onSelect != null ? { onSelect } : {})}
               />
             ))
           )}

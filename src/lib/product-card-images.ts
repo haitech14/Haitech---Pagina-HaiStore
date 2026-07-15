@@ -36,12 +36,12 @@ export function buildProductCardImageSource(
 
   const sanitized = sanitizeStoredProductMedia({
     id: source.id ?? product.id ?? '',
-    code: source.code,
-    name: source.name,
-    category: source.category,
-    brand: source.brand,
-    image_url: source.image_url,
-    gallery: source.gallery,
+    ...(source.code !== undefined ? { code: source.code } : {}),
+    ...(source.name != null ? { name: source.name } : {}),
+    ...(source.category !== undefined ? { category: source.category } : {}),
+    ...(source.brand !== undefined ? { brand: source.brand } : {}),
+    ...(source.image_url !== undefined ? { image_url: source.image_url } : {}),
+    ...(source.gallery !== undefined ? { gallery: source.gallery } : {}),
   });
 
   return {

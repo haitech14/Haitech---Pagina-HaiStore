@@ -40,7 +40,7 @@ export function ProductDetailSpecsTable({
   if (specs.length === 0) return null;
 
   if (variant === 'ficha') {
-    return <ProductDetailFichaTecnica specs={specs} className={className} />;
+    return <ProductDetailFichaTecnica specs={specs} {...(className != null ? { className } : {})} />;
   }
 
   if (variant === 'mockup') {

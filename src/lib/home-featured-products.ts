@@ -9,11 +9,8 @@ import { enrichFeaturedFromCatalog } from '@/lib/featured-catalog-enrich';
 import { productMatchesCategoryFilter } from '@/lib/inventory-categories';
 import { productToFeatured } from '@/lib/store-products';
 import type { Product } from '@/types/product';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
 import { resolveHomeHighlightedRowProducts as resolveHighlightedRow } from '../../shared/home-highlighted-products.js';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
 import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
 
 export { HOME_HIGHLIGHTED_ROW_SIZE, MIN_HOME_FEATURED };

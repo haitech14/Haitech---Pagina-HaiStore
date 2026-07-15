@@ -90,6 +90,7 @@ function mergeCategoryNode(
     name: apiNode?.name ?? staticNode?.name ?? node.name,
     slug: node.slug,
     parentId: null,
+    sortOrder: apiNode?.sortOrder ?? staticNode?.sortOrder ?? node.sortOrder ?? 0,
     image: apiNode?.image ?? staticNode?.image ?? null,
     tagline: apiNode?.tagline ?? staticNode?.tagline ?? null,
     inventoryLabels:

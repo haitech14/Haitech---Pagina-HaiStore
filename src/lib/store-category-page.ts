@@ -21,7 +21,7 @@ export function storeCategoryToPageCategory(node: StoreCategoryTreeNode): Catego
     name: node.name,
     tagline: node.tagline?.trim() || node.name,
     icon: defaultIconForSlug(node.slug),
-    image: node.image ?? undefined,
+    ...(node.image ? { image: node.image } : {}),
     inventoryCategories: node.inventoryLabels?.length ? [...node.inventoryLabels] : [node.name],
   };
 }
@@ -45,11 +45,16 @@ export function resolveCategoryForPage(
       ...staticCategory,
       name: storeCategory.name,
       tagline: storeCategory.tagline?.trim() || staticCategory.tagline,
-      image: storeCategory.image ?? staticCategory.image,
-      inventoryCategories:
-        storeCategory.inventoryLabels?.length
-          ? [...storeCategory.inventoryLabels]
-          : staticCategory.inventoryCategories,
+      ...(storeCategory.image
+        ? { image: storeCategory.image }
+        : staticCategory.image
+          ? { image: staticCategory.image }
+          : {}),
+      ...(storeCategory.inventoryLabels?.length
+        ? { inventoryCategories: [...storeCategory.inventoryLabels] }
+        : staticCategory.inventoryCategories != null
+          ? { inventoryCategories: staticCategory.inventoryCategories }
+          : {}),
     };
   }
 

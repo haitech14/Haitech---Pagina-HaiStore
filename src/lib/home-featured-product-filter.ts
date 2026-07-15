@@ -653,7 +653,7 @@ export function matchesHomeFeaturedFilters(
   product: FeaturedProduct,
   conditionFilter: HomeFeaturedEquipmentConditionFilterId,
   categoryFilter: HomeFeaturedEquipmentCategoryFilterId,
-  specFilter: HomeFeaturedSpecFilterId = 'todos',
+  specFilter: HomeFeaturedSpecFilterId | null = null,
 ): boolean {
   return matchesHomeFeaturedEquipmentFilters(
     product,

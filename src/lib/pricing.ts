@@ -58,7 +58,7 @@ export function toPublicProduct(product: InventoryProduct, role: string): Produc
     price_role: priceRole,
     sort_order: product.sort_order,
     is_featured: product.is_featured === true,
-    status: product.status,
+    ...(product.status != null ? { status: product.status } : {}),
     view_count: Number.isFinite(Number(product.view_count))
       ? Math.max(0, Math.floor(Number(product.view_count)))
       : 0,

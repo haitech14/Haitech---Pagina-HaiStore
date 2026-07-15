@@ -248,7 +248,7 @@ export function AdminEnviosTablePanel({
           </SelectContent>
         </Select>
 
-        <AdminDateRangePicker value={range} onChange={onRangeChange} className="h-8" />
+        <AdminDateRangePicker value={range} onChange={onRangeChange} />
 
         <Button
           type="button"

@@ -160,11 +160,12 @@ export function useInventoryMutations() {
       return { previousInventory };
     },
     onError: (_error, { id }, context) => {
-      if (!context?.previousInventory) return;
+      const previousInventory = context?.previousInventory;
+      if (!previousInventory) return;
       // No restaurar un snapshot viejo si otra mutación ya avanzó la caché.
       queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) => {
-        if (!current) return context.previousInventory;
-        const previousRow = context.previousInventory.find((product) => product.id === id);
+        if (!current) return previousInventory;
+        const previousRow = previousInventory.find((product) => product.id === id);
         if (!previousRow) return current;
         return current.map((product) => (product.id === id ? previousRow : product));
       });

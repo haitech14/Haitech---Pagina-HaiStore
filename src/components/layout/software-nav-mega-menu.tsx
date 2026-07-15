@@ -27,7 +27,6 @@ export function SoftwareNavMegaMenu({
       isRouteActive={isRouteActive}
       navRow={navRow}
       showIcon={showIcon}
-      desktopColumnMode="sidebar-as-columns"
     />
   );
 }

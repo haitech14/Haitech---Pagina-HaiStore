@@ -1299,6 +1299,7 @@ export function AdminInventarioTablePanel({
                     description: null,
                     currency: 'USD',
                     image_url: record.imageUrl ?? null,
+                    gallery: [],
                     stock: 0,
                     category: null,
                     created_at: new Date(0).toISOString(),

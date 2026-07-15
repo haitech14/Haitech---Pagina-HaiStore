@@ -119,7 +119,6 @@ function resolveVelocidad(product: ProductShortDescriptionSource): string | null
   if (fromAttr) return fromAttr;
   const ppm = resolveProductSpeedPpm({
     name: product.name ?? '',
-    category: product.category ?? null,
     attributes: product.attributes ?? [],
   });
   return ppm != null ? `${ppm} ppm` : null;

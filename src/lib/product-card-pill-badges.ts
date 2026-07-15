@@ -22,7 +22,14 @@ export interface ProductCardPillBadge {
   id: string;
   label: string;
   variant: ProductCardPillVariant;
+  /** Icono decorativo (p. ej. gotas B/N o CMYK). */
+  iconSrc?: string;
+  iconAlt?: string;
 }
+
+/** Iconos de modo de color en tarjetas de equipo. */
+export const EQUIPMENT_INK_ICON_BN = '/icons/equipment-ink-bn.png';
+export const EQUIPMENT_INK_ICON_COLOR = '/icons/equipment-ink-color.png';
 
 /** Señales explícitas de SPDF (no plantillas de descripción). */
 const SPDF_SIGNAL_RE = /\bspdf\b|single\s*pass|doble\s*scan/i;
@@ -103,10 +110,13 @@ export function buildProductCardPillBadges(
     isPrinterProduct(product) && !isTonerOrRepuestosCategory(product.category);
 
   if (isEquipment) {
+    const isColor = inferColor(product) === 'Color';
     badges.push({
       id: 'color',
-      label: inferColor(product) === 'Color' ? 'Color' : 'B/N',
+      label: isColor ? 'Color' : 'B/N',
       variant: 'secondary',
+      iconSrc: isColor ? EQUIPMENT_INK_ICON_COLOR : EQUIPMENT_INK_ICON_BN,
+      iconAlt: isColor ? 'Equipo a color' : 'Equipo B/N',
     });
 
     for (const [index, label] of resolveFormatoPapelBadgeLabels(product).entries()) {

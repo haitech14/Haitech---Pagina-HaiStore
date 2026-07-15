@@ -374,8 +374,8 @@ function HomeFindCategoryPills<T extends string>({
                 onClick={() => onCategoryChange(category.id)}
               >
                 <HomeCategoryChipContent
-                  icon={Icon}
-                  imageSrc={imageSrc}
+                  {...(Icon != null ? { icon: Icon } : {})}
+                  {...(imageSrc != null ? { imageSrc } : {})}
                   label={category.label}
                   layout="vertical"
                   size="lg"

@@ -10,7 +10,6 @@ import {
   type ProductCardPillBadge,
 } from '@/lib/product-card-pill-badges';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';
-import { cn } from '@/lib/utils';
 
 export { HOME_LANDING_PROMO_BADGE_LABELS };
 
@@ -48,7 +47,7 @@ export function ProductCardPromoBadges({
       badges={resolvedPillBadges}
       promoBadges={promoBadges}
       size={size}
-      className={className}
+      {...(className != null ? { className } : {})}
     />
   );
 }

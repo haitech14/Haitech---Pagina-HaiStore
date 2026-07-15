@@ -856,7 +856,7 @@ function RentalPriceSummary({
 
             strokeWidth={2}
 
-            aria-hidden="true"
+            aria-hidden={true}
 
           />
 
@@ -876,7 +876,7 @@ function RentalPriceSummary({
 
             )}
 
-            aria-hidden="true"
+            aria-hidden={true}
 
           />
 
@@ -1044,7 +1044,7 @@ function IconInput({
 
         strokeWidth={1.75}
 
-        aria-hidden="true"
+        aria-hidden={true}
 
       />
 
@@ -1112,7 +1112,7 @@ function IconSelect({
 
           strokeWidth={1.75}
 
-          aria-hidden="true"
+          aria-hidden={true}
 
         />
 
@@ -1204,7 +1204,7 @@ function TermButton({
 
         <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-red-600 shadow-sm">
 
-          <Check className="size-2.5 text-white" strokeWidth={3} aria-hidden="true" />
+          <Check className="size-2.5 text-white" strokeWidth={3} aria-hidden={true} />
 
         </span>
 
@@ -1272,7 +1272,7 @@ function ExtraServiceCard({
 
       />
 
-      <Icon className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
+      <Icon className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden={true} />
 
       <span className="min-w-0 text-xs font-medium text-[#0f1f3d]">{label}</span>
 
@@ -1588,7 +1588,7 @@ export function ProductDetailRentalConfigurator({
 
           <legend className="flex items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold text-[#0f1f3d] sm:text-xs">
 
-            <Calendar className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
+            <Calendar className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden={true} />
 
             Plazo del contrato
 

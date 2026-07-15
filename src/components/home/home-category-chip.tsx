@@ -120,7 +120,11 @@ export function HomeCategoryChipContent({
   labelLines?: [string, string];
 }) {
   const visualClassName = imageSrc
-    ? homeCategoryChipImageClassName({ layout, size, wide })
+    ? homeCategoryChipImageClassName({
+        layout,
+        size,
+        ...(wide != null ? { wide } : {}),
+      })
     : homeCategoryChipIconClassName(
         isActive !== undefined ? { layout, size, isActive } : { layout, size },
       );

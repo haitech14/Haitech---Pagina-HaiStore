@@ -10,7 +10,6 @@ import {
 } from '@/lib/product-condition';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import type { Product } from '@/types/product';
-// @ts-expect-error módulo JS compartido sin declaración de tipos
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
 
 export const FEATURED_CAROUSEL_LIMIT = 8;

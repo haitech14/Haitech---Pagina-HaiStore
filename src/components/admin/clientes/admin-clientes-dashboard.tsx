@@ -92,7 +92,7 @@ export function AdminClientesDashboard() {
           onRangeChange={setRange}
           isLoading={isLoading}
           isError={isError}
-          errorMessage={error instanceof Error ? error.message : undefined}
+          {...(error instanceof Error ? { errorMessage: error.message } : {})}
         />
         <AdminClientesWidgets customers={customers} range={range} />
       </div>

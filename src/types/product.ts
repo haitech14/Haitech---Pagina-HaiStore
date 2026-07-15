@@ -70,6 +70,8 @@ export interface Product {
   cross_sell_optional_products?: MerchandisingOptionalProduct[];
   /** Complementos opcionales sin ficha en inventario (upselling). */
   upsell_optional_products?: MerchandisingOptionalProduct[];
+  /** Pack compuesto: stock y precios se derivan de los componentes. */
+  bundle_components?: ProductBundleComponent[];
 }
 
 /** Producto sugerido en merchandising que no existe en el inventario. */
@@ -168,6 +170,8 @@ export interface InventoryProduct extends Omit<Product, 'price' | 'price_role' |
   prices: ProductRolePrices;
   /** Tramos de precio por cantidad y rol. */
   volume_role_prices?: ProductVolumeRolePriceTier[];
+  /** Última actualización del registro (p. ej. para cache-bust de imagen). */
+  updated_at?: string;
 }
 
 export interface CartConfigurationLine {
