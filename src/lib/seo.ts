@@ -12,6 +12,8 @@ export {
   DEFAULT_SITE_TITLE,
   SITE_BRAND_NAME,
   DEFAULT_OG_IMAGE,
+  STORE_SITE_TITLE,
+  STORE_SITE_DESCRIPTION,
   buildProductMetaDescription,
   buildCategoryMetaDescription,
   buildCategoryMetaTitle,
