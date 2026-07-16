@@ -11,6 +11,7 @@ import {
 import { ProductCardEstadoBadge } from '@/components/product/product-card-estado-badge';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';
+import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { cn } from '@/lib/utils';
 
 interface ProductCardTitleProps {
@@ -28,7 +29,7 @@ interface ProductCardTitleProps {
 
 function formatCardStockLabel(outOfStock: boolean, stock: number): string {
   const quantity = outOfStock ? 0 : Math.max(0, Math.floor(Number(stock) || 0));
-  if (quantity <= 0) return 'A pedido';
+  if (quantity <= 0) return PRODUCT_ON_REQUEST_STOCK_LABEL;
   return `${quantity} unids.`;
 }
 

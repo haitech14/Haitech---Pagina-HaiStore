@@ -262,22 +262,26 @@ export function SiteFooter() {
           </div>
 
           <div className="sm:col-span-2 lg:col-span-3">
-            <FooterHeading id="footer-social-titulo">Síguenos</FooterHeading>
-            <ul className="mb-3 flex items-center gap-1.5">
-              {FOOTER_SOCIAL_LINKS.map((social) => (
-                <li key={social.label}>
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    className="flex size-8 items-center justify-center rounded-full border border-white/25 text-white transition-colors hover:border-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
-                  >
-                    <SocialIcon label={social.label} />
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {FOOTER_SOCIAL_LINKS.length > 0 ? (
+              <>
+                <FooterHeading id="footer-social-titulo">Síguenos</FooterHeading>
+                <ul className="mb-3 flex items-center gap-1.5">
+                  {FOOTER_SOCIAL_LINKS.map((social) => (
+                    <li key={social.label}>
+                      <a
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={social.label}
+                        className="flex size-8 items-center justify-center rounded-full border border-white/25 text-white transition-colors hover:border-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+                      >
+                        <SocialIcon label={social.label} />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
 
             <Link
               to="/contacto"

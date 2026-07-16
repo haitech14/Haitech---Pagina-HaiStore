@@ -1,6 +1,8 @@
-import { ChevronDown, LayoutPanelLeft, Plus, RefreshCw } from 'lucide-react';
+import { Building2, ChevronDown, LayoutPanelLeft, Plus, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { AdminWarehousesDialog } from '@/components/admin/inventario/admin-warehouses-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,7 +11,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAdminUtilityPanel } from '@/context/admin-utility-panel-context';
+import { useWarehouses } from '@/hooks/use-warehouses';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
+import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { cn } from '@/lib/utils';
 
 interface AdminInventarioPageHeaderProps {
@@ -27,8 +31,11 @@ export function AdminInventarioPageHeader({
 }: AdminInventarioPageHeaderProps) {
   const { open: utilityPanelOpen, toggle: toggleUtilityPanel } = useAdminUtilityPanel();
   const navigate = useNavigate();
+  const { data: warehouses = DEFAULT_WAREHOUSES } = useWarehouses();
+  const [warehousesOpen, setWarehousesOpen] = useState(false);
 
   return (
+    <>
     <header
       className={cn(
         'flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between',
@@ -53,6 +60,16 @@ export function AdminInventarioPageHeader({
         >
           <LayoutPanelLeft className="size-3.5" aria-hidden="true" />
           {utilityPanelOpen ? 'Ocultar panel' : 'Mostrar panel'}
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="h-8 gap-1.5 bg-card text-xs"
+          onClick={() => setWarehousesOpen(true)}
+        >
+          <Building2 className="size-3.5" aria-hidden="true" />
+          Almacenes
         </Button>
 
         <Button
@@ -97,5 +114,12 @@ export function AdminInventarioPageHeader({
         </DropdownMenu>
       </div>
     </header>
+
+    <AdminWarehousesDialog
+      open={warehousesOpen}
+      onOpenChange={setWarehousesOpen}
+      warehouses={warehouses}
+    />
+    </>
   );
 }

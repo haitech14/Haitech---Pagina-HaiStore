@@ -1,6 +1,11 @@
 import { CONSULTAR_PRECIO_LABEL, discountedUsdPrice, isPriceOnRequest } from '@/lib/display-price';
-import { parseBulkDiscountRange } from '@/lib/bulk-discount-tiers';
+import {
+  DEFAULT_BULK_DISCOUNT_TIERS,
+  parseBulkDiscountRange,
+} from '@/lib/bulk-discount-tiers';
 import { CATALOG_VOLUME_TIERS, getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
+import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
+import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { formatUsd } from '@/lib/utils';
 import type { ProductVolumeRolePriceTier } from '@/types/product';
 
@@ -23,6 +28,8 @@ export interface ProductClipboardVolumeDiscount {
   fromUnits: number;
   priceUsd: number;
   discountPercent: number;
+  /** Color / juego de tóner: etiqueta «por Juego» en vez de «N+». */
+  perSet?: boolean;
 }
 
 export interface ProductClipboardTextInput {
@@ -39,7 +46,11 @@ export interface ProductClipboardTextInput {
   productId?: string | null;
   /** Nueva / Seminueva / Remanufacturada / Original, etc. */
   condition?: string | null;
-  /** Tramos por cantidad/rol del producto; si faltan se usan CATALOG_VOLUME_TIERS. */
+  /** Categoría: equipos → dscto desde 2+; tóner/repuestos → desde 3+. */
+  category?: string | null;
+  /** Producto a color: el dscto se muestra «por Juego». */
+  isColorProduct?: boolean | null;
+  /** Tramos por cantidad/rol del producto; si faltan se usan tiers por categoría. */
   volumeRolePrices?: ProductVolumeRolePriceTier[] | null;
   /** Override del tramo de descuento; si no se pasa se resuelve. */
   volumeDiscount?: ProductClipboardVolumeDiscount | null;
@@ -48,7 +59,7 @@ export interface ProductClipboardTextInput {
   /** Override; por defecto 7 días / agotar stock. */
   priceValidity?: string | null;
   /**
-   * Ruta de ficha (`/tienda/producto/...`) o URL absoluta.
+   * Ruta de ficha (`/tienda/...`) o URL absoluta.
    * Siempre se reescribe a `https://haitech.pe` + path (nunca localhost).
    */
   productPath?: string | null;
@@ -71,10 +82,10 @@ export function buildProductClipboardPageUrl(productPathOrUrl: string): string {
   return `${PRODUCT_CLIPBOARD_SITE_ORIGIN}${path}`;
 }
 
-/** Stock label aligned with storefront cards (`2 unids.` / `A pedido`). */
+/** Stock label aligned with storefront cards (`2 unids.` / `A pedido (45 a 60 días)`). */
 export function formatProductClipboardStock(stock: number): string {
   const quantity = Math.max(0, Math.floor(Number(stock) || 0));
-  if (quantity <= 0) return 'A pedido';
+  if (quantity <= 0) return PRODUCT_ON_REQUEST_STOCK_LABEL;
   return `${quantity} unids.`;
 }
 
@@ -104,6 +115,13 @@ function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/** Equipos: desde 2+; tóner / repuestos: desde 3+. */
+export function resolveProductClipboardDiscountMinUnits(
+  category?: string | null,
+): number {
+  return isTonerOrRepuestosCategory(category) ? 3 : 2;
+}
+
 /** Precio normal tachado cuando es mayor que la oferta. */
 export function resolveProductClipboardNormalPrice(
   input: Pick<ProductClipboardTextInput, 'priceUsd' | 'normalPriceUsd' | 'productId'>,
@@ -124,19 +142,27 @@ export function resolveProductClipboardNormalPrice(
 }
 
 /**
- * Precio con descuento a partir de 3/4+ unidades.
- * Prioriza `volume_role_prices` del producto (rol público); si no hay, usa CATALOG_VOLUME_TIERS.
+ * Precio con descuento por volumen.
+ * Equipos desde 2+; tóner/repuestos desde 3+. Color → etiqueta «por Juego».
+ * Prioriza `volume_role_prices` (rol público); si no hay, usa tiers por categoría.
  */
 export function resolveProductClipboardVolumeDiscount(
   priceUsd: number | null | undefined,
   volumeRolePrices?: ProductVolumeRolePriceTier[] | null,
+  options?: {
+    category?: string | null;
+    isColorProduct?: boolean | null;
+  },
 ): ProductClipboardVolumeDiscount | null {
   if (isPriceOnRequest(priceUsd) || priceUsd == null || priceUsd <= 0) return null;
+
+  const minUnits = resolveProductClipboardDiscountMinUnits(options?.category);
+  const perSet = Boolean(options?.isColorProduct);
 
   const roleTiers = volumeRolePrices ?? [];
   for (const tier of roleTiers) {
     const bounds = parseBulkDiscountRange(tier.range);
-    if (!bounds || bounds.min < 3) continue;
+    if (!bounds || bounds.min < minUnits) continue;
     const unit = Number(tier.prices?.public) || 0;
     if (unit <= 0 || unit >= priceUsd) continue;
     const discountPercent = Math.round((1 - unit / priceUsd) * 1000) / 10;
@@ -144,21 +170,37 @@ export function resolveProductClipboardVolumeDiscount(
       fromUnits: bounds.min,
       priceUsd: Math.round(unit * 100) / 100,
       discountPercent,
+      ...(perSet ? { perSet: true } : {}),
     };
   }
 
-  const catalogTier = CATALOG_VOLUME_TIERS.filter((tier) => tier.discountPercent > 0);
-  const first = catalogTier[0];
-  if (!first) return null;
+  // Equipos: DEFAULT_BULK (2 → 5%). Tóner/repuestos: CATALOG_VOLUME (3 → 5%).
+  if (isTonerOrRepuestosCategory(options?.category)) {
+    const catalogTier = CATALOG_VOLUME_TIERS.filter((tier) => tier.discountPercent > 0);
+    const first = catalogTier[0];
+    if (!first) return null;
+    const parsedMin = parseBulkDiscountRange(first.range)?.min;
+    const matchedMin = Number(first.range.match(/(\d+)/)?.[1]);
+    const fromUnits =
+      parsedMin ?? (Number.isFinite(matchedMin) && matchedMin > 0 ? matchedMin : 3);
+    return {
+      fromUnits: Math.max(fromUnits, minUnits),
+      priceUsd: discountedUsdPrice(priceUsd, first.discountPercent),
+      discountPercent: first.discountPercent,
+      ...(perSet ? { perSet: true } : {}),
+    };
+  }
 
-  // CATALOG_VOLUME_TIERS usa rangos tipo "3 - 5 unidades" (no parseables como "3-5").
-  const parsedMin = parseBulkDiscountRange(first.range)?.min;
-  const matchedMin = Number(first.range.match(/(\d+)/)?.[1]);
-  const fromUnits = parsedMin ?? (Number.isFinite(matchedMin) && matchedMin > 0 ? matchedMin : 3);
+  const equipmentTier = DEFAULT_BULK_DISCOUNT_TIERS.filter((tier) => tier.discountPercent > 0);
+  const firstEquipment = equipmentTier[0];
+  if (!firstEquipment) return null;
+  const parsedMin = parseBulkDiscountRange(firstEquipment.range)?.min;
+  const fromUnits = parsedMin ?? minUnits;
   return {
-    fromUnits,
-    priceUsd: discountedUsdPrice(priceUsd, first.discountPercent),
-    discountPercent: first.discountPercent,
+    fromUnits: Math.max(fromUnits, minUnits),
+    priceUsd: discountedUsdPrice(priceUsd, firstEquipment.discountPercent),
+    discountPercent: firstEquipment.discountPercent,
+    ...(perSet ? { perSet: true } : {}),
   };
 }
 
@@ -166,8 +208,16 @@ function resolveVolume(
   input: ProductClipboardTextInput,
 ): ProductClipboardVolumeDiscount | null {
   if (input.volumeDiscount === null) return null;
-  if (input.volumeDiscount) return input.volumeDiscount;
-  return resolveProductClipboardVolumeDiscount(input.priceUsd, input.volumeRolePrices);
+  if (input.volumeDiscount) {
+    if (input.isColorProduct && input.volumeDiscount.perSet !== false) {
+      return { ...input.volumeDiscount, perSet: true };
+    }
+    return input.volumeDiscount;
+  }
+  return resolveProductClipboardVolumeDiscount(input.priceUsd, input.volumeRolePrices, {
+    ...(input.category !== undefined ? { category: input.category } : {}),
+    ...(input.isColorProduct !== undefined ? { isColorProduct: input.isColorProduct } : {}),
+  });
 }
 
 function resolveDelivery(input: ProductClipboardTextInput): string {
@@ -176,6 +226,15 @@ function resolveDelivery(input: ProductClipboardTextInput): string {
   const quantity = Math.max(0, Math.floor(Number(input.stock) || 0));
   if (quantity > 0) return DEFAULT_PRODUCT_CLIPBOARD_DELIVERY_IN_STOCK;
   return DEFAULT_PRODUCT_CLIPBOARD_DELIVERY;
+}
+
+function isImmediateDelivery(delivery: string): boolean {
+  return /^inmediata\b/i.test(delivery.trim());
+}
+
+function formatVolumeDiscountLabel(volume: ProductClipboardVolumeDiscount): string {
+  if (volume.perSet) return 'por Juego';
+  return `${volume.fromUnits}+`;
 }
 
 function resolvePriceValidity(input: ProductClipboardTextInput): string {
@@ -191,7 +250,7 @@ export interface ProductClipboardPayload {
 
 /**
  * Bloque compacto para WhatsApp / cotización (etiquetas cortas).
- * Orden: Producto → Código → Cond.+stock → Precio → Dscto → Entrega → Validez → link.
+ * Orden: Producto → Código → Cond. → Stock → Precio → Dscto → Entrega → Validez → link.
  * Negrita: WhatsApp `*…*` en plain; `<b>` en HTML.
  */
 export function buildProductClipboardPayload(input: ProductClipboardTextInput): ProductClipboardPayload {
@@ -224,16 +283,11 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
     push(`📋 Código: ${code}`, `📋 Código: ${escapeHtml(code)}`);
   }
 
-  // Condición + stock en una línea
-  const metaPlainParts: string[] = [];
-  const metaHtmlParts: string[] = [];
+  // Condición y stock en líneas propias (evita wrap raro de «unids.»)
   if (condition) {
-    metaPlainParts.push(`✨ Cond.: ${waBold(condition)}`);
-    metaHtmlParts.push(`✨ Cond.: ${htmlBold(condition)}`);
+    push(`✨ Cond.: ${waBold(condition)}`, `✨ Cond.: ${htmlBold(condition)}`);
   }
-  metaPlainParts.push(`📊 Stock: ${stockLabel}`);
-  metaHtmlParts.push(`📊 Stock: ${escapeHtml(stockLabel)}`);
-  push(metaPlainParts.join(' · '), metaHtmlParts.join(' · '));
+  push(`📊 Stock: ${stockLabel}`, `📊 Stock: ${escapeHtml(stockLabel)}`);
 
   plainLines.push('');
   htmlLines.push('');
@@ -259,19 +313,27 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
   // Dscto en línea propia (separado de Entrega)
   if (volume) {
     const volPrice = formatUsd(volume.priceUsd);
+    const volLabel = formatVolumeDiscountLabel(volume);
     push(
-      `🏷️ Dscto. ${volume.fromUnits}+: ${waBold(volPrice)} (−${volume.discountPercent}%)`,
-      `🏷️ Dscto. ${volume.fromUnits}+: ${htmlBold(volPrice)} (−${volume.discountPercent}%)`,
+      `🏷️ Dscto. ${volLabel}: ${waBold(volPrice)} (−${volume.discountPercent}%)`,
+      `🏷️ Dscto. ${escapeHtml(volLabel)}: ${htmlBold(volPrice)} (−${volume.discountPercent}%)`,
     );
   }
 
   plainLines.push('');
   htmlLines.push('');
 
-  push(
-    `🚚 Entrega: ${delivery}`,
-    `🚚 Entrega: ${escapeHtml(delivery)}`,
-  );
+  if (isImmediateDelivery(delivery)) {
+    push(
+      `🚚 Entrega: ${waBold(delivery)}`,
+      `🚚 Entrega: ${htmlBold(delivery)}`,
+    );
+  } else {
+    push(
+      `🚚 Entrega: ${delivery}`,
+      `🚚 Entrega: ${escapeHtml(delivery)}`,
+    );
+  }
   push(
     `⏳ Validez: ${priceValidity}`,
     `⏳ Validez: ${escapeHtml(priceValidity)}`,

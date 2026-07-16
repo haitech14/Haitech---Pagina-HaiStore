@@ -64,8 +64,10 @@ export function promoCardImageSources(imagePath: string) {
 /** Variantes WebP para imágenes de producto en cards (~220px). */
 export function productCardImageSources(imagePath: string) {
   const base = imageBasePath(imagePath);
+  const query = imagePath.includes('?') ? `?${imagePath.split('?')[1]?.split('#')[0] ?? ''}` : '';
+  const q = query === '?' ? '' : query;
   return {
-    webpSrcSet: `${base}-256.webp 256w, ${base}-512.webp 512w`,
+    webpSrcSet: `${base}-256.webp${q} 256w, ${base}-512.webp${q} 512w`,
     fallbackSrc: imagePath,
     sizes: '(max-width: 640px) 45vw, 220px',
   };
@@ -90,11 +92,15 @@ export function productDetailMainImageSources(imagePath: string) {
   };
 }
 
+/** Pathname sin query/hash (permite `?v=` de cache-bust sin perder -256/-512). */
+export function imagePathname(imagePath: string): string {
+  return imagePath.split('?')[0].split('#')[0];
+}
+
 /** True si la ruta admite variantes responsive generadas en build. */
 export function supportsResponsiveProductImage(imagePath: string): boolean {
   if (!imagePath || imagePath.startsWith('data:')) return false;
-  if (imagePath.includes('?')) return false;
-  const path = imagePath.split('?')[0].split('#')[0];
+  const path = imagePathname(imagePath);
   return (
     path.startsWith('/products/') ||
     path.startsWith('/categories/') ||

@@ -182,6 +182,9 @@ export function catalogRowToFeatured(
     reviews: meta?.reviews ?? stableReviewCount(product.id),
     image: resolveProductImageUrl(product),
     ...(gallery.length > 0 ? { gallery } : {}),
+    ...('delivery_time' in row && typeof row.delivery_time === 'string' && row.delivery_time.trim()
+      ? { delivery_time: row.delivery_time.trim() }
+      : {}),
   };
 
   if (product.attributes?.length) {

@@ -18,6 +18,7 @@ import {
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
+import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import {
   buildProductCardImageCandidates,
   buildProductCardImageSource,
@@ -177,7 +178,7 @@ export function HomeCategoryShowcaseProductCard({
         <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
           {cardCode ? <span className={PRODUCT_CARD_CODE_CLASS}>{cardCode}</span> : <span className="min-w-0" />}
           <span className={PRODUCT_CARD_STOCK_CLASS}>
-            {outOfStock ? 'A pedido' : `${stockCount} unids.`}
+            {outOfStock ? PRODUCT_ON_REQUEST_STOCK_LABEL : `${stockCount} unids.`}
           </span>
         </div>
 

@@ -5,7 +5,7 @@ import {
   normalizeInventoryProduct,
   normalizeInventoryProductForAdminList,
 } from '@/lib/inventory-product';
-import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
+import { DEFAULT_WAREHOUSES, normalizeWarehouses } from '@/lib/inventory-stock';
 import { toPublicProduct } from '@/lib/pricing';
 import { deriveProductSlug } from '@/lib/product-slug';
 import {
@@ -13,9 +13,14 @@ import {
   shouldApplyViewAsPriceTransform,
 } from '@/lib/view-as-role';
 import type { UserRole } from '@/lib/roles';
-import type { InventoryProduct, Product } from '@/types/product';
+import type { InventoryProduct, InventoryWarehouse, Product } from '@/types/product';
 
 export const PRODUCT_UPDATED_CHANNEL = 'haistore-product-updated';
+
+function getCachedWarehouses(queryClient: QueryClient): InventoryWarehouse[] {
+  const cached = queryClient.getQueryData<InventoryWarehouse[]>(['warehouses']);
+  return normalizeWarehouses(cached ?? DEFAULT_WAREHOUSES);
+}
 
 export function matchesProductIdOrSlug(product: InventoryProduct, lookup: string): boolean {
   const normalized = lookup.trim().toLowerCase();
@@ -25,17 +30,23 @@ export function matchesProductIdOrSlug(product: InventoryProduct, lookup: string
   return deriveProductSlug(product).toLowerCase() === normalized;
 }
 
-function normalizeInventoryRow(row: InventoryProduct): InventoryProduct | null {
+function normalizeInventoryRow(
+  row: InventoryProduct,
+  warehouses: InventoryWarehouse[] = DEFAULT_WAREHOUSES,
+): InventoryProduct | null {
   try {
-    return normalizeInventoryProduct(row, DEFAULT_WAREHOUSES);
+    return normalizeInventoryProduct(row, warehouses);
   } catch {
     return null;
   }
 }
 
-function normalizeAdminInventoryRow(row: InventoryProduct): InventoryProduct | null {
+function normalizeAdminInventoryRow(
+  row: InventoryProduct,
+  warehouses: InventoryWarehouse[] = DEFAULT_WAREHOUSES,
+): InventoryProduct | null {
   try {
-    return normalizeInventoryProductForAdminList(row, DEFAULT_WAREHOUSES);
+    return normalizeInventoryProductForAdminList(row, warehouses);
   } catch {
     return null;
   }
@@ -51,8 +62,9 @@ export function upsertAdminInventoryProducts(
   options?: { prepend?: boolean },
 ): void {
   if (rows.length === 0) return;
+  const warehouses = getCachedWarehouses(queryClient);
   const normalized = rows
-    .map((row) => normalizeAdminInventoryRow(row))
+    .map((row) => normalizeAdminInventoryRow(row, warehouses))
     .filter((row): row is InventoryProduct => row != null);
   if (normalized.length === 0) return;
 
@@ -66,7 +78,7 @@ export function upsertAdminInventoryProducts(
       const index = next.findIndex((product) => product.id === row.id);
       if (index >= 0) {
         try {
-          next[index] = mergeInventoryProductPatch(next[index]!, row, DEFAULT_WAREHOUSES);
+          next[index] = mergeInventoryProductPatch(next[index]!, row, warehouses);
         } catch {
           next[index] = row;
         }
@@ -83,7 +95,8 @@ export function patchProductDetailCacheFromInventory(
   queryClient: QueryClient,
   inventoryProduct: InventoryProduct,
 ): void {
-  const normalized = normalizeInventoryRow(inventoryProduct);
+  const warehouses = getCachedWarehouses(queryClient);
+  const normalized = normalizeInventoryRow(inventoryProduct, warehouses);
   if (!normalized) return;
 
   for (const [queryKey] of queryClient.getQueriesData<Product | null>({ queryKey: ['product'] })) {
@@ -97,7 +110,7 @@ export function patchProductDetailCacheFromInventory(
       ? (viewAsKey.split(',').filter(Boolean) as UserRole[])
       : [];
 
-    let publicProduct = toPublicProduct(normalized, role);
+    let publicProduct = toPublicProduct(normalized, role, warehouses);
     if (shouldApplyViewAsPriceTransform(viewAsRoles) && viewAsRoles[0]) {
       publicProduct = applyViewAsPriceToProduct(publicProduct, viewAsRoles[0]);
     }
@@ -121,7 +134,7 @@ export function patchProductDetailCacheFromInventory(
       ) {
         return product;
       }
-      let publicProduct = toPublicProduct(normalized, role);
+      let publicProduct = toPublicProduct(normalized, role, warehouses);
       if (shouldApplyViewAsPriceTransform(viewAsRoles) && viewAsRoles[0]) {
         publicProduct = applyViewAsPriceToProduct(publicProduct, viewAsRoles[0]);
       }
@@ -136,8 +149,9 @@ export async function invalidateProductQueries(
   queryClient: QueryClient,
   options?: { productId?: string; inventoryProduct?: InventoryProduct },
 ): Promise<void> {
+  const warehouses = getCachedWarehouses(queryClient);
   const inventoryProduct = options?.inventoryProduct
-    ? normalizeInventoryRow(options.inventoryProduct)
+    ? normalizeInventoryRow(options.inventoryProduct, warehouses)
     : null;
 
   if (inventoryProduct) {
@@ -149,7 +163,7 @@ export async function invalidateProductQueries(
       return current.map((product) => {
         if (product.id !== inventoryProduct.id) return product;
         try {
-          return mergeInventoryProductPatch(product, inventoryProduct, DEFAULT_WAREHOUSES);
+          return mergeInventoryProductPatch(product, inventoryProduct, warehouses);
         } catch {
           return { ...product, ...inventoryProduct };
         }

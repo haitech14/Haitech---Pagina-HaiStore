@@ -2,8 +2,14 @@ import { randomId } from '@/lib/random-id';
 import type { InventoryWarehouse, InventoryProduct, ProductStockByWarehouse } from '@/types/product';
 
 export const DEFAULT_WAREHOUSES: InventoryWarehouse[] = [
-  { id: 'principal', name: 'Almacén principal' },
+  { id: 'principal', name: 'Almacén principal', delivery_time: 'Inmediata' },
 ];
+
+function normalizeDeliveryTime(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
 
 export function normalizeWarehouses(value: unknown): InventoryWarehouse[] {
   if (!Array.isArray(value) || value.length === 0) {
@@ -23,7 +29,14 @@ export function normalizeWarehouses(value: unknown): InventoryWarehouse[] {
         : randomId();
     if (seen.has(id)) continue;
     seen.add(id);
-    result.push({ id, name });
+    const delivery_time = normalizeDeliveryTime(
+      (entry as { delivery_time?: unknown }).delivery_time,
+    );
+    result.push({
+      id,
+      name,
+      ...(delivery_time != null ? { delivery_time } : {}),
+    });
   }
 
   return result.length > 0 ? result : [...DEFAULT_WAREHOUSES];
@@ -71,21 +84,73 @@ export function normalizeProductStock(
   return { stock_by_warehouse, stock: legacy };
 }
 
-export function stockFromTotal(
+/** Almacén donde vive el stock del producto (el que tiene qty > 0, o el default). */
+export function getProductPrimaryWarehouseId(
+  product: Pick<InventoryProduct, 'stock' | 'stock_by_warehouse'>,
+  warehouses: InventoryWarehouse[],
+): string {
+  const list = normalizeWarehouses(warehouses);
+  const { stock_by_warehouse } = normalizeProductStock(
+    product.stock_by_warehouse,
+    product.stock,
+    list,
+  );
+  const withStock = stock_by_warehouse.find((row) => row.quantity > 0);
+  if (withStock) return withStock.warehouse_id;
+  return getDefaultWarehouseId(list);
+}
+
+/**
+ * Asigna todo el stock a un almacén concreto (edición rápida del total
+ * o cambio de almacén sin qty por ubicación).
+ */
+export function stockFromTotalForWarehouse(
   total: number,
+  warehouseId: string,
   warehouses: InventoryWarehouse[],
 ): { stock_by_warehouse: ProductStockByWarehouse[]; stock: number } {
   const list = normalizeWarehouses(warehouses);
   const defaultId = getDefaultWarehouseId(list);
+  const targetId = list.some((w) => w.id === warehouseId) ? warehouseId : defaultId;
   const qty = Math.max(0, Math.floor(Number(total) || 0));
   return normalizeProductStock(
     list.map((w) => ({
       warehouse_id: w.id,
-      quantity: w.id === defaultId ? qty : 0,
+      quantity: w.id === targetId ? qty : 0,
     })),
     qty,
     list,
   );
+}
+
+/** Asigna todo el stock al almacén por defecto (edición rápida del total). */
+export function stockFromTotal(
+  total: number,
+  warehouses: InventoryWarehouse[],
+): { stock_by_warehouse: ProductStockByWarehouse[]; stock: number } {
+  return stockFromTotalForWarehouse(total, getDefaultWarehouseId(warehouses), warehouses);
+}
+
+/** Mueve el stock total del producto a otro almacén. */
+export function assignProductStockToWarehouse(
+  product: Pick<InventoryProduct, 'stock' | 'stock_by_warehouse'>,
+  warehouseId: string,
+  warehouses: InventoryWarehouse[],
+): { stock_by_warehouse: ProductStockByWarehouse[]; stock: number } {
+  const list = normalizeWarehouses(warehouses);
+  const { stock } = normalizeProductStock(product.stock_by_warehouse, product.stock, list);
+  return stockFromTotalForWarehouse(stock, warehouseId, list);
+}
+
+/** Tiempo de entrega del almacén donde está el stock (si está registrado). */
+export function resolveProductWarehouseDeliveryTime(
+  product: Pick<InventoryProduct, 'stock' | 'stock_by_warehouse'>,
+  warehouses: InventoryWarehouse[],
+): string | null {
+  const list = normalizeWarehouses(warehouses);
+  const warehouseId = getProductPrimaryWarehouseId(product, list);
+  const warehouse = list.find((entry) => entry.id === warehouseId);
+  return normalizeDeliveryTime(warehouse?.delivery_time);
 }
 
 export function applyStockFields(
@@ -104,6 +169,7 @@ export interface StockBreakdownLine {
   warehouseId: string;
   warehouseName: string;
   quantity: number;
+  deliveryTime?: string | null;
 }
 
 export function getStockBreakdown(
@@ -122,5 +188,6 @@ export function getStockBreakdown(
     warehouseId: warehouse.id,
     warehouseName: warehouse.name,
     quantity: byId.get(warehouse.id) ?? 0,
+    ...(warehouse.delivery_time != null ? { deliveryTime: warehouse.delivery_time } : {}),
   }));
 }

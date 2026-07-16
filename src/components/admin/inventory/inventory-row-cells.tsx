@@ -56,7 +56,10 @@ import {
 } from '@/lib/inventory-table-columns';
 import { normalizeAttributes, getProductAttributeValue, upsertProductAttribute } from '@/lib/inventory-attributes';
 import { buildPurchasePricePatch } from '@/lib/inventory-suppliers';
-import { stockFromTotal } from '@/lib/inventory-stock';
+import {
+  getProductPrimaryWarehouseId,
+  stockFromTotalForWarehouse,
+} from '@/lib/inventory-stock';
 import {
   PRICE_ROLE_LABELS,
   isPriceRole,
@@ -116,7 +119,8 @@ export function InventoryRowCells({
   };
 
   const saveStock = async (value: string) => {
-    const stockPatch = stockFromTotal(Number(value) || 0, warehouses);
+    const warehouseId = getProductPrimaryWarehouseId(product, warehouses);
+    const stockPatch = stockFromTotalForWarehouse(Number(value) || 0, warehouseId, warehouses);
     await onPatch({
       stock: stockPatch.stock,
       stock_by_warehouse: stockPatch.stock_by_warehouse,

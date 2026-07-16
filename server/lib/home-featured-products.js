@@ -45,7 +45,7 @@ function toHomeFeaturedPayload(product) {
 export function buildHomeFeaturedFromProducts(
   products,
   role = 'public',
-  { categorySlug = 'multifuncionales', limit = HOME_HIGHLIGHTED_ROW_SIZE } = {},
+  { categorySlug = 'multifuncionales', limit = HOME_HIGHLIGHTED_ROW_SIZE, warehouses } = {},
 ) {
   const labels = CATEGORY_LABELS[categorySlug] ?? CATEGORY_LABELS.multifuncionales;
   const safeLimit = Math.min(Math.max(Number(limit) || HOME_HIGHLIGHTED_ROW_SIZE, 1), 12);
@@ -55,7 +55,7 @@ export function buildHomeFeaturedFromProducts(
   }
 
   const highlighted = resolveHomeHighlightedRowProducts(
-    candidates.map((product) => toPublicProduct(withResolvedMedia(product), role)),
+    candidates.map((product) => toPublicProduct(withResolvedMedia(product), role, warehouses)),
   );
   return highlighted.slice(0, safeLimit).map(toHomeFeaturedPayload);
 }
@@ -66,8 +66,12 @@ async function listHomeFeaturedProductsUncached({
   limit = HOME_HIGHLIGHTED_ROW_SIZE,
 } = {}) {
   const safeLimit = Math.min(Math.max(Number(limit) || HOME_HIGHLIGHTED_ROW_SIZE, 1), 12);
-  const { products } = await readInventory();
-  return buildHomeFeaturedFromProducts(products, role, { categorySlug, limit: safeLimit });
+  const { products, warehouses } = await readInventory();
+  return buildHomeFeaturedFromProducts(products, role, {
+    categorySlug,
+    limit: safeLimit,
+    warehouses,
+  });
 }
 
 /**

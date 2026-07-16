@@ -21,7 +21,7 @@ interface ProductQuantityAddFooterProps {
   revealQuantityOnHover?: boolean;
   /** No muestra el selector de cantidad (siempre agrega 1 unidad). */
   hideQuantity?: boolean;
-  /** Etiqueta del botón de carrito (p. ej. «Comprar ahora»). */
+  /** Etiqueta del botón de carrito (p. ej. «Comprar»). */
   addLabel?: string;
   /** Etiqueta corta al hover de la tarjeta (`group`) cuando `revealQuantityOnHover`. */
   addLabelHover?: string;

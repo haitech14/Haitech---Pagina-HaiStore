@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { PRODUCTION_FILTER_OPTIONS } from '@/lib/category-catalog-filters';
 import type { ProductCardSpecRow } from '@/lib/product-card-short-description';
 
 interface ProductCardSpecTableProps {
@@ -6,54 +7,126 @@ interface ProductCardSpecTableProps {
   className?: string;
 }
 
-/** Tabla compacta de specs en tarjetas (Funciones / Velocidad+Formato / Producción). */
+type DisplayRow = {
+  id: string;
+  label: string;
+  value: string;
+  display: string;
+};
+
+function normalizeToken(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .trim();
+}
+
+/** Acorta tiers de producción conocidos; el valor completo queda en `title`. */
+function formatProduccionDisplay(value: string): string {
+  const match = PRODUCTION_FILTER_OPTIONS.find(
+    (opt) => opt.value === value || opt.label === value,
+  );
+  return match?.sidebarLabel ?? value;
+}
+
+/**
+ * Acorta funciones largas en la celda: «Copiadora, Impresora, Escáner y fax» → «Copia · Imp · Scan · Fax».
+ * El valor canónico sigue en tooltip.
+ */
+function formatFuncionesDisplay(value: string): string {
+  const parts = value
+    .split(/[,/;|]+|\s+y\s+|\s+e\s+/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) return value;
+
+  const mapped: string[] = [];
+  for (const part of parts) {
+    const key = normalizeToken(part);
+    let short: string;
+    if (/copi/.test(key)) short = 'Copia';
+    else if (/impres/.test(key)) short = 'Imp';
+    else if (/escan|scan/.test(key)) short = 'Scan';
+    else if (/fax/.test(key)) short = 'Fax';
+    else short = part;
+    if (!mapped.some((item) => normalizeToken(item) === normalizeToken(short))) {
+      mapped.push(short);
+    }
+  }
+
+  return mapped.length > 0 ? mapped.join(' · ') : value;
+}
+
+function formatCardSpecDisplay(row: ProductCardSpecRow): string {
+  if (row.id === 'produccion') return formatProduccionDisplay(row.value);
+  if (row.id === 'funciones') return formatFuncionesDisplay(row.value);
+  return row.value;
+}
+
+/**
+ * Mini tabla de specs en tarjetas (Funciones / Velocidad / Formato / Producción).
+ * Un poco más densa que la primera versión (texto y padding menores).
+ */
 export function ProductCardSpecTable({ rows, className }: ProductCardSpecTableProps) {
   if (rows.length === 0) return null;
 
   const byId = new Map(rows.map((row) => [row.id, row]));
-  const funciones = byId.get('funciones');
-  const velocidad = byId.get('velocidad');
-  const formato = byId.get('formato');
-  const produccion = byId.get('produccion');
+  const ordered: ProductCardSpecRow[] = [];
+  for (const id of ['funciones', 'velocidad', 'formato', 'produccion'] as const) {
+    const row = byId.get(id);
+    if (row) ordered.push(row);
+  }
+  for (const row of rows) {
+    if (!ordered.some((item) => item.id === row.id)) ordered.push(row);
+  }
 
-  const velocidadFormato =
-    velocidad || formato
-      ? [velocidad, formato].filter((row): row is ProductCardSpecRow => Boolean(row))
-      : [];
+  const displayRows: DisplayRow[] = ordered.map((row) => ({
+    id: row.id,
+    label: row.label,
+    value: row.value,
+    display: formatCardSpecDisplay(row),
+  }));
 
   return (
-    <dl
+    <div
       className={cn(
-        'grid gap-0.5 text-left text-[0.6875rem] leading-snug text-[#666666] sm:text-xs',
+        'overflow-hidden rounded-md border border-[#E6E8EE] bg-white text-left',
         className,
       )}
     >
-      {funciones ? (
-        <div className="grid grid-cols-[4.75rem_1fr] gap-x-1.5 sm:grid-cols-[5.25rem_1fr]">
-          <dt className="font-medium text-[#888888]">{funciones.label}</dt>
-          <dd className="min-w-0 truncate text-[#555555]">{funciones.value}</dd>
-        </div>
-      ) : null}
-
-      {velocidadFormato.length > 0 ? (
-        <div className="grid grid-cols-[4.75rem_1fr] gap-x-1.5 sm:grid-cols-[5.25rem_1fr]">
-          <dt className="font-medium text-[#888888]">
-            {velocidad && formato
-              ? 'Velocidad, Formato'
-              : (velocidad?.label ?? formato?.label)}
-          </dt>
-          <dd className="min-w-0 truncate text-[#555555]">
-            {velocidadFormato.map((row) => row.value).join(' · ')}
-          </dd>
-        </div>
-      ) : null}
-
-      {produccion ? (
-        <div className="grid grid-cols-[4.75rem_1fr] gap-x-1.5 sm:grid-cols-[5.25rem_1fr]">
-          <dt className="font-medium text-[#888888]">{produccion.label}</dt>
-          <dd className="min-w-0 truncate text-[#555555]">{produccion.value}</dd>
-        </div>
-      ) : null}
-    </dl>
+      <table className="w-full table-fixed border-collapse text-[0.625rem] leading-tight sm:text-[0.6875rem] sm:leading-snug">
+        <tbody>
+          {displayRows.map((row, index) => {
+            const showTitle = row.value.length > 28 || row.display !== row.value;
+            return (
+              <tr
+                key={row.id}
+                className={cn(
+                  index % 2 === 0 ? 'bg-[#F7F8FA]' : 'bg-white',
+                  index !== displayRows.length - 1 && 'border-b border-[#E6E8EE]',
+                )}
+              >
+                <th
+                  scope="row"
+                  className="w-[36%] max-w-[5rem] px-1 py-0.5 align-top font-medium text-[#888888] sm:px-1.5 sm:py-1"
+                >
+                  {row.label}
+                </th>
+                <td
+                  className="min-w-0 px-1 py-0.5 align-top font-medium text-[#444444] sm:px-1.5 sm:py-1"
+                  {...(showTitle ? { title: row.value } : {})}
+                >
+                  <span className="line-clamp-2 break-words [overflow-wrap:anywhere]">
+                    {row.display}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }

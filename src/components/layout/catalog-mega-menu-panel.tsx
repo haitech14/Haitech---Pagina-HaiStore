@@ -135,12 +135,12 @@ function MegaMenuDesktopColumn({
   const hasSubLinks = group.links.length > 0;
 
   return (
-    <div className="flex h-full min-w-0 flex-col">
+    <div className="flex w-[11.5rem] max-w-[14rem] flex-col sm:w-[12.5rem]">
       <MegaMenuColumnThumbnail group={group} onNavigate={onNavigate} />
       <MegaMenuColumnTitle group={group} onNavigate={onNavigate} />
 
       {hasSubLinks ? (
-        <ul className="mb-3 flex-1 space-y-1.5" role="list">
+        <ul className="mb-3 space-y-1.5" role="list">
           {group.links.map((link) => (
             <li key={`${group.slug}-${link.href}-${link.name}`}>
               <MegaMenuLink
@@ -156,9 +156,7 @@ function MegaMenuDesktopColumn({
             </li>
           ))}
         </ul>
-      ) : (
-        <div className="mb-3 flex-1" aria-hidden="true" />
-      )}
+      ) : null}
 
       <MegaMenuLink
         to={group.href}
@@ -185,15 +183,15 @@ function MegaMenuSummaryPanel({
   const hasSubLinks = group.links.length > 0;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex w-max max-w-full flex-col">
       <MegaMenuColumnTitle group={group} onNavigate={onNavigate} variant="summary" />
 
-      <div className="flex min-h-0 flex-1 gap-6">
+      <div className="flex gap-6">
         <MegaMenuColumnThumbnail group={group} onNavigate={onNavigate} size="summary" />
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex w-[13.5rem] max-w-[18rem] shrink-0 flex-col sm:w-[15rem]">
           {hasSubLinks ? (
-            <ul className="flex-1 space-y-2" role="list">
+            <ul className="space-y-2" role="list">
               {group.links.map((link) => (
                 <li key={`${group.slug}-${link.href}-${link.name}`}>
                   <MegaMenuLink
@@ -210,7 +208,7 @@ function MegaMenuSummaryPanel({
               ))}
             </ul>
           ) : (
-            <p className="flex-1 text-sm text-[#6B7280]">
+            <p className="text-sm text-[#6B7280]">
               Explora todos los productos de esta categoría.
             </p>
           )}
@@ -299,7 +297,8 @@ function MegaMenuLinkGroup({
 }
 
 function desktopMegaMenuGridClass(count: number): string {
-  if (count <= 2) return 'grid-cols-2';
+  if (count <= 1) return 'grid-cols-1';
+  if (count === 2) return 'grid-cols-2';
   if (count <= 4) return 'grid-cols-2 sm:grid-cols-3';
   return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-3';
 }
@@ -423,7 +422,7 @@ export function CatalogMegaMenuPanel({
 
   if (!isMobile) {
     return (
-      <div className="flex min-h-[20rem] bg-white">
+      <div className="flex w-max max-w-full bg-white">
         <CatalogMegaMenuSidebar
           sidebarItems={sidebarItems}
           activeCategorySlug={activeCategorySlug}
@@ -432,16 +431,16 @@ export function CatalogMegaMenuPanel({
         />
 
         <div
-          className="flex min-w-0 flex-1 flex-col"
+          className="flex w-max max-w-full flex-col"
           role="tabpanel"
           aria-label={activeItem?.label ?? 'Categoría'}
         >
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
+          <div className="flex max-h-[inherit] flex-col overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
             {columnGroups.length > 0 ? (
               useSummaryLayout ? (
                 <MegaMenuSummaryPanel group={columnGroups[0]} onNavigate={onNavigate} />
               ) : (
-                <div className={cn('grid items-stretch gap-x-8 gap-y-6', desktopGridClass)}>
+                <div className={cn('grid w-max max-w-full items-start gap-x-8 gap-y-6', desktopGridClass)}>
                   {columnGroups.map((group) => (
                     <MegaMenuDesktopColumn
                       key={`${activeCategorySlug}-${group.slug}`}

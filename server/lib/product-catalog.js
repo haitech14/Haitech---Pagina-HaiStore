@@ -365,7 +365,7 @@ async function listFromSupabase(role, adminView) {
 }
 
 async function listFromInventory(role, adminView) {
-  const { products } = await readInventory();
+  const { products, warehouses } = await readInventory();
   if (adminView) {
     // No volver a migrate/sanitize aquí: en productos del blocklist duplicate-main
     // sanitize puede anular image_url recién persistida (?v=) en lecturas concurrentes,
@@ -373,9 +373,9 @@ async function listFromInventory(role, adminView) {
     return products.map((product) => toAdminListProduct(product));
   }
   return products
-    .map((product) => migrateInventoryProduct(product))
+    .map((product) => migrateInventoryProduct(product, warehouses))
     .filter((product) => isProductVisibleOnStorefront(product))
-    .map((product) => toPublicProductList(withResolvedMedia(product), role));
+    .map((product) => toPublicProductList(withResolvedMedia(product), role, warehouses));
 }
 
 /** Producto completo para el diálogo de edición admin. */
@@ -510,12 +510,12 @@ async function getFromSupabase(lookupKey, role) {
 }
 
 async function getPublicProductFromInventory(lookupKey, role) {
-  const { products } = await readInventory();
+  const { products, warehouses } = await readInventory();
   const product = findInventoryProductByLookupKey(products, lookupKey);
   if (!product) return undefined;
-  const migrated = migrateInventoryProduct(product);
+  const migrated = migrateInventoryProduct(product, warehouses);
   if (!isProductVisibleOnStorefront(migrated)) return undefined;
-  return toPublicProduct(withResolvedMedia(migrated), role);
+  return toPublicProduct(withResolvedMedia(migrated), role, warehouses);
 }
 
 export async function getPublicProductById(id, role = 'public') {

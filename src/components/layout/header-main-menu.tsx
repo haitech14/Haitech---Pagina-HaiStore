@@ -1,11 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom';
 
 import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
-import { ConsumiblesNavMegaMenu } from '@/components/layout/consumibles-nav-mega-menu';
 import { RentalsNavMegaMenu } from '@/components/layout/rentals-nav-mega-menu';
-import { RepuestosNavMegaMenu } from '@/components/layout/repuestos-nav-mega-menu';
 import { ServicesNavMegaMenu } from '@/components/layout/services-nav-mega-menu';
 import { SoftwareNavMegaMenu } from '@/components/layout/software-nav-mega-menu';
+import { TonerNavMegaMenu } from '@/components/layout/toner-nav-mega-menu';
 import { cn } from '@/lib/utils';
 
 export type HeaderMainNavLink = {
@@ -75,10 +74,7 @@ export function HeaderMainMenu({
         <RentalsNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
       <li className="shrink-0">
-        <ConsumiblesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
-      </li>
-      <li className="shrink-0">
-        <RepuestosNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
+        <TonerNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
       <li className="shrink-0">
         <ServicesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />

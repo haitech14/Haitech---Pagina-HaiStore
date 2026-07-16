@@ -1,7 +1,9 @@
 import { memo, useSyncExternalStore, type ClipboardEvent } from 'react';
 import {
   Copy,
+  FileSpreadsheet,
   ImagePlus,
+  Loader2,
   SlidersHorizontal,
   Tags,
   Trash2,
@@ -103,6 +105,8 @@ export function useBatchSelectionSize(store: AdminInventarioBatchSelectionStore)
 export function InventarioBatchToolbar({
   store,
   bulkBusy,
+  exportBusy = false,
+  canExport = true,
   onOpenAlbum,
   onOpenCategories,
   onOpenText,
@@ -111,9 +115,12 @@ export function InventarioBatchToolbar({
   onDelete,
   onClear,
   onPasteImage,
+  onExportListaPrecios,
 }: {
   store: AdminInventarioBatchSelectionStore;
   bulkBusy: boolean;
+  exportBusy?: boolean;
+  canExport?: boolean;
   onOpenAlbum: () => void;
   onOpenCategories: () => void;
   onOpenText: () => void;
@@ -122,6 +129,7 @@ export function InventarioBatchToolbar({
   onDelete: () => void;
   onClear: () => void;
   onPasteImage: (file: File) => void;
+  onExportListaPrecios: () => void;
 }) {
   const selectedCount = useBatchSelectionSize(store);
 
@@ -205,6 +213,30 @@ export function InventarioBatchToolbar({
         >
           <Copy className="size-3.5" aria-hidden="true" />
           Duplicar
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={
+            bulkBusy ||
+            exportBusy ||
+            (selectedCount === 0 && !canExport)
+          }
+          onClick={onExportListaPrecios}
+          className="h-7 gap-1.5 text-xs"
+          title={
+            selectedCount > 0
+              ? 'Descarga Excel de lista de precios de los productos seleccionados'
+              : 'Descarga Excel de lista de precios de los productos visibles (filtros actuales)'
+          }
+        >
+          {exportBusy ? (
+            <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+          ) : (
+            <FileSpreadsheet className="size-3.5" aria-hidden="true" />
+          )}
+          Lista de Precios
         </Button>
         <Button
           type="button"

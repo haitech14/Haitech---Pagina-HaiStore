@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
@@ -22,5 +22,28 @@ export function useWarehouses() {
     queryFn: fetchWarehouses,
     enabled: isAdmin,
     staleTime: 1000 * 60,
+  });
+}
+
+export function useSaveWarehouses() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (warehouses: InventoryWarehouse[]) => {
+      const normalized = normalizeWarehouses(warehouses);
+      return apiFetch<InventoryWarehouse[]>('/api/warehouses', {
+        method: 'PUT',
+        body: JSON.stringify({ warehouses: normalized }),
+      });
+    },
+    onSuccess: (saved) => {
+      const normalized = normalizeWarehouses(saved);
+      queryClient.setQueryData<InventoryWarehouse[]>(['warehouses'], normalized);
+      // Los productos recalculan stock_by_warehouse / entrega con la lista nueva.
+      void queryClient.invalidateQueries({
+        queryKey: ['admin-inventory'],
+        refetchType: 'active',
+      });
+    },
   });
 }

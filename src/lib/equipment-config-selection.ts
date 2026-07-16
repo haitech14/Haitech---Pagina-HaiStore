@@ -126,6 +126,7 @@ export interface ProductQuoteLineInput {
   pricePen: number;
   quantity?: number;
   imageUrl?: string | null;
+  shortDescription?: string | null;
 }
 
 export function buildProductQuoteLines(

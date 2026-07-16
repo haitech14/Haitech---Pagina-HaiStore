@@ -53,6 +53,7 @@ import { productToFeatured } from '@/lib/store-products';
 import type { WhatsAppContact } from '@/lib/whatsapp-contact';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
+import { takeHomeDisplayProductsWithOnRequest } from '@/lib/product-on-request-label';
 import { cn } from '@/lib/utils';
 
 const FEATURED_CATEGORY_CAROUSEL_GAP = 'gap-2 sm:gap-2.5';
@@ -709,22 +710,24 @@ export function HomeFeaturedProductsSection({
   }, [activeCategory, config.variant, productPool]);
 
   const products = useMemo(() => {
-    return productPool
-      .filter((product) =>
-        config.variant === 'equipment'
-          ? matchesHomeFeaturedEquipmentFilters(
-              product,
-              activeCondition as HomeFeaturedEquipmentConditionFilterId,
-              activeCategory as HomeFeaturedEquipmentCategoryFilterId,
-            )
-          : matchesHomeFeaturedConsumablesFilters(
-              product,
-              activeCondition as HomeFeaturedConsumablesConditionFilterId,
-              activeCategory as HomeFeaturedConsumablesCategoryFilterId,
-            ),
-      )
-      .sort(config.compareProducts)
-      .slice(0, FEATURED_DISPLAY_LIMIT);
+    return takeHomeDisplayProductsWithOnRequest(
+      productPool
+        .filter((product) =>
+          config.variant === 'equipment'
+            ? matchesHomeFeaturedEquipmentFilters(
+                product,
+                activeCondition as HomeFeaturedEquipmentConditionFilterId,
+                activeCategory as HomeFeaturedEquipmentCategoryFilterId,
+              )
+            : matchesHomeFeaturedConsumablesFilters(
+                product,
+                activeCondition as HomeFeaturedConsumablesConditionFilterId,
+                activeCategory as HomeFeaturedConsumablesCategoryFilterId,
+              ),
+        )
+        .sort(config.compareProducts),
+      FEATURED_DISPLAY_LIMIT,
+    );
   }, [activeCategory, activeCondition, config, productPool]);
 
   if (!isLoading && productPool.length === 0) return null;

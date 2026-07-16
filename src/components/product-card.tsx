@@ -40,7 +40,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
     <div className="space-y-2">
       <ProductQuantityAddFooter
         product={product}
-        addLabel="Comprar ahora"
+        addLabel="Comprar"
         revealQuantityOnHover={false}
       />
       <ProductWhatsAppButton

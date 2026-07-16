@@ -7,13 +7,15 @@ import {
   revalidateHomeCatalogBundle,
 } from '@/lib/home-catalog-bundle';
 import { deferCatalogIndexPreload } from '@/lib/defer-catalog-index';
-import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
 import { viewAsRolesQueryKey } from '@/lib/view-as-role';
 
-/** Precarga snapshot estático y revalida contra la API en segundo plano (sin bloquear la ruta). */
+/**
+ * Precarga snapshot estático y revalida contra la API en segundo plano.
+ * No dispara inventory-index (~1.3 MB) ni prefetch de tienda en cold start de home;
+ * el índice se carga en idle (o al ir a /tienda / hover nav).
+ */
 export async function prefetchHomeCatalog(queryClient: QueryClient) {
-  deferCatalogIndexPreload(1200);
-  prefetchStoreRoute(queryClient);
+  deferCatalogIndexPreload(8000);
 
   const queryKey = [HOME_CATALOG_BUNDLE_QUERY_KEY, 'public', viewAsRolesQueryKey([])];
   const initial = await fetchHomeCatalogBundleInitial();

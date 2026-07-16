@@ -61,10 +61,12 @@ export async function prepareInventoryPayloadForApi(
   const attachments = normalizeAttachments(product.attachments);
   const attributes = normalizeAttributes(product.attributes);
   const storefront_feature_bar = normalizeStorefrontFeatureBar(product.storefront_feature_bar);
-  const storefront_hero_bullets = normalizeStorefrontHeroBullets(product.storefront_hero_bullets);
+  const storefront_hero_bullets = Array.isArray(product.storefront_hero_bullets)
+    ? normalizeStorefrontHeroBullets(product.storefront_hero_bullets)
+    : undefined;
   const description =
     product.description?.trim() ||
-    (storefront_hero_bullets.length > 0
+    (storefront_hero_bullets && storefront_hero_bullets.length > 0
       ? heroBulletsToDescriptionText(storefront_hero_bullets)
       : product.description ?? null);
 
@@ -78,7 +80,7 @@ export async function prepareInventoryPayloadForApi(
       attachments,
       attributes,
       storefront_feature_bar,
-      storefront_hero_bullets,
+      ...(storefront_hero_bullets !== undefined ? { storefront_hero_bullets } : {}),
       description,
       purchase_price_usd: resolvePurchasePriceUsd(suppliers, product.purchase_price_usd),
       code: product.code?.trim() || generateInventoryProductCode(id),
@@ -175,7 +177,11 @@ export function normalizeInventoryProduct(
       prices,
       volume_role_prices: normalizeVolumeRolePrices(raw.volume_role_prices),
       storefront_feature_bar: normalizeStorefrontFeatureBar(raw.storefront_feature_bar),
-      storefront_hero_bullets: normalizeStorefrontHeroBullets(raw.storefront_hero_bullets),
+      ...(Array.isArray(raw.storefront_hero_bullets)
+        ? {
+            storefront_hero_bullets: normalizeStorefrontHeroBullets(raw.storefront_hero_bullets),
+          }
+        : {}),
       ...(typeof raw.updated_at === 'string' ? { updated_at: raw.updated_at } : {}),
     };
 

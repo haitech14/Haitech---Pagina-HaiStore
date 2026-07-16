@@ -1,6 +1,7 @@
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import {
+  buildBreadcrumbJsonLd,
   buildCategoryCollectionJsonLd,
   buildCategoryMetaDescription,
   buildCategoryMetaTitle,
@@ -60,7 +61,7 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
   }
 
   const shouldNoIndex = Boolean(hasFilterParams && !catalogSlug);
-  const jsonLd = buildCategoryCollectionJsonLd(
+  const collectionLd = buildCategoryCollectionJsonLd(
     {
       slug: category.slug,
       name: subcategoryName?.trim() || category.name,
@@ -69,6 +70,16 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
     SITE_ORIGIN,
     topProducts,
   );
+
+  const breadcrumbs: Array<{ label: string; href?: string }> = [
+    { label: 'Inicio', href: '/' },
+    { label: category.name, href: `/categoria/${category.slug}` },
+  ];
+  if (subcategoryName?.trim() && subSlug && subSlug !== 'all' && subSlug !== ALL_SUBCATEGORIES_QUERY) {
+    breadcrumbs.push({ label: subcategoryName.trim(), href: canonicalPath });
+  }
+  const breadcrumbLd = buildBreadcrumbJsonLd(breadcrumbs, SITE_ORIGIN);
+  const jsonLd = breadcrumbLd ? [...collectionLd, breadcrumbLd] : collectionLd;
 
   return {
     title: buildCategoryMetaTitle(category, subcategoryName ?? undefined, subSlug ?? undefined),

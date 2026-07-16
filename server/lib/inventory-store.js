@@ -9,6 +9,7 @@ import { persistProductMedia } from './persist-product-media.js';
 import {
   normalizeProductStock,
   normalizeWarehouses,
+  resolveProductWarehouseDeliveryTime,
   stockFromTotal,
 } from './inventory-warehouses.js';
 import { seedProducts } from './seed-products.js';
@@ -810,11 +811,13 @@ export function getEffectivePrice(product, role) {
   return prices[priceRole] ?? prices.public ?? 0;
 }
 
-export function toPublicProduct(product, role) {
+export function toPublicProduct(product, role, warehouses) {
   const priceRole = resolvePriceRole(role);
   const prices = ensureFullPrices(product.prices ?? { public: product.price ?? 0 });
   const image_url = resolveProductImageUrl(product);
   const gallery = resolveProductGallery(product);
+  const warehouseList = normalizeWarehouses(warehouses);
+  const delivery_time = resolveProductWarehouseDeliveryTime(product, warehouseList);
 
   return {
     id: product.id,
@@ -828,6 +831,7 @@ export function toPublicProduct(product, role) {
     image_url,
     gallery,
     stock: product.stock ?? 0,
+    ...(delivery_time != null ? { delivery_time } : {}),
     category: product.category ?? null,
     brand: product.brand ?? null,
     created_at: product.created_at,
@@ -839,7 +843,14 @@ export function toPublicProduct(product, role) {
       : 0,
     attributes: product.attributes ?? [],
     storefront_feature_bar: normalizeStorefrontFeatureBar(product.storefront_feature_bar),
-    storefront_hero_bullets: normalizeStorefrontHeroBullets(product.storefront_hero_bullets),
+    // Evitar `[]` cuando no hay override: en ficha, `[]` ocultaba las specs generadas.
+    ...(Array.isArray(product.storefront_hero_bullets)
+      ? {
+          storefront_hero_bullets: normalizeStorefrontHeroBullets(
+            product.storefront_hero_bullets,
+          ),
+        }
+      : {}),
     attachments: normalizeAttachments(product.attachments).filter((attachment) =>
       ['technical_sheet', 'manual', 'printer_driver', 'firmware', 'brochure'].includes(
         attachment.kind,
@@ -861,8 +872,8 @@ export function toPublicProduct(product, role) {
 }
 
 /** DTO mínimo para tarjetas de catálogo (sin attributes ni prices completos). */
-export function toPublicProductCard(product, role) {
-  const full = toPublicProduct(product, role);
+export function toPublicProductCard(product, role, warehouses) {
+  const full = toPublicProduct(product, role, warehouses);
   return {
     id: full.id,
     code: full.code,
@@ -871,6 +882,7 @@ export function toPublicProductCard(product, role) {
     currency: full.currency,
     image_url: full.image_url,
     stock: full.stock,
+    ...(full.delivery_time != null ? { delivery_time: full.delivery_time } : {}),
     category: full.category,
     brand: full.brand,
     sort_order: full.sort_order,
@@ -879,8 +891,8 @@ export function toPublicProductCard(product, role) {
 }
 
 /** DTO ligero para listados (sin description ni attachments; sí gallery para hover en cards). */
-export function toPublicProductList(product, role) {
-  const full = toPublicProduct(product, role);
+export function toPublicProductList(product, role, warehouses) {
+  const full = toPublicProduct(product, role, warehouses);
   return {
     id: full.id,
     code: full.code,
@@ -891,6 +903,7 @@ export function toPublicProductList(product, role) {
     image_url: full.image_url,
     gallery: full.gallery,
     stock: full.stock,
+    ...(full.delivery_time != null ? { delivery_time: full.delivery_time } : {}),
     category: full.category,
     brand: full.brand,
     sort_order: full.sort_order,
@@ -925,7 +938,11 @@ export function normalizeProductInput(body, existing, warehouses) {
   const warehouseList = normalizeWarehouses(warehouses);
   const hasStockByWarehouse = Array.isArray(body.stock_by_warehouse);
   const stockPatch = hasStockByWarehouse
-    ? normalizeProductStock(body.stock_by_warehouse, existing?.stock ?? 0, warehouseList)
+    ? normalizeProductStock(
+        body.stock_by_warehouse,
+        body.stock !== undefined && body.stock !== null ? body.stock : (existing?.stock ?? 0),
+        warehouseList,
+      )
     : body.stock !== undefined && body.stock !== null
       ? stockFromTotal(body.stock, warehouseList)
       : normalizeProductStock(

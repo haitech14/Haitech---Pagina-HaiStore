@@ -35,6 +35,7 @@ import {
   shouldPreferTitleSyncedHeroBullets,
 } from '@/lib/product-title-spec-sync';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
+import { resolveProductCardSpecRows } from '@/lib/product-card-short-description';
 import {
   CASETERA_250_PB1110_PRODUCT_ID,
   CASETERA_500_PB1120_PRODUCT_ID,
@@ -666,6 +667,44 @@ function hasDatasheetSections(specs: ProductSpecRow[]): boolean {
       row.section === 'Manejo de Papel' ||
       row.section === 'Consumibles',
   );
+}
+
+/** Prefija Funciones/Velocidad/Formato/Producción de tarjeta cuando faltan en la ficha. */
+function mergeCardSpecRowsIntoSpecs(
+  product: Product,
+  specs: ProductSpecRow[],
+): ProductSpecRow[] {
+  const cardRows = resolveProductCardSpecRows(product);
+  if (cardRows.length === 0) return specs;
+
+  const covered = (label: string) => {
+    const key = label
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '');
+    return specs.some((row) => {
+      const rowKey = row.label
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{M}/gu, '');
+      if (key === 'velocidad') return rowKey.includes('velocidad') || rowKey.includes('ppm');
+      if (key === 'formato') return rowKey.includes('formato');
+      if (key === 'produccion') {
+        return rowKey.includes('produccion') || rowKey.includes('volumen');
+      }
+      if (key === 'funciones') return rowKey.includes('funcion');
+      return rowKey.includes(key);
+    });
+  };
+
+  const extras: ProductSpecRow[] = [];
+  for (const row of cardRows) {
+    if (!covered(row.label)) {
+      extras.push({ label: row.label, value: row.value });
+    }
+  }
+
+  return extras.length > 0 ? [...extras, ...specs] : specs;
 }
 
 export const TRUST_WARRANTY_CHIP_LABEL =
@@ -1596,8 +1635,9 @@ export function buildProductDetail(
     isPrinter && !isM320f(product) && !hasDatasheetSections(specs)
       ? applyTitlePredominanceToSpecs(product, specs)
       : specs;
+  const specsWithCardHighlights = mergeCardSpecRowsIntoSpecs(product, syncedSpecs);
 
-  const generatedHeroBullets = buildHeroSpecBullets(product, syncedSpecs, isPrinter).map(
+  const generatedHeroBullets = buildHeroSpecBullets(product, specsWithCardHighlights, isPrinter).map(
     (bullet) => ({
       ...bullet,
       icon: resolveHeroBulletIcon(bullet),
@@ -1612,23 +1652,31 @@ export function buildProductDetail(
           icon: resolveHeroBulletIcon(bullet),
         })),
     product,
-    syncedSpecs,
+    specsWithCardHighlights,
   ).map((bullet) => ({
     ...bullet,
     icon: resolveHeroBulletIcon(bullet),
   }));
   const heroSpecTitle = buildHeroSpecTitle(product, isPrinter);
 
-  const descriptionVisual = buildDescriptionVisual(product, syncedSpecs, isPrinter, heroSpecBullets);
-  const featureBar = resolveStoredFeatureBar(product, buildFeatureBar(product, syncedSpecs, isPrinter));
-  const specPills = buildProductDetailSpecPills(product, syncedSpecs, isPrinter);
+  const descriptionVisual = buildDescriptionVisual(
+    product,
+    specsWithCardHighlights,
+    isPrinter,
+    heroSpecBullets,
+  );
+  const featureBar = resolveStoredFeatureBar(
+    product,
+    buildFeatureBar(product, specsWithCardHighlights, isPrinter),
+  );
+  const specPills = buildProductDetailSpecPills(product, specsWithCardHighlights, isPrinter);
 
   const showNuevo = productHasNuevoCornerBadge(product);
 
   // Igual que displayTitle: mantener el formato editado en inventario.
   const heroTitle = product.name?.trim() || product.name;
-  const tagPills = buildTagPills(syncedSpecs, isPrinter, showNuevo);
-  const heroHighlights = buildHeroHighlights(syncedSpecs, isPrinter);
+  const tagPills = buildTagPills(specsWithCardHighlights, isPrinter, showNuevo);
+  const heroHighlights = buildHeroHighlights(specsWithCardHighlights, isPrinter);
 
   const breadcrumbs = buildProductBreadcrumbs(product, displayTitle, []);
 
@@ -1665,7 +1713,7 @@ export function buildProductDetail(
     descriptionVisual,
     featureBar,
     specPills,
-    specs: syncedSpecs,
+    specs: specsWithCardHighlights,
     warrantyBullets: WARRANTY_BULLETS,
     gallery: buildGallery(product),
     features: isSupply ? SUPPLY_FEATURES : isPrinter ? PRINTER_FEATURES : SUPPLY_FEATURES,

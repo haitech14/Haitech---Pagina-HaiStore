@@ -376,7 +376,7 @@ export function filterStoreProductsForHomeSection(
   condition,
   limit = 10,
 ) {
-  return [...products]
+  const matched = [...products]
     .filter((product) => {
       if (isHomeCarouselExcludedProduct(product)) return false;
       if (family === 'repuestos' && isPrinterEquipmentProduct(product)) {
@@ -387,8 +387,20 @@ export function filterStoreProductsForHomeSection(
         categoryLabels.some((label) => productMatchesCategoryFilter(product, label));
       return inFamily && productMatchesCondition(product, condition, family);
     })
-    .sort(compareProductsBySortOrder)
-    .slice(0, limit);
+    .sort(compareProductsBySortOrder);
+
+  if (matched.length <= limit) return matched;
+
+  // Incluye «A pedido» (stock 0) en el top-N; no dejar solo los que tienen stock.
+  const inStock = matched.filter((product) => Number(product.stock) > 0);
+  const onRequest = matched.filter((product) => !(Number(product.stock) > 0));
+  if (onRequest.length === 0 || inStock.length === 0) {
+    return matched.slice(0, limit);
+  }
+
+  const onRequestCount = Math.min(onRequest.length, Math.max(2, Math.ceil(limit / 4)));
+  const inStockCount = Math.max(0, limit - onRequestCount);
+  return [...inStock.slice(0, inStockCount), ...onRequest.slice(0, onRequestCount)];
 }
 
 export function toFeaturedProduct(product, imageUrl) {
@@ -403,5 +415,9 @@ export function toFeaturedProduct(product, imageUrl) {
     image: imageUrl ?? null,
     rating: 5,
     reviews: 0,
+    ...(typeof product.stock === 'number' ? { stock: product.stock } : {}),
+    ...(typeof product.delivery_time === 'string' && product.delivery_time.trim()
+      ? { delivery_time: product.delivery_time.trim() }
+      : {}),
   };
 }

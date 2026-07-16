@@ -30,6 +30,7 @@ import {
   type SearchCategorySuggestion,
   type SearchServiceSuggestion,
 } from '@/lib/product-search';
+import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { getHomeLandingProductCardLines } from '@/lib/product-card-title';
 import { getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
@@ -267,6 +268,7 @@ function SearchProductSuggestionCell({
     ? formatDisplayPriceFromUsd(pricing.currentUsd, displayCurrency, dualPriceOrder)
     : CONSULTAR_PRECIO_LABEL;
   const clipboardCondition = resolveProductCardBadgeLabel(product);
+  const clipboardIsColor = inferColor(product) === 'Color';
   const clipboardCode = product.code?.trim() || null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const detailPath = productPath(product);
@@ -329,8 +331,10 @@ function SearchProductSuggestionCell({
           priceUsd={product.price}
           productId={product.id}
           productPath={detailPath}
+          isColorProduct={clipboardIsColor}
           {...(clipboardCode != null ? { code: clipboardCode } : {})}
           {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
+          {...(product.category != null ? { category: product.category } : {})}
           {...(product.volume_role_prices != null
             ? { volumeRolePrices: product.volume_role_prices }
             : {})}

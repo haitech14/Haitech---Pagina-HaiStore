@@ -47,7 +47,14 @@ export function InventoryStockBadge({ product, warehouses, compact = false }: In
               key={line.warehouseId}
               className="flex items-center justify-between gap-4 text-xs"
             >
-              <span className="max-w-[9rem] truncate text-foreground">{line.warehouseName}</span>
+              <span className="min-w-0">
+                <span className="max-w-[9rem] truncate text-foreground">{line.warehouseName}</span>
+                {line.deliveryTime ? (
+                  <span className="mt-0.5 block text-[0.625rem] text-muted-foreground">
+                    Entrega: {line.deliveryTime}
+                  </span>
+                ) : null}
+              </span>
               <span
                 className={cn(
                   'shrink-0 font-semibold tabular-nums',

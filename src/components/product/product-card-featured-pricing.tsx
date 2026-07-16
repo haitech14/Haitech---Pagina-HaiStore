@@ -8,11 +8,10 @@ import {
 import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
 
 const FEATURED_PRICE_COMPARE_CLASS =
-  'text-[0.625rem] font-normal tabular-nums text-muted-foreground line-through decoration-muted-foreground decoration-solid sm:text-[0.6875rem]';
+  'text-[0.6875rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] decoration-solid sm:text-[0.75rem]';
 
 const FEATURED_PRICE_CURRENT_CLASS =
-  'text-sm font-bold tabular-nums leading-tight text-[#111111] sm:text-[0.9375rem]';
-
+  'text-base font-bold tabular-nums leading-tight text-[#111111] sm:text-lg';
 function FeaturedDualCurrencyLine({
   usd,
   usdClassName,

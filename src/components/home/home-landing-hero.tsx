@@ -4,10 +4,12 @@ import { Award, ChevronRight, Headphones, KeyRound, ShieldCheck, ShoppingCart, U
 import { HomeHeroPartnerBrands } from '@/components/home/home-hero-partner-brands';
 import { StorePrefetchLink } from '@/components/store-prefetch-link';
 import { Button } from '@/components/ui/button';
+import { heroSingleAssetSources } from '@/lib/responsive-image';
 import { serviceHubPath } from '@/lib/service-hub';
 import { cn } from '@/lib/utils';
 
 const HERO_BACKGROUND = '/hero/home-hero-scene.png';
+const HERO_SOURCES = heroSingleAssetSources(HERO_BACKGROUND);
 
 const HERO_TRUST_ITEMS: {
   id: string;
@@ -60,16 +62,19 @@ export function HomeLandingHeroSlideContent({
       )}
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <img
-          src={HERO_BACKGROUND}
-          alt=""
-          width={1672}
-          height={941}
-          className="absolute inset-0 size-full origin-[72%_72%] scale-[1.04] object-cover object-[86%_72%] sm:scale-[1.06] sm:object-[84%_72%] lg:origin-[68%_70%] lg:scale-[1.1] lg:object-[80%_70%]"
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-        />
+        <picture>
+          <source type="image/webp" srcSet={HERO_SOURCES.webpSrcSet} sizes={HERO_SOURCES.sizes} />
+          <img
+            src={HERO_SOURCES.fallbackSrc}
+            alt=""
+            width={1672}
+            height={941}
+            className="absolute inset-0 size-full origin-[72%_72%] scale-[1.04] object-cover object-[86%_72%] sm:scale-[1.06] sm:object-[84%_72%] lg:origin-[68%_70%] lg:scale-[1.1] lg:object-[80%_70%]"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
+        </picture>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.97)_0%,rgba(255,255,255,0.94)_24%,rgba(255,255,255,0.82)_38%,rgba(255,255,255,0.45)_52%,transparent_68%)] lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_22%,rgba(255,255,255,0.84)_36%,rgba(255,255,255,0.42)_50%,transparent_64%)]" />
       </div>
 

@@ -9,6 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { PRODUCTOS_NAV_SUBMENU } from '@/data/header-nav-submenus';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildDesktopMegaMenuColumns, buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
@@ -46,11 +47,7 @@ export function CategoriesMegaMenu({
   showIcon = true,
 }: CategoriesMegaMenuProps) {
   const location = useLocation();
-  const isCatalogRoute =
-    location.pathname.startsWith('/categoria') ||
-    location.pathname.startsWith('/tienda') ||
-    location.pathname.startsWith('/producto');
-
+  const isCatalogRoute = PRODUCTOS_NAV_SUBMENU.matchActive(location);
   const { data: categoryTree = [] } = useStoreCategoriesTree();
   const menu = useMemo(() => buildProductosNavMegaMenu(categoryTree), [categoryTree]);
 

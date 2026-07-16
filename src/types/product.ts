@@ -39,6 +39,11 @@ export interface Product {
   /** Galería del inventario (la principal suele coincidir con image_url). */
   gallery?: string[];
   stock: number;
+  /**
+   * Tiempo de entrega resuelto del almacén con stock (si está configurado).
+   * Si falta, el portapapeles usa Inmediata (con stock) o el default sin stock.
+   */
+  delivery_time?: string | null;
   category: string | null;
   brand?: string | null;
   created_at: string;
@@ -93,6 +98,11 @@ export interface InventorySupplier {
 export interface InventoryWarehouse {
   id: string;
   name: string;
+  /**
+   * Tiempo de entrega pre-registrado del almacén (ej. "Inmediata", "24–48h", "3–5 días").
+   * Se usa al cotizar / portapapeles cuando el stock vive en ese almacén.
+   */
+  delivery_time?: string | null;
 }
 
 export interface ProductStockByWarehouse {

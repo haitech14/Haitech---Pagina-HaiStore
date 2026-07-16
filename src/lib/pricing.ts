@@ -1,5 +1,6 @@
 import { normalizeAttributes } from '@/lib/inventory-attributes';
 import { publicProductAttachments } from '@/lib/inventory-attachments';
+import { DEFAULT_WAREHOUSES, resolveProductWarehouseDeliveryTime } from '@/lib/inventory-stock';
 import {
   normalizeMerchandisingOptionalProducts,
   normalizeMerchandisingProductIds,
@@ -14,6 +15,7 @@ import {
   ensureFullPrices,
   resolvePriceRole,
   type InventoryProduct,
+  type InventoryWarehouse,
   type PriceRole,
   type Product,
 } from '@/types/product';
@@ -27,13 +29,18 @@ export function getEffectivePrice(product: InventoryProduct, role: string): numb
 }
 
 /** Mirrors server `toPublicProduct` so optimistic cache patches keep storefront fields. */
-export function toPublicProduct(product: InventoryProduct, role: string): Product {
+export function toPublicProduct(
+  product: InventoryProduct,
+  role: string,
+  warehouses: InventoryWarehouse[] = DEFAULT_WAREHOUSES,
+): Product {
   const priceRole = resolvePriceRole(role);
   const prices = ensureFullPrices(product.prices);
   const imageUrl = product.image_url ?? null;
   const galleryUrls = Array.isArray(product.gallery)
     ? product.gallery.filter((url) => typeof url === 'string' && url.trim().length > 0)
     : [];
+  const delivery_time = resolveProductWarehouseDeliveryTime(product, warehouses);
 
   return {
     id: product.id,
@@ -52,6 +59,7 @@ export function toPublicProduct(product: InventoryProduct, role: string): Produc
           ? [imageUrl]
           : [],
     stock: product.stock,
+    ...(delivery_time != null ? { delivery_time } : {}),
     category: product.category,
     brand: product.brand ?? null,
     created_at: product.created_at,
@@ -66,7 +74,15 @@ export function toPublicProduct(product: InventoryProduct, role: string): Produc
     attachments: publicProductAttachments(product),
     volume_role_prices: normalizeVolumeRolePrices(product.volume_role_prices),
     storefront_feature_bar: normalizeStorefrontFeatureBar(product.storefront_feature_bar),
-    storefront_hero_bullets: normalizeStorefrontHeroBullets(product.storefront_hero_bullets),
+    // No coerzar missing → []: un array vacío se interpreta como override y ocultaba
+    // las especificaciones generadas del hero en la ficha de producto.
+    ...(Array.isArray(product.storefront_hero_bullets)
+      ? {
+          storefront_hero_bullets: normalizeStorefrontHeroBullets(
+            product.storefront_hero_bullets,
+          ),
+        }
+      : {}),
     cross_sell_product_ids: normalizeMerchandisingProductIds(product.cross_sell_product_ids),
     upsell_product_ids: normalizeMerchandisingProductIds(product.upsell_product_ids),
     variant_product_ids: normalizeMerchandisingProductIds(product.variant_product_ids),

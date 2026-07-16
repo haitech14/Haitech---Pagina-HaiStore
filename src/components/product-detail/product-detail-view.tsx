@@ -592,7 +592,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     <div className="bg-neutral-50 pb-20 lg:pb-0">
       <div className="container py-3 sm:py-5">
         <div className="mb-4 sm:mb-5">
-          <ProductDetailBreadcrumbsBar items={breadcrumbs} productId={product.id} />
+          <ProductDetailBreadcrumbsBar items={breadcrumbs} product={product} />
         </div>
 
         <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5 lg:p-6">

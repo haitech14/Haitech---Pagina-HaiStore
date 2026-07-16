@@ -64,6 +64,7 @@ import {
   resolveHomeFindSparePartsCategoryIcon,
   resolveHomeFindSparePartsCategoryImage,
 } from '@/lib/home-find-category-visuals';
+import { takeHomeDisplayProductsWithOnRequest } from '@/lib/product-on-request-label';
 import { productToFeatured } from '@/lib/store-products';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
@@ -215,9 +216,9 @@ function HomeFindProductsCarousel({ products }: { products: FeaturedProduct[] })
 
       <div className="overflow-hidden" ref={emblaRef}>
         <ul className={cn('flex touch-pan-y', PRODUCTS_CAROUSEL_GAP)} role="list">
-          {products.map((product) => (
+          {products.map((product, index) => (
             <li key={product.id} className={cn(PRODUCT_SLIDE_CLASS, 'flex')}>
-              <HomeLandingProductCard product={product} />
+              <HomeLandingProductCard product={product} priority={index < 4} />
             </li>
           ))}
         </ul>
@@ -518,41 +519,47 @@ export function HomeFindWhatYouNeedSection() {
 
   const products = useMemo(() => {
     if (activeTab === 'equipos') {
-      return productPool
-        .filter((product) =>
-          matchesHomeFeaturedEquipmentFilters(
-            product,
-            activeEquipmentCondition,
-            activeEquipmentCategory as HomeFeaturedEquipmentCategoryFilterId,
-          ),
-        )
-        .sort(compareHomeFeaturedEquipmentProducts)
-        .slice(0, HOME_FIND_PRODUCT_DISPLAY_LIMIT);
+      return takeHomeDisplayProductsWithOnRequest(
+        productPool
+          .filter((product) =>
+            matchesHomeFeaturedEquipmentFilters(
+              product,
+              activeEquipmentCondition,
+              activeEquipmentCategory as HomeFeaturedEquipmentCategoryFilterId,
+            ),
+          )
+          .sort(compareHomeFeaturedEquipmentProducts),
+        HOME_FIND_PRODUCT_DISPLAY_LIMIT,
+      );
     }
 
     if (activeTab === 'consumibles') {
-      return productPool
-        .filter((product) =>
-          matchesHomeFindConsumablesFilters(
-            product,
-            activeConsumablesCondition,
-            activeConsumablesCategory,
-          ),
-        )
-        .sort(compareHomeFeaturedConsumablesProducts)
-        .slice(0, HOME_FIND_PRODUCT_DISPLAY_LIMIT);
+      return takeHomeDisplayProductsWithOnRequest(
+        productPool
+          .filter((product) =>
+            matchesHomeFindConsumablesFilters(
+              product,
+              activeConsumablesCondition,
+              activeConsumablesCategory,
+            ),
+          )
+          .sort(compareHomeFeaturedConsumablesProducts),
+        HOME_FIND_PRODUCT_DISPLAY_LIMIT,
+      );
     }
 
-    return productPool
-      .filter((product) =>
-        matchesHomeFindSparePartsFilters(
-          product,
-          activeSparePartsFilter,
-          activeSparePartsCategory,
-        ),
-      )
-      .sort(compareHomeFindSparePartsProducts)
-      .slice(0, HOME_FIND_PRODUCT_DISPLAY_LIMIT);
+    return takeHomeDisplayProductsWithOnRequest(
+      productPool
+        .filter((product) =>
+          matchesHomeFindSparePartsFilters(
+            product,
+            activeSparePartsFilter,
+            activeSparePartsCategory,
+          ),
+        )
+        .sort(compareHomeFindSparePartsProducts),
+      HOME_FIND_PRODUCT_DISPLAY_LIMIT,
+    );
   }, [
     activeConsumablesCategory,
     activeConsumablesCondition,

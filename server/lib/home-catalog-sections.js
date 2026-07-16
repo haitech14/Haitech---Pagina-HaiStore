@@ -110,6 +110,7 @@ export function buildHomeCatalogSectionsFromProducts(
   role = 'public',
   sectionIds = [],
   limit = 10,
+  warehouses,
 ) {
   const safeLimit = Math.min(Math.max(Number(limit) || 10, 1), 24);
   const requested = sectionIds.filter((id) => VALID_SECTION_IDS.has(id));
@@ -119,7 +120,7 @@ export function buildHomeCatalogSectionsFromProducts(
 
   const relevantProducts = filterInventoryForHomeSections(products, requested);
   const publicProducts = relevantProducts.map((product) =>
-    toPublicProductList(withResolvedMedia(product), role),
+    toPublicProductList(withResolvedMedia(product), role, warehouses),
   );
 
   const sections = requested
@@ -140,8 +141,8 @@ async function listHomeCatalogSectionsUncached({
     return { sections: [] };
   }
 
-  const { products } = await readInventory();
-  return buildHomeCatalogSectionsFromProducts(products, role, requested, safeLimit);
+  const { products, warehouses } = await readInventory();
+  return buildHomeCatalogSectionsFromProducts(products, role, requested, safeLimit, warehouses);
 }
 /**
  * Productos por sección y condición para la home (sin descargar todo el catálogo al cliente).

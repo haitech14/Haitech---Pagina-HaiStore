@@ -2,8 +2,11 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
+import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
+import { ProductCardFeaturedStar } from '@/components/product/product-card-featured-star';
 import { ProductCardOverlayActions } from '@/components/product/product-card-overlay-actions';
-import { ProductCardPricing } from '@/components/product/product-card-pricing';
+import { ProductCardPromoBadges } from '@/components/product/product-card-promo-badges';
+import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
@@ -17,14 +20,11 @@ import {
   buildProductCardStoredImageCandidates,
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
-import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
+import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import { ProductCardBrandLine } from '@/components/product/product-card-title';
+import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
-import {
-  getProductCardTitleContent,
-  PRODUCT_CARD_CODE_CLASS,
-  PRODUCT_CARD_STOCK_CLASS,
-} from '@/lib/product-card-title';
+import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
 import { productToFeatured } from '@/lib/store-products';
 import { productToWishlistItem } from '@/lib/wishlist-product';
@@ -58,6 +58,10 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
   );
   const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
   const displayPrice = useCatalogDisplayPrice(product);
+  const pricing = resolveProductCardPricing(product.id, displayPrice.priceUsd, {
+    ...(catalogFeatured?.oldPrice != null ? { oldPrice: catalogFeatured.oldPrice } : {}),
+    ...(catalogFeatured?.discount != null ? { discount: catalogFeatured.discount } : {}),
+  });
 
   const titleProduct = {
     id: product.id,
@@ -68,18 +72,30 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
     attributes: product.attributes ?? [],
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
-  const buyNowLabel = outOfStock ? 'Reservar Ahora' : 'Comprar Ahora';
+  const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
   const clipboardCondition = resolveProductCardBadgeLabel(titleProduct);
+  const clipboardIsColor = inferColor(titleProduct) === 'Color';
   const clipboardImageUrl = imageCandidates[0] ?? product.image_url ?? null;
+  const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const isFeatured = product.is_featured === true || catalogProduct?.is_featured === true;
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm transition-shadow hover:border-red-600/25 hover:shadow-md">
+    <article
+      className={cn(
+        'group flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-shadow',
+        isFeatured
+          ? 'border border-[#E30613] shadow-[0_2px_14px_rgba(227,6,19,0.08)]'
+          : 'border border-[#e6e8ee] shadow-[0_2px_14px_rgba(15,31,61,0.06)] hover:shadow-md',
+      )}
+    >
       <div className="relative">
         <Link
           to={detailHref}
-          className="relative block aspect-square w-full overflow-hidden bg-white p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset"
+          className="relative block aspect-square w-full overflow-hidden bg-white p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset"
           aria-label={`Ver ficha de ${product.name}`}
         >
+          {isFeatured ? <ProductCardFeaturedStar /> : null}
+
           <ProductCardHoverImage
             candidates={imageCandidates}
             storedCandidates={storedImageCandidates}
@@ -88,8 +104,6 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
             className="size-full"
             imageClassName="size-full object-contain"
           />
-
-          <ProductCardImageConditionBadge product={titleProduct} />
         </Link>
 
         <ProductCardOverlayActions
@@ -97,6 +111,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
           isCompareSelected={false}
           isWishlisted={isWishlisted(product.id)}
           revealOnHover
+          withConditionBadge={isFeatured}
           secondaryAction="buy"
           clipboard={{
             title,
@@ -104,10 +119,15 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
             priceUsd: displayPrice.priceUsd,
             productId: product.id,
             productPath: detailHref,
+            isColorProduct: clipboardIsColor,
             ...(code != null ? { code } : {}),
             ...(clipboardCondition != null ? { condition: clipboardCondition } : {}),
+            ...(product.category != null ? { category: product.category } : {}),
             ...(product.volume_role_prices != null
               ? { volumeRolePrices: product.volume_role_prices }
+              : {}),
+            ...(product.delivery_time != null
+              ? { deliveryTime: product.delivery_time }
               : {}),
             ...(clipboardImageUrl != null ? { imageUrl: clipboardImageUrl } : {}),
           }}
@@ -123,46 +143,43 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
 
         <Link
           to={detailHref}
-          className="mt-0.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+          className="mt-0.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
         >
-          <h3 className="line-clamp-2 text-pretty text-[0.8125rem] font-semibold leading-snug text-foreground sm:text-sm">
+          <h3 className="line-clamp-2 text-pretty text-[0.8125rem] font-bold leading-snug text-[#111111] sm:text-sm">
             {title}
           </h3>
         </Link>
 
-        <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
-          {code ? <span className={PRODUCT_CARD_CODE_CLASS}>{code}</span> : <span className="min-w-0" />}
-          <span className={PRODUCT_CARD_STOCK_CLASS}>
-            {outOfStock ? 'A pedido' : `${Math.max(0, Math.floor(product.stock))} unids.`}
-          </span>
-        </div>
+        <ProductCardPromoBadges product={titleProduct} className="mt-2" />
 
-        <div className="mt-2">
-          <ProductCardPricing
+        <ProductCardStatsLine
+          product={titleProduct}
+          stock={stockCount}
+          outOfStock={outOfStock}
+          className="mt-2.5"
+        />
+
+        <div className="mt-3 h-px w-full bg-[#eceff4]" aria-hidden="true" />
+
+        <div className="mt-3">
+          <ProductCardFeaturedPricing
             productId={product.id}
-            priceUsd={displayPrice.priceUsd}
-            {...(catalogFeatured?.oldPrice != null ? { oldPriceUsd: catalogFeatured.oldPrice } : {})}
-            {...(catalogFeatured?.discount != null ? { discountPercent: catalogFeatured.discount } : {})}
+            currentUsd={pricing.currentUsd}
+            compareUsd={pricing.compareUsd}
+            showAccentBar={false}
           />
         </div>
 
         <div className="relative z-[2] mt-auto flex flex-col gap-0 pt-3 transition-[gap] duration-150 ease-out group-hover:gap-2 group-focus-within:gap-2 max-md:gap-2">
-          <p
-            className={cn(
-              'mb-1 text-[0.625rem] font-medium text-muted-foreground opacity-0 transition-opacity duration-200 ease-out motion-reduce:opacity-100 motion-reduce:transition-none',
-              'group-hover:opacity-100 group-focus-within:opacity-100 max-md:opacity-100',
-            )}
-          >
-            Cantidad
-          </p>
           <ProductQuantityAddFooter
             product={product}
             size="sm"
             revealQuantityOnHover
             addLabel={buyNowLabel}
             onQuantityChange={setQuantity}
+            quantityClassName="h-10 rounded-lg"
             addButtonClassName={cn(
-              'h-9 min-h-9 rounded-md px-2 shadow-none sm:px-2.5',
+              'h-10 min-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm',
               outOfStock && 'font-semibold',
             )}
           />
@@ -178,7 +195,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
                   category: product.category,
                   brand: product.brand ?? catalogProduct?.brand ?? null,
                 }}
-                className="h-9 min-h-9 w-full rounded-md bg-[#25D366] px-2 text-[0.625rem] font-semibold normal-case tracking-normal text-white shadow-none hover:bg-[#20bd5a] focus-visible:ring-[#25D366] sm:px-2.5 sm:text-xs [&_span]:truncate-none"
+                className="h-10 min-h-10 w-full rounded-lg bg-[#25D366] px-3 text-xs font-semibold normal-case tracking-normal text-white shadow-none hover:bg-[#20bd5a] focus-visible:ring-[#25D366] sm:text-sm [&_span]:truncate-none"
                 label="Cotizar por WhatsApp"
               />
             </div>

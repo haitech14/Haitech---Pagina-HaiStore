@@ -108,7 +108,7 @@ export function ProductHighlightCard({ product, variant = 'default' }: ProductHi
           <ProductQuantityAddFooter
             product={product}
             size="sm"
-            addLabel="Comprar ahora"
+            addLabel="Comprar"
             onQuantityChange={setQuantity}
           />
 

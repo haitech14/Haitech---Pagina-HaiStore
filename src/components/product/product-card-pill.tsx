@@ -6,10 +6,10 @@ import type { ProductCardPillBadge, ProductCardPillVariant } from '@/lib/product
 import { cn } from '@/lib/utils';
 
 export const PRODUCT_CARD_PILL_BASE_CLASS =
-  'inline-flex shrink-0 rounded px-1.5 py-px text-[0.5rem] font-semibold leading-tight tracking-wide sm:text-[0.5625rem]';
+  'inline-flex shrink-0 rounded-md px-1.5 py-px text-[0.5rem] font-semibold leading-tight tracking-wide sm:text-[0.5625rem]';
 
 export const PRODUCT_CARD_PILL_IMAGE_BASE_CLASS =
-  'inline-flex shrink-0 rounded px-1.5 py-0.5 text-[0.5625rem] font-semibold leading-tight sm:text-[0.625rem]';
+  'inline-flex shrink-0 rounded-md px-1.5 py-0.5 text-[0.5625rem] font-semibold leading-tight sm:text-[0.625rem]';
 
 const PILL_VARIANT_CLASS: Record<ProductCardPillVariant, string> = {
   primary: 'bg-[#0f1f3d] text-white',

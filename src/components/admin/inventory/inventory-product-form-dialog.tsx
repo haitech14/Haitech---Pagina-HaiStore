@@ -221,7 +221,7 @@ export function InventoryProductFormDialog({
     };
   }, [form]);
 
-  const slugPath = `/tienda/producto/${form.slug?.trim() || seoPreview.slug || '…'}`;
+  const slugPath = `/tienda/${form.slug?.trim() || seoPreview.slug || '…'}`;
 
   const updateField = <K extends keyof InventoryProduct>(key: K, value: InventoryProduct[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));

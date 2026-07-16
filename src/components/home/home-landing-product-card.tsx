@@ -5,7 +5,10 @@ import { Eye, ShoppingCart } from 'lucide-react';
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
 import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
+import { ProductCardFeaturedStar } from '@/components/product/product-card-featured-star';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
+import { ProductCardPromoBadges } from '@/components/product/product-card-promo-badges';
+import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
@@ -22,16 +25,12 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
-import { resolveProductCardSpecRows } from '@/lib/product-card-short-description';
-import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
-import { ProductCardSpecTable } from '@/components/product/product-card-spec-table';
 import { ProductCardBrandLine } from '@/components/product/product-card-title';
+import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import {
   formatProductCardTitle,
   getProductCardTitleContent,
-  PRODUCT_CARD_CODE_CLASS,
-  PRODUCT_CARD_STOCK_CLASS,
 } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
@@ -39,15 +38,20 @@ import type { Product } from '@/types/product';
 
 const LANDING_IMAGE_BOX_PX = 220;
 
-const cardHoverRevealClass =
+const whatsappRevealClass =
   'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-150 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
-
-const whatsappRevealClass = cardHoverRevealClass;
 
 const imageOverlayButtonClass =
   'flex size-9 items-center justify-center rounded-full border border-white/80 bg-white/95 text-[#333333] shadow-[0_2px_8px_rgba(15,31,61,0.14)] backdrop-blur-[1px] transition-colors hover:bg-white hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2';
 
-export function HomeLandingProductCard({ product }: { product: FeaturedProduct }) {
+export function HomeLandingProductCard({
+  product,
+  priority = false,
+}: {
+  product: FeaturedProduct;
+  /** Primeras tarjetas visibles: carga eager de la imagen. */
+  priority?: boolean;
+}) {
   const { addItem } = useCart();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const catalogProduct = useCatalogProductRow(product.id);
@@ -74,12 +78,14 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
     attributes: product.attributes ?? catalogProduct?.attributes ?? [],
   };
 
-  const showBestSellerBadge = productQualifiesForBestSeller(product, catalogProduct);
+  const isFeatured = productQualifiesForBestSeller(product, catalogProduct);
   const productTitle = formatProductCardTitle(productSource);
   const { brand, code: cardCode } = getProductCardTitleContent(productSource);
   const clipboardCondition = resolveProductCardBadgeLabel(productSource);
+  const clipboardIsColor = inferColor(productSource) === 'Color';
+  const clipboardCategory = product.category ?? catalogProduct?.category ?? null;
   const outOfStock = stockCount <= 0;
-  const buyNowLabel = outOfStock ? 'Reservar Ahora' : 'Comprar Ahora';
+  const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
 
   const catalogGallery = catalogProduct?.gallery ?? null;
   const productGallery = product.gallery ?? null;
@@ -131,18 +137,6 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
   const hasValidImage = imageCandidates.length > 0;
   const showPriceOnRequest = isPriceOnRequest(displayPrice.priceUsd);
 
-  const shortSpecRows = useMemo(
-    () =>
-      resolveProductCardSpecRows({
-        name: product.name,
-        category: product.category,
-        description: catalogProduct?.description ?? null,
-        attributes: product.attributes ?? catalogProduct?.attributes ?? [],
-        storefront_hero_bullets: catalogProduct?.storefront_hero_bullets,
-      }),
-    [catalogProduct, product.attributes, product.category, product.name],
-  );
-
   const cartProduct: Product = {
     id: product.id,
     name: product.name,
@@ -165,7 +159,14 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
   };
 
   return (
-    <article className="group flex h-full w-full flex-col overflow-hidden rounded-xl bg-white shadow-[0_2px_14px_rgba(15,31,61,0.07)]">
+    <article
+      className={cn(
+        'group flex h-full w-full flex-col overflow-hidden rounded-2xl bg-white',
+        isFeatured
+          ? 'border border-[#E30613] shadow-[0_2px_14px_rgba(227,6,19,0.08)]'
+          : 'border border-[#e6e8ee] shadow-[0_2px_14px_rgba(15,31,61,0.06)]',
+      )}
+    >
       <div className="relative px-3 pt-3 sm:px-3.5 sm:pt-3.5">
         <div className="relative mx-auto w-full max-w-[220px]">
           <Link
@@ -175,24 +176,19 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
           >
             <div
               className={cn(
-                'relative mx-auto flex items-center justify-center overflow-hidden rounded-lg bg-[#F8F9FB]',
-                hasValidImage ? 'bg-[#F8F9FB]' : 'bg-muted/35',
+                'relative mx-auto flex items-center justify-center overflow-hidden rounded-xl bg-white',
+                !hasValidImage && 'bg-muted/35',
               )}
               style={{ width: LANDING_IMAGE_BOX_PX, height: LANDING_IMAGE_BOX_PX, maxWidth: '100%' }}
             >
-              {showBestSellerBadge ? (
-                <span className="absolute left-2 top-2 z-[2] rounded bg-[#E30613] px-1.5 py-px text-[0.5625rem] font-bold uppercase tracking-wide text-white sm:text-[0.625rem]">
-                  MÁS VENDIDO
-                </span>
-              ) : null}
-
-              <ProductCardImageConditionBadge product={productSource} />
+              {isFeatured ? <ProductCardFeaturedStar /> : null}
 
               <ProductCardHoverImage
                 candidates={imageCandidates}
                 storedCandidates={storedImageCandidates}
                 hoverSrc={hoverImageSrc}
                 alt={product.name}
+                loading={priority ? 'eager' : 'lazy'}
                 className="size-full max-h-[196px] max-w-[196px]"
                 imageClassName="size-full max-h-[196px] max-w-[196px] object-contain object-center"
               />
@@ -240,11 +236,21 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
               priceUsd={displayPrice.priceUsd}
               productId={product.id}
               productPath={detailPath}
+              isColorProduct={clipboardIsColor}
               {...(cardCode != null ? { code: cardCode } : {})}
               {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
+              {...(clipboardCategory != null ? { category: clipboardCategory } : {})}
               {...(catalogProduct?.volume_role_prices != null
                 ? { volumeRolePrices: catalogProduct.volume_role_prices }
                 : {})}
+              {...(catalogProduct &&
+              'delivery_time' in catalogProduct &&
+              typeof catalogProduct.delivery_time === 'string' &&
+              catalogProduct.delivery_time.trim()
+                ? { deliveryTime: catalogProduct.delivery_time.trim() }
+                : product.delivery_time != null
+                  ? { deliveryTime: product.delivery_time }
+                  : {})}
               className={cn(imageOverlayButtonClass, 'hover:text-[#E30613]')}
             />
           </div>
@@ -261,29 +267,27 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
             brand && 'mt-0.5',
           )}
         >
-          <h3 className="line-clamp-2 text-pretty text-left text-sm font-semibold leading-snug text-[#111111]">
+          <h3 className="line-clamp-2 text-pretty text-left text-sm font-bold leading-snug text-[#111111] sm:text-[0.9375rem]">
             {productTitle}
           </h3>
         </Link>
 
-        <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
-          {cardCode ? <span className={PRODUCT_CARD_CODE_CLASS}>{cardCode}</span> : <span className="min-w-0" />}
-          <span className={PRODUCT_CARD_STOCK_CLASS}>
-            {outOfStock ? 'A pedido' : `${stockCount} unids.`}
-          </span>
-        </div>
+        <ProductCardPromoBadges product={productSource} className="mt-2" />
 
-        {shortSpecRows.length > 0 ? (
-          <div className={cn(cardHoverRevealClass, 'mt-1')}>
-            <div className="min-h-0 overflow-hidden">
-              <ProductCardSpecTable rows={shortSpecRows} />
-            </div>
-          </div>
-        ) : null}
+        <ProductCardStatsLine
+          product={productSource}
+          stock={stockCount}
+          outOfStock={outOfStock}
+          className="mt-2.5"
+        />
 
-        <div className="mt-2">
+        <div className="mt-3 h-px w-full bg-[#eceff4]" aria-hidden="true" />
+
+        <div className="mt-3">
           {showPriceOnRequest ? (
-            <p className="text-sm font-bold leading-tight text-[#111111] sm:text-base">{CONSULTAR_PRECIO_LABEL}</p>
+            <p className="text-base font-bold leading-tight text-[#111111] sm:text-lg">
+              {CONSULTAR_PRECIO_LABEL}
+            </p>
           ) : (
             <ProductCardFeaturedPricing
               productId={product.id}
@@ -299,7 +303,6 @@ export function HomeLandingProductCard({ product }: { product: FeaturedProduct }
             product={cartProduct}
             size="sm"
             addLabel={buyNowLabel}
-            addLabelHover="Comprar"
             revealQuantityOnHover
             quantityClassName="h-10 rounded-lg"
             addButtonClassName="h-10 min-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"

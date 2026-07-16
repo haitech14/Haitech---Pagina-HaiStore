@@ -268,10 +268,11 @@ export function resolveStoredHeroBullets(
   product: Product,
   fallback: ProductHeroSpecBullet[],
 ): ProductHeroSpecBullet[] {
-  // Override explícito del admin: [] = sin destacadas (no regenerar).
+  // `toPublicProduct` / normalize suelen emitir `[]` cuando nunca hubo override.
+  // Lista vacía → usar generadas (atributos / ficha), no ocultar specs en tienda.
   if (hasExplicitStorefrontHeroBullets(product.storefront_hero_bullets)) {
     const stored = normalizeStorefrontHeroBullets(product.storefront_hero_bullets);
-    if (stored.length === 0) return [];
+    if (stored.length === 0) return fallback;
 
     const descriptionLines = (product.description ?? '')
       .split(/\r?\n/)

@@ -85,7 +85,10 @@ export const TRUST_ICON_MAP: Record<HomeHeroTrustIcon, LucideIcon> = {
 export const HOME_LANDING_HERO_SLIDE: HomeHeroSlide = {
   id: 'home-landing',
   layout: 'home-landing',
+  /** Primera slide LCP: WebP responsive (home-hero-scene-*.webp). */
   backgroundImage: '/hero/home-hero-scene.png',
+  skipHeroWebpVariants: false,
+  singleAsset: true,
   dotTheme: 'light',
 };
 

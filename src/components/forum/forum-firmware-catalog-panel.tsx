@@ -88,7 +88,7 @@ export function ForumFirmwareCatalogPanel({ items, isLoading }: ForumFirmwareCat
                     variant="ghost"
                     className="min-h-9 text-[hsl(var(--forum-accent))]"
                   >
-                    <Link to={`/tienda/producto/${item.productId}`}>
+                    <Link to={`/tienda/${item.productId}`}>
                       <ExternalLink className="size-4" aria-hidden="true" />
                       Ficha
                     </Link>

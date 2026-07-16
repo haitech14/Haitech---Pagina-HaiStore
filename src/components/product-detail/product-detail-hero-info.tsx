@@ -7,6 +7,7 @@ import { ProductDetailHeroSpecs } from '@/components/product-detail/product-deta
 import { ProductDetailHeroTrustStrip } from '@/components/product-detail/product-detail-hero-trust-strip';
 import { ProductDetailPreparationTypeSelector } from '@/components/product-detail/product-detail-preparation-type-selector';
 import type { PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
+import { ProductCardSpecTable } from '@/components/product/product-card-spec-table';
 import type { ConfigureHeroAccessoryCard, ConfigureHeroWarrantyUpgrade } from '@/lib/product-configure-hero-options';
 import { HERO_WARRANTY_BASE_OPTION_ID } from '@/lib/product-configure-hero-options';
 import { ProductDetailMaintenanceSupplyPlans } from '@/components/product-detail/product-detail-maintenance-supply-plans';
@@ -17,6 +18,7 @@ import {
 import type { EquipmentSelectionState } from '@/lib/equipment-config-selection';
 import type { ConsumableGroup } from '@/lib/product-equipment-consumables';
 import type { MaintenanceSupplyPlanSelection } from '@/lib/maintenance-supply-plan-calculator';
+import { resolveProductCardSpecRows } from '@/lib/product-card-short-description';
 import type { Product } from '@/types/product';
 import { resolveProductHeroBrand, resolveProductHeroConditionLabel } from '@/lib/product-hero-meta';
 import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
@@ -138,6 +140,10 @@ export function ProductDetailHeroInfo({
     conditionLabel ? { label: 'Condición', value: conditionLabel } : null,
   ].filter((segment): segment is { label: string; value: string } => segment != null);
 
+  const cardSpecRows = resolveProductCardSpecRows(product);
+  const showHeroBullets = detail.heroSpecBullets.length > 0;
+  const showCardSpecFallback = !showHeroBullets && cardSpecRows.length > 0;
+
   return (
     <div className="flex min-w-0 flex-col">
       {showBestSeller ? (
@@ -196,7 +202,11 @@ export function ProductDetailHeroInfo({
         </p>
       ) : null}
 
-      <ProductDetailHeroSpecs bullets={detail.heroSpecBullets} className="mt-3" />
+      {showHeroBullets ? (
+        <ProductDetailHeroSpecs bullets={detail.heroSpecBullets} className="mt-3" />
+      ) : showCardSpecFallback ? (
+        <ProductCardSpecTable rows={cardSpecRows} className="mt-3 max-w-md" />
+      ) : null}
 
       <ProductDetailHeroTrustStrip
         giftSubtitle={detail.giftTrustSubtitle}

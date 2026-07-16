@@ -54,6 +54,7 @@ export function buildProformaPayloadFromProductQuote(
     pricePen: number;
     quantity?: number;
     imageUrl?: string | null;
+    shortDescription?: string | null;
   }>,
   validityDays: number,
 ): CreateProformaPayload {
@@ -65,6 +66,7 @@ export function buildProformaPayloadFromProductQuote(
     quantity: line.quantity ?? 1,
     unitPricePen: line.pricePen,
     imageUrl: line.imageUrl ?? null,
+    shortDescription: line.shortDescription ?? null,
   }));
   const subtotalPen = lineItems.reduce(
     (sum, line) => sum + line.unitPricePen * line.quantity,

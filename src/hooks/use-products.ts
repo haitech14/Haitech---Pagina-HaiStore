@@ -4,15 +4,22 @@ import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { getCatalogRows, loadCatalogIndex, patchCatalogIndexProductMedia } from '@/lib/catalog-featured';
 import { normalizeInventoryProductForAdminList, mergeInventoryProductPatch } from '@/lib/inventory-product';
-import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
+import { DEFAULT_WAREHOUSES, normalizeWarehouses } from '@/lib/inventory-stock';
 import { notifyProductCatalogChanged, upsertAdminInventoryProducts } from '@/lib/invalidate-product-queries';
 import { toPublicProduct } from '@/lib/pricing';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
-import type { InventoryProduct, Product } from '@/types/product';
+import type { InventoryProduct, InventoryWarehouse, Product } from '@/types/product';
 
 function catalogRowsToPublicProducts(rows: InventoryProduct[], role: string): Product[] {
   return rows.map((row) => toPublicProduct(row, role));
+}
+
+function getCachedWarehouses(
+  queryClient: ReturnType<typeof useQueryClient>,
+): InventoryWarehouse[] {
+  const cached = queryClient.getQueryData<InventoryWarehouse[]>(['warehouses']);
+  return normalizeWarehouses(cached ?? DEFAULT_WAREHOUSES);
 }
 
 export async function fetchProductsForRole(role = 'public'): Promise<Product[]> {
@@ -52,12 +59,15 @@ export function useProducts(options?: UseProductsOptions) {
   });
 }
 
-async function fetchAdminInventory(): Promise<InventoryProduct[]> {
+async function fetchAdminInventory(
+  warehouses: InventoryWarehouse[] = DEFAULT_WAREHOUSES,
+): Promise<InventoryProduct[]> {
   const rows = await apiFetch<InventoryProduct[]>('/api/products/admin/all');
+  const warehouseList = normalizeWarehouses(warehouses);
   const normalized: InventoryProduct[] = [];
   for (const row of rows) {
     try {
-      normalized.push(normalizeInventoryProductForAdminList(row, DEFAULT_WAREHOUSES));
+      normalized.push(normalizeInventoryProductForAdminList(row, warehouseList));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'dato inválido';
       console.warn(`[inventario] producto omitido (${row.id ?? 'sin id'}): ${message}`);
@@ -76,10 +86,11 @@ export async function fetchAdminInventoryProductById(id: string): Promise<Invent
 
 export function useAdminInventory() {
   const { isAdmin } = useAuth();
+  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: ['admin-inventory'],
-    queryFn: fetchAdminInventory,
+    queryFn: () => fetchAdminInventory(getCachedWarehouses(queryClient)),
     enabled: isAdmin,
     staleTime: 60_000,
     refetchInterval: false,
@@ -134,6 +145,7 @@ export function useInventoryMutations() {
       // No await: cancelar sin bloquear el hilo mantiene el editor responsive.
       void queryClient.cancelQueries({ queryKey: ['admin-inventory'] });
       const previousInventory = queryClient.getQueryData<InventoryProduct[]>(['admin-inventory']);
+      const warehouses = getCachedWarehouses(queryClient);
 
       // No pintamos data: URLs en caché: son pesadas y hacen parecer “guardado” antes
       // de que el servidor persista /products/...-256.webp.
@@ -149,7 +161,7 @@ export function useInventoryMutations() {
           current?.map((product) => {
             if (product.id !== id) return product;
             try {
-              return mergeInventoryProductPatch(product, payload, DEFAULT_WAREHOUSES);
+              return mergeInventoryProductPatch(product, payload, warehouses);
             } catch {
               return { ...product, ...payload };
             }
@@ -171,18 +183,12 @@ export function useInventoryMutations() {
       });
     },
     onSuccess: (updated, { id }) => {
-      queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) =>
-        current?.map((product) => {
-          if (product.id !== id) return product;
-          try {
-            return mergeInventoryProductPatch(product, updated, DEFAULT_WAREHOUSES);
-          } catch {
-            return updated;
-          }
-        }),
-      );
+      // Upsert inmediato — el badge de stock debe verse sin Sync/F5.
+      upsertAdminInventoryProducts(queryClient, [updated], { prepend: false });
       patchCatalogIndexProductMedia(updated);
       notifyCatalogChange({ productId: id, inventoryProduct: updated });
+      // Re-merge tras notify (listeners / broadcast pueden disparar otro refetch).
+      upsertAdminInventoryProducts(queryClient, [updated], { prepend: false });
     },
   });
 

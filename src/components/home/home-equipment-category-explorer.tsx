@@ -30,6 +30,7 @@ import {
   matchesHomeFeaturedEquipmentConditionFilter,
 } from '@/lib/home-featured-product-filter';
 import { homeEquipmentCategoryLandingPath } from '@/lib/home-equipment-category-links';
+import { takeHomeDisplayProductsWithOnRequest } from '@/lib/product-on-request-label';
 import { productToFeatured } from '@/lib/store-products';
 import { cn } from '@/lib/utils';
 
@@ -286,12 +287,14 @@ export function HomeEquipmentCategoryExplorer() {
   }, [catalogBundle]);
 
   const products = useMemo(() => {
-    return productPool
-      .filter((product) =>
-        matchesHomeEquipmentExplorerFilters(product, activeCategory, activeSubcategory),
-      )
-      .sort(compareHomeFeaturedEquipmentProducts)
-      .slice(0, FEATURED_DISPLAY_LIMIT);
+    return takeHomeDisplayProductsWithOnRequest(
+      productPool
+        .filter((product) =>
+          matchesHomeEquipmentExplorerFilters(product, activeCategory, activeSubcategory),
+        )
+        .sort(compareHomeFeaturedEquipmentProducts),
+      FEATURED_DISPLAY_LIMIT,
+    );
   }, [activeCategory, activeSubcategory, productPool]);
 
   const categoryLabel =

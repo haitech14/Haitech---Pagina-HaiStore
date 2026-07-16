@@ -30,7 +30,7 @@ export function TonerNavMegaMenu({
 
   return (
     <StaticNavMegaMenu
-      label="Tóner y Repuestos"
+      label={TONER_NAV_SUBMENU.label}
       icon={TONER_NAV_MEGA_MENU_ICON}
       menu={menu}
       isRouteActive={isRouteActive}

@@ -6,18 +6,19 @@ import { toast } from 'sonner';
 
 import { InventoryProductFormDialog } from '@/components/admin/inventory/inventory-product-form-dialog';
 import { ProductDetailBreadcrumbs } from '@/components/product-detail/product-detail-breadcrumbs';
+import { ProductDetailReferralButton } from '@/components/product-detail/product-detail-referral-button';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { useAdminInventoryCatalogMap } from '@/hooks/use-admin-inventory-price-map';
 import { fetchAdminInventoryProductById } from '@/hooks/use-products';
 import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
 import { cn } from '@/lib/utils';
-import type { InventoryProduct } from '@/types/product';
+import type { InventoryProduct, Product } from '@/types/product';
 import type { ProductBreadcrumb } from '@/types/product-detail';
 
 interface ProductDetailBreadcrumbsBarProps {
   items: ProductBreadcrumb[];
-  productId: string;
+  product: Product;
   className?: string;
 }
 
@@ -36,14 +37,14 @@ function parentCatalogHref(items: ProductBreadcrumb[]): string {
 
 export function ProductDetailBreadcrumbsBar({
   items,
-  productId,
+  product,
   className,
 }: ProductDetailBreadcrumbsBarProps) {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const catalogMap = useAdminInventoryCatalogMap();
-  const catalogEntry = catalogMap?.get(productId) ?? null;
+  const catalogEntry = catalogMap?.get(product.id) ?? null;
   const listProduct = catalogEntry?.product ?? null;
   const [editOpen, setEditOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<InventoryProduct | null>(null);
@@ -105,21 +106,24 @@ export function ProductDetailBreadcrumbsBar({
           </Button>
           <ProductDetailBreadcrumbs items={items} className="mb-0 min-w-0 flex-1" />
         </div>
-        {isAdmin && listProduct ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-9 shrink-0 gap-1.5 border-border text-foreground hover:bg-muted/50 focus-visible:ring-red-600"
-            disabled={loadingEdit}
-            onClick={() => {
-              void openEdit();
-            }}
-          >
-            <Pencil className="size-3.5" aria-hidden="true" />
-            {loadingEdit ? 'Cargando…' : 'Editar producto'}
-          </Button>
-        ) : null}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <ProductDetailReferralButton product={product} />
+          {isAdmin && listProduct ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-9 shrink-0 gap-1.5 border-border text-foreground hover:bg-muted/50 focus-visible:ring-red-600"
+              disabled={loadingEdit}
+              onClick={() => {
+                void openEdit();
+              }}
+            >
+              <Pencil className="size-3.5" aria-hidden="true" />
+              {loadingEdit ? 'Cargando…' : 'Editar producto'}
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       {isAdmin && editingProduct ? (

@@ -143,6 +143,12 @@ export function assignUniqueProductSlugs(products) {
  */
 export function buildProductPath(product) {
   const slug = deriveProductSlug(product);
+  return `/tienda/${encodeURIComponent(slug)}`;
+}
+
+/** Ruta antigua de ficha; usar solo para redirects de compatibilidad. */
+export function buildLegacyProductPath(product) {
+  const slug = deriveProductSlug(product);
   return `/tienda/producto/${encodeURIComponent(slug)}`;
 }
 

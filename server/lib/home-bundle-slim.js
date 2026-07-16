@@ -62,6 +62,7 @@ export function slimHomeBundleFeaturedProduct(product) {
     ...(slim.attributes.length ? { attributes: slim.attributes } : {}),
     price: slim.price,
     image: slim.image_url,
+    stock: slim.stock,
     rating: 5,
     reviews: 0,
   };

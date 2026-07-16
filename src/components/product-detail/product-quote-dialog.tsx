@@ -70,10 +70,19 @@ export function ProductQuoteDialog({
           pricePen: usdToPen(product.price),
           quantity: 1,
           imageUrl: product.image_url,
+          shortDescription: product.description?.trim() || null,
         },
         equipmentConfiguration,
       ),
-    [brandLabel, displayTitle, equipmentConfiguration, product.image_url, product.price, sku],
+    [
+      brandLabel,
+      displayTitle,
+      equipmentConfiguration,
+      product.description,
+      product.image_url,
+      product.price,
+      sku,
+    ],
   );
 
   const paidOptionsCount = equipmentConfiguration?.options.filter((option) => option.pricePen > 0).length ?? 0;
@@ -106,9 +115,11 @@ export function ProductQuoteDialog({
     };
 
     try {
-      const { buildProductQuotePdf, buildQuoteTechnicalSheetFromProduct } = await import(
-        '@/lib/generate-product-quote-pdf'
-      );
+      const {
+        buildProductQuotePdf,
+        buildQuoteTechnicalSheetFromProduct,
+        downloadTechnicalSheetPdf,
+      } = await import('@/lib/generate-product-quote-pdf');
       const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
       let technicalSheet = null;
       try {
@@ -122,7 +133,7 @@ export function ProductQuoteDialog({
       } catch (sheetError) {
         console.warn('[ProductQuoteDialog] technical sheet skipped', sheetError);
       }
-      const generated = await buildProductQuotePdf(values, quoteLines, company, { technicalSheet });
+      const generated = await buildProductQuotePdf(values, quoteLines, company);
 
       const url = URL.createObjectURL(generated.blob);
       onGenerated({
@@ -131,6 +142,15 @@ export function ProductQuoteDialog({
         blob: generated.blob,
         quoteNumber: generated.quoteNumber,
       });
+
+      if (technicalSheet) {
+        toast.message('Descargando ficha técnica…');
+        void downloadTechnicalSheetPdf(technicalSheet, company).then((result) => {
+          if (!result) {
+            toast.warning('La cotización se generó, pero no se pudo descargar la ficha técnica.');
+          }
+        });
+      }
 
       setClient(EMPTY_HAITECH_CLIENT);
       onOpenChange(false);
@@ -148,6 +168,7 @@ export function ProductQuoteDialog({
               pricePen: line.pricePen,
               quantity: line.quantity ?? 1,
               imageUrl: line.imageUrl ?? null,
+              shortDescription: line.shortDescription ?? null,
             })),
             company.quoteValidityDays,
           ),

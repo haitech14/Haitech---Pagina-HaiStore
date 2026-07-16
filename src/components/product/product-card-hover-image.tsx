@@ -20,6 +20,8 @@ interface ProductCardHoverImageProps {
   overlayClassName?: string;
   watermarkClassName?: string;
   placeholder?: ReactNode;
+  /** Eager solo para primeras tarjetas above-the-fold. */
+  loading?: 'lazy' | 'eager';
 }
 
 export function ProductCardHoverImage({
@@ -32,6 +34,7 @@ export function ProductCardHoverImage({
   overlayClassName,
   watermarkClassName,
   placeholder,
+  loading = 'lazy',
 }: ProductCardHoverImageProps) {
   const [failedIndices, setFailedIndices] = useState<Set<number>>(() => new Set());
   const [hoverFailed, setHoverFailed] = useState(false);
@@ -101,6 +104,7 @@ export function ProductCardHoverImage({
         <ProductCardImage
           src={primarySrc}
           alt={alt}
+          loading={loading}
           className={cn(
             imageClassName,
             hasHoverZoom &&
@@ -121,6 +125,7 @@ export function ProductCardHoverImage({
             src={resolvedHoverSrc}
             alt=""
             aria-hidden="true"
+            loading="lazy"
             className={imageClassName}
             {...(overlayClassName ? { overlayClassName } : {})}
             {...(watermarkClassName ? { watermarkClassName } : {})}

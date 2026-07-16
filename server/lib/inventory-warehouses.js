@@ -1,6 +1,14 @@
 import { randomUUID } from 'crypto';
 
-export const DEFAULT_WAREHOUSES = [{ id: 'principal', name: 'Almacén principal' }];
+export const DEFAULT_WAREHOUSES = [
+  { id: 'principal', name: 'Almacén principal', delivery_time: 'Inmediata' },
+];
+
+function normalizeDeliveryTime(value) {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
 
 export function normalizeWarehouses(value) {
   if (!Array.isArray(value) || value.length === 0) {
@@ -20,7 +28,12 @@ export function normalizeWarehouses(value) {
         : randomUUID();
     if (seen.has(id)) continue;
     seen.add(id);
-    result.push({ id, name });
+    const delivery_time = normalizeDeliveryTime(entry.delivery_time);
+    result.push({
+      id,
+      name,
+      ...(delivery_time != null ? { delivery_time } : {}),
+    });
   }
 
   return result.length > 0 ? result : [...DEFAULT_WAREHOUSES];
@@ -70,19 +83,49 @@ export function normalizeProductStock(stockByWarehouse, legacyStock, warehouses)
   return { stock_by_warehouse, stock: legacy };
 }
 
-/** Asigna todo el stock al almacén por defecto (edición rápida del total). */
-export function stockFromTotal(total, warehouses) {
+export function getProductPrimaryWarehouseId(product, warehouses) {
+  const list = normalizeWarehouses(warehouses);
+  const { stock_by_warehouse } = normalizeProductStock(
+    product?.stock_by_warehouse,
+    product?.stock ?? 0,
+    list,
+  );
+  const withStock = stock_by_warehouse.find((row) => row.quantity > 0);
+  if (withStock) return withStock.warehouse_id;
+  return getDefaultWarehouseId(list);
+}
+
+export function stockFromTotalForWarehouse(total, warehouseId, warehouses) {
   const list = normalizeWarehouses(warehouses);
   const defaultId = getDefaultWarehouseId(list);
+  const targetId = list.some((w) => w.id === warehouseId) ? warehouseId : defaultId;
   const qty = Math.max(0, Math.floor(Number(total) || 0));
   return normalizeProductStock(
     list.map((w) => ({
       warehouse_id: w.id,
-      quantity: w.id === defaultId ? qty : 0,
+      quantity: w.id === targetId ? qty : 0,
     })),
     qty,
     list,
   );
+}
+
+/** Asigna todo el stock al almacén por defecto (edición rápida del total). */
+export function stockFromTotal(total, warehouses) {
+  return stockFromTotalForWarehouse(total, getDefaultWarehouseId(warehouses), warehouses);
+}
+
+export function assignProductStockToWarehouse(product, warehouseId, warehouses) {
+  const list = normalizeWarehouses(warehouses);
+  const { stock } = normalizeProductStock(product?.stock_by_warehouse, product?.stock ?? 0, list);
+  return stockFromTotalForWarehouse(stock, warehouseId, list);
+}
+
+export function resolveProductWarehouseDeliveryTime(product, warehouses) {
+  const list = normalizeWarehouses(warehouses);
+  const warehouseId = getProductPrimaryWarehouseId(product, list);
+  const warehouse = list.find((entry) => entry.id === warehouseId);
+  return normalizeDeliveryTime(warehouse?.delivery_time);
 }
 
 export function warehouseNameById(warehouses, warehouseId) {

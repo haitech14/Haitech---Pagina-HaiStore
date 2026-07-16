@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 
 import { amountToWordsEs } from '@/lib/amount-to-words-es';
 import { normalizePdfProductCode, pdfTableAmountColumnRight } from '@/lib/pdf-product-code';
+import { imageBasePath } from '@/lib/responsive-image';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 import type { ProductHeroSpecBullet } from '@/types/product-detail';
 import type { Product } from '@/types/product';
@@ -22,6 +23,8 @@ export interface QuoteProductData {
   pricePen: number;
   quantity?: number;
   imageUrl?: string | null;
+  /** Descripción breve del producto (debajo del título en DESCRIPCIÓN). */
+  shortDescription?: string | null;
 }
 
 export interface GeneratedQuotePdf {
@@ -42,8 +45,12 @@ export interface QuoteTechnicalSheetData {
 }
 
 export interface BuildProductQuotePdfOptions {
-  technicalSheet?: QuoteTechnicalSheetData | null;
   summaryNotes?: string[];
+}
+
+export interface GeneratedTechnicalSheetPdf {
+  blob: Blob;
+  filename: string;
 }
 
 type Rgb = [number, number, number];
@@ -53,6 +60,8 @@ const PAGE_W = 210;
 const PAGE_H = 297;
 const MARGIN = 12;
 const PROFORMA_RED: Rgb = [220, 38, 38];
+/** Cabeceras de tabla y barras de sección tabulares. */
+const TABLE_HEADER_BLACK: Rgb = [0, 0, 0];
 const QUOTE_LOGO_FALLBACK = '/logo.png';
 const DEFAULT_PRINTER_FUNCTIONS = ['Copiadora', 'Impresora', 'Escáner'];
 const IMAGE_LOAD_TIMEOUT_MS = 4_000;
@@ -265,8 +274,36 @@ async function loadImageDataUrl(
   return loaded;
 }
 
+function productImageCandidateUrls(src: string): string[] {
+  const trimmed = src.trim();
+  if (!trimmed) return [];
+  if (trimmed.startsWith('data:')) return [trimmed];
+
+  const path = trimmed.split('?')[0]?.split('#')[0] ?? trimmed;
+  const query = trimmed.includes('?') ? trimmed.slice(trimmed.indexOf('?')) : '';
+  const urls: string[] = [];
+
+  if (
+    (path.startsWith('/products/') || path.startsWith('/album/')) &&
+    !/-(?:256|512|1024)\.webp$/i.test(path)
+  ) {
+    const base = imageBasePath(path);
+    urls.push(`${base}-256.webp${query}`);
+    urls.push(`${base}-512.webp${query}`);
+  }
+
+  urls.push(trimmed);
+  return [...new Set(urls)];
+}
+
 async function loadProductImageForQuote(src: string): Promise<LoadedImage | null> {
-  return loadImageDataUrl(src, { stripBackground: true });
+  for (const candidate of productImageCandidateUrls(src)) {
+    const stripped = await loadImageDataUrl(candidate, { stripBackground: true });
+    if (stripped) return stripped;
+    const plain = await loadImageDataUrl(candidate);
+    if (plain) return plain;
+  }
+  return null;
 }
 
 export function preloadQuotePdfAssets(imageUrls: Array<string | null | undefined> = []): void {
@@ -330,12 +367,24 @@ function formatPen(value: number): string {
   return `S/ ${value.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function formatExchangeRate(value: number): string {
+  const rate = Number.isFinite(value) && value > 0 ? value : DEFAULT_COMPANY_SETTINGS.usdToPenExchangeRate;
+  return `S/ ${rate.toLocaleString('es-PE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} por USD`;
+}
+
 function formatShortDate(date: Date): string {
   return date.toLocaleDateString('es-PE', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   });
+}
+
+function sanitizePdfFilenamePart(value: string): string {
+  return value.replace(/[^\w\s-]/g, '').trim().slice(0, 40) || 'producto';
 }
 
 function tintRgb([r, g, b]: Rgb, factor: number): Rgb {
@@ -633,14 +682,13 @@ export function buildQuoteTechnicalSheetFromLine(line: QuoteProductData): QuoteT
   };
 }
 
-async function drawTechnicalSheetPage(
+async function drawTechnicalSheetContent(
   doc: jsPDF,
   sheet: QuoteTechnicalSheetData,
   logo: LoadedImage | null,
   primary: Rgb,
   heroImage: LoadedImage | null = null,
 ) {
-  doc.addPage();
   const heroH = 118;
   const resolvedHero =
     heroImage ??
@@ -665,8 +713,6 @@ async function drawTechnicalSheetPage(
     align: 'right',
   });
   if (logo) {
-    doc.setFillColor(255, 255, 255);
-    doc.roundedRect(brandX, MARGIN + 9, 42, 18, 1.5, 1.5, 'F');
     addFittedImage(doc, logo, brandX + 2, MARGIN + 11, 38, 14);
   }
 
@@ -719,7 +765,10 @@ async function drawTechnicalSheetPage(
   const columnW = (PAGE_W - MARGIN * 2 - columnGap) / 2;
   const leftX = MARGIN;
   const rightX = MARGIN + columnW + columnGap;
-  const bullets = sheet.bullets.length > 0 ? sheet.bullets : ['Consulte especificaciones con nuestro equipo comercial.'];
+  const bullets =
+    sheet.bullets.length > 0
+      ? sheet.bullets
+      : ['Consulte especificaciones con nuestro equipo comercial.'];
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
@@ -750,6 +799,51 @@ async function drawTechnicalSheetPage(
   doc.text(`Modelo del equipo: ${sheet.modelName}`, MARGIN, footerY);
 }
 
+/** PDF separado de ficha técnica (una o varias páginas; no va dentro de la proforma). */
+export async function buildTechnicalSheetPdf(
+  sheets: QuoteTechnicalSheetData | QuoteTechnicalSheetData[],
+  companyInput: CompanySettings,
+): Promise<GeneratedTechnicalSheetPdf> {
+  const list = (Array.isArray(sheets) ? sheets : [sheets]).filter(Boolean);
+  if (list.length === 0) {
+    throw new Error('No hay ficha técnica para generar.');
+  }
+
+  const company = normalizeQuoteCompany(companyInput);
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const primary = PROFORMA_RED;
+  const logo = await loadQuoteLogo(company);
+
+  for (let i = 0; i < list.length; i += 1) {
+    if (i > 0) doc.addPage();
+    const sheet = list[i]!;
+    const heroImage = sheet.imageUrl ? await loadProductImageForQuote(sheet.imageUrl) : null;
+    await drawTechnicalSheetContent(doc, sheet, logo, primary, heroImage);
+  }
+
+  const first = list[0]!;
+  const safeModel = sanitizePdfFilenamePart(first.modelName).toLowerCase().replace(/\s+/g, '-');
+  const filename =
+    list.length === 1
+      ? `ficha-tecnica-${safeModel}.pdf`
+      : `fichas-tecnicas-${list.length}-equipos.pdf`;
+
+  return { blob: doc.output('blob'), filename };
+}
+
+export async function downloadTechnicalSheetPdf(
+  sheets: QuoteTechnicalSheetData | QuoteTechnicalSheetData[],
+  companyInput: CompanySettings,
+): Promise<GeneratedTechnicalSheetPdf | null> {
+  try {
+    const generated = await buildTechnicalSheetPdf(sheets, companyInput);
+    downloadQuotePdf(generated.blob, generated.filename);
+    return generated;
+  } catch {
+    return null;
+  }
+}
+
 export async function buildProductQuotePdf(
   client: QuoteClientData,
   lines: QuoteProductData[],
@@ -760,9 +854,12 @@ export async function buildProductQuotePdf(
   const quoteLines = lines.length > 0 ? lines : [];
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const primary = PROFORMA_RED;
+  const tableHeader = TABLE_HEADER_BLACK;
   const primarySoft = tintRgb(primary, 0.88);
   const primaryLight = tintRgb(primary, 0.94);
   const contentW = PAGE_W - MARGIN * 2;
+  const exchangeRate =
+    Number(companyInput.usdToPenExchangeRate) || DEFAULT_COMPANY_SETTINGS.usdToPenExchangeRate;
 
   const issueDate = new Date();
   const expiryDate = new Date(issueDate);
@@ -777,19 +874,32 @@ export async function buildProductQuotePdf(
   const total = subtotalPen;
 
   const quoteNumber = buildQuoteNumber(company);
-  const firstLineImageUrl = quoteLines[0]?.imageUrl ?? null;
-  const [logo, productImage] = await Promise.all([
+  const qrPayload = `${company.supportUrl}?ref=${encodeURIComponent(quoteNumber)}`;
+
+  const [logo, lineImages, badgeQrDataUrl] = await Promise.all([
     loadQuoteLogo(company),
-    firstLineImageUrl ? loadProductImageForQuote(firstLineImageUrl) : Promise.resolve(null),
+    Promise.all(
+      quoteLines.map((line) =>
+        line.imageUrl?.trim()
+          ? loadProductImageForQuote(line.imageUrl.trim())
+          : Promise.resolve(null),
+      ),
+    ),
+    withTimeout(
+      QRCode.toDataURL(qrPayload, {
+        margin: 0,
+        width: 160,
+        color: { dark: '#ffffff', light: '#00000000' },
+      }),
+      1_500,
+      '',
+    ),
   ]);
 
   let y = MARGIN;
 
   if (logo) {
-    doc.setDrawColor(226, 232, 240);
-    doc.setFillColor(255, 255, 255);
-    doc.roundedRect(MARGIN, y, 38, 24, 2, 2, 'FD');
-    addFittedImage(doc, logo, MARGIN + 2, y + 2, 34, 20);
+    addFittedImage(doc, logo, MARGIN, y, 38, 24);
   }
 
   const centerX = MARGIN + 42;
@@ -810,24 +920,37 @@ export async function buildProductQuotePdf(
   doc.text(descLines, centerX + centerW / 2, y + 17 + addressLines.length * 3.2, { align: 'center' });
 
   const badgeW = 48;
+  const badgeH = badgeQrDataUrl ? 42 : 24;
   const badgeX = PAGE_W - MARGIN - badgeW;
   doc.setFillColor(...primary);
-  doc.roundedRect(badgeX, y, badgeW, 24, 2.5, 2.5, 'F');
+  doc.roundedRect(badgeX, y, badgeW, badgeH, 2.5, 2.5, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text(company.quoteDocumentLabel, badgeX + badgeW / 2, y + 8, { align: 'center' });
-  doc.setFontSize(7.5);
+  doc.setFontSize(11);
+  doc.text(company.quoteDocumentLabel, badgeX + badgeW / 2, y + 7, { align: 'center' });
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
-  doc.text(`RUC ${company.ruc}`, badgeX + badgeW / 2, y + 14, { align: 'center' });
+  doc.text(`RUC ${company.ruc}`, badgeX + badgeW / 2, y + 12, { align: 'center' });
   doc.setFont('helvetica', 'bold');
-  doc.text(quoteNumber, badgeX + badgeW / 2, y + 19.5, { align: 'center' });
+  doc.setFontSize(7.5);
+  doc.text(quoteNumber, badgeX + badgeW / 2, y + 17, { align: 'center' });
+  if (badgeQrDataUrl) {
+    const qrSize = 16;
+    doc.addImage(
+      badgeQrDataUrl,
+      'PNG',
+      badgeX + (badgeW - qrSize) / 2,
+      y + 20,
+      qrSize,
+      qrSize,
+    );
+  }
 
-  y += 30;
+  y += Math.max(30, badgeH + 6);
 
   const boxGap = 4;
   const boxW = (contentW - boxGap) / 2;
-  const boxH = 36;
+  const boxH = 42;
   const leftX = MARGIN;
   const rightX = MARGIN + boxW + boxGap;
 
@@ -836,8 +959,8 @@ export async function buildProductQuotePdf(
   doc.roundedRect(leftX, y, boxW, boxH, 2, 2, 'FD');
   doc.roundedRect(rightX, y, boxW, boxH, 2, 2, 'FD');
 
-  drawSectionTitle(doc, leftX, y, boxW, 'DATOS DEL CLIENTE', primary);
-  drawSectionTitle(doc, rightX, y, boxW, 'DETALLE DE LA PROFORMA', primary);
+  drawSectionTitle(doc, leftX, y, boxW, 'DATOS DEL CLIENTE', tableHeader);
+  drawSectionTitle(doc, rightX, y, boxW, 'DETALLE DE LA PROFORMA', tableHeader);
 
   let rowY = y + 11;
   const labelW = 18;
@@ -852,8 +975,8 @@ export async function buildProductQuotePdf(
   ];
 
   clientRows.forEach(([label, value]) => {
-    const lines = drawLabelValue(doc, label, value, leftX + 3, rowY, labelW, valueW);
-    rowY += Math.max(lines, 1) * 3.8 + 1.2;
+    const drawn = drawLabelValue(doc, label, value, leftX + 3, rowY, labelW, valueW);
+    rowY += Math.max(drawn, 1) * 3.8 + 1.2;
   });
 
   rowY = y + 11;
@@ -861,12 +984,13 @@ export async function buildProductQuotePdf(
     ['FECHA EMISIÓN:', formatShortDate(issueDate)],
     ['FECHA DE VENC.:', formatShortDate(expiryDate)],
     ['MONEDA:', company.currencyLabel],
+    ['TIPO DE CAMBIO:', formatExchangeRate(exchangeRate)],
     ['TIPO DE CLIENTE:', company.defaultClientType],
   ];
 
   detailRows.forEach(([label, value]) => {
-    const lines = drawLabelValue(doc, label, value, rightX + 3, rowY, 24, valueW);
-    rowY += Math.max(lines, 1) * 3.8 + 1.2;
+    const drawn = drawLabelValue(doc, label, value, rightX + 3, rowY, 28, valueW);
+    rowY += Math.max(drawn, 1) * 3.8 + 1.2;
   });
 
   y += boxH + 5;
@@ -887,7 +1011,7 @@ export async function buildProductQuotePdf(
   const unitColRight = amountColRight - col.amount;
 
   const headerH = 8;
-  doc.setFillColor(...primary);
+  doc.setFillColor(...tableHeader);
   doc.roundedRect(tableX, y, tableW, headerH, 1.5, 1.5, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
@@ -910,35 +1034,36 @@ export async function buildProductQuotePdf(
   doc.text('IMPORTE', amountColRight, y + 5.2, { align: 'right' });
 
   y += headerH;
-  const rowH = 18;
+  const rowH = 22;
 
   quoteLines.forEach((line, index) => {
     const quantity = line.quantity ?? 1;
     const lineTotal = line.pricePen * quantity;
+    const rowImage = lineImages[index] ?? null;
 
     doc.setDrawColor(226, 232, 240);
     doc.setFillColor(255, 255, 255);
     doc.rect(tableX, y, tableW, rowH, 'FD');
 
-    let cx = tableX + 2;
+    let cellX = tableX + 2;
     doc.setTextColor(23, 23, 23);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
-    doc.text(String(index + 1), cx + 3, y + 10);
-    cx += col.n;
+    doc.text(String(index + 1), cellX + 3, y + 12);
+    cellX += col.n;
 
     doc.setDrawColor(241, 245, 249);
     doc.setFillColor(255, 255, 255);
-    doc.roundedRect(cx + 1, y + 3, col.img - 2, rowH - 6, 1, 1, 'FD');
-    if (index === 0 && productImage) {
-      addFittedImage(doc, productImage, cx + 2, y + 4, col.img - 4, rowH - 8);
+    doc.roundedRect(cellX + 1, y + 3, col.img - 2, rowH - 6, 1, 1, 'FD');
+    if (rowImage) {
+      addFittedImage(doc, rowImage, cellX + 2, y + 4, col.img - 4, rowH - 8);
     } else {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(5.5);
       doc.setTextColor(148, 163, 184);
-      doc.text('S/IMG', cx + 4, y + 10);
+      doc.text('S/IMG', cellX + 4, y + 12);
     }
-    cx += col.img;
+    cellX += col.img;
 
     doc.setTextColor(23, 23, 23);
     doc.setFont('helvetica', 'bold');
@@ -947,26 +1072,38 @@ export async function buildProductQuotePdf(
       normalizePdfProductCode(line.sku, line.brand),
       col.code - 2,
     );
-    doc.text(codeLines.slice(0, 2), cx + 1, y + 7);
-    cx += col.code;
+    doc.text(codeLines.slice(0, 2), cellX + 1, y + 8);
+    cellX += col.code;
 
+    const brief = line.shortDescription?.trim() || '';
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.2);
-    const productDesc = doc.splitTextToSize(`${line.name} / ${line.brand}`, col.desc - 2);
-    doc.text(productDesc, cx + 1, y + 7);
-    cx += col.desc;
+    doc.setTextColor(23, 23, 23);
+    const productTitle = doc.splitTextToSize(`${line.name} / ${line.brand}`, col.desc - 2);
+    const titleLines = productTitle.slice(0, brief ? 2 : 3);
+    doc.text(titleLines, cellX + 1, y + 6);
+    if (brief) {
+      const briefY = y + 6 + titleLines.length * 3.2 + 0.6;
+      doc.setFontSize(5.8);
+      doc.setTextColor(100, 116, 139);
+      const briefLines = doc.splitTextToSize(brief, col.desc - 2).slice(0, 2);
+      doc.text(briefLines, cellX + 1, briefY);
+    }
+    cellX += col.desc;
 
+    doc.setTextColor(23, 23, 23);
     doc.setFont('helvetica', 'bold');
-    doc.text(String(quantity), cx + 4, y + 10);
-    cx += col.qty;
+    doc.setFontSize(7.2);
+    doc.text(String(quantity), cellX + 4, y + 12);
+    cellX += col.qty;
 
     doc.setFont('helvetica', 'normal');
-    doc.text('UNIDAD', cx + 1, y + 10);
-    cx += col.um;
+    doc.text('UNIDAD', cellX + 1, y + 12);
+    cellX += col.um;
 
     doc.setFont('helvetica', 'bold');
-    doc.text(formatPen(line.pricePen), unitColRight, y + 10, { align: 'right' });
-    doc.text(formatPen(lineTotal), amountColRight, y + 10, { align: 'right' });
+    doc.text(formatPen(line.pricePen), unitColRight, y + 12, { align: 'right' });
+    doc.text(formatPen(lineTotal), amountColRight, y + 12, { align: 'right' });
 
     y += rowH;
   });
@@ -1022,7 +1159,7 @@ export async function buildProductQuotePdf(
     doc.setDrawColor(226, 232, 240);
     doc.setFillColor(255, 255, 255);
     doc.roundedRect(MARGIN, y, contentW, notesBoxH, 2, 2, 'FD');
-    drawSectionTitle(doc, MARGIN, y, contentW, 'DETALLE DEL PLAN DE ALQUILER', primary);
+    drawSectionTitle(doc, MARGIN, y, contentW, 'DETALLE DEL PLAN DE ALQUILER', tableHeader);
 
     let notesY = y + 11;
     doc.setTextColor(51, 65, 85);
@@ -1043,8 +1180,8 @@ export async function buildProductQuotePdf(
   doc.setFillColor(255, 255, 255);
   doc.roundedRect(leftX, y, boxW, footerBoxH, 2, 2, 'FD');
   doc.roundedRect(rightX, y, boxW, footerBoxH, 2, 2, 'FD');
-  drawSectionTitle(doc, leftX, y, boxW, 'CUENTAS BANCARIAS', primary);
-  drawSectionTitle(doc, rightX, y, boxW, 'TÉRMINOS Y CONDICIONES', primary);
+  drawSectionTitle(doc, leftX, y, boxW, 'CUENTAS BANCARIAS', tableHeader);
+  drawSectionTitle(doc, rightX, y, boxW, 'TÉRMINOS Y CONDICIONES', tableHeader);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.8);
@@ -1065,48 +1202,17 @@ export async function buildProductQuotePdf(
     termY += wrapped.length * 3.4 + 1;
   });
 
-  y += footerBoxH + 5;
-
-  const barH = 16;
+  const barH = 8;
+  const barY = PAGE_H - barH;
   doc.setFillColor(...primary);
-  doc.rect(0, 281 - barH, PAGE_W, barH + (297 - 281), 'F');
+  doc.rect(0, barY, PAGE_W, barH, 'F');
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
+  doc.setFontSize(6);
   const footerText = `${company.quoteDocumentLabel} ${quoteNumber}. ${company.quoteFooterText} ${company.supportUrl}`;
-  const footerLines = doc.splitTextToSize(footerText, PAGE_W - MARGIN * 2 - 34);
-  doc.text(footerLines, MARGIN, 281 - barH + 5);
-
-  try {
-    const qrUrl = `${company.supportUrl}?ref=${encodeURIComponent(quoteNumber)}`;
-    const qrDataUrl = await withTimeout(
-      QRCode.toDataURL(qrUrl, {
-        margin: 0,
-        width: 180,
-        color: { dark: '#ffffff', light: '#00000000' },
-      }),
-      1_500,
-      '',
-    );
-    if (qrDataUrl) {
-      doc.addImage(qrDataUrl, 'PNG', PAGE_W - MARGIN - 30, 281 - barH + 1, 28, 28);
-    }
-  } catch {
-    // QR opcional si falla la generación.
-  }
-
-  const technicalSheet =
-    options?.technicalSheet ??
-    (quoteLines[0] ? buildQuoteTechnicalSheetFromLine(quoteLines[0]) : null);
-
-  if (technicalSheet) {
-    try {
-      await drawTechnicalSheetPage(doc, technicalSheet, logo, primary, productImage);
-    } catch {
-      // La ficha técnica es opcional; no abortar la proforma si falla una imagen o overlay.
-    }
-  }
+  const footerLines = doc.splitTextToSize(footerText, PAGE_W - MARGIN * 2);
+  doc.text(footerLines.slice(0, 1), MARGIN, barY + 5.2);
 
   const safeName = client.razonSocial.replace(/[^\w\s-]/g, '').trim().slice(0, 30);
   const filename = `${company.quoteNumberPrefix}-${quoteNumber.split('-').pop()}-${safeName || 'cliente'}.pdf`.toLowerCase();

@@ -18,6 +18,7 @@ import {
   getCatalogCardSpecLines,
 } from '@/lib/product-catalog-card-meta';
 import { PRODUCT_CARD_DISCOUNT_CLASS } from '@/lib/product-card-title';
+import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { ProductCardHoverImage, PRODUCT_CARD_IMAGE_CLASS } from '@/components/product/product-card-hover-image';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ViewAsRoleBadge } from '@/components/product/view-as-role-badge';
@@ -200,7 +201,7 @@ function CatalogCardStockLine({
         )}
       >
         <Check className="size-3.5 shrink-0" aria-hidden="true" />
-        {outOfStock ? 'A pedido' : `Stock: ${stock}`}
+        {outOfStock ? PRODUCT_ON_REQUEST_STOCK_LABEL : `Stock: ${stock}`}
       </span>
     </p>
   );

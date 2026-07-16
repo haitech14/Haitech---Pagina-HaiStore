@@ -52,6 +52,7 @@ import { AdminListasPreciosNameCell } from '@/components/admin/inventario/admin-
 import { AdminListasPreciosPriceCell } from '@/components/admin/inventario/admin-listas-precios-price-cell';
 import { AdminListasPreciosStatusBadge } from '@/components/admin/inventario/admin-listas-precios-status-badge';
 import { AdminListasPreciosStockCell } from '@/components/admin/inventario/admin-listas-precios-stock-cell';
+import { AdminListasPreciosWarehouseCell } from '@/components/admin/inventario/admin-listas-precios-warehouse-cell';
 import { HeaderCurrencyControl } from '@/components/layout/header-currency-control';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
 import { Button } from '@/components/ui/button';
@@ -91,6 +92,7 @@ import {
   ROLE_HEADER_META,
   ROLE_LABELS,
 } from '@/lib/admin-listas-precios-utils';
+import { exportListaPreciosToExcel } from '@/lib/export-lista-precios-excel';
 import { formatProductCodeCardDisplay } from '@/lib/format-product-code-display';
 import { buildAttributeNameCatalog, normalizeAttributes } from '@/lib/inventory-attributes';
 import { hasAdminInventoryProductImage } from '@/lib/admin-inventory-product-image';
@@ -217,7 +219,7 @@ function PriceColumnHeader({
   );
 }
 
-const BASE_CORE_COLUMN_COUNT = 11;
+const BASE_CORE_COLUMN_COUNT = 12;
 const RELATIONS_COLUMN_COUNT = 4;
 
 function EditableProductThumbComponent({
@@ -517,6 +519,7 @@ export function AdminInventarioTablePanel({
     'categories' | 'name' | 'code' | null
   >(null);
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [exportBusy, setExportBusy] = useState(false);
   const [rowBusyId, setRowBusyId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   /** IDs a los que aplicar la imagen elegida en el álbum (uno o varios en lote). */
@@ -1001,6 +1004,41 @@ export function AdminInventarioTablePanel({
     }
   };
 
+  const handleExportListaPrecios = async () => {
+    const selectedIds = getSelectedIds();
+    const productsToExport =
+      selectedIds.length > 0
+        ? selectedIds
+            .map((id) => productsById.get(id))
+            .filter((product): product is InventoryProduct => Boolean(product))
+        : sortedRecords
+            .map((record) => productsById.get(record.id))
+            .filter((product): product is InventoryProduct => Boolean(product));
+
+    if (productsToExport.length === 0) {
+      toast.error('No hay productos para exportar con la selección o filtros actuales');
+      return;
+    }
+
+    setExportBusy(true);
+    try {
+      const exported = await exportListaPreciosToExcel(productsToExport);
+      if (!exported) {
+        toast.error('No se pudo generar el archivo Excel');
+        return;
+      }
+      toast.success(
+        `Lista de precios: ${productsToExport.length} producto${productsToExport.length === 1 ? '' : 's'}`,
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'No se pudo generar la lista de precios',
+      );
+    } finally {
+      setExportBusy(false);
+    }
+  };
+
   const attributeNameOptions = useMemo(
     () => buildAttributeNameCatalog(products),
     [products],
@@ -1199,6 +1237,8 @@ export function AdminInventarioTablePanel({
         <InventarioBatchToolbar
           store={batchSelectionStore}
           bulkBusy={bulkBusy}
+          exportBusy={exportBusy}
+          canExport={sortedRecords.length > 0}
           onOpenAlbum={() => setAlbumPickerTargetIds(getSelectedIds())}
           onOpenCategories={() => openBulkDialog('categories')}
           onOpenText={() => openBulkDialog('name')}
@@ -1207,6 +1247,7 @@ export function AdminInventarioTablePanel({
           onDelete={() => void handleBulkDelete()}
           onClear={clearSelection}
           onPasteImage={(file) => void applyImageToSelectedProducts(file)}
+          onExportListaPrecios={() => void handleExportListaPrecios()}
         />
       ) : null}
 
@@ -1233,6 +1274,9 @@ export function AdminInventarioTablePanel({
               </TableHead>
               <TableHead className="h-7 min-w-[4.5rem] px-1.5 py-1 text-center text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Stock
+              </TableHead>
+              <TableHead className="h-7 min-w-[8rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
+                Almacén
               </TableHead>
               {PRICE_ROLES.map((role) => (
                 <TableHead
@@ -1405,6 +1449,13 @@ export function AdminInventarioTablePanel({
                         activeFieldId={activeFieldId}
                         onActivate={setActiveFieldId}
                         onClose={closeEditor}
+                        onPatch={(patch) => patchProduct(product.id, patch)}
+                      />
+                    </TableCell>
+                    <TableCell className="px-1.5 py-1">
+                      <AdminListasPreciosWarehouseCell
+                        product={product}
+                        warehouses={warehouses}
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>

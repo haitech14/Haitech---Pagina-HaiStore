@@ -4,6 +4,7 @@ import { buildProductQuoteLines } from '@/lib/equipment-config-selection';
 import {
   buildProductQuotePdf,
   buildQuoteTechnicalSheetFromProduct,
+  downloadTechnicalSheetPdf,
   preloadQuotePdfAssets,
   type QuoteClientData,
 } from '@/lib/generate-product-quote-pdf';
@@ -66,6 +67,7 @@ export async function generateProductQuoteFromContact(
       pricePen: usdToPen(context.product.price),
       quantity,
       imageUrl: context.product.image_url,
+      shortDescription: context.product.description?.trim() || null,
     },
     context.equipmentConfiguration,
   );
@@ -87,7 +89,7 @@ export async function generateProductQuoteFromContact(
     console.warn('[generateProductQuoteFromContact] technical sheet skipped', sheetError);
   }
 
-  const generated = await buildProductQuotePdf(client, quoteLines, companySettings, { technicalSheet });
+  const generated = await buildProductQuotePdf(client, quoteLines, companySettings);
   const url = URL.createObjectURL(generated.blob);
 
   const preview: QuotePdfPreview = {
@@ -96,6 +98,10 @@ export async function generateProductQuoteFromContact(
     blob: generated.blob,
     quoteNumber: generated.quoteNumber,
   };
+
+  if (technicalSheet) {
+    void downloadTechnicalSheetPdf(technicalSheet, companySettings);
+  }
 
   if (registerProductQuote) {
     void registerProductQuote(
@@ -110,6 +116,7 @@ export async function generateProductQuoteFromContact(
           pricePen: line.pricePen,
           quantity: line.quantity ?? quantity,
           imageUrl: line.imageUrl ?? null,
+          shortDescription: line.shortDescription ?? null,
         })),
         companySettings.quoteValidityDays,
       ),

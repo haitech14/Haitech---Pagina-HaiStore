@@ -80,7 +80,7 @@ function asProduct(product: FeaturedProduct): Product {
     ...(product.price_role !== undefined ? { price_role: product.price_role } : {}),
     image_url: product.image,
     gallery: [],
-    stock: 0,
+    stock: Math.max(0, Math.floor(Number(product.stock) || 0)),
     currency: 'USD',
     description: null,
     slug: product.id,

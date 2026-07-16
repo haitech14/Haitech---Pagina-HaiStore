@@ -22,6 +22,11 @@ export function buildProductPath(product: {
   name?: string;
   slug?: string | null;
 }): string;
+export function buildLegacyProductPath(product: {
+  id?: string;
+  name?: string;
+  slug?: string | null;
+}): string;
 export function findProductBySlugOrId(
   products: Array<{ id?: string; slug?: string | null; name?: string }>,
   lookupKey: string,

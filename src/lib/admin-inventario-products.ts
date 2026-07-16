@@ -4,6 +4,11 @@ import {
   inventoryCategoryLeafLabel,
   normalizeStockQuantity,
 } from '@/lib/inventory-stock-status';
+import {
+  DEFAULT_WAREHOUSES,
+  getProductPrimaryWarehouseId,
+  normalizeWarehouses,
+} from '@/lib/inventory-stock';
 import { formatPenFromUsd } from '@/lib/utils';
 import type {
   AdminInventarioCategoryDistribution,
@@ -13,7 +18,7 @@ import type {
   AdminInventarioStockStatus,
   AdminInventarioTopMovedProduct,
 } from '@/types/admin-inventario';
-import type { InventoryProduct } from '@/types/product';
+import type { InventoryProduct, InventoryWarehouse } from '@/types/product';
 
 const CATEGORY_COLORS = ['#3B82F6', '#8B5CF6', '#22C55E', '#F59E0B', '#94A3B8', '#EC4899', '#14B8A6'];
 
@@ -43,12 +48,13 @@ function productSubtitle(product: InventoryProduct): string {
   return 'Producto de tienda';
 }
 
-function productLocation(product: InventoryProduct): string {
-  const warehouses = product.stock_by_warehouse ?? [];
-  if (warehouses.length === 0) return 'Almacén principal';
-  const withStock = warehouses.find((entry) => entry.quantity > 0);
-  if (!withStock) return 'Almacén principal';
-  return 'Almacén principal';
+function productLocation(
+  product: InventoryProduct,
+  warehouses: InventoryWarehouse[] = DEFAULT_WAREHOUSES,
+): string {
+  const list = normalizeWarehouses(warehouses);
+  const warehouseId = getProductPrimaryWarehouseId(product, list);
+  return list.find((entry) => entry.id === warehouseId)?.name ?? 'Almacén principal';
 }
 
 export function mapInventoryProductToRecord(product: InventoryProduct): AdminInventarioRecord {
