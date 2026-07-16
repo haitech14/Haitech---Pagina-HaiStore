@@ -1,6 +1,13 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   getDefaultWarehouseId,
   normalizeProductStock,
   normalizeWarehouses,
@@ -11,12 +18,17 @@ interface InventoryInventorySectionProps {
   form: InventoryProduct;
   warehouses: InventoryWarehouse[];
   onChange: (next: Pick<InventoryProduct, 'stock' | 'stock_by_warehouse'>) => void;
+  /** Muestra selector de almacén junto al stock (mockup General / Precios). */
+  showLocation?: boolean;
+  className?: string;
 }
 
 export function InventoryInventorySection({
   form,
   warehouses,
   onChange,
+  showLocation = false,
+  className,
 }: InventoryInventorySectionProps) {
   const list = normalizeWarehouses(warehouses);
   const { stock_by_warehouse, stock } = normalizeProductStock(
@@ -54,7 +66,7 @@ export function InventoryInventorySection({
 
   const stockValue = list.length === 1 ? stock : principalQty;
 
-  return (
+  const stockField = (
     <div id="inv-stock-section" className="space-y-2">
       <Label htmlFor="inv-stock-total">Stock (unidades)</Label>
       <Input
@@ -63,7 +75,7 @@ export function InventoryInventorySection({
         min={0}
         step={1}
         inputMode="numeric"
-        className="h-10 bg-background"
+        className="h-10 bg-background text-sm"
         value={stockValue}
         onChange={(event) => {
           const principal = Math.max(0, Math.floor(Number(event.target.value) || 0));
@@ -77,6 +89,31 @@ export function InventoryInventorySection({
           applyStock(String(principal + otherQty), String(principal));
         }}
       />
+    </div>
+  );
+
+  if (!showLocation) {
+    return <div className={className}>{stockField}</div>;
+  }
+
+  return (
+    <div className={className ?? 'grid gap-3 sm:grid-cols-2'}>
+      {stockField}
+      <div className="space-y-2">
+        <Label htmlFor="inv-warehouse-location">Ubicación</Label>
+        <Select value={defaultWarehouseId} disabled>
+          <SelectTrigger id="inv-warehouse-location" className="h-10 bg-background text-sm">
+            <SelectValue placeholder="Almacén" />
+          </SelectTrigger>
+          <SelectContent>
+            {list.map((warehouse) => (
+              <SelectItem key={warehouse.id} value={warehouse.id}>
+                {warehouse.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

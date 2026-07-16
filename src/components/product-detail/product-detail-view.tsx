@@ -118,7 +118,7 @@ interface ProductDetailViewProps {
     | undefined;
 }
 
-const MAINTENANCE_PLAN_FALLBACK = [{ pagesPerMonth: 5000, monthlyPricePen: 150 }] as const;
+const MAINTENANCE_PLAN_FALLBACK = [{ pagesPerMonth: 5000, monthlyPricePen: 499 }] as const;
 
 const ProductDetailComparison = lazy(() =>
   import('@/components/product-detail/product-detail-comparison').then((module) => ({
@@ -569,8 +569,12 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
   const fallbackRentalQuoteEstimate = useMemo<EquipmentRentalEstimate | null>(() => {
     if (detail.rentalPlans.length === 0) return null;
+    const plan = detail.rentalPlans[0];
+    const pages = plan?.pagesPerMonth ?? 5000;
     return computeEquipmentRentalEstimate({
-      monthlyPages: detail.rentalPlans[0]?.pagesPerMonth ?? 5000,
+      planMonthlyPricePen: plan?.monthlyPricePen ?? 499,
+      includedPages: pages,
+      monthlyPages: pages,
       equipmentQuantity: 1,
       termMonths: 12,
       equipmentBasePriceUsd,
@@ -582,6 +586,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
       includeGuillotine: false,
       includeResidentTech: false,
       includeSpiralBinder: false,
+      includeRingBinder: false,
     });
   }, [detail.rentalPlans, equipmentBasePriceUsd, isColorEquipment]);
 
@@ -940,6 +945,12 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         oldPricePen={detail.oldPricePen}
         isOnOffer={detail.isOnOffer}
         discountPercent={detail.discountPercent}
+        isRentMode={isRentQuoteMode}
+        rentalEstimate={activeRentalQuoteEstimate}
+        onRentQuoteClick={() => setQuoteOpen(true)}
+        displayTitle={detail.displayTitle}
+        sku={detail.sku}
+        brandLabel={detail.brandLabel}
         {...secondaryPurchaseActionProps}
         {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
         {...(showPreparationTypeSelector ? { preparationType } : {})}

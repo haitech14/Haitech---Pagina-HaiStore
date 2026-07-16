@@ -6,10 +6,21 @@ import { InventoryOptionalMerchandisingProducts } from '@/components/admin/inven
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { suggestCrossSellProductIds, normalizeMerchandisingOptionalProducts } from '@/lib/product-merchandising';
+import {
+  isTonerMerchandisingProduct,
+  normalizeMerchandisingOptionalProducts,
+  resolveTonerSupplyTypeFromProduct,
+  suggestCrossSellProductIds,
+} from '@/lib/product-merchandising';
+import { normalizeStorefrontUi, resolveStorefrontUi } from '@/lib/product-storefront-detail';
 import { cn } from '@/lib/utils';
 import type { InventoryProduct } from '@/types/product';
+import {
+  DEFAULT_STOREFRONT_UI,
+  type StoredStorefrontUi,
+} from '@/types/product-storefront';
 
 type MerchandisingPatch = Pick<
   InventoryProduct,
@@ -17,6 +28,7 @@ type MerchandisingPatch = Pick<
   | 'upsell_product_ids'
   | 'cross_sell_optional_products'
   | 'upsell_optional_products'
+  | 'storefront_ui'
 >;
 
 interface InventoryMerchandisingSectionProps {
@@ -35,6 +47,7 @@ interface ProductMultiSelectFieldProps {
   selectedIds: string[];
   products: InventoryProduct[];
   excludeProductId?: string;
+  hideSelectedList?: boolean;
   onChange: (ids: string[]) => void;
 }
 
@@ -44,6 +57,7 @@ function ProductMultiSelectField({
   selectedIds,
   products,
   excludeProductId,
+  hideSelectedList = false,
   onChange,
 }: ProductMultiSelectFieldProps) {
   const [open, setOpen] = useState(false);
@@ -168,7 +182,7 @@ function ProductMultiSelectField({
         </PopoverContent>
       </Popover>
 
-      {selectedIds.length > 0 ? (
+      {!hideSelectedList && selectedIds.length > 0 ? (
         <ul className="space-y-1 rounded-md border border-border/60 bg-muted/20 p-2">
           {selectedIds.map((id) => (
             <li key={id} className="text-xs text-muted-foreground">
@@ -176,6 +190,94 @@ function ProductMultiSelectField({
             </li>
           ))}
         </ul>
+      ) : null}
+    </div>
+  );
+}
+
+function TonerTabPreview({
+  form,
+  products,
+  originalTabLabel,
+  compatibleTabLabel,
+}: {
+  form: InventoryProduct;
+  products: InventoryProduct[];
+  originalTabLabel: string;
+  compatibleTabLabel: string;
+}) {
+  const grouped = useMemo(() => {
+    const byId = new Map(products.map((product) => [product.id, product]));
+    const original: InventoryProduct[] = [];
+    const compatible: InventoryProduct[] = [];
+    const other: InventoryProduct[] = [];
+
+    for (const id of form.cross_sell_product_ids ?? []) {
+      const product = byId.get(id);
+      if (!product) continue;
+      const asCatalog = { ...product, price: product.prices.public };
+      if (!isTonerMerchandisingProduct(asCatalog)) {
+        other.push(product);
+        continue;
+      }
+      if (resolveTonerSupplyTypeFromProduct(asCatalog) === 'compatible') {
+        compatible.push(product);
+      } else {
+        original.push(product);
+      }
+    }
+
+    return { original, compatible, other };
+  }, [form.cross_sell_product_ids, products]);
+
+  if (
+    grouped.original.length === 0 &&
+    grouped.compatible.length === 0 &&
+    grouped.other.length === 0
+  ) {
+    return (
+      <p className="rounded-md border border-dashed border-border/70 bg-muted/10 px-3 py-2 text-xs text-muted-foreground">
+        Sin productos en venta cruzada. Usa el selector o «Sincronizar» para llenar las pestañas
+        Original / Compatible de la ficha.
+      </p>
+    );
+  }
+
+  const renderGroup = (title: string, items: InventoryProduct[]) => {
+    if (items.length === 0) return null;
+    return (
+      <div className="space-y-1">
+        <p className="text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+          {title} ({items.length})
+        </p>
+        <ul className="space-y-0.5">
+          {items.map((product) => (
+            <li key={product.id} className="truncate text-xs text-foreground">
+              {product.name}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  return (
+    <div className="grid gap-3 rounded-md border border-border/60 bg-muted/15 p-3 sm:grid-cols-2">
+      {renderGroup(originalTabLabel, grouped.original)}
+      {renderGroup(compatibleTabLabel, grouped.compatible)}
+      {grouped.other.length > 0 ? (
+        <div className="space-y-1 sm:col-span-2">
+          <p className="text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+            Otros relacionados ({grouped.other.length})
+          </p>
+          <ul className="space-y-0.5">
+            {grouped.other.map((product) => (
+              <li key={product.id} className="truncate text-xs text-muted-foreground">
+                {product.name}
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </div>
   );
@@ -193,6 +295,7 @@ export function InventoryMerchandisingSection({
     [form, products],
   );
   const [showOptional, setShowOptional] = useState(false);
+  const resolvedUi = useMemo(() => resolveStorefrontUi(form.storefront_ui), [form.storefront_ui]);
 
   const crossSellOptional = form.cross_sell_optional_products ?? [];
   const upsellOptional = form.upsell_optional_products ?? [];
@@ -203,8 +306,17 @@ export function InventoryMerchandisingSection({
       upsell_product_ids: form.upsell_product_ids ?? [],
       cross_sell_optional_products: crossSellOptional,
       upsell_optional_products: upsellOptional,
+      ...(form.storefront_ui != null ? { storefront_ui: form.storefront_ui } : {}),
       ...patch,
     });
+  };
+
+  const patchStorefrontUi = (patch: Partial<StoredStorefrontUi>) => {
+    const merged: StoredStorefrontUi = {
+      ...(form.storefront_ui ?? {}),
+      ...patch,
+    };
+    patchAll({ storefront_ui: normalizeStorefrontUi(merged) ?? null });
   };
 
   const handleSyncCrossSell = () => {
@@ -214,18 +326,27 @@ export function InventoryMerchandisingSection({
 
   const selectors = (
     <div className={cn(compact ? 'grid gap-4 sm:grid-cols-2' : 'space-y-5')}>
-      <ProductMultiSelectField
-        label="Venta cruzada"
-        description={
-          compact
-            ? 'Productos relacionados (tóner, consumibles).'
-            : 'Tóner en el selector del hero; repuestos, tambor, accesorios y otros consumibles en el carrusel «Configura tu equipo».'
-        }
-        selectedIds={form.cross_sell_product_ids ?? []}
-        products={products}
-        {...(form.id ? { excludeProductId: form.id } : {})}
-        onChange={(cross_sell_product_ids) => patchAll({ cross_sell_product_ids })}
-      />
+      <div className="space-y-2">
+        <ProductMultiSelectField
+          label="Tóner del hero (Original / Compatible)"
+          description={
+            compact
+              ? 'Alimenta las pestañas Toner de la ficha. La pestaña se infiere del nombre (compatible vs original).'
+              : 'Tóner en el selector del hero (pestañas Original / Compatible). Otros consumibles van a «Configura tu equipo».'
+          }
+          selectedIds={form.cross_sell_product_ids ?? []}
+          products={products}
+          hideSelectedList
+          {...(form.id ? { excludeProductId: form.id } : {})}
+          onChange={(cross_sell_product_ids) => patchAll({ cross_sell_product_ids })}
+        />
+        <TonerTabPreview
+          form={form}
+          products={products}
+          originalTabLabel={resolvedUi.tonerOriginalTabLabel}
+          compatibleTabLabel={resolvedUi.tonerCompatibleTabLabel}
+        />
+      </div>
 
       <ProductMultiSelectField
         label="Upselling"
@@ -268,6 +389,112 @@ export function InventoryMerchandisingSection({
     </div>
   );
 
+  const storefrontUiBlock = (
+    <div className="space-y-4 rounded-md border border-border/70 bg-muted/10 p-3">
+      <div>
+        <p className="text-sm font-medium text-foreground">Bloque Toner y acciones de copiar</p>
+        <p className="text-xs text-muted-foreground">
+          Textos de la ficha y visibilidad de «Copiar imagen» / «Copiar texto».
+        </p>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="storefront-ui-section-title">Título sección</Label>
+          <Input
+            id="storefront-ui-section-title"
+            value={form.storefront_ui?.tonerSectionTitle ?? ''}
+            placeholder={DEFAULT_STOREFRONT_UI.tonerSectionTitle}
+            onChange={(event) =>
+              patchStorefrontUi({ tonerSectionTitle: event.target.value })
+            }
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="storefront-ui-original-tab">Pestaña original</Label>
+          <Input
+            id="storefront-ui-original-tab"
+            value={form.storefront_ui?.tonerOriginalTabLabel ?? ''}
+            placeholder={DEFAULT_STOREFRONT_UI.tonerOriginalTabLabel}
+            onChange={(event) =>
+              patchStorefrontUi({ tonerOriginalTabLabel: event.target.value })
+            }
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="storefront-ui-compatible-tab">Pestaña compatible</Label>
+          <Input
+            id="storefront-ui-compatible-tab"
+            value={form.storefront_ui?.tonerCompatibleTabLabel ?? ''}
+            placeholder={DEFAULT_STOREFRONT_UI.tonerCompatibleTabLabel}
+            onChange={(event) =>
+              patchStorefrontUi({ tonerCompatibleTabLabel: event.target.value })
+            }
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="storefront-ui-original-card">Título tarjeta original</Label>
+          <Input
+            id="storefront-ui-original-card"
+            value={form.storefront_ui?.tonerOriginalCardTitle ?? ''}
+            placeholder={DEFAULT_STOREFRONT_UI.tonerOriginalCardTitle}
+            onChange={(event) =>
+              patchStorefrontUi({ tonerOriginalCardTitle: event.target.value })
+            }
+          />
+        </div>
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor="storefront-ui-compatible-card">Título tarjeta compatible</Label>
+          <Input
+            id="storefront-ui-compatible-card"
+            value={form.storefront_ui?.tonerCompatibleCardTitle ?? ''}
+            placeholder={DEFAULT_STOREFRONT_UI.tonerCompatibleCardTitle}
+            onChange={(event) =>
+              patchStorefrontUi({ tonerCompatibleCardTitle: event.target.value })
+            }
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2 border-t border-border/60 pt-3">
+        <p className="text-xs font-medium text-foreground">Acciones de copiar</p>
+        <label className="flex items-start gap-2 text-xs">
+          <Checkbox
+            checked={resolvedUi.showGalleryCopyImage}
+            onCheckedChange={(value) =>
+              patchStorefrontUi({ showGalleryCopyImage: value === true })
+            }
+            className="mt-0.5"
+            aria-label="Mostrar Copiar imagen en foto principal"
+          />
+          <span>Mostrar «Copiar imagen» en la foto principal</span>
+        </label>
+        <label className="flex items-start gap-2 text-xs">
+          <Checkbox
+            checked={resolvedUi.showGalleryCopyText}
+            onCheckedChange={(value) =>
+              patchStorefrontUi({ showGalleryCopyText: value === true })
+            }
+            className="mt-0.5"
+            aria-label="Mostrar Copiar texto en foto principal"
+          />
+          <span>Mostrar «Copiar texto» en la foto principal</span>
+        </label>
+        <label className="flex items-start gap-2 text-xs">
+          <Checkbox
+            checked={resolvedUi.showTonerCopyActions}
+            onCheckedChange={(value) =>
+              patchStorefrontUi({ showTonerCopyActions: value === true })
+            }
+            className="mt-0.5"
+            aria-label="Mostrar copiar en miniaturas de tóner"
+          />
+          <span>Mostrar copiar imagen / texto en miniaturas del listado Toner</span>
+        </label>
+      </div>
+    </div>
+  );
+
   const optionalBlock = (
     <div className="space-y-4">
       <InventoryOptionalMerchandisingProducts
@@ -300,7 +527,8 @@ export function InventoryMerchandisingSection({
   const note = (
     <p className="flex items-start gap-2 rounded-md border border-sky-200/80 bg-sky-50 px-3 py-2 text-xs text-sky-900">
       <Info className="mt-0.5 size-3.5 shrink-0 text-sky-600" aria-hidden="true" />
-      Los productos relacionados se muestran en el carrusel del producto.
+      Los tóners de venta cruzada alimentan las pestañas Original / Compatible del hero; el resto
+      aparece en «Configura tu equipo».
     </p>
   );
 
@@ -308,6 +536,7 @@ export function InventoryMerchandisingSection({
     <div className="space-y-4">
       {selectors}
       {syncRow}
+      {storefrontUiBlock}
       <div className="flex justify-start">
         <Button
           type="button"
@@ -325,6 +554,7 @@ export function InventoryMerchandisingSection({
   ) : (
     <div className="space-y-5">
       {selectors}
+      {storefrontUiBlock}
       {optionalBlock}
       {syncRow}
       {note}

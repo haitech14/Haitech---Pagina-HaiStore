@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import {
+  toastSyncCatalogError,
+  toastSyncCatalogSuccess,
+} from '@/lib/sync-catalog-feedback';
+import {
   Copy,
   FileSpreadsheet,
   Info,
@@ -287,9 +291,12 @@ export function InventoryPanel() {
     }
     setBulkBusy(true);
     try {
-      await syncCatalog.mutateAsync(false);
+      const result = await syncCatalog.mutateAsync(false);
+      toastSyncCatalogSuccess(result);
       clearSelection();
       setPage(1);
+    } catch (error) {
+      toastSyncCatalogError(error);
     } finally {
       setBulkBusy(false);
     }

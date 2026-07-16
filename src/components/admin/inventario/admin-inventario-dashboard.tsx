@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { InventoryProductFormDialog } from '@/components/admin/inventory/inventory-product-form-dialog';
 import { AdminInventarioKpis } from '@/components/admin/inventario/admin-inventario-kpis';
 import { AdminInventarioPageHeader } from '@/components/admin/inventario/admin-inventario-page-header';
+import { AdminInventarioStockTakeBanner } from '@/components/admin/inventario/admin-inventario-stock-take-banner';
 import { AdminInventarioTablePanel } from '@/components/admin/inventario/admin-inventario-table-panel';
 import { AdminInventarioWidgets } from '@/components/admin/inventario/admin-inventario-widgets';
 import { useAdminUtilityPanel } from '@/context/admin-utility-panel-context';
@@ -20,9 +21,12 @@ import {
   normalizeUsdToPenRate,
 } from '@/lib/exchange-rate';
 import {
-  notifyProductCatalogChanged,
   upsertAdminInventoryProducts,
 } from '@/lib/invalidate-product-queries';
+import {
+  toastSyncCatalogError,
+  toastSyncCatalogSuccess,
+} from '@/lib/sync-catalog-feedback';
 import type { InventoryProduct } from '@/types/product';
 import { toast } from 'sonner';
 
@@ -34,11 +38,10 @@ export function AdminInventarioDashboard() {
     data: products = [],
     isLoading,
     isFetching,
-    refetch,
     dataUpdatedAt,
     error,
   } = useAdminInventory();
-  const { updateProduct } = useInventoryMutations();
+  const { updateProduct, syncCatalog } = useInventoryMutations();
   const { data: company } = useCompanySettings();
 
   const saleExchangeRate = normalizeUsdToPenRate(
@@ -85,8 +88,12 @@ export function AdminInventarioDashboard() {
   const { open: utilityPanelOpen } = useAdminUtilityPanel();
 
   const handleSync = async () => {
-    await refetch();
-    await notifyProductCatalogChanged(queryClient);
+    try {
+      const result = await syncCatalog.mutateAsync(false);
+      toastSyncCatalogSuccess(result);
+    } catch (error) {
+      toastSyncCatalogError(error);
+    }
   };
 
   return (
@@ -96,8 +103,10 @@ export function AdminInventarioDashboard() {
         onSync={() => {
           void handleSync();
         }}
-        isSyncing={isFetching}
+        isSyncing={syncCatalog.isPending || isFetching}
       />
+
+      <AdminInventarioStockTakeBanner />
 
       {error ? (
         <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">

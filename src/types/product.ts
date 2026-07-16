@@ -19,9 +19,14 @@ export {
 import type { PriceRole, ProductRolePrices } from '@/lib/roles';
 import type { ProductVolumeRolePriceTier } from '@/lib/product-volume-role-prices';
 import type { SelectedEquipmentOption } from '@/lib/equipment-config-selection';
-import type { StoredFeatureBarItem, StoredHeroBullet } from '@/types/product-storefront';
+import type { SeminuevaPreparationPrices } from '../../shared/seminueva-preparation-prices.js';
+import type {
+  StoredFeatureBarItem,
+  StoredHeroBullet,
+  StoredStorefrontUi,
+} from '@/types/product-storefront';
 
-export type { SelectedEquipmentOption, ProductVolumeRolePriceTier };
+export type { SelectedEquipmentOption, ProductVolumeRolePriceTier, SeminuevaPreparationPrices };
 
 export interface Product {
   id: string;
@@ -61,10 +66,17 @@ export interface Product {
   attachments?: ProductAttachment[];
   /** Tramos de precio por cantidad y rol (opcional; sustituye descuentos globales en este producto). */
   volume_role_prices?: ProductVolumeRolePriceTier[];
+  /**
+   * Precios absolutos por tipo de preparado (seminuevas).
+   * Acondicionado usa `prices`; aquí van Semi repotenciado / Remanufacturado.
+   */
+  preparation_prices?: SeminuevaPreparationPrices;
   /** Barra de características personalizada en ficha de tienda (6 ítems). */
   storefront_feature_bar?: StoredFeatureBarItem[] | null;
   /** Bullets del hero personalizados en ficha de tienda. */
   storefront_hero_bullets?: StoredHeroBullet[] | null;
+  /** Textos y toggles del bloque Toner / acciones de copiar en ficha. */
+  storefront_ui?: StoredStorefrontUi | null;
   /** Productos sugeridos en venta cruzada (selector de tóner / complementos). */
   cross_sell_product_ids?: string[];
   /** Productos sugeridos en upselling (carrusel «Configura tu equipo»). */
@@ -180,6 +192,8 @@ export interface InventoryProduct extends Omit<Product, 'price' | 'price_role' |
   prices: ProductRolePrices;
   /** Tramos de precio por cantidad y rol. */
   volume_role_prices?: ProductVolumeRolePriceTier[];
+  /** Precios absolutos por tipo de preparado (seminuevas). */
+  preparation_prices?: SeminuevaPreparationPrices;
   /** Última actualización del registro (p. ej. para cache-bust de imagen). */
   updated_at?: string;
 }

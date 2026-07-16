@@ -1,8 +1,16 @@
 import { FileText, Gauge, ShoppingBag, TrendingDown, TrendingUp, Users } from 'lucide-react';
 
 import { AdminEmptyState } from '@/components/admin/AdminEmptyState';
-import { ADMIN_RESUMEN_KPIS } from '@/data/admin-resumen-data';
+import { calcTrendPercent, isDateInRange } from '@/components/admin/AdminDateRangePicker';
+import { getPreviousPeriod } from '@/lib/admin-date-range-presets';
+import { useAdminDateRange } from '@/context/admin-date-range-context';
+import { useAdminProformas } from '@/hooks/use-admin-proformas';
+import {
+  useAdminDashboardKpis,
+  useAdminProductsQuery,
+} from '@/hooks/use-admin-dashboard';
 import { cn } from '@/lib/utils';
+import type { AdminResumenKpi } from '@/types/admin-resumen';
 
 const iconMap = {
   users: Users,
@@ -18,26 +26,92 @@ const iconStyles = {
   sla: 'bg-amber-50 text-amber-600',
 } as const;
 
-function formatTrend(trend: number) {
+function formatTrend(trend: number | null) {
+  if (trend === null) return '—';
   const sign = trend > 0 ? '+' : '';
   return `${sign}${trend.toFixed(1)}%`;
 }
 
 export function AdminResumenKpis() {
-  if (ADMIN_RESUMEN_KPIS.length === 0) {
+  const { range } = useAdminDateRange();
+  const previous = getPreviousPeriod(range);
+  const { data: proformas = [], isLoading: proformasLoading } = useAdminProformas();
+  const { kpis, isLoading: dashboardLoading } = useAdminDashboardKpis(range);
+  const productsQuery = useAdminProductsQuery();
+
+  const proformasInRange = proformas.filter((proforma) =>
+    isDateInRange(proforma.createdAt, range),
+  );
+  const proformasPrev = proformas.filter((proforma) =>
+    isDateInRange(proforma.createdAt, previous),
+  );
+
+  const products = productsQuery.data ?? [];
+  const productsReviewed = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
+
+  const isLoading = proformasLoading || dashboardLoading || productsQuery.isLoading;
+
+  const liveKpis: AdminResumenKpi[] = [
+    {
+      title: 'Cotizaciones solicitadas',
+      value: String(proformasInRange.length),
+      trend: calcTrendPercent(proformasInRange.length, proformasPrev.length) ?? 0,
+      trendLabel: 'vs. periodo anterior',
+      icon: 'orders',
+    },
+    {
+      title: 'Visitantes únicos',
+      value: '—',
+      trend: 0,
+      trendLabel: 'sin tracking aún',
+      icon: 'users',
+    },
+    {
+      title: 'Cuentas creadas',
+      value: String(kpis.newCustomers.value),
+      trend: kpis.newCustomers.trend ?? 0,
+      trendLabel: 'vs. periodo anterior',
+      icon: 'sales',
+    },
+    {
+      title: 'Productos revisados',
+      value: String(productsReviewed),
+      trend: 0,
+      trendLabel: 'vistas acumuladas',
+      icon: 'sla',
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <p className="text-sm text-muted-foreground" role="status">
+        Cargando métricas del resumen…
+      </p>
+    );
+  }
+
+  const hasAnyData =
+    proformasInRange.length > 0 ||
+    kpis.newCustomers.value > 0 ||
+    productsReviewed > 0;
+
+  if (!hasAnyData) {
     return (
       <AdminEmptyState
         title="Sin métricas disponibles"
-        description="Los indicadores del resumen aparecerán cuando haya datos reales del sistema."
+        description="Los indicadores del resumen aparecerán cuando haya cotizaciones, cuentas o actividad en el catálogo."
       />
     );
   }
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      {ADMIN_RESUMEN_KPIS.map((kpi) => {
+      {liveKpis.map((kpi) => {
         const Icon = iconMap[kpi.icon];
-        const trendPositive = kpi.trend >= 0;
+        const trendValue = kpi.title === 'Productos revisados' || kpi.title === 'Visitantes únicos'
+          ? null
+          : kpi.trend;
+        const trendPositive = trendValue === null || trendValue >= 0;
 
         return (
           <article
@@ -62,7 +136,7 @@ export function AdminResumenKpis() {
               </span>
             </div>
             <div className="mt-2.5 flex items-center gap-1">
-              {trendPositive ? (
+              {trendValue === null ? null : trendPositive ? (
                 <TrendingUp className="size-3.5 text-emerald-600" aria-hidden="true" />
               ) : (
                 <TrendingDown className="size-3.5 text-red-600" aria-hidden="true" />
@@ -70,10 +144,14 @@ export function AdminResumenKpis() {
               <span
                 className={cn(
                   'text-xs font-semibold',
-                  trendPositive ? 'text-emerald-600' : 'text-red-600',
+                  trendValue === null
+                    ? 'text-muted-foreground'
+                    : trendPositive
+                      ? 'text-emerald-600'
+                      : 'text-red-600',
                 )}
               >
-                {formatTrend(kpi.trend)}
+                {formatTrend(trendValue)}
               </span>
               <span className="text-[0.6875rem] text-muted-foreground">{kpi.trendLabel}</span>
             </div>

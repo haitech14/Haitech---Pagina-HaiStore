@@ -306,6 +306,7 @@ export function toAdminListProduct(product) {
     description: _description,
     storefront_feature_bar: _featureBar,
     storefront_hero_bullets: _heroBullets,
+    storefront_ui: _storefrontUi,
     gallery: _gallery,
     volume_role_prices: _volumeRolePrices,
     ...rest
@@ -318,6 +319,7 @@ export function toAdminListProduct(product) {
     volume_role_prices: [],
     storefront_feature_bar: undefined,
     storefront_hero_bullets: undefined,
+    storefront_ui: undefined,
   };
 }
 

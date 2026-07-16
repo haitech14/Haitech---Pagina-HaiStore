@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
 import { Loader2 } from 'lucide-react';
 
 import { CheckoutCulqiForm } from '@/components/checkout/checkout-culqi-form';
@@ -7,10 +9,12 @@ import { CheckoutMercadoPagoButton } from '@/components/checkout/checkout-mercad
 import { CheckoutMobileActionBar } from '@/components/checkout/checkout-mobile-action-bar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCart } from '@/context/cart-context';
 import {
   type CheckoutPaymentProvider,
   type ManualPaymentMethodId,
 } from '@/lib/build-checkout-session-payload';
+import { openCartQuoteWhatsApp } from '@/lib/cart-whatsapp-message';
 import type { CheckoutPaymentCurrency } from '@/lib/checkout-totals';
 import { cn } from '@/lib/utils';
 import type { CheckoutPaymentOptions } from '@/types/checkout';
@@ -80,6 +84,7 @@ export function CheckoutStepPayment({
   onCulqiError,
   onMercadoPago,
 }: CheckoutStepPaymentProps) {
+  const { items, totalPrice } = useCart();
   const culqiEnabled = Boolean(paymentOptions?.culqi && paymentOptions.culqiPublicKey);
   const mercadoPagoEnabled = Boolean(paymentOptions?.mercadopago);
   const cardPaymentSelected = isCardProvider(paymentProvider);
@@ -355,10 +360,31 @@ export function CheckoutStepPayment({
         </p>
       ) : null}
 
+      <Button
+        type="button"
+        variant="outline"
+        className="min-h-11 w-full gap-2 border-[#25D366]/50 text-[#128C7E] hover:bg-[#ecfdf5] sm:w-auto"
+        onClick={() => openCartQuoteWhatsApp(items, totalPrice)}
+      >
+        <Icon path={mdiWhatsapp} size={0.85} aria-hidden="true" />
+        Completar con un asesor por WhatsApp
+      </Button>
+
       <div className="hidden flex-col gap-2 sm:flex sm:flex-row">{actionButtons}</div>
 
       <CheckoutMobileActionBar>
-        <div className="flex gap-2">{actionButtons}</div>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">{actionButtons}</div>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-10 w-full gap-2 border-[#25D366]/50 text-xs text-[#128C7E] hover:bg-[#ecfdf5]"
+            onClick={() => openCartQuoteWhatsApp(items, totalPrice)}
+          >
+            <Icon path={mdiWhatsapp} size={0.75} aria-hidden="true" />
+            Completar con un asesor
+          </Button>
+        </div>
       </CheckoutMobileActionBar>
     </div>
   );

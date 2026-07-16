@@ -138,6 +138,7 @@ import type { Product } from '@/types/product';
 
 const EMPTY_PRODUCT_LIST: Product[] = [];
 const EMPTY_LABEL_LIST: string[] = [];
+type AvailabilityFilter = 'in-stock' | 'on-request' | null;
 
 function ProductSkeleton() {
   return (
@@ -236,7 +237,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const [filtersPanelOpen, setFiltersPanelOpen] = useState(true);
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [inStockOnly, setInStockOnly] = useState(false);
+  const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>(null);
   const [catalogPage, setCatalogPage] = useState(1);
   const isMobile = useIsMobile();
   const isDesktopNav = useIsDesktopNav();
@@ -320,7 +321,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     subSlug,
     labels: productLabels,
     condition: estadoFilter,
-    inStockOnly,
+    inStockOnly: availabilityFilter === 'in-stock',
     priceMin,
     priceMax,
     brandKeys: selectedBrands,
@@ -560,6 +561,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     setSelectedBrands(marcaFromUrl ? [marcaFromUrl] : []);
     setSelectedProduction(null);
     setSelectedSpeeds([]);
+    setAvailabilityFilter(null);
     setPriceMin(null);
     setPriceMax(null);
     setCatalogSearch('');
@@ -595,7 +597,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }, [availableAttributeKeys]);
 
   const filteredProducts = useMemo(() => {
-    if (useServerCatalog && !showFormatSectionsEarly) {
+    if (useServerCatalog && !showFormatSectionsEarly && availabilityFilter !== 'on-request') {
       return baseProducts;
     }
 
@@ -623,8 +625,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     if (selectedBrands.length > 0) {
       list = list.filter((product) => productMatchesBrandFilter(product, selectedBrands));
     }
-    if (inStockOnly) {
+    if (availabilityFilter === 'in-stock') {
       list = list.filter((product) => product.stock > 0);
+    } else if (availabilityFilter === 'on-request') {
+      list = list.filter((product) => product.stock <= 0);
     }
     list = list.filter((product) => {
       if (product.price < safeMin) return false;
@@ -659,7 +663,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     selectedProduction,
     selectedSpeeds,
     facetCountProducts,
-    inStockOnly,
+    availabilityFilter,
     priceMin,
     priceMax,
     sortBy,
@@ -703,7 +707,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     if (selectedAttributes.length > 0) return true;
     if (selectedProduction != null || selectedSpeeds.length > 0) return true;
     if (selectedBrands.length > 0) return true;
-    if (inStockOnly) return true;
+    if (availabilityFilter != null) return true;
     if (priceMin != null || priceMax != null) return true;
     if (catalogPage > 1) return true;
     const estado = searchParams.get('estado');
@@ -717,7 +721,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     selectedProduction,
     selectedSpeeds,
     selectedBrands,
-    inStockOnly,
+    availabilityFilter,
     priceMin,
     priceMax,
     catalogPage,
@@ -761,6 +765,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   const inStockProductCount = useMemo(
     () => baseProducts.filter((product) => product.stock > 0).length,
+    [baseProducts],
+  );
+  const onRequestProductCount = useMemo(
+    () => baseProducts.filter((product) => product.stock <= 0).length,
     [baseProducts],
   );
   const quickAttributeFilters = useMemo(
@@ -929,7 +937,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     selectedSpeeds,
     sortBy,
     catalogSearch,
-    inStockOnly,
+    availabilityFilter,
     priceMin,
     priceMax,
     estadoFilter,
@@ -976,7 +984,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     setSelectedBrands([]);
     setSelectedProduction(null);
     setSelectedSpeeds([]);
-    setInStockOnly(false);
+    setAvailabilityFilter(null);
     setPriceMin(null);
     setPriceMax(null);
     setCatalogSearch('');
@@ -1086,7 +1094,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     (rawSubSlug != null && rawSubSlug !== ALL_SUBCATEGORIES_QUERY) ||
     hasPriceFilter ||
     hasBrandFilters ||
-    inStockOnly;
+    availabilityFilter != null;
 
   const formatSpecFilterTabs = specFilterTabs.filter((tab) => tab.key.includes('Formato papel::'));
   const colorSpecFilterTabs = specFilterTabs.filter((tab) => tab.key.startsWith('Color::'));
@@ -1233,17 +1241,33 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         <CatalogFilterSection
           title="Disponibilidad"
           labelClassName={filterSectionLabelClass}
-          openWhenActive={inStockOnly}
+          defaultOpen
+          openWhenActive={availabilityFilter != null}
         >
           <CatalogFilterGroup>
             <CatalogFilterOption
-              id="filter-in-stock-only"
-              label="Solo en stock"
+              id="filter-in-stock"
+              label="En stock"
               count={inStockProductCount}
-              active={inStockOnly}
+              active={availabilityFilter === 'in-stock'}
+              mode="radio"
               compact={!storefrontMode}
               disabled={inStockProductCount === 0}
-              onToggle={() => setInStockOnly((prev) => !prev)}
+              onToggle={() =>
+                setAvailabilityFilter((prev) => (prev === 'in-stock' ? null : 'in-stock'))
+              }
+            />
+            <CatalogFilterOption
+              id="filter-on-request"
+              label="A pedido"
+              count={onRequestProductCount}
+              active={availabilityFilter === 'on-request'}
+              mode="radio"
+              compact={!storefrontMode}
+              disabled={onRequestProductCount === 0}
+              onToggle={() =>
+                setAvailabilityFilter((prev) => (prev === 'on-request' ? null : 'on-request'))
+              }
             />
           </CatalogFilterGroup>
         </CatalogFilterSection>
@@ -1330,14 +1354,15 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
       {mostViewedOfferFilter ? (
         <CatalogFilterSection
-          title="Ofertas"
+          title="Oferta"
           labelClassName={filterSectionLabelClass}
+          defaultOpen
           openWhenActive={selectedAttributes.includes(MOST_VIEWED_OFFER_ATTR_KEY)}
         >
           <CatalogFilterGroup>
             <CatalogFilterOption
               id="filter-offer-most-viewed"
-              label={mostViewedOfferFilter.label}
+              label="En oferta"
               count={mostViewedOfferFilter.count}
               active={selectedAttributes.includes(MOST_VIEWED_OFFER_ATTR_KEY)}
               compact
@@ -1560,7 +1585,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                       hasAttributeFilters ||
                       hasBrandFilters ||
                       hasPriceFilter ||
-                      inStockOnly
+                      availabilityFilter != null
                     }
                     onToggleFilters={toggleCategoryFilters}
                   />
@@ -1692,7 +1717,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                     catalogSidebarLayout={catalogSidebarLayout}
                     activeFilterChips={activeFilterChips}
                     filtersActive={
-                      hasAttributeFilters || hasBrandFilters || hasPriceFilter || inStockOnly
+                      hasAttributeFilters || hasBrandFilters || hasPriceFilter || availabilityFilter != null
                     }
                     storefrontMode={storefrontMode}
                     endAction={

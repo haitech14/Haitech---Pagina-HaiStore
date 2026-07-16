@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, X } from 'lucide-react';
+import { ChevronLeft, Send, X } from 'lucide-react';
 
 import { HaibotAgentAvatar } from '@/components/haibot/haibot-agent-avatar';
 import { HaibotSalesWorkflow } from '@/components/haibot/haibot-sales-workflow';
@@ -70,6 +70,46 @@ function ChatBubble({ message }: { message: HaibotChatMessage }) {
   );
 }
 
+function HaibotBotChoiceButtons({
+  actions,
+  onSelect,
+}: {
+  actions: readonly HaibotQuickAction[];
+  onSelect: (action: HaibotQuickAction) => void;
+}) {
+  return (
+    <div
+      className="mr-auto flex w-full max-w-[88%] flex-col gap-1.5"
+      role="group"
+      aria-label="Opciones de Haibot"
+    >
+      {actions.map((action) => {
+        const Icon = action.icon;
+        return (
+          <button
+            key={action.id}
+            type="button"
+            onClick={() => onSelect(action)}
+            className={cn(
+              'inline-flex min-h-10 w-full items-center gap-2.5 rounded-xl border border-[#d1d7db] bg-white px-3 py-2.5 text-left text-[0.8125rem] font-semibold text-[#111b21] shadow-sm',
+              'transition-colors hover:border-[#075e54]/35 hover:bg-[#f0faf8]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54] focus-visible:ring-offset-1',
+            )}
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#e7f5f3] text-[#075e54]">
+              <Icon className="size-3.5" aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">{action.label}</span>
+            <span className="text-[#8696a0]" aria-hidden="true">
+              →
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 interface HaibotChatPanelProps {
   onClose: () => void;
 }
@@ -85,25 +125,36 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
   ]);
   const [searchFocus, setSearchFocus] = useState<HaibotSearchFocus | null>(null);
   const [activeWorkflow, setActiveWorkflow] = useState<HaibotWorkflowId | null>(null);
+  const [showMenu, setShowMenu] = useState(true);
 
   useEffect(() => {
     const node = listRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;
-  }, [messages, activeWorkflow]);
+  }, [messages, activeWorkflow, showMenu]);
 
-  const buildReply = async (text: string): Promise<string> => {
+  const buildReply = async (
+    text: string,
+  ): Promise<{ reply: string; openWorkflow?: HaibotWorkflowId; openSearch?: HaibotSearchFocus }> => {
+    // Citas / soporte técnico tienen prioridad sobre el modo buscador activo.
+    const assistantFirst = getHaibotAssistantReply(text);
+    if (assistantFirst.openWorkflow === 'support') {
+      return assistantFirst;
+    }
+
     const search = resolveHaibotInventorySearch(text, [], searchFocus);
     if (search) {
       try {
         const { products: matches } = await searchCatalogProducts(search.query, { limit: 50 });
-        return formatHaibotInventorySearchReply(search.query, matches, search.focus);
+        return {
+          reply: formatHaibotInventorySearchReply(search.query, matches, search.focus),
+        };
       } catch {
-        return 'No pude consultar el inventario en este momento. Inténtalo de nuevo.';
+        return { reply: 'No pude consultar el inventario en este momento. Inténtalo de nuevo.' };
       }
     }
 
-    return getHaibotAssistantReply(text);
+    return assistantFirst;
   };
 
   const submitText = (text: string) => {
@@ -111,10 +162,21 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
     if (!trimmed || activeWorkflow) return;
 
     setDraft('');
+    setShowMenu(false);
     setMessages((prev) => [...prev, createHaibotMessage('user', trimmed)]);
 
-    void buildReply(trimmed).then((reply) => {
-      setMessages((prev) => [...prev, createHaibotMessage('assistant', reply)]);
+    void buildReply(trimmed).then((result) => {
+      setMessages((prev) => [...prev, createHaibotMessage('assistant', result.reply)]);
+      if (result.openWorkflow) {
+        setActiveWorkflow(result.openWorkflow);
+        setSearchFocus(null);
+        setShowMenu(false);
+      } else if (result.openSearch) {
+        setActiveWorkflow(null);
+        setSearchFocus(result.openSearch);
+        setShowMenu(false);
+        inputRef.current?.focus();
+      }
     });
   };
 
@@ -123,11 +185,21 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
     submitText(draft);
   };
 
-  const appendWorkflowHint = (actionId: string) => {
+  const appendActionMessages = (actionId: string) => {
     setMessages((prev) => [
       ...prev,
       createHaibotMessage('user', getHaibotQuickActionUserMessage(actionId)),
       createHaibotMessage('assistant', getHaibotQuickActionReply(actionId)),
+    ]);
+  };
+
+  const returnToMenu = () => {
+    setActiveWorkflow(null);
+    setSearchFocus(null);
+    setShowMenu(true);
+    setMessages((prev) => [
+      ...prev,
+      createHaibotMessage('assistant', '¿Qué deseas hacer? Elige una opción para continuar:'),
     ]);
   };
 
@@ -140,33 +212,26 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
 
     if (action.kind === 'whatsapp') {
       window.open(buildHaibotWhatsAppUrl(action.intent), '_blank', 'noopener,noreferrer');
-      setMessages((prev) => [
-        ...prev,
-        createHaibotMessage('user', getHaibotQuickActionUserMessage(action.id)),
-        createHaibotMessage('assistant', getHaibotQuickActionReply(action.id)),
-      ]);
+      appendActionMessages(action.id);
+      setShowMenu(false);
       return;
     }
 
     if (isHaibotWorkflowAction(action)) {
-      const next = activeWorkflow === action.workflow ? null : action.workflow;
-      setActiveWorkflow(next);
+      setActiveWorkflow(action.workflow);
       setSearchFocus(null);
-      if (next) appendWorkflowHint(action.id);
+      setShowMenu(false);
+      appendActionMessages(action.id);
       return;
     }
 
     if (isHaibotSearchAction(action)) {
       setActiveWorkflow(null);
-      setSearchFocus((current) => (current === action.focus ? null : action.focus));
-      inputRef.current?.focus();
+      setSearchFocus(action.focus);
+      setShowMenu(false);
+      appendActionMessages(action.id);
+      window.setTimeout(() => inputRef.current?.focus(), 0);
     }
-  };
-
-  const isPrimarySelected = (action: HaibotQuickAction): boolean => {
-    if (isHaibotSearchAction(action)) return searchFocus === action.focus && !activeWorkflow;
-    if (isHaibotWorkflowAction(action)) return activeWorkflow === action.workflow;
-    return false;
   };
 
   const statusLabel = (() => {
@@ -174,6 +239,8 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
     if (searchFocus) return `modo ${SEARCH_MODE_LABELS[searchFocus]} · inventario`;
     return 'en línea · asistente HaiStore';
   })();
+
+  const inGuidedMode = Boolean(activeWorkflow || searchFocus);
 
   return (
     <section
@@ -211,68 +278,50 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
         {messages.map((message) => (
           <ChatBubble key={message.id} message={message} />
         ))}
+
+        {showMenu && !inGuidedMode ? (
+          <>
+            <HaibotBotChoiceButtons
+              actions={HAIBOT_PRIMARY_ACTIONS}
+              onSelect={handleQuickAction}
+            />
+            <div className="mr-auto flex max-w-[88%] flex-wrap gap-1.5 pt-0.5">
+              {HAIBOT_SECONDARY_ACTIONS.filter((action) => action.accent === 'whatsapp').map(
+                (action) => {
+                  const Icon = action.icon;
+                  return (
+                    <button
+                      key={action.id}
+                      type="button"
+                      onClick={() => handleQuickAction(action)}
+                      className={cn(
+                        'inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[#c8f0b4] bg-[#dcf8c6] px-2.5 py-1 text-[0.7rem] font-semibold text-[#075e54]',
+                        'transition-colors hover:bg-[#c8f0b4]',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54]',
+                      )}
+                    >
+                      <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+                      {action.label}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+          </>
+        ) : null}
       </div>
 
       <div className="shrink-0 bg-[#f0f2f5] px-2 pb-2 pt-2">
-        <div
-          className="mb-2 overflow-x-auto rounded-xl bg-[#e9edef] p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          role="toolbar"
-          aria-label="Acciones rápidas"
-        >
-          <div className="flex min-w-min items-stretch gap-1">
-            <div className="flex gap-1" role="radiogroup" aria-label="Modo de consulta">
-              {HAIBOT_PRIMARY_ACTIONS.map((action) => {
-                const Icon = action.icon;
-                const isSelected = isPrimarySelected(action);
-
-                return (
-                  <button
-                    key={action.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    onClick={() => handleQuickAction(action)}
-                    className={cn(
-                      'inline-flex min-h-10 min-w-[4.25rem] items-center justify-center gap-1 rounded-lg px-2 py-2 text-[0.68rem] font-semibold transition-all',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54] focus-visible:ring-offset-1',
-                      isSelected
-                        ? 'bg-white text-[#075e54] shadow-sm ring-1 ring-[#075e54]/20'
-                        : 'text-[#54656f] hover:bg-white/70 hover:text-[#3b4a54]',
-                    )}
-                  >
-                    <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-                    {action.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div aria-hidden="true" className="my-1.5 w-px shrink-0 self-stretch bg-[#cfd4d8]" />
-
-            {HAIBOT_SECONDARY_ACTIONS.map((action) => {
-              const Icon = action.icon;
-              const isWhatsapp = action.accent === 'whatsapp';
-
-              return (
-                <button
-                  key={action.id}
-                  type="button"
-                  onClick={() => handleQuickAction(action)}
-                  className={cn(
-                    'inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-[0.7rem] font-semibold transition-all',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54] focus-visible:ring-offset-1',
-                    isWhatsapp
-                      ? 'bg-[#dcf8c6] text-[#075e54] ring-1 ring-[#25d366]/25 hover:bg-[#c8f0b4]'
-                      : 'text-[#54656f] hover:bg-white/70 hover:text-[#3b4a54]',
-                  )}
-                >
-                  <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-                  {action.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {inGuidedMode ? (
+          <button
+            type="button"
+            onClick={returnToMenu}
+            className="mb-2 inline-flex min-h-8 items-center gap-1 rounded-full px-2 text-xs font-semibold text-[#075e54] transition-colors hover:bg-[#e7f5f3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54]"
+          >
+            <ChevronLeft className="size-3.5" aria-hidden="true" />
+            Menú
+          </button>
+        ) : null}
 
         {activeWorkflow === 'support' ? (
           <HaibotSupportWorkflow />

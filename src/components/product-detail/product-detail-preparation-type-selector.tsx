@@ -60,10 +60,10 @@ export function ProductDetailPreparationTypeSelector({
                 className="mt-1 size-4 shrink-0 accent-red-600"
               />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-foreground">
+                <span className="block text-[0.8125rem] font-semibold leading-snug text-foreground">
                   {SEMINUEVA_PREPARATION_LABELS[option]}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted-foreground">
+                <span className="mt-0.5 block text-[0.6875rem] leading-snug text-muted-foreground">
                   {resolvePreparationHint(option, product)}
                 </span>
               </span>

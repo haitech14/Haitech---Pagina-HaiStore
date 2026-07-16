@@ -72,8 +72,13 @@ import type { Product } from '@/types/product';
 import { productHasNuevoCornerBadge } from '@/lib/product-detail-badges';
 import { findTechnicalSheetAttachment, findAttachmentByKind } from '@/lib/inventory-attachments';
 import { buildProductGalleryItems } from '@/lib/product-media';
-import { productQualifiesAsSeminuevaEquipment } from '@/lib/inventory-product-name';
-import { resolveProductHeroBrand, resolveProductHeroCode, resolveProductEquipmentConditionLabel } from '@/lib/product-hero-meta';
+import { productQualifiesAsRemanufacturadaEquipment, productQualifiesAsSeminuevaEquipment } from '@/lib/inventory-product-name';
+import {
+  resolveProductHeroBrand,
+  resolveProductHeroCode,
+  resolveProductEquipmentConditionLabel,
+  resolveProductHeroConditionLabel,
+} from '@/lib/product-hero-meta';
 import {
   GIFT_TRUST_SUBTITLE,
   heroBulletsToStored,
@@ -708,14 +713,47 @@ function mergeCardSpecRowsIntoSpecs(
 }
 
 export const TRUST_WARRANTY_CHIP_LABEL =
-  'Garantía de Fábrica 1 año y/o 20,000 páginas para Multifuncionales e impresoras Nuevas';
+  'Garantía de Fábrica 1 año y/o 20,000 páginas';
+
+export const TRUST_WARRANTY_CHIP_LABEL_SEMINUEVA =
+  'Garantía en Soporte Técnico 1 año y/o 20,000 páginas';
 
 export const TRUST_GIFT_CHIP_LABEL = 'Regalo: Envio Gratis, Cable de Red, Calendario';
 
 /** @deprecated Use TRUST_WARRANTY_CHIP_LABEL */
 export const DEFAULT_TRUST_WARRANTY_LABEL = TRUST_WARRANTY_CHIP_LABEL;
 
-export function resolveTrustWarrantyLabel(_warrantyBaseLabel?: string): string {
+function conditionImpliesSupportWarranty(conditionLabel: string | null | undefined): boolean {
+  if (!conditionLabel) return false;
+  const normalized = conditionLabel
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '');
+  return (
+    normalized.includes('seminueva') ||
+    normalized.includes('seminuevo') ||
+    normalized.includes('remanufactur')
+  );
+}
+
+/** Texto de garantía según condición del equipo (Nueva vs Seminueva/Remanufacturada). */
+export function resolveTrustWarrantyLabel(
+  _warrantyBaseLabel?: string,
+  product?: Product | null,
+): string {
+  if (!product) return TRUST_WARRANTY_CHIP_LABEL;
+
+  const heroCondition = resolveProductHeroConditionLabel(product);
+  const equipmentCondition = resolveProductEquipmentConditionLabel(product);
+  if (
+    conditionImpliesSupportWarranty(heroCondition) ||
+    conditionImpliesSupportWarranty(equipmentCondition) ||
+    productQualifiesAsSeminuevaEquipment(product) ||
+    productQualifiesAsRemanufacturadaEquipment(product)
+  ) {
+    return TRUST_WARRANTY_CHIP_LABEL_SEMINUEVA;
+  }
+
   return TRUST_WARRANTY_CHIP_LABEL;
 }
 

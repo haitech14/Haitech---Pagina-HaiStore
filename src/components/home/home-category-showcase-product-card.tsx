@@ -30,9 +30,6 @@ import type { Product } from '@/types/product';
 
 const LOW_STOCK_THRESHOLD = 8;
 
-const whatsappRevealClass =
-  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
-
 function resolveShowcasePricing(product: HomeCategoryShowcaseProduct) {
   const catalog = product.catalogId ? getCatalogProductById(product.catalogId) : null;
   const currentUsd = catalog?.prices?.public ?? product.price;
@@ -189,34 +186,28 @@ export function HomeCategoryShowcaseProductCard({
           compareUsd={pricing.compareUsd}
         />
 
-        <div className="relative z-[2] mt-auto space-y-1.5 pt-3">
+        <div className="relative z-[2] mt-auto flex items-stretch gap-2 pt-3">
           {isEquipment ? (
             <>
               <AddToCartButton
                 product={cartProduct}
                 addOptions={{ quantity: 1 }}
-                className="h-10 min-h-10 w-full rounded-lg border-0 bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"
+                className="h-10 min-h-10 max-h-10 min-w-0 flex-1 rounded-lg border-0 bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"
               >
                 Comprar Ahora
               </AddToCartButton>
-              <div className={whatsappRevealClass}>
-                <div className="min-h-0 overflow-hidden">
-                  <ProductWhatsAppButton
-                    stopPropagation
-                    accent="outline"
-                    label="Cotizar por WhatsApp"
-                    quantity={1}
-                    product={{
-                      id: cartProduct.id,
-                      name: cartProduct.name,
-                      priceUsd: pricing.currentUsd,
-                      category: cartProduct.category,
-                      brand: cartProduct.brand ?? null,
-                    }}
-                    className="h-10 min-h-10 w-full rounded-lg border-[#25D366] bg-white px-2 text-[0.6875rem] font-semibold normal-case tracking-normal text-[#25D366] transition-colors hover:border-[#25D366] hover:bg-[#25D366] hover:text-white sm:text-xs"
-                  />
-                </div>
-              </div>
+              <ProductWhatsAppButton
+                stopPropagation
+                quantity={1}
+                product={{
+                  id: cartProduct.id,
+                  name: cartProduct.name,
+                  priceUsd: pricing.currentUsd,
+                  category: cartProduct.category,
+                  brand: cartProduct.brand ?? null,
+                }}
+                className="h-10 w-10 min-h-10 max-h-10 min-w-10 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366]"
+              />
             </>
           ) : (
             <AddToCartButton

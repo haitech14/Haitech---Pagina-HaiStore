@@ -60,7 +60,7 @@ export type HeaderNavSubmenuConfig = {
 
 export const PRODUCTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'productos',
-  label: 'Productos',
+  label: 'Equipos',
   icon: Package,
   matchActive: ({ pathname }) =>
     (pathname.startsWith('/categoria') &&
@@ -153,8 +153,17 @@ export const SERVICIOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   label: 'Servicios',
   icon: Wrench,
   matchActive: ({ pathname }) =>
-    pathname.startsWith('/servicios') && !pathname.startsWith('/servicios/alquiler'),
+    pathname.startsWith('/servicios') ||
+    pathname === '/alquiler' ||
+    pathname.startsWith('/categoria/alquiler'),
   items: [
+    { kind: 'heading', label: 'Alquiler' },
+    { label: 'Ver alquiler', href: serviceHubPath('alquiler') },
+    ...rentalCategories.map((category) => ({
+      label: category.name,
+      href: categoryPath('alquiler', category.slug),
+    })),
+    { kind: 'heading', label: 'Soporte' },
     { label: 'Soporte técnico', href: serviceHubPath('servicio-tecnico') },
     {
       label: 'Mantenimiento',
@@ -187,7 +196,7 @@ export const EMPRESAS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
 
 export const SOFTWARE_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'software',
-  label: 'Software',
+  label: 'Soluciones',
   icon: AppWindow,
   matchActive: ({ pathname }) =>
     pathname === '/software' || pathname.startsWith('/software/'),
@@ -205,7 +214,6 @@ export const RENTALS_NAV_SUBMENU = ALQUILER_NAV_SUBMENU;
 
 export const HEADER_NAV_SUBMENUS: HeaderNavSubmenuConfig[] = [
   PRODUCTOS_NAV_SUBMENU,
-  ALQUILER_NAV_SUBMENU,
   TONER_NAV_SUBMENU,
   SERVICIOS_NAV_SUBMENU,
   SOFTWARE_NAV_SUBMENU,

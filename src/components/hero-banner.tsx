@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight, ShieldCheck, ShoppingCart } from 'lucide-react';
+import { ShieldCheck, ShoppingCart } from 'lucide-react';
 import { Icon } from '@mdi/react';
 import { mdiWhatsapp } from '@mdi/js';
 
@@ -456,8 +456,6 @@ export function HeroBanner({
     }
   };
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
   const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
   useEffect(() => {
@@ -530,33 +528,6 @@ export function HeroBanner({
               ))}
             </ul>
           </div>
-
-          {showCarouselControls ? (
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                pauseAutoplay();
-                scrollPrev();
-              }}
-              aria-label="Slide anterior"
-              className="absolute left-2 top-1/2 z-20 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:flex lg:left-4"
-            >
-              <ChevronLeft className="size-5" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                pauseAutoplay();
-                scrollNext();
-              }}
-              aria-label="Siguiente slide"
-              className="absolute right-2 top-1/2 z-20 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:flex lg:right-4"
-            >
-              <ChevronRight className="size-5" aria-hidden="true" />
-            </button>
-          </>
-          ) : null}
       </div>
 
       {showCarouselControls ? (

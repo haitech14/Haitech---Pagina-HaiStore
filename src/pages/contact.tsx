@@ -3,7 +3,9 @@ import { useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import { AlertTriangle, CheckCircle2, Phone } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +17,18 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  FOOTER_SALES_PHONE_DISPLAY,
+  FOOTER_SALES_WHATSAPP_LINK,
+  FOOTER_SUPPORT_PHONE_DISPLAY,
+  FOOTER_SUPPORT_PHONE_TEL,
+} from '@/data/site-footer';
 import { submitSupportTicket, SupportTicketError } from '@/lib/support-ticket';
+import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
+
+const CONTACT_WHATSAPP_URL = buildHaitechWhatsAppUrl(
+  'Hola, vengo desde la página de Contacto de HaiStore. Necesito asesoría.',
+);
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Introduce al menos 2 caracteres.'),
@@ -85,10 +98,25 @@ export function ContactPage() {
         <CardHeader>
           <CardTitle>Contacto</CardTitle>
           <CardDescription>
-            ¿Tienes una pregunta? Escríbenos y HaiSupport te responderá.
+            ¿Tienes una pregunta? Habla con un asesor o déjanos un mensaje.
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-5 grid gap-2 sm:grid-cols-2">
+            <Button asChild className="min-h-11 gap-2 bg-[#25D366] text-white hover:bg-[#20bd5a]">
+              <a href={CONTACT_WHATSAPP_URL || FOOTER_SALES_WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
+                <Icon path={mdiWhatsapp} size={0.85} aria-hidden="true" />
+                WhatsApp ventas {FOOTER_SALES_PHONE_DISPLAY}
+              </a>
+            </Button>
+            <Button asChild variant="outline" className="min-h-11 gap-2">
+              <a href={FOOTER_SUPPORT_PHONE_TEL}>
+                <Phone className="size-4 shrink-0" aria-hidden="true" />
+                Llamar {FOOTER_SUPPORT_PHONE_DISPLAY}
+              </a>
+            </Button>
+          </div>
+
           {sent ? (
             <div className="flex flex-col gap-3">
               <div role="status" className="flex items-center gap-2 text-primary">

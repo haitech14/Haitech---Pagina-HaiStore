@@ -1,12 +1,16 @@
-import { Link } from 'react-router-dom';
-import { Award, ChevronRight, Headphones, KeyRound, ShieldCheck, ShoppingCart, Users, type LucideIcon } from 'lucide-react';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import { Award, ChevronRight, ShieldCheck, ShoppingCart, Users, type LucideIcon } from 'lucide-react';
 
-import { HomeHeroPartnerBrands } from '@/components/home/home-hero-partner-brands';
 import { StorePrefetchLink } from '@/components/store-prefetch-link';
 import { Button } from '@/components/ui/button';
 import { heroSingleAssetSources } from '@/lib/responsive-image';
-import { serviceHubPath } from '@/lib/service-hub';
+import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 import { cn } from '@/lib/utils';
+
+const HERO_ADVISOR_WHATSAPP_URL = buildHaitechWhatsAppUrl(
+  'Hola, vengo desde HaiStore. Quiero cotizar un equipo para mi empresa.',
+);
 
 const HERO_BACKGROUND = '/hero/home-hero-scene.png';
 const HERO_SOURCES = heroSingleAssetSources(HERO_BACKGROUND);
@@ -19,21 +23,15 @@ const HERO_TRUST_ITEMS: {
 }[] = [
   {
     id: 'empresas',
-    label: '+1200 empresas atendidas',
+    label: '+1200 empresas',
     ariaLabel: 'Más de 1.200 empresas atendidas',
     icon: Users,
   },
   {
     id: 'garantia',
-    label: 'Garantía',
+    label: 'Garantía incluida',
     ariaLabel: 'Garantía incluida',
     icon: ShieldCheck,
-  },
-  {
-    id: 'soporte',
-    label: 'Soporte',
-    ariaLabel: 'Instalación y soporte técnico',
-    icon: Headphones,
   },
   {
     id: 'ricoh',
@@ -95,48 +93,37 @@ export function HomeLandingHeroSlideContent({
                 <span className="text-[#E30613]">impresión</span> tampoco
               </h1>
 
-              <p className="mt-1.5 max-w-[40rem] text-pretty text-sm leading-[1.45] text-[#666666] sm:mt-2 sm:text-[0.875rem] lg:text-[0.9375rem]">
-                Compra, alquila o solicita soporte para fotocopiadoras e impresoras con garantía,
-                instalación y atención especializada para empresas.
+              <p className="mt-1.5 max-w-[36rem] text-pretty text-sm leading-[1.45] text-[#666666] sm:mt-2 sm:text-[0.875rem] lg:text-[0.9375rem]">
+                Fotocopiadoras e impresoras con garantía, instalación y atención especializada para
+                empresas.
               </p>
 
-              <div className="mt-2 flex w-full flex-col gap-1.5 sm:mt-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-stretch sm:gap-2">
+              <div className="mt-3 flex w-full flex-col gap-2 sm:mt-3.5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
                 <Button
                   asChild
-                  className="min-h-9 gap-1.5 rounded-lg bg-[#E30613] px-4 text-sm font-medium text-white shadow-[0_4px_12px_rgba(227,6,19,0.2)] hover:bg-[#c90511]"
+                  className="min-h-10 gap-1.5 rounded-lg bg-[#E30613] px-5 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(227,6,19,0.2)] hover:bg-[#c90511]"
                 >
                   <StorePrefetchLink to="/tienda">
-                    <ShoppingCart className="size-3 shrink-0" aria-hidden="true" />
-                    <span>Comprar</span>
+                    <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
+                    <span>Ver equipos</span>
                     <ChevronRight className="ml-0.5 size-3.5 shrink-0 opacity-90" aria-hidden="true" />
                   </StorePrefetchLink>
                 </Button>
                 <Button
                   asChild
-                  className="min-h-9 gap-1.5 rounded-lg bg-[#111111] px-4 text-sm font-medium text-white shadow-[0_4px_12px_rgba(17,17,17,0.18)] hover:bg-[#2a2a2a]"
-                >
-                  <Link to={serviceHubPath('alquiler')}>
-                    <KeyRound className="size-3 shrink-0" aria-hidden="true" />
-                    <span>Alquilar</span>
-                    <ChevronRight className="ml-0.5 size-3.5 shrink-0 opacity-90" aria-hidden="true" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
                   variant="outline"
-                  className="min-h-9 gap-1.5 rounded-lg border-[#DDDDDD] bg-white px-4 text-sm font-medium text-[#111111] shadow-[0_2px_8px_rgba(17,17,17,0.06)] hover:bg-[#F8F9FA]"
+                  className="min-h-10 gap-1.5 rounded-lg border-[#25D366]/50 bg-white px-5 text-sm font-medium text-[#128C7E] shadow-[0_2px_8px_rgba(37,211,102,0.12)] hover:bg-[#ecfdf5]"
                 >
-                  <Link to={serviceHubPath('servicio-tecnico')}>
-                    <Headphones className="size-3 shrink-0" aria-hidden="true" />
-                    <span>Soporte Técnico</span>
-                    <ChevronRight className="ml-0.5 size-3.5 shrink-0 opacity-90" aria-hidden="true" />
-                  </Link>
+                  <a href={HERO_ADVISOR_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                    <Icon path={mdiWhatsapp} size={0.75} aria-hidden="true" />
+                    <span>Cotizar por WhatsApp</span>
+                  </a>
                 </Button>
               </div>
 
               <ul
                 className={cn(
-                  'mt-2.5 flex flex-nowrap items-center overflow-x-auto sm:mt-3',
+                  'mt-3 flex flex-nowrap items-center overflow-x-auto sm:mt-3.5',
                   'pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
                   'sm:overflow-visible',
                 )}
@@ -145,17 +132,22 @@ export function HomeLandingHeroSlideContent({
                 {HERO_TRUST_ITEMS.map(({ id, label, ariaLabel, icon: TrustIcon }, index) => (
                   <li key={id} className="flex shrink-0 items-center" aria-label={ariaLabel}>
                     {index > 0 ? (
-                      <span className="mx-2 h-3.5 w-px shrink-0 bg-[#DDDDDD] sm:mx-2.5" aria-hidden="true" />
+                      <span
+                        className="mx-2 h-3.5 w-px shrink-0 bg-[#DDDDDD] sm:mx-2.5"
+                        aria-hidden="true"
+                      />
                     ) : null}
-                    <TrustIcon className="size-3.5 shrink-0 text-[#666666] sm:size-4" strokeWidth={1.75} aria-hidden="true" />
+                    <TrustIcon
+                      className="size-3.5 shrink-0 text-[#666666] sm:size-4"
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
                     <span className="ml-1.5 whitespace-nowrap text-xs font-normal leading-none text-[#666666] sm:text-[0.8125rem]">
                       {label}
                     </span>
                   </li>
                 ))}
               </ul>
-
-              <HomeHeroPartnerBrands className="relative z-10 mt-4 sm:mt-5" />
             </div>
           </div>
 

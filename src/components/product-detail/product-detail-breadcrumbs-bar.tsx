@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, Pencil } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { InventoryProductFormDialog } from '@/components/admin/inventory/inventory-product-form-dialog';
@@ -9,7 +9,6 @@ import { ProductDetailBreadcrumbs } from '@/components/product-detail/product-de
 import { ProductDetailReferralButton } from '@/components/product-detail/product-detail-referral-button';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
-import { useAdminInventoryCatalogMap } from '@/hooks/use-admin-inventory-price-map';
 import { fetchAdminInventoryProductById } from '@/hooks/use-products';
 import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
 import { cn } from '@/lib/utils';
@@ -35,43 +34,64 @@ function parentCatalogHref(items: ProductBreadcrumb[]): string {
   return '/tienda';
 }
 
+function isSessionAuthError(message: string): boolean {
+  return /sesión|expirada|no válida|permisos de administrador|unauthorized|401/i.test(message);
+}
+
 export function ProductDetailBreadcrumbsBar({
   items,
   product,
   className,
 }: ProductDetailBreadcrumbsBarProps) {
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const location = useLocation();
+  const { isAdmin, canAccessAdminPanel } = useAuth();
   const queryClient = useQueryClient();
-  const catalogMap = useAdminInventoryCatalogMap();
-  const catalogEntry = catalogMap?.get(product.id) ?? null;
-  const listProduct = catalogEntry?.product ?? null;
   const [editOpen, setEditOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<InventoryProduct | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
 
+  // Staff del panel, o siempre en localhost para no “perder” el botón si la sesión caducó.
+  const showEditButton = canAccessAdminPanel || isAdmin || import.meta.env.DEV;
+
+  const returnPath = `${location.pathname}${location.search}${location.hash}`;
+
+  const goToLogin = useCallback(() => {
+    navigate('/login', { state: { from: returnPath } });
+  }, [navigate, returnPath]);
+
   const openEdit = useCallback(async () => {
-    if (!listProduct) return;
+    if (!product.id || loadingEdit) return;
+
+    if (!canAccessAdminPanel && !isAdmin) {
+      toast.message('Inicia sesión de administrador para editar el producto.');
+      goToLogin();
+      return;
+    }
+
     setLoadingEdit(true);
     try {
-      // Admin list omits description/storefront; load full row before editing.
-      const full = await fetchAdminInventoryProductById(listProduct.id);
+      const full = await fetchAdminInventoryProductById(product.id);
       setEditingProduct(full);
       setEditOpen(true);
     } catch (error) {
-      toast.error(
+      const message =
         error instanceof Error
           ? error.message
-          : 'No se pudo cargar el detalle completo del producto',
-      );
+          : 'No se pudo cargar el detalle completo del producto';
+      if (isSessionAuthError(message)) {
+        toast.error('Tu sesión expiró. Inicia sesión de nuevo para editar el producto.');
+        goToLogin();
+        return;
+      }
+      toast.error(message);
     } finally {
       setLoadingEdit(false);
     }
-  }, [listProduct]);
+  }, [canAccessAdminPanel, goToLogin, isAdmin, loadingEdit, product.id]);
 
   const handleSaved = useCallback(
     (saved: InventoryProduct) => {
-      // Mutation already invalidates; reinforce so the open product page updates immediately.
       void notifyProductCatalogChanged(queryClient, {
         productId: saved.id,
         inventoryProduct: saved,
@@ -108,7 +128,7 @@ export function ProductDetailBreadcrumbsBar({
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           <ProductDetailReferralButton product={product} />
-          {isAdmin && listProduct ? (
+          {showEditButton ? (
             <Button
               type="button"
               variant="outline"
@@ -118,15 +138,17 @@ export function ProductDetailBreadcrumbsBar({
               onClick={() => {
                 void openEdit();
               }}
+              title="Editar producto en inventario"
+              aria-label="Editar producto"
             >
               <Pencil className="size-3.5" aria-hidden="true" />
-              {loadingEdit ? 'Cargando…' : 'Editar producto'}
+              {loadingEdit ? 'Cargando…' : 'Editar'}
             </Button>
           ) : null}
         </div>
       </div>
 
-      {isAdmin && editingProduct ? (
+      {(canAccessAdminPanel || isAdmin) && editingProduct ? (
         <InventoryProductFormDialog
           open={editOpen}
           onOpenChange={(open) => {

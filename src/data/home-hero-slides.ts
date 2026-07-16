@@ -134,9 +134,11 @@ export const FIESTAS_PATRIAS_PROMO_NUEVAS_HERO_SLIDE: HomeHeroSlide = {
     'Ofertas por Fiestas Patrias — Fotocopiadoras Ricoh para tu oficina. Instalación, soporte técnico y garantía.',
 };
 
-/** Slides activos del hero (LCP = primer slide). */
+/** Slides activos del hero (LCP = primer slide; un solo promo opcional). */
 export const homeHeroSlides: HomeHeroSlide[] = [
   HOME_LANDING_HERO_SLIDE,
   FIESTAS_PATRIAS_BANNER_HERO_SLIDE,
-  FIESTAS_PATRIAS_PROMO_NUEVAS_HERO_SLIDE,
 ];
+
+/** Disponible para rotar promo; no activo en el carrusel por defecto. */
+export const HOME_HERO_PROMO_SLIDES_UNUSED = [FIESTAS_PATRIAS_PROMO_NUEVAS_HERO_SLIDE] as const;

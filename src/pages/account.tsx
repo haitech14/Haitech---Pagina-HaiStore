@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 import { AccountSidebar, type AccountTab } from '@/components/account/account-sidebar';
+import { AccountPackingListPanel } from '@/components/account/account-packing-list-panel';
 import { AccountPriceListPanel } from '@/components/account/account-price-list-panel';
 import {
   OrderStatusSteps,
@@ -44,7 +45,13 @@ export function AccountPage() {
   const rawTab = searchParams.get('tab');
   const orderFromQuery = searchParams.get('orden')?.trim() ?? '';
   const activeTab: AccountTab =
-    rawTab === 'pedidos' ? 'pedidos' : rawTab === 'precios' ? 'precios' : 'cuenta';
+    rawTab === 'pedidos'
+      ? 'pedidos'
+      : rawTab === 'precios'
+        ? 'precios'
+        : rawTab === 'packing'
+          ? 'packing'
+          : 'cuenta';
   const { data: ordersPayload, isLoading: ordersLoading } = useMyOrders(Boolean(user));
   const { data: companySettings } = useCompanySettings();
   const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
@@ -394,6 +401,10 @@ export function AccountPage() {
                   );
                 })}
               </div>
+            ) : activeTab === 'precios' ? (
+              <AccountPriceListPanel />
+            ) : activeTab === 'packing' ? (
+              <AccountPackingListPanel />
             ) : (
               <AccountPriceListPanel />
             )}

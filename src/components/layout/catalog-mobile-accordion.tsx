@@ -47,7 +47,7 @@ export function CatalogMobileAccordion({ onNavigate }: CatalogMobileAccordionPro
         onClick={() => setOpen((value) => !value)}
         className="flex min-h-11 w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm font-normal text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset"
       >
-        Productos
+        Equipos
         <ChevronDown
           aria-hidden="true"
           className={cn('size-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')}

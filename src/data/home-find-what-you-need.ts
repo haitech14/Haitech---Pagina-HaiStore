@@ -21,9 +21,9 @@ export type HomeFindSparePartsCategoryId =
   | 'tarjetas'
   | 'rodillos';
 
-export type HomeFindSparePartsFilterId = 'originales' | 'compatibles' | 'disponibles' | 'a-pedido';
+export type HomeFindSparePartsFilterId = 'originales' | 'compatibles';
 
-export const HOME_FIND_SECTION_TITLE = 'Encuentra lo que necesitas';
+export const HOME_FIND_SECTION_TITLE = 'Explora nuestras categorías';
 
 export const HOME_FIND_MAIN_TABS: ReadonlyArray<{ id: HomeFindMainTabId; label: string }> = [
   { id: 'equipos', label: 'Equipos' },

@@ -6,7 +6,7 @@ export const LEGACY_USER_PRICE_ROLE_MAP = {
 };
 
 export const PRICE_ROLE_LABELS = {
-  public: 'Público',
+  public: 'Corporativo',
   tecnico: 'Técnico',
   mayorista: 'Mayorista',
   /** Misma etiqueta que `tecnico` en UI; la clave interna se mantiene. */

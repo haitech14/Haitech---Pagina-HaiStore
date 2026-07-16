@@ -54,6 +54,39 @@ export function resolvePurchasePriceUsd(
   return Math.max(0, Number(fallbackUsd) || 0);
 }
 
+/** Nombre del proveedor de referencia (el del menor precio de compra, o todos si empatan). */
+export function resolvePurchaseSupplierLabel(
+  suppliers: InventorySupplier[],
+  purchaseUsd = 0,
+): string | null {
+  const named = suppliers
+    .map((supplier) => ({
+      name: typeof supplier.name === 'string' ? supplier.name.trim() : '',
+      purchase_price_usd: Math.max(0, Number(supplier.purchase_price_usd) || 0),
+    }))
+    .filter((supplier) => supplier.name.length > 0);
+
+  if (named.length === 0) return null;
+
+  const target =
+    purchaseUsd > 0
+      ? purchaseUsd
+      : Math.min(
+          ...named
+            .map((s) => s.purchase_price_usd)
+            .filter((price) => price > 0)
+            .concat(Infinity),
+        );
+
+  const matches =
+    Number.isFinite(target) && target > 0
+      ? named.filter((s) => Math.abs(s.purchase_price_usd - target) < 0.01)
+      : named;
+
+  const labels = (matches.length > 0 ? matches : named).map((s) => s.name);
+  return [...new Set(labels)].join(', ');
+}
+
 export function withSyncedPurchasePrice(product: InventoryProduct): InventoryProduct {
   const suppliers = product.suppliers ?? [];
   return {

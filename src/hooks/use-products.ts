@@ -7,6 +7,7 @@ import { normalizeInventoryProductForAdminList, mergeInventoryProductPatch } fro
 import { DEFAULT_WAREHOUSES, normalizeWarehouses } from '@/lib/inventory-stock';
 import { notifyProductCatalogChanged, upsertAdminInventoryProducts } from '@/lib/invalidate-product-queries';
 import { toPublicProduct } from '@/lib/pricing';
+import type { SyncCatalogApiResult } from '@/lib/sync-catalog-feedback';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
 import type { InventoryProduct, InventoryWarehouse, Product } from '@/types/product';
@@ -343,14 +344,18 @@ export function useInventoryMutations() {
 
   const syncCatalog = useMutation({
     mutationFn: (resetDeleted: boolean = false) =>
-      apiFetch<{ ok: boolean; total: number; fromCatalog: number }>(
-        '/api/products/sync-catalog',
-        {
-          method: 'POST',
-          body: JSON.stringify({ resetDeleted, importMissing: true }),
-        },
-      ),
-    onSuccess: () => notifyCatalogChange(),
+      apiFetch<SyncCatalogApiResult>('/api/products/sync-catalog', {
+        method: 'POST',
+        body: JSON.stringify({ resetDeleted, importMissing: true }),
+      }),
+    onSuccess: async () => {
+      await queryClient.cancelQueries({ queryKey: ['admin-inventory'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['admin-inventory'],
+        refetchType: 'active',
+      });
+      notifyCatalogChange();
+    },
   });
 
   const bulkDuplicateProducts = useMutation({

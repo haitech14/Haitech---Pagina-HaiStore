@@ -24,11 +24,10 @@ export type UserRole = PriceRole | 'admin' | LegacyUserPriceRole;
 export type ProductRolePrices = Record<PriceRole, number>;
 
 export const PRICE_ROLE_LABELS: Record<PriceRole, string> = {
-  public: 'Público',
+  public: 'Corporativo',
   tecnico: 'Técnico',
   mayorista: 'Mayorista',
-  /** Misma etiqueta que `tecnico` en UI; la clave interna se mantiene. */
-  distribuidor: 'Técnico',
+  distribuidor: 'Distribuidor',
 };
 
 export const USER_ROLE_LABELS: Record<UserRole, string> = {

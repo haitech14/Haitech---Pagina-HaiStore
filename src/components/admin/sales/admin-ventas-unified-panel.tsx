@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
-import { ArrowLeft, FileUp, Plus, RefreshCw } from 'lucide-react';
+import { ArrowLeft, FileUp, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { HaiSalesSyncButton } from '@/components/admin/sales/haisales-sync-button';
 import { SalesUnifiedListPanel } from '@/components/admin/sales/sales-unified-list-panel';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,7 +11,6 @@ import {
   useImportVentasExcel,
   useImportedSales,
 } from '@/hooks/use-admin-imported-sales';
-import { useHaiSalesSyncSeeds } from '@/hooks/use-haisales-integration';
 import { useAdminOrdersList } from '@/hooks/use-admin-orders';
 import { useAdminProformas } from '@/hooks/use-admin-proformas';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
@@ -35,7 +35,6 @@ export function AdminVentasUnifiedPanel({
     error: importedErrorDetail,
   } = useImportedSales(selectedMonth);
   const importVentasExcel = useImportVentasExcel();
-  const syncHaiSales = useHaiSalesSyncSeeds();
 
   const importedDocuments = importedPayload?.documents ?? [];
   const months = importedPayload?.months ?? [];
@@ -96,33 +95,7 @@ export function AdminVentasUnifiedPanel({
               event.target.value = '';
             }}
           />
-          <Button
-            type="button"
-            variant="outline"
-            className="min-h-11 gap-2"
-            disabled={syncHaiSales.isPending}
-            onClick={() => {
-              void syncHaiSales
-                .mutateAsync()
-                .then((result) => {
-                  const { database } = result;
-                  toast.success(
-                    `HaiSales: ${database.persona.created + database.persona.updated} clientes, ${database.ventas.created + database.ventas.updated} comprobantes.`,
-                  );
-                })
-                .catch((error) => {
-                  toast.error(
-                    error instanceof Error ? error.message : 'No se pudo sincronizar HaiSales',
-                  );
-                });
-            }}
-          >
-            <RefreshCw
-              className={`size-4 ${syncHaiSales.isPending ? 'animate-spin' : ''}`}
-              aria-hidden="true"
-            />
-            {syncHaiSales.isPending ? 'Sincronizando…' : 'Sincronizar HaiSales'}
-          </Button>
+          <HaiSalesSyncButton />
           <Button
             type="button"
             variant="outline"

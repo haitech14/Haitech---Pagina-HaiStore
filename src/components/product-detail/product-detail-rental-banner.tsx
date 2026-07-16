@@ -12,10 +12,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   MAINTENANCE_PLAN_FROM_MONTHLY_PEN,
+  RENTAL_BW_COPY_COST_PEN,
   RENTAL_DEFAULT_MONTHLY_PAGES,
   RENTAL_DEFAULT_TERM_MONTHS,
-  RENTAL_EXCESS_COPY_COST_PEN,
-  RENTAL_TERM_OPTIONS,
+  RENTAL_TERM_PRESET_OPTIONS,
   RENTAL_TERM_RENEWAL_NOTE,
   calculateRentalQuote,
   formatPen,
@@ -59,10 +59,16 @@ export function ProductDetailRentalBanner({
   className,
 }: ProductDetailRentalBannerProps) {
   const [open, setOpen] = useState(false);
+  const [termIsCustom, setTermIsCustom] = useState(false);
   const [termMonths, setTermMonths] = useState<number>(RENTAL_DEFAULT_TERM_MONTHS);
+  const [customTermMonths, setCustomTermMonths] = useState(18);
   const [monthlyPages, setMonthlyPages] = useState(RENTAL_DEFAULT_MONTHLY_PAGES);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [quotePdfPreview, setQuotePdfPreview] = useState<QuotePdfPreview | null>(null);
+
+  const effectiveTermMonths = termIsCustom
+    ? Math.max(1, Math.floor(customTermMonths) || 1)
+    : termMonths;
 
   const quote = useMemo(
     () =>
@@ -71,9 +77,9 @@ export function ProductDetailRentalBanner({
         includesPaper: false,
         includesOperator: false,
         plans,
-        termMonths,
+        termMonths: effectiveTermMonths,
       }),
-    [monthlyPages, plans, termMonths],
+    [monthlyPages, plans, effectiveTermMonths],
   );
 
   const panelId = 'maintenance-plan-simulator-panel';
@@ -158,8 +164,8 @@ export function ProductDetailRentalBanner({
                 role="radiogroup"
                 aria-label="Plazo del plan en meses"
               >
-                {RENTAL_TERM_OPTIONS.map((months) => {
-                  const selected = termMonths === months;
+                {RENTAL_TERM_PRESET_OPTIONS.map((months) => {
+                  const selected = !termIsCustom && termMonths === months;
                   return (
                     <button
                       key={months}
@@ -172,13 +178,43 @@ export function ProductDetailRentalBanner({
                           ? 'border-primary bg-primary text-primary-foreground'
                           : 'border-border bg-background text-foreground hover:bg-muted/50',
                       )}
-                      onClick={() => setTermMonths(months)}
+                      onClick={() => {
+                        setTermIsCustom(false);
+                        setTermMonths(months);
+                      }}
                     >
                       {months} meses
                     </button>
                   );
                 })}
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={termIsCustom}
+                  className={cn(
+                    'min-h-11 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                    termIsCustom
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border bg-background text-foreground hover:bg-muted/50',
+                  )}
+                  onClick={() => setTermIsCustom(true)}
+                >
+                  Personalizado
+                </button>
               </div>
+              {termIsCustom ? (
+                <Input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={customTermMonths}
+                  onChange={(event) =>
+                    setCustomTermMonths(Math.max(1, Number(event.target.value) || 1))
+                  }
+                  className="mt-2 h-11 max-w-[12rem] tabular-nums"
+                  aria-label="Plazo personalizado en meses"
+                />
+              ) : null}
             </fieldset>
 
             <div className="space-y-2">
@@ -213,7 +249,7 @@ export function ProductDetailRentalBanner({
             >
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
                 <Calculator className="size-4 shrink-0" aria-hidden="true" />
-                Estimación mensual · plazo {termMonths} meses
+                Estimación mensual · plazo {effectiveTermMonths} meses
               </div>
 
               <dl className="space-y-2 text-sm">
@@ -222,7 +258,7 @@ export function ProductDetailRentalBanner({
                 <BreakdownLine
                   label={
                     quote.excessChargesPen > 0
-                      ? `Cuota variable mensual (${quote.extraPages.toLocaleString('es-PE')} × S/ ${RENTAL_EXCESS_COPY_COST_PEN.toFixed(2)})`
+                      ? `Cuota variable mensual (${quote.extraPages.toLocaleString('es-PE')} × S/ ${RENTAL_BW_COPY_COST_PEN})`
                       : 'Cuota variable mensual'
                   }
                   amountPen={quote.excessChargesPen}

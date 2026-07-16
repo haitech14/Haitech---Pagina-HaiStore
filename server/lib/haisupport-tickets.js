@@ -136,19 +136,38 @@ async function createHaiSupportSupabaseTicket(payload) {
  * Persiste como solicitud de servicio en store_service_requests y replica a HaiSupport.
  * @param {Record<string, unknown>} payload
  */
+/**
+ * @param {unknown} value
+ * @returns {string | null}
+ */
+function parseMetadataScheduledAt(value) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  // Reject past slots (allow a small clock skew).
+  if (date.getTime() < Date.now() - 60_000) return null;
+  return date.toISOString();
+}
+
 async function createStoreServiceRequestTicket(payload) {
   const supabase = getSupabaseAdmin();
   if (!shouldUseSharedSupabaseData() || !supabase) return null;
 
   const id = randomUUID();
-  const code = generateTicketCode('SV');
+  const code =
+    typeof payload.metadata?.serviceOrderCode === 'string' && payload.metadata.serviceOrderCode.trim()
+      ? payload.metadata.serviceOrderCode.trim()
+      : generateTicketCode('SV');
   const now = new Date();
-  const scheduledAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-  const category = categoryForType(payload.type ?? 'contact');
   const metadata =
     payload.metadata && typeof payload.metadata === 'object' && !Array.isArray(payload.metadata)
       ? payload.metadata
       : {};
+  const preferredSlot = parseMetadataScheduledAt(metadata.scheduledAt);
+  const scheduledAt =
+    preferredSlot ?? new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+  const category = categoryForType(payload.type ?? 'contact');
+  const status = preferredSlot ? 'scheduled' : 'pending';
 
   const record = {
     id,
@@ -165,10 +184,10 @@ async function createStoreServiceRequestTicket(payload) {
     categoryId: category.id,
     categoryLabel: category.label,
     description: String(payload.message ?? ''),
-    status: 'pending',
+    status,
     scheduledAt,
     technician: null,
-    address: null,
+    address: typeof metadata.address === 'string' ? metadata.address : null,
     city: payload.country ?? metadata.city ?? null,
     source: 'haistore',
     createdAt: now.toISOString(),

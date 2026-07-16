@@ -78,14 +78,10 @@ function isNavItemActive(pathname: string, search: string, href: string, key: st
       pathname.startsWith(ADMIN_ROUTES.VENTAS) &&
       !search.includes('vista=listado') &&
       !search.includes('vista=cotizaciones') &&
-      !search.includes('vista=devoluciones') &&
       !search.includes('vista=historico') &&
       !search.includes('vista=tpv') &&
       !search.includes('nuevo=1')
     );
-  }
-  if (key === 'returns') {
-    return pathname.startsWith(ADMIN_ROUTES.VENTAS) && search.includes('vista=devoluciones');
   }
   if (key === 'quotes') {
     return pathname.startsWith(ADMIN_ROUTES.VENTAS) && search.includes('vista=cotizaciones');

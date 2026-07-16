@@ -189,7 +189,6 @@ export const ADMIN_SIDEBAR_GROUPS: AdminSidebarNavGroup[] = [
     items: [
       { key: 'orders', label: 'Pedidos', href: ADMIN_ROUTES.VENTAS, icon: 'shopping-cart', badge: 'orders-pending' },
       { key: 'customers', label: 'Clientes', href: ADMIN_ROUTES.CRM_CLIENTES, icon: 'users' },
-      { key: 'returns', label: 'Devoluciones', href: `${ADMIN_ROUTES.VENTAS}?vista=devoluciones`, icon: 'undo-2' },
       { key: 'quotes', label: 'Cotizaciones', href: `${ADMIN_ROUTES.VENTAS}?vista=cotizaciones`, icon: 'file-text' },
     ],
   },
@@ -283,7 +282,7 @@ export const ADMIN_SIDEBAR_DASHBOARD_GROUP: AdminSidebarCollapsibleGroup = {
   ],
 };
 
-/** Grupo plegable Productos (Categorías, Marcas, Atributos, Variantes, Etiquetas). */
+/** Grupo plegable Productos (Categorías, Marcas, Atributos, Variantes, Etiquetas, Listas de precios). */
 export const ADMIN_SIDEBAR_PRODUCTOS_GROUP: AdminSidebarCollapsibleGroup = {
   key: 'products',
   label: 'Productos',
@@ -296,6 +295,7 @@ export const ADMIN_SIDEBAR_PRODUCTOS_GROUP: AdminSidebarCollapsibleGroup = {
     { key: 'attributes', label: 'Atributos', href: ADMIN_ROUTES.ATTRIBUTES },
     { key: 'variants', label: 'Variantes', href: ADMIN_ROUTES.VARIANTS },
     { key: 'labels', label: 'Etiquetas', href: `${ADMIN_ROUTES.CATEGORIES}?vista=etiquetas` },
+    { key: 'price-lists', label: 'Listas de precios', href: ADMIN_ROUTES.PRICE_LISTS },
   ],
 };
 
@@ -307,6 +307,9 @@ export function isAdminProductosGroupPath(pathname: string, search: string): boo
     return true;
   }
   if (pathname === ADMIN_ROUTES.CATEGORIES || pathname.startsWith(`${ADMIN_ROUTES.CATEGORIES}/`)) {
+    return true;
+  }
+  if (pathname === ADMIN_ROUTES.PRICE_LISTS || pathname.startsWith(`${ADMIN_ROUTES.PRICE_LISTS}/`)) {
     return true;
   }
   if (pathname === ADMIN_ROUTES.INVENTORY) {

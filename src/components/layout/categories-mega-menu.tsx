@@ -154,12 +154,12 @@ export function CategoriesMegaMenu({
             {showIcon ? (
               <Package className={navIconClass} strokeWidth={1.75} aria-hidden="true" />
             ) : null}
-            Productos
+            Equipos
           </StorePrefetchLink>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              aria-label={open ? 'Cerrar menú de productos' : 'Abrir menú de productos'}
+              aria-label={open ? 'Cerrar menú de equipos' : 'Abrir menú de equipos'}
               aria-haspopup="true"
               aria-expanded={open}
               onFocus={openMenu}

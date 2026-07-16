@@ -1,14 +1,18 @@
-import { ShoppingCart } from 'lucide-react';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import { Headphones, ShoppingCart } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
-import { HeaderSupportButton } from '@/components/layout/header-support-button';
+import { HeaderWhatsAppContactAction } from '@/components/layout/header-whatsapp-contact-action';
+import {
+  HEADER_BUY_RENT_WHATSAPP_LABEL,
+  HEADER_SALES_PHONE_DISPLAY,
+  HEADER_SERVICE_WHATSAPP_LABEL,
+  HEADER_SUPPORT_PHONE_DISPLAY,
+} from '@/data/site-header';
 import { cn } from '@/lib/utils';
-
-function HeaderDarkDivider() {
-  return <span className="mx-2 hidden h-6 w-px shrink-0 bg-white/20 lg:block" aria-hidden="true" />;
-}
 
 type HeaderStoreDesktopActionsProps = {
   cartCount: number;
@@ -24,18 +28,28 @@ export function HeaderStoreDesktopActions({
   className,
 }: HeaderStoreDesktopActionsProps) {
   return (
-    <div className={cn('hidden shrink-0 items-center lg:flex', className)}>
-      <HeaderSupportButton />
+    <div className={cn('hidden shrink-0 items-center gap-1.5 lg:flex', className)}>
+      <HeaderWhatsAppContactAction
+        topic="ventas"
+        label={HEADER_BUY_RENT_WHATSAPP_LABEL}
+        phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
+        icon={
+          <Icon path={mdiWhatsapp} size={0.72} className="shrink-0 text-[#25D366]" aria-hidden="true" />
+        }
+      />
 
-      <HeaderDarkDivider />
+      <HeaderWhatsAppContactAction
+        topic="soporte"
+        label={HEADER_SERVICE_WHATSAPP_LABEL}
+        phoneDisplay={HEADER_SUPPORT_PHONE_DISPLAY}
+        icon={<Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
+      />
 
       <AccountDropdown triggerVariant="labeled" tone="dark" />
 
-      <HeaderDarkDivider />
-
       <button
         type="button"
-        className={cn(headerDarkUtilityButtonClass(), 'relative gap-2 px-2.5')}
+        className={cn(headerDarkUtilityButtonClass(), 'relative px-2')}
         aria-label={cartAriaLabel}
         onClick={onOpenCart}
       >
@@ -50,7 +64,6 @@ export function HeaderStoreDesktopActions({
             </Badge>
           ) : null}
         </span>
-        Carrito
       </button>
     </div>
   );

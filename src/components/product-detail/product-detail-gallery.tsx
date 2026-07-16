@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, Play, ShieldCheck, ZoomIn } from 'lucide-react';
 
 import {
@@ -7,22 +7,33 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
+import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
+import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
+import { inferColor } from '@/lib/category-catalog-filters';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
+import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { youtubeThumbnailUrl } from '@/lib/product-media';
+import { productPath } from '@/lib/product-path';
 import {
   productDetailMainImageSources,
   productDetailThumbnailSources,
   supportsResponsiveProductImage,
 } from '@/lib/responsive-image';
+import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
+import { ensureFullPrices } from '@/lib/roles';
 import { extractProductModel } from '@/lib/seo';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
-import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
 import type { ProductGalleryItem } from '@/types/product-detail';
+
+const galleryCopyButtonClass =
+  'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-border bg-white/95 px-3 text-xs font-medium text-foreground shadow-sm backdrop-blur-[1px] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
 
 interface ProductDetailGalleryProps {
   items: ProductGalleryItem[];
   productName: string;
-  product?: Pick<Product, 'name' | 'attributes' | 'brand' | 'category'>;
+  product?: Product;
   showOriginalBadge?: boolean;
   brandLabel?: string;
   viewer3dUrl?: string | null;
@@ -276,6 +287,38 @@ export function ProductDetailGallery({
         }
       : null;
 
+  const storefrontUi = useMemo(
+    () => resolveStorefrontUi(product?.storefront_ui),
+    [product?.storefront_ui],
+  );
+
+  const clipboard = useMemo(() => {
+    if (!product || !storefrontUi.showGalleryCopyText) return null;
+    const { title } = getProductCardTitleContent(product);
+    const condition = resolveProductCardBadgeLabel(product);
+    const code = product.code?.trim() || null;
+    const priceUsd = ensureFullPrices(
+      product.prices ? product.prices : { public: product.price },
+    ).public;
+    return {
+      title,
+      stock: product.stock,
+      priceUsd,
+      productId: product.id,
+      productPath: productPath(product),
+      isColorProduct: inferColor(product) === 'Color',
+      ...(code != null ? { code } : {}),
+      ...(condition != null ? { condition } : {}),
+      ...(product.category != null ? { category: product.category } : {}),
+      ...(product.volume_role_prices != null
+        ? { volumeRolePrices: product.volume_role_prices }
+        : {}),
+      ...(product.delivery_time != null ? { deliveryTime: product.delivery_time } : {}),
+    };
+  }, [product, storefrontUi.showGalleryCopyText]);
+
+  const showCopyImage = Boolean(activeImage && storefrontUi.showGalleryCopyImage);
+
   useEffect(() => {
     setImageError(false);
   }, [safeIndex, activeItem?.type === 'image' ? activeItem.src : null]);
@@ -376,11 +419,46 @@ export function ProductDetailGallery({
               ) : null}
             </div>
 
+            {showCopyImage || clipboard ? (
+              <div className="absolute bottom-3 left-3 z-10 flex flex-wrap items-center gap-2 sm:bottom-4 sm:left-4">
+                {showCopyImage && activeImage ? (
+                  <ProductCardCopyImageButton
+                    productName={productName}
+                    imageUrl={activeImage.src}
+                    label="Copiar imagen"
+                    className={galleryCopyButtonClass}
+                  />
+                ) : null}
+                {clipboard ? (
+                  <ProductCardCopyButton
+                    productName={productName}
+                    title={clipboard.title}
+                    stock={clipboard.stock}
+                    priceUsd={clipboard.priceUsd}
+                    productId={clipboard.productId}
+                    productPath={clipboard.productPath}
+                    isColorProduct={clipboard.isColorProduct}
+                    {...(clipboard.code != null ? { code: clipboard.code } : {})}
+                    {...(clipboard.condition != null ? { condition: clipboard.condition } : {})}
+                    {...(clipboard.category != null ? { category: clipboard.category } : {})}
+                    {...(clipboard.volumeRolePrices != null
+                      ? { volumeRolePrices: clipboard.volumeRolePrices }
+                      : {})}
+                    {...(clipboard.deliveryTime != null
+                      ? { deliveryTime: clipboard.deliveryTime }
+                      : {})}
+                    label="Copiar texto"
+                    className={galleryCopyButtonClass}
+                  />
+                ) : null}
+              </div>
+            ) : null}
+
             {activeImage ? (
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
-                className="absolute bottom-3 right-3 flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-white/95 px-3 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:bg-white hover:text-[#0f1f3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:bottom-4 sm:right-4"
+                className="absolute bottom-3 right-3 z-10 flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-white/95 px-3 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:bg-white hover:text-[#0f1f3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:bottom-4 sm:right-4"
                 aria-label={`Ampliar imagen de ${productName}`}
               >
                 <ZoomIn className="size-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />

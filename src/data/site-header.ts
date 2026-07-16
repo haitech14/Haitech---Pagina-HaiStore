@@ -1,6 +1,7 @@
 import { Clock, Phone, Truck, type LucideIcon } from 'lucide-react';
 
 import { FOOTER_WHATSAPP_LINK } from '@/data/site-footer';
+import { encodeWhatsAppText } from '@/lib/whatsapp-encoding';
 import { buildHaitechWhatsAppUrl, HAITECH_WHATSAPP_URL } from '@/lib/whatsapp-sales';
 
 /** Contacto comercial (barra superior del header). */
@@ -9,6 +10,8 @@ export const HEADER_SALES_PHONE_TEL = 'tel:+51915149290';
 export const HEADER_SALES_WHATSAPP_LINK = HAITECH_WHATSAPP_URL;
 export const HEADER_SUPPORT_PHONE_DISPLAY = '965 805 873';
 export const HEADER_SUPPORT_PHONE_TEL = 'tel:+51965805873';
+export const HEADER_SUPPORT_WHATSAPP_MSISDN = '51965805873';
+export const HEADER_SUPPORT_WHATSAPP_URL = `https://wa.me/${HEADER_SUPPORT_WHATSAPP_MSISDN}`;
 export const HEADER_TOPBAR_PROMO_TEXT =
   'Envío gratis por compras mayores a S/ 299.00 para Lima Metropolitana. Aplica T&C';
 export const HEADER_TOPBAR_ADDRESS = 'Av. Petit Thouars 1935 - Lince';
@@ -27,6 +30,20 @@ export const HEADER_QUOTE_WHATSAPP_MESSAGE =
   'Hola, vengo desde HaiStore. Me gustaría cotizar un equipo o insumo.';
 export const HEADER_QUOTE_WHATSAPP_LINK = buildHaitechWhatsAppUrl(HEADER_QUOTE_WHATSAPP_MESSAGE);
 export const HEADER_QUOTE_WHATSAPP_LABEL = 'Cotizar por WhatsApp';
+
+/** CTA header: ventas y alquiler por WhatsApp. */
+export const HEADER_BUY_RENT_WHATSAPP_LABEL = 'Ventas/Alquiler';
+export const HEADER_BUY_RENT_WHATSAPP_MESSAGE =
+  'Hola, vengo desde HaiStore. Quiero cotizar un equipo.';
+export const HEADER_BUY_RENT_WHATSAPP_LINK = buildHaitechWhatsAppUrl(
+  HEADER_BUY_RENT_WHATSAPP_MESSAGE,
+);
+
+/** CTA header: soporte por WhatsApp. */
+export const HEADER_SERVICE_WHATSAPP_LABEL = 'Soporte';
+export const HEADER_SERVICE_WHATSAPP_MESSAGE =
+  'Hola, vengo desde HaiStore. Necesito soporte técnico.';
+export const HEADER_SERVICE_WHATSAPP_LINK = `${HEADER_SUPPORT_WHATSAPP_URL}?text=${encodeWhatsAppText(HEADER_SERVICE_WHATSAPP_MESSAGE)}`;
 
 export const HEADER_FORUM_LABEL = 'Foro';
 export const HEADER_FORUM_PATH = '/foro';
@@ -53,7 +70,12 @@ export const HEADER_UTILITY_LEFT_ITEMS: HeaderUtilityItem[] = [
 ];
 
 export const HEADER_UTILITY_RIGHT_ITEMS: HeaderUtilityItem[] = [
-  { id: 'envio-gratis-lima', label: HEADER_TOPBAR_PROMO_TEXT, icon: Truck },
+  {
+    id: 'envio-gratis-lima',
+    /** Alineado con STOREFRONT_FREE_SHIPPING_LIMA (storefront-trust). */
+    label: HEADER_TOPBAR_PROMO_TEXT,
+    icon: Truck,
+  },
 ];
 
 /** @deprecated Usar HEADER_UTILITY_LEFT_ITEMS / HEADER_UTILITY_RIGHT_ITEMS */

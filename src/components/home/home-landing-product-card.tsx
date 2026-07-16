@@ -38,9 +38,6 @@ import type { Product } from '@/types/product';
 
 const LANDING_IMAGE_BOX_PX = 220;
 
-const whatsappRevealClass =
-  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-150 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
-
 const imageOverlayButtonClass =
   'flex size-9 items-center justify-center rounded-full border border-white/80 bg-white/95 text-[#333333] shadow-[0_2px_8px_rgba(15,31,61,0.14)] backdrop-blur-[1px] transition-colors hover:bg-white hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2';
 
@@ -159,14 +156,7 @@ export function HomeLandingProductCard({
   };
 
   return (
-    <article
-      className={cn(
-        'group flex h-full w-full flex-col overflow-hidden rounded-2xl bg-white',
-        isFeatured
-          ? 'border border-[#E30613] shadow-[0_2px_14px_rgba(227,6,19,0.08)]'
-          : 'border border-[#e6e8ee] shadow-[0_2px_14px_rgba(15,31,61,0.06)]',
-      )}
-    >
+    <article className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[#e6e8ee] bg-white shadow-[0_2px_14px_rgba(15,31,61,0.06)]">
       <div className="relative px-3 pt-3 sm:px-3.5 sm:pt-3.5">
         <div className="relative mx-auto w-full max-w-[220px]">
           <Link
@@ -298,19 +288,19 @@ export function HomeLandingProductCard({
           )}
         </div>
 
-        <div className="relative z-[2] mt-auto flex flex-col gap-0 pt-3 transition-[gap] duration-150 ease-out group-hover:gap-2 group-focus-within:gap-2">
+        <div className="relative z-[2] mt-auto pt-3">
           <ProductQuantityAddFooter
             product={cartProduct}
             size="sm"
             addLabel={buyNowLabel}
             revealQuantityOnHover
+            quantityPlacement="above"
             quantityClassName="h-10 rounded-lg"
-            addButtonClassName="h-10 min-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"
-          />
-          <div className={whatsappRevealClass}>
-            <div className="min-h-0 overflow-hidden">
+            addButtonClassName="h-10 min-h-10 max-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"
+            endAdornment={
               <ProductWhatsAppButton
                 stopPropagation
+                skipDialogIfComplete
                 product={{
                   id: cartProduct.id,
                   name: cartProduct.name,
@@ -318,11 +308,10 @@ export function HomeLandingProductCard({
                   category: cartProduct.category,
                   brand: cartProduct.brand ?? null,
                 }}
-                className="h-10 min-h-10 w-full rounded-lg bg-[#25D366] px-3 text-xs font-semibold normal-case tracking-normal text-white shadow-none hover:bg-[#20bd5a] focus-visible:ring-[#25D366] sm:text-sm [&_span]:truncate-none"
-                label="Cotizar por WhatsApp"
+                className="h-10 w-10 min-h-10 max-h-10 min-w-10 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366]"
               />
-            </div>
-          </div>
+            }
+          />
         </div>
       </div>
 

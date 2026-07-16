@@ -1,4 +1,4 @@
-import { authHeaders, setDemoToken } from '@/lib/auth-storage';
+import { authHeaders, readStoredAuthSession, setDemoToken } from '@/lib/auth-storage';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 
@@ -44,7 +44,10 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     const body = (await response.json().catch(() => ({}))) as { error?: string };
 
     if (response.status === 401) {
-      setDemoToken(null);
+      const provider = readStoredAuthSession()?.authProvider;
+      if (provider !== 'supabase') {
+        setDemoToken(null);
+      }
       throw new Error(
         body.error ??
           'Sesión expirada o no válida. Vuelve a iniciar sesión como administrador.',

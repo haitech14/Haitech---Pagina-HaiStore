@@ -31,9 +31,6 @@ import { productToWishlistItem } from '@/lib/wishlist-product';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
-const whatsappRevealClass =
-  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-150 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
-
 interface StoreCatalogProductCardProps {
   product: Product;
 }
@@ -170,23 +167,23 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
           />
         </div>
 
-        <div className="relative z-[2] mt-auto flex flex-col gap-0 pt-3 transition-[gap] duration-150 ease-out group-hover:gap-2 group-focus-within:gap-2 max-md:gap-2">
+        <div className="relative z-[2] mt-auto pt-3">
           <ProductQuantityAddFooter
             product={product}
             size="sm"
             revealQuantityOnHover
+            quantityPlacement="above"
             addLabel={buyNowLabel}
             onQuantityChange={setQuantity}
             quantityClassName="h-10 rounded-lg"
             addButtonClassName={cn(
-              'h-10 min-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm',
+              'h-10 min-h-10 max-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm',
               outOfStock && 'font-semibold',
             )}
-          />
-          <div className={whatsappRevealClass}>
-            <div className="min-h-0 overflow-hidden">
+            endAdornment={
               <ProductWhatsAppButton
                 stopPropagation
+                skipDialogIfComplete
                 quantity={quantity}
                 product={{
                   id: product.id,
@@ -195,11 +192,10 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
                   category: product.category,
                   brand: product.brand ?? catalogProduct?.brand ?? null,
                 }}
-                className="h-10 min-h-10 w-full rounded-lg bg-[#25D366] px-3 text-xs font-semibold normal-case tracking-normal text-white shadow-none hover:bg-[#20bd5a] focus-visible:ring-[#25D366] sm:text-sm [&_span]:truncate-none"
-                label="Cotizar por WhatsApp"
+                className="h-10 w-10 min-h-10 max-h-10 min-w-10 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366]"
               />
-            </div>
-          </div>
+            }
+          />
         </div>
       </div>
 

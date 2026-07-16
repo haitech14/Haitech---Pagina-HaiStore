@@ -85,8 +85,6 @@ const SPARE_PARTS_SECTION_IDS = new Set(['repuestos']);
 const SPARE_PARTS_FILTERS: ReadonlyArray<{ id: HomeFindSparePartsFilterId; label: string }> = [
   { id: 'originales', label: 'Originales' },
   { id: 'compatibles', label: 'Compatibles' },
-  { id: 'disponibles', label: 'Disponibles' },
-  { id: 'a-pedido', label: 'A pedido' },
 ];
 
 function matchesHomeFindConsumablesCategory(
@@ -115,6 +113,62 @@ function matchesHomeFindConsumablesFilters(
     conditionFilter,
     categoryFilter as HomeFeaturedConsumablesCategoryFilterId,
   );
+}
+
+function buildProductPoolForTab(
+  tabId: HomeFindMainTabId,
+  catalogBundle: ReturnType<typeof useHomeCatalogBundle>['data'],
+): FeaturedProduct[] {
+  const merged: FeaturedProduct[] = [];
+  const seen = new Set<string>();
+
+  const sectionIds =
+    tabId === 'equipos'
+      ? EQUIPMENT_SECTION_IDS
+      : tabId === 'consumibles'
+        ? CONSUMABLES_SECTION_IDS
+        : SPARE_PARTS_SECTION_IDS;
+
+  const isPoolProduct = (item: FeaturedProduct) => {
+    if (tabId === 'equipos') return isHomeFeaturedEquipmentProduct(item);
+    if (tabId === 'consumibles') {
+      return isHomeFeaturedConsumableProduct(item) && !isHomeFeaturedSparePartsProduct(item);
+    }
+    return isHomeFeaturedSparePartsProduct(item);
+  };
+
+  const pushUnique = (item: FeaturedProduct) => {
+    if (seen.has(item.id) || merged.length >= FEATURED_POOL_LIMIT) return;
+    const enriched = enrichFeaturedFromCatalog(item);
+    if (!isPoolProduct(enriched)) return;
+    seen.add(item.id);
+    merged.push(enriched);
+  };
+
+  for (const product of catalogBundle?.featured ?? []) {
+    pushUnique(productToFeatured(product));
+  }
+
+  for (const section of catalogBundle?.sections ?? []) {
+    if (!sectionIds.has(section.id)) continue;
+    for (const products of Object.values(section.productsByCondition)) {
+      for (const item of products) {
+        pushUnique(item);
+      }
+    }
+  }
+
+  for (const row of getCatalogRows()) {
+    const publicPrice = row.prices?.public ?? 0;
+    if (publicPrice <= 0) continue;
+    pushUnique(catalogRowToFeatured(row));
+  }
+
+  for (const item of getFeaturedProducts()) {
+    pushUnique(item);
+  }
+
+  return merged;
 }
 
 function HomeFindProductsSkeleton() {
@@ -147,7 +201,6 @@ function HomeFindProductsCarousel({ products }: { products: FeaturedProduct[] })
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
-    // En desktop caben 5 slides: `auto` avanza una “página” (5 en lg/xl).
     slidesToScroll: 'auto',
     watchDrag: emblaShouldWatchDrag,
   });
@@ -214,24 +267,25 @@ function HomeFindProductsCarousel({ products }: { products: FeaturedProduct[] })
         </>
       ) : null}
 
-      <div className="overflow-hidden" ref={emblaRef}>
-        <ul className={cn('flex touch-pan-y', PRODUCTS_CAROUSEL_GAP)} role="list">
+      <div ref={emblaRef} className="overflow-hidden">
+        <ul className={cn('flex', PRODUCTS_CAROUSEL_GAP)} role="list">
           {products.map((product, index) => (
-            <li key={product.id} className={cn(PRODUCT_SLIDE_CLASS, 'flex')}>
-              <HomeLandingProductCard product={product} priority={index < 4} />
+            <li key={product.id} className={PRODUCT_SLIDE_CLASS}>
+              <HomeLandingProductCard product={product} priority={index < 5} />
             </li>
           ))}
         </ul>
       </div>
 
-      <CarouselDots
-        count={scrollSnaps.length}
-        selectedIndex={selectedIndex}
-        onSelect={scrollTo}
-        ariaLabel="Páginas de productos"
-        theme="dark"
-        className="mt-4 sm:mt-5"
-      />
+      {scrollSnaps.length > 1 ? (
+        <CarouselDots
+          count={scrollSnaps.length}
+          selectedIndex={selectedIndex}
+          onSelect={scrollTo}
+          ariaLabel="Páginas del carrusel"
+          className="mt-3"
+        />
+      ) : null}
     </div>
   );
 }
@@ -242,13 +296,16 @@ function HomeFindFilterPills<T extends string>({
   onFilterChange,
   ariaLabel,
   className,
+  prominence = 'default',
 }: {
   filters: ReadonlyArray<{ id: T; label: string }>;
   activeFilter: T;
   onFilterChange: (filterId: T) => void;
   ariaLabel: string;
   className?: string;
+  prominence?: 'default' | 'strong';
 }) {
+  const strong = prominence === 'strong';
   return (
     <div
       className={cn(
@@ -257,7 +314,10 @@ function HomeFindFilterPills<T extends string>({
       )}
     >
       <div
-        className="flex flex-wrap justify-center gap-1 sm:gap-1.5"
+        className={cn(
+          'flex flex-wrap justify-center',
+          strong ? 'gap-2 sm:gap-2.5' : 'gap-1 sm:gap-1.5',
+        )}
         role="tablist"
         aria-label={ariaLabel}
       >
@@ -270,10 +330,13 @@ function HomeFindFilterPills<T extends string>({
               role="tab"
               aria-selected={isActive}
               className={cn(
-                'inline-flex shrink-0 items-center justify-center rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:py-1.5',
+                'inline-flex shrink-0 items-center justify-center rounded-full border font-semibold transition-colors',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                strong
+                  ? 'min-w-[7.5rem] px-4 py-2 text-sm sm:min-w-[8.5rem] sm:px-5 sm:py-2.5'
+                  : 'px-2.5 py-1 text-xs sm:px-3 sm:py-1.5',
                 isActive
-                  ? 'border-[#E30613] bg-[#E30613] text-white'
+                  ? 'border-[#E30613] bg-[#E30613] text-white shadow-[0_2px_10px_rgba(227,6,19,0.28)]'
                   : 'border-border/80 bg-white text-[#333333] hover:border-[#E30613]/40 hover:bg-[#FFF5F5]',
               )}
               onClick={() => onFilterChange(filter.id)}
@@ -304,7 +367,10 @@ function HomeFindCategoryPills<T extends string>({
 }) {
   const [page, setPage] = useState(0);
 
-  const categoriesKey = useMemo(() => categories.map((category) => category.id).join('|'), [categories]);
+  const categoriesKey = useMemo(
+    () => categories.map((category) => category.id).join('|'),
+    [categories],
+  );
 
   useEffect(() => {
     setPage(0);
@@ -463,59 +529,10 @@ export function HomeFindWhatYouNeedSection() {
     setActiveTab(tabId);
   }, []);
 
-  const productPool = useMemo(() => {
-    const merged: FeaturedProduct[] = [];
-    const seen = new Set<string>();
-
-    const sectionIds =
-      activeTab === 'equipos'
-        ? EQUIPMENT_SECTION_IDS
-        : activeTab === 'consumibles'
-          ? CONSUMABLES_SECTION_IDS
-          : SPARE_PARTS_SECTION_IDS;
-
-    const isPoolProduct = (item: FeaturedProduct) => {
-      if (activeTab === 'equipos') return isHomeFeaturedEquipmentProduct(item);
-      if (activeTab === 'consumibles') {
-        return isHomeFeaturedConsumableProduct(item) && !isHomeFeaturedSparePartsProduct(item);
-      }
-      return isHomeFeaturedSparePartsProduct(item);
-    };
-
-    const pushUnique = (item: FeaturedProduct) => {
-      if (seen.has(item.id) || merged.length >= FEATURED_POOL_LIMIT) return;
-      const enriched = enrichFeaturedFromCatalog(item);
-      if (!isPoolProduct(enriched)) return;
-      seen.add(item.id);
-      merged.push(enriched);
-    };
-
-    for (const product of catalogBundle?.featured ?? []) {
-      pushUnique(productToFeatured(product));
-    }
-
-    for (const section of catalogBundle?.sections ?? []) {
-      if (!sectionIds.has(section.id)) continue;
-      for (const products of Object.values(section.productsByCondition)) {
-        for (const item of products) {
-          pushUnique(item);
-        }
-      }
-    }
-
-    for (const row of getCatalogRows()) {
-      const publicPrice = row.prices?.public ?? 0;
-      // Incluye stock 0 («A pedido») en equipos y consumibles; status Activa vía getCatalogRows.
-      if (publicPrice <= 0) continue;
-      pushUnique(catalogRowToFeatured(row));
-    }
-
-    for (const item of getFeaturedProducts()) {
-      pushUnique(item);
-    }
-
-    return merged;
-  }, [activeTab, catalogBundle]);
+  const productPool = useMemo(
+    () => buildProductPoolForTab(activeTab, catalogBundle),
+    [activeTab, catalogBundle],
+  );
 
   const products = useMemo(() => {
     if (activeTab === 'equipos') {
@@ -604,8 +621,9 @@ export function HomeFindWhatYouNeedSection() {
               filters={HOME_FEATURED_EQUIPMENT_CONDITION_FILTERS}
               activeFilter={activeEquipmentCondition}
               onFilterChange={setActiveEquipmentCondition}
-              ariaLabel="Condición de equipos"
+              ariaLabel="Condición de equipos: nuevas, seminuevas o remanufacturadas"
               className="mb-4 justify-center sm:mb-5"
+              prominence="strong"
             />
           </>
         ) : null}

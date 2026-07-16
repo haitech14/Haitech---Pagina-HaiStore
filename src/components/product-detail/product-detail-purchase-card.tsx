@@ -1,6 +1,6 @@
 import { useMemo, useState, type Ref, type RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, MessageCircle, ShoppingCart } from 'lucide-react';
+import { Calculator, FileText, ShoppingCart } from 'lucide-react';
 
 import {
   formatOrderQuantityHint,
@@ -31,6 +31,7 @@ import { SeminuevaPreparationPriceRows } from '@/components/product-detail/produ
 import { ProductDetailPurchaseMode } from '@/components/product-detail/product-detail-purchase-mode';
 import { ProductDetailPurchaseQuantity } from '@/components/product-detail/product-detail-purchase-quantity';
 import { ProductDetailPurchasePaymentShipping } from '@/components/product-detail/product-detail-purchase-payment-shipping';
+import { ProductDetailPurchaseCardTrust } from '@/components/product-detail/product-detail-purchase-card-trust';
 import { ProductDetailVolumePurchaseHint } from '@/components/product-detail/product-detail-volume-purchase-hint';
 import type { PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
 import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
@@ -82,8 +83,8 @@ export function ProductDetailPurchaseCard({
   preparationType,
   preparationSurchargeUsd = 0,
   showSeminuevaPreparationPrices = false,
-  showRentalAction: _showRentalAction = false,
-  onRentalClick: _onRentalClick,
+  showRentalAction = false,
+  onRentalClick,
   showMaintenancePlanAction = false,
   onMaintenancePlanClick,
   onQuoteClick,
@@ -122,8 +123,8 @@ export function ProductDetailPurchaseCard({
   const fichaTecnicaLabel = 'Ficha Técnica';
 
   const purchaseSidebarLinks =
-    onQuoteClick || onTechnicalSheetFallback || fichaLink?.href ? (
-      <div className="mt-5 flex flex-row flex-nowrap items-center justify-center gap-2.5 border-t border-neutral-100 pt-4">
+    onTechnicalSheetFallback || fichaLink?.href ? (
+      <div className="mt-4 flex flex-row flex-nowrap items-center justify-center gap-2.5 border-t border-neutral-100 pt-3">
         <button
           type="button"
           onClick={handleTechnicalSheetClick}
@@ -132,21 +133,6 @@ export function ProductDetailPurchaseCard({
           <FileText className="size-3 shrink-0" aria-hidden="true" />
           {fichaTecnicaLabel}
         </button>
-        {onQuoteClick ? (
-          <>
-            <span className="text-neutral-300" aria-hidden="true">
-              ·
-            </span>
-            <button
-              type="button"
-              onClick={onQuoteClick}
-              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[0.6875rem] font-medium text-neutral-500 underline-offset-2 transition-colors hover:text-neutral-800 hover:underline"
-            >
-              <MessageCircle className="size-3 shrink-0" aria-hidden="true" />
-              Generar Cotización
-            </button>
-          </>
-        ) : null}
       </div>
     ) : null;
 
@@ -166,8 +152,12 @@ export function ProductDetailPurchaseCard({
 
   const fallbackRentalEstimate = useMemo(() => {
     if (!isRentMode) return null;
+    const plan = detail.rentalPlans[0];
+    const pages = plan?.pagesPerMonth ?? 5000;
     return computeEquipmentRentalEstimate({
-      monthlyPages: detail.rentalPlans[0]?.pagesPerMonth ?? 5000,
+      planMonthlyPricePen: plan?.monthlyPricePen ?? 499,
+      includedPages: pages,
+      monthlyPages: pages,
       equipmentQuantity: 1,
       termMonths: 12,
       equipmentBasePriceUsd: displayUsd,
@@ -179,10 +169,23 @@ export function ProductDetailPurchaseCard({
       includeGuillotine: false,
       includeResidentTech: false,
       includeSpiralBinder: false,
+      includeRingBinder: false,
     });
   }, [detail.rentalPlans, displayUsd, isRentMode, isColorEquipment]);
 
   const activeRentalEstimate = rentalEstimate ?? fallbackRentalEstimate;
+
+  const quoteButton = onQuoteClick ? (
+    <Button
+      type="button"
+      variant="outline"
+      onClick={onQuoteClick}
+      className="mt-3 h-10 min-h-10 w-full gap-1.5 rounded-lg border-neutral-300 text-sm font-semibold text-[#0f1f3d] hover:bg-neutral-50"
+    >
+      <FileText className="size-4 shrink-0" aria-hidden="true" />
+      {isRentMode ? 'Descargar propuesta PDF' : 'Generar cotización'}
+    </Button>
+  ) : null;
 
   const offerUnitUsd = volumePricing.unitUsd;
   const equipmentExtrasUsd = useMemo(
@@ -342,6 +345,8 @@ export function ProductDetailPurchaseCard({
                 stopPropagation={false}
                 accent="outline"
                 label="Comprar por WhatsApp"
+                skipDialogIfComplete
+                defaultGenerateQuote
                 quantity={quantity}
                 product={{
                   id: product.id,
@@ -367,11 +372,27 @@ export function ProductDetailPurchaseCard({
               />
             </div>
 
+            {quoteButton}
+
             <div className="mt-5">
               <ProductDetailPurchasePaymentShipping />
             </div>
 
+            <ProductDetailPurchaseCardTrust className="mt-4" />
+
             {purchaseSidebarLinks}
+
+            {showRentalAction && onRentalClick && detail.rentalPlans.length === 0 ? (
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                onClick={onRentalClick}
+                className="mt-3 h-9 w-full rounded-lg border-neutral-300 text-xs font-semibold"
+              >
+                Ver opciones de alquiler
+              </Button>
+            ) : null}
 
             {showMaintenancePlanAction && onMaintenancePlanClick ? (
               <Button
@@ -391,15 +412,26 @@ export function ProductDetailPurchaseCard({
           </>
         ) : (
           <>
+            {activeRentalEstimate ? (
+              <p className="mt-1 text-sm font-semibold text-[#0f1f3d]">
+                Desde S/{' '}
+                {activeRentalEstimate.estimatedMonthlyPen.toLocaleString('es-PE', {
+                  maximumFractionDigits: 2,
+                })}
+                /mes · {activeRentalEstimate.termMonths} meses
+              </p>
+            ) : null}
+
             <div className="mt-3 flex flex-col gap-2">
               <Button
                 type="button"
                 size="lg"
-                onClick={handleBuyNow}
+                onClick={() => onQuoteClick?.()}
+                disabled={!onQuoteClick || !activeRentalEstimate}
                 className="h-10 min-h-10 w-full gap-1.5 rounded-lg border-0 bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
               >
-                <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
-                {buyNowLabel}
+                <Calculator className="size-4 shrink-0" aria-hidden="true" />
+                Solicitar propuesta
               </Button>
             </div>
 
@@ -407,7 +439,11 @@ export function ProductDetailPurchaseCard({
               <ProductWhatsAppButton
                 stopPropagation={false}
                 accent="outline"
-                label="Comprar por WhatsApp"
+                label="Solicitar alquiler por WhatsApp"
+                skipDialogIfComplete
+                defaultGenerateQuote
+                dialogTitle="Solicitar alquiler por WhatsApp"
+                dialogDescription="Completa tus datos para enviar la solicitud de alquiler con el estimado mensual a nuestro equipo."
                 quantity={activeRentalEstimate?.equipmentQuantity ?? quantity}
                 product={{
                   id: product.id,
@@ -430,7 +466,7 @@ export function ProductDetailPurchaseCard({
                   categoryLabel: detail.categoryLabel,
                   heroSpecBullets: detail.heroSpecBullets,
                   heroLead: activeRentalEstimate
-                    ? `Alquiler estimado: ${activeRentalEstimate.billablePages.toLocaleString('es-PE')} pág./mes · ${activeRentalEstimate.equipmentQuantity} equipo(s) · plazo ${activeRentalEstimate.termMonths} meses`
+                    ? `Alquiler estimado: ${activeRentalEstimate.billablePages.toLocaleString('es-PE')} pág./mes · ${activeRentalEstimate.equipmentQuantity} equipo(s) · plazo ${activeRentalEstimate.termMonths} meses · Total mensual S/ ${activeRentalEstimate.estimatedMonthlyPen.toLocaleString('es-PE', { maximumFractionDigits: 2 })}`
                     : detail.heroLead,
                   heroDescription: detail.heroDescription,
                   quantity: activeRentalEstimate?.equipmentQuantity ?? quantity,
@@ -440,6 +476,10 @@ export function ProductDetailPurchaseCard({
                 className="h-10 min-h-10 w-full gap-1.5 rounded-lg border border-green-600 bg-white text-sm font-semibold normal-case tracking-normal text-green-700 hover:border-green-600 hover:bg-green-50 hover:text-green-700 focus-visible:ring-green-600"
               />
             </div>
+
+            {quoteButton}
+
+            <ProductDetailPurchaseCardTrust className="mt-4" />
 
             {purchaseSidebarLinks}
           </>

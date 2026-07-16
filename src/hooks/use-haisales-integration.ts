@@ -39,6 +39,8 @@ function invalidateHaiSalesQueries(queryClient: ReturnType<typeof useQueryClient
   void queryClient.invalidateQueries({ queryKey: ['haisales-resumen'] });
   void queryClient.invalidateQueries({ queryKey: ['admin-imported-sales'] });
   void queryClient.invalidateQueries({ queryKey: ['admin-store-customers'] });
+  void queryClient.invalidateQueries({ queryKey: ['admin-orders-list'] });
+  void queryClient.invalidateQueries({ queryKey: ['admin-proformas'] });
 }
 
 export function useHaiSalesSyncSeeds() {

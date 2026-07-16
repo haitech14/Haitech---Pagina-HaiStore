@@ -14,6 +14,7 @@ import { normalizeBundleComponents } from '@/lib/product-bundle';
 import { normalizeSuppliers, resolvePurchasePriceUsd } from '@/lib/inventory-suppliers';
 import { applyStockFields, DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { normalizeVolumeRolePrices } from '@/lib/product-volume-role-prices';
+import { normalizePreparationPrices } from '@/lib/seminueva-preparation';
 import { normalizeMerchandisingProductIds, normalizeMerchandisingOptionalProducts } from '@/lib/product-merchandising';
 import { normalizeProductGalleryFields, appendProductGalleryUrls, getAdditionalGalleryUrls } from '@/lib/product-gallery';
 import {
@@ -24,8 +25,10 @@ import {
   heroBulletsToDescriptionText,
   normalizeStorefrontFeatureBar,
   normalizeStorefrontHeroBullets,
+  normalizeStorefrontUi,
 } from '@/lib/product-storefront-detail';
 import { ensureFullPrices } from '@/lib/roles';
+import { formatNuevaProductName, resolveXrefProductFields } from '@/lib/inventory-product-name';
 import type { InventoryProduct, ProductRolePrices } from '@/types/product';
 
 async function optimizeProductImages(product: InventoryProduct): Promise<InventoryProduct> {
@@ -64,23 +67,36 @@ export async function prepareInventoryPayloadForApi(
   const storefront_hero_bullets = Array.isArray(product.storefront_hero_bullets)
     ? normalizeStorefrontHeroBullets(product.storefront_hero_bullets)
     : undefined;
+  const storefront_ui = normalizeStorefrontUi(product.storefront_ui);
   const description =
     product.description?.trim() ||
     (storefront_hero_bullets && storefront_hero_bullets.length > 0
       ? heroBulletsToDescriptionText(storefront_hero_bullets)
       : product.description ?? null);
 
+  const preparation_prices = normalizePreparationPrices(product.preparation_prices);
+  const {
+    preparation_prices: _omitPreparation,
+    storefront_ui: _omitStorefrontUi,
+    ...productWithoutPreparation
+  } = product;
   const base: InventoryProduct = applyStockFields(
     {
-      ...product,
+      ...productWithoutPreparation,
       id,
       prices,
       volume_role_prices: normalizeVolumeRolePrices(product.volume_role_prices),
+      ...(preparation_prices ? { preparation_prices } : {}),
       suppliers,
       attachments,
       attributes,
       storefront_feature_bar,
       ...(storefront_hero_bullets !== undefined ? { storefront_hero_bullets } : {}),
+      ...(storefront_ui !== undefined
+        ? { storefront_ui }
+        : product.storefront_ui === null
+          ? { storefront_ui: null }
+          : {}),
       description,
       purchase_price_usd: resolvePurchasePriceUsd(suppliers, product.purchase_price_usd),
       code: product.code?.trim() || generateInventoryProductCode(id),
@@ -139,12 +155,18 @@ export function normalizeInventoryProduct(
     raw.purchase_price_usd ?? Math.round(publicPrice * 0.72 * 100) / 100,
   );
   const suppliers = normalizeSuppliers(raw.suppliers, fallbackPurchase);
+  const preparation_prices = normalizePreparationPrices(raw.preparation_prices);
+  const xrefResolved = resolveXrefProductFields({
+    name: raw.name,
+    code: raw.code,
+  });
+  const resolvedName = formatNuevaProductName(xrefResolved.name) || xrefResolved.name;
 
   const withStock: InventoryProduct = {
       id: raw.id,
       slug: raw.slug?.trim() || null,
-      code: raw.code?.trim() || raw.id.toUpperCase().replace(/-/g, ''),
-      name: raw.name,
+      code: xrefResolved.code.trim() || raw.id.toUpperCase().replace(/-/g, ''),
+      name: resolvedName,
       description: raw.description ?? null,
       currency: raw.currency ?? 'USD',
       stock: Number(raw.stock ?? 0),
@@ -176,12 +198,17 @@ export function normalizeInventoryProduct(
         : 0,
       prices,
       volume_role_prices: normalizeVolumeRolePrices(raw.volume_role_prices),
+      ...(preparation_prices ? { preparation_prices } : {}),
       storefront_feature_bar: normalizeStorefrontFeatureBar(raw.storefront_feature_bar),
       ...(Array.isArray(raw.storefront_hero_bullets)
         ? {
             storefront_hero_bullets: normalizeStorefrontHeroBullets(raw.storefront_hero_bullets),
           }
         : {}),
+      ...(() => {
+        const storefront_ui = normalizeStorefrontUi(raw.storefront_ui);
+        return storefront_ui ? { storefront_ui } : {};
+      })(),
       ...(typeof raw.updated_at === 'string' ? { updated_at: raw.updated_at } : {}),
     };
 
@@ -208,6 +235,7 @@ export function normalizeInventoryProductForAdminList(
     raw.purchase_price_usd ?? Math.round(publicPrice * 0.72 * 100) / 100,
   );
   const suppliers = normalizeSuppliers(raw.suppliers, fallbackPurchase);
+  const adminListPreparationPrices = normalizePreparationPrices(raw.preparation_prices);
 
   const withStock: InventoryProduct = {
     id: raw.id,
@@ -245,6 +273,7 @@ export function normalizeInventoryProductForAdminList(
       : 0,
     prices,
     volume_role_prices: normalizeVolumeRolePrices(raw.volume_role_prices),
+    ...(adminListPreparationPrices ? { preparation_prices: adminListPreparationPrices } : {}),
     ...(typeof raw.updated_at === 'string' ? { updated_at: raw.updated_at } : {}),
   };
 
@@ -272,6 +301,11 @@ export function mergeInventoryProductPatch(
   }
   if (patch.volume_role_prices !== undefined) {
     merged.volume_role_prices = patch.volume_role_prices;
+  }
+  if (patch.preparation_prices !== undefined) {
+    const next = normalizePreparationPrices(patch.preparation_prices);
+    if (next) merged.preparation_prices = next;
+    else delete merged.preparation_prices;
   }
   if (patch.cross_sell_product_ids !== undefined) {
     merged.cross_sell_product_ids = patch.cross_sell_product_ids;

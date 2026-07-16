@@ -6,6 +6,8 @@ import {
   resolveSeminuevaPreparationSurchargeUsd,
   type SeminuevaPreparationType,
 } from '@/lib/seminueva-preparation';
+import { AdminPurchaseCostLine } from '@/components/product-detail/product-detail-role-prices';
+import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
 import type { BulkDiscountTier } from '@/types/product-detail';
@@ -87,6 +89,9 @@ export function SeminuevaPreparationPriceRows({
   equipmentExtrasUsd,
   className,
 }: SeminuevaPreparationPriceRowsProps) {
+  const { isAdmin, viewAsRoles } = useAuth();
+  const showAdminCost = isAdmin && viewAsRoles.length === 0;
+
   return (
     <div className={cn('space-y-2', className)} aria-label="Precios por tipo de preparado">
       {SEMINUEVA_PREPARATION_OPTIONS.map((option) => {
@@ -118,6 +123,7 @@ export function SeminuevaPreparationPriceRows({
           </div>
         );
       })}
+      {showAdminCost ? <AdminPurchaseCostLine productId={product.id} /> : null}
     </div>
   );
 }

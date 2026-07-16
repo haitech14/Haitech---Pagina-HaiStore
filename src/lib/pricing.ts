@@ -9,8 +9,10 @@ import { deriveProductSlug } from '@/lib/product-slug';
 import {
   normalizeStorefrontFeatureBar,
   normalizeStorefrontHeroBullets,
+  normalizeStorefrontUi,
 } from '@/lib/product-storefront-detail';
 import { normalizeVolumeRolePrices } from '@/lib/product-volume-role-prices';
+import { normalizePreparationPrices } from '@/lib/seminueva-preparation';
 import {
   ensureFullPrices,
   resolvePriceRole,
@@ -41,6 +43,7 @@ export function toPublicProduct(
     ? product.gallery.filter((url) => typeof url === 'string' && url.trim().length > 0)
     : [];
   const delivery_time = resolveProductWarehouseDeliveryTime(product, warehouses);
+  const preparation_prices = normalizePreparationPrices(product.preparation_prices);
 
   return {
     id: product.id,
@@ -73,6 +76,7 @@ export function toPublicProduct(
     attributes: normalizeAttributes(product.attributes),
     attachments: publicProductAttachments(product),
     volume_role_prices: normalizeVolumeRolePrices(product.volume_role_prices),
+    ...(preparation_prices ? { preparation_prices } : {}),
     storefront_feature_bar: normalizeStorefrontFeatureBar(product.storefront_feature_bar),
     // No coerzar missing → []: un array vacío se interpreta como override y ocultaba
     // las especificaciones generadas del hero en la ficha de producto.
@@ -83,6 +87,10 @@ export function toPublicProduct(
           ),
         }
       : {}),
+    ...(() => {
+      const storefront_ui = normalizeStorefrontUi(product.storefront_ui);
+      return storefront_ui ? { storefront_ui } : {};
+    })(),
     cross_sell_product_ids: normalizeMerchandisingProductIds(product.cross_sell_product_ids),
     upsell_product_ids: normalizeMerchandisingProductIds(product.upsell_product_ids),
     variant_product_ids: normalizeMerchandisingProductIds(product.variant_product_ids),

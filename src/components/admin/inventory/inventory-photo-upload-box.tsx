@@ -108,8 +108,8 @@ export function InventoryPhotoPreview({
           src={src}
           alt={alt}
           className={cn(
-            'rounded-md border object-contain',
-            size === 'main' ? 'max-h-28 w-auto max-w-full' : 'size-16 object-cover',
+            'rounded-md border bg-muted/20 object-contain',
+            size === 'main' ? 'max-h-36 w-full max-w-[10rem]' : 'size-16',
           )}
         />
         <button

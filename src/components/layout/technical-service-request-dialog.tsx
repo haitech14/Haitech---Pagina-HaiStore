@@ -16,14 +16,14 @@ import {
   buildHaibotServiceOrderMessage,
   emptyHaibotSupportForm,
   generateHaibotServiceOrderCode,
-  validateHaibotSupportForm,
+  validateHaibotSupportFormBase,
   type HaibotSupportFormValues,
 } from '@/lib/haibot-service-order';
 import { submitSupportTicket, SupportTicketError } from '@/lib/support-ticket';
 import { cn } from '@/lib/utils';
 
 function validateStorefrontSupportForm(form: HaibotSupportFormValues): string | null {
-  const baseError = validateHaibotSupportForm(form);
+  const baseError = validateHaibotSupportFormBase(form);
   if (baseError) return baseError;
   if (!form.email.trim()) return 'Indica un correo de contacto.';
   if (!form.phone.trim()) return 'Indica un teléfono de contacto.';

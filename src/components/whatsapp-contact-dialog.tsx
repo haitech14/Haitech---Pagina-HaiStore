@@ -25,6 +25,8 @@ interface WhatsAppContactDialogProps {
   onSubmit: (contact: WhatsAppContact, options: WhatsAppContactSubmitOptions) => void | Promise<void>;
   isSubmitting?: boolean;
   showQuoteCheckbox?: boolean;
+  /** Valor inicial del checkbox «Generar cotización». */
+  defaultGenerateQuote?: boolean;
   title?: string;
   description?: string;
   submitLabel?: string;
@@ -37,6 +39,7 @@ export function WhatsAppContactDialog({
   onSubmit,
   isSubmitting = false,
   showQuoteCheckbox = true,
+  defaultGenerateQuote = true,
   title = 'Comprar por WhatsApp',
   description = 'Completa tus datos para enviar el mensaje con el producto y el precio a nuestro equipo de ventas.',
   submitLabel = 'Enviar por WhatsApp',
@@ -45,7 +48,7 @@ export function WhatsAppContactDialog({
   const [name, setName] = useState('');
   const [companyOrRuc, setCompanyOrRuc] = useState('');
   const [city, setCity] = useState('');
-  const [generateQuote, setGenerateQuote] = useState(false);
+  const [generateQuote, setGenerateQuote] = useState(defaultGenerateQuote);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -53,9 +56,9 @@ export function WhatsAppContactDialog({
     setName(initial?.name?.trim() ?? '');
     setCompanyOrRuc(initial?.companyOrRuc?.trim() ?? '');
     setCity(initial?.city?.trim() ?? '');
-    setGenerateQuote(false);
+    setGenerateQuote(defaultGenerateQuote);
     setError(null);
-  }, [open, initial?.name, initial?.companyOrRuc, initial?.city]);
+  }, [open, initial?.name, initial?.companyOrRuc, initial?.city, defaultGenerateQuote]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();

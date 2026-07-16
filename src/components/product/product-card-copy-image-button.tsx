@@ -9,12 +9,15 @@ interface ProductCardCopyImageButtonProps {
   productName: string;
   imageUrl: string;
   className?: string;
+  /** Si se pasa, muestra icono + etiqueta (p. ej. ficha de producto). */
+  label?: string;
 }
 
 export function ProductCardCopyImageButton({
   productName,
   imageUrl,
   className,
+  label,
 }: ProductCardCopyImageButtonProps) {
   const handleClick = async (event: MouseEvent) => {
     event.preventDefault();
@@ -38,7 +41,8 @@ export function ProductCardCopyImageButton({
         void handleClick(event);
       }}
     >
-      <ImageIcon className="size-4" aria-hidden="true" />
+      <ImageIcon className={cn('shrink-0', label ? 'size-3.5' : 'size-4')} aria-hidden="true" />
+      {label ? <span>{label}</span> : null}
     </button>
   );
 }

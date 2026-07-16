@@ -23,6 +23,12 @@ const WhatsAppFloatingButton = lazy(() =>
   })),
 );
 
+const HaibotFloatingMenu = lazy(() =>
+  import('@/components/haibot/haibot-floating-menu').then((m) => ({
+    default: m.HaibotFloatingMenu,
+  })),
+);
+
 function useDeferredWidgetMount(delayMs = 2500) {
   const [ready, setReady] = useState(false);
 
@@ -82,6 +88,7 @@ export function RootLayout() {
       {widgetsReady ? (
         <Suspense fallback={null}>
           <WhatsAppFloatingButton />
+          <HaibotFloatingMenu side="right" />
         </Suspense>
       ) : null}
       <ShoppingCartDrawer />

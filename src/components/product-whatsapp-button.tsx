@@ -1,6 +1,7 @@
 import { useCallback, useState, type MouseEvent } from 'react';
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
+import { toast } from 'sonner';
 
 import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import {
@@ -19,7 +20,7 @@ import { openProductWhatsAppChat, type ProductWhatsAppLineItem } from '@/lib/pro
 import { productPath } from '@/lib/product-path';
 import { buildAbsoluteUrl } from '@/lib/site-url';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
-import type { WhatsAppContact } from '@/lib/whatsapp-contact';
+import { isCompleteWhatsAppContact, type WhatsAppContact } from '@/lib/whatsapp-contact';
 import { cn } from '@/lib/utils';
 
 interface ProductWhatsAppButtonProps {
@@ -36,6 +37,13 @@ interface ProductWhatsAppButtonProps {
   quoteContext?: ProductQuoteContext;
   /** Callback al generar cotización (p. ej. abrir visor PDF en la ficha). */
   onQuoteGenerated?: (preview: QuotePdfPreview) => void;
+  /** Si el contacto ya está completo, abre WhatsApp sin dialog. */
+  skipDialogIfComplete?: boolean;
+  /** Valor inicial / skip del checkbox «Generar cotización». */
+  defaultGenerateQuote?: boolean;
+  dialogTitle?: string;
+  dialogDescription?: string;
+  submitLabel?: string;
 }
 
 export function ProductWhatsAppButton({
@@ -47,6 +55,11 @@ export function ProductWhatsAppButton({
   accent = 'solid',
   quoteContext,
   onQuoteGenerated,
+  skipDialogIfComplete = false,
+  defaultGenerateQuote,
+  dialogTitle,
+  dialogDescription,
+  submitLabel,
 }: ProductWhatsAppButtonProps) {
   const { contact, saveContact, isSaving } = useWhatsAppContact();
   const { data: companySettings } = useCompanySettings();
@@ -54,6 +67,9 @@ export function ProductWhatsAppButton({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [quotePdfPreview, setQuotePdfPreview] = useState<QuotePdfPreview | null>(null);
+
+  const resolvedDefaultGenerateQuote =
+    defaultGenerateQuote ?? Boolean(quoteContext);
 
   const detailPath = product.id ? productPath(product.id) : null;
   const resolvedProductUrl =
@@ -135,7 +151,6 @@ export function ProductWhatsAppButton({
       }
     } catch (error) {
       if (options.generateQuote) {
-        const { toast } = await import('sonner');
         toast.error(
           error instanceof Error ? error.message : 'No se pudo generar la cotización.',
         );
@@ -146,11 +161,33 @@ export function ProductWhatsAppButton({
     }
   };
 
+  const openEditDialog = () => {
+    setDialogOpen(true);
+  };
+
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (stopPropagation) {
       event.preventDefault();
       event.stopPropagation();
     }
+
+    if (skipDialogIfComplete && isCompleteWhatsAppContact(contact)) {
+      void handleSubmit(contact, { generateQuote: resolvedDefaultGenerateQuote })
+        .then(() => {
+          toast.message('WhatsApp abierto con tus datos guardados', {
+            action: {
+              label: 'Editar datos',
+              onClick: () => openEditDialog(),
+            },
+            duration: 6000,
+          });
+        })
+        .catch(() => {
+          setDialogOpen(true);
+        });
+      return;
+    }
+
     setDialogOpen(true);
   };
 
@@ -165,7 +202,7 @@ export function ProductWhatsAppButton({
             ? accent === 'outline'
               ? 'min-h-11 gap-2 border border-[#25D366] bg-white px-3 text-sm font-bold uppercase tracking-wide text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
               : 'min-h-9 gap-1.5 bg-[#25D366] px-2 text-xs font-semibold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
-            : 'size-10 min-h-11 shrink-0 rounded-lg border border-[#25D366] bg-white text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2',
+            : 'h-10 w-10 min-h-10 min-w-10 shrink-0 rounded-lg border border-[#25D366] bg-white text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2',
           className,
         )}
         aria-label={
@@ -174,6 +211,7 @@ export function ProductWhatsAppButton({
             : `Consultar ${product.name} por WhatsApp`
         }
         onClick={handleClick}
+        disabled={isProcessing}
       >
         <Icon path={mdiWhatsapp} size={0.95} aria-hidden="true" />
         {label ? <span className="truncate">{label}</span> : null}
@@ -185,6 +223,10 @@ export function ProductWhatsAppButton({
         initial={contact ?? undefined}
         isSubmitting={isSaving || isProcessing}
         onSubmit={handleSubmit}
+        defaultGenerateQuote={resolvedDefaultGenerateQuote}
+        {...(dialogTitle ? { title: dialogTitle } : {})}
+        {...(dialogDescription ? { description: dialogDescription } : {})}
+        {...(submitLabel ? { submitLabel } : {})}
       />
 
       {!onQuoteGenerated ? (

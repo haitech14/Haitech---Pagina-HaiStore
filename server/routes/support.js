@@ -1,9 +1,19 @@
 import { Router } from 'express';
 
 import { createSupportTicket } from '../lib/haisupport.js';
+import { listAvailableSupportSlots } from '../lib/support-availability.js';
 import { getClientIp, isSupportRateLimited } from '../lib/support-rate-limit.js';
 
 export const supportRouter = Router();
+
+supportRouter.get('/availability', async (_req, res, next) => {
+  try {
+    const slots = await listAvailableSupportSlots();
+    res.json({ slots });
+  } catch (error) {
+    next(error);
+  }
+});
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_NAME = 120;

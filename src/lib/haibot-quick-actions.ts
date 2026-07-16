@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  CalendarClock,
   CircleDollarSign,
   ListOrdered,
   MessageCircle,
@@ -28,21 +29,28 @@ export type HaibotQuickAction =
   | (HaibotQuickActionBase & { kind: 'navigate'; to: string })
   | (HaibotQuickActionBase & { kind: 'whatsapp'; intent: HaibotWhatsAppIntent });
 
-/** Pestañas principales sobre el chat (modo consulta + flujos operativos). */
+/** Opciones del menú bot (clicables en el chat). */
 export const HAIBOT_PRIMARY_ACTIONS: HaibotQuickAction[] = [
   {
     id: 'search',
-    label: 'Buscar',
+    label: 'Buscar producto',
     icon: Search,
     kind: 'search',
     focus: 'all',
   },
   {
     id: 'quote',
-    label: 'Cotización',
+    label: 'Cotización / precio',
     icon: CircleDollarSign,
     kind: 'search',
     focus: 'price',
+  },
+  {
+    id: 'support',
+    label: 'Soporte técnico',
+    icon: Wrench,
+    kind: 'workflow',
+    workflow: 'support',
   },
   {
     id: 'shipping',
@@ -52,15 +60,8 @@ export const HAIBOT_PRIMARY_ACTIONS: HaibotQuickAction[] = [
     workflow: 'shipping',
   },
   {
-    id: 'support',
-    label: 'Soporte',
-    icon: Wrench,
-    kind: 'workflow',
-    workflow: 'support',
-  },
-  {
     id: 'sales',
-    label: 'Ventas',
+    label: 'Ventas / CRM',
     icon: TrendingUp,
     kind: 'workflow',
     workflow: 'sales',
@@ -69,6 +70,14 @@ export const HAIBOT_PRIMARY_ACTIONS: HaibotQuickAction[] = [
 
 /** Acciones secundarias (WhatsApp, pedidos, listas). */
 export const HAIBOT_SECONDARY_ACTIONS: HaibotQuickAction[] = [
+  {
+    id: 'schedule-wa',
+    label: 'Agendar WA',
+    icon: CalendarClock,
+    kind: 'whatsapp',
+    intent: 'schedule-service',
+    accent: 'whatsapp',
+  },
   {
     id: 'price-list',
     label: 'Lista precios',
@@ -113,13 +122,15 @@ export function getHaibotQuickActionReply(actionId: string): string {
     case 'shipping':
       return 'Completa el formulario de envíos 📦 y genera la orden lista para copiar.';
     case 'support':
-      return 'Registra una orden de servicio 🔧 con los datos del cliente y el equipo.';
+      return 'Vamos a programar tu soporte técnico 🔧 Completa los datos, elige un horario disponible y confirma la cita.';
     case 'sales':
       return 'Accede al CRM 📈 para crear leads y dar seguimiento comercial.';
     case 'price-list':
       return 'Abriré WhatsApp para solicitar tu lista de precios según tu perfil comercial.';
     case 'orders':
       return 'Revisa el estado de tus pedidos en Mi cuenta. Si no aparece, usa el mismo correo de la compra.';
+    case 'schedule-wa':
+      return 'Abriré WhatsApp para coordinar tu cita de servicio técnico con el equipo.';
     case 'whatsapp-bot':
       return 'Te redirijo al chatbot de Haitech en WhatsApp para atención inmediata.';
     default:

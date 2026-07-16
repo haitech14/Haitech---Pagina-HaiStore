@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Menu, ShoppingCart, X } from 'lucide-react';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import { Headphones, Menu, ShoppingCart, X } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,12 +18,18 @@ import {
 } from '@/components/layout/header-category-nav';
 import { HeaderForumPublishButton } from '@/components/layout/header-forum-publish-button';
 import { HeaderTopBar } from '@/components/layout/header-top-bar';
-import { HeaderSupportButton } from '@/components/layout/header-support-button';
+import { HeaderWhatsAppContactAction } from '@/components/layout/header-whatsapp-contact-action';
 import { StoreNavMobileMegaAccordions } from '@/components/layout/store-nav-mobile-mega-accordions';
 import { HeaderBrandLogos } from '@/components/layout/site-logo';
 import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
+import {
+  HEADER_BUY_RENT_WHATSAPP_LABEL,
+  HEADER_SALES_PHONE_DISPLAY,
+  HEADER_SERVICE_WHATSAPP_LABEL,
+  HEADER_SUPPORT_PHONE_DISPLAY,
+} from '@/data/site-header';
 import { cn, formatPenFromUsd } from '@/lib/utils';
 import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
 
@@ -36,7 +44,7 @@ type MainNavItem = {
 
 const mobileNavItems: MainNavItem[] = [
   { to: '/', label: 'Inicio', end: true },
-  { to: '/tienda', label: 'Productos' },
+  { to: '/tienda', label: 'Equipos' },
 ];
 
 function resolveNavItemActive(
@@ -113,7 +121,7 @@ export function Header() {
           </Button>
 
           <HeaderBrandLogos
-            heightClass="h-7 sm:h-8"
+            heightClass="h-9 sm:h-10"
             width={160}
             height={35}
             loading="eager"
@@ -186,8 +194,30 @@ export function Header() {
               <StoreNavMobileMegaAccordions onNavigate={() => setMobileOpen(false)} />
             ) : null}
             {!forumMode ? (
-              <div className="px-0.5">
-                <HeaderSupportButton className="w-full justify-center px-3 py-2.5" />
+              <div className="flex flex-col gap-2 px-0.5">
+                <HeaderWhatsAppContactAction
+                  topic="ventas"
+                  variant="mobile"
+                  label={HEADER_BUY_RENT_WHATSAPP_LABEL}
+                  phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
+                  icon={
+                    <Icon
+                      path={mdiWhatsapp}
+                      size={0.72}
+                      className="shrink-0 text-[#25D366]"
+                      aria-hidden="true"
+                    />
+                  }
+                />
+                <HeaderWhatsAppContactAction
+                  topic="soporte"
+                  variant="mobile"
+                  label={HEADER_SERVICE_WHATSAPP_LABEL}
+                  phoneDisplay={HEADER_SUPPORT_PHONE_DISPLAY}
+                  icon={
+                    <Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                  }
+                />
               </div>
             ) : null}
             <nav aria-label={forumMode ? 'Navegación móvil del foro' : 'Navegación móvil'}>

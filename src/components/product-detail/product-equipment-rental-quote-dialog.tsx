@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { HaitechClientForm } from '@/components/admin/shared/haitech-client-form';
-import type { EquipmentRentalEstimate } from '@/components/product-detail/product-detail-rental-configurator';
+import type { EquipmentRentalEstimate } from '@/lib/rental-calculator';
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,19 +12,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
 import { useCompanySettings } from '@/hooks/use-company-settings';
+import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
 import { buildProformaPayloadFromProductQuote } from '@/lib/build-proforma-payload';
+import { contactToQuoteClient } from '@/lib/generate-product-quote-from-contact';
 import {
   buildEquipmentRentalQuoteLines,
   buildEquipmentRentalQuotePdf,
 } from '@/lib/generate-rental-quote-pdf';
 import { preloadQuotePdfAssets } from '@/lib/generate-product-quote-pdf';
 import { formatPen, RENTAL_TERM_RENEWAL_NOTE } from '@/lib/rental-calculator';
-import {
-  EMPTY_HAITECH_CLIENT,
-  haitechClientSchema,
-} from '@/lib/haitech-client-schema';
+import { isCompleteWhatsAppContact, type WhatsAppContact } from '@/lib/whatsapp-contact';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { Product } from '@/types/product';
 
@@ -52,35 +52,40 @@ export function ProductEquipmentRentalQuoteDialog({
 }: ProductEquipmentRentalQuoteDialogProps) {
   const { data: companySettings } = useCompanySettings();
   const { registerProductQuote } = useProformaMutations();
-  const [client, setClient] = useState(EMPTY_HAITECH_CLIENT);
+  const { contact, saveContact } = useWhatsAppContact();
+  const [name, setName] = useState('');
+  const [companyOrRuc, setCompanyOrRuc] = useState('');
+  const [city, setCity] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!open) return;
+    setName(contact?.name?.trim() ?? '');
+    setCompanyOrRuc(contact?.companyOrRuc?.trim() ?? '');
+    setCity(contact?.city?.trim() ?? '');
+    setSubmitError(null);
     preloadQuotePdfAssets([product.image_url]);
-  }, [open, product.image_url]);
+  }, [open, contact?.name, contact?.companyOrRuc, contact?.city, product.image_url]);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitError(null);
-    setIsSubmitting(true);
 
-    const parsed = haitechClientSchema.safeParse(client);
-    if (!parsed.success) {
-      setSubmitError(parsed.error.issues[0]?.message ?? 'Datos inválidos');
-      setIsSubmitting(false);
+    const nextContact: WhatsAppContact = {
+      name: name.trim(),
+      companyOrRuc: companyOrRuc.trim(),
+      city: city.trim(),
+    };
+
+    if (!isCompleteWhatsAppContact(nextContact)) {
+      setSubmitError('Completa nombre, RUC/empresa y ciudad.');
       return;
     }
 
-    const values = {
-      razonSocial: parsed.data.nombre,
-      ruc: parsed.data.rucDni,
-      atencion: parsed.data.nombreContacto,
-      celular: parsed.data.telefono,
-      ciudad: parsed.data.ciudad,
-    };
+    setIsSubmitting(true);
 
+    const values = contactToQuoteClient(nextContact);
     const rentalProduct = {
       name: displayTitle,
       sku,
@@ -89,6 +94,7 @@ export function ProductEquipmentRentalQuoteDialog({
     };
 
     try {
+      await saveContact(nextContact);
       const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
       const generated = await buildEquipmentRentalQuotePdf(values, estimate, rentalProduct, company);
 
@@ -100,7 +106,6 @@ export function ProductEquipmentRentalQuoteDialog({
         quoteNumber: generated.quoteNumber,
       });
 
-      setClient(EMPTY_HAITECH_CLIENT);
       onOpenChange(false);
 
       const quoteLines = buildEquipmentRentalQuoteLines(estimate, rentalProduct);
@@ -109,7 +114,13 @@ export function ProductEquipmentRentalQuoteDialog({
         .mutateAsync({
           ...buildProformaPayloadFromProductQuote(
             generated.quoteNumber,
-            values,
+            {
+              razonSocial: values.razonSocial,
+              ruc: values.ruc,
+              atencion: values.atencion,
+              celular: values.celular === '—' ? '000000000' : values.celular,
+              ciudad: values.ciudad,
+            },
             quoteLines.map((line, index) => ({
               id: index === 0 ? product.id : `${product.id}::${line.sku}`,
               name: line.name,
@@ -138,20 +149,49 @@ export function ProductEquipmentRentalQuoteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] max-w-md overflow-y-auto">
+      <DialogContent className="max-h-[92vh] max-w-sm overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Cotizar alquiler de equipo</DialogTitle>
+          <DialogTitle>Solicitar propuesta de alquiler</DialogTitle>
           <DialogDescription>
-            Complete los datos del cliente para generar el PDF con la configuración actual. Plazo:{' '}
-            {estimate.termMonths} meses · {estimate.equipmentQuantity} equipo
+            Completa tus datos para generar el PDF. Plazo: {estimate.termMonths} meses ·{' '}
+            {estimate.equipmentQuantity} equipo
             {estimate.equipmentQuantity > 1 ? 's' : ''} ·{' '}
             {estimate.monthlyPages.toLocaleString('es-PE')} pág./mes. Total mensual estimado S/{' '}
             {formatPen(estimate.estimatedMonthlyPen)}.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-4" noValidate>
-          <HaitechClientForm value={client} onChange={setClient} idPrefix="equipment-rental-quote" />
+        <form onSubmit={(event) => void onSubmit(event)} className="grid gap-4" noValidate>
+          <div className="space-y-2">
+            <Label htmlFor="rental-quote-name">Nombre</Label>
+            <Input
+              id="rental-quote-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              autoComplete="name"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rental-quote-company">RUC/Empresa</Label>
+            <Input
+              id="rental-quote-company"
+              value={companyOrRuc}
+              onChange={(event) => setCompanyOrRuc(event.target.value)}
+              autoComplete="organization"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rental-quote-city">Ciudad</Label>
+            <Input
+              id="rental-quote-city"
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
+              autoComplete="address-level2"
+              required
+            />
+          </div>
 
           {submitError ? (
             <p role="alert" className="text-xs text-red-600">
@@ -162,10 +202,10 @@ export function ProductEquipmentRentalQuoteDialog({
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="mt-1 gap-2 bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600"
+            className="gap-2 bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600"
           >
             <FileDown className="size-4" aria-hidden="true" />
-            {isSubmitting ? 'Generando PDF…' : 'Generar cotización PDF'}
+            {isSubmitting ? 'Generando PDF…' : 'Generar propuesta PDF'}
           </Button>
         </form>
       </DialogContent>

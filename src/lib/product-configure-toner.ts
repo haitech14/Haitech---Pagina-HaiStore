@@ -10,6 +10,7 @@ import {
 } from '@/lib/product-merchandising';
 import {
   flattenConsumableGroupItems,
+  formatConsumableListDisplayName,
   isTonerSupplyAssemblyName,
   isTonerSupplyAssemblyProduct,
   splitTonerItemsBySupplyType,
@@ -171,13 +172,9 @@ function isTonerProductAllowedForEquipment(
   return tonerProductMatchesEquipment(toner, equipment, { knownTonerIds });
 }
 
-/** Quita «Cartucho/cartucho» de títulos de tóner en UI (inventario puede conservarlo). */
+/** Quita «Cartucho» y normaliza Intercopy / M 320F en títulos de tóner en UI. */
 export function formatTonerCardDisplayTitle(title: string): string {
-  return title
-    .replace(/\bToner\s+Cartucho\s+/gi, 'Toner ')
-    .replace(/\bToner\s+cartucho\s+/gi, 'Toner ')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
+  return formatConsumableListDisplayName(title);
 }
 
 function shouldSkipZeroPriceCard(

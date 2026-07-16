@@ -1,10 +1,10 @@
 import { getSupabaseAdmin } from './supabase-auth.js';
 
 const DEFAULT_PLANS = [
-  { id: 'plan-3k', label: 'Plan 3,000 páginas', pages_per_month: 3000, monthly_price_pen: 349, active: true, sort_order: 1 },
-  { id: 'plan-5k', label: 'Plan 5,000 páginas', pages_per_month: 5000, monthly_price_pen: 399, active: true, sort_order: 2 },
-  { id: 'plan-8k', label: 'Plan 8,000 páginas', pages_per_month: 8000, monthly_price_pen: 449, active: true, sort_order: 3 },
-  { id: 'plan-10k', label: 'Plan 10,000 páginas', pages_per_month: 10000, monthly_price_pen: 499, active: true, sort_order: 4 },
+  { id: 'plan-5k', label: 'Plan 5,000 páginas', pages_per_month: 5000, monthly_price_pen: 499, active: true, sort_order: 1 },
+  { id: 'plan-10k', label: 'Plan 10,000 páginas', pages_per_month: 10000, monthly_price_pen: 849, active: true, sort_order: 2 },
+  { id: 'plan-25k', label: 'Plan 25,000 páginas', pages_per_month: 25000, monthly_price_pen: 1599, active: true, sort_order: 3 },
+  { id: 'plan-50k', label: 'Plan 50,000 páginas', pages_per_month: 50000, monthly_price_pen: 3699, active: true, sort_order: 4 },
 ];
 
 function rowToPlan(row) {

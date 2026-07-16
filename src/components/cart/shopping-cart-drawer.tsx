@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
 import { FileText, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 
 import { ProductCardImage } from '@/components/product/product-card-image';
@@ -14,6 +16,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { useCart, cartLineUnitUsd } from '@/context/cart-context';
+import { openCartQuoteWhatsApp } from '@/lib/cart-whatsapp-message';
 import { getPaidEquipmentOptions } from '@/lib/equipment-config-selection';
 import { SEMINUEVA_PREPARATION_LABELS } from '@/lib/seminueva-preparation';
 import { resolveCartItemDetailPath } from '@/lib/service-to-cart';
@@ -224,12 +227,22 @@ export function ShoppingCartDrawer() {
                 </Button>
                 <Button
                   type="button"
+                  className="min-h-9 w-full gap-1.5 bg-[#25D366] text-sm font-semibold text-white hover:bg-[#20bd5a]"
+                  onClick={() => {
+                    openCartQuoteWhatsApp(items, totalPrice);
+                  }}
+                >
+                  <Icon path={mdiWhatsapp} size={0.8} aria-hidden="true" />
+                  Cotizar carrito por WhatsApp
+                </Button>
+                <Button
+                  type="button"
                   variant="outline"
                   className="min-h-9 w-full gap-1.5 border-red-200 text-sm text-red-700 hover:bg-red-50 hover:text-red-700"
                   onClick={() => setQuoteOpen(true)}
                 >
                   <FileText className="size-3.5 shrink-0" aria-hidden="true" />
-                  Generar cotización
+                  Generar cotización PDF
                 </Button>
                 <div className="flex gap-1.5">
                   <Button asChild variant="ghost" className="min-h-8 flex-1 text-xs text-muted-foreground">

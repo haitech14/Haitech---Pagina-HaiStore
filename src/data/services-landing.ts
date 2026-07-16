@@ -78,7 +78,7 @@ export interface ServicesLandingFormServiceOption {
 export const servicesLandingHero: ServicesLandingHeroContent = {
   title: 'Compra servicios corporativos como en una tienda online',
   subtitle:
-    'Alquila equipos, contrata soporte técnico, reserva locales para eventos y arma tu cotización en minutos con planes flexibles.',
+    'Alquila fotocopiadoras e impresoras Ricoh, contrata soporte técnico, reserva locales para eventos y arma tu cotización en minutos. Planes de alquiler con mantenimiento y tóner según contrato, con cobertura en Lima y Perú.',
   image: '/services/landing/hero-servicios.png',
   imageAlt:
     'Impresora multifuncional Ricoh, técnico especializado y sala corporativa para eventos empresariales',

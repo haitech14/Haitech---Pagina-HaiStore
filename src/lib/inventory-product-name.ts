@@ -78,8 +78,75 @@ const YIELD_PAREN_PATTERN =
   /\((?:Rend\s+[^)]+|\d[\d,.\s]*5%-A4[^)]*)\)/i;
 
 const XREF_PREFIX_PATTERN = /^\s*\[xref\s+to\s+[^\]]+\]\s*/i;
+const XREF_CAPTURE_PATTERN = /^\s*\[xref\s+to\s+([^\]]+)\]\s*/i;
 const GRAMAJE_LEADING_PATTERN =
   /^(\d+(?:[.,]\d+)?\s*(?:ML|ml|G|g|KG|kg|GR|gr|L|l))\s*[—–-]\s+(.+)$/i;
+
+/** Extrae el código de un prefijo «[XREF TO CODIGO]». */
+export function extractXrefToCode(name: string): string | null {
+  const match = String(name ?? '').match(XREF_CAPTURE_PATTERN);
+  const code = match?.[1]?.trim();
+  return code || null;
+}
+
+/** Une códigos con « / » sin duplicar. */
+export function mergeProductCodesWithSlash(
+  primary: string | null | undefined,
+  extra: string | null | undefined,
+): string {
+  const a = String(primary ?? '').trim();
+  const b = String(extra ?? '').trim();
+  if (!b) return a;
+  if (!a) return b;
+  const parts = a
+    .split(/\s*\/\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.some((part) => part.toUpperCase() === b.toUpperCase())) {
+    return parts.join(' / ');
+  }
+  return [...parts, b].join(' / ');
+}
+
+/** Elimina el marcador Ricoh «EXP» (export) del nombre. */
+export function stripExpProductMarker(name: string): string {
+  return String(name ?? '')
+    .replace(/:EXP\b/gi, '')
+    .replace(/(^|[\s(/—–-])EXP(?=[\s)/—–-]|$)/gi, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/:\s*(?=[A-Z0-9(])/g, ':')
+    .replace(/\(\s+/g, '(')
+    .replace(/\s+\)/g, ')')
+    .trim();
+}
+
+/**
+ * Si PCDU o PCU aparecen más de una vez, conserva solo la primera aparición.
+ * Ej.: «PCDU:… (unidad de imagen/revelado (PCDU))» → «PCDU:… (unidad de imagen/revelado)»
+ */
+export function dedupePcduPcuAcronyms(name: string): string {
+  let result = String(name ?? '');
+  for (const acronym of ['PCDU', 'PCU'] as const) {
+    let seen = false;
+    const re = new RegExp(`\\(?\\b${acronym}\\b\\)?`, 'gi');
+    result = result.replace(re, (match) => {
+      if (!seen) {
+        seen = true;
+        return match;
+      }
+      return '';
+    });
+  }
+  return result
+    .replace(/\(\s*\/\s*/g, '(')
+    .replace(/\s*\/\s*\)/g, ')')
+    .replace(/\(\s*\)/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([,.;)])/g, '$1')
+    .replace(/\(\s+/g, '(')
+    .replace(/\s+\/\s+/g, ' / ')
+    .trim();
+}
 
 /** Elimina prefijos de referencia cruzada del inventario Ricoh LP. */
 export function stripXrefProductNamePrefix(name: string): string {
@@ -88,6 +155,29 @@ export function stripXrefProductNamePrefix(name: string): string {
     result = result.replace(XREF_PREFIX_PATTERN, '').trim();
   }
   return result;
+}
+
+/**
+ * Quita «[XREF TO CODIGO]» del nombre, une el código con « / »,
+ * elimina EXP y deduplica PCDU/PCU.
+ */
+export function resolveXrefProductFields(input: {
+  name?: string | null;
+  code?: string | null;
+}): { name: string; code: string; xrefCode: string | null } {
+  const rawName = String(input.name ?? '').trim();
+  const xrefCode = extractXrefToCode(rawName);
+  let nextName = stripXrefProductNamePrefix(rawName);
+  nextName = stripExpProductMarker(nextName);
+  nextName = dedupePcduPcuAcronyms(nextName);
+  const nextCode = xrefCode
+    ? mergeProductCodesWithSlash(input.code, xrefCode)
+    : String(input.code ?? '').trim();
+  return {
+    name: nextName,
+    code: nextCode,
+    xrefCode,
+  };
 }
 
 /** Prefijo legible para unidades PCDU / PCU en repuestos Ricoh. */
@@ -177,20 +267,21 @@ export function moveParentheticalSuffixToEnd(name: string): string {
 
 /** Nombre de inventario/tienda: xref, PCDU/PCU, rendimiento, gramaje, color, nueva y seminueva. */
 export function formatInventoryProductName(name: string): string {
+  const resolved = resolveXrefProductFields({ name });
   return formatSeminuevaProductName(
     formatNuevaProductName(
-    normalizeTonerColorProductName(
-      moveParentheticalSuffixToEnd(
-        moveRendSegmentsToSuffix(
-          moveGramajeToSuffix(
-            applySparePartUnitPrefix(
-              stripXrefProductNamePrefix(normalizeTonerCartridgeProductLabel(name)),
+      normalizeTonerColorProductName(
+        moveParentheticalSuffixToEnd(
+          moveRendSegmentsToSuffix(
+            moveGramajeToSuffix(
+              dedupePcduPcuAcronyms(
+                applySparePartUnitPrefix(normalizeTonerCartridgeProductLabel(resolved.name)),
+              ),
             ),
           ),
         ),
       ),
     ),
-  ),
   );
 }
 

@@ -16,14 +16,15 @@ import type { ServiceLandingConfig } from '@/types/service-landing';
 
 export const alquilerLanding: ServiceLandingConfig = {
   slug: 'alquiler',
-  metaTitle: 'Alquiler tecnológico para empresas',
-  badge: 'Alquiler tecnológico para empresas',
+  metaTitle: 'Alquiler de fotocopiadoras e impresoras Ricoh',
+  badge: 'Alquiler de fotocopiadoras Ricoh',
   badgeIcon: Building2,
-  title: 'Soluciones de alquiler para',
-  titleHighlight: 'tu empresa',
-  subtitle: 'Equipos profesionales listos para impulsar tu productividad.',
-  bullets: ['Entrega rápida', 'Soporte experto', 'Flexibilidad total'],
-  highlightBulletIndex: 2,
+  title: 'Alquiler de fotocopiadoras e',
+  titleHighlight: 'equipos para tu empresa',
+  subtitle:
+    'Planes mensuales de fotocopiadoras e impresoras multifuncionales Ricoh con mantenimiento, tóner y soporte técnico según contrato. Ideal para oficinas en Lima y provincias.',
+  bullets: ['Mantenimiento incluido', 'Tóner según plan', 'Soporte especializado'],
+  highlightBulletIndex: 0,
   gridCols: 'four',
   cards: [
     {
@@ -55,7 +56,8 @@ export const alquilerLanding: ServiceLandingConfig = {
     {
       id: 'impresoras',
       title: 'Alquiler de Impresoras',
-      description: 'Equipos láser o de tinta con suministro y mantenimiento incluido.',
+      description:
+        'Alquiler de impresoras y multifuncionales Ricoh con suministro y mantenimiento incluido según plan.',
       image: '/services/alquiler/impresoras.png',
       imageAlt: 'Impresora multifuncional en alquiler',
       icon: Printer,

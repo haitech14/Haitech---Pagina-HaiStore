@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-16T02:52:03.209Z",
+  "generatedAt": "2026-07-16T22:52:10.770Z",
   "tree": [
     {
       "id": "cat-multifuncionales",
@@ -15,7 +15,7 @@
       "image": "/categories/multifuncionales.png",
       "tagline": "Imprime, escanea y copia en un solo equipo",
       "children": [],
-      "productCount": 122
+      "productCount": 131
     },
     {
       "id": "cat-impresoras",
@@ -256,7 +256,7 @@
       "image": "/categories/formato-ancho.png",
       "tagline": "Plotters y equipos para gran formato",
       "children": [],
-      "productCount": 5
+      "productCount": 6
     },
     {
       "id": "cat-escaneres",

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type RefObject } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ImageOff, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Calculator, ImageOff, Minus, Plus, ShoppingCart } from 'lucide-react';
 
 import { hasOnRequestQuantity } from '@/components/cart/add-to-cart-button';
 import {
@@ -32,6 +32,7 @@ import {
   useMobileBottomNavInset,
   useSetMobileBottomInset,
 } from '@/context/mobile-bottom-inset-context';
+import type { EquipmentRentalEstimate } from '@/lib/rental-calculator';
 import type { CartConfigurationLine } from '@/types/product';
 import type { BulkDiscountTier } from '@/types/product-detail';
 import type { Product } from '@/types/product';
@@ -57,6 +58,13 @@ interface ProductDetailMobilePurchaseBarProps {
   onRentalClick?: () => void;
   showMaintenancePlanAction?: boolean;
   onMaintenancePlanClick?: () => void;
+  /** Modo alquiler: CTAs de cotización en lugar de compra. */
+  isRentMode?: boolean;
+  rentalEstimate?: EquipmentRentalEstimate | null;
+  onRentQuoteClick?: () => void;
+  displayTitle?: string;
+  sku?: string;
+  brandLabel?: string;
 }
 
 /** Muestra la barra solo cuando el usuario ya pasó la sección de compra (quedó arriba del viewport). */
@@ -180,6 +188,12 @@ export function ProductDetailMobilePurchaseBar({
   onRentalClick: _onRentalClick,
   showMaintenancePlanAction = false,
   onMaintenancePlanClick,
+  isRentMode = false,
+  rentalEstimate = null,
+  onRentQuoteClick,
+  displayTitle,
+  sku,
+  brandLabel,
 }: ProductDetailMobilePurchaseBarProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
@@ -283,95 +297,154 @@ export function ProductDetailMobilePurchaseBar({
       style={bottomNavInset > 0 ? { bottom: `${bottomNavInset}px` } : undefined}
       aria-hidden={!showBar}
       role="complementary"
-      aria-label="Acciones rápidas de compra"
+      aria-label={isRentMode ? 'Acciones rápidas de alquiler' : 'Acciones rápidas de compra'}
     >
       <div className="container flex items-center gap-2.5 sm:gap-3">
         <ProductPurchaseBarThumbnail product={product} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs font-medium text-foreground sm:text-sm">{product.name}</p>
-          {showComparePrice && compareUnitUsd != null ? (
-            <p className="truncate text-xs text-muted-foreground">
-              Antes:{' '}
-              <DualPrice
-                usd={compareUnitUsd * quantity}
-                strikethrough
-                className="inline text-xs"
-              />
+          {isRentMode && rentalEstimate ? (
+            <p className="truncate text-xs font-semibold text-[#0f1f3d]" aria-live="polite">
+              Desde S/{' '}
+              {rentalEstimate.estimatedMonthlyPen.toLocaleString('es-PE', {
+                maximumFractionDigits: 2,
+              })}
+              /mes
             </p>
-          ) : null}
-          <div className="min-w-0 truncate" aria-live="polite" aria-atomic="true">
-            <PurchaseSidebarRolePrices
-              product={product}
-              quantity={quantity}
-              fullPrices={fullPrices}
-              bulkDiscountTiers={bulkDiscountTiers}
-              equipmentExtrasUsd={equipmentExtrasUsd}
-              preparationSurchargeUsd={preparationSurchargeUsd}
-              discountPercent={displayDiscountPercent}
-              compact
-            />
-          </div>
-          {savingsMessage ? (
-            <p className="truncate text-xs text-muted-foreground">
-              <span className="font-semibold text-neutral-500">Compra por Volumen: </span>
-              {savingsMessage}
-            </p>
-          ) : null}
+          ) : (
+            <>
+              {showComparePrice && compareUnitUsd != null ? (
+                <p className="truncate text-xs text-muted-foreground">
+                  Antes:{' '}
+                  <DualPrice
+                    usd={compareUnitUsd * quantity}
+                    strikethrough
+                    className="inline text-xs"
+                  />
+                </p>
+              ) : null}
+              <div className="min-w-0 truncate" aria-live="polite" aria-atomic="true">
+                <PurchaseSidebarRolePrices
+                  product={product}
+                  quantity={quantity}
+                  fullPrices={fullPrices}
+                  bulkDiscountTiers={bulkDiscountTiers}
+                  equipmentExtrasUsd={equipmentExtrasUsd}
+                  preparationSurchargeUsd={preparationSurchargeUsd}
+                  discountPercent={displayDiscountPercent}
+                  compact
+                />
+              </div>
+              {savingsMessage ? (
+                <p className="truncate text-xs text-muted-foreground">
+                  <span className="font-semibold text-neutral-500">Compra por Volumen: </span>
+                  {savingsMessage}
+                </p>
+              ) : null}
+            </>
+          )}
         </div>
         <div className="flex shrink-0 flex-col gap-1.5">
-          <div className="flex items-end gap-1.5">
-            <div
-              className="inline-flex w-[6.5rem] shrink-0 items-center rounded-md border border-border bg-background"
-              role="group"
-              aria-label={`Cantidad: ${quantity}`}
-            >
-              <button
+          {isRentMode ? (
+            <div className="flex items-end gap-1.5">
+              <Button
                 type="button"
-                onClick={() => onQuantityChange(clampPurchaseQuantity(quantity - 1))}
-                disabled={quantity <= 1}
-                aria-label="Disminuir cantidad"
-                className="flex size-8 items-center justify-center text-muted-foreground hover:bg-muted/40 disabled:opacity-40"
+                onClick={() => onRentQuoteClick?.()}
+                disabled={!onRentQuoteClick || !rentalEstimate}
+                className="min-h-10 flex-1 gap-1.5 rounded-md bg-red-600 px-3 text-sm font-bold text-white hover:bg-red-500 focus-visible:ring-red-600"
               >
-                <Minus className="size-3.5" aria-hidden="true" />
-              </button>
-              <span className="min-w-6 flex-1 text-center text-xs font-semibold tabular-nums">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={() => onQuantityChange(clampPurchaseQuantity(quantity + 1))}
-                disabled={quantity >= PURCHASE_QUANTITY_MAX}
-                aria-label="Aumentar cantidad"
-                className="flex size-8 items-center justify-center text-muted-foreground hover:bg-muted/40 disabled:opacity-40"
-              >
-                <Plus className="size-3.5" aria-hidden="true" />
-              </button>
+                <Calculator className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate text-xs sm:text-sm">Propuesta</span>
+              </Button>
+              <ProductWhatsAppButton
+                className="size-10 shrink-0 rounded-md border-emerald-500 text-emerald-700 hover:bg-emerald-50"
+                skipDialogIfComplete
+                defaultGenerateQuote
+                quantity={rentalEstimate?.equipmentQuantity ?? quantity}
+                product={{
+                  id: product.id,
+                  name: rentalEstimate
+                    ? `${product.name} (Alquiler · ${rentalEstimate.billablePages.toLocaleString('es-PE')} pág./mes)`
+                    : product.name,
+                  priceUsd: rentalEstimate
+                    ? penToUsd(rentalEstimate.estimatedMonthlyPen)
+                    : volumePricing.unitUsd,
+                  category: product.category,
+                  brand: product.brand ?? null,
+                }}
+                quoteContext={{
+                  product,
+                  displayTitle: displayTitle
+                    ? `${displayTitle} — Alquiler`
+                    : `${product.name} — Alquiler`,
+                  sku: sku ?? product.id,
+                  brandLabel: brandLabel ?? product.brand ?? '',
+                  quantity: rentalEstimate?.equipmentQuantity ?? quantity,
+                  ...(rentalEstimate
+                    ? {
+                        heroLead: `Alquiler estimado: ${rentalEstimate.billablePages.toLocaleString('es-PE')} pág./mes · plazo ${rentalEstimate.termMonths} meses`,
+                      }
+                    : {}),
+                }}
+              />
             </div>
-            <Button
-              type="button"
-              onClick={handleBuyNow}
-              className={cn(
-                'min-h-10 flex-1 gap-1.5 rounded-md px-3 text-sm font-bold lg:px-4',
-                includesOnRequest
-                  ? 'border border-foreground bg-foreground text-background hover:bg-foreground/90'
-                  : 'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
-              )}
-            >
-              <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-              <span className="truncate text-xs sm:text-sm">{buyNowLabel}</span>
-            </Button>
-            <ProductWhatsAppButton
-              className="size-10 shrink-0 rounded-md border-emerald-500 text-emerald-700 hover:bg-emerald-50"
-              quantity={quantity}
-              product={{
-                id: product.id,
-                name: product.name,
-                priceUsd: volumePricing.unitUsd,
-                category: product.category,
-                brand: product.brand ?? null,
-              }}
-            />
-          </div>
+          ) : (
+            <div className="flex items-end gap-1.5">
+              <div
+                className="inline-flex w-[6.5rem] shrink-0 items-center rounded-md border border-border bg-background"
+                role="group"
+                aria-label={`Cantidad: ${quantity}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => onQuantityChange(clampPurchaseQuantity(quantity - 1))}
+                  disabled={quantity <= 1}
+                  aria-label="Disminuir cantidad"
+                  className="flex size-8 items-center justify-center text-muted-foreground hover:bg-muted/40 disabled:opacity-40"
+                >
+                  <Minus className="size-3.5" aria-hidden="true" />
+                </button>
+                <span className="min-w-6 flex-1 text-center text-xs font-semibold tabular-nums">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onQuantityChange(clampPurchaseQuantity(quantity + 1))}
+                  disabled={quantity >= PURCHASE_QUANTITY_MAX}
+                  aria-label="Aumentar cantidad"
+                  className="flex size-8 items-center justify-center text-muted-foreground hover:bg-muted/40 disabled:opacity-40"
+                >
+                  <Plus className="size-3.5" aria-hidden="true" />
+                </button>
+              </div>
+              <Button
+                type="button"
+                onClick={handleBuyNow}
+                className={cn(
+                  'min-h-10 flex-1 gap-1.5 rounded-md px-3 text-sm font-bold lg:px-4',
+                  includesOnRequest
+                    ? 'border border-foreground bg-foreground text-background hover:bg-foreground/90'
+                    : 'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
+                )}
+              >
+                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate text-xs sm:text-sm">{buyNowLabel}</span>
+              </Button>
+              <ProductWhatsAppButton
+                className="size-10 shrink-0 rounded-md border-emerald-500 text-emerald-700 hover:bg-emerald-50"
+                skipDialogIfComplete
+                defaultGenerateQuote
+                quantity={quantity}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  priceUsd: volumePricing.unitUsd,
+                  category: product.category,
+                  brand: product.brand ?? null,
+                }}
+              />
+            </div>
+          )}
           {showMaintenancePlanAction && onMaintenancePlanClick ? (
             <Button
               type="button"

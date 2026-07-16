@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { Minus, Plus, ShoppingCart } from 'lucide-react';
 
@@ -19,6 +20,13 @@ interface ProductQuantityAddFooterProps {
   onQuantityChange?: (quantity: number) => void;
   /** Oculta el stepper hasta hover/focus en la tarjeta (`group`). */
   revealQuantityOnHover?: boolean;
+  /**
+   * `inline` (default): cantidad a la izquierda del botón.
+   * `above`: cantidad arriba (deja sitio a Comprar + acción lateral, p. ej. WhatsApp).
+   */
+  quantityPlacement?: 'inline' | 'above';
+  /** Contenido a la derecha del botón Comprar (p. ej. WhatsApp icon-only). */
+  endAdornment?: ReactNode;
   /** No muestra el selector de cantidad (siempre agrega 1 unidad). */
   hideQuantity?: boolean;
   /** Etiqueta del botón de carrito (p. ej. «Comprar»). */
@@ -36,6 +44,8 @@ export function ProductQuantityAddFooter({
   size = 'md',
   onQuantityChange,
   revealQuantityOnHover = true,
+  quantityPlacement = 'inline',
+  endAdornment,
   hideQuantity = false,
   addLabel,
   addLabelHover,
@@ -49,6 +59,7 @@ export function ProductQuantityAddFooter({
   const cartLabelHover = addLabelHover ?? null;
   const swapLabelOnHover = Boolean(cartLabelHover && revealQuantityOnHover && !hideQuantity);
   const tallQuantity = quantityClassName?.includes('h-10') ?? false;
+  const quantityAbove = quantityPlacement === 'above' && !hideQuantity;
 
   const adjustQuantity = (delta: number) => {
     setQuantity((current) => {
@@ -74,6 +85,125 @@ export function ProductQuantityAddFooter({
       ? 'h-7 min-h-7 min-w-0 flex-1 gap-1 rounded-md px-1.5 text-[0.625rem] font-semibold sm:h-8 sm:min-h-8 sm:px-2 sm:text-xs'
       : 'h-8 min-h-8 min-w-0 flex-1 gap-1.5 rounded-md px-2 text-xs font-semibold sm:h-9 sm:min-h-9 sm:text-sm';
 
+  const quantityControl = hideQuantity ? null : (
+    <div
+      className={cn(
+        'flex shrink-0 rounded-md border bg-white',
+        tallQuantity ? 'items-stretch' : 'items-center',
+        quantityClassName,
+        revealQuantityOnHover
+          ? quantityAbove
+            ? cn(
+                'max-h-0 overflow-hidden border-transparent opacity-0',
+                'transition-[max-height,opacity,border-color,margin] duration-200 ease-out motion-reduce:transition-none',
+                'group-hover:max-h-12 group-hover:border-border group-hover:opacity-100',
+                'group-focus-within:max-h-12 group-focus-within:border-border group-focus-within:opacity-100',
+                'focus-within:max-h-12 focus-within:border-border focus-within:opacity-100',
+                'max-md:max-h-12 max-md:border-border max-md:opacity-100',
+              )
+            : cn(
+                'max-w-0 overflow-hidden border-transparent opacity-0',
+                'transition-[max-width,opacity,border-color] duration-200 ease-out motion-reduce:transition-none',
+                tallQuantity
+                  ? 'group-hover:max-w-[8.25rem] group-focus-within:max-w-[8.25rem] focus-within:max-w-[8.25rem] max-md:max-w-[8.25rem]'
+                  : 'group-hover:max-w-[7.5rem] group-focus-within:max-w-[7.5rem] focus-within:max-w-[7.5rem] max-md:max-w-[7.5rem]',
+                'group-hover:border-border group-hover:opacity-100',
+                'group-focus-within:border-border group-focus-within:opacity-100',
+                'focus-within:border-border focus-within:opacity-100',
+                'max-md:border-border max-md:opacity-100',
+              )
+          : 'border-border',
+      )}
+      role="group"
+      aria-label={
+        orderHint
+          ? `Cantidad de ${product.name}: ${quantity} (${orderHint})`
+          : `Cantidad de ${product.name}`
+      }
+    >
+      <button
+        type="button"
+        onClick={() => adjustQuantity(-1)}
+        disabled={quantity <= 1}
+        aria-label="Disminuir cantidad"
+        className={qtyButtonClass}
+      >
+        <Minus className="size-3.5" aria-hidden="true" />
+      </button>
+      <span
+        className={cn(qtyValueClass, tallQuantity && 'flex items-center justify-center')}
+        aria-live="polite"
+        aria-atomic="true"
+        title={orderHint ?? undefined}
+      >
+        {quantity}
+      </span>
+      <button
+        type="button"
+        onClick={() => adjustQuantity(1)}
+        aria-label="Aumentar cantidad"
+        className={qtyButtonClass}
+      >
+        <Plus className="size-3.5" aria-hidden="true" />
+      </button>
+    </div>
+  );
+
+  const addButton = (
+    <AddToCartButton
+      product={product}
+      addOptions={{ quantity }}
+      className={cn(
+        addButtonClass,
+        includesOnRequest
+          ? (addButtonClassName ?? ON_REQUEST_PRODUCT_BUTTON_CLASS)
+          : cn(
+              'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
+              addButtonClassName,
+            ),
+      )}
+    >
+      {!includesOnRequest ? (
+        <ShoppingCart
+          className={cn(
+            'size-4 shrink-0',
+            swapLabelOnHover && 'max-md:hidden group-hover:hidden group-focus-within:hidden',
+            // Con cantidad inline, al hover prioriza el texto «Comprar» sobre el icono.
+            !swapLabelOnHover &&
+              revealQuantityOnHover &&
+              !quantityAbove &&
+              'group-hover:hidden group-focus-within:hidden max-md:hidden',
+          )}
+          aria-hidden="true"
+        />
+      ) : null}
+      {swapLabelOnHover ? (
+        <>
+          <span className="max-md:hidden group-hover:hidden group-focus-within:hidden">
+            {cartLabel}
+          </span>
+          <span className="hidden max-md:inline group-hover:inline group-focus-within:inline">
+            {cartLabelHover}
+          </span>
+        </>
+      ) : (
+        <span className="truncate">{cartLabel}</span>
+      )}
+    </AddToCartButton>
+  );
+
+  if (quantityAbove) {
+    return (
+      <div className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}>
+        {quantityControl}
+        <div className="flex w-full min-w-0 items-stretch gap-2">
+          {addButton}
+          {endAdornment}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -86,94 +216,9 @@ export function ProductQuantityAddFooter({
         className,
       )}
     >
-      {hideQuantity ? null : (
-        <div
-          className={cn(
-            'flex shrink-0 rounded-md border bg-white',
-            tallQuantity ? 'items-stretch' : 'items-center',
-            quantityClassName,
-            revealQuantityOnHover
-              ? cn(
-                  'max-w-0 overflow-hidden border-transparent opacity-0',
-                  'transition-[max-width,opacity,border-color] duration-200 ease-out motion-reduce:transition-none',
-                  tallQuantity
-                    ? 'group-hover:max-w-[8.25rem] group-focus-within:max-w-[8.25rem] focus-within:max-w-[8.25rem] max-md:max-w-[8.25rem]'
-                    : 'group-hover:max-w-[7.5rem] group-focus-within:max-w-[7.5rem] focus-within:max-w-[7.5rem] max-md:max-w-[7.5rem]',
-                  'group-hover:border-border group-hover:opacity-100',
-                  'group-focus-within:border-border group-focus-within:opacity-100',
-                  'focus-within:border-border focus-within:opacity-100',
-                  'max-md:border-border max-md:opacity-100',
-                )
-              : 'border-border',
-          )}
-          role="group"
-          aria-label={
-            orderHint
-              ? `Cantidad de ${product.name}: ${quantity} (${orderHint})`
-              : `Cantidad de ${product.name}`
-          }
-        >
-          <button
-            type="button"
-            onClick={() => adjustQuantity(-1)}
-            disabled={quantity <= 1}
-            aria-label="Disminuir cantidad"
-            className={qtyButtonClass}
-          >
-            <Minus className="size-3.5" aria-hidden="true" />
-          </button>
-          <span
-            className={cn(qtyValueClass, tallQuantity && 'flex items-center justify-center')}
-            aria-live="polite"
-            aria-atomic="true"
-            title={orderHint ?? undefined}
-          >
-            {quantity}
-          </span>
-          <button
-            type="button"
-            onClick={() => adjustQuantity(1)}
-            aria-label="Aumentar cantidad"
-            className={qtyButtonClass}
-          >
-            <Plus className="size-3.5" aria-hidden="true" />
-          </button>
-        </div>
-      )}
-
-      <AddToCartButton
-        product={product}
-        addOptions={{ quantity }}
-        className={cn(
-          addButtonClass,
-          includesOnRequest
-            ? (addButtonClassName ?? ON_REQUEST_PRODUCT_BUTTON_CLASS)
-            : cn(
-                'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
-                addButtonClassName,
-              ),
-        )}
-      >
-        {!includesOnRequest ? (
-          <ShoppingCart
-            className={cn(
-              'size-4 shrink-0',
-              swapLabelOnHover && 'max-md:hidden group-hover:hidden group-focus-within:hidden',
-            )}
-            aria-hidden="true"
-          />
-        ) : null}
-        {swapLabelOnHover ? (
-          <>
-            <span className="max-md:hidden group-hover:hidden group-focus-within:hidden">{cartLabel}</span>
-            <span className="hidden max-md:inline group-hover:inline group-focus-within:inline">
-              {cartLabelHover}
-            </span>
-          </>
-        ) : (
-          cartLabel
-        )}
-      </AddToCartButton>
+      {quantityControl}
+      {addButton}
+      {endAdornment}
     </div>
   );
 }

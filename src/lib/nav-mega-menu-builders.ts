@@ -79,6 +79,13 @@ const COMPANIES_SIDEBAR_SECTIONS = [
 
 const SERVICIOS_SIDEBAR_SECTIONS = [
   {
+    slug: 'alquiler',
+    label: 'Alquiler',
+    description: 'Impresoras, laptops y tecnología en alquiler flexible.',
+    icon: KeyRound,
+    viewAllHref: serviceHubPath('alquiler'),
+  },
+  {
     slug: 'servicio-tecnico',
     label: 'Soporte técnico',
     description: 'Atención especializada y respuesta rápida.',
@@ -141,6 +148,13 @@ const SERVICIOS_FEATURED: Record<
   (typeof SERVICIOS_SIDEBAR_SECTIONS)[number]['slug'],
   MegaMenuFeaturedContent
 > = {
+  alquiler: {
+    image: '/categories/alquiler-512.webp',
+    title: 'Alquiler sin inversión inicial',
+    description:
+      'Impresoras, laptops y tecnología bajo demanda con planes flexibles adaptados a tu operación.',
+    href: serviceHubPath('alquiler'),
+  },
   'servicio-tecnico': {
     image: '/Soporte Tecnico v2.png',
     title: 'Soporte técnico especializado',
@@ -426,6 +440,16 @@ function companiesColumnGroups(slug: (typeof COMPANIES_SIDEBAR_SECTIONS)[number]
 }
 
 function serviciosColumnGroups(slug: (typeof SERVICIOS_SIDEBAR_SECTIONS)[number]['slug']): MegaMenuColumnGroup[] {
+  if (slug === 'alquiler') {
+    return alquilerLanding.cards.map((card) => ({
+      slug: card.id,
+      title: card.title.replace(/^Alquiler de /, ''),
+      image: card.image,
+      href: serviceDetailPathFromLanding('alquiler', card.id),
+      links: [],
+    }));
+  }
+
   if (slug === 'servicio-tecnico') {
     return soporteTecnicoLanding.cards
       .filter((card) => ['soporte-remoto', 'general', 'garantia', 'suministro'].includes(card.id))
@@ -477,11 +501,11 @@ export function buildServicesNavMegaMenu(): NavMegaMenuModel {
 
   return {
     sidebarItems,
-    defaultCategorySlug: sidebarItems[0]?.slug ?? 'servicio-tecnico',
+    defaultCategorySlug: sidebarItems[0]?.slug ?? 'alquiler',
     getColumnGroups: (slug) => serviciosColumnGroups(slug as (typeof SERVICIOS_SIDEBAR_SECTIONS)[number]['slug']),
     getFeaturedContent: (slug) =>
       SERVICIOS_FEATURED[slug as (typeof SERVICIOS_SIDEBAR_SECTIONS)[number]['slug']] ??
-      SERVICIOS_FEATURED['servicio-tecnico'],
+      SERVICIOS_FEATURED.alquiler,
   };
 }
 

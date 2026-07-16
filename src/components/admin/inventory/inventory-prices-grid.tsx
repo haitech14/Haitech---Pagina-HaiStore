@@ -17,14 +17,18 @@ import {
 } from '@/types/product';
 
 interface InventoryPricesGridProps {
-  purchasePriceUsd: number;
-  onPurchaseChange: (value: string) => void;
+  purchasePriceUsd?: number;
+  onPurchaseChange?: (value: string) => void;
   prices: ProductRolePrices;
   onPriceChange: (role: PriceRole, value: string) => void;
   purchaseFromSuppliers?: boolean;
+  /** Solo grilla de venta (sin compra ni banner). */
+  saleOnly?: boolean;
+  idPrefix?: string;
+  saleLabel?: string;
 }
 
-/** Sale columns matching the mockup: Público · Mayorista · Técnico. */
+/** Sale columns: Corporativo · Mayorista · Técnico. */
 const SALE_PRICE_COLUMNS: { key: PriceRole; label: string }[] = [
   { key: 'public', label: PRICE_ROLE_LABELS.public },
   { key: 'mayorista', label: PRICE_ROLE_LABELS.mayorista },
@@ -125,11 +129,14 @@ function PenPriceInput({
 }
 
 export function InventoryPricesGrid({
-  purchasePriceUsd,
+  purchasePriceUsd = 0,
   onPurchaseChange,
   prices,
   onPriceChange,
   purchaseFromSuppliers = false,
+  saleOnly = false,
+  idPrefix = 'price',
+  saleLabel = 'Precios de venta (PEN)',
 }: InventoryPricesGridProps) {
   const { data: company } = useCompanySettings();
   const saleRate = normalizeUsdToPenRate(
@@ -143,6 +150,57 @@ export function InventoryPricesGrid({
   const purchaseUsd = Number(purchasePriceUsd) || 0;
   const saleColumnTemplate = `3.25rem repeat(${SALE_PRICE_COLUMNS.length}, minmax(0, 1fr))`;
 
+  const saleGrid = (
+    <div className="space-y-2">
+      <Label className="text-sm font-medium">{saleLabel}</Label>
+      <div className="overflow-x-auto rounded-md border border-border/60 bg-muted/10 p-3">
+        <div className="min-w-[28rem] space-y-2.5">
+          <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
+            <p className="flex items-center text-xs font-medium text-muted-foreground">Rol</p>
+            {SALE_PRICE_COLUMNS.map((column) => (
+              <p
+                key={column.key}
+                className="px-0.5 text-center text-xs font-medium text-muted-foreground"
+              >
+                {column.label}
+              </p>
+            ))}
+          </div>
+
+          <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
+            <p className="flex items-center text-xs font-semibold text-muted-foreground">USD</p>
+            {SALE_PRICE_COLUMNS.map((column) => (
+              <UsdPriceInput
+                key={`usd-${column.key}`}
+                id={`${idPrefix}-${column.key}-usd`}
+                value={Number(prices[column.key]) || 0}
+                onChange={(value) => onPriceChange(column.key, value)}
+                required={column.key === 'public'}
+              />
+            ))}
+          </div>
+
+          <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
+            <p className="flex items-center text-xs font-semibold text-muted-foreground">PEN</p>
+            {SALE_PRICE_COLUMNS.map((column) => (
+              <PenPriceInput
+                key={`pen-${column.key}`}
+                id={`${idPrefix}-${column.key}-pen`}
+                usdValue={Number(prices[column.key]) || 0}
+                onUsdChange={(value) => onPriceChange(column.key, value)}
+                exchangeRate={saleRate}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (saleOnly) {
+    return saleGrid;
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -151,18 +209,18 @@ export function InventoryPricesGrid({
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">USD</p>
             <UsdPriceInput
-              id="price-purchase-usd"
+              id={`${idPrefix}-purchase-usd`}
               value={purchaseUsd}
-              onChange={onPurchaseChange}
+              onChange={onPurchaseChange ?? (() => undefined)}
               readOnly={purchaseFromSuppliers}
             />
           </div>
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">PEN</p>
             <PenPriceInput
-              id="price-purchase-pen"
+              id={`${idPrefix}-purchase-pen`}
               usdValue={purchaseUsd}
-              onUsdChange={onPurchaseChange}
+              onUsdChange={onPurchaseChange ?? (() => undefined)}
               exchangeRate={purchaseRate}
               readOnly={purchaseFromSuppliers}
               useCharm={false}
@@ -176,50 +234,7 @@ export function InventoryPricesGrid({
         ) : null}
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Precios de venta (PEN)</Label>
-        <div className="overflow-x-auto rounded-md border border-border/60 bg-muted/10 p-3">
-          <div className="min-w-[28rem] space-y-2.5">
-            <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
-              <p className="flex items-center text-xs font-medium text-muted-foreground">Rol</p>
-              {SALE_PRICE_COLUMNS.map((column) => (
-                <p
-                  key={column.key}
-                  className="px-0.5 text-center text-xs font-medium text-muted-foreground"
-                >
-                  {column.label}
-                </p>
-              ))}
-            </div>
-
-            <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
-              <p className="flex items-center text-xs font-semibold text-muted-foreground">USD</p>
-              {SALE_PRICE_COLUMNS.map((column) => (
-                <UsdPriceInput
-                  key={`usd-${column.key}`}
-                  id={`price-${column.key}-usd`}
-                  value={Number(prices[column.key]) || 0}
-                  onChange={(value) => onPriceChange(column.key, value)}
-                  required={column.key === 'public'}
-                />
-              ))}
-            </div>
-
-            <div className="grid gap-2" style={{ gridTemplateColumns: saleColumnTemplate }}>
-              <p className="flex items-center text-xs font-semibold text-muted-foreground">PEN</p>
-              {SALE_PRICE_COLUMNS.map((column) => (
-                <PenPriceInput
-                  key={`pen-${column.key}`}
-                  id={`price-${column.key}-pen`}
-                  usdValue={Number(prices[column.key]) || 0}
-                  onUsdChange={(value) => onPriceChange(column.key, value)}
-                  exchangeRate={saleRate}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      {saleGrid}
 
       <p className="flex items-start gap-2 rounded-md border border-sky-200/80 bg-sky-50 px-3 py-2.5 text-xs leading-relaxed text-sky-900">
         <Info className="mt-0.5 size-3.5 shrink-0 text-sky-600" aria-hidden="true" />

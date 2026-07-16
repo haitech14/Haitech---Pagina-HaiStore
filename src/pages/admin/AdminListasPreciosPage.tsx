@@ -10,6 +10,10 @@ import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useAdminInventory, useInventoryMutations } from '@/hooks/use-products';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
 import { buildAllPriceListStats } from '@/lib/price-list-stats';
+import {
+  toastSyncCatalogError,
+  toastSyncCatalogSuccess,
+} from '@/lib/sync-catalog-feedback';
 import { cn, formatUsd } from '@/lib/utils';
 import {
   PRICE_ROLE_LABELS,
@@ -18,7 +22,7 @@ import {
 } from '@/types/product';
 
 export function AdminListasPreciosPage() {
-  const { data: products = [], isLoading, isError, refetch, dataUpdatedAt } = useAdminInventory();
+  const { data: products = [], isLoading, isError, dataUpdatedAt } = useAdminInventory();
   const { syncCatalog } = useInventoryMutations();
   const { data: company } = useCompanySettings();
   const [selectedRole, setSelectedRole] = useState<PriceRole>('public');
@@ -34,8 +38,12 @@ export function AdminListasPreciosPage() {
     : null;
 
   async function handleSync() {
-    await syncCatalog.mutateAsync(false);
-    await refetch();
+    try {
+      const result = await syncCatalog.mutateAsync(false);
+      toastSyncCatalogSuccess(result);
+    } catch (error) {
+      toastSyncCatalogError(error);
+    }
   }
 
   return (

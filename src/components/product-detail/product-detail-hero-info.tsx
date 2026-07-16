@@ -209,8 +209,9 @@ export function ProductDetailHeroInfo({
       ) : null}
 
       <ProductDetailHeroTrustStrip
+        product={product}
         giftSubtitle={detail.giftTrustSubtitle}
-        className="mt-3"
+        className={showHeroBullets || showCardSpecFallback ? 'mt-1' : 'mt-3'}
       />
 
       {showComplementaCompra ? (
@@ -229,6 +230,8 @@ export function ProductDetailHeroInfo({
           beforeTonerSlot={hasTonerSection ? preparationSelector : undefined}
           leadingSlot={!hasTonerSection ? preparationSelector : undefined}
           maintenanceSlot={maintenanceSlot}
+          tonerCatalog={tonerCatalog}
+          {...(product.storefront_ui != null ? { storefrontUi: product.storefront_ui } : {})}
           className="mt-4"
         />
       ) : preparationSelector ? (

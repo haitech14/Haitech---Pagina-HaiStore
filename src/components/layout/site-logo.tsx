@@ -55,18 +55,21 @@ export function HeaderLogoImage(props: LogoImageProps) {
 const ricohPartnerBadgeSizeClasses = {
   sm: {
     root: 'gap-0',
-    ricoh: 'text-base font-bold leading-none tracking-[0.05em] sm:text-lg',
-    subtitle: '-mt-px flex flex-col items-center text-center text-[0.5rem] font-medium leading-[1.08] sm:text-[0.5625rem]',
+    ricoh: 'text-sm font-bold leading-none tracking-[0.06em] sm:text-base',
+    subtitle:
+      '-mt-1.5 text-[0.4375rem] font-normal leading-none tracking-[0.02em] text-current/75 sm:text-[0.5rem]',
   },
   md: {
     root: 'gap-0',
-    ricoh: 'text-lg font-bold leading-none tracking-[0.05em] sm:text-2xl',
-    subtitle: '-mt-px flex flex-col items-center text-center text-[0.5625rem] font-medium leading-[1.08] sm:text-[0.625rem]',
+    ricoh: 'text-base font-bold leading-none tracking-[0.06em] sm:text-lg',
+    subtitle:
+      '-mt-1.5 text-[0.5rem] font-normal leading-none tracking-[0.02em] text-current/75 sm:text-[0.5625rem]',
   },
   lg: {
     root: 'gap-0',
-    ricoh: 'text-2xl font-bold leading-none tracking-[0.05em]',
-    subtitle: '-mt-px flex flex-col items-center text-center text-[0.6875rem] font-medium leading-[1.08]',
+    ricoh: 'text-xl font-bold leading-none tracking-[0.06em]',
+    subtitle:
+      '-mt-1.5 text-[0.625rem] font-normal leading-none tracking-[0.02em] text-current/75',
   },
 } as const;
 
@@ -95,7 +98,7 @@ export function RicohPartnerBadge({
   return (
     <span
       className={cn(
-        'inline-flex w-fit shrink-0 flex-col items-center bg-transparent',
+        'inline-flex w-fit shrink-0 flex-col items-start bg-transparent',
         ricohPartnerBadgeToneClasses[tone],
         styles.root,
         className,
@@ -104,7 +107,7 @@ export function RicohPartnerBadge({
       aria-label={SITE_RICOH_PARTNER_BADGE_ARIA_LABEL}
     >
       <span className={cn('whitespace-nowrap', styles.ricoh)}>{SITE_RICOH_PARTNER_BADGE_BRAND}</span>
-      <span className={styles.subtitle}>
+      <span className={cn('flex flex-col', styles.subtitle)}>
         <span className="whitespace-nowrap">{SITE_RICOH_PARTNER_BADGE_SUBTITLE_LINE1}</span>
         <span className="whitespace-nowrap">{SITE_RICOH_PARTNER_BADGE_SUBTITLE_LINE2}</span>
       </span>
@@ -114,6 +117,7 @@ export function RicohPartnerBadge({
 
 function partnerBadgeSizeFromLogoHeight(logoHeightClass: string): RicohPartnerBadgeSize {
   if (logoHeightClass === 'h-7 sm:h-8') return 'sm';
+  if (logoHeightClass === 'h-8 sm:h-9' || logoHeightClass === 'h-9 sm:h-10') return 'md';
   if (logoHeightClass === 'h-9 lg:h-10') return 'md';
   return 'md';
 }
@@ -144,19 +148,10 @@ export function HeaderBrandLogos({
         {...logoProps}
       />
       {showPartner ? (
-        <>
-          <span
-            className={cn(
-              'h-8 w-px shrink-0 sm:h-9',
-              partnerTone === 'dark' ? 'bg-white/25' : 'bg-gray-300',
-            )}
-            aria-hidden="true"
-          />
-          <RicohPartnerBadge
-            size={partnerBadgeSizeFromLogoHeight(heightClass)}
-            tone={partnerTone}
-          />
-        </>
+        <RicohPartnerBadge
+          size={partnerBadgeSizeFromLogoHeight(heightClass)}
+          tone={partnerTone}
+        />
       ) : null}
     </Link>
   );

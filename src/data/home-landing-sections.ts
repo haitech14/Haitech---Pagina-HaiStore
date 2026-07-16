@@ -57,12 +57,12 @@ export const HOME_LANDING_SERVICE_HIGHLIGHTS: HomeLandingServiceHighlight[] = [
 export const HOME_LANDING_SERVICE_WHATSAPP_MESSAGE =
   'Hola, vengo desde HaiStore. Necesito solicitar un diagnóstico técnico para mi equipo de impresión.';
 
-export const HOME_LANDING_RENTAL_EYEBROW = 'Alquiler de equipos';
+export const HOME_LANDING_RENTAL_EYEBROW = 'Alquiler de fotocopiadoras';
 
-export const HOME_LANDING_RENTAL_TITLE = 'Equipos profesionales para cada necesidad';
+export const HOME_LANDING_RENTAL_TITLE = 'Alquiler de equipos Ricoh para tu empresa';
 
 export const HOME_LANDING_RENTAL_DESCRIPTION =
-  'Equipo de impresión de alta calidad con planes flexibles y mantenimiento incluido.';
+  'Alquila fotocopiadoras e impresoras multifuncionales Ricoh con planes mensuales, mantenimiento y tóner según contrato. Costo predecible y soporte en Lima y Perú.';
 
 export type HomeLandingRentalFeature = {
   id: string;

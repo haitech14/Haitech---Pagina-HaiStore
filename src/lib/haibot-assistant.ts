@@ -1,9 +1,18 @@
+import type { HaibotSearchFocus } from '@/lib/haibot-inventory-search';
+import type { HaibotWorkflowId } from '@/lib/haibot-quick-actions';
+
 export interface HaibotChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   time: string;
 }
+
+export type HaibotAssistantResult = {
+  reply: string;
+  openWorkflow?: HaibotWorkflowId;
+  openSearch?: HaibotSearchFocus;
+};
 
 export function createHaibotMessage(
   role: HaibotChatMessage['role'],
@@ -29,31 +38,45 @@ function normalize(text: string): string {
     .replace(/\p{M}/gu, '');
 }
 
-export function getHaibotAssistantReply(userText: string): string {
+export function getHaibotAssistantReply(userText: string): HaibotAssistantResult {
   const text = normalize(userText.trim());
 
   if (!text) {
-    return 'Escribe tu consulta y te indicaré el siguiente paso.';
+    return { reply: 'Escribe tu consulta y te indicaré el siguiente paso.' };
   }
 
   if (
     text.includes('servicio') ||
     text.includes('tecnico') ||
     text.includes('repar') ||
-    text.includes('manten')
+    text.includes('manten') ||
+    text.includes('cita') ||
+    text.includes('agendar') ||
+    text.includes('programar')
   ) {
-    return 'Para programar servicio técnico, visita la sección Contacto o escríbenos por WhatsApp al +51 915 149 290 con modelo y ciudad.';
+    return {
+      reply:
+        'Perfecto. Abro el formulario de Soporte para programar tu cita técnica. Completa los datos y elige un horario disponible.',
+      openWorkflow: 'support',
+    };
   }
 
   if (
     text.includes('lista') &&
     (text.includes('precio') || text.includes('tarifa') || text.includes('catalogo'))
   ) {
-    return 'Podemos enviarte la lista de precios por WhatsApp al +51 915 149 290 según tu perfil comercial (retail, mayorista, etc.).';
+    return {
+      reply:
+        'Podemos enviarte la lista de precios por WhatsApp al +51 915 149 290 según tu perfil comercial (retail, mayorista, etc.). También puedes usar «Lista precios».',
+    };
   }
 
   if (text.includes('stock') || text.includes('disponib') || text.includes('inventario')) {
-    return 'Escribe el modelo o código del producto y te muestro el stock al instante. También puedes pulsar el botón «Stock» debajo del chat.';
+    return {
+      reply:
+        'Modo consulta activado 🔍 Escribe el modelo o código del producto y te muestro stock y precio.',
+      openSearch: 'all',
+    };
   }
 
   if (
@@ -62,16 +85,29 @@ export function getHaibotAssistantReply(userText: string): string {
     text.includes('envio') ||
     text.includes('tracking')
   ) {
-    return 'El seguimiento de pedidos está en «Mi cuenta» → Mis compras. Si no ves tu pedido, inicia sesión con el mismo correo de la compra.';
+    return {
+      reply:
+        'El seguimiento de pedidos está en «Mi cuenta» → Mis compras. Si no ves tu pedido, inicia sesión con el mismo correo de la compra. Para armar un envío, usa la pestaña Envíos.',
+    };
   }
 
   if (text.includes('precio') || text.includes('cotiz') || text.includes('cuanto')) {
-    return 'Escribe el producto que buscas y te doy el precio actualizado. Usa el botón «Precio» o escribe algo como «precio Ricoh IM 430F».';
+    return {
+      reply:
+        'Modo cotización 💲 Escribe el producto que buscas (ej. Ricoh IM 430F o su código) y te doy el precio actualizado.',
+      openSearch: 'price',
+    };
   }
 
   if (text.includes('whatsapp') || text.includes('asesor') || text.includes('humano')) {
-    return 'Escríbenos por WhatsApp al +51 915 149 290 y te atenderá nuestro equipo de ventas.';
+    return {
+      reply:
+        'Escríbenos por WhatsApp al +51 915 149 290 y te atenderá nuestro equipo. También puedes usar «WhatsApp» o «Agendar WA» debajo del chat.',
+    };
   }
 
-  return 'Gracias por tu mensaje. Escríbenos por WhatsApp al +51 915 149 290 o visita la tienda para más información.';
+  return {
+    reply:
+      '¿Qué deseas hacer? Usa las pestañas: Buscar / Cotización para consultas, Soporte para programar una cita técnica, o Envíos / Ventas. También puedes escribirme con más detalle.',
+  };
 }

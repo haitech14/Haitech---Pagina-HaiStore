@@ -6,6 +6,14 @@ export type HaibotWhatsAppIntent =
   | 'whatsapp-bot'
   | 'schedule-service';
 
+export type HaibotScheduleServiceDetails = {
+  code?: string;
+  equipment?: string;
+  city?: string;
+  scheduledAt?: string;
+  scheduledLabel?: string;
+};
+
 const INTENT_MESSAGES: Record<HaibotWhatsAppIntent, string> = {
   'price-list':
     'Hola, soy cliente de HaiStore. Me gustaría recibir la lista de precios actualizada. ¿Me pueden enviarla?',
@@ -17,9 +25,34 @@ const INTENT_MESSAGES: Record<HaibotWhatsAppIntent, string> = {
     'Hola, solicito programar un servicio técnico (mantenimiento o reparación). Indico modelo y ubicación cuando me contacten.',
 };
 
-export function buildHaibotWhatsAppUrl(intent: HaibotWhatsAppIntent): string {
+function formatScheduleServiceMessage(details?: HaibotScheduleServiceDetails): string {
+  if (!details) return INTENT_MESSAGES['schedule-service'];
+
+  const lines = [
+    'Hola, solicito confirmar un servicio técnico agendado desde Haibot.',
+    details.code ? `Orden: ${details.code}` : null,
+    details.equipment ? `Equipo: ${details.equipment}` : null,
+    details.city ? `Ciudad: ${details.city}` : null,
+    details.scheduledLabel
+      ? `Horario preferido: ${details.scheduledLabel}`
+      : details.scheduledAt
+        ? `Horario preferido: ${details.scheduledAt}`
+        : null,
+    'Quedo atento a la confirmación. Gracias.',
+  ].filter((line): line is string => line != null && line.length > 0);
+
+  return lines.join('\n');
+}
+
+export function buildHaibotWhatsAppUrl(
+  intent: HaibotWhatsAppIntent,
+  details?: HaibotScheduleServiceDetails,
+): string {
+  if (intent === 'schedule-service') {
+    return buildHaitechWhatsAppUrl(formatScheduleServiceMessage(details));
+  }
   return buildHaitechWhatsAppUrl(INTENT_MESSAGES[intent]);
 }
 
 export const HAIBOT_WELCOME_MESSAGE =
-  '¡Hola! 👋 Soy Haibot, tu asistente en HaiStore.\n\n🔍 Buscar · 💲 Cotización · 📦 Envíos · 🔧 Soporte · 📈 Ventas\n\nUsa las pestañas de abajo o escríbeme para consultar inventario, generar órdenes o ir al CRM.';
+  '¡Hola! 👋 Soy Haibot, tu asistente en HaiStore.\n\n¿Qué deseas hacer? Elige una opción para continuar:';

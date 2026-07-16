@@ -28,6 +28,9 @@ import {
   syncProductsToSupabase,
   toAdminListProduct,
 } from '../lib/product-catalog.js';
+import { regenerateHomeBundleSnapshotQuiet } from '../lib/home-catalog-bundle-snapshot.js';
+import { regenerateInventoryIndexSnapshotQuiet } from '../lib/inventory-index-snapshot.js';
+import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 import {
   queryEquipmentConsumables,
   queryProductsByCategory,
@@ -38,7 +41,6 @@ import { listHomeFeaturedProducts } from '../lib/home-featured-products.js';
 import { listHomeCatalogSections } from '../lib/home-catalog-sections.js';
 import { listHomeCatalogBundleWithSnapshot } from '../lib/home-catalog-bundle-snapshot.js';
 import { shouldPreferSupabaseCatalog } from '../lib/catalog-source.js';
-import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 
 export const productsRouter = Router();
 
@@ -186,13 +188,29 @@ productsRouter.post('/sync-catalog', requireAdmin, async (req, res, next) => {
     const resetDeleted = req.body?.resetDeleted === true;
     const importMissing = req.body?.importMissing === true;
     const result = await syncInventoryFromCatalog({ resetDeleted, importMissing });
-    await syncProductsToSupabase(result.products);
+    const supabase = getSupabaseAdmin();
+    let supabaseSynced = false;
+    if (supabase && result.products.length > 0) {
+      await syncProductsToSupabase(result.products);
+      supabaseSynced = true;
+    }
+
+    const [homeBundleSnapshot, inventoryIndexSnapshot] = await Promise.all([
+      regenerateHomeBundleSnapshotQuiet(),
+      regenerateInventoryIndexSnapshotQuiet(result.products),
+    ]);
+
     res.json({
       ok: true,
       total: result.products.length,
       fromCatalog: result.catalogCount,
       custom: result.customCount,
       resetDeleted,
+      supabaseSynced,
+      snapshotsUpdated: {
+        homeBundle: Boolean(homeBundleSnapshot),
+        inventoryIndex: Boolean(inventoryIndexSnapshot),
+      },
     });
   } catch (error) {
     next(error);

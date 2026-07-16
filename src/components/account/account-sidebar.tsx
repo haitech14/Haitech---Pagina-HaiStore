@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  ClipboardList,
   Headphones,
   ListOrdered,
   Menu,
@@ -20,7 +21,7 @@ import {
 import { useIsDesktopNav } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
 
-export type AccountTab = 'cuenta' | 'pedidos' | 'precios';
+export type AccountTab = 'cuenta' | 'pedidos' | 'precios' | 'packing';
 
 interface AccountNavItem {
   id: string;
@@ -34,6 +35,7 @@ const accountNavItems: AccountNavItem[] = [
   { id: 'cuenta', label: 'Mi Perfil', icon: User, tab: 'cuenta' },
   { id: 'pedidos', label: 'Mis Compras', icon: ShoppingBag, tab: 'pedidos' },
   { id: 'precios', label: 'Lista de Precios', icon: ListOrdered, tab: 'precios' },
+  { id: 'packing', label: 'Packing List', icon: ClipboardList, tab: 'packing' },
   { id: 'soporte', label: 'Soporte', icon: Headphones, href: '/contacto' },
 ];
 

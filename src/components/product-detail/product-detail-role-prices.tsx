@@ -4,10 +4,15 @@ import { DualPrice } from '@/components/product/product-dual-price';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
+import { useAdminInventoryCatalogMap } from '@/hooks/use-admin-inventory-price-map';
 import type { CatalogRolePriceLine } from '@/hooks/use-catalog-display-price';
 import { resolveCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { getDisplayPriceVisibility, CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
+import {
+  resolvePurchasePriceUsd,
+  resolvePurchaseSupplierLabel,
+} from '@/lib/inventory-suppliers';
 import { PRICE_ROLE_LABELS, type PriceRole, type ProductRolePrices } from '@/lib/roles';
 import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
 import type { BulkDiscountTier } from '@/types/product-detail';
@@ -259,6 +264,55 @@ function BuySidebarTecnicoPrice({ usd }: { usd: number }) {
   );
 }
 
+/** Solo admin: costo de compra y proveedor debajo del precio de venta. */
+export function AdminPurchaseCostLine({
+  productId,
+  className,
+}: {
+  productId: string;
+  className?: string;
+}) {
+  const catalogMap = useAdminInventoryCatalogMap();
+  const entry = catalogMap?.get(productId);
+
+  const purchaseUsd = useMemo(() => {
+    if (!entry) return 0;
+    const suppliers = entry.product.suppliers ?? [];
+    return resolvePurchasePriceUsd(suppliers, entry.purchasePriceUsd);
+  }, [entry]);
+
+  const supplierLabel = useMemo(() => {
+    if (!entry) return null;
+    return resolvePurchaseSupplierLabel(entry.product.suppliers ?? [], purchaseUsd);
+  }, [entry, purchaseUsd]);
+
+  if (!entry || (purchaseUsd <= 0 && !supplierLabel)) return null;
+
+  return (
+    <p
+      className={cn(
+        'mt-1 text-[0.6875rem] leading-snug text-amber-800/90',
+        className,
+      )}
+      aria-label="Costo de compra admin"
+    >
+      {purchaseUsd > 0 ? (
+        <>
+          Compra: <span className="font-semibold tabular-nums">{formatUsd(purchaseUsd)}</span>
+        </>
+      ) : (
+        'Compra: —'
+      )}
+      {supplierLabel ? (
+        <>
+          {' · '}
+          Proveedor: <span className="font-medium">{supplierLabel}</span>
+        </>
+      ) : null}
+    </p>
+  );
+}
+
 interface PurchaseSidebarRolePricesProps extends ProductDetailRoleTotalsInput {
   discountPercent?: number | null;
   className?: string;
@@ -381,6 +435,7 @@ export function PurchaseSidebarRolePrices({
           ) : null}
         </div>
         <BuySidebarTecnicoPrice usd={tecnicoTotalUsd} />
+        <AdminPurchaseCostLine productId={product.id} />
       </div>
     );
   }
@@ -425,6 +480,7 @@ export function PurchaseSidebarRolePrices({
           <span className={roleLabelClass}>{PRICE_ROLE_LABELS.tecnico}:</span>
           <DualPrice usd={tecnicoTotalUsd} className={secondaryPriceClass} />
         </div>
+        <AdminPurchaseCostLine productId={product.id} />
       </div>
     );
   }
@@ -491,20 +547,23 @@ export function ProductDetailRolePriceLines({
 
   if (showAdminBreakdown) {
     return (
-      <ul className={cn('space-y-2', className)} aria-label="Precios por rol">
-        <li className="flex flex-wrap items-baseline justify-between gap-x-2">
-          <span className="shrink-0 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
-            {PRICE_ROLE_LABELS.tecnico}
-          </span>
-          <DualPrice usd={tecnicoTotalUsd} className={rolePriceClass} />
-        </li>
-        <li className="flex flex-wrap items-baseline justify-between gap-x-2">
-          <span className="shrink-0 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
-            {PRICE_ROLE_LABELS.public}
-          </span>
-          <DualPrice usd={publicTotalUsd} className={rolePriceClass} />
-        </li>
-      </ul>
+      <div className={className}>
+        <ul className="space-y-2" aria-label="Precios por rol">
+          <li className="flex flex-wrap items-baseline justify-between gap-x-2">
+            <span className="shrink-0 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              {PRICE_ROLE_LABELS.tecnico}
+            </span>
+            <DualPrice usd={tecnicoTotalUsd} className={rolePriceClass} />
+          </li>
+          <li className="flex flex-wrap items-baseline justify-between gap-x-2">
+            <span className="shrink-0 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              {PRICE_ROLE_LABELS.public}
+            </span>
+            <DualPrice usd={publicTotalUsd} className={rolePriceClass} />
+          </li>
+        </ul>
+        <AdminPurchaseCostLine productId={product.id} />
+      </div>
     );
   }
 

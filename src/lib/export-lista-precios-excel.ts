@@ -8,13 +8,21 @@ import { resolveProductCardEstadoLabel } from '@/lib/product-card-condition';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { ensureFullPrices } from '@/lib/pricing';
 import { imageBasePath } from '@/lib/responsive-image';
-import type { InventoryProduct } from '@/types/product';
+import {
+  SITE_LOGO_ASSET_PATH,
+  SITE_RICOH_PARTNER_BADGE_ARIA_LABEL,
+} from '@/lib/site-logo-asset';
+import type { ProductRolePrices } from '@/lib/roles';
+import type { ProductAttribute } from '@/types/product';
 
 const THUMB_PX = 72;
+const LOGO_PX = 56;
 const IMAGE_COL_WIDTH = 12;
-const HEADER_ROW = 1;
-const COLUMN_ROW = 2;
-const DATA_START_ROW = 3;
+const BRAND_ROW = 1;
+const TITLE_ROW = 2;
+const SUBTITLE_ROW = 3;
+const COLUMN_ROW = 4;
+const DATA_START_ROW = 5;
 
 const COLUMNS = [
   { key: 'image', header: 'Imagen', width: IMAGE_COL_WIDTH },
@@ -23,14 +31,35 @@ const COLUMNS = [
   { key: 'name', header: 'Producto', width: 42 },
   { key: 'brand', header: 'Marca', width: 14 },
   { key: 'condition', header: 'Condición', width: 14 },
-  { key: 'publicUsd', header: 'Público USD', width: 12 },
-  { key: 'publicPen', header: 'Público S/', width: 12 },
+  { key: 'publicUsd', header: 'Corporativo USD', width: 14 },
+  { key: 'publicPen', header: 'Corporativo S/', width: 14 },
   { key: 'tecnicoUsd', header: 'Técnico USD', width: 12 },
   { key: 'tecnicoPen', header: 'Técnico S/', width: 12 },
   { key: 'mayoristaUsd', header: 'Mayorista USD', width: 13 },
   { key: 'mayoristaPen', header: 'Mayorista S/', width: 13 },
   { key: 'stock', header: 'Stock', width: 10 },
 ] as const;
+
+/** Forma mínima para export (catálogo público o inventario admin). */
+export type ListaPreciosExportProduct = {
+  id: string;
+  name: string;
+  code?: string | null;
+  category?: string | null;
+  brand?: string | null;
+  stock: number;
+  prices?: ProductRolePrices;
+  image_url?: string | null;
+  gallery?: string[] | null;
+  attributes?: ProductAttribute[];
+};
+
+export type ExportListaPreciosOptions = {
+  filenamePrefix?: string;
+  logoUrl?: string;
+  companyName?: string;
+  ricohLabel?: string;
+};
 
 function absoluteImageUrl(url: string): string {
   if (/^https?:\/\//i.test(url) || url.startsWith('data:')) return url;
@@ -41,7 +70,7 @@ function absoluteImageUrl(url: string): string {
 }
 
 /** Prefer local -256.webp thumbnails when available. */
-function resolveThumbnailCandidateUrls(product: InventoryProduct): string[] {
+function resolveThumbnailCandidateUrls(product: ListaPreciosExportProduct): string[] {
   const primary = resolveProductImageUrl(product) ?? product.image_url?.trim() ?? '';
   if (!primary) return [];
 
@@ -58,7 +87,10 @@ function resolveThumbnailCandidateUrls(product: InventoryProduct): string[] {
   return [...new Set(urls.map(absoluteImageUrl))];
 }
 
-async function fetchImageAsPngBuffer(urls: string[]): Promise<Uint8Array | null> {
+async function fetchImageAsPngBuffer(
+  urls: string[],
+  size = THUMB_PX,
+): Promise<Uint8Array | null> {
   for (const url of urls) {
     try {
       const response = await fetch(url, { credentials: 'same-origin' });
@@ -69,7 +101,6 @@ async function fetchImageAsPngBuffer(urls: string[]): Promise<Uint8Array | null>
       if (typeof createImageBitmap === 'function' && typeof document !== 'undefined') {
         const bitmap = await createImageBitmap(blob);
         const canvas = document.createElement('canvas');
-        const size = THUMB_PX;
         canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext('2d');
@@ -107,7 +138,7 @@ function commercialPen(usd: number, category: string | null | undefined, rate: n
   return Math.round(pen * 100) / 100;
 }
 
-function sortProductsByCategory(products: InventoryProduct[]): InventoryProduct[] {
+function sortProductsByCategory(products: ListaPreciosExportProduct[]): ListaPreciosExportProduct[] {
   return products.slice().sort((a, b) => {
     const catA = inventoryCategoryParentLabel(a.category);
     const catB = inventoryCategoryParentLabel(b.category);
@@ -148,19 +179,26 @@ function toArrayBuffer(raw: ArrayBuffer | Uint8Array | ArrayBufferView): ArrayBu
 
 /**
  * Genera y descarga un Excel comercial «LISTA DE PRECIOS»
- * con miniaturas, precios de venta (USD + S/) y stock.
+ * con logo, RICOH Distribuidor autorizado, miniaturas, precios y stock.
  */
 export async function exportListaPreciosToExcel(
-  products: InventoryProduct[],
-  filenamePrefix = 'lista-de-precios',
+  products: ListaPreciosExportProduct[],
+  options: ExportListaPreciosOptions | string = {},
 ): Promise<boolean> {
   if (products.length === 0) return false;
+
+  const opts: ExportListaPreciosOptions =
+    typeof options === 'string' ? { filenamePrefix: options } : options;
+  const filenamePrefix = opts.filenamePrefix ?? 'lista-de-precios';
+  const logoUrl = opts.logoUrl?.trim() || SITE_LOGO_ASSET_PATH;
+  const companyName = opts.companyName?.trim() || 'HAITECH';
+  const ricohLabel = opts.ricohLabel?.trim() || SITE_RICOH_PARTNER_BADGE_ARIA_LABEL;
 
   const ExcelJS = (await import('exceljs')).default;
   const sorted = sortProductsByCategory(products);
   const rate = getUsdToPenSaleRate();
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'HaiStore';
+  workbook.creator = companyName;
   workbook.created = new Date();
 
   const sheet = workbook.addWorksheet('Lista de Precios', {
@@ -168,12 +206,40 @@ export async function exportListaPreciosToExcel(
   });
 
   const lastCol = COLUMNS.length;
-  sheet.mergeCells(HEADER_ROW, 1, HEADER_ROW, lastCol);
-  const titleCell = sheet.getCell(HEADER_ROW, 1);
+  sheet.mergeCells(BRAND_ROW, 1, BRAND_ROW, lastCol);
+  sheet.mergeCells(TITLE_ROW, 1, TITLE_ROW, lastCol);
+  sheet.mergeCells(SUBTITLE_ROW, 1, SUBTITLE_ROW, lastCol);
+
+  const brandCell = sheet.getCell(BRAND_ROW, 1);
+  brandCell.value = companyName;
+  brandCell.font = { bold: true, size: 11, color: { argb: 'FF6B7280' } };
+  brandCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  sheet.getRow(BRAND_ROW).height = LOGO_PX + 8;
+
+  const titleCell = sheet.getCell(TITLE_ROW, 1);
   titleCell.value = 'LISTA DE PRECIOS';
-  titleCell.font = { bold: true, size: 16, color: { argb: 'FF111827' } };
+  titleCell.font = { bold: true, size: 18, color: { argb: 'FF111827' } };
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
-  sheet.getRow(HEADER_ROW).height = 28;
+  sheet.getRow(TITLE_ROW).height = 30;
+
+  const subtitleCell = sheet.getCell(SUBTITLE_ROW, 1);
+  subtitleCell.value = ricohLabel;
+  subtitleCell.font = { bold: true, size: 11, color: { argb: 'FFDC2626' } };
+  subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  sheet.getRow(SUBTITLE_ROW).height = 22;
+
+  const logoBuffer = await fetchImageAsPngBuffer([absoluteImageUrl(logoUrl)], LOGO_PX);
+  if (logoBuffer) {
+    const logoId = workbook.addImage({
+      buffer: logoBuffer as never,
+      extension: 'png',
+    });
+    sheet.addImage(logoId, {
+      tl: { col: 0, row: BRAND_ROW - 1 },
+      ext: { width: LOGO_PX, height: LOGO_PX },
+      editAs: 'oneCell',
+    });
+  }
 
   const headerRow = sheet.getRow(COLUMN_ROW);
   COLUMNS.forEach((column, index) => {
@@ -228,7 +294,6 @@ export async function exportListaPreciosToExcel(
     const imageBuffer = await fetchImageAsPngBuffer(resolveThumbnailCandidateUrls(product));
     if (imageBuffer) {
       const imageId = workbook.addImage({
-        // ExcelJS tipa `buffer` como Node Buffer; en el navegador usamos Uint8Array.
         buffer: imageBuffer as never,
         extension: 'png',
       });

@@ -24,6 +24,7 @@ import {
   buildCategoryCollectionJsonLd,
   buildFaqPageJsonLd,
   buildHomeJsonLd,
+  buildOrganizationJsonLd,
   buildProductJsonLd,
   buildServiceJsonLd,
   buildStoreJsonLd,
@@ -157,11 +158,10 @@ async function main() {
     const breadcrumbs = buildSimpleProductBreadcrumbs(product);
     const seo = buildProductSeoRecord(product, siteOrigin, breadcrumbs);
     const jsonLd = buildProductJsonLd(product, siteOrigin, breadcrumbs);
-    const indexable = isIndexableCatalogProduct(product);
     const payload = {
       ...seo,
       jsonLd,
-      robots: indexable ? 'index,follow' : 'noindex,follow',
+      robots: 'index,follow',
     };
 
     const fileSlug = safeProductFileSlug(slug);
@@ -288,15 +288,18 @@ async function main() {
     const record = buildStaticSeoRecord(route, siteOrigin, buildAbsoluteUrl);
     const jsonLd =
       route.jsonLdKind === 'faq'
-        ? buildFaqPageJsonLd()
-        : buildWebPageJsonLd(
-            {
-              pathname: route.pathname,
-              pageName: route.pageName,
-              description: route.description,
-            },
-            siteOrigin,
-          );
+        ? [buildFaqPageJsonLd(), buildOrganizationJsonLd(siteOrigin)].filter(Boolean)
+        : [
+            buildWebPageJsonLd(
+              {
+                pathname: route.pathname,
+                pageName: route.pageName,
+                description: route.description,
+              },
+              siteOrigin,
+            ),
+            buildOrganizationJsonLd(siteOrigin),
+          ];
     pagesByPath[route.pathname] = {
       ...buildStaticPageSeoRecord(route.pathname, route.title, route.description, siteOrigin),
       ...record,

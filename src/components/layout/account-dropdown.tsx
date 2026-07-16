@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Check,
   ChevronRight,
+  ClipboardList,
   Eye,
   Headphones,
   LayoutGrid,
@@ -232,6 +233,12 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
                   onSelect={() => goTo('/mi-cuenta?tab=precios')}
                 >
                   <AccountMenuRow icon={ListOrdered} label="Lista de Precios" />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
+                  onSelect={() => goTo('/mi-cuenta?tab=packing')}
+                >
+                  <AccountMenuRow icon={ClipboardList} label="Packing List" />
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer rounded-none p-0 focus:bg-muted/50"

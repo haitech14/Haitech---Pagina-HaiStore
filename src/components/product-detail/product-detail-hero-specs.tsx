@@ -71,7 +71,7 @@ export function ProductDetailHeroSpecs({ bullets, className }: ProductDetailHero
       className={cn('rounded-lg bg-white', className)}
       aria-label="Características destacadas"
     >
-      <ul className="flex flex-col gap-1.5">
+      <ul className="flex flex-col gap-1">
         {bullets.map((bullet, index) => renderSpecItem(bullet, index))}
       </ul>
     </section>

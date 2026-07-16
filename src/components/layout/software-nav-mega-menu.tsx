@@ -21,7 +21,7 @@ export function SoftwareNavMegaMenu({
 
   return (
     <StaticNavMegaMenu
-      label="Software"
+      label={SOFTWARE_NAV_SUBMENU.label}
       icon={SOFTWARE_NAV_MEGA_MENU_ICON}
       menu={menu}
       isRouteActive={isRouteActive}

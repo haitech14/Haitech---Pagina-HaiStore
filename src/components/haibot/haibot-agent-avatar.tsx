@@ -40,14 +40,14 @@ export function HaibotAgentAvatar({
       <img
         src={HAIBOT_AGENT_AVATAR}
         alt={HAIBOT_AGENT_AVATAR_ALT}
-        className="size-full rounded-full border-2 border-white/90 object-cover object-[center_15%] shadow-sm"
+        className="size-full rounded-full border-0 object-cover object-[center_15%] shadow-sm"
         loading="lazy"
       />
       {showWhatsAppBadge ? (
         <span
           aria-hidden="true"
           className={cn(
-            'absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full bg-[#25d366] text-white ring-2 ring-[#075e54]',
+            'absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full bg-[#25d366] text-white ring-2 ring-white',
             badgeSizeClasses[size],
           )}
         >

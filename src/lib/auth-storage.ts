@@ -53,17 +53,36 @@ export function setDemoToken(token: string | null) {
   else localStorage.removeItem(DEMO_TOKEN_KEY);
 }
 
+function isSupabaseSessionUsable(
+  session: { access_token?: string; expires_at?: number } | null | undefined,
+): session is { access_token: string; expires_at?: number } {
+  if (!session?.access_token) return false;
+  if (!session.expires_at) return true;
+  // Small buffer so we do not send a token the API is about to reject.
+  return session.expires_at * 1000 > Date.now() + 30_000;
+}
+
 export async function getAccessToken(): Promise<string | null> {
+  const stored = readStoredAuthSession();
   const demo = getDemoToken();
+
+  // Active demo login must not be shadowed by a stale Supabase session in storage.
+  if (stored?.authProvider === 'demo') {
+    return demo;
+  }
 
   if (!isSupabaseConfigured()) {
     return demo;
   }
 
   const session = await getSupabaseSessionSafely();
-  if (session?.access_token) return session.access_token;
+  const supabaseToken = isSupabaseSessionUsable(session) ? session.access_token : null;
 
-  return demo;
+  if (stored?.authProvider === 'supabase') {
+    return supabaseToken;
+  }
+
+  return supabaseToken ?? demo;
 }
 
 export async function authHeaders(): Promise<HeadersInit> {

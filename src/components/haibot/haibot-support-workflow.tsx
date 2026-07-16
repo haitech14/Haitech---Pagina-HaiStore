@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { CheckCircle2, Copy, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle2, Copy, ExternalLink, MessageCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { getHaiSupportAppUrl } from '@/lib/haibot-integrations';
+import { buildHaibotWhatsAppUrl } from '@/lib/haibot-messages';
 import {
   buildHaibotServiceOrderMessage,
   emptyHaibotSupportForm,
@@ -13,6 +14,10 @@ import {
   validateHaibotSupportForm,
   type HaibotSupportFormValues,
 } from '@/lib/haibot-service-order';
+import {
+  fetchHaibotSupportAvailability,
+  type HaibotSupportSlot,
+} from '@/lib/haibot-support-availability';
 import { submitSupportTicket, SupportTicketError } from '@/lib/support-ticket';
 import { cn } from '@/lib/utils';
 
@@ -24,12 +29,45 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
   const [form, setForm] = useState<HaibotSupportFormValues>(emptyHaibotSupportForm);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [result, setResult] = useState<{ code: string; message: string; demo?: boolean } | null>(
-    null,
-  );
+  const [slots, setSlots] = useState<HaibotSupportSlot[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(true);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    code: string;
+    message: string;
+    demo?: boolean;
+    scheduledLabel: string;
+    equipment: string;
+    city: string;
+    scheduledAt: string;
+  } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const haiSupportUrl = getHaiSupportAppUrl();
+
+  useEffect(() => {
+    let cancelled = false;
+    setSlotsLoading(true);
+    setSlotsError(null);
+
+    void fetchHaibotSupportAvailability()
+      .then((next) => {
+        if (cancelled) return;
+        setSlots(next);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSlotsError('No se pudieron cargar los horarios. Intenta de nuevo.');
+        setSlots([]);
+      })
+      .finally(() => {
+        if (!cancelled) setSlotsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const patch = (partial: Partial<HaibotSupportFormValues>) => {
     setForm((current) => ({ ...current, ...partial }));
@@ -48,6 +86,12 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
 
     const code = generateHaibotServiceOrderCode();
     const orderMessage = buildHaibotServiceOrderMessage(form, code);
+    const snapshot = {
+      scheduledLabel: form.scheduledLabel.trim(),
+      equipment: form.equipment.trim(),
+      city: form.city.trim(),
+      scheduledAt: form.scheduledAt.trim(),
+    };
     setIsSubmitting(true);
     setError(null);
 
@@ -55,7 +99,7 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
       const ticket = await submitSupportTicket({
         name: form.contactName.trim() || form.clientName.trim(),
         email: form.email.trim() || 'soporte@haitech.pe',
-        ...(form.phone.trim() ? { phone: form.phone.trim() } : {}),
+        phone: form.phone.trim(),
         message: orderMessage,
         type: 'contact',
         metadata: {
@@ -63,12 +107,15 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
           serviceOrderCode: code,
           equipment: form.equipment.trim(),
           city: form.city.trim(),
+          scheduledAt: form.scheduledAt.trim(),
+          ...(form.address.trim() ? { address: form.address.trim() } : {}),
         },
       });
 
       setResult({
         code,
         message: orderMessage,
+        ...snapshot,
         ...(ticket.demo ? { demo: true } : {}),
       });
       setForm(emptyHaibotSupportForm());
@@ -94,20 +141,38 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
     }
   };
 
+  const openWhatsApp = () => {
+    if (!result) return;
+    window.open(
+      buildHaibotWhatsAppUrl('schedule-service', {
+        code: result.code,
+        equipment: result.equipment,
+        city: result.city,
+        scheduledAt: result.scheduledAt,
+        scheduledLabel: result.scheduledLabel,
+      }),
+      '_blank',
+      'noopener,noreferrer',
+    );
+  };
+
   if (result) {
     return (
       <div className="space-y-3 rounded-xl bg-white p-3 shadow-sm">
         <div role="status" className="flex items-start gap-2 text-[0.8125rem] text-[#075e54]">
           <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <div>
-            <p className="font-semibold">Orden {result.code} registrada ✅</p>
+            <p className="font-semibold">Cita {result.code} registrada ✅</p>
+            {result.scheduledLabel ? (
+              <p className="mt-1 text-xs text-[#111b21]">Horario: {result.scheduledLabel}</p>
+            ) : null}
             {result.demo ? (
               <p className="mt-1 text-xs text-amber-800">
                 Modo demo: HaiSupport no está conectado en el servidor.
               </p>
             ) : (
               <p className="mt-1 text-xs text-[#667781]">
-                Solicitud enviada a HaiSupport. Copia el texto para coordinación interna.
+                Solicitud enviada. Confirma por WhatsApp para coordinación inmediata.
               </p>
             )}
           </div>
@@ -118,6 +183,15 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
         </pre>
 
         <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            className="h-9 gap-1.5 bg-[#25d366] text-[#111b21] hover:bg-[#1ebe57]"
+            onClick={openWhatsApp}
+          >
+            <MessageCircle className="size-3.5" aria-hidden="true" />
+            Confirmar por WhatsApp
+          </Button>
           <Button
             type="button"
             size="sm"
@@ -142,7 +216,7 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
             className="h-9"
             onClick={() => setResult(null)}
           >
-            Nueva solicitud
+            Nueva cita
           </Button>
         </div>
       </div>
@@ -151,7 +225,7 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
 
   return (
     <form onSubmit={(event) => void handleSubmit(event)} className="space-y-2 rounded-xl bg-white p-3 shadow-sm">
-      <p className="text-[0.7rem] font-semibold text-[#075e54]">🔧 Registrar orden de servicio</p>
+      <p className="text-[0.7rem] font-semibold text-[#075e54]">🔧 Programar soporte técnico</p>
 
       <div className="grid grid-cols-2 gap-2">
         <div className="col-span-2 space-y-1">
@@ -181,7 +255,7 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
         </div>
         <div className="space-y-1">
           <Label htmlFor="hb-svc-phone" className="text-[0.65rem]">
-            Teléfono
+            Teléfono *
           </Label>
           <Input
             id="hb-svc-phone"
@@ -190,6 +264,7 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
             onChange={(e) => patch({ phone: e.target.value })}
             disabled={disabled || isSubmitting}
             className="h-8 text-xs"
+            placeholder="915 149 290"
           />
         </div>
         <div className="space-y-1">
@@ -245,6 +320,52 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
             placeholder="Ej. Atasco frecuente, error SC542…"
           />
         </div>
+
+        <div className="col-span-2 space-y-1.5">
+          <Label className="text-[0.65rem]">Horario disponible *</Label>
+          {slotsLoading ? (
+            <p className="text-[0.65rem] text-[#667781]">Cargando horarios…</p>
+          ) : slotsError ? (
+            <p role="alert" className="text-[0.65rem] text-destructive">
+              {slotsError}
+            </p>
+          ) : slots.length === 0 ? (
+            <p className="text-[0.65rem] text-[#667781]">
+              No hay horarios libres en los próximos días. Usa «Agendar WA» para coordinar.
+            </p>
+          ) : (
+            <div
+              className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto"
+              role="radiogroup"
+              aria-label="Horarios disponibles"
+            >
+              {slots.slice(0, 24).map((slot) => {
+                const selected = form.scheduledAt === slot.start;
+                return (
+                  <button
+                    key={slot.start}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    disabled={disabled || isSubmitting}
+                    onClick={() =>
+                      patch({ scheduledAt: slot.start, scheduledLabel: slot.label })
+                    }
+                    className={cn(
+                      'rounded-lg px-2 py-1.5 text-[0.65rem] font-semibold transition-colors',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54]',
+                      selected
+                        ? 'bg-[#075e54] text-white'
+                        : 'bg-[#f0f2f5] text-[#3b4a54] hover:bg-[#e9edef]',
+                    )}
+                  >
+                    {slot.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {error ? (
@@ -256,10 +377,10 @@ export function HaibotSupportWorkflow({ disabled }: HaibotSupportWorkflowProps) 
       <Button
         type="submit"
         size="sm"
-        disabled={disabled || isSubmitting}
+        disabled={disabled || isSubmitting || slotsLoading}
         className={cn('h-9 w-full bg-[#075e54] text-xs hover:bg-[#128c7e]')}
       >
-        {isSubmitting ? 'Registrando…' : 'Generar orden de servicio'}
+        {isSubmitting ? 'Confirmando cita…' : 'Confirmar cita de soporte'}
       </Button>
     </form>
   );

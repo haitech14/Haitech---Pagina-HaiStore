@@ -19,7 +19,12 @@ import {
   InventoryPhotoUploadBox,
 } from '@/components/admin/inventory/inventory-photo-upload-box';
 import { InventoryProductResourceFields } from '@/components/admin/inventory/inventory-product-resource-fields';
+import {
+  InventoryProductFormTabs,
+  type InventoryProductFormTabId,
+} from '@/components/admin/inventory/inventory-product-form-tabs';
 import { InventoryPricesGrid } from '@/components/admin/inventory/inventory-prices-grid';
+import { InventoryPreparationPricesSection } from '@/components/admin/inventory/inventory-preparation-prices-section';
 import { InventoryVolumeRolePricesSection } from '@/components/admin/inventory/inventory-volume-role-prices-section';
 import { InventorySelectField } from '@/components/admin/inventory/inventory-select-field';
 import { InventoryMerchandisingSection } from '@/components/admin/inventory/inventory-merchandising-section';
@@ -55,9 +60,7 @@ import {
 } from '@/lib/inventory-category-options';
 import { DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { appendProductGalleryUrls, setProductMainImageUrl } from '@/lib/product-gallery';
-import {
-  PRODUCT_IMAGE_UPLOAD_HINT,
-} from '@/lib/product-media-upload-limits';
+import { PRODUCT_IMAGE_UPLOAD_HINT } from '@/lib/product-media-upload-limits';
 import { resolvePurchasePriceUsd } from '@/lib/inventory-suppliers';
 import {
   createEmptyInventoryProduct,
@@ -80,6 +83,7 @@ import type {
   ProductAttribute,
   ProductRolePrices,
   ProductVolumeRolePriceTier,
+  SeminuevaPreparationPrices,
 } from '@/types/product';
 
 export type InventoryProductFormFocusSection =
@@ -104,14 +108,14 @@ interface InventoryProductFormDialogProps {
 
 const FOCUS_SECTION_TARGETS: Record<
   InventoryProductFormFocusSection,
-  { id: string; focusInput?: boolean }
+  { id: string; tab: InventoryProductFormTabId; focusInput?: boolean }
 > = {
-  title: { id: 'inv-name', focusInput: true },
-  image: { id: 'inv-photos-section' },
-  attributes: { id: 'inv-attributes-fieldset' },
-  category: { id: 'inv-category' },
-  stock: { id: 'inv-stock-total', focusInput: true },
-  prices: { id: 'inv-prices-section' },
+  title: { id: 'inv-name', tab: 'general', focusInput: true },
+  image: { id: 'inv-photos-section', tab: 'fotos' },
+  attributes: { id: 'inv-attributes-fieldset', tab: 'atributos' },
+  category: { id: 'inv-category', tab: 'atributos' },
+  stock: { id: 'inv-stock-total', tab: 'precios', focusInput: true },
+  prices: { id: 'inv-prices-section', tab: 'precios' },
 };
 
 const VISIBILITY_OPTIONS = [
@@ -138,6 +142,7 @@ export function InventoryProductFormDialog({
   const [albumPicker, setAlbumPicker] = useState<'main' | 'gallery' | null>(null);
   const albumPickerRef = useRef<'main' | 'gallery' | null>(null);
   const [slugCopied, setSlugCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<InventoryProductFormTabId>('general');
 
   const openAlbumPicker = (mode: 'main' | 'gallery') => {
     albumPickerRef.current = mode;
@@ -165,13 +170,15 @@ export function InventoryProductFormDialog({
       setForm(normalizeInventoryProduct(base, warehouses));
       setError(null);
       setSlugCopied(false);
+      setActiveTab(focusSection ? FOCUS_SECTION_TARGETS[focusSection].tab : 'general');
     }
-  }, [open, initial, warehouses]);
+  }, [open, initial, warehouses, focusSection]);
 
   useEffect(() => {
     if (!open || !focusSection) return;
 
     const target = FOCUS_SECTION_TARGETS[focusSection];
+    setActiveTab(target.tab);
     const timer = window.setTimeout(() => {
       const element = document.getElementById(target.id);
       if (!element) return;
@@ -184,7 +191,7 @@ export function InventoryProductFormDialog({
         const input = element instanceof HTMLInputElement ? element : element.querySelector('input');
         if (input instanceof HTMLInputElement) input.focus();
       }
-    }, 120);
+    }, 160);
 
     return () => window.clearTimeout(timer);
   }, [open, focusSection, initial?.id]);
@@ -264,6 +271,16 @@ export function InventoryProductFormDialog({
 
   const updateVolumeRolePrices = (tiers: ProductVolumeRolePriceTier[]) => {
     updateField('volume_role_prices', tiers);
+  };
+
+  const updatePreparationPrices = (preparation_prices: SeminuevaPreparationPrices | undefined) => {
+    setForm((prev) => {
+      if (!preparation_prices) {
+        const { preparation_prices: _removed, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, preparation_prices };
+    });
   };
 
   const setMainImage = (url: string | null) => {
@@ -374,6 +391,16 @@ export function InventoryProductFormDialog({
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
+    if (!form.code.trim()) {
+      setError('El código es obligatorio.');
+      setActiveTab('general');
+      return;
+    }
+    if (!form.name.trim()) {
+      setError('El nombre del producto es obligatorio.');
+      setActiveTab('general');
+      return;
+    }
     try {
       if (isEdit && initial) {
         const saved = await updateProduct.mutateAsync({
@@ -418,28 +445,31 @@ export function InventoryProductFormDialog({
           if (albumPickerRef.current !== null) event.preventDefault();
         }}
       >
-        <DialogHeader className="shrink-0 space-y-1 border-b border-border/60 bg-card px-6 py-5 pr-14 text-left">
-          <DialogTitle className="text-xl font-bold tracking-tight text-foreground">
+        <DialogHeader className="shrink-0 space-y-1 border-b border-border/60 bg-card px-6 py-4 pr-14 text-left sm:py-5">
+          <DialogTitle className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
             {isEdit ? 'Editar producto' : 'Nuevo producto'}
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
+          <DialogDescription className="text-sm text-muted-foreground sm:text-[0.95rem]">
             Completa los datos principales, fotos, stock y precios.
           </DialogDescription>
         </DialogHeader>
 
+        <InventoryProductFormTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
         <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
           <div
-            className="min-h-0 flex-1 overflow-y-auto bg-slate-100/80 px-5 py-5 sm:px-6"
+            className="min-h-0 flex-1 overflow-y-auto bg-slate-100/80 px-4 py-4 text-sm sm:px-6 sm:py-5"
             onPaste={(event) => void handlePhotosPaste(event)}
           >
-            <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-              {/* —— Left column —— */}
-              <div className="space-y-4">
-                <InventoryFormSection
-                  number={1}
-                  title="Información principal"
-                  icon={ClipboardList}
-                >
+            {/* —— General: vista resumen 2 + 3 columnas —— */}
+            {activeTab === 'general' ? (
+            <div
+              role="tabpanel"
+              aria-labelledby="inv-tab-general"
+              className="space-y-4"
+            >
+              <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+                <InventoryFormSection title="Información principal" icon={ClipboardList}>
                   <div className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
@@ -452,7 +482,6 @@ export function InventoryProductFormDialog({
                             updateField('code', event.target.value.toUpperCase())
                           }
                           placeholder="Se genera al crear"
-                          required
                         />
                         {!isEdit ? (
                           <p className="text-xs text-muted-foreground">
@@ -487,6 +516,32 @@ export function InventoryProductFormDialog({
                     </div>
 
                     <div className="space-y-2">
+                      <Label htmlFor="inv-name">Nombre del producto</Label>
+                      <Input
+                        id="inv-name"
+                        className="h-10 bg-background text-sm"
+                        value={form.name}
+                        onChange={(event) => updateField('name', event.target.value)}
+                        onBlur={() => {
+                          if (!form.slug?.trim() && form.name.trim()) {
+                            updateField(
+                              'slug',
+                              suggestProductSlug({
+                                id: form.id,
+                                name: form.name,
+                                slug: form.slug,
+                                brand: form.brand,
+                                category: form.category,
+                                attributes: form.attributes,
+                              }),
+                            );
+                          }
+                        }}
+                        placeholder="Nombre del producto"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
                       <Label htmlFor="inv-slug">URL amigable (slug SEO)</Label>
                       <div className="relative">
                         <Input
@@ -512,29 +567,14 @@ export function InventoryProductFormDialog({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="inv-name">Nombre</Label>
-                      <Input
-                        id="inv-name"
-                        className="h-10 bg-background"
-                        value={form.name}
-                        onChange={(event) => updateField('name', event.target.value)}
-                        onBlur={() => {
-                          if (!form.slug?.trim() && form.name.trim()) {
-                            updateField(
-                              'slug',
-                              suggestProductSlug({
-                                id: form.id,
-                                name: form.name,
-                                slug: form.slug,
-                                brand: form.brand,
-                                category: form.category,
-                                attributes: form.attributes,
-                              }),
-                            );
-                          }
-                        }}
-                        placeholder="Nombre del producto"
-                        required
+                      <Label htmlFor="inv-description">Descripción</Label>
+                      <Textarea
+                        id="inv-description"
+                        className="min-h-[6.5rem] resize-y bg-background text-sm"
+                        value={form.description ?? ''}
+                        onChange={(event) => updateDescription(event.target.value)}
+                        placeholder="Una línea por especificación destacada…"
+                        rows={4}
                       />
                     </div>
 
@@ -544,95 +584,24 @@ export function InventoryProductFormDialog({
                       form={form}
                       onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
                     />
-
-                    <div className="space-y-2">
-                      <Label htmlFor="inv-description">Descripción</Label>
-                      <Textarea
-                        id="inv-description"
-                        className="min-h-[6.5rem] resize-y bg-background"
-                        value={form.description ?? ''}
-                        onChange={(event) => updateDescription(event.target.value)}
-                        placeholder="Una línea por especificación destacada…"
-                        rows={4}
-                      />
-                      <p className="text-[0.7rem] text-muted-foreground">
-                        Se sincroniza en vivo con las especificaciones destacadas (una línea por
-                        ítem).
-                      </p>
-                    </div>
-
-                    <div className="relative rounded-md border border-slate-200 bg-slate-50/80 px-3 py-3 pr-10">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Vista previa SEO
-                      </p>
-                      <Eye
-                        className="absolute right-3 top-3 size-4 text-muted-foreground"
-                        aria-hidden="true"
-                      />
-                      <p className="text-sm font-semibold leading-snug text-[#1a0dab]">
-                        {seoPreview.title}
-                      </p>
-                      <p className="mt-1 truncate text-xs text-[#006621]">{slugPath}</p>
-                      <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
-                        {seoPreview.description}
-                      </p>
-                    </div>
                   </div>
                 </InventoryFormSection>
 
                 <InventoryFormSection
-                  number={2}
-                  title="Clasificación y atributos"
-                  icon={ListTree}
-                >
-                  <div className="space-y-4">
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <InventorySelectField
-                        id="inv-category"
-                        label="Categoría"
-                        placeholder="Elegir categoría..."
-                        value={form.category ?? ''}
-                        onChange={(value) => updateField('category', value || null)}
-                        groups={categoryGroups}
-                      />
-                      <InventorySelectField
-                        id="inv-brand"
-                        label="Marca"
-                        placeholder="Elegir marca..."
-                        value={form.brand ?? ''}
-                        onChange={(value) => updateField('brand', value || null)}
-                        options={brandOptions}
-                      />
-                      <InventoryInventorySection
-                        form={form}
-                        warehouses={warehouses}
-                        onChange={(stockFields) =>
-                          setForm((current) => ({ ...current, ...stockFields }))
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Atributos</Label>
-                      <InventoryAttributesFieldset
-                        embedded
-                        attributes={form.attributes ?? []}
-                        onChange={(attributes: ProductAttribute[]) =>
-                          updateField('attributes', attributes)
-                        }
-                      />
-                    </div>
-                  </div>
-                </InventoryFormSection>
-              </div>
-
-              {/* —— Right column —— */}
-              <div className="space-y-4">
-                <InventoryFormSection
-                  id="inv-prices-section"
-                  number={3}
+                  id="inv-prices-section-general"
                   title="Proveedor y precios"
                   icon={CircleDollarSign}
+                  actions={
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => setActiveTab('precios')}
+                    >
+                      Editar
+                    </Button>
+                  }
                 >
                   <div className="space-y-4">
                     <InventorySuppliersFieldset
@@ -640,7 +609,6 @@ export function InventoryProductFormDialog({
                       suppliers={form.suppliers ?? []}
                       onChange={handleSuppliersChange}
                     />
-
                     <InventoryPricesGrid
                       purchasePriceUsd={form.purchase_price_usd}
                       onPurchaseChange={(value) =>
@@ -650,20 +618,162 @@ export function InventoryProductFormDialog({
                       onPriceChange={updatePrice}
                       purchaseFromSuppliers={supplierCount > 0}
                     />
-
-                    <InventoryVolumeRolePricesSection
-                      compact
-                      tiers={form.volume_role_prices ?? []}
-                      basePrices={form.prices}
-                      onChange={updateVolumeRolePrices}
+                    <InventoryInventorySection
+                      showLocation
+                      form={form}
+                      warehouses={warehouses}
+                      onChange={(stockFields) =>
+                        setForm((current) => ({ ...current, ...stockFields }))
+                      }
                     />
+                  </div>
+                </InventoryFormSection>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-3 lg:items-start">
+                <InventoryFormSection
+                  title="Clasificación y atributos"
+                  icon={ListTree}
+                  actions={
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => setActiveTab('atributos')}
+                    >
+                      Editar
+                    </Button>
+                  }
+                >
+                  <div className="space-y-3">
+                    <div className="grid gap-3">
+                      <InventorySelectField
+                        id="inv-category-general"
+                        label="Categoría"
+                        placeholder="Elegir categoría..."
+                        value={form.category ?? ''}
+                        onChange={(value) => updateField('category', value || null)}
+                        groups={categoryGroups}
+                      />
+                      <InventorySelectField
+                        id="inv-brand-general"
+                        label="Marca"
+                        placeholder="Elegir marca..."
+                        value={form.brand ?? ''}
+                        onChange={(value) => updateField('brand', value || null)}
+                        options={brandOptions}
+                      />
+                    </div>
+                    {(form.attributes ?? []).length > 0 ? (
+                      <div className="overflow-hidden rounded-md border border-border/70">
+                        <table className="w-full text-sm">
+                          <thead className="bg-muted/40 text-left text-xs text-muted-foreground">
+                            <tr>
+                              <th className="px-3 py-2 font-medium">Atributo</th>
+                              <th className="px-3 py-2 font-medium">Valor</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(form.attributes ?? []).slice(0, 6).map((attr, index) => (
+                              <tr key={`${attr.name}-${index}`} className="border-t border-border/60">
+                                <td className="px-3 py-2 text-muted-foreground">{attr.name}</td>
+                                <td className="px-3 py-2 font-medium text-foreground">{attr.value}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        Sin atributos. Usa «Editar» para añadirlos.
+                      </p>
+                    )}
                   </div>
                 </InventoryFormSection>
 
                 <InventoryFormSection
-                  number={4}
+                  id="inv-photos-section-general"
+                  title="Fotos y recursos"
+                  icon={Camera}
+                  actions={
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => setActiveTab('fotos')}
+                    >
+                      Editar
+                    </Button>
+                  }
+                >
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label>Foto principal</Label>
+                      {form.image_url ? (
+                        <InventoryPhotoPreview
+                          src={form.image_url}
+                          alt="Vista previa de la foto principal"
+                          onRemove={() => setMainImage(null)}
+                        />
+                      ) : (
+                        <InventoryPhotoUploadBox
+                          label=""
+                          uploadLabel="Subir imagen"
+                          hint="Foto principal."
+                          uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
+                          onFiles={(files) => void handleMainImageFiles(files)}
+                          onPickFromAlbum={() => openAlbumPicker('main')}
+                          className="[&_button]:min-h-[6rem] [&_button]:py-3"
+                        />
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Galería</Label>
+                      {galleryImages.length > 0 ? (
+                        <ul className="flex flex-wrap gap-2">
+                          {galleryImages.slice(0, 4).map((url) => (
+                            <li key={url}>
+                              <InventoryPhotoPreview
+                                src={url}
+                                alt=""
+                                size="thumb"
+                                onRemove={() => removeGalleryUrl(url)}
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <InventoryPhotoUploadBox
+                          label=""
+                          uploadLabel="Arrastra o sube"
+                          hint="Varias imágenes."
+                          uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
+                          multiple
+                          onFiles={(files) => void handleGalleryFiles(files)}
+                          onPickFromAlbum={() => openAlbumPicker('gallery')}
+                          className="[&_button]:min-h-[5rem] [&_button]:py-3"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </InventoryFormSection>
+
+                <InventoryFormSection
                   title="Productos relacionados"
                   icon={Link2}
+                  actions={
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => setActiveTab('relacionados')}
+                    >
+                      Editar
+                    </Button>
+                  }
                 >
                   <InventoryMerchandisingSection
                     embedded
@@ -673,106 +783,240 @@ export function InventoryProductFormDialog({
                     onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
                   />
                 </InventoryFormSection>
-
-                <InventoryFormSection
-                  id="inv-photos-section"
-                  number={5}
-                  title="Fotos y recursos"
-                  icon={Camera}
-                >
-                  <div className="space-y-4">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label>Foto principal</Label>
-                        {form.image_url ? (
-                          <InventoryPhotoPreview
-                            src={form.image_url}
-                            alt="Vista previa de la foto principal"
-                            onRemove={() => setMainImage(null)}
-                          />
-                        ) : (
-                          <InventoryPhotoUploadBox
-                            label=""
-                            uploadLabel="Subir imagen"
-                            hint="Foto principal del producto."
-                            uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
-                            onFiles={(files) => void handleMainImageFiles(files)}
-                            onPickFromAlbum={() => openAlbumPicker('main')}
-                            className="[&_button]:min-h-[7rem] [&_button]:py-4"
-                          />
-                        )}
-                        {form.image_url ? (
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="h-8"
-                              onClick={() => openAlbumPicker('main')}
-                            >
-                              Cambiar desde álbum
-                            </Button>
-                            <label className="inline-flex h-8 cursor-pointer items-center rounded-md border border-input bg-background px-3 text-xs font-medium hover:bg-muted">
-                              Subir otra
-                              <input
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp,image/*"
-                                className="sr-only"
-                                onChange={(event) => {
-                                  const files = event.target.files;
-                                  if (files?.length) void handleMainImageFiles(files);
-                                  event.target.value = '';
-                                }}
-                              />
-                            </label>
-                          </div>
-                        ) : null}
-                      </div>
-
-                      <InventoryPhotoUploadBox
-                        label="Galería"
-                        uploadLabel="Subir imágenes"
-                        hint="Múltiples archivos."
-                        uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
-                        multiple
-                        onFiles={(files) => void handleGalleryFiles(files)}
-                        onPickFromAlbum={() => openAlbumPicker('gallery')}
-                        className="[&_button]:min-h-[7rem] [&_button]:py-4"
-                        preview={
-                          galleryImages.length > 0 ? (
-                            <ul className="mt-2 flex flex-wrap gap-2">
-                              {galleryImages.map((url) => (
-                                <li key={url}>
-                                  <InventoryPhotoPreview
-                                    src={url}
-                                    alt=""
-                                    size="thumb"
-                                    onRemove={() => removeGalleryUrl(url)}
-                                  />
-                                </li>
-                              ))}
-                            </ul>
-                          ) : null
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Recursos del producto</Label>
-                      <InventoryProductResourceFields
-                        compact
-                        form={form}
-                        onAttachmentsChange={(attachments) => updateField('attachments', attachments)}
-                        onVideoChange={(media) =>
-                          setForm((prev) => ({ ...prev, ...media }))
-                        }
-                        onError={setError}
-                      />
-                    </div>
-                  </div>
-                </InventoryFormSection>
               </div>
             </div>
+            ) : null}
+
+            {/* —— Precios —— */}
+            {activeTab === 'precios' ? (
+            <div
+              role="tabpanel"
+              aria-labelledby="inv-tab-precios"
+              className="mx-auto max-w-3xl space-y-4"
+            >
+              <InventoryFormSection
+                id="inv-prices-section"
+                title="Proveedor y precios"
+                icon={CircleDollarSign}
+              >
+                <div className="space-y-4">
+                  <InventorySuppliersFieldset
+                    embedded
+                    suppliers={form.suppliers ?? []}
+                    onChange={handleSuppliersChange}
+                  />
+                  <InventoryPricesGrid
+                    purchasePriceUsd={form.purchase_price_usd}
+                    onPurchaseChange={(value) =>
+                      updateField('purchase_price_usd', Number(value) || 0)
+                    }
+                    prices={form.prices}
+                    onPriceChange={updatePrice}
+                    purchaseFromSuppliers={supplierCount > 0}
+                  />
+                  <InventoryInventorySection
+                    showLocation
+                    form={form}
+                    warehouses={warehouses}
+                    onChange={(stockFields) =>
+                      setForm((current) => ({ ...current, ...stockFields }))
+                    }
+                  />
+                  <InventoryPreparationPricesSection
+                    form={form}
+                    onChange={updatePreparationPrices}
+                  />
+                  <InventoryVolumeRolePricesSection
+                    compact
+                    tiers={form.volume_role_prices ?? []}
+                    basePrices={form.prices}
+                    onChange={updateVolumeRolePrices}
+                  />
+                </div>
+              </InventoryFormSection>
+            </div>
+            ) : null}
+
+            {/* —— Atributos —— */}
+            {activeTab === 'atributos' ? (
+            <div
+              role="tabpanel"
+              aria-labelledby="inv-tab-atributos"
+              className="mx-auto max-w-3xl space-y-4"
+            >
+              <InventoryFormSection title="Clasificación y atributos" icon={ListTree}>
+                <div className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <InventorySelectField
+                      id="inv-category"
+                      label="Categoría"
+                      placeholder="Elegir categoría..."
+                      value={form.category ?? ''}
+                      onChange={(value) => updateField('category', value || null)}
+                      groups={categoryGroups}
+                    />
+                    <InventorySelectField
+                      id="inv-brand"
+                      label="Marca"
+                      placeholder="Elegir marca..."
+                      value={form.brand ?? ''}
+                      onChange={(value) => updateField('brand', value || null)}
+                      options={brandOptions}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Atributos</Label>
+                    <InventoryAttributesFieldset
+                      embedded
+                      attributes={form.attributes ?? []}
+                      onChange={(attributes: ProductAttribute[]) =>
+                        updateField('attributes', attributes)
+                      }
+                    />
+                  </div>
+                  <div className="relative rounded-md border border-slate-200 bg-slate-50/80 px-3 py-3 pr-10">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Vista previa SEO
+                    </p>
+                    <Eye
+                      className="absolute right-3 top-3 size-4 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm font-semibold leading-snug text-[#1a0dab]">
+                      {seoPreview.title}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-[#006621]">{slugPath}</p>
+                    <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                      {seoPreview.description}
+                    </p>
+                  </div>
+                </div>
+              </InventoryFormSection>
+            </div>
+            ) : null}
+
+            {/* —— Fotos —— */}
+            {activeTab === 'fotos' ? (
+            <div
+              role="tabpanel"
+              aria-labelledby="inv-tab-fotos"
+              className="mx-auto max-w-3xl space-y-4"
+            >
+              <InventoryFormSection
+                id="inv-photos-section"
+                title="Fotos y recursos"
+                icon={Camera}
+              >
+                <div className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Foto principal</Label>
+                      {form.image_url ? (
+                        <InventoryPhotoPreview
+                          src={form.image_url}
+                          alt="Vista previa de la foto principal"
+                          onRemove={() => setMainImage(null)}
+                        />
+                      ) : (
+                        <InventoryPhotoUploadBox
+                          label=""
+                          uploadLabel="Subir imagen"
+                          hint="Foto principal del producto."
+                          uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
+                          onFiles={(files) => void handleMainImageFiles(files)}
+                          onPickFromAlbum={() => openAlbumPicker('main')}
+                          className="[&_button]:min-h-[8rem] [&_button]:py-4"
+                        />
+                      )}
+                      {form.image_url ? (
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-8"
+                            onClick={() => openAlbumPicker('main')}
+                          >
+                            Cambiar desde álbum
+                          </Button>
+                          <label className="inline-flex h-8 cursor-pointer items-center rounded-md border border-input bg-background px-3 text-xs font-medium hover:bg-muted">
+                            Subir otra
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp,image/*"
+                              className="sr-only"
+                              onChange={(event) => {
+                                const files = event.target.files;
+                                if (files?.length) void handleMainImageFiles(files);
+                                event.target.value = '';
+                              }}
+                            />
+                          </label>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <InventoryPhotoUploadBox
+                      label="Galería"
+                      uploadLabel="Subir imágenes"
+                      hint="Múltiples archivos. Las fotos se muestran completas."
+                      uploadLimitHint={PRODUCT_IMAGE_UPLOAD_HINT}
+                      multiple
+                      onFiles={(files) => void handleGalleryFiles(files)}
+                      onPickFromAlbum={() => openAlbumPicker('gallery')}
+                      className="[&_button]:min-h-[8rem] [&_button]:py-4"
+                      preview={
+                        galleryImages.length > 0 ? (
+                          <ul className="mt-2 flex flex-wrap gap-2">
+                            {galleryImages.map((url) => (
+                              <li key={url}>
+                                <InventoryPhotoPreview
+                                  src={url}
+                                  alt=""
+                                  size="thumb"
+                                  onRemove={() => removeGalleryUrl(url)}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Recursos del producto</Label>
+                    <InventoryProductResourceFields
+                      compact
+                      form={form}
+                      onAttachmentsChange={(attachments) => updateField('attachments', attachments)}
+                      onVideoChange={(media) => setForm((prev) => ({ ...prev, ...media }))}
+                      onError={setError}
+                    />
+                  </div>
+                </div>
+              </InventoryFormSection>
+            </div>
+            ) : null}
+
+            {/* —— Relacionados —— */}
+            {activeTab === 'relacionados' ? (
+            <div
+              role="tabpanel"
+              aria-labelledby="inv-tab-relacionados"
+              className="mx-auto max-w-3xl space-y-4"
+            >
+              <InventoryFormSection title="Productos relacionados" icon={Link2}>
+                <InventoryMerchandisingSection
+                  embedded
+                  compact
+                  form={form}
+                  products={inventoryProducts}
+                  onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+                />
+              </InventoryFormSection>
+            </div>
+            ) : null}
           </div>
 
           {error ? (
@@ -784,8 +1028,8 @@ export function InventoryProductFormDialog({
           <DialogFooter className="shrink-0 gap-3 border-t border-border/60 bg-card px-6 py-4 sm:justify-end">
             <Button
               type="button"
-              variant="ghost"
-              className="h-10 px-4 text-muted-foreground hover:text-foreground"
+              variant="outline"
+              className="h-10 px-4"
               onClick={() => onOpenChange(false)}
             >
               Cancelar

@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { HaitechClientForm } from '@/components/admin/shared/haitech-client-form';
 import {
   ProductQuotePdfViewer,
   type QuotePdfPreview,
@@ -15,15 +14,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { cartItemsToTpvLines } from '@/lib/cart-to-tpv-lines';
 import { buildProformaPayloadFromProductQuote } from '@/lib/build-proforma-payload';
-import {
-  EMPTY_HAITECH_CLIENT,
-  haitechClientSchema,
-} from '@/lib/haitech-client-schema';
+import { contactToQuoteClient } from '@/lib/generate-product-quote-from-contact';
 import { nextTpvDocumentNumber } from '@/lib/tpv-document-serial';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
+import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
+import { isCompleteWhatsAppContact, type WhatsAppContact } from '@/lib/whatsapp-contact';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { CartItem } from '@/types/product';
 import type { TpvCustomer } from '@/types/tpv';
@@ -37,15 +37,25 @@ interface CartQuoteDialogProps {
 export function CartQuoteDialog({ open, onOpenChange, items }: CartQuoteDialogProps) {
   const { data: companySettings } = useCompanySettings();
   const { registerProductQuote } = useProformaMutations();
-  const [client, setClient] = useState(EMPTY_HAITECH_CLIENT);
+  const { contact, saveContact } = useWhatsAppContact();
+  const [name, setName] = useState('');
+  const [companyOrRuc, setCompanyOrRuc] = useState('');
+  const [city, setCity] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pdfPreview, setPdfPreview] = useState<QuotePdfPreview | null>(null);
 
+  useEffect(() => {
+    if (!open) return;
+    setName(contact?.name?.trim() ?? '');
+    setCompanyOrRuc(contact?.companyOrRuc?.trim() ?? '');
+    setCity(contact?.city?.trim() ?? '');
+    setSubmitError(null);
+  }, [open, contact?.name, contact?.companyOrRuc, contact?.city]);
+
   const handleOpenChange = (next: boolean) => {
     if (!next) {
       setSubmitError(null);
-      setClient(EMPTY_HAITECH_CLIENT);
     }
     onOpenChange(next);
   };
@@ -66,21 +76,27 @@ export function CartQuoteDialog({ open, onOpenChange, items }: CartQuoteDialogPr
       return;
     }
 
-    const parsed = haitechClientSchema.safeParse(client);
-    if (!parsed.success) {
-      setSubmitError(parsed.error.issues[0]?.message ?? 'Datos inválidos');
+    const nextContact: WhatsAppContact = {
+      name: name.trim(),
+      companyOrRuc: companyOrRuc.trim(),
+      city: city.trim(),
+    };
+
+    if (!isCompleteWhatsAppContact(nextContact)) {
+      setSubmitError('Completa nombre, RUC/empresa y ciudad.');
       return;
     }
 
     setIsSubmitting(true);
 
+    const quoteClient = contactToQuoteClient(nextContact);
     const customer: TpvCustomer = {
-      razonSocial: parsed.data.nombre.trim(),
-      documento: parsed.data.rucDni.trim(),
-      atencion: parsed.data.nombreContacto.trim(),
-      celular: parsed.data.telefono.trim(),
-      direccion: parsed.data.ciudad.trim() || 'Lima',
-      ciudad: parsed.data.ciudad.trim() || 'Lima',
+      razonSocial: quoteClient.razonSocial,
+      documento: quoteClient.ruc,
+      atencion: quoteClient.atencion,
+      celular: quoteClient.celular === '—' ? '000000000' : quoteClient.celular,
+      direccion: quoteClient.ciudad || 'Lima',
+      ciudad: quoteClient.ciudad || 'Lima',
       priceList: 'public',
       currency: 'PEN',
       storeCustomerId: null,
@@ -88,14 +104,15 @@ export function CartQuoteDialog({ open, onOpenChange, items }: CartQuoteDialogPr
 
     const lines = cartItemsToTpvLines(items);
     const values = {
-      razonSocial: parsed.data.nombre,
-      ruc: parsed.data.rucDni,
-      atencion: parsed.data.nombreContacto,
-      celular: parsed.data.telefono,
-      ciudad: parsed.data.ciudad,
+      razonSocial: quoteClient.razonSocial,
+      ruc: quoteClient.ruc,
+      atencion: quoteClient.atencion,
+      celular: customer.celular,
+      ciudad: quoteClient.ciudad,
     };
 
     try {
+      await saveContact(nextContact);
       const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
       const documentNumber = nextTpvDocumentNumber('proforma');
       const { buildTpvDocumentPdf } = await import('@/lib/generate-tpv-document-pdf');
@@ -118,7 +135,6 @@ export function CartQuoteDialog({ open, onOpenChange, items }: CartQuoteDialogPr
         filename: generated.filename,
         quoteNumber: documentNumber,
       });
-      setClient(EMPTY_HAITECH_CLIENT);
       handleOpenChange(false);
 
       void registerProductQuote
@@ -153,20 +169,49 @@ export function CartQuoteDialog({ open, onOpenChange, items }: CartQuoteDialogPr
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-h-[min(96vh,720px)] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="max-h-[min(96vh,720px)] overflow-y-auto sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="size-5 text-red-600" aria-hidden="true" />
               Generar cotización
             </DialogTitle>
             <DialogDescription>
-              Completa los datos del cliente para emitir un PDF con los {items.length}{' '}
+              Completa tus datos para emitir un PDF con los {items.length}{' '}
               {items.length === 1 ? 'producto' : 'productos'} del carrito.
             </DialogDescription>
           </DialogHeader>
 
-          <form className="space-y-4" onSubmit={(event) => void onSubmit(event)} noValidate>
-            <HaitechClientForm value={client} onChange={setClient} idPrefix="cart-quote" />
+          <form className="grid gap-4" onSubmit={(event) => void onSubmit(event)} noValidate>
+            <div className="space-y-2">
+              <Label htmlFor="cart-quote-name">Nombre</Label>
+              <Input
+                id="cart-quote-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                autoComplete="name"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cart-quote-company">RUC/Empresa</Label>
+              <Input
+                id="cart-quote-company"
+                value={companyOrRuc}
+                onChange={(event) => setCompanyOrRuc(event.target.value)}
+                autoComplete="organization"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cart-quote-city">Ciudad</Label>
+              <Input
+                id="cart-quote-city"
+                value={city}
+                onChange={(event) => setCity(event.target.value)}
+                autoComplete="address-level2"
+                required
+              />
+            </div>
 
             {submitError ? (
               <p role="alert" className="text-sm text-destructive">

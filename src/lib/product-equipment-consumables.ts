@@ -131,9 +131,25 @@ const TONER_COLOR_DISPLAY: Record<string, string> = {
   black: 'Negro',
 };
 
+/** Títulos de tóner/cartucho que conviene limpiar en UI (búsqueda, tarjetas, listados). */
+export function looksLikeTonerDisplayName(name: string): boolean {
+  const n = name.trim();
+  if (!n) return false;
+  return (
+    /\bt[oó]ner\b/i.test(n) ||
+    /\bcartuchos?\b/i.test(n) ||
+    /\bprint\s*cart(?:ridge)?\b/i.test(n)
+  );
+}
+
 /**
- * Limpia títulos redundantes de inventario (p. ej. Intercopy «Toner Cartucho… TONER CARTUCHO…»).
- * Ej.: «Toner Cartucho Intercopy TONER CARTUCHO MP 320F … + Amarillo» → «Toner Compatible MP 320F — Amarillo».
+ * Limpia títulos redundantes de inventario para UI.
+ * - Quita «Cartucho»
+ * - «INTERCOPY» → «compatible Intercopy»
+ * - Evita «tóner … tóner» duplicado
+ * - «MP 320F» → «M 320F»
+ *
+ * Ej.: «Tóner cartucho INTERCOPY TÓNER CARTUCHO MP 320F» → «Tóner compatible Intercopy M 320F»
  */
 export function formatConsumableListDisplayName(name: string): string {
   let n = name.trim();
@@ -146,42 +162,49 @@ export function formatConsumableListDisplayName(name: string): string {
     n = n.slice(0, colorMatch.index).trim();
   }
 
-  const isIntercopyToner =
-    /toner\s+cartucho\s+intercopy/i.test(name) ||
-    (/intercopy/i.test(name) && /\btoner\b/i.test(name));
+  // Typo habitual: el equipo es M 320F, no MP 320F.
+  n = n.replace(/\bMP\s*320\s*F\b/gi, 'M 320F');
 
-  if (isIntercopyToner) {
+  const packMatch = n.match(/^(Pack\s*x0?\d+)\s+/i);
+  const packPrefix = packMatch?.[1]?.trim() ?? '';
+  if (packMatch) {
+    n = n.slice(packMatch[0].length).trim();
+  }
+
+  const hasIntercopy = /\bintercopy\b/i.test(n);
+  const isTonerLike =
+    /\bt[oó]ner\b/i.test(n) || /\bcartuchos?\b/i.test(n) || /\bprint\s*cart(?:ridge)?\b/i.test(n);
+
+  // Quitar «cartucho(s)» y normalizar repeticiones de tóner.
+  n = n
+    .replace(/\bcartuchos?\b/gi, ' ')
+    .replace(/\bprint\s*cart(?:ridge)?\b/gi, ' ')
+    .replace(/\bt[oó]ner\b/gi, '@@TONER@@')
+    .replace(/(?:@@TONER@@\s*)+/g, '@@TONER@@ ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
+  if (hasIntercopy && isTonerLike) {
     n = n
-      .replace(/^Pack\s*x0?4\s+/i, '')
-      .replace(/^Toner\s+Cartucho\s+Intercopy\s+/i, '')
-      .replace(/^TONER\s+CARTUCHO\s+/i, '')
-      .replace(/\bTONER\s+CARTUCHO\b/gi, '')
+      .replace(/\bintercopy\b/gi, ' ')
+      .replace(/\bcompatibles?\b/gi, ' ')
       .replace(/\s{2,}/g, ' ')
       .trim();
 
-    const primary = n.match(
-      /^(MP\s*C?\s*\d{3,4}[A-Z]?|IM\s*C?\s*\d{3,4}[A-Z]?|M\s*\d{3,4}F?)\b/i,
-    );
-    if (primary?.[1]) {
-      n = primary[1]
-        .replace(/\s+/g, ' ')
-        .trim()
-        .replace(/^M\s*(\d)/i, 'M $1')
-        .toUpperCase()
-        .replace(/^M\s+(\d)/, 'M $1');
+    if (/@@TONER@@/.test(n)) {
+      n = n.replace(/@@TONER@@/, 'Tóner compatible Intercopy').replace(/@@TONER@@/g, '');
+    } else {
+      n = `Tóner compatible Intercopy ${n}`;
     }
-
-    const title = `Toner Compatible ${n}`.replace(/\s{2,}/g, ' ').trim();
-    return color ? `${title} — ${color}` : title;
+  } else {
+    n = n.replace(/@@TONER@@/, 'Tóner').replace(/@@TONER@@/g, '');
   }
 
-  n = n
-    .replace(/\bToner\s+Cartucho\s+(?=[\s\S]*\bTONER\s+CARTUCHO\b)/i, '')
-    .replace(/\bTONER\s+CARTUCHO\b/gi, 'Toner')
-    .replace(/\bToner\s+Cartucho\b/gi, 'Toner')
-    .replace(/\bToner\s+cartucho\b/gi, 'Toner')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
+  n = n.replace(/\s{2,}/g, ' ').replace(/\s+[—–-]\s*$/g, '').trim();
+
+  if (packPrefix) {
+    n = `${packPrefix} ${n}`.replace(/\s{2,}/g, ' ').trim();
+  }
 
   return color ? `${n} — ${color}` : n;
 }

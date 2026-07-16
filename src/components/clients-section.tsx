@@ -50,7 +50,7 @@ function ClientLogo({ client }: { client: Client }) {
   );
 }
 
-export function ClientsSection() {
+export function ClientsSection({ embedded = false }: { embedded?: boolean }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
@@ -89,6 +89,73 @@ export function ClientsSection() {
     };
   }, [emblaApi]);
 
+  const body = (
+    <>
+      <div className="relative px-10 sm:px-12">
+        <button
+          type="button"
+          onClick={scrollPrev}
+          disabled={!canScrollPrev}
+          className={cn(carouselArrowClass, 'left-0')}
+          aria-label="Clientes anteriores"
+        >
+          <ChevronLeft className="size-5" aria-hidden="true" />
+        </button>
+
+        <div className="overflow-hidden" ref={emblaRef}>
+          <ul className="flex touch-pan-y gap-2.5 sm:gap-4">
+            {clients.map((client) => (
+              <li key={client.id} className={CLIENT_SLIDE_CLASS}>
+                <ClientLogo client={client} />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <button
+          type="button"
+          onClick={scrollNext}
+          disabled={!canScrollNext}
+          className={cn(carouselArrowClass, 'right-0')}
+          aria-label="Clientes siguientes"
+        >
+          <ChevronRight className="size-5" aria-hidden="true" />
+        </button>
+      </div>
+
+      {scrollSnaps.length > 1 ? (
+        <div
+          className="mt-3 flex items-center justify-center gap-1.5 sm:mt-4"
+          role="tablist"
+          aria-label="Paginación de clientes"
+        >
+          {scrollSnaps.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              role="tab"
+              aria-selected={index === selectedIndex}
+              aria-label={`Ir al grupo ${index + 1} de clientes`}
+              onClick={() => scrollTo(index)}
+              className={cn(
+                'size-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
+                index === selectedIndex ? 'bg-red-600' : 'bg-neutral-300 hover:bg-neutral-400',
+              )}
+            />
+          ))}
+        </div>
+      ) : null}
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div id="clientes" className="pb-2 pt-1 sm:pb-3">
+        <div className="container">{body}</div>
+      </div>
+    );
+  }
+
   return (
     <section id="clientes" aria-labelledby="clientes-titulo" className="home-landing-sans py-3 sm:py-4">
       <div className="container">
@@ -105,61 +172,7 @@ export function ClientsSection() {
             <span className="h-px w-10 bg-red-600/70 sm:w-16" aria-hidden="true" />
           </div>
         </header>
-
-        <div className="relative px-10 sm:px-12">
-          <button
-            type="button"
-            onClick={scrollPrev}
-            disabled={!canScrollPrev}
-            className={cn(carouselArrowClass, 'left-0')}
-            aria-label="Clientes anteriores"
-          >
-            <ChevronLeft className="size-5" aria-hidden="true" />
-          </button>
-
-          <div className="overflow-hidden" ref={emblaRef}>
-            <ul className="flex touch-pan-y gap-2.5 sm:gap-4">
-              {clients.map((client) => (
-                <li key={client.id} className={CLIENT_SLIDE_CLASS}>
-                  <ClientLogo client={client} />
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <button
-            type="button"
-            onClick={scrollNext}
-            disabled={!canScrollNext}
-            className={cn(carouselArrowClass, 'right-0')}
-            aria-label="Clientes siguientes"
-          >
-            <ChevronRight className="size-5" aria-hidden="true" />
-          </button>
-        </div>
-
-        {scrollSnaps.length > 1 ? (
-          <div
-            className="mt-3 flex items-center justify-center gap-1.5 sm:mt-4"
-            role="tablist"
-            aria-label="Paginación de clientes"
-          >
-            {scrollSnaps.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                role="tab"
-                aria-selected={index === selectedIndex}
-                aria-label={`Ir al grupo ${index + 1} de clientes`}
-                onClick={() => scrollTo(index)}
-                className={cn(
-                  'size-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-                  index === selectedIndex ? 'bg-red-600' : 'bg-neutral-300 hover:bg-neutral-400',
-                )}
-              />
-            ))}
-          </div>
-        ) : null}
+        {body}
       </div>
     </section>
   );

@@ -212,24 +212,12 @@ export function matchesHomeFindSparePartsCategoryFilter(
   }
 }
 
-function resolveProductStock(product: FeaturedProduct): number {
-  return Math.max(0, Math.floor(Number(product.stock) || 0));
-}
-
 export function matchesHomeFindSparePartsFilter(
   product: FeaturedProduct,
   filterId: HomeFindSparePartsFilterId,
   categoryId: HomeFindSparePartsCategoryId,
 ): boolean {
   if (!matchesHomeFindSparePartsCategoryFilter(product, categoryId)) return false;
-
-  if (filterId === 'disponibles') {
-    return resolveProductStock(product) > 0;
-  }
-
-  if (filterId === 'a-pedido') {
-    return resolveProductStock(product) <= 0;
-  }
 
   const row = asProduct(product);
   const productCondition = SPARE_PARTS_CONDITION_FILTER_TO_PRODUCT_CONDITION[filterId];

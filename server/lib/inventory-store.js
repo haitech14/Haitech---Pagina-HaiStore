@@ -20,8 +20,10 @@ import { normalizeProductGalleryFields } from '../../shared/product-gallery.js';
 import {
   normalizeStorefrontFeatureBar,
   normalizeStorefrontHeroBullets,
+  normalizeStorefrontUi,
 } from '../../shared/product-storefront-detail.js';
 import { normalizeVolumeRolePrices } from '../../shared/product-volume-role-prices.js';
+import { normalizePreparationPrices } from '../../shared/seminueva-preparation-prices.js';
 import { normalizeCompatibleTonerProductFields } from '../../shared/compatible-toner.js';
 import {
   isCompatibleTonerProduct,
@@ -30,7 +32,7 @@ import {
 import { normalizeProductCode } from '../../shared/product-code-prefix.js';
 import { deriveProductSlug } from '../../shared/product-slug.js';
 import { normalizeProductCatalogStatus } from '../../shared/product-catalog-status.js';
-import { formatNuevaProductName } from '../../shared/inventory-product-name.js';
+import { formatNuevaProductName, resolveXrefProductFields } from '../../shared/inventory-product-name.js';
 import { normalizeMerchandisingOptionalProducts } from '../../shared/merchandising-optional-product.js';
 import { isBundleProduct, normalizeBundleComponents, syncInventoryBundleProducts } from './product-bundle.js';
 import { ensureFullPrices, resolvePriceRole } from './roles.js';
@@ -321,7 +323,11 @@ export function migrateInventoryProduct(product, warehouses = normalizeWarehouse
     ? Math.max(0, Math.floor(Number(normalizedToner.sort_order)))
     : undefined;
 
-  const name = formatNuevaProductName(String(normalizedToner.name ?? '').trim());
+  const xrefResolved = resolveXrefProductFields({
+    name: String(normalizedToner.name ?? '').trim(),
+    code: normalizedToner.code,
+  });
+  const name = formatNuevaProductName(xrefResolved.name);
 
   const merged = {
     ...normalizedToner,
@@ -335,9 +341,16 @@ export function migrateInventoryProduct(product, warehouses = normalizeWarehouse
     volume_role_prices: normalizeVolumeRolePrices(
       normalizedToner.volume_role_prices ?? product.volume_role_prices,
     ),
+    preparation_prices: normalizePreparationPrices(
+      normalizedToner.preparation_prices ?? product.preparation_prices,
+    ),
     code: isCompatibleTonerProduct(normalizedToner)
-      ? normalizeCompatibleTonerProductCode(normalizedToner)
-      : normalizeProductCode(normalizedToner.code) ||
+      ? normalizeCompatibleTonerProductCode({
+          ...normalizedToner,
+          code: xrefResolved.code || normalizedToner.code,
+          name: name || normalizedToner.name,
+        })
+      : normalizeProductCode(xrefResolved.code) ||
         String(normalizedToner.id ?? '').toUpperCase().replace(/-/g, ''),
     slug: String(normalizedToner.slug ?? '').trim() || undefined,
     suppliers,
@@ -760,6 +773,14 @@ async function writeInventoryUnlocked(data, options = {}) {
     warehouses,
   };
 
+  const scheduleInventoryIndexSnapshotRegen = () => {
+    void import('./inventory-index-snapshot.js')
+      .then(({ regenerateInventoryIndexSnapshotQuiet }) =>
+        regenerateInventoryIndexSnapshotQuiet(products),
+      )
+      .catch(() => {});
+  };
+
   if (preferSupabase) {
     const { syncProductsToSupabase, invalidatePublicCatalogCache } = await import(
       './product-catalog.js'
@@ -784,6 +805,7 @@ async function writeInventoryUnlocked(data, options = {}) {
     inventoryReadCacheAt = Date.now();
     // Tras persistir: vaciar admin/public cache para que el siguiente GET vea altas/duplicados.
     invalidatePublicCatalogCache();
+    scheduleInventoryIndexSnapshotRegen();
     return normalized;
   }
 
@@ -800,6 +822,7 @@ async function writeInventoryUnlocked(data, options = {}) {
   } catch {
     // ignore
   }
+  scheduleInventoryIndexSnapshotRegen();
   return normalized;
 }
 
@@ -818,6 +841,7 @@ export function toPublicProduct(product, role, warehouses) {
   const gallery = resolveProductGallery(product);
   const warehouseList = normalizeWarehouses(warehouses);
   const delivery_time = resolveProductWarehouseDeliveryTime(product, warehouseList);
+  const preparation_prices = normalizePreparationPrices(product.preparation_prices);
 
   return {
     id: product.id,
@@ -851,11 +875,16 @@ export function toPublicProduct(product, role, warehouses) {
           ),
         }
       : {}),
+    ...(() => {
+      const storefront_ui = normalizeStorefrontUi(product.storefront_ui);
+      return storefront_ui ? { storefront_ui } : {};
+    })(),
     attachments: normalizeAttachments(product.attachments).filter((attachment) =>
       ['technical_sheet', 'manual', 'printer_driver', 'firmware', 'brochure'].includes(
         attachment.kind,
       ),
     ),
+    ...(preparation_prices ? { preparation_prices } : {}),
     cross_sell_product_ids: Array.isArray(product.cross_sell_product_ids)
       ? product.cross_sell_product_ids.filter((id) => typeof id === 'string' && id.trim())
       : [],
@@ -976,6 +1005,10 @@ export function normalizeProductInput(body, existing, warehouses) {
         body.storefront_hero_bullets !== undefined
           ? normalizeStorefrontHeroBullets(body.storefront_hero_bullets)
           : existing?.storefront_hero_bullets,
+      storefront_ui:
+        body.storefront_ui !== undefined
+          ? (normalizeStorefrontUi(body.storefront_ui) ?? null)
+          : existing?.storefront_ui,
       bundle_components: body.bundle_components ?? existing?.bundle_components,
       cross_sell_product_ids: body.cross_sell_product_ids ?? existing?.cross_sell_product_ids,
       upsell_product_ids: body.upsell_product_ids ?? existing?.upsell_product_ids,
@@ -989,6 +1022,10 @@ export function normalizeProductInput(body, existing, warehouses) {
           ? normalizeMerchandisingOptionalProducts(body.upsell_optional_products)
           : existing?.upsell_optional_products,
       volume_role_prices: body.volume_role_prices ?? existing?.volume_role_prices,
+      preparation_prices:
+        body.preparation_prices !== undefined
+          ? normalizePreparationPrices(body.preparation_prices)
+          : existing?.preparation_prices,
       created_at: existing?.created_at ?? new Date().toISOString(),
       sort_order:
         body.sort_order !== undefined && body.sort_order !== null

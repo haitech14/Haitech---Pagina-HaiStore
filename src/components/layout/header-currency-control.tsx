@@ -127,14 +127,20 @@ function CurrencySymbolToggle({
 function DarkCurrencySymbolToggle({
   className,
   buttonClassName,
+  activeClassName,
+  inactiveClassName,
 }: {
   className?: string;
   buttonClassName?: string;
+  activeClassName?: string;
+  inactiveClassName?: string;
 }) {
   return (
     <CurrencySymbolToggle
       {...(className != null ? { className } : {})}
       {...(buttonClassName != null ? { buttonClassName } : {})}
+      {...(activeClassName != null ? { activeClassName } : {})}
+      {...(inactiveClassName != null ? { inactiveClassName } : {})}
     />
   );
 }
@@ -425,13 +431,77 @@ function AdminExchangeRateEditor({
 }
 
 /** Moneda + T.C. Venta compacto en el header oscuro de la tienda. */
-export function HeaderStoreCurrencyExchangeBlock({ className }: { className?: string }) {
+export function HeaderStoreCurrencyExchangeBlock({
+  className,
+  muted = false,
+}: {
+  className?: string;
+  /** Tipografía más chica y gris (top bar). */
+  muted?: boolean;
+}) {
   const { saleRate, purchaseRate } = useSystemExchangeRates();
   const { isAdmin } = useAuth();
 
+  if (muted) {
+    return (
+      <div className={cn('inline-flex shrink-0 items-center gap-2', className)}>
+        <div className="group/currency relative inline-flex shrink-0 items-center">
+          <button
+            type="button"
+            className="inline-flex min-h-6 items-center gap-1 rounded px-1 text-[0.6875rem] font-medium text-[#9a9a9a] transition-colors hover:text-[#b8b8b8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-1 focus-visible:ring-offset-black sm:text-xs"
+            aria-label="Moneda de visualización. Pasa el mouse para seleccionar."
+          >
+            <Coins className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            <span>Moneda</span>
+          </button>
+          <div
+            className={cn(
+              'invisible absolute right-0 top-full z-50 mt-1 rounded-md border border-white/10 bg-[#111111] p-1 opacity-0 shadow-lg',
+              'transition-all duration-150 group-hover/currency:visible group-hover/currency:opacity-100 group-focus-within/currency:visible group-focus-within/currency:opacity-100',
+            )}
+          >
+            <DarkCurrencySymbolToggle
+              buttonClassName="min-h-6 px-1.5 text-xs font-medium"
+              inactiveClassName="text-neutral-400 hover:text-white"
+              activeClassName="bg-[#E30613] text-white"
+            />
+          </div>
+        </div>
+
+        {isAdmin ? (
+          <AdminExchangeRateEditor
+            saleRate={saleRate}
+            purchaseRate={purchaseRate}
+            compact
+            dark
+            className="hidden text-xs text-[#9a9a9a] sm:flex"
+          />
+        ) : (
+          <p
+            className="hidden whitespace-nowrap text-xs font-normal tabular-nums text-[#9a9a9a] sm:block"
+            aria-label="Tipo de cambio de venta"
+          >
+            <span className="font-normal">T.C.</span>{' '}
+            <span className="font-normal text-[#9a9a9a]">S/ {formatExchangeRate(saleRate)}</span>
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className={cn('inline-flex shrink-0 items-center gap-2', className)}>
-      <DarkCurrencySymbolToggle buttonClassName="min-h-5 px-1 text-[0.6rem]" />
+    <div className={cn('inline-flex shrink-0 items-center gap-1.5', className)}>
+      <DarkCurrencySymbolToggle
+        buttonClassName={
+          muted ? 'min-h-6 px-1.5 text-xs font-medium' : 'min-h-5 px-1 text-[0.6rem]'
+        }
+        {...(muted
+          ? {
+              inactiveClassName: 'text-[#5a5a5a] hover:text-[#7a7a7a]',
+              activeClassName: 'bg-[#E30613]/80 text-white/90',
+            }
+          : {})}
+      />
 
       {isAdmin ? (
         <AdminExchangeRateEditor
@@ -439,15 +509,22 @@ export function HeaderStoreCurrencyExchangeBlock({ className }: { className?: st
           purchaseRate={purchaseRate}
           compact
           dark
-          className="hidden text-xs sm:flex"
+          className={cn('hidden sm:flex', muted ? 'text-xs text-[#6b6b6b] sm:text-[0.8125rem]' : 'text-xs')}
         />
       ) : (
         <p
-          className="hidden whitespace-nowrap text-xs tabular-nums text-white/70 sm:block"
+          className={cn(
+            'hidden whitespace-nowrap tabular-nums sm:block',
+            muted
+              ? 'text-xs font-normal text-[#6b6b6b] sm:text-[0.8125rem]'
+              : 'text-xs text-white/70',
+          )}
           aria-label="Tipo de cambio de venta"
         >
-          <span className="font-medium">T.C.</span>{' '}
-          <span className="font-semibold text-white/90">S/ {formatExchangeRate(saleRate)}</span>
+          <span className={muted ? 'font-normal' : 'font-medium'}>T.C.</span>{' '}
+          <span className={muted ? 'font-normal text-[#6b6b6b]' : 'font-semibold text-white/90'}>
+            S/ {formatExchangeRate(saleRate)}
+          </span>
         </p>
       )}
     </div>

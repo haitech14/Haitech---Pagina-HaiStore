@@ -1,6 +1,7 @@
 import { Bell, ChevronDown, LayoutPanelLeft, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { HaiSalesSyncButton } from '@/components/admin/sales/haisales-sync-button';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -61,6 +62,8 @@ export function AdminPedidosPageHeader({ className, pendingCount = 0 }: AdminPed
             </span>
           </Button>
         ) : null}
+
+        <HaiSalesSyncButton size="sm" className="h-8 min-h-8 text-xs" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -1,5 +1,9 @@
 import { formatProductNameSentenceCase } from '@/lib/format-product-name-sentence-case';
 import {
+  formatConsumableListDisplayName,
+  looksLikeTonerDisplayName,
+} from '@/lib/product-equipment-consumables';
+import {
   inferColor,
   inferFormatoPapelFromModel,
   resolveFormatoPapelDisplayLabel,
@@ -75,10 +79,16 @@ function formatProductCardDisplayName(
   name: string,
   options?: { brand?: string | null },
 ): string {
-  const normalized = stripCartuchoDeProductDisplayPrefix(formatInventoryProductName(name.trim()));
+  let normalized = stripCartuchoDeProductDisplayPrefix(formatInventoryProductName(name.trim()));
+  const isTonerTitle =
+    looksLikeTonerDisplayName(normalized) || looksLikeTonerDisplayName(name);
+  if (isTonerTitle) {
+    normalized = formatConsumableListDisplayName(normalized);
+  }
   return formatProductNameSentenceCase(normalized, {
     brand: options?.brand ?? null,
-    brandDisplay: 'uppercase',
+    // Tóner Intercopy: mantener «Intercopy», no «INTERCOPY».
+    brandDisplay: isTonerTitle ? 'title' : 'uppercase',
   });
 }
 
@@ -160,7 +170,11 @@ export function getHomeLandingProductCardLines(
     code: 'code' in product ? (product.code ?? null) : null,
     attributes: product.attributes ?? [],
   });
-  if (consumableSubtitle) {
+  if (
+    consumableSubtitle ||
+    looksLikeTonerDisplayName(product.name) ||
+    looksLikeTonerDisplayName(formatInventoryProductName(product.name.trim()))
+  ) {
     return {
       headline: formatProductCardDisplayName(product.name, { brand }),
       subtitle: consumableSubtitle,

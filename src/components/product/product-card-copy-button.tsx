@@ -14,6 +14,8 @@ export type ProductCardCopyTextInput = Omit<ProductClipboardTextInput, 'imageUrl
 interface ProductCardCopyButtonProps extends ProductCardCopyTextInput {
   productName: string;
   className?: string;
+  /** Si se pasa, muestra icono + etiqueta (p. ej. ficha de producto). */
+  label?: string;
 }
 
 export function ProductCardCopyButton({
@@ -33,6 +35,7 @@ export function ProductCardCopyButton({
   priceValidity,
   productPath,
   className,
+  label,
 }: ProductCardCopyButtonProps) {
   const handleClick = async (event: MouseEvent) => {
     event.preventDefault();
@@ -77,7 +80,11 @@ export function ProductCardCopyButton({
         void handleClick(event);
       }}
     >
-      <ClipboardCopy className="size-4" aria-hidden="true" />
+      <ClipboardCopy
+        className={cn('shrink-0', label ? 'size-3.5' : 'size-4')}
+        aria-hidden="true"
+      />
+      {label ? <span>{label}</span> : null}
     </button>
   );
 }

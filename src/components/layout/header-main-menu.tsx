@@ -1,7 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 
 import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
-import { RentalsNavMegaMenu } from '@/components/layout/rentals-nav-mega-menu';
 import { ServicesNavMegaMenu } from '@/components/layout/services-nav-mega-menu';
 import { SoftwareNavMegaMenu } from '@/components/layout/software-nav-mega-menu';
 import { TonerNavMegaMenu } from '@/components/layout/toner-nav-mega-menu';
@@ -69,9 +68,6 @@ export function HeaderMainMenu({
     >
       <li className="shrink-0">
         <CategoriesMegaMenu navRow={dropdownVariant} showIcon={showIcons} triggerVariant="nav" />
-      </li>
-      <li className="shrink-0">
-        <RentalsNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
       </li>
       <li className="shrink-0">
         <TonerNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />

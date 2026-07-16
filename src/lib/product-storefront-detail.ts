@@ -19,7 +19,13 @@ import type {
   ProductHeroSpecBullet,
 } from '@/types/product-detail';
 import type { Product } from '@/types/product';
-import type { StoredFeatureBarItem, StoredHeroBullet } from '@/types/product-storefront';
+import type {
+  ResolvedStorefrontUi,
+  StoredFeatureBarItem,
+  StoredHeroBullet,
+  StoredStorefrontUi,
+} from '@/types/product-storefront';
+import { DEFAULT_STOREFRONT_UI } from '@/types/product-storefront';
 
 export const GIFT_TRUST_TITLE = 'Regalos';
 export const GIFT_TRUST_SUBTITLE = '01 Paquete de Papel y Calendario';
@@ -131,6 +137,80 @@ export function normalizeStorefrontHeroBullets(
     .map(normalizeHeroBullet)
     .filter((item): item is StoredHeroBullet => item !== null)
     .slice(0, 12);
+}
+
+function normalizeOptionalUiString(value: unknown, maxLen = 80): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim().slice(0, maxLen);
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+/** Normaliza `storefront_ui`. Vacío / inválido → `undefined` (usar defaults). */
+export function normalizeStorefrontUi(
+  value: StoredStorefrontUi | null | undefined | unknown,
+): StoredStorefrontUi | undefined {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const raw = value as StoredStorefrontUi;
+  const next: StoredStorefrontUi = {};
+
+  if (typeof raw.showGalleryCopyImage === 'boolean') {
+    next.showGalleryCopyImage = raw.showGalleryCopyImage;
+  }
+  if (typeof raw.showGalleryCopyText === 'boolean') {
+    next.showGalleryCopyText = raw.showGalleryCopyText;
+  }
+  if (typeof raw.showTonerCopyActions === 'boolean') {
+    next.showTonerCopyActions = raw.showTonerCopyActions;
+  }
+
+  const tonerSectionTitle = normalizeOptionalUiString(raw.tonerSectionTitle);
+  if (tonerSectionTitle !== undefined) next.tonerSectionTitle = tonerSectionTitle;
+
+  const tonerOriginalTabLabel = normalizeOptionalUiString(raw.tonerOriginalTabLabel);
+  if (tonerOriginalTabLabel !== undefined) next.tonerOriginalTabLabel = tonerOriginalTabLabel;
+
+  const tonerCompatibleTabLabel = normalizeOptionalUiString(raw.tonerCompatibleTabLabel);
+  if (tonerCompatibleTabLabel !== undefined) {
+    next.tonerCompatibleTabLabel = tonerCompatibleTabLabel;
+  }
+
+  const tonerOriginalCardTitle = normalizeOptionalUiString(raw.tonerOriginalCardTitle);
+  if (tonerOriginalCardTitle !== undefined) next.tonerOriginalCardTitle = tonerOriginalCardTitle;
+
+  const tonerCompatibleCardTitle = normalizeOptionalUiString(raw.tonerCompatibleCardTitle);
+  if (tonerCompatibleCardTitle !== undefined) {
+    next.tonerCompatibleCardTitle = tonerCompatibleCardTitle;
+  }
+
+  return Object.keys(next).length > 0 ? next : undefined;
+}
+
+/** Combina override guardado con defaults de tienda. */
+export function resolveStorefrontUi(
+  value: StoredStorefrontUi | null | undefined,
+): ResolvedStorefrontUi {
+  const normalized = normalizeStorefrontUi(value);
+  return {
+    showGalleryCopyImage:
+      normalized?.showGalleryCopyImage ?? DEFAULT_STOREFRONT_UI.showGalleryCopyImage,
+    showGalleryCopyText:
+      normalized?.showGalleryCopyText ?? DEFAULT_STOREFRONT_UI.showGalleryCopyText,
+    showTonerCopyActions:
+      normalized?.showTonerCopyActions ?? DEFAULT_STOREFRONT_UI.showTonerCopyActions,
+    tonerSectionTitle:
+      normalized?.tonerSectionTitle ?? DEFAULT_STOREFRONT_UI.tonerSectionTitle,
+    tonerOriginalTabLabel:
+      normalized?.tonerOriginalTabLabel ?? DEFAULT_STOREFRONT_UI.tonerOriginalTabLabel,
+    tonerCompatibleTabLabel:
+      normalized?.tonerCompatibleTabLabel ?? DEFAULT_STOREFRONT_UI.tonerCompatibleTabLabel,
+    tonerOriginalCardTitle:
+      normalized?.tonerOriginalCardTitle ?? DEFAULT_STOREFRONT_UI.tonerOriginalCardTitle,
+    tonerCompatibleCardTitle:
+      normalized?.tonerCompatibleCardTitle ?? DEFAULT_STOREFRONT_UI.tonerCompatibleCardTitle,
+  };
 }
 
 /** `true` si el admin guardó override (incluye lista vacía = eliminadas a propósito). */

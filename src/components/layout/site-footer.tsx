@@ -33,6 +33,7 @@ import {
   type FooterLink,
 } from '@/data/site-footer';
 import { FooterLogoImage } from '@/components/layout/site-logo';
+import { FooterSeoText } from '@/components/layout/footer-seo-text';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import { cn } from '@/lib/utils';
 
@@ -202,6 +203,15 @@ export function SiteFooter() {
 
           <div className="lg:col-span-3">
             <FooterHeading id="footer-contacto-titulo">Contáctanos</FooterHeading>
+            <a
+              href={FOOTER_SALES_WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mb-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] sm:w-auto"
+            >
+              <Icon path={mdiWhatsapp} size={0.8} aria-hidden="true" />
+              Cotizar por WhatsApp
+            </a>
             <ul className="flex flex-col gap-2 text-xs sm:text-[0.8125rem]">
               <li>
                 <div className="flex items-start gap-2">
@@ -340,6 +350,8 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
+
+      <FooterSeoText />
 
       <div className="border-t border-white/10 py-3">
         <p className="container text-center text-[0.625rem] leading-relaxed text-white/45 sm:text-[0.6875rem]">
