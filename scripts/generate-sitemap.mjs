@@ -14,6 +14,8 @@ import { buildProductPath } from '../shared/product-slug.js';
 import { collectCategoryTreeUrls } from '../shared/seo/category-tree-urls.js';
 import { LANDING_CATEGORY_SEO } from '../shared/seo/landing-categories.js';
 import { SERVICE_SEO_ROUTES } from '../shared/seo/service-routes.js';
+import { STATIC_SEO_ROUTES } from '../shared/seo/static-routes.js';
+import { isIndexableCatalogProduct } from '../shared/seo/indexable-product.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = path.join(__dirname, '../public/sitemap.xml');
@@ -79,6 +81,8 @@ async function main() {
     urls.push(urlEntry(siteOrigin, pathname, today, priority));
   };
 
+  addUrl('/tienda', '0.95');
+
   for (const entry of loadCategoryTreeUrls()) {
     if (!LANDING_SLUGS.has(entry.rootSlug)) continue;
     addUrl(entry.pathname, resolveCategoryPriority(entry.rootSlug, entry.subSlug));
@@ -88,9 +92,14 @@ async function main() {
     addUrl(route.pathname, route.pathname === '/servicios' ? '0.9' : '0.85');
   }
 
+  for (const route of STATIC_SEO_ROUTES) {
+    addUrl(route.pathname, '0.85');
+  }
+
   if (existsSync(inventoryPath)) {
     const { products } = await readInventory();
     for (const product of products) {
+      if (!isIndexableCatalogProduct(product)) continue;
       const productPath = buildProductPath(product);
       if (seenProductPaths.has(productPath)) continue;
       seenProductPaths.add(productPath);

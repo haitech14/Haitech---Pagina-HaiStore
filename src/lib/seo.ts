@@ -29,6 +29,8 @@ export {
   buildHomeJsonLd,
   buildFaqPageJsonLd,
   buildServiceJsonLd,
+  buildStoreJsonLd,
+  buildWebPageJsonLd,
 } from '../../shared/seo/json-ld.js';
 
 export {

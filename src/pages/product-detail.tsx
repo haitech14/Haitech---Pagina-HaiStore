@@ -13,8 +13,8 @@ import { recordProductView } from '@/lib/product-views';
 
 export function ProductDetailPage() {
   const navigate = useNavigate();
-  const { id: rawId } = useParams<{ id: string }>();
-  const id = rawId ? decodeURIComponent(rawId) : undefined;
+  const { slug: rawSlug } = useParams<{ slug: string }>();
+  const id = rawSlug ? decodeURIComponent(rawSlug) : undefined;
   const { product, featuredMeta, isLoading, notFound } = useProduct(id);
   const { data: categoryTree = [] } = useStoreCategoriesTree();
 

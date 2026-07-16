@@ -95,6 +95,30 @@ export const ALQUILER_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   ],
 };
 
+export const TONER_NAV_SUBMENU: HeaderNavSubmenuConfig = {
+  id: 'toner-repuestos',
+  label: 'Toner y Repuestos',
+  icon: Droplets,
+  matchActive: ({ pathname }) =>
+    pathname.startsWith('/categoria/toner-suministros') ||
+    pathname.startsWith('/categoria/repuestos'),
+  items: [
+    { kind: 'heading', label: 'Toner' },
+    { label: 'Ver toner y suministros', href: categoryLandingPath('toner-suministros') },
+    { label: 'Tóner originales', href: categoryPath('toner-suministros', 'toner-originales') },
+    { label: 'Tóner compatibles', href: categoryPath('toner-suministros', 'toner-compatibles') },
+    {
+      label: 'Tóner remanufacturado',
+      href: categoryPath('toner-suministros', 'toner-remanufacturado'),
+    },
+    { label: 'Recargas de tóner', href: categoryPath('toner-suministros', 'toner-recarga') },
+    { kind: 'heading', label: 'Repuestos' },
+    { label: 'Ver repuestos', href: categoryLandingPath('repuestos') },
+    { label: 'Partes y componentes', href: categoryLandingPath('repuestos') },
+  ],
+};
+
+/** @deprecated Usar TONER_NAV_SUBMENU */
 export const CONSUMIBLES_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'consumibles',
   label: 'Consumibles',
@@ -112,6 +136,7 @@ export const CONSUMIBLES_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   ],
 };
 
+/** @deprecated Usar TONER_NAV_SUBMENU */
 export const REPUESTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'repuestos',
   label: 'Repuestos',
@@ -148,13 +173,15 @@ export const EMPRESAS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   icon: Building2,
   matchActive: ({ pathname, hash }) =>
     pathname === '/contacto' ||
-    (pathname === '/' &&
-      (hash === '#clientes' || hash === '#testimonios' || hash === '#preguntas-frecuentes')),
+    pathname === '/preguntas-frecuentes' ||
+    pathname === '/por-que-comprar-con-nosotros' ||
+    (pathname === '/' && (hash === '#clientes' || hash === '#testimonios')),
   items: [
     { label: 'Nosotros', href: '/contacto' },
+    { label: 'Por qué comprar con nosotros', href: '/por-que-comprar-con-nosotros' },
     { label: 'Clientes', href: '/#clientes' },
     { label: 'Testimonios', href: '/#testimonios' },
-    { label: 'Preguntas frecuentes', href: '/#preguntas-frecuentes' },
+    { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
   ],
 };
 
@@ -176,14 +203,10 @@ export const SOFTWARE_NAV_SUBMENU: HeaderNavSubmenuConfig = {
 /** @deprecated Usar ALQUILER_NAV_SUBMENU */
 export const RENTALS_NAV_SUBMENU = ALQUILER_NAV_SUBMENU;
 
-/** @deprecated Usar CONSUMIBLES_NAV_SUBMENU */
-export const TONER_NAV_SUBMENU = CONSUMIBLES_NAV_SUBMENU;
-
 export const HEADER_NAV_SUBMENUS: HeaderNavSubmenuConfig[] = [
   PRODUCTOS_NAV_SUBMENU,
   ALQUILER_NAV_SUBMENU,
-  CONSUMIBLES_NAV_SUBMENU,
-  REPUESTOS_NAV_SUBMENU,
+  TONER_NAV_SUBMENU,
   SERVICIOS_NAV_SUBMENU,
   SOFTWARE_NAV_SUBMENU,
 ];

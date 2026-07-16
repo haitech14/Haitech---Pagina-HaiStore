@@ -73,7 +73,7 @@ const COMPANIES_SIDEBAR_SECTIONS = [
     label: 'Preguntas frecuentes',
     description: 'Respuestas rápidas sobre productos y servicios.',
     icon: HelpCircle,
-    viewAllHref: '/#preguntas-frecuentes',
+    viewAllHref: '/preguntas-frecuentes',
   },
 ] as const;
 
@@ -194,7 +194,7 @@ const COMPANIES_FEATURED: Record<
     title: '¿Tienes dudas?',
     description:
       'Respuestas rápidas sobre productos, garantías, envíos y soporte técnico en un solo lugar.',
-    href: '/#preguntas-frecuentes',
+    href: '/preguntas-frecuentes',
   },
 };
 
@@ -401,8 +401,8 @@ function companiesColumnGroups(slug: (typeof COMPANIES_SIDEBAR_SECTIONS)[number]
         slug: 'faq',
         title: 'Preguntas frecuentes',
         image: '/Soporte Tecnico v2.png',
-        href: '/#preguntas-frecuentes',
-        links: [{ name: 'Ver preguntas', href: '/#preguntas-frecuentes' }],
+        href: '/preguntas-frecuentes',
+        links: [{ name: 'Ver preguntas', href: '/preguntas-frecuentes' }],
       },
       {
         slug: 'soporte',
@@ -680,6 +680,11 @@ export function buildTonerRepuestosNavMegaMenu(tree: StoreCategoryTreeNode[]): N
   const landingCategories = buildLandingMenuCategoriesFromTree(tree);
   const staticMenu = buildTonerRepuestosNavMegaMenuStatic();
 
+  const sidebarLabels: Record<(typeof TONER_ROOT_SLUGS)[number], string> = {
+    'toner-suministros': 'Toner',
+    repuestos: 'Repuestos',
+  };
+
   const sidebarItems = TONER_ROOT_SLUGS.flatMap((slug) => {
     const fromTree = landingCategories.find((category) => category.slug === slug);
     const fallback = staticCategoryFallback(slug);
@@ -689,7 +694,7 @@ export function buildTonerRepuestosNavMegaMenu(tree: StoreCategoryTreeNode[]): N
     return [
       {
         slug,
-        label: source.name,
+        label: sidebarLabels[slug],
         description: source.tagline,
         icon: source.icon,
         viewAllHref: categoryLandingPath(slug),
@@ -722,6 +727,11 @@ export function buildTonerRepuestosNavMegaMenu(tree: StoreCategoryTreeNode[]): N
 }
 
 export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
+  const sidebarLabels: Record<(typeof TONER_ROOT_SLUGS)[number], string> = {
+    'toner-suministros': 'Toner',
+    repuestos: 'Repuestos',
+  };
+
   const sidebarItems = TONER_ROOT_SLUGS.flatMap((slug) => {
     const category = staticCategoryFallback(slug);
     if (!category) return [];
@@ -731,7 +741,7 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
     return [
       {
         slug,
-        label: category.name,
+        label: sidebarLabels[slug],
         description: category.tagline,
         icon: category.icon,
         viewAllHref: href,

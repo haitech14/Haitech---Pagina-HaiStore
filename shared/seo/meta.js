@@ -17,11 +17,12 @@ export const DEFAULT_SITE_DESCRIPTION =
 export const DEFAULT_OG_IMAGE = '/categories/promonuevas-1.png';
 
 const ROOT_CATEGORY_TITLES = {
-  multifuncionales: 'Fotocopiadoras y Multifuncionales Ricoh | Venta | HaiStore',
+  multifuncionales:
+    'Fotocopiadoras Ricoh | Venta y Alquiler | Multifuncionales | HaiStore',
   impresoras: 'Impresoras Láser Ricoh | Venta en Perú | HaiStore',
-  'toner-suministros': 'Tóner, Tintas y Suministros Ricoh | HaiStore',
-  repuestos: 'Repuestos Ricoh Originales y Compatibles | HaiStore',
-  alquiler: 'Alquiler de Fotocopiadoras e Impresoras Ricoh | HaiStore',
+  'toner-suministros': 'Tóner Ricoh Original y Compatible | Tintas | HaiStore Perú',
+  repuestos: 'Repuestos Ricoh | Unidades de Imagen y Fusores | HaiStore',
+  alquiler: 'Alquiler de Fotocopiadoras e Impresoras Ricoh | Perú | HaiStore',
   'formato-ancho': 'Plotters y Formato Ancho Ricoh | HaiStore',
   accesorios: 'Accesorios para Impresoras Ricoh | HaiStore',
   escaneres: 'Escáneres Ricoh | Digitalización | HaiStore',
@@ -30,18 +31,24 @@ const ROOT_CATEGORY_TITLES = {
 
 const ROOT_CATEGORY_DESCRIPTIONS = {
   multifuncionales:
-    'Fotocopiadoras y multifuncionales Ricoh nuevas, seminuevas y remanufacturadas. Venta con instalación, garantía y envío a todo el Perú. Distribuidor Autorizado.',
+    'Fotocopiadoras y multifuncionales Ricoh nuevas, seminuevas y remanufacturadas. Venta y alquiler con instalación, garantía, tóner y envío a todo el Perú. Distribuidor Autorizado.',
   impresoras:
-    'Impresoras láser Ricoh para oficina. Equipos nuevos y seminuevos con asesoría HaiTech, Distribuidor Autorizado Ricoh. Venta y envío nacional.',
+    'Impresoras láser Ricoh para oficina. Equipos nuevos y seminuevos con asesoría HaiTech, Distribuidor Autorizado Ricoh. Venta, alquiler y envío nacional.',
   'toner-suministros':
-    'Tóner original y compatible, tintas, cartuchos y suministros Ricoh. Compra online con stock, asesoría técnica y envío a todo el Perú.',
+    'Tóner original y compatible Ricoh, tintas, cartuchos y suministros. Compra online con stock, asesoría técnica y envío a todo el Perú. Distribuidor Autorizado.',
   repuestos:
-    'Repuestos originales y compatibles Ricoh: unidades de imagen, cilindros, fusores, rodillos y más. Distribuidor Autorizado con envío nacional.',
+    'Repuestos originales y compatibles Ricoh: unidades de imagen, cilindros, fusores, rodillos y más. Stock permanente y envío nacional desde Distribuidor Autorizado.',
   alquiler:
-    'Alquiler de fotocopiadoras e impresoras multifuncionales Ricoh para empresas. Planes mensuales con mantenimiento, tóner y soporte técnico.',
+    'Alquiler de fotocopiadoras e impresoras multifuncionales Ricoh para empresas. Planes mensuales con mantenimiento, tóner, repuestos y soporte técnico en Lima y Perú.',
   'formato-ancho':
     'Plotters y equipos de formato ancho Ricoh para producción gráfica y planos. Cotiza con Distribuidor Autorizado Ricoh en Perú.',
 };
+
+export const STORE_SITE_TITLE =
+  'Tienda online | Fotocopiadoras, Impresoras y Tóner Ricoh | HaiStore';
+
+export const STORE_SITE_DESCRIPTION =
+  'Catálogo HaiStore: fotocopiadoras y multifuncionales Ricoh, impresoras, tóner, tintas, repuestos y accesorios. Venta y alquiler con precios en USD, asesoría y envío a todo el Perú.';
 
 const SUBCATEGORY_TITLE_OVERRIDES = {
   'unidades-compatibles': 'Unidades Compatibles Ricoh | Repuestos | HaiStore',
@@ -189,6 +196,18 @@ export function buildHomeSeoRecord(siteOrigin) {
     description: DEFAULT_SITE_DESCRIPTION,
     image: resolveAbsoluteImageUrl(DEFAULT_OG_IMAGE, siteOrigin),
     imageAlt: 'HaiStore — Distribuidor Autorizado Ricoh en Perú',
+    ogType: 'website',
+  };
+}
+
+export function buildStoreSeoRecord(siteOrigin) {
+  return {
+    pathname: '/tienda',
+    canonical: buildAbsoluteUrl('/tienda', siteOrigin),
+    title: STORE_SITE_TITLE,
+    description: truncateMetaDescription(STORE_SITE_DESCRIPTION),
+    image: resolveAbsoluteImageUrl(DEFAULT_OG_IMAGE, siteOrigin),
+    imageAlt: 'Tienda online HaiStore — catálogo Ricoh en Perú',
     ogType: 'website',
   };
 }

@@ -5,6 +5,7 @@ import { HomeFindWhatYouNeedSection } from '@/components/home/home-find-what-you
 import { HomeHeroCatalogBanners } from '@/components/home/home-hero-catalog-banners';
 import { HomeServiceRentalSection } from '@/components/home/home-service-rental-section';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
+import { HomeSeoIntro } from '@/components/home-seo-intro';
 import { FooterBrandsSection } from '@/components/layout/footer-brands-section';
 import { useSeo } from '@/hooks/use-seo';
 import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
@@ -42,6 +43,7 @@ export function HomePage() {
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <HeroBanner />
+      <HomeSeoIntro />
       <div className="home-landing-sans relative bg-white shadow-[0_8px_32px_rgba(15,31,61,0.08)]">
         <HomeFindWhatYouNeedSection />
       </div>

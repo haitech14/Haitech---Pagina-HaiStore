@@ -2,6 +2,8 @@ export const SITE_BRAND_NAME: string;
 export const DEFAULT_SITE_TITLE: string;
 export const DEFAULT_SITE_DESCRIPTION: string;
 export const DEFAULT_OG_IMAGE: string;
+export const STORE_SITE_TITLE: string;
+export const STORE_SITE_DESCRIPTION: string;
 
 export function truncateMetaDescription(text: string, maxLength?: number): string;
 export function resolveAbsoluteImageUrl(imageUrl: string | null | undefined, siteOrigin: string): string;
@@ -34,3 +36,10 @@ export function buildCategorySeoRecord(
   options?: Record<string, unknown>,
 ): Record<string, unknown>;
 export function buildHomeSeoRecord(siteOrigin: string): Record<string, unknown>;
+export function buildStoreSeoRecord(siteOrigin: string): Record<string, unknown>;
+export function buildStaticPageSeoRecord(
+  pathname: string,
+  title: string,
+  description: string,
+  siteOrigin: string,
+): Record<string, unknown>;

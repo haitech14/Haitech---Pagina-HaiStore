@@ -51,6 +51,13 @@
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     }
   ],
+  "redirects": [
+    {
+      "source": "/tienda/producto/:slug",
+      "destination": "/tienda/:slug",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/((?!api/|assets/|.*\\..*).*)", "destination": "/index.html" }

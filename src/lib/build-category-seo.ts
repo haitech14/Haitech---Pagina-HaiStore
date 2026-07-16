@@ -1,23 +1,24 @@
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
-import { buildAbsoluteUrl } from '@/lib/site-url';
+import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import {
+  buildCategoryCollectionJsonLd,
   buildCategoryMetaDescription,
   buildCategoryMetaTitle,
   resolveAbsoluteImageUrl,
 } from '@/lib/seo';
 import type { Category } from '@/data/categories';
-import { SITE_ORIGIN } from '@/lib/site-url';
 
 export interface CategorySeoInput {
   category: Category;
   subcategoryName?: string | null;
   subSlug?: string | null;
   heroSubtitle?: string | null;
-  /** Ruta fija cuando la vista es `/tienda` (alias de multifuncionales). */
+  /** Slug de categoría cuando se fuerza catálogo (no aplica a `/tienda` completa). */
   catalogSlug?: string | undefined;
   isInventorySearch?: boolean;
   searchQuery?: string;
   hasFilterParams?: boolean;
+  topProducts?: Array<{ name: string; url: string }>;
 }
 
 function buildCategoryCanonicalPath(category: Category, catalogSlug?: string): string {
@@ -40,6 +41,7 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
     isInventorySearch,
     searchQuery,
     hasFilterParams,
+    topProducts = [],
   } = input;
 
   const canonicalPath = buildCategoryCanonicalPath(category, catalogSlug);
@@ -58,6 +60,15 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
   }
 
   const shouldNoIndex = Boolean(hasFilterParams && !catalogSlug);
+  const jsonLd = buildCategoryCollectionJsonLd(
+    {
+      slug: category.slug,
+      name: subcategoryName?.trim() || category.name,
+      tagline: heroSubtitle?.trim() || category.tagline,
+    },
+    SITE_ORIGIN,
+    topProducts,
+  );
 
   return {
     title: buildCategoryMetaTitle(category, subcategoryName ?? undefined, subSlug ?? undefined),
@@ -72,5 +83,6 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
     imageAlt: subcategoryName ?? category.name,
     ogType: 'website' as const,
     robots: shouldNoIndex ? ('noindex,follow' as const) : ('index,follow' as const),
+    jsonLd,
   };
 }

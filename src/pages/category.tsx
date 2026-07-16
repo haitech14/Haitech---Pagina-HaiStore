@@ -48,6 +48,8 @@ import { useSeo } from '@/hooks/use-seo';
 import { searchCatalogProducts } from '@/lib/catalog-search-api';
 import { buildCategorySeoConfig } from '@/lib/build-category-seo';
 import { getCategorySeoIntro } from '@/lib/category-seo-intro';
+import { buildProductPath } from '@/lib/product-slug';
+import { buildAbsoluteUrl } from '@/lib/site-url';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import {
   findStoreSubcategoryBySlug,
@@ -724,6 +726,11 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   const categorySeoConfig = useMemo(() => {
     if (!category) return null;
+    const listForSeo = useServerCatalog ? (catalogData?.products ?? filteredProducts) : filteredProducts;
+    const topProducts = listForSeo.slice(0, 10).map((product) => ({
+      name: product.name,
+      url: buildAbsoluteUrl(buildProductPath(product)),
+    }));
     return buildCategorySeoConfig({
       category,
       subcategoryName: activeSubcategory?.name ?? rentalSubcategory?.title ?? null,
@@ -733,6 +740,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       isInventorySearch,
       searchQuery,
       hasFilterParams: seoHasFilterParams,
+      topProducts,
     });
   }, [
     category,
@@ -744,6 +752,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     isInventorySearch,
     searchQuery,
     seoHasFilterParams,
+    useServerCatalog,
+    catalogData?.products,
+    filteredProducts,
   ]);
 
   useSeo(categorySeoConfig);
@@ -1508,7 +1519,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           </h1>
 
           {categorySeoIntro ? (
-            <p className="sr-only">{categorySeoIntro}</p>
+            <p className="max-w-3xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {categorySeoIntro}
+            </p>
           ) : null}
 
           {storefrontMode && showProductCatalog ? (

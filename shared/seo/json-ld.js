@@ -21,18 +21,30 @@ const ORGANIZATION_CORE = {
   brand: { '@type': 'Brand', name: 'Ricoh' },
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Av. Los Próceres 123',
-    addressLocality: 'San Isidro',
+    streetAddress: 'Av. Petit Thouars 1935',
+    addressLocality: 'Lince',
     addressRegion: 'Lima',
     addressCountry: 'PE',
   },
-  telephone: '+51-915-149-290',
+  telephone: ['+51-926-224-243', '+51-965-805-873'],
   email: 'ventas@nbntecnologia.com',
+  taxID: '20612146561',
   areaServed: { '@type': 'Country', name: 'Perú' },
-  sameAs: [
-    'https://www.facebook.com/',
-    'https://www.instagram.com/',
-    'https://www.youtube.com/',
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      telephone: '+51-926-224-243',
+      contactType: 'sales',
+      areaServed: 'PE',
+      availableLanguage: ['Spanish'],
+    },
+    {
+      '@type': 'ContactPoint',
+      telephone: '+51-965-805-873',
+      contactType: 'customer support',
+      areaServed: 'PE',
+      availableLanguage: ['Spanish'],
+    },
   ],
 };
 
@@ -162,7 +174,7 @@ export function buildWebsiteJsonLd(siteOrigin) {
     url: buildAbsoluteUrl('/', siteOrigin),
     potentialAction: {
       '@type': 'SearchAction',
-      target: `${buildAbsoluteUrl('/categoria/multifuncionales', siteOrigin)}?buscar={search_term_string}`,
+      target: `${buildAbsoluteUrl('/tienda', siteOrigin)}?buscar={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
   };
@@ -257,6 +269,44 @@ export function buildCategoryCollectionJsonLd(category, siteOrigin, topProducts 
   }
 
   return blocks;
+}
+
+export function buildStoreJsonLd(siteOrigin) {
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Tienda online — fotocopiadoras, impresoras y suministros Ricoh',
+      description:
+        'Catálogo completo HaiStore: fotocopiadoras y multifuncionales Ricoh, impresoras, tóner, tintas, repuestos y accesorios. Venta y alquiler con envío a todo el Perú.',
+      url: buildAbsoluteUrl('/tienda', siteOrigin),
+      isPartOf: {
+        '@type': 'WebSite',
+        name: 'HaiStore',
+        url: buildAbsoluteUrl('/', siteOrigin),
+      },
+    },
+    buildOrganizationJsonLd(siteOrigin),
+  ];
+}
+
+/**
+ * @param {{ pathname: string, pageName: string, description?: string }} page
+ */
+export function buildWebPageJsonLd(page, siteOrigin) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: page.pageName,
+    description: page.description,
+    url: buildAbsoluteUrl(page.pathname, siteOrigin),
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'HaiStore',
+      url: buildAbsoluteUrl('/', siteOrigin),
+    },
+    about: buildOrganizationJsonLd(siteOrigin),
+  };
 }
 
 export function buildHomeJsonLd(siteOrigin) {

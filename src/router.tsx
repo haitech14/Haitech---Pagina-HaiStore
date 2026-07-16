@@ -1,5 +1,12 @@
 import { Suspense, type ReactNode } from 'react';
-import { Link, Navigate, createBrowserRouter, isRouteErrorResponse, useRouteError } from 'react-router-dom';
+import {
+  Link,
+  Navigate,
+  createBrowserRouter,
+  isRouteErrorResponse,
+  redirect,
+  useRouteError,
+} from 'react-router-dom';
 
 import { RootLayout } from '@/components/layout/root-layout';
 import { lazyWithRetry } from '@/lib/lazy-with-retry';
@@ -70,6 +77,18 @@ const PrivacyPage = lazyWithRetry(
 const ServiciosPage = lazyWithRetry(
   () => import('@/pages/servicios').then((m) => ({ default: m.ServiciosPage })),
   'servicios',
+);
+const PreguntasFrecuentesPage = lazyWithRetry(
+  () =>
+    import('@/pages/preguntas-frecuentes').then((m) => ({ default: m.PreguntasFrecuentesPage })),
+  'preguntas-frecuentes',
+);
+const PorQueComprarConNosotrosPage = lazyWithRetry(
+  () =>
+    import('@/pages/por-que-comprar-con-nosotros').then((m) => ({
+      default: m.PorQueComprarConNosotrosPage,
+    })),
+  'por-que-comprar',
 );
 const SoftwarePage = lazyWithRetry(
   () => import('@/pages/software').then((m) => ({ default: m.SoftwarePage })),
@@ -441,6 +460,11 @@ export const router = createBrowserRouter([
       { path: 'tienda', element: withSuspense(<StorePage />), loader: () => prefetchStoreRoute(queryClient) },
       { path: 'servicios', element: withSuspense(<ServiciosPage />) },
       { path: 'servicios/:slug', element: withSuspense(<ServicioDetallePage />) },
+      { path: 'preguntas-frecuentes', element: withSuspense(<PreguntasFrecuentesPage />) },
+      {
+        path: 'por-que-comprar-con-nosotros',
+        element: withSuspense(<PorQueComprarConNosotrosPage />),
+      },
       { path: 'software', element: withSuspense(<SoftwarePage />) },
       { path: 'software/:slug', element: withSuspense(<SoftwareDetallePage />) },
       { path: 'haiprotect', element: withSuspense(<HaiProtectPage />) },
@@ -469,7 +493,17 @@ export const router = createBrowserRouter([
             subSlug,
           });
         }, element: withSuspense(<CategoryStorefrontPage />) },
-      { path: 'tienda/producto/:id', element: withSuspense(<ProductDetailPage />) },
+      {
+        path: 'tienda/producto/:slug',
+        loader: ({ params, request }) => {
+          const slug = params.slug?.trim();
+          if (!slug) return redirect('/tienda');
+          const search = new URL(request.url).search;
+          return redirect(`/tienda/${encodeURIComponent(slug)}${search}`);
+        },
+      },
+      /* Categorías viven en /categoria/:slug — sin colisión con fichas en /tienda/:slug */
+      { path: 'tienda/:slug', element: withSuspense(<ProductDetailPage />) },
       { path: 'checkout', element: withSuspense(<CheckoutPage />) },
       { path: 'checkout/exito/:orderNumber', element: withSuspense(<CheckoutSuccessPage />) },
       {

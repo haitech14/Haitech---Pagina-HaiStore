@@ -15,6 +15,11 @@ export function buildCategoryCollectionJsonLd(
   siteOrigin: string,
   topProducts?: Array<{ name: string; url: string }>,
 ): Array<Record<string, unknown>>;
+export function buildStoreJsonLd(siteOrigin: string): Array<Record<string, unknown>>;
+export function buildWebPageJsonLd(
+  page: { pathname: string; pageName: string; description?: string },
+  siteOrigin: string,
+): Record<string, unknown>;
 export function buildHomeJsonLd(siteOrigin: string): Array<Record<string, unknown>>;
 export function buildFaqPageJsonLd(
   items?: Array<{ question: string; answer: string }>,

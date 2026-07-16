@@ -35,6 +35,8 @@ export const FOOTER_NAV_LINKS: FooterLink[] = [
   { label: 'Repuestos', href: categoryLandingPath('repuestos') },
   { label: 'Alquiler de equipos', href: serviceHubPath('alquiler') },
   { label: 'Servicio técnico', href: serviceHubPath('servicio-tecnico') },
+  { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
+  { label: 'Por qué comprar con nosotros', href: '/por-que-comprar-con-nosotros' },
   { label: 'Descargas', href: '/descargas' },
   { label: 'Contacto', href: '/contacto' },
 ];
@@ -58,9 +60,5 @@ export const FOOTER_SUPPORT_EMAIL = 'servicioalcliente@haitech.pe';
 
 export const FOOTER_RUC = DEFAULT_COMPANY_SETTINGS.ruc;
 
-export const FOOTER_SOCIAL_LINKS = [
-  { label: 'Facebook', href: 'https://facebook.com/' },
-  { label: 'Instagram', href: 'https://instagram.com/' },
-  { label: 'YouTube', href: 'https://youtube.com/' },
-  { label: 'TikTok', href: 'https://tiktok.com/' },
-] as const;
+/** Solo URLs reales de marca; vacío si no hay perfiles verificados (evitar placeholders). */
+export const FOOTER_SOCIAL_LINKS: ReadonlyArray<{ label: string; href: string }> = [];

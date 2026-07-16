@@ -4,12 +4,14 @@ export const config = {
   matcher: [
     '/',
     '/tienda',
-    '/tienda/producto/:path*',
+    '/tienda/:path*',
     '/categoria/:path*',
     '/servicios',
     '/servicios/:path*',
     '/software/:path*',
     '/soluciones/:path*',
+    '/preguntas-frecuentes',
+    '/por-que-comprar-con-nosotros',
   ],
 };
 
@@ -79,6 +81,15 @@ async function resolveSeo(pathname, search, request) {
     return fetchJson(request, '/catalog/seo-snapshot/home.json');
   }
 
+  if (routeRef.type === 'store' || pathname === '/tienda') {
+    return fetchJson(request, '/catalog/seo-snapshot/store.json');
+  }
+
+  if (routeRef.type === 'page') {
+    const pages = await fetchJson(request, '/catalog/seo-snapshot/pages.json');
+    return pages?.[routeRef.pathname] ?? pages?.[pathname] ?? null;
+  }
+
   if (routeRef.type === 'category') {
     const categories = await fetchJson(request, '/catalog/seo-snapshot/categories.json');
     const category = categories?.[routeRef.slug];
@@ -110,8 +121,8 @@ async function resolveSeo(pathname, search, request) {
   if (legacy.routes?.[routeKey]) return legacy.routes[routeKey];
   if (legacy.routes?.[pathname]) return legacy.routes[pathname];
 
-  const productMatch = pathname.match(/^\/tienda\/producto\/([^/]+)$/);
-  if (productMatch) {
+  const productMatch = pathname.match(/^\/tienda\/(?:producto\/)?([^/]+)$/);
+  if (productMatch && pathname !== '/tienda') {
     const lookup = decodeURIComponent(productMatch[1]).toLowerCase();
     return legacy.productsByLookup?.[lookup] ?? null;
   }
@@ -123,8 +134,9 @@ async function resolveSeo(pathname, search, request) {
 
   if (pathname === '/') return legacy.home ?? null;
   if (pathname === '/tienda') {
-    return legacy.routes?.['/tienda'] ?? legacy.categories?.multifuncionales ?? null;
+    return legacy.store ?? legacy.routes?.['/tienda'] ?? null;
   }
+  if (legacy.pages?.[pathname]) return legacy.pages[pathname];
 
   return null;
 }

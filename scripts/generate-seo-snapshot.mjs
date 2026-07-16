@@ -16,13 +16,18 @@ import {
   buildCategorySeoRecord,
   buildHomeSeoRecord,
   buildProductSeoRecord,
+  buildStoreSeoRecord,
+  buildStaticPageSeoRecord,
 } from '../shared/seo/meta.js';
 import {
   buildBreadcrumbJsonLd,
   buildCategoryCollectionJsonLd,
+  buildFaqPageJsonLd,
   buildHomeJsonLd,
   buildProductJsonLd,
   buildServiceJsonLd,
+  buildStoreJsonLd,
+  buildWebPageJsonLd,
 } from '../shared/seo/json-ld.js';
 import {
   buildSimpleProductBreadcrumbs,
@@ -32,6 +37,11 @@ import {
   buildServiceSeoRecord,
   SERVICE_SEO_ROUTES,
 } from '../shared/seo/service-routes.js';
+import { isIndexableCatalogProduct } from '../shared/seo/indexable-product.js';
+import {
+  STATIC_SEO_ROUTES,
+  buildStaticSeoRecord,
+} from '../shared/seo/static-routes.js';
 import { buildAbsoluteUrl } from '../shared/site-origin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -134,7 +144,9 @@ async function main() {
   }
 
   const { products: rawProducts } = await readInventory();
-  const products = rawProducts.map((product) => toPublicProduct(product, 'public'));
+  const products = rawProducts
+    .map((product) => toPublicProduct(product, 'public'))
+    .filter((product) => isIndexableCatalogProduct(product));
 
   const productsByLookup = {};
   const routes = {};
@@ -145,10 +157,11 @@ async function main() {
     const breadcrumbs = buildSimpleProductBreadcrumbs(product);
     const seo = buildProductSeoRecord(product, siteOrigin, breadcrumbs);
     const jsonLd = buildProductJsonLd(product, siteOrigin, breadcrumbs);
+    const indexable = isIndexableCatalogProduct(product);
     const payload = {
       ...seo,
       jsonLd,
-      robots: 'index,follow',
+      robots: indexable ? 'index,follow' : 'noindex,follow',
     };
 
     const fileSlug = safeProductFileSlug(slug);
@@ -167,14 +180,29 @@ async function main() {
     const canonicalPath = buildProductPath(product);
     routes[canonicalPath] = { type: 'product', file: fileSlug };
 
+    const encodedSlug = encodeURIComponent(slug);
+    const legacyPrefixedPath = `/tienda/producto/${encodedSlug}`;
+    routes[legacyPrefixedPath] = {
+      type: 'product',
+      file: fileSlug,
+      redirectTo: canonicalPath,
+    };
+
     const legacyId = String(product.id ?? '').trim();
-    if (legacyId && legacyId !== slug && isUuidSlug(legacyId)) {
-      const legacyPath = `/tienda/producto/${encodeURIComponent(legacyId)}`;
-      routes[legacyPath] = {
+    if (legacyId && legacyId.toLowerCase() !== slug.toLowerCase()) {
+      const encodedId = encodeURIComponent(legacyId);
+      routes[`/tienda/producto/${encodedId}`] = {
         type: 'product',
         file: fileSlug,
         redirectTo: canonicalPath,
       };
+      if (isUuidSlug(legacyId)) {
+        routes[`/tienda/${encodedId}`] = {
+          type: 'product',
+          file: fileSlug,
+          redirectTo: canonicalPath,
+        };
+      }
     }
   }
 
@@ -247,8 +275,35 @@ async function main() {
   };
   routes['/'] = { type: 'home' };
 
-  if (categoriesBySlug.multifuncionales) {
-    routes['/tienda'] = { type: 'category', slug: 'multifuncionales' };
+  const storeRecord = buildStoreSeoRecord(siteOrigin);
+  const store = {
+    ...storeRecord,
+    jsonLd: buildStoreJsonLd(siteOrigin),
+    robots: 'index,follow',
+  };
+  routes['/tienda'] = { type: 'store' };
+
+  const pagesByPath = {};
+  for (const route of STATIC_SEO_ROUTES) {
+    const record = buildStaticSeoRecord(route, siteOrigin, buildAbsoluteUrl);
+    const jsonLd =
+      route.jsonLdKind === 'faq'
+        ? buildFaqPageJsonLd()
+        : buildWebPageJsonLd(
+            {
+              pathname: route.pathname,
+              pageName: route.pageName,
+              description: route.description,
+            },
+            siteOrigin,
+          );
+    pagesByPath[route.pathname] = {
+      ...buildStaticPageSeoRecord(route.pathname, route.title, route.description, siteOrigin),
+      ...record,
+      jsonLd,
+      robots: 'index,follow',
+    };
+    routes[route.pathname] = { type: 'page', pathname: route.pathname };
   }
 
   routes['/categoria/toner-compatibles'] = {
@@ -264,11 +319,14 @@ async function main() {
     productsByLookup,
     categories: Object.keys(categoriesBySlug),
     services: Object.keys(servicesByPath),
+    pages: Object.keys(pagesByPath),
   };
 
   await writeJson(path.join(OUTPUT_DIR, 'home.json'), home);
+  await writeJson(path.join(OUTPUT_DIR, 'store.json'), store);
   await writeJson(path.join(OUTPUT_DIR, 'categories.json'), categoriesBySlug);
   await writeJson(path.join(OUTPUT_DIR, 'services.json'), servicesByPath);
+  await writeJson(path.join(OUTPUT_DIR, 'pages.json'), pagesByPath);
   await writeJson(path.join(OUTPUT_DIR, 'routes.json'), routes);
   await writeJson(path.join(OUTPUT_DIR, 'products-index.json'), productsByLookup);
   await writeJson(path.join(OUTPUT_DIR, 'manifest.json'), manifest);
@@ -276,7 +334,7 @@ async function main() {
 
   console.log(`✓ SEO snapshot fragmentado en ${OUTPUT_DIR}`);
   console.log(
-    `  Productos: ${products.length} · Categorías: ${LANDING_CATEGORY_SEO.length} · Servicios: ${SERVICE_SEO_ROUTES.length}${pruned > 0 ? ` · Obsoletos eliminados: ${pruned}` : ''}`,
+    `  Productos: ${products.length} · Categorías: ${LANDING_CATEGORY_SEO.length} · Servicios: ${SERVICE_SEO_ROUTES.length} · Páginas: ${STATIC_SEO_ROUTES.length}${pruned > 0 ? ` · Obsoletos eliminados: ${pruned}` : ''}`,
   );
 }
 

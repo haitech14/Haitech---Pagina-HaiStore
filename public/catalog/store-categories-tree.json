@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-15T11:22:16.380Z",
+  "generatedAt": "2026-07-16T02:51:44.668Z",
   "tree": [
     {
       "id": "cat-multifuncionales",
@@ -15,7 +15,7 @@
       "image": "/categories/multifuncionales.png",
       "tagline": "Imprime, escanea y copia en un solo equipo",
       "children": [],
-      "productCount": 123
+      "productCount": 122
     },
     {
       "id": "cat-impresoras",
