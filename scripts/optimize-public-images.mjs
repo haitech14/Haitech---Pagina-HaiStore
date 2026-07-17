@@ -173,8 +173,56 @@ async function optimizePromoCards() {
   }
 }
 
+async function optimizeCategoryHeroBanners() {
+  console.log('\n— Category hero banners —');
+  const dir = path.join(PUBLIC, 'home', 'category-hero-banners');
+  if (!fs.existsSync(dir)) return;
+
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.webp') && !/-\d+\.webp$/i.test(f));
+
+  for (const file of files) {
+    console.log(`  ${file}`);
+    await generateVariants(path.join(dir, file), [
+      { suffix: '-640', width: 640 },
+      { suffix: '-960', width: 960 },
+    ]);
+  }
+}
+
+async function optimizeCategoryChips() {
+  console.log('\n— Category chips —');
+  for (const sub of ['equipment', 'consumables']) {
+    const dir = path.join(PUBLIC, 'home', 'category-chips', sub);
+    if (!fs.existsSync(dir)) continue;
+
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith('.png'));
+    for (const file of files) {
+      const inputPath = path.join(dir, file);
+      const parsed = path.parse(inputPath);
+      const outWebp = path.join(parsed.dir, `${parsed.name}.webp`);
+      const out256 = path.join(parsed.dir, `${parsed.name}-256.webp`);
+      const tmp = path.join(parsed.dir, `${parsed.name}.tmp.webp`);
+
+      console.log(`  ${sub}/${file}`);
+      await sharp(inputPath)
+        .rotate()
+        .resize({ width: 320, height: 320, fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 1 } })
+        .webp({ quality: 82, effort: 4 })
+        .toFile(tmp);
+      fs.copyFileSync(tmp, outWebp);
+      fs.copyFileSync(tmp, out256);
+      fs.unlinkSync(tmp);
+      console.log(`  ✓ ${path.relative(PUBLIC, outWebp)} (${kb(outWebp)} KB)`);
+    }
+  }
+}
+
 console.log('Optimizando imágenes públicas…');
 await optimizeHero();
+await optimizeCategoryHeroBanners();
+await optimizeCategoryChips();
 await optimizeCategories();
 await optimizeClients();
 await optimizeRecommendations();

@@ -80,9 +80,11 @@ export function HeaderCategoryNav({
               <HeaderBrandLogo />
             </div>
 
+            <div className="min-w-0 flex-1" aria-hidden="true" />
+
             <div
               id="header-store-search"
-              className="min-w-0 w-full max-w-[34rem] flex-1 ml-5 lg:ml-7 xl:ml-9 lg:max-w-[38rem] xl:max-w-[44rem]"
+              className="min-w-0 w-full max-w-[30rem] lg:max-w-[34rem] xl:max-w-[38rem]"
             >
               <SiteSearchForm
                 className="w-full"
@@ -92,7 +94,7 @@ export function HeaderCategoryNav({
               />
             </div>
 
-            <div className="ml-auto flex shrink-0 items-center justify-end gap-3 xl:gap-4">
+            <div className="flex shrink-0 items-center justify-end gap-3 xl:gap-4">
               <HeaderStoreDesktopActions
                 cartCount={cartCount}
                 cartAriaLabel={cartAriaLabel}

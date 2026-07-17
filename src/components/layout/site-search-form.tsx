@@ -122,7 +122,7 @@ const compactSearchButtonClass =
   'flex h-9 w-9 shrink-0 items-center justify-center rounded-r-[calc(var(--radius)-1px)] border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 const denseSearchBarClass =
-  'flex w-full max-w-full items-stretch overflow-hidden rounded-full border border-border/80 bg-white shadow-sm transition-shadow focus-within:border-border focus-within:ring-2 focus-within:ring-ring/20';
+  'flex w-full max-w-full items-stretch overflow-hidden rounded-full border-0 bg-white shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-white/30';
 
 const denseCategorySegmentClass =
   'h-10 min-w-[5.75rem] max-w-[7.25rem] shrink-0 appearance-none border-0 border-l border-border/80 bg-white py-0 pl-2.5 pr-7 text-xs text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset xl:min-w-[6.25rem] xl:max-w-[8rem]';

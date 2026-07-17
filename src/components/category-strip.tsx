@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDisplayCurrency } from '@/context/display-currency-context';
 import {
   buildHomeCategoryStripItems,
   resolveHomeCategoryStripCategories,
@@ -15,9 +16,11 @@ import {
   useStoreCategoriesTree,
 } from '@/hooks/use-store-categories';
 import { loadCatalogIndex } from '@/lib/catalog-featured';
+import { formatDisplayPriceFromUsd } from '@/lib/display-price';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { categoryImageSources } from '@/lib/responsive-image';
-import { cn, formatPenFromUsdDisplay } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import type { DisplayCurrency, DualPriceOrder } from '@/types/display-currency';
 
 const CATEGORY_STRIP_TITLE_ID = 'home-category-strip-title';
 const CAROUSEL_GAP_CLASS = 'gap-5';
@@ -32,10 +35,14 @@ const SKELETON_CARD_COUNT = 5;
 const carouselArrowClass =
   'absolute top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border/40 bg-white/90 text-[#86868b] shadow-sm transition-colors hover:border-border/70 hover:bg-white hover:text-[#1d1d1f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/60 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-30 sm:size-9';
 
-function resolveCategoryPriceLabel(item: HomeCategoryStripItem): string | null {
+function resolveCategoryPriceLabel(
+  item: HomeCategoryStripItem,
+  displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder,
+): string | null {
   if (item.priceSubtext) return item.priceSubtext;
   if (item.priceFromUsd != null && item.priceFromUsd > 0) {
-    return `Desde ${formatPenFromUsdDisplay(item.priceFromUsd, item.name)}`;
+    return `Desde ${formatDisplayPriceFromUsd(item.priceFromUsd, displayCurrency, dualPriceOrder)}`;
   }
   return null;
 }
@@ -47,9 +54,10 @@ function CategoryStripTile({
   item: HomeCategoryStripItem;
   priority?: boolean;
 }) {
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const [hasError, setHasError] = useState(false);
   const showImage = Boolean(item.image) && !hasError;
-  const priceLabel = resolveCategoryPriceLabel(item);
+  const priceLabel = resolveCategoryPriceLabel(item, displayCurrency, dualPriceOrder);
 
   return (
     <article

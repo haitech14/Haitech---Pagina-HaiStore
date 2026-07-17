@@ -1105,11 +1105,11 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   const categoryFiltersContent = (
     <>
-      <section aria-label="Catálogo por categoría">
-        <h3 className={filterSectionLabelClass}>
-          {catalogSidebarLayout ? 'Categorías' : 'Catálogo'}
-        </h3>
-        <div className="mt-1.5 max-h-[min(16rem,42vh)] overflow-y-auto rounded-md border border-border/70 bg-background shadow-sm [scrollbar-width:thin]">
+      <CatalogFilterSection
+        title={catalogSidebarLayout ? 'Categorías' : 'Catálogo'}
+        labelClassName={filterSectionLabelClass}
+      >
+        <div className="max-h-[min(16rem,42vh)] overflow-y-auto rounded-md border border-border/70 bg-background shadow-sm [scrollbar-width:thin]">
           {categoryTreeLoading && categoryTree.length === 0 ? (
             <p className="px-2.5 py-2 text-[0.6875rem] text-muted-foreground">Cargando categorías…</p>
           ) : categoryTreeError && categoryTree.length === 0 ? (
@@ -1140,7 +1140,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
             />
           )}
         </div>
-      </section>
+      </CatalogFilterSection>
 
       {catalogSidebarLayout && showCatalogSpecFilters && colorSpecFilterTabs.length > 0 ? (
         <CatalogFilterSection
@@ -1544,9 +1544,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           </h1>
 
           {categorySeoIntro ? (
-            <p className="max-w-3xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
-              {categorySeoIntro}
-            </p>
+            <section aria-label={`Información sobre ${pageTitle}`} className="sr-only">
+              <p>{categorySeoIntro}</p>
+            </section>
           ) : null}
 
           {storefrontMode && showProductCatalog ? (

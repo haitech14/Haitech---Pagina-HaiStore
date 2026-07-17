@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Icon } from '@mdi/react';
 import { mdiWhatsapp } from '@mdi/js';
 
@@ -33,16 +34,30 @@ export function HaibotAgentAvatar({
   showWhatsAppBadge = false,
   className,
 }: HaibotAgentAvatarProps) {
+  const [failed, setFailed] = useState(false);
+
   return (
     <span
       className={cn('relative inline-flex shrink-0', sizeClasses[size], className)}
     >
-      <img
-        src={HAIBOT_AGENT_AVATAR}
-        alt={HAIBOT_AGENT_AVATAR_ALT}
-        className="size-full rounded-full border-0 object-cover object-[center_15%] shadow-sm"
-        loading="lazy"
-      />
+      {!failed ? (
+        <img
+          src={HAIBOT_AGENT_AVATAR}
+          alt={HAIBOT_AGENT_AVATAR_ALT}
+          className="size-full rounded-full border-0 bg-white object-cover object-center shadow-sm"
+          loading="eager"
+          decoding="async"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <span
+          className="flex size-full items-center justify-center rounded-full bg-[#FFF0F1] text-base shadow-sm"
+          role="img"
+          aria-label={HAIBOT_AGENT_AVATAR_ALT}
+        >
+          🤖
+        </span>
+      )}
       {showWhatsAppBadge ? (
         <span
           aria-hidden="true"

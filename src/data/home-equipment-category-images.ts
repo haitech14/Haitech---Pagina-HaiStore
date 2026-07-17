@@ -6,18 +6,18 @@ export const HOME_EQUIPMENT_CATEGORY_IMAGES: Record<
   HomeFeaturedEquipmentCategoryFilterId,
   string
 > = {
-  multifuncionales: `${EQUIPMENT_CHIP_IMAGE_BASE}/multifuncionales.png`,
-  'impresora-laser': `${EQUIPMENT_CHIP_IMAGE_BASE}/impresora-laser.png`,
-  'impresora-tinta': `${EQUIPMENT_CHIP_IMAGE_BASE}/impresora-tinta.png`,
-  'impresora-termica': `${EQUIPMENT_CHIP_IMAGE_BASE}/impresora-termica.png`,
-  'impresora-matricial': `${EQUIPMENT_CHIP_IMAGE_BASE}/impresora-matricial.png`,
-  escaneres: `${EQUIPMENT_CHIP_IMAGE_BASE}/escaneres.png`,
-  plotter: `${EQUIPMENT_CHIP_IMAGE_BASE}/plotter.png`,
-  'multifuncional-planos': `${EQUIPMENT_CHIP_IMAGE_BASE}/multifuncional-planos.png`,
-  'pantallas-interactivas': `${EQUIPMENT_CHIP_IMAGE_BASE}/pantallas-interactivas.png`,
-  videoconferencia: `${EQUIPMENT_CHIP_IMAGE_BASE}/videoconferencia.png`,
-  laptops: `${EQUIPMENT_CHIP_IMAGE_BASE}/laptops.png`,
-  accesorios: `${EQUIPMENT_CHIP_IMAGE_BASE}/accesorios.png`,
+  multifuncionales: `${EQUIPMENT_CHIP_IMAGE_BASE}/multifuncionales.webp`,
+  'impresora-laser': `${EQUIPMENT_CHIP_IMAGE_BASE}/impresora-laser.webp`,
+  'impresora-tinta': `${EQUIPMENT_CHIP_IMAGE_BASE}/impresora-tinta.webp`,
+  'impresora-termica': `${EQUIPMENT_CHIP_IMAGE_BASE}/impresora-termica.webp`,
+  'impresora-matricial': `${EQUIPMENT_CHIP_IMAGE_BASE}/impresora-matricial.webp`,
+  escaneres: `${EQUIPMENT_CHIP_IMAGE_BASE}/escaneres.webp`,
+  plotter: `${EQUIPMENT_CHIP_IMAGE_BASE}/plotter.webp`,
+  'multifuncional-planos': `${EQUIPMENT_CHIP_IMAGE_BASE}/multifuncional-planos.webp`,
+  'pantallas-interactivas': `${EQUIPMENT_CHIP_IMAGE_BASE}/pantallas-interactivas.webp`,
+  videoconferencia: `${EQUIPMENT_CHIP_IMAGE_BASE}/videoconferencia.webp`,
+  laptops: `${EQUIPMENT_CHIP_IMAGE_BASE}/laptops.webp`,
+  accesorios: `${EQUIPMENT_CHIP_IMAGE_BASE}/accesorios.webp`,
 };
 
 export function resolveHomeEquipmentCategoryImage(

@@ -26,10 +26,10 @@ import {
 } from '@/data/home-featured-quick-filters-equipment';
 import {
   HOME_FIND_CATALOG_LINKS,
+  HOME_FIND_CATEGORY_HERO_BANNERS,
   HOME_FIND_CONSUMABLES_CATEGORIES,
   HOME_FIND_DEFAULT_TAB,
   HOME_FIND_EQUIPMENT_CATEGORIES,
-  HOME_FIND_MAIN_TABS,
   HOME_FIND_PRODUCT_DISPLAY_LIMIT,
   HOME_FIND_SECTION_TITLE,
   HOME_FIND_SPARE_PARTS_CATEGORIES,
@@ -65,11 +65,14 @@ import {
   resolveHomeFindSparePartsCategoryImage,
 } from '@/lib/home-find-category-visuals';
 import { takeHomeDisplayProductsWithOnRequest } from '@/lib/product-on-request-label';
+import { categoryHeroBannerSources } from '@/lib/responsive-image';
 import { productToFeatured } from '@/lib/store-products';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 
 const FEATURED_POOL_LIMIT = 64;
+/** Solo las primeras tarjetas visibles del carrusel (desktop ~5, mobile ~2). */
+const PRODUCTS_EAGER_IMAGE_COUNT = 3;
 
 const PRODUCTS_CAROUSEL_GAP = 'gap-3 sm:gap-3.5 xl:gap-4';
 const PRODUCT_SLIDE_CLASS =
@@ -158,14 +161,20 @@ function buildProductPoolForTab(
     }
   }
 
-  for (const row of getCatalogRows()) {
-    const publicPrice = row.prices?.public ?? 0;
-    if (publicPrice <= 0) continue;
-    pushUnique(catalogRowToFeatured(row));
+  // Evita barrer el índice completo si el bundle ya llenó el pool.
+  if (merged.length < FEATURED_POOL_LIMIT) {
+    for (const row of getCatalogRows()) {
+      const publicPrice = row.prices?.public ?? 0;
+      if (publicPrice <= 0) continue;
+      pushUnique(catalogRowToFeatured(row));
+      if (merged.length >= FEATURED_POOL_LIMIT) break;
+    }
   }
 
-  for (const item of getFeaturedProducts()) {
-    pushUnique(item);
+  if (merged.length < FEATURED_POOL_LIMIT) {
+    for (const item of getFeaturedProducts()) {
+      pushUnique(item);
+    }
   }
 
   return merged;
@@ -271,7 +280,10 @@ function HomeFindProductsCarousel({ products }: { products: FeaturedProduct[] })
         <ul className={cn('flex', PRODUCTS_CAROUSEL_GAP)} role="list">
           {products.map((product, index) => (
             <li key={product.id} className={PRODUCT_SLIDE_CLASS}>
-              <HomeLandingProductCard product={product} priority={index < 5} />
+              <HomeLandingProductCard
+                product={product}
+                priority={index < PRODUCTS_EAGER_IMAGE_COUNT}
+              />
             </li>
           ))}
         </ul>
@@ -457,7 +469,7 @@ function HomeFindCategoryPills<T extends string>({
   );
 }
 
-function HomeFindMainTabs({
+function HomeFindCategoryHeroBanners({
   activeTab,
   onTabChange,
 }: {
@@ -466,31 +478,51 @@ function HomeFindMainTabs({
 }) {
   return (
     <div
-      className="mb-4 flex flex-wrap justify-center gap-1.5 sm:mb-5 sm:gap-2"
+      className="mb-4 sm:mb-5"
       role="tablist"
       aria-label="Explorar por tipo de producto"
     >
-      {HOME_FIND_MAIN_TABS.map((tab) => {
-        const isActive = activeTab === tab.id;
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            className={cn(
-              'inline-flex min-h-9 shrink-0 items-center justify-center rounded-full border px-3.5 py-2 text-xs font-bold transition-colors sm:min-h-10 sm:px-5 sm:text-sm',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-              isActive
-                ? 'border-[#E30613] bg-[#E30613] text-white shadow-[0_4px_14px_rgba(227,6,19,0.25)]'
-                : 'border-border/80 bg-white text-[#333333] hover:border-[#E30613]/40 hover:bg-[#FFF5F5]',
-            )}
-            onClick={() => onTabChange(tab.id)}
-          >
-            {tab.label}
-          </button>
-        );
-      })}
+      <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3" role="list">
+        {HOME_FIND_CATEGORY_HERO_BANNERS.map((banner, index) => {
+          const isActive = activeTab === banner.id;
+          const sources = categoryHeroBannerSources(banner.imageSrc);
+          const eager = index === 0;
+          return (
+            <li key={banner.id} className="min-w-0">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-label={banner.imageAlt}
+                onClick={() => onTabChange(banner.id)}
+                className={cn(
+                  'group relative block w-full overflow-hidden rounded-xl text-left',
+                  'shadow-[0_4px_18px_rgba(15,31,61,0.12)] transition-[transform,box-shadow,ring] duration-200',
+                  'hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(15,31,61,0.16)]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                  isActive
+                    ? 'ring-2 ring-[#E30613] ring-offset-2'
+                    : 'ring-1 ring-black/5',
+                )}
+              >
+                <picture>
+                  <source type="image/webp" srcSet={sources.webpSrcSet} sizes={sources.sizes} />
+                  <img
+                    src={sources.fallbackSrc}
+                    alt=""
+                    width={960}
+                    height={540}
+                    className="aspect-[16/9] h-auto w-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.02]"
+                    loading={eager ? 'eager' : 'lazy'}
+                    decoding="async"
+                    {...(eager ? { fetchPriority: 'low' as const } : {})}
+                  />
+                </picture>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -597,7 +629,10 @@ export function HomeFindWhatYouNeedSection() {
         : 'No hay repuestos en esta selección por ahora.';
 
   return (
-    <section aria-labelledby="home-find-what-you-need-title" className="home-landing-sans bg-white">
+    <section
+      aria-labelledby="home-find-what-you-need-title"
+      className="home-landing-sans bg-white [content-visibility:auto] [contain-intrinsic-size:auto_720px]"
+    >
       <div className="container pb-6 pt-4 sm:pb-8 sm:pt-5">
         <h2
           id="home-find-what-you-need-title"
@@ -606,7 +641,7 @@ export function HomeFindWhatYouNeedSection() {
           {HOME_FIND_SECTION_TITLE}
         </h2>
 
-        <HomeFindMainTabs activeTab={activeTab} onTabChange={handleTabChange} />
+        <HomeFindCategoryHeroBanners activeTab={activeTab} onTabChange={handleTabChange} />
 
         {activeTab === 'equipos' ? (
           <>

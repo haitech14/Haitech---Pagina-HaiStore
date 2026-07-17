@@ -249,20 +249,18 @@ export function HomeLandingProductCard({
 
       <div className="flex flex-1 flex-col px-3 pb-3 pt-1.5 sm:px-3.5 sm:pb-3.5 sm:pt-2">
         <ProductCardBrandLine brand={brand} />
+        <ProductCardPromoBadges product={productSource} className="mt-1" />
 
         <Link
           to={detailPath}
           className={cn(
-            'rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-            brand && 'mt-0.5',
+            'mt-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
           )}
         >
-          <h3 className="line-clamp-2 text-pretty text-left text-sm font-bold leading-snug text-[#111111] sm:text-[0.9375rem]">
+          <h3 className="line-clamp-2 text-pretty text-left text-sm font-normal leading-snug text-[#111111] sm:text-[0.9375rem]">
             {productTitle}
           </h3>
         </Link>
-
-        <ProductCardPromoBadges product={productSource} className="mt-2" />
 
         <ProductCardStatsLine
           product={productSource}

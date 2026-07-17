@@ -1,9 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 
 import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
-import { ServicesNavMegaMenu } from '@/components/layout/services-nav-mega-menu';
 import { SoftwareNavMegaMenu } from '@/components/layout/software-nav-mega-menu';
-import { TonerNavMegaMenu } from '@/components/layout/toner-nav-mega-menu';
 import { cn } from '@/lib/utils';
 
 export type HeaderMainNavLink = {
@@ -38,6 +36,7 @@ function MockupNavLink({
 
 /** Enlaces principales del mockup. */
 export function HeaderMainMenu({
+  linkClassName,
   className,
   menuVariant = 'default',
   menuDensity = 'default',
@@ -58,6 +57,41 @@ export function HeaderMainMenu({
           ? 'secondary'
           : 'default';
 
+  const links: HeaderMainNavLink[] = [
+    {
+      id: 'inicio',
+      to: '/',
+      label: 'Inicio',
+      end: true,
+      matchActive: ({ pathname, hash }) => pathname === '/' && hash !== '#promociones',
+    },
+    {
+      id: 'servicio-tecnico',
+      to: '/servicios?seccion=servicio-tecnico',
+      label: 'Servicio técnico',
+      matchActive: ({ pathname, search }) =>
+        pathname === '/servicios' && search.includes('seccion=servicio-tecnico'),
+    },
+    {
+      id: 'alquiler',
+      to: '/servicios?seccion=alquiler',
+      label: 'Alquiler',
+      matchActive: ({ pathname, search }) =>
+        pathname === '/servicios' && search.includes('seccion=alquiler'),
+    },
+    {
+      id: 'ofertas',
+      to: '/#promociones',
+      label: 'Ofertas',
+      matchActive: ({ pathname, hash }) => pathname === '/' && hash === '#promociones',
+    },
+    {
+      id: 'contacto',
+      to: '/contacto',
+      label: 'Contacto',
+    },
+  ];
+
   return (
     <ul
       className={cn(
@@ -67,16 +101,34 @@ export function HeaderMainMenu({
       )}
     >
       <li className="shrink-0">
-        <CategoriesMegaMenu navRow={dropdownVariant} showIcon={showIcons} triggerVariant="nav" />
+        <MockupNavLink item={links[0]!} linkClassName={linkClassName} />
       </li>
       <li className="shrink-0">
-        <TonerNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
-      </li>
-      <li className="shrink-0">
-        <ServicesNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
+        <CategoriesMegaMenu
+          navRow={dropdownVariant}
+          showIcon={showIcons}
+          triggerVariant="nav"
+          label="Productos"
+        />
       </li>
       <li className="shrink-0">
         <SoftwareNavMegaMenu navRow={dropdownVariant} showIcon={showIcons} />
+      </li>
+      <li className="shrink-0">
+        <MockupNavLink item={links[1]!} linkClassName={linkClassName} />
+      </li>
+      <li className="shrink-0">
+        <MockupNavLink item={links[2]!} linkClassName={linkClassName} />
+      </li>
+      <li className="relative shrink-0">
+        <MockupNavLink item={links[3]!} linkClassName={linkClassName} />
+        <span
+          className="absolute -right-1.5 top-0 size-1.5 rounded-full bg-lime-400"
+          aria-hidden="true"
+        />
+      </li>
+      <li className="shrink-0">
+        <MockupNavLink item={links[4]!} linkClassName={linkClassName} />
       </li>
     </ul>
   );

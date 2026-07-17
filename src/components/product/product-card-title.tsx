@@ -1,3 +1,5 @@
+import { Package } from 'lucide-react';
+
 import {
   getProductCardTitleContent,
   PRODUCT_CARD_BRAND_CLASS,
@@ -78,7 +80,7 @@ export function ProductCardTitle({
       : PRODUCT_CARD_BRAND_CLASS,
   );
   const titleClass = isTable
-    ? 'line-clamp-2 text-[0.84rem] font-semibold leading-[1.25] text-foreground sm:text-[0.875rem]'
+    ? 'line-clamp-2 text-[0.84rem] font-normal leading-[1.25] text-foreground sm:text-[0.875rem]'
     : isFeatured
       ? cn(PRODUCT_CARD_TITLE_FEATURED_CLASS, PRODUCT_CARD_TITLE_CLAMP_CLASS)
       : cn(PRODUCT_CARD_TITLE_MAIN_CLASS, PRODUCT_CARD_TITLE_CLAMP_CLASS);
@@ -97,10 +99,18 @@ export function ProductCardTitle({
       />
       <h3 className={titleClass}>{title}</h3>
       {showCodeStockRow ? (
-        <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
-          {code ? <span className={PRODUCT_CARD_CODE_CLASS}>{code}</span> : <span className="min-w-0" />}
+        <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
+          {code ? <span className={PRODUCT_CARD_CODE_CLASS}>{code}</span> : null}
+          {code && showStock ? (
+            <span className={cn(PRODUCT_CARD_STOCK_CLASS, 'select-none')} aria-hidden="true">
+              -
+            </span>
+          ) : null}
           {showStock ? (
-            <span className={cn(PRODUCT_CARD_STOCK_CLASS, 'tabular-nums')}>
+            <span className={cn(PRODUCT_CARD_STOCK_CLASS, 'inline-flex items-center gap-1 tabular-nums')}>
+              {!outOfStock ? (
+                <Package className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              ) : null}
               {formatCardStockLabel(outOfStock, stock ?? 0)}
             </span>
           ) : null}

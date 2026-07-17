@@ -115,9 +115,9 @@ export function HeaderWhatsAppContactAction({
         className={cn(headerDarkUtilityButtonClass(), 'h-auto items-center gap-1.5 py-1.5', className)}
       >
         {icon}
-        <span className="flex flex-col gap-0.5 text-left text-[0.6875rem] leading-[1.35]">
+        <span className="flex flex-col gap-0 text-left text-[0.6875rem] leading-none">
           <span className="font-semibold">{label}</span>
-          <span className="font-normal text-white/75">{phoneDisplay}</span>
+          <span className="mt-0 font-normal text-white/75">{phoneDisplay}</span>
         </span>
       </button>
 

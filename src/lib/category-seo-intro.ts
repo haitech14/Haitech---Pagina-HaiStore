@@ -1,4 +1,4 @@
-/** Párrafos SEO visibles para landings de categoría (150–300 palabras aprox. en roots clave). */
+/** Párrafos SEO en landings de categoría (crawlables; ocultos visualmente con `sr-only` en la UI). */
 
 const ROOT_INTRO: Record<string, string> = {
   multifuncionales:

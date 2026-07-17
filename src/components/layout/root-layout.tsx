@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Header } from '@/components/layout/header';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
+import { HomeStorefrontTrustBar } from '@/components/home/home-storefront-trust-bar';
 import { ShoppingCartDrawer } from '@/components/cart/shopping-cart-drawer';
 import { ProductCompareTray } from '@/components/product/product-compare-tray';
 import { CartProvider } from '@/context/cart-context';
@@ -81,6 +82,7 @@ export function RootLayout() {
       >
         <Outlet />
       </main>
+      <HomeStorefrontTrustBar />
       <SiteFooter />
       <Suspense fallback={null}>
         <MobileBottomNav />

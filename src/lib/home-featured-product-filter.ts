@@ -11,6 +11,7 @@ import { HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS } from '@/lib/home-equipment-categ
 import type { HomeFeaturedSpecFilterId } from '@/data/home-featured-quick-filters-spec';
 import { inferColor, resolveCatalogListFormatoPapel } from '@/lib/category-catalog-filters';
 import { findCategoryBySlug, getCategoryProductLabels } from '@/lib/category-product-labels';
+import { isPriceOnRequest } from '@/lib/display-price';
 import { productMatchesCategoryFilter } from '@/lib/inventory-categories';
 import { isPrinterProduct } from '@/lib/product-detail-badges';
 import {
@@ -344,7 +345,8 @@ export function matchesHomeFeaturedEquipmentCategoryFilter(
       return (
         matchesCategoryLabels(product, HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS.escaneres) ||
         haystack.includes('escaner') ||
-        haystack.includes('scanner')
+        haystack.includes('scanner') ||
+        haystack.includes('scansnap')
       );
     case 'plotter':
       return isPlotterProduct(product);
@@ -373,6 +375,10 @@ export function compareHomeFeaturedEquipmentProducts(
   a: FeaturedProduct,
   b: FeaturedProduct,
 ): number {
+  const aOnRequest = isPriceOnRequest(a.price);
+  const bOnRequest = isPriceOnRequest(b.price);
+  if (aOnRequest !== bOnRequest) return aOnRequest ? 1 : -1;
+
   const priceDelta = (a.price ?? 0) - (b.price ?? 0);
   if (priceDelta !== 0) return priceDelta;
 
@@ -608,6 +614,10 @@ export function compareHomeFeaturedConsumablesProducts(
   a: FeaturedProduct,
   b: FeaturedProduct,
 ): number {
+  const aOnRequest = isPriceOnRequest(a.price);
+  const bOnRequest = isPriceOnRequest(b.price);
+  if (aOnRequest !== bOnRequest) return aOnRequest ? 1 : -1;
+
   const priceDelta = (a.price ?? 0) - (b.price ?? 0);
   if (priceDelta !== 0) return priceDelta;
 

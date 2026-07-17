@@ -135,6 +135,8 @@ export function HomeCategoryChipContent({
         <img
           src={imageSrc}
           alt=""
+          width={88}
+          height={88}
           className={cn(visualClassName, 'shrink-0 object-contain')}
           loading="lazy"
           decoding="async"

@@ -1,5 +1,5 @@
 /** Etiqueta de stock sin unidades inmediatas (tienda + portapapeles). */
-export const PRODUCT_ON_REQUEST_STOCK_LABEL = 'A pedido (45 a 60 días)';
+export const PRODUCT_ON_REQUEST_STOCK_LABEL = 'A pedido';
 
 /** Stock numérico seguro desde featured / producto. */
 export function resolveFeaturedProductStock(product: { stock?: number | null }): number {

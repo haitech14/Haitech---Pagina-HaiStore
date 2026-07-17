@@ -289,7 +289,7 @@ export function isSeminuevaProductName(name: string): boolean {
   return /\bseminueva\b/i.test(name.trim());
 }
 
-/** Equipo nuevo en inventario: «NUEVA» en el nombre y sin «seminueva». */
+/** Equipo nuevo en inventario: «NUEVA»/«NUEVO» en el nombre y sin «seminueva». */
 export function productQualifiesAsNuevaEquipment(product: {
   name?: string | null;
   category?: string | null;
@@ -299,11 +299,15 @@ export function productQualifiesAsNuevaEquipment(product: {
   if (!name && !category) return false;
   if (isSeminuevaProductName(name)) return false;
   if (/\bremanufacturad/i.test(name)) return false;
-  if (/\bnueva\b/i.test(name)) return true;
+  if (/\bnuev[oa]\b/i.test(name)) return true;
 
-  // Algunos equipos quedan catalogados como “Nuevas” sin incluir “Nueva” en el título.
+  // Algunos equipos quedan catalogados como “Nuevas/Nuevos” sin incluirlo en el título.
   // Para habilitar CTAs (p. ej. Alquiler) usamos también la categoría.
-  return category.includes('nuevas') && !category.includes('seminuevas');
+  return (
+    (category.includes('nuevas') || category.includes('nuevos')) &&
+    !category.includes('seminuevas') &&
+    !category.includes('seminuevos')
+  );
 }
 
 /** Equipo seminuevo: «seminueva» en el nombre o categoría de seminuevas. */

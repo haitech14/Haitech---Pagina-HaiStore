@@ -20,7 +20,7 @@ export const PRODUCT_CARD_TITLE_SIZE = 'text-[0.84rem] leading-[1.2] sm:text-[0.
 
 /** Título en vitrina destacada / carrusel (fichas estrechas, 5 por fila; máx. 3 líneas). */
 export const PRODUCT_CARD_TITLE_FEATURED_CLASS =
-  'text-[0.8125rem] font-semibold leading-[1.2] text-foreground sm:text-[0.875rem]';
+  'text-[0.8125rem] font-normal leading-[1.2] text-foreground sm:text-[0.875rem]';
 
 export const PRODUCT_CARD_BRAND_CLASS =
   'truncate text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground sm:text-[0.625rem]';
@@ -33,14 +33,14 @@ export const PRODUCT_CARD_BRAND_ACCENT_CLASS = PRODUCT_CARD_BRAND_CLASS;
 
 /** Código SKU / inventario junto a la marca. */
 export const PRODUCT_CARD_CODE_CLASS =
-  'shrink-0 font-mono text-[0.62rem] font-medium normal-case tracking-normal text-muted-foreground sm:text-[0.65rem]';
+  'shrink-0 font-mono text-[0.62rem] font-normal normal-case tracking-normal text-muted-foreground sm:text-[0.65rem]';
 
 /** Stock disponible junto al código en tarjetas de catálogo (mismo tono gris, sin badge). */
 export const PRODUCT_CARD_STOCK_CLASS =
-  'shrink-0 text-[0.62rem] font-medium normal-case tracking-normal text-muted-foreground sm:text-[0.65rem]';
+  'shrink-0 text-[0.62rem] font-normal normal-case tracking-normal text-muted-foreground sm:text-[0.65rem]';
 
 /** Título principal en tarjetas de catálogo (nombre del producto tal cual en inventario). */
-export const PRODUCT_CARD_TITLE_MAIN_CLASS = `${PRODUCT_CARD_TITLE_SIZE} font-semibold text-foreground`;
+export const PRODUCT_CARD_TITLE_MAIN_CLASS = `${PRODUCT_CARD_TITLE_SIZE} font-normal text-foreground`;
 
 /** Máximo 3 líneas en ficha de producto. */
 export const PRODUCT_CARD_TITLE_CLAMP_CLASS =

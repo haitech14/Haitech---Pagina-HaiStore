@@ -9,12 +9,6 @@ import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { formatUsd } from '@/lib/utils';
 import type { ProductVolumeRolePriceTier } from '@/types/product';
 
-/** ETA Lima con stock disponible. */
-export const DEFAULT_PRODUCT_CLIPBOARD_DELIVERY_IN_STOCK = 'Inmediata';
-
-/** ETA Lima sin stock / a pedido. */
-export const DEFAULT_PRODUCT_CLIPBOARD_DELIVERY = '1–2 días (Lima)';
-
 /** Validez comercial del precio cotizado (versión corta para WhatsApp). */
 export const DEFAULT_PRODUCT_CLIPBOARD_PRICE_VALIDITY = '7 días / agotar stock';
 
@@ -54,7 +48,7 @@ export interface ProductClipboardTextInput {
   volumeRolePrices?: ProductVolumeRolePriceTier[] | null;
   /** Override del tramo de descuento; si no se pasa se resuelve. */
   volumeDiscount?: ProductClipboardVolumeDiscount | null;
-  /** Override; por defecto Inmediata si hay stock. */
+  /** Ignorado: el texto copiado ya no incluye entrega. */
   deliveryTime?: string | null;
   /** Override; por defecto 7 días / agotar stock. */
   priceValidity?: string | null;
@@ -82,7 +76,7 @@ export function buildProductClipboardPageUrl(productPathOrUrl: string): string {
   return `${PRODUCT_CLIPBOARD_SITE_ORIGIN}${path}`;
 }
 
-/** Stock label aligned with storefront cards (`2 unids.` / `A pedido (45 a 60 días)`). */
+/** Stock label aligned with storefront cards (`2 unids.` / `A pedido`). */
 export function formatProductClipboardStock(stock: number): string {
   const quantity = Math.max(0, Math.floor(Number(stock) || 0));
   if (quantity <= 0) return PRODUCT_ON_REQUEST_STOCK_LABEL;
@@ -220,18 +214,6 @@ function resolveVolume(
   });
 }
 
-function resolveDelivery(input: ProductClipboardTextInput): string {
-  const custom = input.deliveryTime?.trim();
-  if (custom) return custom;
-  const quantity = Math.max(0, Math.floor(Number(input.stock) || 0));
-  if (quantity > 0) return DEFAULT_PRODUCT_CLIPBOARD_DELIVERY_IN_STOCK;
-  return DEFAULT_PRODUCT_CLIPBOARD_DELIVERY;
-}
-
-function isImmediateDelivery(delivery: string): boolean {
-  return /^inmediata\b/i.test(delivery.trim());
-}
-
 function formatVolumeDiscountLabel(volume: ProductClipboardVolumeDiscount): string {
   if (volume.perSet) return 'por Juego';
   return `${volume.fromUnits}+`;
@@ -250,7 +232,7 @@ export interface ProductClipboardPayload {
 
 /**
  * Bloque compacto para WhatsApp / cotización (etiquetas cortas).
- * Orden: Producto → Código → Cond. → Stock → Precio → Dscto → Entrega → Validez → link.
+ * Orden: Producto → Código → Cond. → Stock → Precio → Dscto → Validez → link.
  * Negrita: WhatsApp `*…*` en plain; `<b>` en HTML.
  */
 export function buildProductClipboardPayload(input: ProductClipboardTextInput): ProductClipboardPayload {
@@ -258,7 +240,6 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
   const title = input.title.trim();
   const condition = input.condition?.trim() || null;
   const stockLabel = formatProductClipboardStock(input.stock);
-  const delivery = resolveDelivery(input);
   const priceValidity = resolvePriceValidity(input);
   const volume = resolveVolume(input);
   const pageUrl = input.productPath?.trim()
@@ -310,7 +291,7 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
     );
   }
 
-  // Dscto en línea propia (separado de Entrega)
+  // Dscto en línea propia
   if (volume) {
     const volPrice = formatUsd(volume.priceUsd);
     const volLabel = formatVolumeDiscountLabel(volume);
@@ -323,17 +304,6 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
   plainLines.push('');
   htmlLines.push('');
 
-  if (isImmediateDelivery(delivery)) {
-    push(
-      `🚚 Entrega: ${waBold(delivery)}`,
-      `🚚 Entrega: ${htmlBold(delivery)}`,
-    );
-  } else {
-    push(
-      `🚚 Entrega: ${delivery}`,
-      `🚚 Entrega: ${escapeHtml(delivery)}`,
-    );
-  }
   push(
     `⏳ Validez: ${priceValidity}`,
     `⏳ Validez: ${escapeHtml(priceValidity)}`,

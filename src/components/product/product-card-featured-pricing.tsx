@@ -11,7 +11,7 @@ const FEATURED_PRICE_COMPARE_CLASS =
   'text-[0.6875rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] decoration-solid sm:text-[0.75rem]';
 
 const FEATURED_PRICE_CURRENT_CLASS =
-  'text-base font-bold tabular-nums leading-tight text-[#111111] sm:text-lg';
+  'text-sm font-bold tabular-nums leading-tight text-[#111111] sm:text-base';
 function FeaturedDualCurrencyLine({
   usd,
   usdClassName,

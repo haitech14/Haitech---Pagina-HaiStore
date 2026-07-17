@@ -40,9 +40,11 @@ export function navChevronClass(navRow: MainNavRowVariant, open: boolean) {
 
 export function mainNavLinkClass(isActive: boolean) {
   return cn(
-    'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm font-medium text-[#0f1f3d] transition-colors',
-    'hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-    isActive && 'text-red-600',
+    'relative inline-flex shrink-0 items-center gap-1 whitespace-nowrap py-1 text-[0.8125rem] font-medium text-[#1b2433] transition-colors',
+    'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+    isActive && 'text-[#E30613]',
+    isActive &&
+      'after:absolute after:-bottom-0.5 after:left-0 after:h-0.5 after:w-full after:rounded-full after:bg-[#E30613]',
   );
 }
 
@@ -167,7 +169,7 @@ export function mainNavLinkCompactClass(isActive: boolean) {
 export function lightNavSubmenuTriggerClass(isRouteActive: boolean, isOpen: boolean) {
   return cn(
     mainNavLinkClass(isRouteActive),
-    isOpen && !isRouteActive && 'text-red-600',
+    isOpen && !isRouteActive && 'text-[#E30613]',
   );
 }
 

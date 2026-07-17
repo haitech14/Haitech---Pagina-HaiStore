@@ -13,6 +13,23 @@ export function headerDarkUtilityButtonClass(): string {
   );
 }
 
+/** Icono de usuario con etiqueta «Mi cuenta» debajo. */
+export function headerStackedAccountButtonClass(tone: HeaderActionTone = 'dark'): string {
+  return cn(
+    'relative inline-flex shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 min-w-[3.25rem]',
+    'text-[0.625rem] font-normal leading-none transition-colors',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+    tone === 'dark'
+      ? 'text-white/90 hover:bg-white/10 hover:text-white focus-visible:ring-white/40 focus-visible:ring-offset-[#1A1A1A]'
+      : 'text-foreground/80 hover:bg-muted/80 hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background',
+  );
+}
+
+/** @deprecated Usar headerStackedAccountButtonClass('dark') */
+export function headerDarkStackedAccountButtonClass(): string {
+  return headerStackedAccountButtonClass('dark');
+}
+
 export function headerIconActionButtonClass(
   tone: HeaderActionTone,
   size: 'sm' | 'md' = 'sm',

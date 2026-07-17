@@ -1,4 +1,3 @@
-export const HAIBOT_AGENT_AVATAR = '/chat/support-agent.png';
+export const HAIBOT_AGENT_AVATAR = '/chat/haibot-robot.png';
 
-export const HAIBOT_AGENT_AVATAR_ALT =
-  'Asesora de soporte Haitech atendiendo por chat';
+export const HAIBOT_AGENT_AVATAR_ALT = 'Haibot, robot amigable de HaiStore';

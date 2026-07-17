@@ -63,7 +63,7 @@ export function CarouselDots({
 
   return (
     <div
-      className={cn('flex items-center justify-center gap-1', className)}
+      className={cn('flex items-center justify-center gap-0.5', className)}
       role="tablist"
       aria-label={ariaLabel}
     >

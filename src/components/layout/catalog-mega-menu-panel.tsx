@@ -307,12 +307,20 @@ function CatalogMegaMenuSidebar({
   sidebarItems,
   activeCategorySlug,
   onCategoryChange,
+  onNavigate,
   isMobile,
+  scrollable = false,
+  asLinks = false,
 }: {
   sidebarItems: LandingCatalogMenuSidebarItem[];
   activeCategorySlug: string;
   onCategoryChange: (slug: string) => void;
+  onNavigate?: () => void;
   isMobile: boolean;
+  /** Lista vertical con scroll hasta la última categoría. */
+  scrollable?: boolean;
+  /** Cada ítem navega a su categoría (sin panel derecho). */
+  asLinks?: boolean;
 }) {
   return (
     <aside
@@ -320,7 +328,10 @@ function CatalogMegaMenuSidebar({
         'shrink-0 border-[#E5E7EB] bg-[#FAFAFA]',
         isMobile
           ? 'border-b bg-white px-3 py-2.5'
-          : 'w-[13rem] border-r py-3 pl-3 pr-2 sm:w-[14rem]',
+          : cn(
+              'w-[14.5rem] border-r py-3 pl-3 pr-2 sm:w-[15.5rem]',
+              asLinks && 'border-r-0',
+            ),
       )}
     >
       {!isMobile ? (
@@ -334,55 +345,80 @@ function CatalogMegaMenuSidebar({
           'flex gap-0.5',
           isMobile
             ? 'flex-row overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
-            : 'flex-col',
+            : cn(
+                'flex-col',
+                scrollable &&
+                  'max-h-[min(32rem,calc(75vh-3.5rem))] overflow-y-auto overscroll-contain pr-1 [-ms-overflow-style:auto] [scrollbar-width:thin]',
+              ),
         )}
-        role="tablist"
+        role={asLinks ? 'list' : 'tablist'}
         aria-label="Categorías del menú"
       >
         {sidebarItems.map((item) => {
           const isActive = activeCategorySlug === item.slug;
           const Icon = item.icon;
+          const href = item.viewAllHref ?? categoryLandingPath(item.slug);
+
+          const itemClassName = cn(
+            'flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium transition-colors',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+            isMobile && 'whitespace-nowrap text-xs',
+            isActive
+              ? 'border-l-[3px] bg-[#FFF5F5] font-semibold text-[#E30613]'
+              : 'border-l-[3px] border-transparent text-[#374151] hover:bg-[#F3F4F6]',
+          );
+
+          const content = (
+            <>
+              <span
+                className={cn(
+                  'flex size-7 shrink-0 items-center justify-center rounded-md',
+                  isActive
+                    ? 'bg-[#E30613]/10 text-[#E30613]'
+                    : 'bg-[#F3F4F6] text-[#6B7280]',
+                )}
+              >
+                <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1 text-pretty leading-snug">{item.label}</span>
+              {!isMobile ? (
+                <ChevronRight
+                  className={cn(
+                    'size-3.5 shrink-0',
+                    isActive ? 'text-[#E30613]' : 'text-[#D1D5DB]',
+                  )}
+                  aria-hidden="true"
+                />
+              ) : null}
+            </>
+          );
 
           return (
             <li key={item.slug} role="presentation" className={isMobile ? 'shrink-0' : undefined}>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onMouseEnter={isMobile ? undefined : () => onCategoryChange(item.slug)}
-                onFocus={() => onCategoryChange(item.slug)}
-                onClick={() => onCategoryChange(item.slug)}
-                className={cn(
-                  'flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium transition-colors',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-                  isMobile && 'whitespace-nowrap text-xs',
-                  isActive
-                    ? 'border-l-[3px] bg-[#FFF5F5] font-semibold text-[#E30613]'
-                    : 'border-l-[3px] border-transparent text-[#374151] hover:bg-[#F3F4F6]',
-                )}
-                style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
-              >
-                <span
-                  className={cn(
-                    'flex size-7 shrink-0 items-center justify-center rounded-md',
-                    isActive
-                      ? 'bg-[#E30613]/10 text-[#E30613]'
-                      : 'bg-[#F3F4F6] text-[#6B7280]',
-                  )}
+              {asLinks ? (
+                <Link
+                  to={href}
+                  onClick={onNavigate}
+                  onMouseEnter={isMobile ? undefined : () => onCategoryChange(item.slug)}
+                  className={itemClassName}
+                  style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
                 >
-                  <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" />
-                </span>
-                <span className="min-w-0 flex-1 text-pretty leading-snug">{item.label}</span>
-                {!isMobile ? (
-                  <ChevronRight
-                    className={cn(
-                      'size-3.5 shrink-0',
-                      isActive ? 'text-[#E30613]' : 'text-[#D1D5DB]',
-                    )}
-                    aria-hidden="true"
-                  />
-                ) : null}
-              </button>
+                  {content}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onMouseEnter={isMobile ? undefined : () => onCategoryChange(item.slug)}
+                  onFocus={() => onCategoryChange(item.slug)}
+                  onClick={() => onCategoryChange(item.slug)}
+                  className={itemClassName}
+                  style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
+                >
+                  {content}
+                </button>
+              )}
             </li>
           );
         })}
@@ -400,7 +436,7 @@ export interface CatalogMegaMenuPanelProps {
   onNavigate: () => void;
   layout?: 'desktop' | 'mobile';
   /** Muestra imagen + lista plana cuando hay un solo grupo (p. ej. Productos). */
-  desktopContentMode?: 'summary' | 'grid';
+  desktopContentMode?: 'summary' | 'grid' | 'sidebar-only';
 }
 
 export function CatalogMegaMenuPanel({
@@ -417,8 +453,25 @@ export function CatalogMegaMenuPanel({
   const activeItem =
     sidebarItems.find((item) => item.slug === activeCategorySlug) ?? sidebarItems[0];
   const isMobile = layout === 'mobile';
+  const sidebarOnly = !isMobile && desktopContentMode === 'sidebar-only';
   const useSummaryLayout = !isMobile && desktopContentMode === 'summary' && columnGroups.length === 1;
   const desktopGridClass = desktopMegaMenuGridClass(columnGroups.length);
+
+  if (sidebarOnly) {
+    return (
+      <div className="w-[14.5rem] bg-white sm:w-[15.5rem]">
+        <CatalogMegaMenuSidebar
+          sidebarItems={sidebarItems}
+          activeCategorySlug={activeCategorySlug}
+          onCategoryChange={onCategoryChange}
+          onNavigate={onNavigate}
+          isMobile={false}
+          scrollable
+          asLinks
+        />
+      </div>
+    );
+  }
 
   if (!isMobile) {
     return (
@@ -428,6 +481,7 @@ export function CatalogMegaMenuPanel({
           activeCategorySlug={activeCategorySlug}
           onCategoryChange={onCategoryChange}
           isMobile={false}
+          scrollable
         />
 
         <div
@@ -435,7 +489,7 @@ export function CatalogMegaMenuPanel({
           role="tabpanel"
           aria-label={activeItem?.label ?? 'Categoría'}
         >
-          <div className="flex max-h-[inherit] flex-col overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
+          <div className="flex max-h-[min(32rem,calc(75vh-3.5rem))] flex-col overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
             {columnGroups.length > 0 ? (
               useSummaryLayout ? (
                 <MegaMenuSummaryPanel group={columnGroups[0]} onNavigate={onNavigate} />

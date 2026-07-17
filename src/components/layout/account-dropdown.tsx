@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Check,
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 
 import {
-  headerDarkUtilityButtonClass,
+  headerStackedAccountButtonClass,
   headerIconActionButtonClass,
   type HeaderActionTone,
 } from '@/components/layout/header-action-strip';
@@ -35,6 +36,8 @@ import { ADMIN_ROUTES } from '@/lib/admin-routes';
 import { VIEW_AS_ROLE_OPTIONS } from '@/lib/view-as-role';
 import { cn } from '@/lib/utils';
 import { USER_ROLE_LABELS, type UserRole } from '@/types/product';
+
+const HOVER_CLOSE_DELAY_MS = 180;
 
 function getDisplayName(user: AuthUser | null): string {
   if (!user) return 'Iniciar sesión';
@@ -106,37 +109,74 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
       ? USER_ROLE_LABELS[user.role]
       : USER_ROLE_LABELS.public;
 
+  const [open, setOpen] = useState(false);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearCloseTimer = useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, []);
+
+  const openMenu = useCallback(() => {
+    clearCloseTimer();
+    setOpen(true);
+  }, [clearCloseTimer]);
+
+  const scheduleClose = useCallback(() => {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => setOpen(false), HOVER_CLOSE_DELAY_MS);
+  }, [clearCloseTimer]);
+
+  useEffect(() => () => clearCloseTimer(), [clearCloseTimer]);
+
   const goTo = (path: string) => {
+    setOpen(false);
     navigate(path);
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
           className={
             triggerVariant === 'labeled'
-              ? cn(headerDarkUtilityButtonClass(), 'px-2.5')
+              ? headerStackedAccountButtonClass(tone)
               : headerIconActionButtonClass(tone, triggerVariant === 'strip' ? 'sm' : 'md')
           }
           aria-label={user ? `Menú de cuenta de ${displayName}` : 'Iniciar sesión o crear cuenta'}
+          aria-haspopup="true"
+          aria-expanded={open}
+          onMouseEnter={openMenu}
+          onMouseLeave={scheduleClose}
+          onFocus={openMenu}
         >
           <User
             className={cn(
               'shrink-0',
-              triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'size-4' : 'size-5',
+              triggerVariant === 'labeled'
+                ? 'size-5'
+                : triggerVariant === 'strip'
+                  ? 'size-4'
+                  : 'size-5',
             )}
             strokeWidth={1.75}
             aria-hidden="true"
           />
-          {triggerVariant === 'labeled' ? <span>Mi cuenta</span> : null}
+          {triggerVariant === 'labeled' ? (
+            <span className="whitespace-nowrap">Mi cuenta</span>
+          ) : null}
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         align="end"
         sideOffset={8}
+        onMouseEnter={openMenu}
+        onMouseLeave={scheduleClose}
+        onCloseAutoFocus={(event) => event.preventDefault()}
         className="z-50 w-[min(100vw-2rem,17.5rem)] overflow-visible border-0 bg-transparent p-0 shadow-none"
       >
         <div className="relative mt-1.5 overflow-hidden rounded-lg border border-border/80 bg-white shadow-lg">
@@ -252,6 +292,7 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
                 className="cursor-pointer rounded-none p-0 focus:bg-red-50 focus:text-red-600"
                 onSelect={(event) => {
                   event.preventDefault();
+                  setOpen(false);
                   void logout();
                 }}
               >

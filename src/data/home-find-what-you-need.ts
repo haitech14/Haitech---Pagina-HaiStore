@@ -86,6 +86,37 @@ export const HOME_FIND_CATALOG_LINKS: Record<
   },
 };
 
+/** Banners hero (fila) que sustituyen las pestañas Equipos / Tóner / Repuestos. */
+export const HOME_FIND_CATEGORY_HERO_BANNERS: ReadonlyArray<{
+  id: HomeFindMainTabId;
+  label: string;
+  imageSrc: string;
+  imageAlt: string;
+  href: string;
+}> = [
+  {
+    id: 'equipos',
+    label: 'Equipos',
+    imageSrc: '/home/category-hero-banners/equipos.webp',
+    imageAlt: 'Equipos — Soluciones de impresión para tu negocio. Ver catálogo.',
+    href: HOME_FIND_CATALOG_LINKS.equipos.href,
+  },
+  {
+    id: 'consumibles',
+    label: 'Tóner y consumibles',
+    imageSrc: '/home/category-hero-banners/toner-consumibles.webp',
+    imageAlt: 'Tóner y consumibles — Consumibles de impresión de alta calidad. Ver catálogo.',
+    href: HOME_FIND_CATALOG_LINKS.consumibles.href,
+  },
+  {
+    id: 'repuestos',
+    label: 'Repuestos',
+    imageSrc: '/home/category-hero-banners/repuestos.webp',
+    imageAlt: 'Repuestos — Piezas y componentes para tus equipos. Ver catálogo.',
+    href: HOME_FIND_CATALOG_LINKS.repuestos.href,
+  },
+];
+
 export const HOME_FIND_DEFAULT_TAB: HomeFindMainTabId = 'equipos';
 
 export const HOME_FIND_VISIBLE_CATEGORY_LIMIT = 5;

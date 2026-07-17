@@ -539,10 +539,10 @@ export function HeroBanner({
           theme={carouselDotTheme}
           size="lg"
           className={cn(
-            'absolute inset-x-0 z-20',
+            'absolute inset-x-0 z-20 gap-0',
             hasHomeLandingSlide && selectedIndex === 0
-              ? 'bottom-3.5 sm:bottom-4 lg:bottom-5'
-              : 'bottom-2.5 sm:bottom-3 lg:bottom-3.5',
+              ? 'bottom-2 sm:bottom-2.5 lg:bottom-3'
+              : 'bottom-1.5 sm:bottom-2 lg:bottom-2.5',
           )}
         />
       ) : null}

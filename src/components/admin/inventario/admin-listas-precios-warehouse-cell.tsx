@@ -24,6 +24,7 @@ interface AdminListasPreciosWarehouseCellProps {
   className?: string;
 }
 
+/** Selector de almacén (sin ETA). La columna en listas de precios está oculta. */
 export function AdminListasPreciosWarehouseCell({
   product,
   warehouses,
@@ -46,9 +47,6 @@ export function AdminListasPreciosWarehouseCell({
       </span>
     );
   }
-
-  const selected = list.find((entry) => entry.id === warehouseId) ?? list[0];
-  const deliveryHint = selected?.delivery_time?.trim();
 
   return (
     <div className={cn('min-w-[7.5rem] max-w-[10rem]', className)}>
@@ -89,23 +87,11 @@ export function AdminListasPreciosWarehouseCell({
         <SelectContent position="popper" className="z-[300]">
           {list.map((warehouse) => (
             <SelectItem key={warehouse.id} value={warehouse.id} className="text-xs">
-              <span className="flex flex-col gap-0.5">
-                <span>{warehouse.name}</span>
-                {warehouse.delivery_time?.trim() ? (
-                  <span className="text-[0.625rem] text-muted-foreground">
-                    Entrega: {warehouse.delivery_time.trim()}
-                  </span>
-                ) : null}
-              </span>
+              {warehouse.name}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      {deliveryHint ? (
-        <p className="mt-0.5 truncate text-[0.6rem] leading-tight text-muted-foreground">
-          Entrega: {deliveryHint}
-        </p>
-      ) : null}
     </div>
   );
 }

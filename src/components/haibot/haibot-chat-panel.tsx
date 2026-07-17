@@ -79,7 +79,7 @@ function HaibotBotChoiceButtons({
 }) {
   return (
     <div
-      className="mr-auto flex w-full max-w-[88%] flex-col gap-1.5"
+      className="mr-auto flex w-full max-w-[88%] flex-col gap-1"
       role="group"
       aria-label="Opciones de Haibot"
     >
@@ -91,16 +91,16 @@ function HaibotBotChoiceButtons({
             type="button"
             onClick={() => onSelect(action)}
             className={cn(
-              'inline-flex min-h-10 w-full items-center gap-2.5 rounded-xl border border-[#d1d7db] bg-white px-3 py-2.5 text-left text-[0.8125rem] font-semibold text-[#111b21] shadow-sm',
+              'inline-flex min-h-8 w-full items-center gap-2 rounded-lg border border-[#d1d7db] bg-white px-2.5 py-1.5 text-left text-xs font-semibold text-[#111b21] shadow-sm',
               'transition-colors hover:border-[#075e54]/35 hover:bg-[#f0faf8]',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075e54] focus-visible:ring-offset-1',
             )}
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#e7f5f3] text-[#075e54]">
-              <Icon className="size-3.5" aria-hidden="true" />
+            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#e7f5f3] text-[#075e54]">
+              <Icon className="size-3" aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">{action.label}</span>
-            <span className="text-[#8696a0]" aria-hidden="true">
+            <span className="text-[0.6875rem] text-[#8696a0]" aria-hidden="true">
               →
             </span>
           </button>

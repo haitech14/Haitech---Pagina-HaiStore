@@ -1,12 +1,10 @@
 import { useMemo } from 'react';
 
+import { ClientRecommendationsSection } from '@/components/client-recommendations-section';
+import { ClientsSection } from '@/components/clients-section';
 import { HeroBanner } from '@/components/hero-banner';
 import { HomeFinalCtaSection } from '@/components/home-final-cta-section';
-import { HomeCategoryPromoTabsSection } from '@/components/home/home-category-promo-tabs-section';
-import { HomeFindWhatYouNeedSection } from '@/components/home/home-find-what-you-need-section';
-import { HomePromotionsSection } from '@/components/home/home-promotions-section';
-import { HomeServiceRentalSection } from '@/components/home/home-service-rental-section';
-import { HomeSocialProofSection } from '@/components/home/home-social-proof-section';
+import { HomeStorefrontBlock } from '@/components/home/home-storefront-block';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
 import { useSeo } from '@/hooks/use-seo';
 import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
@@ -37,19 +35,12 @@ export function HomePage() {
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <HeroBanner />
 
-      <HomePromotionsSection />
+      <HomeStorefrontBlock />
 
-      <HomeCategoryPromoTabsSection />
-
-      <div className="home-landing-sans relative bg-white shadow-[0_8px_32px_rgba(15,31,61,0.08)]">
-        <HomeFindWhatYouNeedSection />
+      <div className="bg-white">
+        <ClientRecommendationsSection />
+        <ClientsSection />
       </div>
-
-      <LazyHomeSection minHeight="320px">
-        <HomeSocialProofSection />
-      </LazyHomeSection>
-
-      <HomeServiceRentalSection />
 
       <LazyHomeSection minHeight="520px">
         <div className="bg-white">

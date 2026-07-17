@@ -2,6 +2,7 @@ import {
   inferAdf,
   inferColor,
   resolveFormatoPapelBadgeLabels,
+  resolveProductSpeedPpm,
 } from '@/lib/category-catalog-filters';
 import {
   isConsumableProductForCardSpec,
@@ -110,14 +111,14 @@ export function buildProductCardPillBadges(
     isPrinterProduct(product) && !isTonerOrRepuestosCategory(product.category);
 
   if (isEquipment) {
-    const isColor = inferColor(product) === 'Color';
-    badges.push({
-      id: 'color',
-      label: isColor ? 'Color' : 'B/N',
-      variant: 'secondary',
-      iconSrc: isColor ? EQUIPMENT_INK_ICON_COLOR : EQUIPMENT_INK_ICON_BN,
-      iconAlt: isColor ? 'Equipo a color' : 'Equipo B/N',
-    });
+    const ppm = resolveProductSpeedPpm(product);
+    if (ppm != null) {
+      badges.push({
+        id: 'velocidad',
+        label: `${ppm} ppm`,
+        variant: 'secondary',
+      });
+    }
 
     for (const [index, label] of resolveFormatoPapelBadgeLabels(product).entries()) {
       badges.push({
@@ -126,6 +127,15 @@ export function buildProductCardPillBadges(
         variant: 'secondary',
       });
     }
+
+    const isColor = inferColor(product) === 'Color';
+    badges.push({
+      id: 'color',
+      label: isColor ? 'Color' : 'B/N',
+      variant: 'secondary',
+      iconSrc: isColor ? EQUIPMENT_INK_ICON_COLOR : EQUIPMENT_INK_ICON_BN,
+      iconAlt: isColor ? 'Equipo a color' : 'Equipo B/N',
+    });
 
     if (productHasSpdf(product)) {
       badges.push({ id: 'spdf', label: 'SPDF', variant: 'secondary' });

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-16T22:52:10.770Z",
+  "generatedAt": "2026-07-17T10:18:09.509Z",
   "tree": [
     {
       "id": "cat-multifuncionales",
@@ -203,7 +203,7 @@
               "image": "/categories/repuestos.png",
               "tagline": "Unidades de imagen compatibles",
               "children": [],
-              "productCount": 41
+              "productCount": 38
             },
             {
               "id": "cat-cilindros-compatibles",
@@ -223,10 +223,10 @@
               "productCount": 41
             }
           ],
-          "productCount": 82
+          "productCount": 79
         }
       ],
-      "productCount": 82
+      "productCount": 79
     },
     {
       "id": "cat-servicio-tecnico",
@@ -287,10 +287,10 @@
           "image": "/categories/escaneres.png",
           "tagline": "Escáneres de documentos nuevos",
           "children": [],
-          "productCount": 15
+          "productCount": 24
         }
       ],
-      "productCount": 15
+      "productCount": 24
     }
   ]
 }

@@ -14,6 +14,16 @@ export function heroSingleAssetSources(imagePath: string) {
   };
 }
 
+/** Banners de categoría en fila (~1/3 del contenedor en desktop). */
+export function categoryHeroBannerSources(imagePath: string) {
+  const base = imageBasePath(imagePath);
+  return {
+    webpSrcSet: `${base}-640.webp 640w, ${base}-960.webp 960w, ${base}.webp 1672w`,
+    fallbackSrc: imagePath,
+    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 420px',
+  };
+}
+
 /** Variantes WebP para imágenes de categoría (círculos ~176px). */
 export function categoryImageSources(imagePath: string) {
   const base = imageBasePath(imagePath);

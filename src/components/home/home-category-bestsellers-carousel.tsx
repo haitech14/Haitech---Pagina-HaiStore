@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ShoppingCart, Star } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
+import { DualPrice } from '@/components/product/product-dual-price';
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { HomeCategorySpotlightConfig } from '@/data/home-category-spotlights';
 import { useHomeCatalogBundle } from '@/hooks/use-home-catalog-bundle';
@@ -15,7 +16,7 @@ import {
   buildProductCardImageCandidates,
   buildProductCardImageSource,
 } from '@/lib/product-card-images';
-import { cn, formatPenFromUsd } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 const ACCENT = '#E30613';
 const SLIDE_CLASS =
@@ -73,7 +74,7 @@ function BestSellerCard({ product }: { product: FeaturedProduct }) {
           ) : onRequest ? (
             CONSULTAR_PRECIO_LABEL
           ) : (
-            formatPenFromUsd(displayPrice.priceUsd)
+            <DualPrice usd={displayPrice.priceUsd} className="text-lg font-bold sm:text-xl" />
           )}
         </p>
         <p className="mt-1.5 flex items-center justify-center gap-0.5 text-xs text-[#9ca3af]">

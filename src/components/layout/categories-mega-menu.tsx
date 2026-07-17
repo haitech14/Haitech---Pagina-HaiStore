@@ -28,10 +28,7 @@ import {
   type MegaMenuDropdownLayout,
   megaMenuDropdownStyle,
 } from '@/components/layout/main-nav-styles';
-import { StorePrefetchLink } from '@/components/store-prefetch-link';
 import { cn } from '@/lib/utils';
-
-const PRODUCTOS_STORE_HREF = '/tienda';
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
@@ -39,12 +36,14 @@ interface CategoriesMegaMenuProps {
   triggerVariant?: 'button' | 'nav' | 'categories-button';
   navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
   showIcon?: boolean;
+  label?: string;
 }
 
 export function CategoriesMegaMenu({
   triggerVariant = 'button',
   navRow = 'default',
   showIcon = true,
+  label = 'Equipos',
 }: CategoriesMegaMenuProps) {
   const location = useLocation();
   const isCatalogRoute = PRODUCTOS_NAV_SUBMENU.matchActive(location);
@@ -146,25 +145,27 @@ export function CategoriesMegaMenu({
           onMouseLeave={scheduleClose}
           className={navTriggerClass(isCatalogRoute, open)}
         >
-          <StorePrefetchLink
-            to={PRODUCTOS_STORE_HREF}
-            onClick={closeMenu}
-            className="inline-flex items-center gap-1.5"
-          >
-            {showIcon ? (
-              <Package className={navIconClass} strokeWidth={1.75} aria-hidden="true" />
-            ) : null}
-            Equipos
-          </StorePrefetchLink>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              aria-label={open ? 'Cerrar menú de equipos' : 'Abrir menú de equipos'}
+              aria-label={open ? `Cerrar menú de ${label}` : `Abrir menú de ${label}`}
               aria-haspopup="true"
               aria-expanded={open}
               onFocus={openMenu}
-              className="inline-flex items-center justify-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              onClick={(event) => {
+                event.preventDefault();
+                if (open) {
+                  setOpen(false);
+                } else {
+                  openMenu();
+                }
+              }}
+              className="inline-flex items-center gap-1.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
+              {showIcon ? (
+                <Package className={navIconClass} strokeWidth={1.75} aria-hidden="true" />
+              ) : null}
+              {label}
               <HeaderNavChevron navRow={navRow} open={open} />
             </button>
           </DropdownMenuTrigger>
@@ -172,7 +173,10 @@ export function CategoriesMegaMenu({
 
         <DropdownMenuContent
           align="start"
-          sideOffset={4}
+          side="bottom"
+          sideOffset={0}
+          alignOffset={0}
+          avoidCollisions={false}
           onMouseEnter={openMenu}
           onMouseLeave={scheduleClose}
           onCloseAutoFocus={(event) => event.preventDefault()}
@@ -186,7 +190,7 @@ export function CategoriesMegaMenu({
             columnGroups={columnGroups}
             featuredContent={featuredContent}
             onNavigate={closeMenu}
-            desktopContentMode="summary"
+            desktopContentMode="sidebar-only"
           />
         </DropdownMenuContent>
       </DropdownMenu>
@@ -239,7 +243,10 @@ export function CategoriesMegaMenu({
 
       <DropdownMenuContent
         align="start"
-        sideOffset={4}
+        side="bottom"
+        sideOffset={0}
+        alignOffset={0}
+        avoidCollisions={false}
         onMouseEnter={openMenu}
         onMouseLeave={scheduleClose}
         onCloseAutoFocus={(event) => event.preventDefault()}
@@ -253,7 +260,7 @@ export function CategoriesMegaMenu({
           columnGroups={columnGroups}
           featuredContent={featuredContent}
           onNavigate={closeMenu}
-          desktopContentMode="summary"
+          desktopContentMode="sidebar-only"
         />
       </DropdownMenuContent>
     </DropdownMenu>

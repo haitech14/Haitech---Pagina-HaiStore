@@ -100,6 +100,7 @@ export function HomePromotionsSection({ className }: { className?: string }) {
 
   return (
     <section
+      id="promociones"
       aria-labelledby="home-promotions-title"
       className={cn('home-landing-sans bg-white py-5 sm:py-7', className)}
     >

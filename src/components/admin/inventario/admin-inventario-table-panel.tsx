@@ -52,7 +52,6 @@ import { AdminListasPreciosNameCell } from '@/components/admin/inventario/admin-
 import { AdminListasPreciosPriceCell } from '@/components/admin/inventario/admin-listas-precios-price-cell';
 import { AdminListasPreciosStatusBadge } from '@/components/admin/inventario/admin-listas-precios-status-badge';
 import { AdminListasPreciosStockCell } from '@/components/admin/inventario/admin-listas-precios-stock-cell';
-import { AdminListasPreciosWarehouseCell } from '@/components/admin/inventario/admin-listas-precios-warehouse-cell';
 import { HeaderCurrencyControl } from '@/components/layout/header-currency-control';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
 import { Button } from '@/components/ui/button';
@@ -219,7 +218,7 @@ function PriceColumnHeader({
   );
 }
 
-const BASE_CORE_COLUMN_COUNT = 12;
+const BASE_CORE_COLUMN_COUNT = 11;
 const RELATIONS_COLUMN_COUNT = 4;
 
 function EditableProductThumbComponent({
@@ -1275,9 +1274,6 @@ export function AdminInventarioTablePanel({
               <TableHead className="h-7 min-w-[4.5rem] px-1.5 py-1 text-center text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
                 Stock
               </TableHead>
-              <TableHead className="h-7 min-w-[8rem] px-1.5 py-1 text-[0.625rem] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
-                Almacén
-              </TableHead>
               {PRICE_ROLES.map((role) => (
                 <TableHead
                   key={role}
@@ -1449,13 +1445,6 @@ export function AdminInventarioTablePanel({
                         activeFieldId={activeFieldId}
                         onActivate={setActiveFieldId}
                         onClose={closeEditor}
-                        onPatch={(patch) => patchProduct(product.id, patch)}
-                      />
-                    </TableCell>
-                    <TableCell className="px-1.5 py-1">
-                      <AdminListasPreciosWarehouseCell
-                        product={product}
-                        warehouses={warehouses}
                         onPatch={(patch) => patchProduct(product.id, patch)}
                       />
                     </TableCell>
