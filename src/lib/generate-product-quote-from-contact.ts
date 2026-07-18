@@ -6,13 +6,16 @@ import {
   buildQuoteTechnicalSheetFromProduct,
   downloadTechnicalSheetPdf,
   preloadQuotePdfAssets,
-  type QuoteClientData,
 } from '@/lib/generate-product-quote-pdf';
+import { contactToQuoteClient } from '@/lib/quote-client-from-contact';
 import { usdToPen } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 import type { CartConfigurationLine, Product } from '@/types/product';
 import type { ProductHeroSpecBullet } from '@/types/product-detail';
 import type { WhatsAppContact } from '@/lib/whatsapp-contact';
+
+export { contactToQuoteClient } from '@/lib/quote-client-from-contact';
+export type { QuoteClientData } from '@/lib/quote-client-from-contact';
 
 export interface ProductQuoteContext {
   product: Product;
@@ -25,31 +28,6 @@ export interface ProductQuoteContext {
   heroDescription?: string;
   equipmentConfiguration?: CartConfigurationLine;
   quantity?: number;
-}
-
-export function contactToQuoteClient(contact: WhatsAppContact): QuoteClientData {
-  const companyOrRuc = contact.companyOrRuc.trim();
-  const digitsOnly = companyOrRuc.replace(/\D/g, '');
-  const looksLikeRuc =
-    digitsOnly.length >= 8 && digitsOnly.length <= 11 && digitsOnly === companyOrRuc.replace(/\s/g, '');
-
-  if (looksLikeRuc) {
-    return {
-      razonSocial: contact.name.trim(),
-      ruc: digitsOnly,
-      atencion: contact.name.trim(),
-      celular: '—',
-      ciudad: contact.city.trim(),
-    };
-  }
-
-  return {
-    razonSocial: companyOrRuc || contact.name.trim(),
-    ruc: digitsOnly.length >= 8 && digitsOnly.length <= 11 ? digitsOnly : 'S/D',
-    atencion: contact.name.trim(),
-    celular: '—',
-    ciudad: contact.city.trim(),
-  };
 }
 
 export async function generateProductQuoteFromContact(

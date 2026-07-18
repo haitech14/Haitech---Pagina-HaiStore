@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, Package } from 'lucide-react';
 
-import { CatalogMegaMenuPanel } from '@/components/layout/catalog-mega-menu-panel';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -34,7 +33,19 @@ import {
 } from '@/components/layout/main-nav-styles';
 import { cn } from '@/lib/utils';
 
+const CatalogMegaMenuPanel = lazy(() =>
+  import('@/components/layout/catalog-mega-menu-panel').then((m) => ({
+    default: m.CatalogMegaMenuPanel,
+  })),
+);
+
 const HOVER_CLOSE_DELAY_MS = 180;
+
+function MegaMenuPanelFallback() {
+  return (
+    <div className="h-64 w-[min(100vw,56rem)] animate-pulse bg-muted/30" aria-hidden="true" />
+  );
+}
 
 interface CategoriesMegaMenuProps {
   triggerVariant?: 'button' | 'nav' | 'categories-button';
@@ -193,16 +204,20 @@ export function CategoriesMegaMenu({
           className={panelClassName}
           style={panelStyle}
         >
-          <CatalogMegaMenuPanel
-            activeCategorySlug={activeCategorySlug}
-            onCategoryChange={setActiveCategorySlug}
-            sidebarItems={menu.sidebarItems}
-            columnGroups={columnGroups}
-            featuredContent={featuredContent}
-            onNavigate={closeMenu}
-            desktopContentMode="summary"
-            activeCategoryLabels={activeCategoryLabels}
-          />
+          {open ? (
+            <Suspense fallback={<MegaMenuPanelFallback />}>
+              <CatalogMegaMenuPanel
+                activeCategorySlug={activeCategorySlug}
+                onCategoryChange={setActiveCategorySlug}
+                sidebarItems={menu.sidebarItems}
+                columnGroups={columnGroups}
+                featuredContent={featuredContent}
+                onNavigate={closeMenu}
+                desktopContentMode="summary"
+                activeCategoryLabels={activeCategoryLabels}
+              />
+            </Suspense>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -264,16 +279,20 @@ export function CategoriesMegaMenu({
         className={panelClassName}
         style={panelStyle}
       >
-        <CatalogMegaMenuPanel
-          activeCategorySlug={activeCategorySlug}
-          onCategoryChange={setActiveCategorySlug}
-          sidebarItems={menu.sidebarItems}
-          columnGroups={columnGroups}
-          featuredContent={featuredContent}
-          onNavigate={closeMenu}
-          desktopContentMode="summary"
-          activeCategoryLabels={activeCategoryLabels}
-        />
+        {open ? (
+          <Suspense fallback={<MegaMenuPanelFallback />}>
+            <CatalogMegaMenuPanel
+              activeCategorySlug={activeCategorySlug}
+              onCategoryChange={setActiveCategorySlug}
+              sidebarItems={menu.sidebarItems}
+              columnGroups={columnGroups}
+              featuredContent={featuredContent}
+              onNavigate={closeMenu}
+              desktopContentMode="summary"
+              activeCategoryLabels={activeCategoryLabels}
+            />
+          </Suspense>
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

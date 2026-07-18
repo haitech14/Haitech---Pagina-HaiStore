@@ -1,7 +1,6 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { HeroBanner } from '@/components/hero-banner';
-import { HomeFinalCtaSection } from '@/components/home-final-cta-section';
 import { HomeStorefrontBlock } from '@/components/home/home-storefront-block';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
 import { useSeo } from '@/hooks/use-seo';
@@ -24,6 +23,12 @@ const HomeFaqSection = lazy(() =>
   import('@/components/home-faq-section').then((m) => ({ default: m.HomeFaqSection })),
 );
 
+const HomeFinalCtaSection = lazy(() =>
+  import('@/components/home-final-cta-section').then((m) => ({
+    default: m.HomeFinalCtaSection,
+  })),
+);
+
 export function HomePage() {
   const homeSeo = useMemo(
     () => ({
@@ -38,6 +43,21 @@ export function HomePage() {
   );
 
   useSeo(homeSeo);
+
+  // Calentar chunk de /tienda tras el primer paint (no en el boot global del router).
+  useEffect(() => {
+    const warm = () => {
+      void import('@/lib/prefetch-store-route').then((m) => {
+        m.warmStoreRouteChunk();
+      });
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(warm, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const timeoutId = window.setTimeout(warm, 1200);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
@@ -58,7 +78,9 @@ export function HomePage() {
         </div>
       </LazyHomeSection>
 
-      <HomeFinalCtaSection />
+      <LazyHomeSection minHeight="280px">
+        <HomeFinalCtaSection />
+      </LazyHomeSection>
     </div>
   );
 }

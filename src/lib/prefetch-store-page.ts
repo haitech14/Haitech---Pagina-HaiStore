@@ -1,11 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query';
 
-import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
-import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
+import { getCatalogRows } from '@/lib/catalog-featured';
 import {
   HOME_CATALOG_BUNDLE_QUERY_KEY,
   collectProvisionalStoreProductsFromBundle,
   getCachedHomeBundleProvisionalProducts,
+  loadProvisionalStoreProductsFromStaticBundle,
   type HomeCatalogBundleResponse,
 } from '@/lib/home-catalog-bundle';
 import { viewAsRolesQueryKey } from '@/lib/view-as-role';
@@ -26,52 +26,57 @@ async function seedProductsQueryFromRows(
   return true;
 }
 
-function seedProvisionalFromHomeBundle(
+function seedProvisionalProducts(
+  queryClient: QueryClient,
+  queryKey: readonly unknown[],
+  products: Product[],
+): boolean {
+  if (products.length === 0) return false;
+  const existing = queryClient.getQueryData<Product[]>(queryKey);
+  if (existing && existing.length > 0) return false;
+  // updatedAt: 0 → stale; el índice completo sustituye en background.
+  queryClient.setQueryData(queryKey, products, { updatedAt: 0 });
+  return true;
+}
+
+function seedProvisionalFromMemory(
   queryClient: QueryClient,
   queryKey: readonly unknown[],
 ): boolean {
-  const existing = queryClient.getQueryData<Product[]>(queryKey);
-  if (existing && existing.length > 0) return false;
-
   const fromCache = getCachedHomeBundleProvisionalProducts();
-  if (fromCache.length > 0) {
-    // updatedAt: 0 → stale; useProducts/queryFn sigue cargando el índice completo.
-    queryClient.setQueryData(queryKey, fromCache, { updatedAt: 0 });
-    return true;
-  }
+  if (seedProvisionalProducts(queryClient, queryKey, fromCache)) return true;
 
   const bundleKey = [HOME_CATALOG_BUNDLE_QUERY_KEY, 'public', viewAsRolesQueryKey([])];
   const bundle = queryClient.getQueryData<HomeCatalogBundleResponse>(bundleKey);
   if (!bundle) return false;
 
-  const provisional = collectProvisionalStoreProductsFromBundle(bundle);
-  if (provisional.length === 0) return false;
-
-  queryClient.setQueryData(queryKey, provisional, { updatedAt: 0 });
-  return true;
+  return seedProvisionalProducts(
+    queryClient,
+    queryKey,
+    collectProvisionalStoreProductsFromBundle(bundle),
+  );
 }
 
 /**
- * Precarga índice estático y siembra el catálogo de /tienda.
- * Siembra provisional de inmediato; el índice completo sustituye en background.
+ * Siembra el catálogo de /tienda sin bajar el índice 1.3MB.
+ * El warm del índice lo hace useProducts tras pintar el provisional (owner único).
  */
 export async function prefetchStorePage(queryClient: QueryClient, role = 'public') {
-  preloadCatalogIndexNow();
-
   const queryKey = ['products', role, viewAsRolesQueryKey([])];
 
   if (await seedProductsQueryFromRows(queryClient, queryKey, role, getCatalogRows())) {
     return;
   }
 
-  seedProvisionalFromHomeBundle(queryClient, queryKey);
+  seedProvisionalFromMemory(queryClient, queryKey);
 
-  // No await en el camino crítico: el loader/hover no debe esperar 1.3MB.
-  void loadCatalogIndex()
-    .then(async () => {
-      await seedProductsQueryFromRows(queryClient, queryKey, role, getCatalogRows());
-    })
-    .catch(() => {
-      // Sin índice: useProducts intenta API al montar (provisional queda stale).
-    });
+  // Deep-link frío: ~57KB antes del 1.3MB.
+  if (!queryClient.getQueryData<Product[]>(queryKey)?.length) {
+    try {
+      const fromStatic = await loadProvisionalStoreProductsFromStaticBundle();
+      seedProvisionalProducts(queryClient, queryKey, fromStatic);
+    } catch {
+      /* useProducts reintentará */
+    }
+  }
 }

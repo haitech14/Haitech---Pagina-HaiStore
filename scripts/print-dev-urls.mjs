@@ -1,35 +1,29 @@
-import os from 'node:os';
+import { listLanIpv4Addresses } from '../shared/dev-lan.js';
 
 const webPort = Number(process.env.VITE_DEV_PORT ?? 5173);
 const apiPort = Number(process.env.ADMIN_PORT ?? 3080);
 
-function listLanIps() {
-  const ips = new Set();
-  for (const interfaces of Object.values(os.networkInterfaces())) {
-    if (!interfaces) continue;
-    for (const iface of interfaces) {
-      if (iface.family !== 'IPv4' || iface.internal) continue;
-      ips.add(iface.address);
-    }
-  }
-  return [...ips];
-}
+console.log('\n[HaiStore] URLs de desarrollo (localhost + IP):\n');
+console.log(`  Localhost:  http://localhost:${webPort}`);
+console.log(`  Loopback:   http://127.0.0.1:${webPort}`);
+console.log(`  API local:  http://localhost:${apiPort}  (proxy /api desde Vite)`);
+console.log('  Stack:      npm run dev:all  (Vite + API admin)\n');
 
-console.log('\n[HaiStore] URLs de desarrollo:\n');
-console.log(`  Local:   http://localhost:${webPort}`);
-console.log(`  API:     http://localhost:${apiPort} (proxy /api desde Vite)`);
-console.log('  Stack:   npm run dev:all  (Vite + API admin)\n');
-
-const ips = listLanIps();
+const ips = listLanIpv4Addresses();
 if (ips.length === 0) {
-  console.log('  Red:     (sin IPv4 LAN detectada)\n');
+  console.log('  Red/IP:     (sin IPv4 LAN detectada)\n');
 } else {
-  console.log('  Red (misma Wi‑Fi/Ethernet):');
+  console.log('  Red/IP (misma Wi‑Fi/Ethernet/Tailscale):');
   for (const ip of ips) {
-    console.log(`           http://${ip}:${webPort}`);
+    console.log(`              http://${ip}:${webPort}`);
   }
   console.log('');
 }
 
 console.log('  Firewall Windows (opcional): npm run dev:lan  (como administrador)');
-console.log(`  Si el puerto ${webPort} está ocupado, cierra el proceso anterior antes de reiniciar.\n`);
+console.log(
+  `  Si el puerto ${webPort} está ocupado, libera ese puerto o define VITE_DEV_PORT (strictPort).`,
+);
+console.log(
+  '  Tip: la 1.ª carga por IP/Wi‑Fi puede tardar (Vite sirve muchos módulos). En el PC usa Localhost.\n',
+);

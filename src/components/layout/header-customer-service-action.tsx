@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Clock, Headphones, Headset, Wrench } from 'lucide-react';
 
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { HeaderWhatsAppContactAction } from '@/components/layout/header-whatsapp-contact-action';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
-import { TechnicalServiceRequestDialog } from '@/components/layout/technical-service-request-dialog';
 import {
   HEADER_BUSINESS_HOURS,
   HEADER_BUY_RENT_WHATSAPP_LABEL,
@@ -15,6 +13,12 @@ import {
   HEADER_SUPPORT_PHONE_DISPLAY,
 } from '@/data/site-header';
 import { cn } from '@/lib/utils';
+
+const TechnicalServiceRequestDialog = lazy(() =>
+  import('@/components/layout/technical-service-request-dialog').then((m) => ({
+    default: m.TechnicalServiceRequestDialog,
+  })),
+);
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
@@ -83,9 +87,7 @@ export function HeaderCustomerServiceAction({
             variant="mobile"
             label={HEADER_BUY_RENT_WHATSAPP_LABEL}
             phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
-            icon={
-              <Icon path={mdiWhatsapp} size={0.72} className="shrink-0 text-[#25D366]" aria-hidden="true" />
-            }
+            icon={<WhatsAppIcon size={0.72} className="text-[#25D366]" />}
           />
           <HeaderWhatsAppContactAction
             topic="soporte"
@@ -105,7 +107,11 @@ export function HeaderCustomerServiceAction({
             <Wrench className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
             Agendar servicio técnico
           </button>
-          <TechnicalServiceRequestDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
+          {scheduleOpen ? (
+            <Suspense fallback={null}>
+              <TechnicalServiceRequestDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
+            </Suspense>
+          ) : null}
         </div>
       </details>
     );
@@ -157,14 +163,7 @@ export function HeaderCustomerServiceAction({
               label={HEADER_BUY_RENT_WHATSAPP_LABEL}
               phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
               className="w-full justify-start rounded-md px-2"
-              icon={
-                <Icon
-                  path={mdiWhatsapp}
-                  size={0.72}
-                  className="shrink-0 text-[#25D366]"
-                  aria-hidden="true"
-                />
-              }
+              icon={<WhatsAppIcon size={0.72} className="text-[#25D366]" />}
             />
             <HeaderWhatsAppContactAction
               topic="soporte"
@@ -192,7 +191,11 @@ export function HeaderCustomerServiceAction({
         </div>
       ) : null}
 
-      <TechnicalServiceRequestDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
+      {scheduleOpen ? (
+        <Suspense fallback={null}>
+          <TechnicalServiceRequestDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
+        </Suspense>
+      ) : null}
     </div>
   );
 }

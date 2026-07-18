@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Check,
@@ -22,7 +22,6 @@ import {
   headerIconActionButtonClass,
   type HeaderActionTone,
 } from '@/components/layout/header-action-strip';
-import { TechnicalServiceRequestDialog } from '@/components/layout/technical-service-request-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +37,12 @@ import { ADMIN_ROUTES } from '@/lib/admin-routes';
 import { formatHaiPoints, getHaiPointsBalance } from '@/lib/haipoints';
 import { VIEW_AS_ROLE_OPTIONS } from '@/lib/view-as-role';
 import { cn } from '@/lib/utils';
+
+const TechnicalServiceRequestDialog = lazy(() =>
+  import('@/components/layout/technical-service-request-dialog').then((m) => ({
+    default: m.TechnicalServiceRequestDialog,
+  })),
+);
 import { USER_ROLE_LABELS, type UserRole } from '@/types/product';
 
 const HOVER_CLOSE_DELAY_MS = 180;
@@ -362,7 +367,11 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
         </div>
       </DropdownMenuContent>
 
-      <TechnicalServiceRequestDialog open={supportOpen} onOpenChange={setSupportOpen} />
+      {supportOpen ? (
+        <Suspense fallback={null}>
+          <TechnicalServiceRequestDialog open={supportOpen} onOpenChange={setSupportOpen} />
+        </Suspense>
+      ) : null}
     </DropdownMenu>
   );
 }

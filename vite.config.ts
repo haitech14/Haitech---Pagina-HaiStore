@@ -46,24 +46,49 @@ export default defineConfig({
       'react',
       'react-dom',
       'react-dom/client',
+      'react-router-dom',
+      '@tanstack/react-query',
+      '@supabase/supabase-js',
       '@radix-ui/react-slot',
       '@radix-ui/react-label',
       '@radix-ui/react-dropdown-menu',
       '@radix-ui/react-dialog',
       '@radix-ui/react-checkbox',
+      'class-variance-authority',
+      'clsx',
+      'tailwind-merge',
+      'sonner',
       'embla-carousel-react',
-      'exceljs',
       'lucide-react',
+      '@mdi/react',
+      '@mdi/js',
     ],
   },
   server: {
+    // Escucha en todas las interfaces: localhost + IP de red.
     host: '0.0.0.0',
     port: devPort,
     // Evita que Vite salte a 5174/5175 en silencio si el puerto está ocupado.
     strictPort: true,
-    // Permite acceder desde móvil/tablet por IP, hostname o Tailscale sin 403.
+    // Permite Host: IP, hostname o Tailscale sin 403 (VITE_LAN=0 lo restringe).
     allowedHosts: buildAllowedHosts(),
+    // Pre-transforma el grafo crítico para que localhost/IP no se queden en «Cargando…».
+    warmup: {
+      clientFiles: [
+        './src/main.tsx',
+        './src/App.tsx',
+        './src/providers.tsx',
+        './src/router.tsx',
+        './src/pages/home.tsx',
+        './src/pages/store.tsx',
+        './src/components/layout/root-layout.tsx',
+        './src/components/layout/header.tsx',
+        './src/components/hero-banner.tsx',
+        './src/components/store-storefront/store-catalog-product-card.tsx',
+      ],
+    },
     // Proxy del API admin local (server/) durante el desarrollo.
+    // El cliente usa el mismo origen (localhost o IP); no fijar server.origin.
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:3080',

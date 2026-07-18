@@ -15,7 +15,6 @@ import {
   EMPTY_STORE_CATEGORY_TREE,
   useStoreCategoriesTree,
 } from '@/hooks/use-store-categories';
-import { loadCatalogIndex } from '@/lib/catalog-featured';
 import { formatDisplayPriceFromUsd } from '@/lib/display-price';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { categoryImageSources } from '@/lib/responsive-image';
@@ -230,25 +229,10 @@ function CategoryStripCarousel({ items }: { items: HomeCategoryStripItem[] }) {
 export function CategoryStrip() {
   const { data: categoryTreeData, isLoading } = useStoreCategoriesTree();
   const categoryTree = categoryTreeData ?? EMPTY_STORE_CATEGORY_TREE;
-  const [catalogReady, setCatalogReady] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    void loadCatalogIndex()
-      .then(() => {
-        if (!cancelled) setCatalogReady(true);
-      })
-      .catch(() => {
-        if (!cancelled) setCatalogReady(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const items = useMemo(
     () => buildHomeCategoryStripItems(resolveHomeCategoryStripCategories(categoryTree)),
-    [categoryTree, catalogReady],
+    [categoryTree],
   );
 
   if (!isLoading && items.length === 0) return null;

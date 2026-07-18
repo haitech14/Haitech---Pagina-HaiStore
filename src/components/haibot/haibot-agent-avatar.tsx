@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Icon } from '@mdi/react';
-import { mdiWhatsapp } from '@mdi/js';
 
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { HAIBOT_AGENT_AVATAR, HAIBOT_AGENT_AVATAR_ALT } from '@/data/haibot-agent';
 import { cn } from '@/lib/utils';
 
@@ -66,7 +65,7 @@ export function HaibotAgentAvatar({
             badgeSizeClasses[size],
           )}
         >
-          <Icon path={mdiWhatsapp} size={badgeIconScale[size]} />
+          <WhatsAppIcon size={badgeIconScale[size]} className="text-white" />
         </span>
       ) : null}
     </span>

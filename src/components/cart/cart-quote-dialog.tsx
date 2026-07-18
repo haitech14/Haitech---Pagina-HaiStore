@@ -1,11 +1,8 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
-import {
-  ProductQuotePdfViewer,
-  type QuotePdfPreview,
-} from '@/components/product-detail/product-quote-pdf-viewer';
+import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cartItemsToTpvLines } from '@/lib/cart-to-tpv-lines';
 import { buildProformaPayloadFromProductQuote } from '@/lib/build-proforma-payload';
-import { contactToQuoteClient } from '@/lib/generate-product-quote-from-contact';
+import { contactToQuoteClient } from '@/lib/quote-client-from-contact';
 import { nextTpvDocumentNumber } from '@/lib/tpv-document-serial';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
@@ -27,6 +24,12 @@ import { isCompleteWhatsAppContact, type WhatsAppContact } from '@/lib/whatsapp-
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { CartItem } from '@/types/product';
 import type { TpvCustomer } from '@/types/tpv';
+
+const ProductQuotePdfViewer = lazy(() =>
+  import('@/components/product-detail/product-quote-pdf-viewer').then((m) => ({
+    default: m.ProductQuotePdfViewer,
+  })),
+);
 
 interface CartQuoteDialogProps {
   open: boolean;
@@ -241,7 +244,15 @@ export function CartQuoteDialog({ open, onOpenChange, items }: CartQuoteDialogPr
         </DialogContent>
       </Dialog>
 
-      <ProductQuotePdfViewer preview={pdfPreview} onOpenChange={handlePdfPreviewClose} autoDownload />
+      {pdfPreview ? (
+        <Suspense fallback={null}>
+          <ProductQuotePdfViewer
+            preview={pdfPreview}
+            onOpenChange={handlePdfPreviewClose}
+            autoDownload
+          />
+        </Suspense>
+      ) : null}
     </>
   );
 }

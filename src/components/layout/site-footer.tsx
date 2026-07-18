@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ChevronRight,
@@ -8,14 +8,6 @@ import {
   MapPin,
   Shield,
 } from 'lucide-react';
-import { Icon } from '@mdi/react';
-import {
-  mdiFacebook,
-  mdiInstagram,
-  mdiWhatsapp,
-  mdiYoutube,
-} from '@mdi/js';
-
 import {
   FOOTER_ADDRESS,
   FOOTER_DESCRIPTION,
@@ -32,6 +24,7 @@ import {
   FOOTER_VALUE_PROPS,
   type FooterLink,
 } from '@/data/site-footer';
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { FooterLogoImage } from '@/components/layout/site-logo';
 import { FooterSeoText } from '@/components/layout/footer-seo-text';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
@@ -91,10 +84,10 @@ function FooterNavLinks({ links, ariaLabel }: { links: FooterLink[]; ariaLabel: 
   );
 }
 
-function TikTokIcon() {
+function SocialSvg({ children }: { children: ReactNode }) {
   return (
     <svg viewBox="0 0 24 24" className="size-3.5" fill="currentColor" aria-hidden="true">
-      <path d="M16.6 5.82s.51.5 0 0A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.4 2.48-6.4 5.83 0 3.45 2.76 5.7 6.2 5.7 3.45 0 6.2-2.76 6.2-6.2V8.43a7.35 7.35 0 0 0 4.3 1.38V6.56a4.28 4.28 0 0 1-1-.74z" />
+      {children}
     </svg>
   );
 }
@@ -102,13 +95,29 @@ function TikTokIcon() {
 function SocialIcon({ label }: { label: string }) {
   switch (label) {
     case 'Facebook':
-      return <Icon path={mdiFacebook} size={0.75} aria-hidden="true" />;
+      return (
+        <SocialSvg>
+          <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" />
+        </SocialSvg>
+      );
     case 'Instagram':
-      return <Icon path={mdiInstagram} size={0.75} aria-hidden="true" />;
+      return (
+        <SocialSvg>
+          <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6m9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10m0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
+        </SocialSvg>
+      );
     case 'YouTube':
-      return <Icon path={mdiYoutube} size={0.75} aria-hidden="true" />;
+      return (
+        <SocialSvg>
+          <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+        </SocialSvg>
+      );
     case 'TikTok':
-      return <TikTokIcon />;
+      return (
+        <SocialSvg>
+          <path d="M16.6 5.82s.51.5 0 0A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.4 2.48-6.4 5.83 0 3.45 2.76 5.7 6.2 5.7 3.45 0 6.2-2.76 6.2-6.2V8.43a7.35 7.35 0 0 0 4.3 1.38V6.56a4.28 4.28 0 0 1-1-.74z" />
+        </SocialSvg>
+      );
     default:
       return null;
   }
@@ -209,18 +218,13 @@ export function SiteFooter() {
               rel="noopener noreferrer"
               className="mb-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] sm:w-auto"
             >
-              <Icon path={mdiWhatsapp} size={0.8} aria-hidden="true" />
+              <WhatsAppIcon size={0.8} />
               Cotizar por WhatsApp
             </a>
             <ul className="flex flex-col gap-2 text-xs sm:text-[0.8125rem]">
               <li>
                 <div className="flex items-start gap-2">
-                  <Icon
-                    path={mdiWhatsapp}
-                    size={0.65}
-                    className="mt-0.5 size-3.5 shrink-0 text-red-600"
-                    aria-hidden="true"
-                  />
+                  <WhatsAppIcon size={0.65} className="mt-0.5 size-3.5 text-red-600" />
                   <span className="text-white/55">
                     <a
                       href={FOOTER_SALES_WHATSAPP_LINK}

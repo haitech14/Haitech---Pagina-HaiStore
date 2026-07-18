@@ -8,7 +8,7 @@ import type { FeaturedProduct } from '@/data/featured-products';
 import type { HomeCategorySpotlightConfig } from '@/data/home-category-spotlights';
 import { useHomeCatalogBundle } from '@/hooks/use-home-catalog-bundle';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
-import { catalogRowToFeatured, getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
+import { catalogRowToFeatured, getCatalogRows } from '@/lib/catalog-featured';
 import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { productPath } from '@/lib/product-path';
@@ -143,22 +143,8 @@ export function HomeCategoryBestsellersCarousel({
   className?: string;
 }) {
   const { data: bundle } = useHomeCatalogBundle();
-  const [catalogReady, setCatalogReady] = useState(() => getCatalogRows().length > 0);
-
-  useEffect(() => {
-    if (catalogReady) return;
-    let cancelled = false;
-    void loadCatalogIndex()
-      .then(() => {
-        if (!cancelled) setCatalogReady(true);
-      })
-      .catch(() => {
-        if (!cancelled) setCatalogReady(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [catalogReady]);
+  // No calentar inventory-index en home; solo usar filas ya en memoria.
+  const catalogWarm = getCatalogRows().length > 0;
 
   const products = useMemo(() => {
     if (config.catalogFamily && bundle?.sections) {
@@ -168,9 +154,9 @@ export function HomeCategoryBestsellersCarousel({
         return fromBundle.slice(0, 12);
       }
     }
-    if (!catalogReady) return [];
+    if (!catalogWarm) return [];
     return resolveBestsellers(config);
-  }, [bundle, catalogReady, config]);
+  }, [bundle, catalogWarm, config]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',

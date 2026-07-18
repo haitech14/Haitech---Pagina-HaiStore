@@ -8,8 +8,8 @@ import {
   MAIN_NAV_LIGHT_BAR_CLASS,
   mainNavLinkClass,
 } from '@/components/layout/main-nav-styles';
+import { LazySiteSearchForm } from '@/components/layout/lazy-site-search-form';
 import { HeaderBrandLogos } from '@/components/layout/site-logo';
-import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { FORUM_HEADER_NAV } from '@/data/forum-home-layout';
 import {
   getHeaderNavSubmenuDefaultHref,
@@ -84,7 +84,7 @@ export function HeaderCategoryNav({
               id="header-store-search"
               className="mx-auto w-full max-w-[28rem] xl:max-w-[34rem] 2xl:max-w-[40rem]"
             >
-              <SiteSearchForm
+              <LazySiteSearchForm
                 className="w-full"
                 variant="segmented"
                 size="compact"

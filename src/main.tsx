@@ -10,17 +10,17 @@ import { registerServiceWorker } from '@/lib/register-service-worker';
 
 registerServiceWorker();
 
-/** En /tienda y categorías: bajar chunk + índice cuanto antes (antes de React). */
+/**
+ * /tienda y /categoria: bajar el chunk de store cuanto antes.
+ * El índice 1.3MB lo calienta useProducts tras pintar el provisional
+ * (no desde boot, para no competir con LCP).
+ */
 const bootPath = typeof window !== 'undefined' ? window.location.pathname : '';
-if (
-  bootPath === '/tienda' ||
-  bootPath.startsWith('/tienda/') ||
-  bootPath.startsWith('/categoria/')
-) {
+const isStorePath = bootPath === '/tienda' || bootPath.startsWith('/tienda/');
+const isCategoryPath = bootPath.startsWith('/categoria/');
+
+if (isStorePath || isCategoryPath) {
   void import('@/pages/store');
-  void import('@/lib/defer-catalog-index').then((m) => {
-    m.preloadCatalogIndexNow();
-  });
 }
 
 const rootElement = document.getElementById('root');

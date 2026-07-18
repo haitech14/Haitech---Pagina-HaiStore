@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Wrench } from 'lucide-react';
 
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
-import { TechnicalServiceRequestDialog } from '@/components/layout/technical-service-request-dialog';
 import { cn } from '@/lib/utils';
+
+const TechnicalServiceRequestDialog = lazy(() =>
+  import('@/components/layout/technical-service-request-dialog').then((m) => ({
+    default: m.TechnicalServiceRequestDialog,
+  })),
+);
 
 type HeaderSupportButtonProps = {
   className?: string;
@@ -50,7 +55,11 @@ export function HeaderSupportButton({
         )}
       </button>
 
-      <TechnicalServiceRequestDialog open={open} onOpenChange={setOpen} />
+      {open ? (
+        <Suspense fallback={null}>
+          <TechnicalServiceRequestDialog open={open} onOpenChange={setOpen} />
+        </Suspense>
+      ) : null}
     </>
   );
 }

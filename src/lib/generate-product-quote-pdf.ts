@@ -8,13 +8,8 @@ import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-
 import type { ProductHeroSpecBullet } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
-export interface QuoteClientData {
-  razonSocial: string;
-  ruc: string;
-  atencion: string;
-  celular: string;
-  ciudad: string;
-}
+export type { QuoteClientData } from '@/lib/quote-client-from-contact';
+import type { QuoteClientData } from '@/lib/quote-client-from-contact';
 
 export interface QuoteProductData {
   name: string;

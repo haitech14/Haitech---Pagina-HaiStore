@@ -1,33 +1,66 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/layout/header';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
-import { SiteFooter } from '@/components/layout/site-footer';
-import { HomeStorefrontTrustBar } from '@/components/home/home-storefront-trust-bar';
-import { ShoppingCartDrawer } from '@/components/cart/shopping-cart-drawer';
-import { ProductCompareTray } from '@/components/product/product-compare-tray';
+import { SoftWidgetBoundary } from '@/components/layout/soft-widget-boundary';
 import { CartProvider } from '@/context/cart-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
+import { lazyOptional } from '@/lib/lazy-with-retry';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { cn } from '@/lib/utils';
 
-const MobileBottomNav = lazy(() =>
-  import('@/components/layout/mobile-bottom-nav').then((m) => ({
-    default: m.MobileBottomNav,
-  })),
+const SiteFooter = lazyOptional(
+  () => import('@/components/layout/site-footer').then((m) => ({ default: m.SiteFooter })),
+  'footer',
 );
 
-const WhatsAppFloatingButton = lazy(() =>
-  import('@/components/layout/whatsapp-floating-button').then((m) => ({
-    default: m.WhatsAppFloatingButton,
-  })),
+const HomeStorefrontTrustBar = lazyOptional(
+  () =>
+    import('@/components/home/home-storefront-trust-bar').then((m) => ({
+      default: m.HomeStorefrontTrustBar,
+    })),
+  'trust-bar',
 );
 
-const HaibotFloatingMenu = lazy(() =>
-  import('@/components/haibot/haibot-floating-menu').then((m) => ({
-    default: m.HaibotFloatingMenu,
-  })),
+const ShoppingCartDrawer = lazyOptional(
+  () =>
+    import('@/components/cart/shopping-cart-drawer').then((m) => ({
+      default: m.ShoppingCartDrawer,
+    })),
+  'cart-drawer',
+);
+
+const ProductCompareTray = lazyOptional(
+  () =>
+    import('@/components/product/product-compare-tray').then((m) => ({
+      default: m.ProductCompareTray,
+    })),
+  'compare-tray',
+);
+
+const MobileBottomNav = lazyOptional(
+  () =>
+    import('@/components/layout/mobile-bottom-nav').then((m) => ({
+      default: m.MobileBottomNav,
+    })),
+  'mobile-nav',
+);
+
+const WhatsAppFloatingButton = lazyOptional(
+  () =>
+    import('@/components/layout/whatsapp-floating-button').then((m) => ({
+      default: m.WhatsAppFloatingButton,
+    })),
+  'whatsapp-fab',
+);
+
+const HaibotFloatingMenu = lazyOptional(
+  () =>
+    import('@/components/haibot/haibot-floating-menu').then((m) => ({
+      default: m.HaibotFloatingMenu,
+    })),
+  'haibot',
 );
 
 function useDeferredWidgetMount(delayMs = 2500) {
@@ -58,9 +91,21 @@ function useDeferredWidgetMount(delayMs = 2500) {
   return ready;
 }
 
+function isStorefrontPath(pathname: string): boolean {
+  return (
+    pathname === '/tienda' ||
+    pathname.startsWith('/tienda/') ||
+    pathname.startsWith('/categoria/')
+  );
+}
+
 export function RootLayout() {
   const { pathname } = useLocation();
-  const widgetsReady = useDeferredWidgetMount();
+  const storefront = isStorefrontPath(pathname);
+  // En storefront: defer más largo para no competir con el grid.
+  const widgetsReady = useDeferredWidgetMount(storefront ? 3500 : 2500);
+  const chromeReady = useDeferredWidgetMount(storefront ? 1200 : 600);
+  const shellReady = useDeferredWidgetMount(storefront ? 900 : 200);
   const showMobileBottomNav = shouldShowMobileBottomNav(pathname);
 
   return (
@@ -82,19 +127,31 @@ export function RootLayout() {
       >
         <Outlet />
       </main>
-      <HomeStorefrontTrustBar />
-      <SiteFooter />
-      <Suspense fallback={null}>
-        <MobileBottomNav />
-      </Suspense>
-      {widgetsReady ? (
-        <Suspense fallback={null}>
-          <WhatsAppFloatingButton />
-          <HaibotFloatingMenu side="right" />
-        </Suspense>
+      {chromeReady ? (
+        <SoftWidgetBoundary name="chrome">
+          <Suspense fallback={null}>
+            <HomeStorefrontTrustBar />
+            <SiteFooter />
+          </Suspense>
+        </SoftWidgetBoundary>
       ) : null}
-      <ShoppingCartDrawer />
-      <ProductCompareTray />
+      {shellReady ? (
+        <SoftWidgetBoundary name="shell">
+          <Suspense fallback={null}>
+            <MobileBottomNav />
+            <ShoppingCartDrawer />
+            <ProductCompareTray />
+          </Suspense>
+        </SoftWidgetBoundary>
+      ) : null}
+      {widgetsReady ? (
+        <SoftWidgetBoundary name="fabs">
+          <Suspense fallback={null}>
+            <WhatsAppFloatingButton />
+            <HaibotFloatingMenu side="right" />
+          </Suspense>
+        </SoftWidgetBoundary>
+      ) : null}
     </div>
     </MobileBottomInsetProvider>
     </CartProvider>

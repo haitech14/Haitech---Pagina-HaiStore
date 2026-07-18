@@ -97,9 +97,8 @@ async function fetchCategoryCatalog(params: UseCategoryCatalogParams): Promise<C
 }
 
 /**
- * Índice en memoria primero. Si está frío: API inmediata para primer paint
- * y carga del inventory-index en background (sin bloquear la grilla).
- * Compartido con prefetchCategoryPage para no divergir.
+ * Índice en memoria primero. Si está frío: API inmediata para primer paint.
+ * No calienta inventory-index (1.3MB): eso lo hacen búsqueda o prefetch de /tienda.
  */
 export async function fetchCategoryCatalogWithFallback(
   params: UseCategoryCatalogParams,
@@ -109,19 +108,14 @@ export async function fetchCategoryCatalogWithFallback(
     return queryCategoryCatalogClient(params, role);
   }
 
-  // Calentar índice en paralelo; no await para el primer paint.
-  const warmIndex = loadCatalogIndex().catch(() => null);
-
   try {
-    const fromApi = await fetchCategoryCatalog(params);
-    void warmIndex;
-    return fromApi;
+    return await fetchCategoryCatalog(params);
   } catch {
     /* API caída: esperar índice local */
   }
 
   try {
-    await warmIndex;
+    await loadCatalogIndex();
     const fromIndex = await queryCategoryCatalogClientAsync(params, role);
     if (fromIndex.products.length > 0 || fromIndex.total === 0) return fromIndex;
   } catch {

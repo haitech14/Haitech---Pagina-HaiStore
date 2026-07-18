@@ -9,7 +9,7 @@ import type {
   MegaMenuFeaturedContent,
 } from '@/lib/mega-menu-from-store-categories';
 import { getBrandLogo, getBrandName, getBrandSlug } from '@/data/brands';
-import { loadCatalogIndex } from '@/lib/catalog-featured';
+import { hasCatalogIndexInMemory, loadCatalogIndex } from '@/lib/catalog-featured';
 import { categoryLandingPath } from '@/lib/category-path';
 import {
   getMegaMenuInterestBrands,
@@ -206,6 +206,10 @@ function MegaMenuInterestProducts({
   const [catalogReady, setCatalogReady] = useState(false);
 
   useEffect(() => {
+    if (hasCatalogIndexInMemory()) {
+      setCatalogReady(true);
+      return;
+    }
     let cancelled = false;
     void loadCatalogIndex()
       .then(() => {
@@ -276,6 +280,10 @@ function MegaMenuInterestBrands({
   const [catalogReady, setCatalogReady] = useState(false);
 
   useEffect(() => {
+    if (hasCatalogIndexInMemory()) {
+      setCatalogReady(true);
+      return;
+    }
     let cancelled = false;
     void loadCatalogIndex()
       .then(() => {

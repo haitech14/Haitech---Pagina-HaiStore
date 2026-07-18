@@ -1,5 +1,4 @@
 import {
-  startTransition,
   useCallback,
   useEffect,
   useMemo,
@@ -44,10 +43,8 @@ import {
 import {
   catalogRowToFeatured,
   getCatalogRows,
-  loadCatalogIndex,
   type CatalogRow,
 } from '@/lib/catalog-featured';
-import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { enrichFeaturedFromCatalog } from '@/lib/featured-catalog-enrich';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
@@ -309,7 +306,7 @@ function HomeStorefrontProductCard({
 }) {
   const { addItem } = useCart();
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
-  const catalogProduct = useCatalogProductRow(product.id);
+  const catalogProduct = useCatalogProductRow(product.id, { fetchIfMissing: false });
   const displayPrice = useCatalogDisplayPrice({
     price: product.price,
     ...(product.prices ? { prices: product.prices } : {}),
@@ -779,12 +776,10 @@ function StorefrontCatalogRail({
   rail,
   productPool,
   isLoading,
-  catalogIndexReady,
 }: {
   rail: (typeof STOREFRONT_CATALOG_RAILS)[number];
   productPool: FeaturedProduct[];
   isLoading: boolean;
-  catalogIndexReady: boolean;
 }) {
   const [equipmentCondition, setEquipmentCondition] =
     useState<HomeFeaturedEquipmentConditionFilterId>('nuevas');
@@ -854,10 +849,7 @@ function StorefrontCatalogRail({
   const titleMode: StorefrontCardTitleMode =
     rail.kind === 'multifuncionales' ? 'equipment' : 'consumable';
 
-  // Escáneres suelen venir del inventory-index; no bloquear el resto de rails.
-  const showSkeleton =
-    (isLoading && products.length === 0) ||
-    (rail.kind === 'escaneres' && !catalogIndexReady && products.length === 0);
+  const showSkeleton = isLoading && products.length === 0;
 
   return (
     <section aria-labelledby={rail.titleId} className="pt-1 sm:pt-2">
@@ -908,24 +900,8 @@ function StorefrontCatalogRail({
 
 export function HomeStorefrontFeaturedSection() {
   const { data: catalogBundle, isLoading: bundleLoading } = useHomeCatalogBundle();
-  const [catalogReady, setCatalogReady] = useState(() => getCatalogRows().length > 0);
-
-  useEffect(() => {
-    // No esperar el defer de 8s de la home: arrancar el índice en cuanto monta la vitrina.
-    preloadCatalogIndexNow();
-    if (catalogReady) return;
-    let cancelled = false;
-    void loadCatalogIndex()
-      .then(() => {
-        if (!cancelled) startTransition(() => setCatalogReady(true));
-      })
-      .catch(() => {
-        if (!cancelled) startTransition(() => setCatalogReady(true));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [catalogReady]);
+  // Solo enriquecer con el índice si ya está en memoria (búsqueda /tienda); no calentarlo aquí.
+  const catalogWarm = getCatalogRows().length > 0;
 
   const productPool = useMemo(() => {
     const merged: FeaturedProduct[] = [];
@@ -953,8 +929,7 @@ export function HomeStorefrontFeaturedSection() {
       pushUnique(item);
     }
 
-    // Enriquecer en background cuando el índice ya está en memoria (escáneres, etc.).
-    if (catalogReady) {
+    if (catalogWarm) {
       for (const row of getCatalogRows()) {
         if (!isStorefrontCatalogCandidate(row)) continue;
         pushUnique(catalogRowToFeatured(row));
@@ -962,9 +937,8 @@ export function HomeStorefrontFeaturedSection() {
     }
 
     return merged;
-  }, [catalogBundle?.featured, catalogBundle?.sections, catalogReady]);
+  }, [catalogBundle?.featured, catalogBundle?.sections, catalogWarm]);
 
-  // Mostrar productos del home-bundle de inmediato; el índice no debe bloquear la UI.
   const isLoading = bundleLoading;
 
   return (
@@ -982,7 +956,6 @@ export function HomeStorefrontFeaturedSection() {
             rail={rail}
             productPool={productPool}
             isLoading={isLoading}
-            catalogIndexReady={catalogReady}
           />
         </div>
       ))}

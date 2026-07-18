@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { FileText, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 
 import { ProductCardImage } from '@/components/product/product-card-image';
-import { CartQuoteDialog } from '@/components/cart/cart-quote-dialog';
 import { formatOrderQuantityHint, ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
+
+const CartQuoteDialog = lazy(() =>
+  import('@/components/cart/cart-quote-dialog').then((m) => ({
+    default: m.CartQuoteDialog,
+  })),
+);
 import { DualPrice } from '@/components/product-showcase-card';
 import { Button } from '@/components/ui/button';
 import {
@@ -232,7 +236,7 @@ export function ShoppingCartDrawer() {
                     openCartQuoteWhatsApp(items, totalPrice);
                   }}
                 >
-                  <Icon path={mdiWhatsapp} size={0.8} aria-hidden="true" />
+                  <WhatsAppIcon size={0.8} />
                   Cotizar carrito por WhatsApp
                 </Button>
                 <Button
@@ -265,7 +269,11 @@ export function ShoppingCartDrawer() {
         </div>
       </SheetContent>
 
-      <CartQuoteDialog open={quoteOpen} onOpenChange={setQuoteOpen} items={items} />
+      {quoteOpen ? (
+        <Suspense fallback={null}>
+          <CartQuoteDialog open={quoteOpen} onOpenChange={setQuoteOpen} items={items} />
+        </Suspense>
+      ) : null}
     </Sheet>
   );
 }

@@ -75,14 +75,13 @@ export async function getAccessToken(): Promise<string | null> {
     return demo;
   }
 
-  const session = await getSupabaseSessionSafely();
-  const supabaseToken = isSupabaseSessionUsable(session) ? session.access_token : null;
-
-  if (stored?.authProvider === 'supabase') {
-    return supabaseToken;
+  // Boot anónimo / demo: no cargar supabase-js solo para comprobar sesión.
+  if (stored?.authProvider !== 'supabase') {
+    return demo;
   }
 
-  return supabaseToken ?? demo;
+  const session = await getSupabaseSessionSafely();
+  return isSupabaseSessionUsable(session) ? session.access_token : null;
 }
 
 export async function authHeaders(): Promise<HeadersInit> {
