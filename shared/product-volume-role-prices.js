@@ -7,8 +7,12 @@ import { ensureFullPrices } from '../server/lib/roles.js';
 const PRICE_ROLES = ['public', 'tecnico', 'mayorista', 'distribuidor'];
 
 function randomId() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      /* HTTP por IP / contexto no seguro */
+    }
   }
   return `vol-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }

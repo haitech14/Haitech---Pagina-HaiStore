@@ -49,7 +49,11 @@ export function normalizeMerchandisingOptionalProducts(value) {
 
 export function createMerchandisingOptionalProductId() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return `opt-${crypto.randomUUID()}`;
+    try {
+      return `opt-${crypto.randomUUID()}`;
+    } catch {
+      /* HTTP por IP / contexto no seguro */
+    }
   }
   return `opt-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }

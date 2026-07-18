@@ -64,11 +64,8 @@ export default defineConfig({
     strictPort: true,
     // Permite Host: IP, hostname o Tailscale sin 403 (VITE_LAN=0 lo restringe).
     allowedHosts: buildAllowedHosts(),
-    // HMR usa el host de la pestaña (localhost o IP) para que recargue en ambos.
-    hmr: {
-      protocol: 'ws',
-    },
     // Proxy del API admin local (server/) durante el desarrollo.
+    // El cliente usa el mismo origen (localhost o IP); no fijar server.origin.
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:3080',
