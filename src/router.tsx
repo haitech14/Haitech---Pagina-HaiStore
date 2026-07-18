@@ -14,12 +14,10 @@ import { prefetchHomeCatalog } from '@/lib/prefetch-home-catalog';
 import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
+import { HomePage } from '@/pages/home';
 import { queryClient } from '@/providers';
 
-const homePageImport = () => import('@/pages/home').then((m) => ({ default: m.HomePage }));
-/** Empieza a bajar el chunk de inicio en paralelo al layout (evita spinner largo). */
-void homePageImport();
-const HomePage = lazyWithRetry(homePageImport, 'inicio');
+/** Inicio eager: sin Suspense/spinner a pantalla completa. */
 const storePageImport = () =>
   import('@/pages/store').then((m) => ({ default: m.StorefrontRoutePage }));
 /** Precarga chunk de tienda en paralelo (F5 / navegación). */
@@ -437,9 +435,9 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        // No await: el spinner de Suspense no debe esperar home-bundle / API.
+        // No await: no bloquear el pintado por home-bundle / API.
         loader: () => prefetchHomeCatalog(queryClient),
-        element: withSuspense(<HomePage />),
+        element: <HomePage />,
       },
       {
         path: 'foro',

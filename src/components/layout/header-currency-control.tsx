@@ -444,29 +444,21 @@ export function HeaderStoreCurrencyExchangeBlock({
 
   if (muted) {
     return (
-      <div className={cn('inline-flex shrink-0 items-center gap-2', className)}>
-        <div className="group/currency relative inline-flex shrink-0 items-center">
-          <button
-            type="button"
-            className="inline-flex min-h-6 items-center gap-1 rounded px-1 text-[0.6875rem] font-medium text-[#9a9a9a] transition-colors hover:text-[#b8b8b8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-1 focus-visible:ring-offset-black sm:text-xs"
-            aria-label="Moneda de visualización. Pasa el mouse para seleccionar."
-          >
-            <Coins className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            <span>Moneda</span>
-          </button>
-          <div
-            className={cn(
-              'invisible absolute right-0 top-full z-50 mt-1 rounded-md border border-white/10 bg-[#111111] p-1 opacity-0 shadow-lg',
-              'transition-all duration-150 group-hover/currency:visible group-hover/currency:opacity-100 group-focus-within/currency:visible group-focus-within/currency:opacity-100',
-            )}
-          >
-            <DarkCurrencySymbolToggle
-              buttonClassName="min-h-6 px-1.5 text-xs font-medium"
-              inactiveClassName="text-neutral-400 hover:text-white"
-              activeClassName="bg-[#E30613] text-white"
-            />
-          </div>
-        </div>
+      <div
+        className={cn(
+          'group/currency relative inline-flex shrink-0 items-center gap-1.5 rounded px-1',
+          'min-h-6 text-[0.6875rem] font-medium text-[#9a9a9a] transition-colors hover:text-[#b8b8b8] sm:text-xs',
+          className,
+        )}
+      >
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+          aria-label="Moneda de visualización. Pasa el mouse para seleccionar."
+        >
+          <Coins className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+          <span>Moneda</span>
+        </button>
 
         {isAdmin ? (
           <AdminExchangeRateEditor
@@ -474,17 +466,29 @@ export function HeaderStoreCurrencyExchangeBlock({
             purchaseRate={purchaseRate}
             compact
             dark
-            className="hidden text-xs text-[#9a9a9a] sm:flex"
+            className="hidden text-[inherit] sm:flex"
           />
         ) : (
-          <p
-            className="hidden whitespace-nowrap text-xs font-normal tabular-nums text-[#9a9a9a] sm:block"
+          <span
+            className="hidden whitespace-nowrap font-normal tabular-nums sm:inline"
             aria-label="Tipo de cambio de venta"
           >
-            <span className="font-normal">T.C.</span>{' '}
-            <span className="font-normal text-[#9a9a9a]">S/ {formatExchangeRate(saleRate)}</span>
-          </p>
+            <span>T.C.</span> S/ {formatExchangeRate(saleRate)}
+          </span>
         )}
+
+        <div
+          className={cn(
+            'invisible absolute right-0 top-full z-50 mt-1 rounded-md border border-white/10 bg-[#111111] p-1 opacity-0 shadow-lg',
+            'transition-all duration-150 group-hover/currency:visible group-hover/currency:opacity-100 group-focus-within/currency:visible group-focus-within/currency:opacity-100',
+          )}
+        >
+          <DarkCurrencySymbolToggle
+            buttonClassName="min-h-6 px-1.5 text-xs font-medium"
+            inactiveClassName="text-neutral-400 hover:text-white"
+            activeClassName="bg-[#E30613] text-white"
+          />
+        </div>
       </div>
     );
   }

@@ -27,34 +27,31 @@ function CategoryCard({
       onMouseEnter={() => onPrefetch(category.href)}
       onFocus={() => onPrefetch(category.href)}
       className={cn(
-        'group relative flex min-h-[11rem] items-center justify-center overflow-visible bg-transparent sm:min-h-[13.5rem] lg:min-h-[15.5rem]',
+        'group flex flex-col items-center gap-0.5 overflow-visible bg-transparent sm:gap-1',
         'origin-center transition-transform duration-300 ease-out will-change-transform',
-        'hover:scale-[0.88] motion-reduce:transition-none motion-reduce:hover:scale-100',
+        'hover:scale-[0.96] motion-reduce:transition-none motion-reduce:hover:scale-100',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
       )}
       aria-label={category.label}
     >
-      <img
-        src={category.imageSrc}
-        alt=""
-        width={640}
-        height={480}
-        sizes="(max-width: 640px) 48vw, 24vw"
-        className="h-[10rem] w-auto max-w-[98%] object-contain object-center sm:h-[12.5rem] lg:h-[14.5rem]"
-        loading={priority ? 'eager' : 'lazy'}
-        decoding="async"
-      />
+      <span className="flex h-[6.75rem] w-full items-end justify-center sm:h-[11.5rem] lg:h-[12.75rem]">
+        <img
+          src={category.imageSrc}
+          alt=""
+          width={640}
+          height={480}
+          sizes="(max-width: 640px) 48vw, 24vw"
+          className="h-full w-auto max-w-[98%] object-contain object-bottom"
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      </span>
 
       <span
         className={cn(
-          'pointer-events-none absolute inset-0 z-[1] flex items-center justify-center px-1.5',
-          'text-center text-sm font-extrabold uppercase tracking-[0.05em] text-white',
-          'sm:text-base lg:text-lg xl:text-xl',
+          'line-clamp-2 px-1 text-center text-[0.6875rem] font-extrabold uppercase tracking-[0.04em] text-[#111111]',
+          'sm:text-sm lg:text-base',
         )}
-        style={{
-          textShadow:
-            '0 1px 2px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.45), 0 0 1px rgba(0,0,0,0.9)',
-        }}
       >
         {category.label}
       </span>
@@ -75,19 +72,19 @@ export function HomeStorefrontCategoriesSection() {
 
   return (
     <section aria-labelledby="home-storefront-categories-title" className="bg-white">
-      <div className="container py-6 sm:py-8">
-        <header className="mb-4 text-center sm:mb-5">
+      <div className="container py-4 sm:py-8">
+        <header className="mb-3 text-center sm:mb-5">
           <p className="text-sm font-medium text-[#6B7280] sm:text-base">Categorías</p>
           <h2
             id="home-storefront-categories-title"
-            className="mt-1 text-balance text-xl font-extrabold tracking-tight text-[#111111] sm:text-2xl lg:text-[1.75rem]"
+            className="mt-1 text-balance text-lg font-extrabold tracking-tight text-[#111111] sm:text-2xl lg:text-[1.75rem]"
           >
             Explora nuestra gama de productos
           </h2>
         </header>
 
         <ul
-          className="grid grid-cols-2 grid-rows-4 gap-x-3 gap-y-0 sm:grid-cols-4 sm:grid-rows-2 sm:gap-x-4 sm:gap-y-0"
+          className="grid grid-cols-2 grid-rows-4 gap-x-3 gap-y-2 sm:grid-cols-4 sm:grid-rows-2 sm:gap-x-4 sm:gap-y-4"
           role="list"
         >
           {categories.map((category, index) => (

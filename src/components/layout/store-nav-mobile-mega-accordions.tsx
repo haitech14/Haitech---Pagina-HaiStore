@@ -24,7 +24,7 @@ function ProductosNavMobileAccordion({ onNavigate }: { onNavigate?: () => void }
 
   return (
     <StaticNavMobileAccordion
-      label={PRODUCTOS_NAV_SUBMENU.label}
+      label="Categorías"
       icon={PRODUCTOS_NAV_SUBMENU.icon}
       menu={menu}
       labelHref="/tienda"

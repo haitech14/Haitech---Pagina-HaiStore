@@ -22,6 +22,11 @@ import { resolveProductCardSpecRows } from '@/lib/product-card-short-description
 import type { Product } from '@/types/product';
 import { resolveProductHeroBrand, resolveProductHeroConditionLabel } from '@/lib/product-hero-meta';
 import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
+import {
+  resolveSupplyCompatibleModels,
+  resolveSupplyProductCardSpecRows,
+  supplyRowsAsProductCardSpecRows,
+} from '@/lib/supply-product-specs';
 import type { ProductDetailViewModel } from '@/types/product-detail';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { cn } from '@/lib/utils';
@@ -44,6 +49,8 @@ interface ProductDetailHeroInfoProps {
   preparationType?: SeminuevaPreparationType;
   onPreparationTypeChange?: (value: SeminuevaPreparationType) => void;
   afterTonerSlot?: ReactNode;
+  /** Compra móvil (precio/CTAs) antes de «Complementa tu compra». */
+  mobilePurchaseSlot?: ReactNode;
   purchaseMode?: PurchaseMode;
   showMaintenanceSupplyPlans?: boolean;
   maintenanceSupplyPlan?: MaintenanceSupplyPlanSelection;
@@ -80,6 +87,7 @@ export function ProductDetailHeroInfo({
   preparationType = 'acondicionado',
   onPreparationTypeChange,
   afterTonerSlot,
+  mobilePurchaseSlot,
   purchaseMode = 'buy',
   showMaintenanceSupplyPlans = false,
   maintenanceSupplyPlan,
@@ -134,14 +142,21 @@ export function ProductDetailHeroInfo({
       />
     ) : null;
 
-  const heroMetaSegments = [
-    skuLabel ? { label: 'Código', value: skuLabel } : null,
-    brandLabel ? { label: 'Marca', value: brandLabel } : null,
-    conditionLabel ? { label: 'Condición', value: conditionLabel } : null,
-  ].filter((segment): segment is { label: string; value: string } => segment != null);
+  const isSupply = detail.isSupplyProduct;
+  const heroMetaSegments = isSupply
+    ? []
+    : [
+        skuLabel ? { label: 'Código', value: skuLabel } : null,
+        brandLabel ? { label: 'Marca', value: brandLabel } : null,
+        conditionLabel ? { label: 'Condición', value: conditionLabel } : null,
+      ].filter((segment): segment is { label: string; value: string } => segment != null);
 
-  const cardSpecRows = resolveProductCardSpecRows(product);
-  const showHeroBullets = detail.heroSpecBullets.length > 0;
+  const supplySpecRows = isSupply
+    ? supplyRowsAsProductCardSpecRows(resolveSupplyProductCardSpecRows(product))
+    : [];
+  const cardSpecRows = isSupply ? supplySpecRows : resolveProductCardSpecRows(product);
+  const compatibleModels = isSupply ? resolveSupplyCompatibleModels(product) : [];
+  const showHeroBullets = !isSupply && detail.heroSpecBullets.length > 0;
   const showCardSpecFallback = !showHeroBullets && cardSpecRows.length > 0;
 
   return (
@@ -205,14 +220,40 @@ export function ProductDetailHeroInfo({
       {showHeroBullets ? (
         <ProductDetailHeroSpecs bullets={detail.heroSpecBullets} className="mt-3" />
       ) : showCardSpecFallback ? (
-        <ProductCardSpecTable rows={cardSpecRows} className="mt-3 max-w-md" />
+        <ProductCardSpecTable
+          rows={cardSpecRows}
+          className="mt-3 max-w-md"
+          {...(isSupply ? { size: 'comfortable' as const } : {})}
+        />
       ) : null}
 
-      <ProductDetailHeroTrustStrip
-        product={product}
-        giftSubtitle={detail.giftTrustSubtitle}
-        className={showHeroBullets || showCardSpecFallback ? 'mt-1' : 'mt-3'}
-      />
+      {compatibleModels.length > 0 ? (
+        <div className="mt-3 space-y-2">
+          <p className="inline-flex rounded-md bg-[#1a1a1a] px-2.5 py-1 text-[0.6875rem] font-semibold text-white sm:text-xs">
+            Compatibilidad:
+          </p>
+          <ul className="flex flex-wrap gap-1.5" aria-label="Modelos compatibles">
+            {compatibleModels.map((model) => (
+              <li
+                key={model}
+                className="inline-flex rounded-md border border-[#E5E7EB] bg-[#F3F4F6] px-2.5 py-1 text-xs font-medium text-[#374151]"
+              >
+                {model}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {detail.isSupplyProduct ? null : (
+        <ProductDetailHeroTrustStrip
+          product={product}
+          giftSubtitle={detail.giftTrustSubtitle}
+          className={showHeroBullets || showCardSpecFallback ? 'mt-1' : 'mt-3'}
+        />
+      )}
+
+      {mobilePurchaseSlot}
 
       {showComplementaCompra ? (
         <ProductDetailComplementaCompra

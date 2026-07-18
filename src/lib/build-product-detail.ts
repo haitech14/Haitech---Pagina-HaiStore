@@ -36,6 +36,7 @@ import {
 } from '@/lib/product-title-spec-sync';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import { resolveProductCardSpecRows } from '@/lib/product-card-short-description';
+import { buildResolvedSupplySpecs } from '@/lib/supply-product-specs';
 import {
   CASETERA_250_PB1110_PRODUCT_ID,
   CASETERA_500_PB1120_PRODUCT_ID,
@@ -1164,34 +1165,8 @@ function buildGallery(product: Product): ProductGalleryItem[] {
 }
 
 function buildSupplySpecs(product: Product): ProductSpecRow[] {
-  const brand = product.brand ?? 'Ricoh';
-  const name = product.name.toLowerCase();
-  const color = name.includes('cyan') || name.includes('cian')
-    ? 'Cian'
-    : name.includes('magenta')
-      ? 'Magenta'
-      : name.includes('yellow') || name.includes('amarillo')
-        ? 'Amarillo'
-        : name.includes('black') || name.includes('negro')
-          ? 'Negro'
-          : 'Cian';
-
-  return [
-    { label: 'Marca', value: brand },
-    { label: 'Código', value: '841852' },
-    { label: 'Modelo', value: 'MP C6003' },
-    { label: 'Color', value: color },
-    { label: 'Tipo', value: 'Cartucho de toner' },
-    {
-      label: 'Rendimiento',
-      value: 'Negro 33,000 Páginas y Color 22,500 Páginas',
-    },
-    {
-      label: 'Compatibilidad',
-      value: 'Para impresoras MP C4503, C5503, C5504, C6003, C6004 series',
-    },
-    { label: 'Garantía', value: '12 meses' },
-  ];
+  // Datos reales del inventario (Marca, SKU, Color, Rendimiento, Compatibilidad).
+  return buildResolvedSupplySpecs(product);
 }
 
 function buildGenericSpecs(product: Product, brandLabel: string, sku: string): ProductSpecRow[] {

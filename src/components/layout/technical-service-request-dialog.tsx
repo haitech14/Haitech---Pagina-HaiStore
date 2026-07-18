@@ -129,9 +129,9 @@ export function TechnicalServiceRequestDialog({
               <Headphones className="size-5" strokeWidth={1.75} aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <DialogTitle>Registrar servicio técnico</DialogTitle>
+              <DialogTitle>Agendar Servicio Técnico</DialogTitle>
               <DialogDescription className="mt-1">
-                Completa los datos de tu equipo y te contactaremos para coordinar la atención.
+                Completa los datos de tu equipo y te contactaremos para coordinar la visita.
               </DialogDescription>
             </div>
           </div>
@@ -292,7 +292,7 @@ export function TechnicalServiceRequestDialog({
                 disabled={isSubmitting}
                 className={cn('bg-red-600 hover:bg-red-700')}
               >
-                {isSubmitting ? 'Enviando…' : 'Registrar solicitud'}
+                {isSubmitting ? 'Enviando…' : 'Agendar servicio'}
               </Button>
             </div>
           </form>

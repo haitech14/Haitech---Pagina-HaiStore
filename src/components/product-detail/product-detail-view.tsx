@@ -637,33 +637,36 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   onMaintenanceSupplyPlanChange={setMaintenanceSupplyPlan}
                   tonerCatalog={catalogForEquipment}
                   consumableGroups={consumableGroups}
-                />
-              </div>
-
-              <div ref={mobilePurchaseVisibilityRef} className="mt-4 lg:hidden">
-                <ProductDetailPurchaseCard
-                  product={product}
-                  detail={detail}
-                  quantity={quantity}
-                  onQuantityChange={setQuantity}
-                  volumePricing={volumePricing}
-                  purchaseActionsRef={purchaseActionsRef}
-                  purchaseMode={purchaseMode}
-                  onPurchaseModeChange={handlePurchaseModeChange}
-                  rentalEstimate={rentalEstimate}
-                  maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen ?? null}
-                  preparationSurchargeUsd={preparationSurchargeUsd}
-                  showSeminuevaPreparationPrices={showPreparationTypeSelector}
-                  showRentalTab={detail.isPrinterEquipment}
-                  equipmentBasePriceUsd={equipmentBasePriceUsd}
-                  onRentalEstimateChange={setRentalEstimate}
-                  rentalConfiguratorRef={rentalConfiguratorRef}
-                  onQuoteClick={() => setQuoteOpen(true)}
-                  onTechnicalSheetFallback={handleTechnicalSheetFallback}
-                  {...secondaryPurchaseActionProps}
-                  {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
-                  {...(showPreparationTypeSelector ? { preparationType } : {})}
-                  onQuoteGenerated={setQuotePdfPreview}
+                  mobilePurchaseSlot={
+                    <div ref={mobilePurchaseVisibilityRef} className="mt-3 lg:hidden">
+                      <ProductDetailPurchaseCard
+                        product={product}
+                        detail={detail}
+                        quantity={quantity}
+                        onQuantityChange={setQuantity}
+                        volumePricing={volumePricing}
+                        purchaseActionsRef={purchaseActionsRef}
+                        purchaseMode={purchaseMode}
+                        onPurchaseModeChange={handlePurchaseModeChange}
+                        rentalEstimate={rentalEstimate}
+                        maintenancePlanMonthlyPen={
+                          maintenanceQuoteBreakdown.monthlySubtotalPen ?? null
+                        }
+                        preparationSurchargeUsd={preparationSurchargeUsd}
+                        showSeminuevaPreparationPrices={showPreparationTypeSelector}
+                        showRentalTab={detail.isPrinterEquipment}
+                        equipmentBasePriceUsd={equipmentBasePriceUsd}
+                        onRentalEstimateChange={setRentalEstimate}
+                        rentalConfiguratorRef={rentalConfiguratorRef}
+                        onQuoteClick={() => setQuoteOpen(true)}
+                        onTechnicalSheetFallback={handleTechnicalSheetFallback}
+                        {...secondaryPurchaseActionProps}
+                        {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
+                        {...(showPreparationTypeSelector ? { preparationType } : {})}
+                        onQuoteGenerated={setQuotePdfPreview}
+                      />
+                    </div>
+                  }
                 />
               </div>
             </div>

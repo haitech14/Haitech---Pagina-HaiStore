@@ -50,16 +50,16 @@ const STORE_HEADER_LINKS: HeaderMainNavLink[] = [
     matchActive: ({ pathname }) => pathname.startsWith('/categoria/impresoras'),
   },
   {
-    id: 'suministros',
+    id: 'toner',
     to: categoryLandingPath('toner-suministros'),
-    label: 'Suministros',
+    label: 'Toner',
     matchActive: ({ pathname }) => pathname.startsWith('/categoria/toner-suministros'),
   },
   {
-    id: 'escaneres',
-    to: categoryLandingPath('escaneres'),
-    label: 'Escáneres',
-    matchActive: ({ pathname }) => pathname.startsWith('/categoria/escaneres'),
+    id: 'repuestos',
+    to: categoryLandingPath('repuestos'),
+    label: 'Repuestos',
+    matchActive: ({ pathname }) => pathname.startsWith('/categoria/repuestos'),
   },
   {
     id: 'ofertas',
@@ -85,7 +85,7 @@ const STORE_HEADER_LINKS: HeaderMainNavLink[] = [
 
 /**
  * Menú comercial de la tienda.
- * Orden: Categorías · Fotocopiadoras · Impresoras · Suministros · Escáneres · Ofertas · Alquiler · Servicio técnico
+ * Orden: Categorías · Fotocopiadoras · Impresoras · Toner · Repuestos · Ofertas · Alquiler · Servicio técnico
  */
 export function HeaderMainMenu({
   linkClassName,

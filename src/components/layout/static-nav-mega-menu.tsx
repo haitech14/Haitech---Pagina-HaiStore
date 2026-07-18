@@ -65,6 +65,11 @@ export function StaticNavMegaMenu({
     [menu, activeCategorySlug],
   );
 
+  const activeCategoryLabels = useMemo(() => {
+    const item = menu.sidebarItems.find((entry) => entry.slug === activeCategorySlug);
+    return item?.label ? [item.label] : [];
+  }, [menu.sidebarItems, activeCategorySlug]);
+
   const updateMenuWidth = useCallback(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
@@ -160,6 +165,7 @@ export function StaticNavMegaMenu({
           featuredContent={featuredContent}
           onNavigate={closeMenu}
           desktopContentMode="summary"
+          activeCategoryLabels={activeCategoryLabels}
         />
       </DropdownMenuContent>
     </DropdownMenu>

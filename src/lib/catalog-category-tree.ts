@@ -6,12 +6,13 @@ export const CATALOG_NAV_HIDDEN_SLUGS = new Set<string>([
   'toner-suministros',
   'toner-compatibles',
   'repuestos',
+  /** Servicio: no es categoría de producto del carrusel de tienda. */
+  'servicio-tecnico',
 ]);
 
 /** Raíces con menú propio en el header (no van bajo «Productos»). */
 export const PRODUCTOS_NAV_EXCLUDED_SLUGS = new Set<string>([
   ...CATALOG_NAV_HIDDEN_SLUGS,
-  'servicio-tecnico',
   'software',
   'alquiler',
   'tecnologia',

@@ -49,10 +49,18 @@ export function StoreCatalogViewControls({
         onClick={onToggleFilters}
         className={cn(
           iconButtonClass,
+          'relative w-auto gap-1.5 px-2.5 sm:w-10 sm:px-0',
           filtersActive && 'border-red-600/30 bg-red-50 text-red-700',
         )}
       >
-        <SlidersHorizontal className="size-[1.125rem]" aria-hidden="true" />
+        <SlidersHorizontal className="size-[1.125rem] shrink-0" aria-hidden="true" />
+        <span className="text-xs font-semibold sm:hidden">Filtros</span>
+        {filtersActive ? (
+          <span
+            className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-red-600 sm:right-1 sm:top-1"
+            aria-hidden="true"
+          />
+        ) : null}
       </button>
 
       <div
@@ -94,7 +102,7 @@ export function StoreCatalogViewControls({
             <button
               type="button"
               aria-label={`Columnas por fila: ${gridColumns}`}
-              className={cn(iconButtonClass, 'gap-1 px-2')}
+              className={cn(iconButtonClass, 'hidden gap-1 px-2 lg:inline-flex')}
             >
               <Columns3 className="size-[1.125rem] shrink-0" aria-hidden="true" />
               <span className="text-xs font-bold tabular-nums">{gridColumns}</span>

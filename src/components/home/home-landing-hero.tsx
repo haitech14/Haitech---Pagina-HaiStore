@@ -73,25 +73,25 @@ export function HomeLandingHeroSlideContent({
 
       <div className="container relative z-10 flex h-full items-center">
         <div className="grid w-full items-center lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-4 xl:gap-6">
-          <div className="flex flex-col justify-center py-4 sm:py-5 lg:max-w-[40rem] lg:py-6">
+          <div className="flex flex-col justify-center py-5 sm:py-6 lg:max-w-[42rem] lg:py-8">
             <div className="flex flex-col">
               <h1
                 id={headingId}
-                className="text-pretty font-hero text-[2rem] font-bold leading-[1.08] tracking-[-0.02em] text-[#111111] sm:text-[2.5rem] lg:text-[2.75rem] xl:text-[3rem]"
+                className="text-pretty font-hero text-[1.85rem] font-bold leading-[1.1] tracking-[-0.02em] text-[#111111] sm:text-[2.75rem] lg:text-[3.1rem] xl:text-[3.35rem]"
               >
                 Tu empresa no se detiene, tu{' '}
                 <span className="text-[#E30613]">impresión</span> tampoco
               </h1>
 
-              <p className="mt-1.5 max-w-[36rem] text-pretty text-sm leading-[1.45] text-[#666666] sm:mt-2 sm:text-[0.875rem] lg:text-[0.9375rem]">
+              <p className="mt-2 max-w-[38rem] text-pretty text-sm leading-[1.45] text-[#666666] sm:mt-2.5 sm:text-base lg:text-[1.0625rem]">
                 Compra fotocopiadoras e impresoras Ricoh con stock, garantía e instalación en Lima y
                 provincias. ¿Prefieres no invertir? También alquilamos equipos.
               </p>
 
-              <div className="mt-3 flex w-full flex-col gap-2 sm:mt-3.5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="mt-4 flex w-full flex-col gap-2.5 max-sm:w-full sm:mt-5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
                 <Button
                   asChild
-                  className="min-h-10 gap-1.5 rounded-lg bg-[#E30613] px-5 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(227,6,19,0.2)] hover:bg-[#c90511]"
+                  className="min-h-12 w-full gap-1.5 rounded-lg bg-[#E30613] px-6 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(227,6,19,0.2)] hover:bg-[#c90511] sm:min-h-11 sm:w-auto sm:text-[0.9375rem]"
                 >
                   <StorePrefetchLink to={HERO_BUY_EQUIPMENT_HREF}>
                     <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
@@ -102,7 +102,7 @@ export function HomeLandingHeroSlideContent({
                 <Button
                   asChild
                   variant="outline"
-                  className="min-h-10 gap-1.5 rounded-lg border-[#111111]/15 bg-white px-5 text-sm font-medium text-[#111111] shadow-[0_2px_8px_rgba(15,23,42,0.06)] hover:bg-[#F3F4F6]"
+                  className="min-h-12 w-full gap-1.5 rounded-lg border-[#111111]/15 bg-white px-6 text-sm font-medium text-[#111111] shadow-[0_2px_8px_rgba(15,23,42,0.06)] hover:bg-[#F3F4F6] sm:min-h-11 sm:w-auto sm:text-[0.9375rem]"
                 >
                   <Link to={HERO_QUOTE_HREF}>
                     <FileText className="size-3.5 shrink-0" aria-hidden="true" />

@@ -1,19 +1,24 @@
 const SOCIAL_PROOF_NAMES = [
-  'Carlos',
-  'María',
-  'Luis',
-  'Ana',
-  'Jorge',
-  'Patricia',
-  'Roberto',
-  'Sofía',
-  'Miguel',
-  'Lucía',
-  'Fernando',
-  'Carmen',
-  'Diego',
-  'Rosa',
-  'Andrés',
+  'Carlos M.',
+  'María L.',
+  'Luis R.',
+  'Ana P.',
+  'Jorge V.',
+  'Patricia G.',
+  'Roberto S.',
+  'Sofía C.',
+  'Miguel A.',
+  'Lucía H.',
+  'Fernando T.',
+  'Carmen D.',
+  'Diego N.',
+  'Rosa Q.',
+  'Andrés F.',
+  'Valeria B.',
+  'José E.',
+  'Camila R.',
+  'Pedro J.',
+  'Elena K.',
 ] as const;
 
 const SOCIAL_PROOF_CITIES = [
@@ -48,7 +53,7 @@ export function buildRandomSocialProofMessage(productName: string): string {
     `${name} compró un producto similar hace ${minutes} min`,
     `${name} añadió «${shortName}» al carrito`,
     `${name} de ${city} acaba de comprar este producto u otros`,
-    `Alguien de ${city} compró este producto hace ${minutes} min`,
+    `${name} de ${city} compró este producto hace ${minutes} min`,
   ];
 
   return pickRandom(templates);

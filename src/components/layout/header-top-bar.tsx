@@ -15,24 +15,24 @@ export function HeaderTopBar({ className }: { className?: string }) {
     <div className={cn('border-b border-white/10 bg-black', className)}>
       <div
         className={cn(
-          'container flex min-h-8 flex-wrap items-center justify-between gap-x-3 gap-y-1 py-1',
-          'text-[0.6875rem] leading-none sm:gap-x-4 sm:text-xs',
+          'container flex min-h-7 items-center justify-between gap-x-2 py-0.5',
+          'text-[0.625rem] leading-none sm:min-h-8 sm:gap-x-4 sm:py-1 sm:text-xs',
           topBarMutedClass,
         )}
       >
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4">
+        <div className="flex min-w-0 items-center gap-x-2 sm:gap-x-4">
           <span
-            className="inline-flex items-center gap-1.5"
+            className="inline-flex min-w-0 items-center gap-1 sm:gap-1.5"
             title={HEADER_TOPBAR_PROMO_TEXT}
           >
             <Truck className="size-3 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden="true" />
-            <span className="whitespace-nowrap">{HEADER_TOPBAR_PROMO_TEXT}</span>
+            <span className="truncate sm:whitespace-nowrap">{HEADER_TOPBAR_PROMO_TEXT}</span>
           </span>
         </div>
 
         <div className="ml-auto flex shrink-0 items-center justify-end">
           <HeaderStoreCurrencyExchangeBlock
-            className="inline-flex px-0 py-0 text-[0.6875rem] text-[#9a9a9a] sm:text-xs"
+            className="inline-flex px-0 py-0 text-[0.625rem] text-[#9a9a9a] sm:text-xs"
             muted
           />
         </div>

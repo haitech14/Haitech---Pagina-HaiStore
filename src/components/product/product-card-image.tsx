@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
 import {
@@ -27,6 +27,10 @@ function withImageVersion(url: string, imageVersion?: string | null): string {
   return `${url}${separator}v=${encodeURIComponent(imageVersion)}`;
 }
 
+function isImageAlreadyLoaded(img: HTMLImageElement | null): boolean {
+  return Boolean(img && img.complete && img.naturalWidth > 0);
+}
+
 /** Imagen de tarjeta con variantes WebP 256/512 cuando existen. */
 export function ProductCardImage({
   src,
@@ -40,6 +44,7 @@ export function ProductCardImage({
   imageVersion = null,
   onError,
 }: ProductCardImageProps) {
+  const imgRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
   const responsive = supportsResponsiveProductImage(src)
     ? {
@@ -53,11 +58,15 @@ export function ProductCardImage({
   );
 
   useEffect(() => {
+    if (isImageAlreadyLoaded(imgRef.current)) {
+      setLoaded(true);
+      return;
+    }
     setLoaded(false);
   }, [src, imageVersion]);
 
   const imageClass = cn(
-    'block transition-opacity duration-300',
+    'block transition-opacity duration-150',
     loaded ? 'opacity-100' : 'opacity-0',
     className,
   );
@@ -82,6 +91,7 @@ export function ProductCardImage({
         <picture>
           <source type="image/webp" srcSet={webpSrcSet} sizes={responsive.sizes} />
           <img
+            ref={imgRef}
             src={withImageVersion(responsive.fallbackSrc, imageVersion)}
             alt={alt}
             className={imageClass}
@@ -103,6 +113,7 @@ export function ProductCardImage({
       {...(watermarkClassName ? { watermarkClassName } : {})}
     >
       <img
+        ref={imgRef}
         src={withImageVersion(src, imageVersion)}
         alt={alt}
         className={imageClass}

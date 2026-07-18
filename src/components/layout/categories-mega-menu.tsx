@@ -13,6 +13,10 @@ import { PRODUCTOS_NAV_SUBMENU } from '@/data/header-nav-submenus';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildDesktopMegaMenuColumns, buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
+import {
+  collectInventoryLabels,
+  findStoreCategoryBySlug,
+} from '@/lib/store-category-display';
 import { HeaderNavChevron } from '@/components/layout/header-nav-chevron';
 import {
   computeMegaMenuDropdownLayout,
@@ -70,6 +74,17 @@ export function CategoriesMegaMenu({
     () => menu.getFeaturedContent(activeCategorySlug),
     [menu, activeCategorySlug],
   );
+
+  const activeCategoryLabels = useMemo(() => {
+    const node = findStoreCategoryBySlug(categoryTree, activeCategorySlug);
+    if (node) {
+      const labels = collectInventoryLabels(node);
+      if (labels.length > 0) return labels;
+      if (node.name.trim()) return [node.name.trim()];
+    }
+    const item = menu.sidebarItems.find((entry) => entry.slug === activeCategorySlug);
+    return item?.label ? [item.label] : [];
+  }, [categoryTree, activeCategorySlug, menu.sidebarItems]);
 
   const updateMenuWidth = useCallback(() => {
     const trigger = triggerRef.current;
@@ -186,6 +201,7 @@ export function CategoriesMegaMenu({
             featuredContent={featuredContent}
             onNavigate={closeMenu}
             desktopContentMode="summary"
+            activeCategoryLabels={activeCategoryLabels}
           />
         </DropdownMenuContent>
       </DropdownMenu>
@@ -208,7 +224,7 @@ export function CategoriesMegaMenu({
             onFocus={openMenu}
             className={cn(
               MAIN_NAV_CATEGORIES_BUTTON_CLASS,
-              (open || isCatalogRoute) && 'bg-red-700',
+              (open || isCatalogRoute) && 'bg-[#2a2a2a]',
             )}
           >
             <Menu className={MAIN_NAV_ICON_CLASS} aria-hidden="true" />
@@ -256,6 +272,7 @@ export function CategoriesMegaMenu({
           featuredContent={featuredContent}
           onNavigate={closeMenu}
           desktopContentMode="summary"
+          activeCategoryLabels={activeCategoryLabels}
         />
       </DropdownMenuContent>
     </DropdownMenu>

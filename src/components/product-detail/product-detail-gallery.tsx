@@ -292,8 +292,7 @@ export function ProductDetailGallery({
     [product?.storefront_ui],
   );
 
-  const priceSource = product ?? { price: 0, prices: undefined, price_role: undefined };
-  const displayPrice = useCatalogDisplayPrice(priceSource);
+  const displayPrice = useCatalogDisplayPrice(product ?? { price: 0 });
 
   const clipboard = useMemo(() => {
     if (!product || !storefrontUi.showGalleryCopyText) return null;
@@ -360,7 +359,7 @@ export function ProductDetailGallery({
   return (
     <div className="flex w-full flex-col">
       <div className="relative overflow-hidden rounded-lg bg-white">
-        <div className="flex min-h-[280px] flex-col items-stretch max-sm:min-h-0 sm:min-h-[360px] sm:flex-row lg:min-h-[480px]">
+        <div className="flex min-h-[220px] flex-col items-stretch max-sm:min-h-0 sm:min-h-[360px] sm:flex-row lg:min-h-[480px]">
           <div className="hidden sm:contents">{thumbnailList}</div>
 
           <div className="relative min-w-0 flex-1 max-sm:order-1">
@@ -386,7 +385,7 @@ export function ProductDetailGallery({
               </a>
             ) : null}
 
-            <div className="flex h-full min-h-[240px] items-center justify-center bg-white p-2 sm:min-h-[inherit] sm:p-3 lg:p-4">
+            <div className="flex h-full min-h-[200px] items-center justify-center bg-white p-2 sm:min-h-[inherit] sm:p-3 lg:p-4">
               {activeItem ? (
                 activeItem.type === 'image' ? (
                   <button

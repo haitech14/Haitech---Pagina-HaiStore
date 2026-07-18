@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Menu, ShoppingCart, X } from 'lucide-react';
+import { Grid3x3, Menu, ShoppingCart, X } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import {
   isForumPath,
 } from '@/components/layout/header-category-nav';
 import { HeaderCustomerServiceAction } from '@/components/layout/header-customer-service-action';
+import { HeaderSupportButton } from '@/components/layout/header-support-button';
 import { HeaderForumPublishButton } from '@/components/layout/header-forum-publish-button';
 import { STORE_HEADER_LINKS } from '@/components/layout/header-main-menu';
 import { HeaderTopBar } from '@/components/layout/header-top-bar';
@@ -103,7 +104,7 @@ export function Header() {
           !forumMode && 'lg:hidden',
         )}
       >
-        <div className="flex min-h-11 flex-1 items-center gap-3 sm:gap-4">
+        <div className="flex min-h-11 flex-1 items-center gap-2 sm:gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -117,6 +118,23 @@ export function Header() {
           >
             {mobileOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
           </Button>
+
+          {!forumMode ? (
+            <Button
+              type="button"
+              variant="ghost"
+              className={cn(
+                'h-9 gap-1.5 rounded-md px-2.5 text-xs font-semibold lg:hidden',
+                'text-white hover:bg-white/10 hover:text-white',
+              )}
+              aria-label={mobileOpen ? 'Cerrar categorías' : 'Abrir categorías'}
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen((open) => !open)}
+            >
+              <Grid3x3 className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <span className="hidden min-[380px]:inline">Categorías</span>
+            </Button>
+          ) : null}
 
           <HeaderBrandLogos
             heightClass="h-9 sm:h-10"
@@ -186,13 +204,7 @@ export function Header() {
 
       {mobileOpen && (
         <div className={cn('border-t lg:hidden', forumMode ? 'border-border/60' : 'border-white/15')}>
-          <div className="container flex flex-col gap-4 py-4">
-            {!forumMode ? (
-              <StoreNavMobileMegaAccordions onNavigate={() => setMobileOpen(false)} />
-            ) : null}
-            {!forumMode ? (
-              <HeaderCustomerServiceAction variant="mobile" className="px-0.5" />
-            ) : null}
+          <div className="container flex flex-col gap-3 py-3 sm:gap-4 sm:py-4">
             <nav aria-label={forumMode ? 'Navegación móvil del foro' : 'Navegación móvil'}>
               <ul className="flex flex-col">
                 {mobileLinks.map((item) => (
@@ -226,6 +238,15 @@ export function Header() {
                 ))}
               </ul>
             </nav>
+            {!forumMode ? (
+              <StoreNavMobileMegaAccordions onNavigate={() => setMobileOpen(false)} />
+            ) : null}
+            {!forumMode ? (
+              <>
+                <HeaderCustomerServiceAction variant="mobile" />
+                <HeaderSupportButton variant="compact" className="min-h-11 w-full justify-center" />
+              </>
+            ) : null}
             {forumMode ? (
               <HeaderForumPublishButton className="min-h-11 w-full justify-center" />
             ) : null}

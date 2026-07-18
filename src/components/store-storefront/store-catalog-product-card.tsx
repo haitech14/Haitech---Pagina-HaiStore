@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
@@ -40,7 +40,7 @@ interface StoreCatalogProductCardProps {
   imagePriority?: boolean;
 }
 
-export function StoreCatalogProductCard({
+export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   product,
   imageLoading = 'lazy',
   imagePriority = false,
@@ -97,7 +97,7 @@ export function StoreCatalogProductCard({
       <div className="relative">
         <Link
           to={detailHref}
-          className="relative block aspect-square w-full overflow-hidden bg-white p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset"
+          className="relative block aspect-[4/5] w-full overflow-hidden bg-white p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset md:aspect-square md:p-3"
           aria-label={`Ver ficha de ${product.name}`}
         >
           {isFeatured ? <ProductCardFeaturedStar /> : null}
@@ -146,31 +146,31 @@ export function StoreCatalogProductCard({
         />
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col px-3 pb-3 pt-2">
+      <div className="flex min-h-0 flex-1 flex-col px-2 pb-2 pt-1.5 md:px-3 md:pb-3 md:pt-2">
         <ProductCardBrandLine brand={brand} />
 
         <Link
           to={detailHref}
           className="mt-0.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
         >
-          <h3 className="line-clamp-2 text-pretty text-[0.8125rem] font-bold leading-snug text-[#111111] sm:text-sm">
+          <h3 className="line-clamp-2 text-pretty text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm">
             {title}
           </h3>
         </Link>
 
-        <ProductCardPromoBadges product={titleProduct} className="mt-2" />
+        <ProductCardPromoBadges product={titleProduct} className="mt-2 max-md:hidden" />
 
         <ProductCardStatsLine
           product={titleProduct}
           stock={stockCount}
           outOfStock={outOfStock}
           code={code}
-          className="mt-2.5"
+          className="mt-2.5 max-md:hidden"
         />
 
-        <div className="mt-3 h-px w-full bg-[#eceff4]" aria-hidden="true" />
+        <div className="mt-2 h-px w-full bg-[#eceff4] md:mt-3" aria-hidden="true" />
 
-        <div className="mt-3">
+        <div className="mt-2 md:mt-3">
           <ProductCardFeaturedPricing
             productId={product.id}
             currentUsd={pricing.currentUsd}
@@ -179,7 +179,7 @@ export function StoreCatalogProductCard({
           />
         </div>
 
-        <div className="relative z-[2] mt-auto pt-3">
+        <div className="relative z-[2] mt-auto pt-2 md:pt-3">
           <ProductQuantityAddFooter
             product={product}
             size="sm"
@@ -187,9 +187,9 @@ export function StoreCatalogProductCard({
             quantityPlacement="above"
             addLabel={buyNowLabel}
             onQuantityChange={setQuantity}
-            quantityClassName="h-10 rounded-lg"
+            quantityClassName="h-9 rounded-lg md:h-10"
             addButtonClassName={cn(
-              'h-10 min-h-10 max-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm',
+              'h-9 min-h-9 max-h-9 min-w-0 flex-1 rounded-lg bg-[#E30613] px-2 text-[0.6875rem] font-semibold text-white shadow-none hover:bg-[#c90511] md:h-10 md:min-h-10 md:max-h-10 md:px-3 md:text-sm',
               outOfStock && 'font-semibold',
             )}
             endAdornment={
@@ -218,4 +218,4 @@ export function StoreCatalogProductCard({
       />
     </article>
   );
-}
+});

@@ -8,7 +8,16 @@ import { normalizeStorefrontHeroBullets } from '@/lib/product-storefront-detail'
 import type { ProductAttribute } from '@/types/product';
 
 export type ProductCardSpecRow = {
-  id: 'funciones' | 'velocidad' | 'formato' | 'produccion';
+  id:
+    | 'funciones'
+    | 'velocidad'
+    | 'formato'
+    | 'produccion'
+    | 'marca'
+    | 'sku'
+    | 'color'
+    | 'rendimiento'
+    | 'compatibilidad';
   label: string;
   value: string;
 };

@@ -19,10 +19,10 @@ import {
 } from 'lucide-react';
 
 import {
-  headerStackedAccountButtonClass,
   headerIconActionButtonClass,
   type HeaderActionTone,
 } from '@/components/layout/header-action-strip';
+import { TechnicalServiceRequestDialog } from '@/components/layout/technical-service-request-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -114,6 +114,7 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
   const haiPoints = user ? getHaiPointsBalance(user) : 0;
 
   const [open, setOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearCloseTimer = useCallback(() => {
@@ -145,11 +146,10 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className={
-            triggerVariant === 'labeled'
-              ? headerStackedAccountButtonClass(tone)
-              : headerIconActionButtonClass(tone, triggerVariant === 'strip' ? 'sm' : 'md')
-          }
+          className={headerIconActionButtonClass(
+            tone,
+            triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'sm' : 'md',
+          )}
           aria-label={user ? `Menú de cuenta de ${displayName}` : 'Iniciar sesión o crear cuenta'}
           aria-haspopup="true"
           aria-expanded={open}
@@ -160,18 +160,11 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
           <User
             className={cn(
               'shrink-0',
-              triggerVariant === 'labeled'
-                ? 'size-5'
-                : triggerVariant === 'strip'
-                  ? 'size-4'
-                  : 'size-5',
+              triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'size-4' : 'size-5',
             )}
             strokeWidth={1.75}
             aria-hidden="true"
           />
-          {triggerVariant === 'labeled' ? (
-            <span className="whitespace-nowrap">Mi cuenta</span>
-          ) : null}
         </button>
       </DropdownMenuTrigger>
 
@@ -319,7 +312,11 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
-                  onSelect={() => goTo('/contacto')}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    setOpen(false);
+                    setSupportOpen(true);
+                  }}
                 >
                   <AccountMenuRow icon={Headphones} label="Soporte" />
                 </DropdownMenuItem>
@@ -352,7 +349,11 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
-                onSelect={() => goTo('/contacto')}
+                onSelect={(event) => {
+                  event.preventDefault();
+                  setOpen(false);
+                  setSupportOpen(true);
+                }}
               >
                 <AccountMenuRow icon={Headphones} label="Soporte" />
               </DropdownMenuItem>
@@ -360,6 +361,8 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
           )}
         </div>
       </DropdownMenuContent>
+
+      <TechnicalServiceRequestDialog open={supportOpen} onOpenChange={setSupportOpen} />
     </DropdownMenu>
   );
 }

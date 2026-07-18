@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Calculator, ImageOff, Minus, Plus, ShoppingCart } from 'lucide-react';
 
@@ -199,8 +199,31 @@ export function ProductDetailMobilePurchaseBar({
   const { addItem } = useCart();
   const bottomNavInset = useMobileBottomNavInset();
   const isMobileLayout = useMediaQuery('(max-width: 1023px)');
+  const isNarrowMobile = useMediaQuery('(max-width: 639px)');
   const showBar = useScrollPastElement(purchaseActionsRef, isMobileLayout, product.id);
-  useSetMobileBottomInset(showBar ? MOBILE_PURCHASE_BAR_HEIGHT_PX : 0);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [measuredBarHeight, setMeasuredBarHeight] = useState(MOBILE_PURCHASE_BAR_HEIGHT_PX);
+
+  useEffect(() => {
+    if (!showBar || !isMobileLayout) {
+      setMeasuredBarHeight(MOBILE_PURCHASE_BAR_HEIGHT_PX);
+      return;
+    }
+    const node = barRef.current;
+    if (!node) return;
+
+    const updateHeight = () => {
+      const next = Math.ceil(node.getBoundingClientRect().height);
+      if (next > 0) setMeasuredBarHeight(next);
+    };
+
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [showBar, isMobileLayout, showMaintenancePlanAction, isRentMode, isNarrowMobile]);
+
+  useSetMobileBottomInset(showBar ? measuredBarHeight : 0);
   const hasVolumeDiscount = volumePricing.tier != null && volumePricing.savingsUsd > 0.001;
   const hasCustomUnitPrice = hasVolumeDiscount || preparationSurchargeUsd > 0;
   const equipmentExtrasUsd = equipmentConfiguration
@@ -287,9 +310,10 @@ export function ProductDetailMobilePurchaseBar({
 
   return (
     <div
+      ref={barRef}
       className={cn(
-        'fixed inset-x-0 bottom-0 left-0 z-40 w-full border-t border-border bg-background/95 p-3 shadow-[0_-4px_20px_rgba(15,23,42,0.12)] backdrop-blur-sm transition-[transform,opacity] duration-300 ease-out lg:hidden',
-        bottomNavInset > 0 ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
+        'fixed inset-x-0 bottom-0 left-0 z-40 w-full border-t border-border bg-background/95 p-2.5 shadow-[0_-4px_20px_rgba(15,23,42,0.12)] backdrop-blur-sm transition-[transform,opacity] duration-300 ease-out sm:p-3 lg:hidden',
+        bottomNavInset > 0 ? 'pb-2.5 sm:pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
         showBar
           ? 'translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-full opacity-0',
@@ -299,10 +323,12 @@ export function ProductDetailMobilePurchaseBar({
       role="complementary"
       aria-label={isRentMode ? 'Acciones rápidas de alquiler' : 'Acciones rápidas de compra'}
     >
-      <div className="container flex items-center gap-2.5 sm:gap-3">
-        <ProductPurchaseBarThumbnail product={product} />
+      <div className="container flex items-center gap-2 sm:gap-3">
+        {isNarrowMobile ? null : <ProductPurchaseBarThumbnail product={product} />}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-xs font-medium text-foreground sm:text-sm">{product.name}</p>
+          {isNarrowMobile ? null : (
+            <p className="truncate text-xs font-medium text-foreground sm:text-sm">{product.name}</p>
+          )}
           {isRentMode && rentalEstimate ? (
             <p className="truncate text-xs font-semibold text-[#0f1f3d]" aria-live="polite">
               Desde S/{' '}
@@ -313,7 +339,7 @@ export function ProductDetailMobilePurchaseBar({
             </p>
           ) : (
             <>
-              {showComparePrice && compareUnitUsd != null ? (
+              {!isNarrowMobile && showComparePrice && compareUnitUsd != null ? (
                 <p className="truncate text-xs text-muted-foreground">
                   Antes:{' '}
                   <DualPrice
@@ -335,7 +361,7 @@ export function ProductDetailMobilePurchaseBar({
                   compact
                 />
               </div>
-              {savingsMessage ? (
+              {!isNarrowMobile && savingsMessage ? (
                 <p className="truncate text-xs text-muted-foreground">
                   <span className="font-semibold text-neutral-500">Compra por Volumen: </span>
                   {savingsMessage}
@@ -430,22 +456,24 @@ export function ProductDetailMobilePurchaseBar({
                 <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
                 <span className="truncate text-xs sm:text-sm">{buyNowLabel}</span>
               </Button>
-              <ProductWhatsAppButton
-                className="size-10 shrink-0 rounded-md border-emerald-500 text-emerald-700 hover:bg-emerald-50"
-                skipDialogIfComplete
-                defaultGenerateQuote
-                quantity={quantity}
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  priceUsd: volumePricing.unitUsd,
-                  category: product.category,
-                  brand: product.brand ?? null,
-                }}
-              />
+              {isNarrowMobile ? null : (
+                <ProductWhatsAppButton
+                  className="size-10 shrink-0 rounded-md border-emerald-500 text-emerald-700 hover:bg-emerald-50"
+                  skipDialogIfComplete
+                  defaultGenerateQuote
+                  quantity={quantity}
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    priceUsd: volumePricing.unitUsd,
+                    category: product.category,
+                    brand: product.brand ?? null,
+                  }}
+                />
+              )}
             </div>
           )}
-          {showMaintenancePlanAction && onMaintenancePlanClick ? (
+          {showMaintenancePlanAction && onMaintenancePlanClick && !isNarrowMobile ? (
             <Button
               type="button"
               variant="outline"

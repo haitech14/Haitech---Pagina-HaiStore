@@ -105,7 +105,7 @@ export function HeaderCategoryNav({
             aria-label="Navegación de productos"
             className="overflow-visible border-t border-black/10 bg-white"
           >
-            <div className="container flex min-h-11 items-center justify-start gap-4 overflow-visible py-1.5">
+            <div className="container flex min-h-9 items-center justify-start gap-4 overflow-visible py-1">
               <HeaderMainMenu
                 linkClassName={mainNavLinkClass}
                 menuVariant="light"

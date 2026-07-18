@@ -5,6 +5,8 @@ import type { ProductCardSpecRow } from '@/lib/product-card-short-description';
 interface ProductCardSpecTableProps {
   rows: ProductCardSpecRow[];
   className?: string;
+  /** Tipografía más legible (p. ej. ficha de toner). */
+  size?: 'compact' | 'comfortable';
 }
 
 type DisplayRow = {
@@ -69,12 +71,23 @@ function formatCardSpecDisplay(row: ProductCardSpecRow): string {
  * Mini tabla de specs en tarjetas (Funciones / Velocidad / Formato / Producción).
  * Un poco más densa que la primera versión (texto y padding menores).
  */
-export function ProductCardSpecTable({ rows, className }: ProductCardSpecTableProps) {
+export function ProductCardSpecTable({
+  rows,
+  className,
+  size = 'compact',
+}: ProductCardSpecTableProps) {
   if (rows.length === 0) return null;
 
   const byId = new Map(rows.map((row) => [row.id, row]));
   const ordered: ProductCardSpecRow[] = [];
-  for (const id of ['funciones', 'velocidad', 'formato', 'produccion'] as const) {
+  const preferredOrder = (
+    rows.some((row) =>
+      ['marca', 'sku', 'color', 'rendimiento', 'compatibilidad'].includes(row.id),
+    )
+      ? (['marca', 'sku', 'color', 'rendimiento', 'compatibilidad'] as const)
+      : (['funciones', 'velocidad', 'formato', 'produccion'] as const)
+  );
+  for (const id of preferredOrder) {
     const row = byId.get(id);
     if (row) ordered.push(row);
   }
@@ -89,6 +102,8 @@ export function ProductCardSpecTable({ rows, className }: ProductCardSpecTablePr
     display: formatCardSpecDisplay(row),
   }));
 
+  const comfortable = size === 'comfortable';
+
   return (
     <div
       className={cn(
@@ -96,7 +111,14 @@ export function ProductCardSpecTable({ rows, className }: ProductCardSpecTablePr
         className,
       )}
     >
-      <table className="w-full table-fixed border-collapse text-[0.625rem] leading-tight sm:text-[0.6875rem] sm:leading-snug">
+      <table
+        className={cn(
+          'w-full table-fixed border-collapse',
+          comfortable
+            ? 'text-xs leading-snug sm:text-sm sm:leading-normal'
+            : 'text-[0.625rem] leading-tight sm:text-[0.6875rem] sm:leading-snug',
+        )}
+      >
         <tbody>
           {displayRows.map((row, index) => {
             const showTitle = row.value.length > 28 || row.display !== row.value;
@@ -110,12 +132,22 @@ export function ProductCardSpecTable({ rows, className }: ProductCardSpecTablePr
               >
                 <th
                   scope="row"
-                  className="w-[36%] max-w-[5rem] px-1 py-0.5 align-top font-medium text-[#888888] sm:px-1.5 sm:py-1"
+                  className={cn(
+                    'w-[36%] max-w-[5rem] align-top font-medium text-[#888888]',
+                    comfortable
+                      ? 'px-2 py-1.5 sm:px-2.5 sm:py-2'
+                      : 'px-1 py-0.5 sm:px-1.5 sm:py-1',
+                  )}
                 >
                   {row.label}
                 </th>
                 <td
-                  className="min-w-0 px-1 py-0.5 align-top font-medium text-[#444444] sm:px-1.5 sm:py-1"
+                  className={cn(
+                    'min-w-0 align-top font-medium text-[#444444]',
+                    comfortable
+                      ? 'px-2 py-1.5 sm:px-2.5 sm:py-2'
+                      : 'px-1 py-0.5 sm:px-1.5 sm:py-1',
+                  )}
                   {...(showTitle ? { title: row.value } : {})}
                 >
                   <span className="line-clamp-2 break-words [overflow-wrap:anywhere]">

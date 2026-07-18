@@ -23,21 +23,21 @@ export function HomeStorefrontInfoStrip({ className }: { className?: string }) {
                 <li key={item.id} className="min-w-0">
                   <div
                     className={cn(
-                      'flex min-h-[3.75rem] items-center gap-3 px-4 py-3.5',
+                      'flex min-h-[2.85rem] items-center gap-2 px-2.5 py-2',
                       'sm:min-h-[4.25rem] sm:gap-3.5 sm:px-5 sm:py-4',
                       'lg:justify-center lg:px-6',
                     )}
                   >
                     <Icon
-                      className="size-6 shrink-0 text-[#E30613] sm:size-7"
+                      className="size-[1.125rem] shrink-0 text-[#E30613] sm:size-7"
                       strokeWidth={1.5}
                       aria-hidden="true"
                     />
                     <p className="min-w-0 text-left leading-none text-[#111111]" aria-label={label}>
-                      <span className="block text-[0.8125rem] font-bold sm:text-sm">
+                      <span className="block text-[0.6875rem] font-bold sm:text-sm">
                         {item.line1}
                       </span>
-                      <span className="mt-0.5 block text-[0.6875rem] font-normal text-[#6B7280] sm:text-xs">
+                      <span className="mt-0.5 block text-[0.5625rem] font-normal text-[#6B7280] sm:text-xs">
                         {item.line2}
                       </span>
                     </p>

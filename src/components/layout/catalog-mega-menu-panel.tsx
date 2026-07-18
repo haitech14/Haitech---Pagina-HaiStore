@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -8,8 +8,17 @@ import type {
   MegaMenuColumnGroup,
   MegaMenuFeaturedContent,
 } from '@/lib/mega-menu-from-store-categories';
+import { getBrandLogo, getBrandName, getBrandSlug } from '@/data/brands';
+import { loadCatalogIndex } from '@/lib/catalog-featured';
 import { categoryLandingPath } from '@/lib/category-path';
+import {
+  getMegaMenuInterestBrands,
+  getMegaMenuInterestProducts,
+  megaMenuCategoryBrandHref,
+  megaMenuCategorySectionHref,
+} from '@/lib/mega-menu-interest';
 import { megaMenuIconForSlug, resolveMegaMenuColumnImage } from '@/lib/mega-menu-visuals';
+import { productPath } from '@/lib/product-path';
 import { prefetchCategoryFromHref, prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 import { cn } from '@/lib/utils';
@@ -185,29 +194,176 @@ function MegaMenuDesktopColumn({
   );
 }
 
+function MegaMenuInterestProducts({
+  categorySlug,
+  labels,
+  onNavigate,
+}: {
+  categorySlug: string;
+  labels: readonly string[];
+  onNavigate: () => void;
+}) {
+  const [catalogReady, setCatalogReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void loadCatalogIndex()
+      .then(() => {
+        if (!cancelled) setCatalogReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setCatalogReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [categorySlug]);
+
+  const products = useMemo(
+    () => (catalogReady ? getMegaMenuInterestProducts(labels, 4) : []),
+    [catalogReady, labels],
+  );
+
+  if (products.length === 0) return null;
+
+  return (
+    <div className="min-w-0">
+      <p className="mb-2.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
+        Te puede interesar
+      </p>
+      <ul className="grid grid-cols-2 gap-2.5 sm:gap-3" role="list">
+        {products.map((product) => (
+          <li key={product.id}>
+            <MegaMenuLink
+              to={productPath(product)}
+              onNavigate={onNavigate}
+              className={cn(
+                'group/product flex h-full flex-col gap-1.5 rounded-lg border border-[#E5E7EB] bg-[#FAFAFA] p-2 transition-colors',
+                'hover:border-[#E30613]/35 hover:bg-[#FFF5F5]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+              )}
+            >
+              <span className="flex aspect-square items-center justify-center overflow-hidden rounded-md bg-white">
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt=""
+                    className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover/product:scale-[1.03]"
+                    loading="lazy"
+                  />
+                ) : null}
+              </span>
+              <span className="line-clamp-2 text-[0.6875rem] font-medium leading-snug text-[#0f1f3d] group-hover/product:text-[#E30613]">
+                {product.name}
+              </span>
+            </MegaMenuLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function MegaMenuInterestBrands({
+  categorySlug,
+  labels,
+  onNavigate,
+}: {
+  categorySlug: string;
+  labels: readonly string[];
+  onNavigate: () => void;
+}) {
+  const [catalogReady, setCatalogReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void loadCatalogIndex()
+      .then(() => {
+        if (!cancelled) setCatalogReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setCatalogReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [categorySlug]);
+
+  const brands = useMemo(
+    () => (catalogReady ? getMegaMenuInterestBrands(labels, 6) : []),
+    [catalogReady, labels],
+  );
+
+  if (brands.length === 0) return null;
+
+  return (
+    <div className="min-w-0 border-t border-[#E5E7EB] pt-3">
+      <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
+        Marcas
+      </p>
+      <ul className="flex flex-wrap items-center gap-2" role="list">
+        {brands.map((brand) => {
+          const logo = getBrandLogo(brand);
+          const name = getBrandName(brand);
+          return (
+            <li key={getBrandSlug(brand)}>
+              <MegaMenuLink
+                to={megaMenuCategoryBrandHref(categorySlug, brand)}
+                onNavigate={onNavigate}
+                className={cn(
+                  'inline-flex h-9 min-w-[3.5rem] items-center justify-center rounded-md border border-[#E5E7EB] bg-white px-2.5 transition-colors',
+                  'hover:border-[#E30613]/40 hover:bg-[#FFF5F5]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                )}
+                aria-label={`Ver ${name}`}
+              >
+                {logo ? (
+                  <img src={logo} alt={name} className="max-h-5 max-w-[4.5rem] object-contain" loading="lazy" />
+                ) : (
+                  <span className="text-[0.6875rem] font-semibold text-[#374151]">{name}</span>
+                )}
+              </MegaMenuLink>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 function MegaMenuSummaryPanel({
   group,
+  categorySlug,
+  categoryLabels,
   onNavigate,
 }: {
   group: MegaMenuColumnGroup;
+  categorySlug: string;
+  categoryLabels: readonly string[];
   onNavigate: () => void;
 }) {
   const hasSubLinks = group.links.length > 0;
+  const sectionHref = megaMenuCategorySectionHref(group.href);
 
   return (
-    <div className="flex w-max max-w-full flex-col">
-      <MegaMenuColumnTitle group={group} onNavigate={onNavigate} variant="summary" />
+    <div className="flex w-max max-w-full flex-col gap-4">
+      <MegaMenuColumnTitle
+        group={{ ...group, href: sectionHref }}
+        onNavigate={onNavigate}
+        variant="summary"
+      />
 
       <div className="flex gap-6">
-        <MegaMenuColumnThumbnail group={group} onNavigate={onNavigate} size="summary" />
-
-        <div className="flex w-[13.5rem] max-w-[18rem] shrink-0 flex-col sm:w-[15rem]">
+        <div className="flex w-[13.5rem] max-w-[16rem] shrink-0 flex-col sm:w-[15rem]">
+          <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
+            Subcategorías
+          </p>
           {hasSubLinks ? (
             <ul className="space-y-2" role="list">
               {group.links.map((link) => (
                 <li key={`${group.slug}-${link.href}-${link.name}`}>
                   <MegaMenuLink
-                    to={link.href}
+                    to={megaMenuCategorySectionHref(link.href)}
                     onNavigate={onNavigate}
                     className={cn(
                       'block rounded-md py-0.5 text-sm leading-snug text-[#374151] transition-colors',
@@ -226,7 +382,7 @@ function MegaMenuSummaryPanel({
           )}
 
           <MegaMenuLink
-            to={group.href}
+            to={sectionHref}
             onNavigate={onNavigate}
             className={cn(
               'mt-4 inline-flex items-center gap-0.5 text-sm font-semibold transition-colors',
@@ -236,6 +392,19 @@ function MegaMenuSummaryPanel({
             Ver todo
             <ChevronRight className="size-4" aria-hidden="true" />
           </MegaMenuLink>
+        </div>
+
+        <div className="flex w-[16.5rem] max-w-[20rem] shrink-0 flex-col gap-4 sm:w-[18rem]">
+          <MegaMenuInterestProducts
+            categorySlug={categorySlug}
+            labels={categoryLabels}
+            onNavigate={onNavigate}
+          />
+          <MegaMenuInterestBrands
+            categorySlug={categorySlug}
+            labels={categoryLabels}
+            onNavigate={onNavigate}
+          />
         </div>
       </div>
     </div>
@@ -323,6 +492,8 @@ function CatalogMegaMenuSidebar({
   isMobile,
   scrollable = false,
   asLinks = false,
+  /** En escritorio: click navega a la categoría; hover actualiza el panel derecho. */
+  navigateOnSelect = false,
 }: {
   sidebarItems: LandingCatalogMenuSidebarItem[];
   activeCategorySlug: string;
@@ -333,8 +504,10 @@ function CatalogMegaMenuSidebar({
   scrollable?: boolean;
   /** Cada ítem navega a su categoría (sin panel derecho). */
   asLinks?: boolean;
+  navigateOnSelect?: boolean;
 }) {
   const queryClient = useQueryClient();
+  const useLinks = asLinks || navigateOnSelect;
 
   const prefetchSlug = (slug: string, href: string) => {
     prefetchCategoryFromHref(queryClient, href);
@@ -373,13 +546,15 @@ function CatalogMegaMenuSidebar({
                   'max-h-[min(28rem,calc(75vh-3.5rem))] overflow-y-auto overscroll-contain pr-0.5 [-ms-overflow-style:auto] [scrollbar-width:thin]',
               ),
         )}
-        role={asLinks ? 'list' : 'tablist'}
+        role={useLinks && !navigateOnSelect ? 'list' : 'tablist'}
         aria-label="Categorías del menú"
       >
         {sidebarItems.map((item) => {
           const isActive = activeCategorySlug === item.slug;
           const Icon = item.icon;
-          const href = item.viewAllHref ?? categoryLandingPath(item.slug);
+          const href = megaMenuCategorySectionHref(
+            item.viewAllHref ?? categoryLandingPath(item.slug),
+          );
 
           const itemClassName = cn(
             'flex min-h-8 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem] font-medium leading-snug transition-colors',
@@ -417,9 +592,11 @@ function CatalogMegaMenuSidebar({
 
           return (
             <li key={item.slug} role="presentation" className={isMobile ? 'shrink-0' : undefined}>
-              {asLinks ? (
+              {useLinks ? (
                 <Link
                   to={href}
+                  role={navigateOnSelect ? 'tab' : undefined}
+                  aria-selected={navigateOnSelect ? isActive : undefined}
                   onClick={onNavigate}
                   onMouseEnter={
                     isMobile
@@ -429,7 +606,10 @@ function CatalogMegaMenuSidebar({
                           onCategoryChange(item.slug);
                         }
                   }
-                  onFocus={() => prefetchSlug(item.slug, href)}
+                  onFocus={() => {
+                    prefetchSlug(item.slug, href);
+                    onCategoryChange(item.slug);
+                  }}
                   className={itemClassName}
                   style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
                 >
@@ -477,6 +657,8 @@ export interface CatalogMegaMenuPanelProps {
   layout?: 'desktop' | 'mobile';
   /** Muestra imagen + lista plana cuando hay un solo grupo (p. ej. Productos). */
   desktopContentMode?: 'summary' | 'grid' | 'sidebar-only';
+  /** Etiquetas de inventario para sugerir productos/marcas de la categoría activa. */
+  activeCategoryLabels?: readonly string[];
 }
 
 export function CatalogMegaMenuPanel({
@@ -488,6 +670,7 @@ export function CatalogMegaMenuPanel({
   onNavigate,
   layout = 'desktop',
   desktopContentMode = 'grid',
+  activeCategoryLabels,
 }: CatalogMegaMenuPanelProps) {
   void featuredContent;
   const queryClient = useQueryClient();
@@ -497,6 +680,10 @@ export function CatalogMegaMenuPanel({
   const sidebarOnly = !isMobile && desktopContentMode === 'sidebar-only';
   const useSummaryLayout = !isMobile && desktopContentMode === 'summary' && columnGroups.length === 1;
   const desktopGridClass = desktopMegaMenuGridClass(columnGroups.length);
+  const categoryLabels = useMemo(() => {
+    if (activeCategoryLabels && activeCategoryLabels.length > 0) return activeCategoryLabels;
+    return activeItem?.label ? [activeItem.label] : [];
+  }, [activeCategoryLabels, activeItem?.label]);
 
   const handleCategoryChange = (slug: string) => {
     prefetchCategoryPage(queryClient, {
@@ -529,8 +716,10 @@ export function CatalogMegaMenuPanel({
           sidebarItems={sidebarItems}
           activeCategorySlug={activeCategorySlug}
           onCategoryChange={handleCategoryChange}
+          onNavigate={onNavigate}
           isMobile={false}
           scrollable
+          navigateOnSelect
         />
 
         <div
@@ -541,16 +730,35 @@ export function CatalogMegaMenuPanel({
           <div className="flex max-h-[min(32rem,calc(75vh-3.5rem))] flex-col overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
             {columnGroups.length > 0 ? (
               useSummaryLayout ? (
-                <MegaMenuSummaryPanel group={columnGroups[0]} onNavigate={onNavigate} />
+                <MegaMenuSummaryPanel
+                  group={columnGroups[0]}
+                  categorySlug={activeCategorySlug}
+                  categoryLabels={categoryLabels}
+                  onNavigate={onNavigate}
+                />
               ) : (
-                <div className={cn('grid w-max max-w-full items-start gap-x-8 gap-y-6', desktopGridClass)}>
-                  {columnGroups.map((group) => (
-                    <MegaMenuDesktopColumn
-                      key={`${activeCategorySlug}-${group.slug}`}
-                      group={group}
+                <div className="flex w-max max-w-full gap-8">
+                  <div className={cn('grid w-max max-w-full items-start gap-x-8 gap-y-6', desktopGridClass)}>
+                    {columnGroups.map((group) => (
+                      <MegaMenuDesktopColumn
+                        key={`${activeCategorySlug}-${group.slug}`}
+                        group={group}
+                        onNavigate={onNavigate}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex w-[16.5rem] shrink-0 flex-col gap-4 border-l border-[#E5E7EB] pl-6 sm:w-[18rem]">
+                    <MegaMenuInterestProducts
+                      categorySlug={activeCategorySlug}
+                      labels={categoryLabels}
                       onNavigate={onNavigate}
                     />
-                  ))}
+                    <MegaMenuInterestBrands
+                      categorySlug={activeCategorySlug}
+                      labels={categoryLabels}
+                      onNavigate={onNavigate}
+                    />
+                  </div>
                 </div>
               )
             ) : (
@@ -594,7 +802,9 @@ export function CatalogMegaMenuPanel({
               </p>
             </div>
             <Link
-              to={activeItem?.viewAllHref ?? categoryLandingPath(activeCategorySlug)}
+              to={megaMenuCategorySectionHref(
+                activeItem?.viewAllHref ?? categoryLandingPath(activeCategorySlug),
+              )}
               onClick={onNavigate}
               onMouseEnter={() =>
                 prefetchCategoryFromHref(

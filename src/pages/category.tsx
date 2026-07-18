@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Plus, PanelLeftClose } from 'lucide-react';
 
@@ -143,6 +151,7 @@ import {
   getSpecFilterDisplayLabel,
   toggleCatalogSpecFilter,
 } from '@/lib/category-catalog-filters';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useIsDesktopNav, useIsMobile } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -261,6 +270,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const [catalogSearch, setCatalogSearch] = useState(
     () => searchParams.get('buscar')?.trim() ?? '',
   );
+  const debouncedCatalogSearch = useDebouncedValue(catalogSearch, 250);
   const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>(null);
   const [catalogPage, setCatalogPage] = useState(1);
   const isMobile = useIsMobile();
@@ -326,6 +336,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const isTableView = viewMode === 'table';
   const showFormatSectionsEarly =
     shouldShowCatalogSpecFilterTabs(slug) && viewMode === 'grid';
+  /** Chips/condición en cliente: un solo fetch base (hasta 500) sin refetch por toggle. */
+  const clientChipFilters = showFormatSectionsEarly;
   const formatSectionFetchLimit = showFormatSectionsEarly
     ? CATALOG_FORMAT_SECTION_MAX
     : isTableView
@@ -344,15 +356,15 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     slug: slug ?? '',
     subSlug,
     labels: productLabels,
-    condition: estadoFilter,
-    inStockOnly: availabilityFilter === 'in-stock',
+    condition: clientChipFilters ? null : estadoFilter,
+    inStockOnly: clientChipFilters ? false : availabilityFilter === 'in-stock',
     priceMin,
     priceMax,
     brandKeys: selectedBrands,
-    attributeKeys: selectedAttributes,
-    productionKey: selectedProduction,
-    speedKeys: selectedSpeeds,
-    search: catalogSearch,
+    attributeKeys: clientChipFilters ? [] : selectedAttributes,
+    productionKey: clientChipFilters ? null : selectedProduction,
+    speedKeys: clientChipFilters ? [] : selectedSpeeds,
+    search: debouncedCatalogSearch,
     sortBy,
     page: catalogFetchPage,
     limit: formatSectionFetchLimit,
@@ -505,12 +517,19 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     const fromFacets = catalogData?.facets?.attributes?.find(
       (attr) => attr.key === MOST_VIEWED_OFFER_ATTR_KEY,
     );
+    if (fromFacets) {
+      return {
+        key: MOST_VIEWED_OFFER_ATTR_KEY,
+        label: 'Más vistos',
+        count: fromFacets.count,
+      };
+    }
     const count = countProductsForAttributeKey(facetCountProducts, MOST_VIEWED_OFFER_ATTR_KEY);
-    if (!fromFacets && count === 0) return null;
+    if (count === 0) return null;
     return {
       key: MOST_VIEWED_OFFER_ATTR_KEY,
       label: 'Más vistos',
-      count: fromFacets?.count ?? count,
+      count,
     };
   }, [catalogData?.facets?.attributes, facetCountProducts]);
 
@@ -519,7 +538,6 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       return catalogData.facets.attributes.map((attr) => ({
         ...attr,
         displayLabel: getQuickFilterChipLabel(attr),
-        count: countProductsForAttributeKey(baseProducts, attr.key),
       }));
     }
 
@@ -549,9 +567,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       .map((attr) => ({
         ...attr,
         displayLabel: getQuickFilterChipLabel(attr),
-        count: countProductsForAttributeKey(baseProducts, attr.key),
       }));
-  }, [availableAttributes, baseProducts]);
+  }, [availableAttributes]);
 
   const availablePriceRange = useMemo(() => {
     if (useServerCatalog && catalogData?.facets?.priceRange) {
@@ -795,14 +812,15 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   useSeo(categorySeoConfig);
 
-  const inStockProductCount = useMemo(
-    () => baseProducts.filter((product) => product.stock > 0).length,
-    [baseProducts],
-  );
-  const onRequestProductCount = useMemo(
-    () => baseProducts.filter((product) => product.stock <= 0).length,
-    [baseProducts],
-  );
+  const { inStockProductCount, onRequestProductCount } = useMemo(() => {
+    let inStock = 0;
+    let onRequest = 0;
+    for (const product of baseProducts) {
+      if (product.stock > 0) inStock += 1;
+      else onRequest += 1;
+    }
+    return { inStockProductCount: inStock, onRequestProductCount: onRequest };
+  }, [baseProducts]);
   const quickFilterSlug = useMemo(() => {
     const candidate = slug ?? storeFilterCategorySlug ?? undefined;
     if (
@@ -824,23 +842,31 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   );
   const showProductionFilters = shouldShowProductionFilters(slug, isStoreAll);
   const showSpeedFilters = shouldShowSpeedFilters(slug, isStoreAll);
+  const facetAttributeCountByKey = useMemo(() => {
+    if (!useServerCatalog || !catalogData?.facets?.attributes) return null;
+    return new Map(catalogData.facets.attributes.map((attr) => [attr.key, attr.count] as const));
+  }, [useServerCatalog, catalogData?.facets?.attributes]);
+
   const productionFiltersWithCounts = useMemo(
     () =>
       PRODUCTION_FILTER_OPTIONS.map((option) => ({
         ...option,
-        count: countProductsForAttributeKey(baseProducts, option.key),
+        count:
+          facetAttributeCountByKey?.get(option.key) ??
+          countProductsForAttributeKey(baseProducts, option.key),
       })),
-    [baseProducts],
+    [baseProducts, facetAttributeCountByKey],
   );
 
-  const speedFiltersWithCounts = useMemo(
-    () =>
-      SPEED_FILTER_OPTIONS.map((option) => ({
-        ...option,
-        count: countProductsForSpeedFilterKey(baseProducts, option.key),
-      })),
-    [baseProducts],
-  );
+  const speedFiltersWithCounts = useMemo(() => {
+    if (baseProducts.length === 0) {
+      return SPEED_FILTER_OPTIONS.map((option) => ({ ...option, count: 0 }));
+    }
+    return SPEED_FILTER_OPTIONS.map((option) => ({
+      ...option,
+      count: countProductsForSpeedFilterKey(baseProducts, option.key),
+    }));
+  }, [baseProducts]);
 
   const tipoFilterChips = useMemo(
     () =>
@@ -849,9 +875,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         .map((attr) => ({
           key: attr.key,
           label: getQuickFilterChipLabel(attr),
-          count: countProductsForAttributeKey(baseProducts, attr.key),
+          count: attr.count,
         })),
-    [quickAttributeFilters, baseProducts],
+    [quickAttributeFilters],
   );
 
   const productionFilterChips = useMemo(
@@ -941,19 +967,25 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   );
 
   const toggleAttribute = useCallback((key: string) => {
-    setSelectedAttributes((prev) =>
-      prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key],
-    );
+    startTransition(() => {
+      setSelectedAttributes((prev) =>
+        prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key],
+      );
+    });
   }, []);
 
   const toggleBrand = useCallback((key: string) => {
-    setSelectedBrands((prev) =>
-      prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key],
-    );
+    startTransition(() => {
+      setSelectedBrands((prev) =>
+        prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key],
+      );
+    });
   }, []);
 
   const toggleSpecFilter = useCallback((key: string) => {
-    setSelectedAttributes((prev) => toggleCatalogSpecFilter(prev, key));
+    startTransition(() => {
+      setSelectedAttributes((prev) => toggleCatalogSpecFilter(prev, key));
+    });
   }, []);
 
   const storefrontAttributeChips = useMemo(
@@ -962,10 +994,10 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         ? quickAttributeFilters.map((attr) => ({
             key: attr.key,
             label: getQuickFilterChipLabel(attr),
-            count: countProductsForAttributeKey(baseProducts, attr.key),
+            count: attr.count,
           }))
         : [],
-    [storefrontMode, quickAttributeFilters, baseProducts],
+    [storefrontMode, quickAttributeFilters],
   );
 
   const toggleStorefrontAttribute = useCallback(
@@ -1063,15 +1095,17 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   const toggleMostViewedOffer = useCallback(() => {
     const nextHasOffer = !selectedAttributes.includes(MOST_VIEWED_OFFER_ATTR_KEY);
-    setSelectedAttributes((prev) =>
-      nextHasOffer
-        ? [...prev, MOST_VIEWED_OFFER_ATTR_KEY]
-        : prev.filter((key) => key !== MOST_VIEWED_OFFER_ATTR_KEY),
-    );
-    const next = new URLSearchParams(searchParams);
-    if (nextHasOffer) next.set('attrs', MOST_VIEWED_OFFER_ATTR_KEY);
-    else next.delete('attrs');
-    setSearchParams(next, { replace: true, preventScrollReset: true });
+    startTransition(() => {
+      setSelectedAttributes((prev) =>
+        nextHasOffer
+          ? [...prev, MOST_VIEWED_OFFER_ATTR_KEY]
+          : prev.filter((key) => key !== MOST_VIEWED_OFFER_ATTR_KEY),
+      );
+      const next = new URLSearchParams(searchParams);
+      if (nextHasOffer) next.set('attrs', MOST_VIEWED_OFFER_ATTR_KEY);
+      else next.delete('attrs');
+      setSearchParams(next, { replace: true, preventScrollReset: true });
+    });
   }, [selectedAttributes, searchParams, setSearchParams]);
 
   const clearAllFilters = useCallback(() => {
@@ -1099,13 +1133,17 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }, [selectSubcategory, searchParams, setSearchParams]);
 
   const toggleProduction = useCallback((key: string) => {
-    setSelectedProduction((prev) => (prev === key ? null : key));
+    startTransition(() => {
+      setSelectedProduction((prev) => (prev === key ? null : key));
+    });
   }, []);
 
   const toggleSpeed = useCallback((key: string) => {
-    setSelectedSpeeds((prev) =>
-      prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key],
-    );
+    startTransition(() => {
+      setSelectedSpeeds((prev) =>
+        prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key],
+      );
+    });
   }, []);
 
   const toggleCategoryFilters = useCallback(() => {
@@ -1347,7 +1385,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               compact={!storefrontMode}
               disabled={inStockProductCount === 0}
               onToggle={() =>
-                setAvailabilityFilter((prev) => (prev === 'in-stock' ? null : 'in-stock'))
+                startTransition(() => {
+                  setAvailabilityFilter((prev) => (prev === 'in-stock' ? null : 'in-stock'));
+                })
               }
             />
             <CatalogFilterOption
@@ -1359,7 +1399,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               compact={!storefrontMode}
               disabled={onRequestProductCount === 0}
               onToggle={() =>
-                setAvailabilityFilter((prev) => (prev === 'on-request' ? null : 'on-request'))
+                startTransition(() => {
+                  setAvailabilityFilter((prev) => (prev === 'on-request' ? null : 'on-request'));
+                })
               }
             />
           </CatalogFilterGroup>
@@ -1600,7 +1642,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   );
 
   const catalogProductCount =
-    useServerCatalog ? (catalogData?.total ?? filteredProducts.length) : filteredProducts.length;
+    useServerCatalog && !clientChipFilters
+      ? (catalogData?.total ?? filteredProducts.length)
+      : filteredProducts.length;
   const showCatalogRefresh = useServerCatalog && isCatalogFetching && !isLoading;
   const catalogUsesSidebarGrid =
     showProductCatalog && filtersPanelOpen && isDesktopNav;
@@ -1895,17 +1939,17 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                   </div>
                 )
               ) : showProductCatalog ? (
-                <div
-                  className={cn(
-                    'relative transition-opacity duration-150',
-                    showCatalogRefresh && 'opacity-60',
-                  )}
-                  aria-busy={showCatalogRefresh}
-                >
+                <div className="relative" aria-busy={showCatalogRefresh}>
                   {showCatalogRefresh ? (
-                    <p className="sr-only" role="status">
-                      Actualizando productos de la categoría…
-                    </p>
+                    <>
+                      <p className="sr-only" role="status">
+                        Actualizando productos de la categoría…
+                      </p>
+                      <div
+                        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 animate-pulse bg-[#E30613]/80"
+                        aria-hidden="true"
+                      />
+                    </>
                   ) : null}
                   {viewMode === 'list' ? (
                     <div className="flex flex-col gap-4">

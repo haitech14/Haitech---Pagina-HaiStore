@@ -92,7 +92,8 @@ export const HOME_LANDING_HERO_SLIDE: HomeHeroSlide = {
   backgroundImage: '/hero/home-hero-scene.png',
   skipHeroWebpVariants: true,
   singleAsset: true,
-  dotTheme: 'light',
+  /** Fondo claro: dots oscuros para contraste en móvil/desktop. */
+  dotTheme: 'dark',
 };
 
 /** Altura del carrusel: misma que el slide principal para evitar huecos. */

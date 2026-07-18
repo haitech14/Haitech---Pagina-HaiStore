@@ -81,7 +81,7 @@ export function ProductCardOverlayActions({
         <button
           type="button"
           aria-label={`Añadir ${productName} al carrito`}
-          className={cn(overlayButtonClass, 'text-red-600 hover:bg-red-50')}
+          className={cn(overlayButtonClass, 'hidden text-red-600 hover:bg-red-50 md:flex')}
           onClick={(event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -94,7 +94,7 @@ export function ProductCardOverlayActions({
       <button
         type="button"
         aria-label={`Vista rápida de ${productName}`}
-        className={cn(overlayButtonClass, 'text-neutral-700 hover:bg-neutral-50')}
+        className={cn(overlayButtonClass, 'hidden text-neutral-700 hover:bg-neutral-50 md:flex')}
         onClick={(event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -107,7 +107,7 @@ export function ProductCardOverlayActions({
         <ProductCardCopyImageButton
           productName={productName}
           imageUrl={clipboardImageUrl}
-          className={cn(overlayButtonClass, 'text-neutral-700 hover:bg-neutral-50')}
+          className={cn(overlayButtonClass, 'hidden text-neutral-700 hover:bg-neutral-50 md:flex')}
         />
       ) : null}
       {clipboard ? (
@@ -139,7 +139,7 @@ export function ProductCardOverlayActions({
           {...(clipboard.deliveryTime != null ? { deliveryTime: clipboard.deliveryTime } : {})}
           {...(clipboard.priceValidity != null ? { priceValidity: clipboard.priceValidity } : {})}
           {...(clipboard.productPath != null ? { productPath: clipboard.productPath } : {})}
-          className={cn(overlayButtonClass, 'text-neutral-700 hover:bg-neutral-50')}
+          className={cn(overlayButtonClass, 'hidden text-neutral-700 hover:bg-neutral-50 md:flex')}
         />
       ) : null}
       {secondaryAction === 'compare' ? (
@@ -153,6 +153,7 @@ export function ProductCardOverlayActions({
           }
           className={cn(
             overlayButtonClass,
+            'hidden md:flex',
             isCompareSelected
               ? 'border-red-600 bg-red-50 text-red-600'
               : 'text-neutral-700 hover:bg-neutral-50',

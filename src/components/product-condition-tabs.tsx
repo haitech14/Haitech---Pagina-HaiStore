@@ -1,3 +1,4 @@
+import { startTransition } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { scrollToCategoryProducts } from '@/lib/category-path';
@@ -52,14 +53,16 @@ export function ProductConditionTabs({
     const next = new URLSearchParams(searchParams);
     if (condition) next.set('estado', condition);
     else next.delete('estado');
-    setSearchParams(next, { replace: true, preventScrollReset: true });
+    startTransition(() => {
+      setSearchParams(next, { replace: true, preventScrollReset: true });
+    });
     requestAnimationFrame(() => scrollToCategoryProducts('smooth'));
   };
 
   return (
     <div
       className={cn(
-        'flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-2',
+        'flex justify-center gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-2',
         className,
       )}
       role="tablist"

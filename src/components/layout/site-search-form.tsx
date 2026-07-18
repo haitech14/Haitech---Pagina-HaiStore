@@ -819,6 +819,9 @@ export function SiteSearchForm({
             ref={inputRef}
             id={inputFieldId}
             type="search"
+            {...(variant === 'header-dark'
+              ? { 'data-site-header-search-input': '' }
+              : {})}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);

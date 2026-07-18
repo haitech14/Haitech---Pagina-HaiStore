@@ -31,9 +31,9 @@ export function StoreSubcategoryCarouselSkeleton({
       {Array.from({ length: count }, (_, index) => (
         <div
           key={index}
-          className="flex min-h-[11.5rem] min-w-[9.5rem] max-w-[12.5rem] flex-col items-center gap-2.5 rounded-xl border border-border/50 bg-white px-3 py-3.5 sm:min-h-[12.75rem] sm:min-w-[10.5rem] sm:gap-3 sm:py-4"
+          className="flex min-w-[8.5rem] max-w-[11.5rem] flex-col items-center gap-1.5 rounded-xl border border-border/50 bg-white px-2.5 py-2.5 sm:min-w-[12rem] sm:max-w-[14rem] sm:gap-2 sm:px-3.5 sm:py-3.5"
         >
-          <div className="size-[4.25rem] animate-pulse rounded-lg bg-neutral-100 sm:size-[5rem]" />
+          <div className="size-[5.25rem] animate-pulse rounded-lg bg-neutral-100 sm:size-[8.5rem]" />
           <div className="h-3 w-20 animate-pulse rounded bg-neutral-100" />
           <div className="h-2.5 w-16 animate-pulse rounded bg-neutral-100" />
         </div>
@@ -82,14 +82,14 @@ function SubcategoryCarouselCard({
       onMouseEnter={onPrefetch}
       onFocus={onPrefetch}
       className={cn(
-        'flex h-full min-h-[11.5rem] w-full min-w-[9.5rem] max-w-[12.5rem] flex-col items-center gap-2.5 rounded-xl border bg-white px-3 py-3.5 text-center shadow-[0_1px_4px_rgba(15,31,61,0.06)] transition-all sm:min-h-[12.75rem] sm:min-w-[10.5rem] sm:gap-3 sm:px-3.5 sm:py-4',
+        'flex h-full w-full min-w-[8.5rem] max-w-[11.5rem] flex-col items-center gap-1.5 rounded-xl border bg-white px-2.5 py-2.5 text-center shadow-[0_1px_4px_rgba(15,31,61,0.06)] transition-all sm:min-w-[12rem] sm:max-w-[14rem] sm:gap-2 sm:px-3.5 sm:py-3.5',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
         isActive
           ? 'border-red-600 ring-1 ring-red-600/20'
           : 'border-border/70 hover:border-border hover:shadow-[0_2px_8px_rgba(15,31,61,0.08)]',
       )}
     >
-      <span className="flex size-[4.25rem] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/30 p-1 sm:size-[5rem] sm:p-1.5">
+      <span className="flex size-[5.25rem] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/30 p-1 sm:size-[8.5rem] sm:p-1.5">
         {image ? (
           <ResponsiveStaticImage
             src={image}
@@ -100,17 +100,17 @@ function SubcategoryCarouselCard({
             loading="lazy"
           />
         ) : (
-          <span className="text-base font-bold text-muted-foreground sm:text-lg" aria-hidden="true">
+          <span className="text-2xl font-bold text-muted-foreground sm:text-3xl" aria-hidden="true">
             {label.charAt(0)}
           </span>
         )}
       </span>
 
-      <span className="flex min-h-0 w-full flex-1 flex-col items-center justify-start gap-1.5">
-        <span className="block min-h-[2.5rem] text-pretty text-xs font-semibold leading-snug text-foreground sm:min-h-[2.75rem] sm:text-[0.8125rem]">
+      <span className="flex min-h-0 w-full flex-col items-center justify-start gap-0.5">
+        <span className="block text-pretty text-[0.8125rem] font-semibold leading-tight text-foreground sm:text-sm">
           {label}
         </span>
-        <span className="flex min-h-[1.25rem] w-full flex-wrap items-start justify-center gap-1">
+        <span className="flex w-full flex-wrap items-start justify-center gap-1">
           {attributes.map((attribute) => (
             <span
               key={attribute}

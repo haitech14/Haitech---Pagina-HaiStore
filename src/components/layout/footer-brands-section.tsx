@@ -14,12 +14,13 @@ import { cn } from '@/lib/utils';
 const BRAND_SLIDE_CLASS =
   'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/3)] sm:flex-[0_0_calc((100%-1rem)/4)] md:flex-[0_0_calc((100%-1.25rem)/5)] lg:flex-[0_0_calc((100%-1.5rem)/6)] xl:flex-[0_0_calc((100%-1.75rem)/7)]';
 
+const AUTOPLAY_MS = 2800;
+
 interface PartnerBrandsCarouselSectionProps {
   title: ReactNode;
   titleId: string;
   brands: readonly Brand[];
   listAriaLabel: string;
-  paginationAriaLabel: string;
   className?: string;
 }
 
@@ -28,40 +29,34 @@ export function PartnerBrandsCarouselSection({
   titleId,
   brands,
   listAriaLabel,
-  paginationAriaLabel,
   className,
 }: PartnerBrandsCarouselSectionProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
+    loop: true,
     watchDrag: emblaShouldWatchDrag,
   });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const [autoplayPaused, setAutoplayPaused] = useState(false);
 
-  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
+  const pauseAutoplay = useCallback(() => setAutoplayPaused(true), []);
+  const resumeAutoplay = useCallback(() => setAutoplayPaused(false), []);
 
   useEffect(() => {
-    if (!emblaApi) return;
+    if (!emblaApi || autoplayPaused || brands.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const updateSnaps = () => setScrollSnaps(emblaApi.scrollSnapList());
-    const onSelect = () => {
-      setSelectedIndex(emblaApi.selectedScrollSnap());
-    };
+    const timer = window.setInterval(() => {
+      if (emblaApi.canScrollNext()) {
+        emblaApi.scrollNext();
+      } else {
+        emblaApi.scrollTo(0);
+      }
+    }, AUTOPLAY_MS);
 
-    updateSnaps();
-    onSelect();
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', updateSnaps);
-    emblaApi.on('reInit', onSelect);
-
-    return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', updateSnaps);
-      emblaApi.off('reInit', onSelect);
-    };
-  }, [emblaApi]);
+    return () => window.clearInterval(timer);
+  }, [autoplayPaused, brands.length, emblaApi]);
 
   return (
     <section aria-labelledby={titleId} className={cn('home-landing-sans bg-white py-3 sm:py-4', className)}>
@@ -75,7 +70,14 @@ export function PartnerBrandsCarouselSection({
           </h2>
         </header>
 
-        <div className="overflow-hidden" ref={emblaRef}>
+        <div
+          className="overflow-hidden"
+          ref={emblaRef}
+          onMouseEnter={pauseAutoplay}
+          onMouseLeave={resumeAutoplay}
+          onFocusCapture={pauseAutoplay}
+          onBlurCapture={resumeAutoplay}
+        >
           <ul className="flex touch-pan-y gap-1.5 sm:gap-2" role="list" aria-label={listAriaLabel}>
             {brands.map((brand) => (
               <li key={getBrandName(brand)} className={BRAND_SLIDE_CLASS}>
@@ -84,34 +86,6 @@ export function PartnerBrandsCarouselSection({
             ))}
           </ul>
         </div>
-
-        {scrollSnaps.length > 1 ? (
-          <div
-            className="mt-3 flex items-center justify-center gap-0 sm:mt-4"
-            role="tablist"
-            aria-label={paginationAriaLabel}
-          >
-            {scrollSnaps.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                role="tab"
-                aria-selected={index === selectedIndex}
-                aria-label={`Ir al grupo ${index + 1} de marcas`}
-                onClick={() => scrollTo(index)}
-                className="flex size-7 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
-              >
-                <span
-                  className={cn(
-                    'size-2.5 rounded-full transition-colors',
-                    index === selectedIndex ? 'bg-neutral-900' : 'bg-neutral-300 hover:bg-neutral-400',
-                  )}
-                  aria-hidden="true"
-                />
-              </button>
-            ))}
-          </div>
-        ) : null}
       </div>
     </section>
   );
@@ -124,7 +98,6 @@ export function FooterBrandsSection() {
       titleId="marcas-footer-titulo"
       brands={footerPartnerBrands}
       listAriaLabel="Marcas disponibles"
-      paginationAriaLabel="Paginación de marcas"
     />
   );
 }
@@ -134,15 +107,11 @@ export function TonerPartnerBrandsSection() {
   return (
     <PartnerBrandsCarouselSection
       title={
-        <>
-          <span className="block">Marcas de</span>
-          <span className="block">Toner</span>
-        </>
+        <span className="whitespace-nowrap">Trabajamos con las mejores marcas</span>
       }
       titleId="marcas-toner-titulo"
       brands={tonerPartnerBrands}
       listAriaLabel="Marcas de toner disponibles"
-      paginationAriaLabel="Paginación de marcas de toner"
       className="bg-[#FAFBFC]"
     />
   );

@@ -158,7 +158,7 @@ export function normalizeInventoryProduct(
   const preparation_prices = normalizePreparationPrices(raw.preparation_prices);
   const xrefResolved = resolveXrefProductFields({
     name: raw.name,
-    code: raw.code,
+    ...(raw.code != null ? { code: raw.code } : {}),
   });
   const resolvedName = formatNuevaProductName(xrefResolved.name) || xrefResolved.name;
 

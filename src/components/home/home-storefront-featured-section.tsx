@@ -7,7 +7,7 @@ import {
   type MouseEvent,
 } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, Package, ShoppingCart } from 'lucide-react';
+import { Heart, Package, ShoppingCart } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
@@ -16,16 +16,18 @@ import { ProductCardPill } from '@/components/product/product-card-pill';
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
 import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
+import { HomeEquiposHeroBanner } from '@/components/home/home-equipos-hero-banner';
+import { HomeTonerRepuestosHeroBanner } from '@/components/home/home-toner-repuestos-hero-banner';
 import { TonerPartnerBrandsSection } from '@/components/layout/footer-brands-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/cart-context';
 import { useWishlist } from '@/context/wishlist-context';
 import { getFeaturedProducts, type FeaturedProduct } from '@/data/featured-products';
+import { useIsMobile } from '@/hooks/use-media-query';
 import {
   HOME_FEATURED_CONSUMABLES_CONDITION_FILTERS,
   type HomeFeaturedConsumablesConditionFilterId,
 } from '@/data/home-featured-quick-filters-consumables';
-import { HOME_LANDING_LINKS } from '@/data/home-landing-sections';
 import type { HomeFeaturedEquipmentConditionFilterId } from '@/data/home-featured-quick-filters-equipment';
 import { STOREFRONT_ORANGE } from '@/data/home-storefront-mockup';
 import {
@@ -39,7 +41,6 @@ import {
   resolveProductSpeedPpm,
   inferColor,
 } from '@/lib/category-catalog-filters';
-import { categoryLandingPath, categoryPath } from '@/lib/category-path';
 import {
   catalogRowToFeatured,
   getCatalogRows,
@@ -108,10 +109,7 @@ function isStorefrontCatalogCandidate(row: CatalogRow): boolean {
 }
 
 const FEATURED_HOVER_BADGES_REVEAL_CLASS =
-  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
-
-const VIEW_ALL_PRODUCTS_BUTTON_CLASS =
-  'inline-flex items-center justify-center gap-1.5 rounded-full border border-[#E30613] bg-[#E30613] px-4 py-2 text-xs font-semibold text-white transition-colors hover:border-[#C40510] hover:bg-[#C40510] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:px-5 sm:py-2.5 sm:text-sm';
+  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
 
 const FEATURED_CARD_OVERLAY_BUTTON_CLASS =
   'flex size-7 shrink-0 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#4B5563] shadow-sm transition-colors hover:bg-[#FFF0F1] hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-1';
@@ -161,55 +159,46 @@ type StorefrontCatalogKind =
   | 'toner'
   | 'repuestos';
 
-const STOREFRONT_SECTION_DIVIDER_CLASS = 'h-px w-full bg-[#E5E7EB]';
-
 const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
   kind: StorefrontCatalogKind;
   titleId: string;
   title: string;
-  viewAllHref: string;
   paginationLabel: string;
 }> = [
   {
     kind: 'multifuncionales',
     titleId: 'home-storefront-featured-title',
     title: 'Impresora Multifuncional Laser',
-    viewAllHref: categoryLandingPath('multifuncionales'),
     paginationLabel: 'impresoras multifuncionales',
   },
   {
     kind: 'impresoras',
     titleId: 'home-storefront-impresoras-title',
     title: 'Impresoras Láser',
-    viewAllHref: categoryLandingPath('impresoras'),
     paginationLabel: 'impresoras láser',
   },
   {
     kind: 'impresoras-termicas',
     titleId: 'home-storefront-impresoras-termicas-title',
     title: 'Impresoras térmicas',
-    viewAllHref: categoryPath('impresoras', 'impresoras-termicas'),
     paginationLabel: 'impresoras térmicas',
   },
   {
     kind: 'escaneres',
     titleId: 'home-storefront-escaneres-title',
     title: 'Escáneres',
-    viewAllHref: categoryLandingPath('escaneres'),
     paginationLabel: 'escáneres',
   },
   {
     kind: 'toner',
     titleId: 'home-storefront-toner-title',
     title: 'Toner',
-    viewAllHref: HOME_LANDING_LINKS.tonerCatalog,
     paginationLabel: 'toner',
   },
   {
     kind: 'repuestos',
     titleId: 'home-storefront-repuestos-title',
     title: 'Repuestos',
-    viewAllHref: HOME_LANDING_LINKS.sparePartsCatalog,
     paginationLabel: 'repuestos',
   },
 ];
@@ -422,7 +411,7 @@ function HomeStorefrontProductCard({
       <div className="relative px-1 pt-2.5 sm:px-1.5 sm:pt-3">
         <div
           className={cn(
-            'absolute right-2 top-2 z-[2] flex flex-col gap-1 sm:right-2.5 sm:top-2.5',
+            'absolute right-2 top-2 z-[2] hidden flex-col gap-1 md:flex md:right-2.5 md:top-2.5',
           )}
         >
           <button
@@ -450,7 +439,7 @@ function HomeStorefrontProductCard({
           <div
             className={cn(
               'flex flex-col gap-1 opacity-0 transition-opacity duration-200 ease-out',
-              'group-hover:opacity-100 group-focus-within:opacity-100 max-md:opacity-100',
+              'group-hover:opacity-100 group-focus-within:opacity-100',
               'motion-reduce:opacity-100 motion-reduce:transition-none',
             )}
           >
@@ -570,7 +559,7 @@ function HomeStorefrontProductCard({
           )}
         </div>
 
-        <div className="mt-auto flex items-center gap-1.5 pt-3">
+        <div className="mt-auto flex items-center gap-1.5 pt-2">
           <button
             type="button"
             onClick={handleAdd}
@@ -623,15 +612,22 @@ function StorefrontFilterTabs<T extends string>({
   activeFilter,
   onFilterChange,
   ariaLabel,
+  className,
 }: {
   filters: ReadonlyArray<{ id: T; label: string }>;
   activeFilter: T;
   onFilterChange: (filterId: T) => void;
   ariaLabel: string;
+  className?: string;
 }) {
   return (
-    <div className="mb-4 flex justify-center overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-5 [&::-webkit-scrollbar]:hidden">
-      <div className="flex gap-1.5 sm:gap-2" role="tablist" aria-label={ariaLabel}>
+    <div
+      className={cn(
+        'flex max-w-full justify-end overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        className,
+      )}
+    >
+      <div className="flex gap-1 sm:gap-1.5" role="tablist" aria-label={ariaLabel}>
         {filters.map((filter) => {
           const isActive = activeFilter === filter.id;
           return (
@@ -641,7 +637,7 @@ function StorefrontFilterTabs<T extends string>({
               role="tab"
               aria-selected={isActive}
               className={cn(
-                'inline-flex shrink-0 items-center justify-center rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors sm:px-4 sm:py-2 sm:text-[0.9375rem]',
+                'inline-flex shrink-0 items-center justify-center rounded-full border px-3 py-1 text-xs font-semibold transition-colors sm:px-3.5 sm:py-1.5 sm:text-sm',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
                 isActive
                   ? 'border-[#E30613] bg-[#E30613] text-white'
@@ -660,21 +656,21 @@ function StorefrontFilterTabs<T extends string>({
 
 function FeaturedProductsCarousel({
   products,
-  viewAllHref,
   paginationLabel,
   titleMode = 'equipment',
 }: {
   products: FeaturedProduct[];
-  viewAllHref: string;
   paginationLabel: string;
   titleMode?: StorefrontCardTitleMode;
 }) {
   const productIdsKey = products.map((product) => product.id).join('|');
+  const isMobile = useIsMobile();
+  const slidesToScroll = isMobile ? 2 : 1;
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     dragFree: false,
     loop: true,
-    slidesToScroll: 1,
+    slidesToScroll,
     watchDrag: emblaShouldWatchDrag,
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -708,10 +704,10 @@ function FeaturedProductsCarousel({
 
   useEffect(() => {
     if (!emblaApi) return;
-    emblaApi.reInit();
+    emblaApi.reInit({ slidesToScroll });
     emblaApi.scrollTo(0);
     setAutoplayPaused(false);
-  }, [emblaApi, productIdsKey]);
+  }, [emblaApi, productIdsKey, slidesToScroll]);
 
   useEffect(() => {
     if (!emblaApi || autoplayPaused || products.length < 2) return;
@@ -750,7 +746,7 @@ function FeaturedProductsCarousel({
 
       {scrollSnaps.length > 1 ? (
         <div
-          className="mt-4 flex items-center justify-center gap-0 sm:mt-5"
+          className="mt-2.5 flex items-center justify-center gap-0.5 opacity-80 sm:mt-2.5 sm:opacity-40"
           role="tablist"
           aria-label={`Paginación de ${paginationLabel}`}
         >
@@ -762,12 +758,12 @@ function FeaturedProductsCarousel({
               aria-selected={index === selectedIndex}
               aria-label={`Ir al grupo ${index + 1} de ${paginationLabel}`}
               onClick={() => scrollTo(index)}
-              className="flex size-3.5 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-1"
+              className="flex size-4 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-1 sm:size-3"
             >
               <span
                 className={cn(
-                  'size-2 rounded-full transition-colors',
-                  index === selectedIndex ? 'bg-neutral-900' : 'bg-neutral-300 hover:bg-neutral-400',
+                  'rounded-full transition-colors size-2 sm:size-1.5',
+                  index === selectedIndex ? 'bg-neutral-700' : 'bg-neutral-300 hover:bg-neutral-400',
                 )}
                 aria-hidden="true"
               />
@@ -775,13 +771,6 @@ function FeaturedProductsCarousel({
           ))}
         </div>
       ) : null}
-
-      <div className={cn('flex justify-center', scrollSnaps.length > 1 ? 'mt-2.5' : 'mt-3')}>
-        <Link to={viewAllHref} className={VIEW_ALL_PRODUCTS_BUTTON_CLASS}>
-          Ver todos los productos
-          <ArrowRight className="size-3.5" aria-hidden="true" />
-        </Link>
-      </div>
     </div>
   );
 }
@@ -791,13 +780,11 @@ function StorefrontCatalogRail({
   productPool,
   isLoading,
   catalogIndexReady,
-  showSeparator,
 }: {
   rail: (typeof STOREFRONT_CATALOG_RAILS)[number];
   productPool: FeaturedProduct[];
   isLoading: boolean;
   catalogIndexReady: boolean;
-  showSeparator: boolean;
 }) {
   const [equipmentCondition, setEquipmentCondition] =
     useState<HomeFeaturedEquipmentConditionFilterId>('nuevas');
@@ -873,30 +860,22 @@ function StorefrontCatalogRail({
     (rail.kind === 'escaneres' && !catalogIndexReady && products.length === 0);
 
   return (
-    <>
-      {showSeparator ? (
-        <div className="container" aria-hidden="true">
-          <div className={STOREFRONT_SECTION_DIVIDER_CLASS} />
-        </div>
-      ) : null}
-
-      <section aria-labelledby={rail.titleId}>
-        <div className="container pb-5 pt-5 sm:pb-7 sm:pt-6">
-          <div className="mb-3 flex flex-col items-center text-center sm:mb-4">
-            <h2
-              id={rail.titleId}
-              className="text-lg font-bold tracking-tight text-[#111111] sm:text-xl lg:text-[1.375rem]"
-            >
-              {rail.title}
-            </h2>
-          </div>
-
+    <section aria-labelledby={rail.titleId} className="pt-1 sm:pt-2">
+      <div className="container pb-4 pt-3 sm:pb-7 sm:pt-5">
+        <header className="mb-2.5 flex flex-col gap-2 sm:mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <h2
+            id={rail.titleId}
+            className="min-w-0 shrink text-left text-base font-bold tracking-tight text-[#111111] sm:text-xl lg:text-[1.375rem]"
+          >
+            {rail.title}
+          </h2>
           {isEquipmentRail ? (
             <StorefrontFilterTabs
               filters={STOREFRONT_EQUIPMENT_CONDITION_TABS}
               activeFilter={equipmentCondition}
               onFilterChange={setEquipmentCondition}
               ariaLabel="Condición de equipos"
+              className="sm:ml-auto"
             />
           ) : (
             <StorefrontFilterTabs
@@ -904,32 +883,26 @@ function StorefrontCatalogRail({
               activeFilter={consumablesCondition}
               onFilterChange={setConsumablesCondition}
               ariaLabel={rail.kind === 'toner' ? 'Tipo de toner' : 'Tipo de repuesto'}
+              className="sm:ml-auto"
             />
           )}
+        </header>
 
-          {showSkeleton ? (
-            <FeaturedSkeleton />
-          ) : products.length === 0 ? (
-            <div className="space-y-3 text-center">
-              <p className="rounded-lg border border-dashed border-[#D9DEE7] bg-white px-4 py-7 text-sm text-[#666666]">
-                No hay productos para este filtro.
-              </p>
-              <Link to={rail.viewAllHref} className={VIEW_ALL_PRODUCTS_BUTTON_CLASS}>
-                Ver todos los productos
-                <ArrowRight className="size-3.5" aria-hidden="true" />
-              </Link>
-            </div>
-          ) : (
-            <FeaturedProductsCarousel
-              products={products}
-              viewAllHref={rail.viewAllHref}
-              paginationLabel={rail.paginationLabel}
-              titleMode={titleMode}
-            />
-          )}
-        </div>
-      </section>
-    </>
+        {showSkeleton ? (
+          <FeaturedSkeleton />
+        ) : products.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-[#D9DEE7] bg-white px-4 py-7 text-center text-sm text-[#666666]">
+            No hay productos para este filtro.
+          </p>
+        ) : (
+          <FeaturedProductsCarousel
+            products={products}
+            paginationLabel={rail.paginationLabel}
+            titleMode={titleMode}
+          />
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -998,13 +971,10 @@ export function HomeStorefrontFeaturedSection() {
     <div className="bg-[#FAFBFC]">
       {STOREFRONT_CATALOG_RAILS.map((rail, index) => (
         <div key={rail.kind}>
+          {index === 0 ? <HomeEquiposHeroBanner /> : null}
           {rail.kind === 'toner' ? (
             <>
-              {index > 0 ? (
-                <div className="container" aria-hidden="true">
-                  <div className={STOREFRONT_SECTION_DIVIDER_CLASS} />
-                </div>
-              ) : null}
+              <HomeTonerRepuestosHeroBanner />
               <TonerPartnerBrandsSection />
             </>
           ) : null}
@@ -1013,7 +983,6 @@ export function HomeStorefrontFeaturedSection() {
             productPool={productPool}
             isLoading={isLoading}
             catalogIndexReady={catalogReady}
-            showSeparator={index > 0 && rail.kind !== 'toner'}
           />
         </div>
       ))}

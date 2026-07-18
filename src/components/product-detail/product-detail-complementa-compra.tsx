@@ -5,6 +5,7 @@ import { ProductCardHoverImage } from '@/components/product/product-card-hover-i
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail/product-detail-hero-collapsible-section';
 import { ProductDetailHeroWarrantySelector } from '@/components/product-detail/product-detail-hero-warranty-selector';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import type { EquipmentSelectionState } from '@/lib/equipment-config-selection';
 import type {
   ConfigureHeroAccessoryCard,
@@ -390,6 +391,7 @@ export function ProductDetailComplementaCompra({
   className,
 }: ProductDetailComplementaCompraProps) {
   const resolvedUi = useMemo(() => resolveStorefrontUi(storefrontUi), [storefrontUi]);
+  const isDesktopLayout = useMediaQuery('(min-width: 1024px)');
   const hasToner = tonerCards.length > 0;
   const hasAccessories = accessoryCards.length > 0;
   const hasWarranty =
@@ -401,11 +403,8 @@ export function ProductDetailComplementaCompra({
 
   if (!hasToner && !hasConfig) return null;
 
-  return (
-    <section
-      className={cn('flex flex-col gap-4', className)}
-      aria-label="Complementa tu compra"
-    >
+  const body = (
+    <>
       {leadingSlot}
 
       {hasToner ? (
@@ -452,6 +451,29 @@ export function ProductDetailComplementaCompra({
           {maintenanceSlot}
         </div>
       ) : null}
+    </>
+  );
+
+  if (!isDesktopLayout) {
+    return (
+      <div className={className}>
+        <ProductDetailHeroCollapsibleSection
+          title="Complementa tu compra"
+          panelAriaLabel="Complementa tu compra"
+          defaultExpanded={false}
+        >
+          <div className="flex flex-col gap-4">{body}</div>
+        </ProductDetailHeroCollapsibleSection>
+      </div>
+    );
+  }
+
+  return (
+    <section
+      className={cn('flex flex-col gap-4', className)}
+      aria-label="Complementa tu compra"
+    >
+      {body}
     </section>
   );
 }

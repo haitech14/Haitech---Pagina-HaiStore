@@ -40,9 +40,9 @@ const JULY_PROMO_SLIDES = [
 
 type JulyPromoSlide = (typeof JULY_PROMO_SLIDES)[number];
 
-/** Siempre 3 por vista (gap 0.5rem móvil / 0.75rem sm+). */
+/** 2 por vista en móvil · 3 desde sm (gap 0.5rem / 0.75rem). */
 const SLIDE_CLASS =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-1rem)/3)] sm:flex-[0_0_calc((100%-1.5rem)/3)]';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.5rem)/2)] sm:flex-[0_0_calc((100%-1.5rem)/3)]';
 
 const arrowClass =
   'absolute top-1/2 z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white text-[#111111] shadow-md transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] disabled:pointer-events-none disabled:opacity-35 sm:size-10';
@@ -122,7 +122,7 @@ export function HomePromotionsSection({ className }: { className?: string }) {
           </Link>
         </div>
 
-        <div className={cn('relative', showControls && 'px-10 sm:px-12')}>
+        <div className={cn('relative', showControls && 'px-8 sm:px-12')}>
           <div ref={emblaRef} className="overflow-hidden">
             <ul className="flex gap-2 sm:gap-3">
               {JULY_PROMO_SLIDES.map((slide, index) => (

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { Clock, Headphones, Headset } from 'lucide-react';
+import { Clock, Headphones, Headset, Wrench } from 'lucide-react';
 
 import { HeaderWhatsAppContactAction } from '@/components/layout/header-whatsapp-contact-action';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
+import { TechnicalServiceRequestDialog } from '@/components/layout/technical-service-request-dialog';
 import {
   HEADER_BUSINESS_HOURS,
   HEADER_BUY_RENT_WHATSAPP_LABEL,
@@ -29,6 +30,7 @@ export function HeaderCustomerServiceAction({
   variant = 'desktop',
 }: HeaderCustomerServiceActionProps) {
   const [open, setOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearCloseTimer = useCallback(() => {
@@ -52,29 +54,60 @@ export function HeaderCustomerServiceAction({
 
   if (variant === 'mobile') {
     return (
-      <div className={cn('flex flex-col gap-2 rounded-lg border border-white/15 bg-white/5 p-3', className)}>
-        <p className="text-sm font-semibold text-white">{HEADER_CUSTOMER_SERVICE_LABEL}</p>
-        <p className="inline-flex items-center gap-1.5 text-xs text-white/70">
-          <Clock className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-          {HEADER_BUSINESS_HOURS}
-        </p>
-        <HeaderWhatsAppContactAction
-          topic="ventas"
-          variant="mobile"
-          label={HEADER_BUY_RENT_WHATSAPP_LABEL}
-          phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
-          icon={
-            <Icon path={mdiWhatsapp} size={0.72} className="shrink-0 text-[#25D366]" aria-hidden="true" />
-          }
-        />
-        <HeaderWhatsAppContactAction
-          topic="soporte"
-          variant="mobile"
-          label={HEADER_SERVICE_WHATSAPP_LABEL}
-          phoneDisplay={HEADER_SUPPORT_PHONE_DISPLAY}
-          icon={<Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
-        />
-      </div>
+      <details
+        className={cn(
+          'group overflow-hidden rounded-lg border border-white/15 bg-white/5',
+          className,
+        )}
+      >
+        <summary
+          className={cn(
+            'flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5',
+            'text-sm font-semibold text-white marker:content-none',
+            '[&::-webkit-details-marker]:hidden',
+          )}
+        >
+          <span className="inline-flex items-center gap-2">
+            <Headset className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            {HEADER_CUSTOMER_SERVICE_LABEL}
+          </span>
+          <Clock className="size-3.5 shrink-0 text-white/55 group-open:hidden" strokeWidth={1.75} aria-hidden="true" />
+        </summary>
+        <div className="flex flex-col gap-2 border-t border-white/10 px-3 pb-3 pt-2">
+          <p className="inline-flex items-center gap-1.5 text-xs text-white/70">
+            <Clock className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            {HEADER_BUSINESS_HOURS}
+          </p>
+          <HeaderWhatsAppContactAction
+            topic="ventas"
+            variant="mobile"
+            label={HEADER_BUY_RENT_WHATSAPP_LABEL}
+            phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
+            icon={
+              <Icon path={mdiWhatsapp} size={0.72} className="shrink-0 text-[#25D366]" aria-hidden="true" />
+            }
+          />
+          <HeaderWhatsAppContactAction
+            topic="soporte"
+            variant="mobile"
+            label={HEADER_SERVICE_WHATSAPP_LABEL}
+            phoneDisplay={HEADER_SUPPORT_PHONE_DISPLAY}
+            icon={<Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
+          />
+          <button
+            type="button"
+            className={cn(
+              'inline-flex min-h-10 w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium text-white/90',
+              'hover:bg-white/10 hover:text-white',
+            )}
+            onClick={() => setScheduleOpen(true)}
+          >
+            <Wrench className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            Agendar servicio técnico
+          </button>
+          <TechnicalServiceRequestDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
+        </div>
+      </details>
     );
   }
 
@@ -140,9 +173,26 @@ export function HeaderCustomerServiceAction({
               className="w-full justify-start rounded-md px-2"
               icon={<Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
             />
+            <button
+              type="button"
+              role="menuitem"
+              className={cn(
+                'inline-flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem] font-medium text-white/90',
+                'hover:bg-white/10 hover:text-white',
+              )}
+              onClick={() => {
+                setOpen(false);
+                setScheduleOpen(true);
+              }}
+            >
+              <Wrench className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              Agendar servicio técnico
+            </button>
           </div>
         </div>
       ) : null}
+
+      <TechnicalServiceRequestDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
     </div>
   );
 }

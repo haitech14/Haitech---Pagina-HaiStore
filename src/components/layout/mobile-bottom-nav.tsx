@@ -3,7 +3,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Grid3x3, Home, Search, ShoppingBag } from 'lucide-react';
 
 import { CatalogMegaMenuPanel } from '@/components/layout/catalog-mega-menu-panel';
-import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useCart } from '@/context/cart-context';
 import {
@@ -15,7 +14,16 @@ import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { cn } from '@/lib/utils';
 
-type MobileNavSheet = 'categories' | 'search' | null;
+type MobileNavSheet = 'categories' | null;
+
+function focusSiteHeaderSearch() {
+  const input = document.querySelector<HTMLInputElement>('[data-site-header-search-input]');
+  if (!input) return;
+  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  window.setTimeout(() => {
+    input.focus({ preventScroll: true });
+  }, 200);
+}
 
 const navItemClass =
   'flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1 text-[0.625rem] font-semibold leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
@@ -125,13 +133,8 @@ export function MobileBottomNav() {
 
           <button
             type="button"
-            onClick={() => setActiveSheet('search')}
-            aria-expanded={activeSheet === 'search'}
-            aria-controls="mobile-nav-search-sheet"
-            className={cn(
-              navItemClass,
-              activeSheet === 'search' ? 'text-red-600' : 'text-muted-foreground hover:text-foreground',
-            )}
+            onClick={focusSiteHeaderSearch}
+            className={cn(navItemClass, 'text-muted-foreground hover:text-foreground')}
           >
             <Search className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
             <span>Buscar</span>
@@ -147,7 +150,7 @@ export function MobileBottomNav() {
           aria-describedby={undefined}
         >
           <SheetHeader className="border-b border-border px-4 py-3 text-left">
-            <SheetTitle className="text-base">Catálogo de productos</SheetTitle>
+            <SheetTitle className="text-base">Categorías</SheetTitle>
           </SheetHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
             <CatalogMegaMenuPanel
@@ -157,26 +160,6 @@ export function MobileBottomNav() {
               sidebarItems={menu.sidebarItems}
               columnGroups={columnGroups}
               featuredContent={featuredContent}
-              onNavigate={handleNavigate}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <Sheet open={activeSheet === 'search'} onOpenChange={(open) => !open && closeSheet()}>
-        <SheetContent
-          id="mobile-nav-search-sheet"
-          side="bottom"
-          className="flex max-h-[92dvh] flex-col gap-0 p-0"
-          aria-describedby={undefined}
-        >
-          <SheetHeader className="border-b border-border px-4 py-3 text-left">
-            <SheetTitle className="text-base">Buscar productos</SheetTitle>
-          </SheetHeader>
-          <div className="overflow-y-auto px-4 py-4">
-            <SiteSearchForm
-              variant="simple"
-              autoFocusInput
               onNavigate={handleNavigate}
             />
           </div>
