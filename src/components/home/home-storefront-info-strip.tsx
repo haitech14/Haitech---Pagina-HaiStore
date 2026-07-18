@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils';
 /** Barra de confianza bajo el hero (flujo normal, no flotante). */
 export function HomeStorefrontInfoStrip({ className }: { className?: string }) {
   return (
-    <section aria-label="Ventajas HaiTech" className={cn('bg-[#F8F9FA] py-4 sm:py-5', className)}>
+    <section aria-label="Ventajas HaiTech" className={cn('bg-white pt-0 pb-3 sm:pb-4', className)}>
       <div className="container">
         <div
           className={cn(
-            'w-full rounded-xl border border-black/[0.06] bg-white',
+            'w-full rounded-b-xl border border-t-0 border-black/[0.06] bg-white',
             'shadow-[0_4px_18px_rgba(15,31,61,0.08)]',
           )}
         >

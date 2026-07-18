@@ -93,7 +93,7 @@ export function Header() {
         'relative z-50 w-full overflow-visible',
         forumMode
           ? 'bg-white supports-[backdrop-filter]:bg-white/95 supports-[backdrop-filter]:backdrop-blur-sm shadow-[0_4px_14px_rgba(15,23,42,0.12)]'
-          : cn(HEADER_DARK_CLASS, 'shadow-[0_4px_14px_rgba(0,0,0,0.35)]'),
+          : cn(HEADER_DARK_CLASS, 'shadow-none'),
       )}
     >
       {!forumMode ? <HeaderTopBar /> : null}

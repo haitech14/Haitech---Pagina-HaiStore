@@ -21,7 +21,7 @@ export function HomeStorefrontBlock() {
   }, []);
 
   return (
-    <div className="home-landing-sans relative bg-white">
+    <div className="home-landing-sans relative -mt-px bg-white">
       <HomeStorefrontInfoStrip />
       <HomeStorefrontCategoriesSection />
       <HomePromotionsSection />

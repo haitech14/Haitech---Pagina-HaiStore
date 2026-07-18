@@ -504,7 +504,7 @@ export function HeroBanner({
     <section
       aria-labelledby={headingId}
       aria-roledescription={showCarouselControls ? 'carrusel' : undefined}
-      className="relative mt-5 w-full leading-none sm:mt-6 lg:mt-7"
+      className="relative w-full leading-none"
       onMouseEnter={pauseAutoplay}
       onFocus={pauseAutoplay}
     >
