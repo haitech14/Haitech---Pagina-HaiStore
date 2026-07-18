@@ -236,7 +236,7 @@ export function ShoppingCartDrawer() {
                     openCartQuoteWhatsApp(items, totalPrice);
                   }}
                 >
-                  <Icon path={mdiWhatsapp} size={0.8} aria-hidden="true" />
+                  <WhatsAppIcon size={0.8} />
                   Cotizar carrito por WhatsApp
                 </Button>
                 <Button
