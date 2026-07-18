@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 
+import { HeaderContactStrip } from '@/components/layout/header-contact-strip';
 import { HeaderStoreDesktopActions } from '@/components/layout/header-store-desktop-actions';
 import { HeaderForumPublishButton } from '@/components/layout/header-forum-publish-button';
 import { HeaderMainMenu, MockupNavLink } from '@/components/layout/header-main-menu';
@@ -59,7 +60,7 @@ type HeaderCategoryNavProps = {
 
 /**
  * Cabecera tienda (desktop):
- * Fila 1 — Logo | Buscador | Atención | Cuenta | Carrito
+ * Fila 1 — Logo + Ricoh + contactos | Buscador | Cuenta | Carrito
  * Fila 2 (blanca) — Categorías | Fotocopiadoras | Impresoras | … | Servicio técnico
  */
 export function HeaderCategoryNav({
@@ -75,14 +76,15 @@ export function HeaderCategoryNav({
     <div className={forumMode ? MAIN_NAV_LIGHT_BAR_CLASS : 'hidden overflow-visible lg:block'}>
       {!forumMode ? (
         <>
-          <div className="container grid h-16 grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 overflow-visible py-2.5 xl:gap-4">
-            <div className="flex min-w-0 items-center justify-start">
+          <div className="container grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-visible py-2.5 xl:gap-5">
+            <div className="flex shrink-0 items-center justify-start gap-3 xl:gap-5">
               <HeaderBrandLogo />
+              <HeaderContactStrip />
             </div>
 
             <div
               id="header-store-search"
-              className="mx-auto w-full max-w-[28rem] xl:max-w-[34rem] 2xl:max-w-[40rem]"
+              className="mx-auto w-full min-w-0 max-w-[22rem] xl:max-w-[30rem] 2xl:max-w-[36rem]"
             >
               <SiteSearchForm
                 className="w-full"
@@ -92,7 +94,7 @@ export function HeaderCategoryNav({
               />
             </div>
 
-            <div className="flex min-w-0 items-center justify-end">
+            <div className="flex shrink-0 items-center justify-end">
               <HeaderStoreDesktopActions
                 cartCount={cartCount}
                 cartAriaLabel={cartAriaLabel}

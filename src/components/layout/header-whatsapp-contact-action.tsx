@@ -19,8 +19,8 @@ type HeaderWhatsAppContactActionProps = {
   phoneDisplay: string;
   icon: ReactNode;
   className?: string;
-  /** Variante compacta del menú móvil. */
-  variant?: 'desktop' | 'mobile';
+  /** `strip`: franja clara del header (logo). `desktop`: menú oscuro. */
+  variant?: 'desktop' | 'mobile' | 'strip';
 };
 
 const DIALOG_COPY: Record<
@@ -88,6 +88,43 @@ export function HeaderWhatsAppContactAction({
           <span className="text-left">
             <span className="block">{label}</span>
             <span className="block text-xs font-normal text-white/70">{phoneDisplay}</span>
+          </span>
+        </button>
+
+        <WhatsAppContactDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          initial={contact}
+          isSubmitting={isSaving}
+          showQuoteCheckbox={false}
+          title={copy.title}
+          description={copy.description}
+          submitLabel={copy.submitLabel}
+          onSubmit={handleSubmit}
+        />
+      </>
+    );
+  }
+
+  if (variant === 'strip') {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={handleClick}
+          aria-label={`${label} ${phoneDisplay}`}
+          className={cn(
+            'inline-flex shrink-0 items-center gap-2 rounded-md px-1 py-0.5 text-left transition-colors',
+            'hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
+            className,
+          )}
+        >
+          {icon}
+          <span className="flex flex-col gap-0.5 leading-none text-white">
+            <span className="whitespace-nowrap text-[0.8125rem] font-bold">{label}</span>
+            <span className="whitespace-nowrap text-[0.8125rem] font-normal text-white/90">
+              {phoneDisplay}
+            </span>
           </span>
         </button>
 

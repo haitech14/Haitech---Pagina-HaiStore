@@ -2,9 +2,7 @@ import { ShoppingCart } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
-import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
-import { HeaderCustomerServiceAction } from '@/components/layout/header-customer-service-action';
-import { HeaderSupportButton } from '@/components/layout/header-support-button';
+import { headerIconActionButtonClass } from '@/components/layout/header-action-strip';
 import { cn } from '@/lib/utils';
 
 type HeaderStoreDesktopActionsProps = {
@@ -22,13 +20,11 @@ export function HeaderStoreDesktopActions({
 }: HeaderStoreDesktopActionsProps) {
   return (
     <div className={cn('hidden shrink-0 items-center gap-1 lg:flex xl:gap-1.5', className)}>
-      <HeaderCustomerServiceAction />
-      <HeaderSupportButton />
       <AccountDropdown triggerVariant="labeled" tone="dark" />
 
       <button
         type="button"
-        className={cn(headerDarkUtilityButtonClass(), 'relative px-2')}
+        className={cn(headerIconActionButtonClass('dark', 'sm'), 'relative')}
         aria-label={cartAriaLabel}
         onClick={onOpenCart}
       >
