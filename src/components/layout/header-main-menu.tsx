@@ -1,9 +1,15 @@
+import { lazy, Suspense } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
 import { categoryLandingPath } from '@/lib/category-path';
 import { cn } from '@/lib/utils';
 import { serviceHubPath } from '@/lib/service-hub';
+
+const CategoriesMegaMenu = lazy(() =>
+  import('@/components/layout/categories-mega-menu').then((m) => ({
+    default: m.CategoriesMegaMenu,
+  })),
+);
 
 export type HeaderMainNavLink = {
   id: string;
@@ -126,12 +132,23 @@ export function HeaderMainMenu({
     >
       {showCategories ? (
         <li className="shrink-0">
-          <CategoriesMegaMenu
-            navRow={dropdownVariant}
-            showIcon={showIcons}
-            triggerVariant={menuVariant === 'light' ? 'categories-button' : 'nav'}
-            label="Categorías"
-          />
+          <Suspense
+            fallback={
+              <span
+                className="inline-flex h-8 min-w-[6.5rem] items-center text-sm font-medium text-foreground/80"
+                aria-hidden="true"
+              >
+                Categorías
+              </span>
+            }
+          >
+            <CategoriesMegaMenu
+              navRow={dropdownVariant}
+              showIcon={showIcons}
+              triggerVariant={menuVariant === 'light' ? 'categories-button' : 'nav'}
+              label="Categorías"
+            />
+          </Suspense>
         </li>
       ) : null}
       {STORE_HEADER_LINKS.map((item) => (

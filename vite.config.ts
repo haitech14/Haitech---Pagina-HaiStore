@@ -59,7 +59,6 @@ export default defineConfig({
       'tailwind-merge',
       'sonner',
       'embla-carousel-react',
-      'exceljs',
       'lucide-react',
       '@mdi/react',
       '@mdi/js',

@@ -35,15 +35,7 @@ import {
   useCategoryConditionFilter,
 } from '@/components/product-condition-tabs';
 import { SubcategoryTabs } from '@/components/subcategory-tabs';
-import { ProductCard } from '@/components/product-card';
 import { Button } from '@/components/ui/button';
-import { RangeSlider } from '@/components/ui/range-slider';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 import { useAuth } from '@/context/auth-context';
 import {
   EMPTY_STORE_CATEGORY_TREE,
@@ -171,6 +163,21 @@ const ProductHighlightCard = lazy(() =>
     default: m.ProductHighlightCard,
   })),
 );
+const ProductCard = lazy(() =>
+  import('@/components/product-card').then((m) => ({
+    default: m.ProductCard,
+  })),
+);
+const RangeSlider = lazy(() =>
+  import('@/components/ui/range-slider').then((m) => ({
+    default: m.RangeSlider,
+  })),
+);
+const CategoryFiltersSheet = lazy(() =>
+  import('@/components/category/category-filters-sheet').then((m) => ({
+    default: m.CategoryFiltersSheet,
+  })),
+);
 
 function CategoryProductsTableSkeleton() {
   return (
@@ -258,14 +265,54 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     () => (isStoreAll ? excludeStoreSoftwareProducts(allProducts) : allProducts),
     [allProducts, isStoreAll],
   );
-  const sidebarCategoryTree = useMemo(() => {
-    const preparedTree = prepareCatalogCategoryTree(categoryTree);
-    if (!syncSidebarCountsFromCatalog) return preparedTree;
+  const preparedSidebarTree = useMemo(
+    () => prepareCatalogCategoryTree(categoryTree),
+    [categoryTree],
+  );
+  const [sidebarCategoryTree, setSidebarCategoryTree] = useState(preparedSidebarTree);
+
+  useEffect(() => {
+    setSidebarCategoryTree(preparedSidebarTree);
+  }, [preparedSidebarTree]);
+
+  useEffect(() => {
+    if (!syncSidebarCountsFromCatalog) return;
     const productsForCounts = isStoreAll ? storeCatalogProducts : allProducts;
     // No pisar productCount del snapshot con un array vacío (flash 131 → 0).
-    if (productsForCounts.length === 0) return preparedTree;
-    return syncStoreCategoryTreeProductCounts(preparedTree, productsForCounts);
-  }, [categoryTree, allProducts, storeCatalogProducts, isStoreAll, syncSidebarCountsFromCatalog]);
+    if (productsForCounts.length === 0) return;
+
+    const applyCounts = () => {
+      setSidebarCategoryTree(
+        syncStoreCategoryTreeProductCounts(preparedSidebarTree, productsForCounts),
+      );
+    };
+
+    // /tienda: counts en idle para no competir con el paint del grid.
+    if (isStoreAll) {
+      let idleId: number | undefined;
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        idleId = window.requestIdleCallback(applyCounts, { timeout: 1500 });
+      } else {
+        timeoutId = setTimeout(applyCounts, 1);
+      }
+      return () => {
+        if (idleId != null && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+          window.cancelIdleCallback(idleId);
+        }
+        if (timeoutId != null) clearTimeout(timeoutId);
+      };
+    }
+
+    applyCounts();
+    return undefined;
+  }, [
+    syncSidebarCountsFromCatalog,
+    isStoreAll,
+    storeCatalogProducts,
+    allProducts,
+    preparedSidebarTree,
+  ]);
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>(() => {
     const raw = searchParams.get('attrs');
     if (!raw?.trim()) return [];
@@ -1488,27 +1535,29 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
             </div>
           </div>
 
-          <RangeSlider
-            min={availablePriceRange.min}
-            max={availablePriceRange.max}
-            step={1}
-            value={[
-              priceMin ?? availablePriceRange.min,
-              priceMax ?? availablePriceRange.max,
-            ]}
-            onValueChange={(next) => {
-              const [minValue, maxValue] = next;
-              if (minValue == null || maxValue == null) return;
-              setPriceMin(Math.max(availablePriceRange.min, Math.min(minValue, maxValue)));
-              setPriceMax(Math.min(availablePriceRange.max, Math.max(maxValue, minValue)));
-            }}
-            onValueCommit={(next) => {
-              const [minValue, maxValue] = next;
-              if (minValue == null || maxValue == null) return;
-              setPriceMin(Math.max(availablePriceRange.min, Math.min(minValue, maxValue)));
-              setPriceMax(Math.min(availablePriceRange.max, Math.max(maxValue, minValue)));
-            }}
-          />
+          <Suspense fallback={<div className="h-8 animate-pulse rounded bg-muted" aria-hidden="true" />}>
+            <RangeSlider
+              min={availablePriceRange.min}
+              max={availablePriceRange.max}
+              step={1}
+              value={[
+                priceMin ?? availablePriceRange.min,
+                priceMax ?? availablePriceRange.max,
+              ]}
+              onValueChange={(next) => {
+                const [minValue, maxValue] = next;
+                if (minValue == null || maxValue == null) return;
+                setPriceMin(Math.max(availablePriceRange.min, Math.min(minValue, maxValue)));
+                setPriceMax(Math.min(availablePriceRange.max, Math.max(maxValue, minValue)));
+              }}
+              onValueCommit={(next) => {
+                const [minValue, maxValue] = next;
+                if (minValue == null || maxValue == null) return;
+                setPriceMin(Math.max(availablePriceRange.min, Math.min(minValue, maxValue)));
+                setPriceMax(Math.min(availablePriceRange.max, Math.max(maxValue, minValue)));
+              }}
+            />
+          </Suspense>
         </div>
         <p className="mt-2 text-[0.6875rem] text-muted-foreground">
           Rango disponible: {availablePriceRange.min} - {availablePriceRange.max} USD
@@ -1812,21 +1861,12 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               </aside>
             ) : null}
 
-            {showProductCatalog ? (
-              <Sheet open={filtersSheetOpen} onOpenChange={setFiltersSheetOpen}>
-                <SheetContent
-                  side="left"
-                  className="flex w-full max-w-sm flex-col gap-0 overflow-hidden p-0 sm:max-w-md"
-                  aria-describedby={undefined}
-                >
-                  <SheetHeader className="border-b border-border px-5 py-4 text-left">
-                    <SheetTitle>Filtros</SheetTitle>
-                  </SheetHeader>
-                  <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
-                    {categoryFiltersContent}
-                  </div>
-                </SheetContent>
-              </Sheet>
+            {showProductCatalog && filtersSheetOpen ? (
+              <Suspense fallback={null}>
+                <CategoryFiltersSheet open={filtersSheetOpen} onOpenChange={setFiltersSheetOpen}>
+                  {categoryFiltersContent}
+                </CategoryFiltersSheet>
+              </Suspense>
             ) : null}
 
             <div className={cn(showProductCatalog && storefrontMode && 'min-w-0')}>
@@ -1986,7 +2026,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                   {viewMode === 'list' ? (
                     <div className="flex flex-col gap-4">
                       {pagedCatalogProducts.map((product) => (
-                        <ProductCard key={product.id} product={product} layout="list" />
+                        <Suspense key={product.id} fallback={<ProductSkeleton />}>
+                          <ProductCard product={product} layout="list" />
+                        </Suspense>
                       ))}
                     </div>
                   ) : showFormatSections ? (

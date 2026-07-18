@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { lazy, memo, Suspense, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
@@ -8,9 +8,14 @@ import { ProductCardOverlayActions } from '@/components/product/product-card-ove
 import { ProductCardPromoBadges } from '@/components/product/product-card-promo-badges';
 import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
-import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
+
+const ProductQuickViewDialog = lazy(() =>
+  import('@/components/product/product-quick-view-dialog').then((m) => ({
+    default: m.ProductQuickViewDialog,
+  })),
+);
 import { useCart } from '@/context/cart-context';
 import { useWishlist } from '@/context/wishlist-context';
 import {
@@ -211,11 +216,15 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
         </div>
       </div>
 
-      <ProductQuickViewDialog
-        snapshot={quickViewSnapshot}
-        open={quickViewOpen}
-        onOpenChange={setQuickViewOpen}
-      />
+      {quickViewOpen ? (
+        <Suspense fallback={null}>
+          <ProductQuickViewDialog
+            snapshot={quickViewSnapshot}
+            open={quickViewOpen}
+            onOpenChange={setQuickViewOpen}
+          />
+        </Suspense>
+      ) : null}
     </article>
   );
 });

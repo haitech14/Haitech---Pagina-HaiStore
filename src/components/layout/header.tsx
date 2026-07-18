@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Grid3x3, Menu, ShoppingCart, X } from 'lucide-react';
 
@@ -19,13 +19,18 @@ import { HeaderSupportButton } from '@/components/layout/header-support-button';
 import { HeaderForumPublishButton } from '@/components/layout/header-forum-publish-button';
 import { STORE_HEADER_LINKS } from '@/components/layout/header-main-menu';
 import { HeaderTopBar } from '@/components/layout/header-top-bar';
-import { StoreNavMobileMegaAccordions } from '@/components/layout/store-nav-mobile-mega-accordions';
+import { LazySiteSearchForm } from '@/components/layout/lazy-site-search-form';
 import { HeaderBrandLogos } from '@/components/layout/site-logo';
-import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { cn, formatPenFromUsd } from '@/lib/utils';
 import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
+
+const StoreNavMobileMegaAccordions = lazy(() =>
+  import('@/components/layout/store-nav-mobile-mega-accordions').then((m) => ({
+    default: m.StoreNavMobileMegaAccordions,
+  })),
+);
 
 const HEADER_DARK_CLASS = 'bg-[#1A1A1A]';
 
@@ -146,7 +151,7 @@ export function Header() {
 
         {forumMode ? (
           <div className="hidden flex-1 justify-center px-2 md:flex lg:px-4">
-            <SiteSearchForm className="max-w-3xl lg:max-w-4xl" variant="segmented" />
+            <LazySiteSearchForm className="max-w-3xl lg:max-w-4xl" variant="segmented" />
           </div>
         ) : null}
 
@@ -185,7 +190,7 @@ export function Header() {
       {!forumMode ? (
         <>
           <div className="container border-t border-white/15 pb-2.5 pt-2 lg:hidden">
-            <SiteSearchForm variant="header-dark" onNavigate={() => setMobileOpen(false)} />
+            <LazySiteSearchForm variant="header-dark" onNavigate={() => setMobileOpen(false)} />
           </div>
           <HeaderCategoryNav
             cartCount={totalItems}
@@ -196,7 +201,7 @@ export function Header() {
       ) : (
         <>
           <div className="container border-t border-border/60 pb-2 pt-2 md:hidden">
-            <SiteSearchForm variant="simple" onNavigate={() => setMobileOpen(false)} />
+            <LazySiteSearchForm variant="simple" onNavigate={() => setMobileOpen(false)} />
           </div>
           <HeaderCategoryNav />
         </>
@@ -239,7 +244,9 @@ export function Header() {
               </ul>
             </nav>
             {!forumMode ? (
-              <StoreNavMobileMegaAccordions onNavigate={() => setMobileOpen(false)} />
+              <Suspense fallback={null}>
+                <StoreNavMobileMegaAccordions onNavigate={() => setMobileOpen(false)} />
+              </Suspense>
             ) : null}
             {!forumMode ? (
               <>

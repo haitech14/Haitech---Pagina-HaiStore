@@ -26,12 +26,30 @@ type CatalogJsonRow = Partial<InventoryProduct> &
 export const INVENTORY_INDEX_URL = '/catalog/inventory-index.json';
 
 let catalogCache: CatalogRow[] | null = null;
+/** Filas visibles cacheadas (evita filter O(n) en cada getCatalogRows). */
+let visibleCatalogRows: CatalogRow[] | null = null;
 let catalogLoadPromise: Promise<CatalogRow[]> | null = null;
 let catalogMediaEpoch = 0;
 /** Lookup O(1) por id sobre catalogCache (todas las filas, sin filtrar visibilidad). */
 let catalogById: Map<string, CatalogRow> | null = null;
 /** Lookup O(1) por slug normalizado. */
 let catalogBySlug: Map<string, CatalogRow> | null = null;
+
+function scheduleWriteCatalogIndexToIdb(rows: readonly CatalogRow[]): void {
+  const write = () => {
+    void writeCatalogIndexToIdb(rows);
+  };
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    window.requestIdleCallback(write, { timeout: 2500 });
+    return;
+  }
+  setTimeout(write, 0);
+}
+
+/** True si el índice ya está en memoria (sin I/O). */
+export function hasCatalogIndexInMemory(): boolean {
+  return catalogCache != null && catalogCache.length > 0;
+}
 
 const CATALOG_MEDIA_UPDATED_EVENT = 'haistore-catalog-media-updated';
 
@@ -98,6 +116,7 @@ async function fetchCatalogIndexFromNetwork(): Promise<CatalogRow[]> {
 
 function applyCatalogRows(rows: CatalogRow[]): CatalogRow[] {
   catalogCache = rows;
+  visibleCatalogRows = rows.filter((row) => isProductVisibleOnStorefront(row));
   rebuildCatalogLookupMaps(rows);
   return rows;
 }
@@ -125,7 +144,7 @@ async function revalidateCatalogIndexInBackground(): Promise<void> {
   try {
     const rows = await fetchCatalogIndexFromNetwork();
     applyCatalogRows(rows);
-    void writeCatalogIndexToIdb(rows);
+    scheduleWriteCatalogIndexToIdb(rows);
     publishCatalogIndexToQueryClient(rows);
   } catch {
     /* mantener snapshot IDB / memoria */
@@ -148,10 +167,11 @@ export async function loadCatalogIndex(): Promise<CatalogRow[]> {
 
       const rows = await fetchCatalogIndexFromNetwork();
       applyCatalogRows(rows);
-      void writeCatalogIndexToIdb(rows);
+      scheduleWriteCatalogIndexToIdb(rows);
       return rows;
     })().catch((error) => {
       catalogLoadPromise = null;
+      visibleCatalogRows = null;
       clearCatalogLookupMaps();
       throw error;
     });
@@ -191,6 +211,25 @@ export function patchCatalogIndexProductMedia(
     nextRow,
     ...catalogCache.slice(index + 1),
   ];
+  if (visibleCatalogRows) {
+    const visibleIndex = visibleCatalogRows.findIndex((row) => row.id === product.id);
+    if (visibleIndex >= 0) {
+      if (isProductVisibleOnStorefront(nextRow)) {
+        visibleCatalogRows = [
+          ...visibleCatalogRows.slice(0, visibleIndex),
+          nextRow,
+          ...visibleCatalogRows.slice(visibleIndex + 1),
+        ];
+      } else {
+        visibleCatalogRows = [
+          ...visibleCatalogRows.slice(0, visibleIndex),
+          ...visibleCatalogRows.slice(visibleIndex + 1),
+        ];
+      }
+    } else if (isProductVisibleOnStorefront(nextRow)) {
+      visibleCatalogRows = [...visibleCatalogRows, nextRow];
+    }
+  }
   catalogById?.set(nextRow.id, nextRow);
   const slug = typeof nextRow.slug === 'string' ? nextRow.slug.trim().toLowerCase() : '';
   if (slug) catalogBySlug?.set(slug, nextRow);
@@ -199,7 +238,7 @@ export function patchCatalogIndexProductMedia(
 
 /** Filas del índice en caché (vacío hasta que termine la precarga). */
 export function getCatalogRows(): CatalogRow[] {
-  return (catalogCache ?? []).filter((row) => isProductVisibleOnStorefront(row));
+  return visibleCatalogRows ?? [];
 }
 
 export function normalizeCategoryName(value: string): string {
