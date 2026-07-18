@@ -63,7 +63,7 @@ export function HomeLandingHeroSlideContent({
           alt=""
           width={1920}
           height={640}
-          className="absolute inset-0 size-full origin-bottom scale-[1.28] object-cover object-[80%_bottom] sm:scale-[1.34] sm:object-[84%_bottom] lg:origin-bottom-right lg:scale-[1.38] lg:object-[90%_bottom]"
+          className="absolute inset-0 size-full origin-bottom translate-x-[10%] scale-[1.34] object-cover object-[100%_bottom] sm:translate-x-[12%] sm:scale-[1.4] lg:origin-bottom-right lg:translate-x-[14%] lg:scale-[1.46]"
           loading="eager"
           fetchPriority="high"
           decoding="async"
