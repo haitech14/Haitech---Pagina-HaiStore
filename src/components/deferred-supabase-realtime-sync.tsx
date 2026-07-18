@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
-import { SupabaseRealtimeSync } from '@/components/supabase-realtime-sync';
 import { isSupabaseConfigured } from '@/lib/supabase-config';
 
-/** Monta Realtime tras idle para no competir con la carga inicial. */
+const SupabaseRealtimeSync = lazy(() =>
+  import('@/components/supabase-realtime-sync').then((m) => ({
+    default: m.SupabaseRealtimeSync,
+  })),
+);
+
+/** Monta Realtime tras idle para no competir con la carga inicial ni con supabase-js. */
 export function DeferredSupabaseRealtimeSync() {
   const [enabled, setEnabled] = useState(false);
 
@@ -24,5 +29,9 @@ export function DeferredSupabaseRealtimeSync() {
   }, []);
 
   if (!enabled) return null;
-  return <SupabaseRealtimeSync />;
+  return (
+    <Suspense fallback={null}>
+      <SupabaseRealtimeSync />
+    </Suspense>
+  );
 }

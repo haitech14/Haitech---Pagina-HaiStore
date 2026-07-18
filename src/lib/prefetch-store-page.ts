@@ -1,7 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 
-import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
-import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
+import { getCatalogRows } from '@/lib/catalog-featured';
 import {
   HOME_CATALOG_BUNDLE_QUERY_KEY,
   collectProvisionalStoreProductsFromBundle,
@@ -59,8 +58,8 @@ function seedProvisionalFromMemory(
 }
 
 /**
- * Precarga índice estático y siembra el catálogo de /tienda.
- * Siembra provisional de inmediato (memoria o home-bundle.json); el índice sustituye en background.
+ * Siembra el catálogo de /tienda sin bajar el índice 1.3MB.
+ * El warm del índice lo hace useProducts tras pintar el provisional (owner único).
  */
 export async function prefetchStorePage(queryClient: QueryClient, role = 'public') {
   const queryKey = ['products', role, viewAsRolesQueryKey([])];
@@ -80,23 +79,4 @@ export async function prefetchStorePage(queryClient: QueryClient, role = 'public
       /* useProducts reintentará */
     }
   }
-
-  // Índice completo fuera del camino crítico (tras paint / idle).
-  const scheduleIndex =
-    typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function'
-      ? (cb: () => void) => window.requestIdleCallback(cb, { timeout: 2500 })
-      : (cb: () => void) => {
-          window.setTimeout(cb, 800);
-        };
-
-  scheduleIndex(() => {
-    preloadCatalogIndexNow();
-    void loadCatalogIndex()
-      .then(async () => {
-        await seedProductsQueryFromRows(queryClient, queryKey, role, getCatalogRows());
-      })
-      .catch(() => {
-        /* Sin índice: useProducts usa provisional / API */
-      });
-  });
 }

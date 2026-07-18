@@ -96,22 +96,9 @@ async function fetchCategoryCatalog(params: UseCategoryCatalogParams): Promise<C
   return apiFetch<CategoryCatalogResponse>(`/api/products/by-category?${query}`);
 }
 
-function scheduleIdleCatalogIndexWarm(): void {
-  const warm = () => {
-    void loadCatalogIndex().catch(() => null);
-  };
-  if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(warm, { timeout: 4000 });
-    return;
-  }
-  if (typeof window !== 'undefined') {
-    window.setTimeout(warm, 1500);
-  }
-}
-
 /**
  * Índice en memoria primero. Si está frío: API inmediata para primer paint.
- * El inventory-index (1.3MB) se calienta en idle para no competir con la grilla.
+ * No calienta inventory-index (1.3MB): eso lo hacen búsqueda o prefetch de /tienda.
  */
 export async function fetchCategoryCatalogWithFallback(
   params: UseCategoryCatalogParams,
@@ -122,9 +109,7 @@ export async function fetchCategoryCatalogWithFallback(
   }
 
   try {
-    const fromApi = await fetchCategoryCatalog(params);
-    scheduleIdleCatalogIndexWarm();
-    return fromApi;
+    return await fetchCategoryCatalog(params);
   } catch {
     /* API caída: esperar índice local */
   }

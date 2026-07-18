@@ -68,11 +68,27 @@ export async function fetchProductsForRole(
 
   if (provisional.length > 0 && options?.queryClient && options.queryKey) {
     const { queryClient, queryKey } = options;
-    void loadFullCatalogForRole(role).then((full) => {
-      if (full && full.length > 0) {
-        queryClient.setQueryData(queryKey, full);
-      }
-    });
+    // Owner único del warm: tras primer frame + idle (main.tsx ya no lo dispara).
+    const warmFull = () => {
+      void loadFullCatalogForRole(role).then((full) => {
+        if (full && full.length > 0) {
+          queryClient.setQueryData(queryKey, full);
+        }
+      });
+    };
+    if (typeof window !== 'undefined') {
+      const scheduleIdle =
+        typeof window.requestIdleCallback === 'function'
+          ? (cb: () => void) => window.requestIdleCallback(cb, { timeout: 5000 })
+          : (cb: () => void) => {
+              window.setTimeout(cb, 2000);
+            };
+      requestAnimationFrame(() => {
+        scheduleIdle(warmFull);
+      });
+    } else {
+      warmFull();
+    }
     return provisional;
   }
 

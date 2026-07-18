@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { isSupabaseConfigured } from '@/lib/supabase-config';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClientAsync } from '@/lib/supabase';
 
 const TABLE_QUERY_KEYS: Record<string, string[][]> = {
   products: [['products'], ['product']],
@@ -26,30 +26,45 @@ export function SupabaseRealtimeSync() {
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
 
-    const tables = Object.keys(TABLE_QUERY_KEYS);
-    const channels = tables.map((table) => {
-      const channel = supabase
-        .channel(`haistore-realtime-${table}`)
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table },
-          () => {
-            for (const queryKey of TABLE_QUERY_KEYS[table] ?? []) {
-              void queryClient.invalidateQueries({
-                queryKey,
-                refetchType: 'active',
-              });
-            }
-          },
-        )
-        .subscribe();
+    let cancelled = false;
+    const channels: { unsubscribe: () => void }[] = [];
 
-      return channel;
-    });
+    void getSupabaseClientAsync()
+      .then((supabase) => {
+        if (cancelled) return;
+        const tables = Object.keys(TABLE_QUERY_KEYS);
+        for (const table of tables) {
+          const channel = supabase
+            .channel(`haistore-realtime-${table}`)
+            .on(
+              'postgres_changes',
+              { event: '*', schema: 'public', table },
+              () => {
+                for (const queryKey of TABLE_QUERY_KEYS[table] ?? []) {
+                  void queryClient.invalidateQueries({
+                    queryKey,
+                    refetchType: 'active',
+                  });
+                }
+              },
+            )
+            .subscribe();
+
+          channels.push({
+            unsubscribe: () => {
+              void supabase.removeChannel(channel);
+            },
+          });
+        }
+      })
+      .catch((error) => {
+        console.warn('[realtime] No se pudo iniciar Supabase Realtime:', error);
+      });
 
     return () => {
+      cancelled = true;
       for (const channel of channels) {
-        void supabase.removeChannel(channel);
+        channel.unsubscribe();
       }
     };
   }, [queryClient]);

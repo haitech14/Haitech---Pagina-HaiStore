@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import type { ReactNode } from 'react';
+import { lazy, Suspense, useState, type ReactNode } from 'react';
 
-import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
 import {
@@ -10,6 +8,12 @@ import {
 } from '@/lib/header-whatsapp-message';
 import { isCompleteWhatsAppContact, type WhatsAppContact } from '@/lib/whatsapp-contact';
 import { cn } from '@/lib/utils';
+
+const WhatsAppContactDialog = lazy(() =>
+  import('@/components/whatsapp-contact-dialog').then((m) => ({
+    default: m.WhatsAppContactDialog,
+  })),
+);
 
 type HeaderWhatsAppTopic = 'ventas' | 'soporte';
 
@@ -91,17 +95,21 @@ export function HeaderWhatsAppContactAction({
           </span>
         </button>
 
-        <WhatsAppContactDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          initial={contact}
-          isSubmitting={isSaving}
-          showQuoteCheckbox={false}
-          title={copy.title}
-          description={copy.description}
-          submitLabel={copy.submitLabel}
-          onSubmit={handleSubmit}
-        />
+        {dialogOpen ? (
+          <Suspense fallback={null}>
+            <WhatsAppContactDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              initial={contact}
+              isSubmitting={isSaving}
+              showQuoteCheckbox={false}
+              title={copy.title}
+              description={copy.description}
+              submitLabel={copy.submitLabel}
+              onSubmit={handleSubmit}
+            />
+          </Suspense>
+        ) : null}
       </>
     );
   }
@@ -121,17 +129,21 @@ export function HeaderWhatsAppContactAction({
         </span>
       </button>
 
-      <WhatsAppContactDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        initial={contact}
-        isSubmitting={isSaving}
-        showQuoteCheckbox={false}
-        title={copy.title}
-        description={copy.description}
-        submitLabel={copy.submitLabel}
-        onSubmit={handleSubmit}
-      />
+      {dialogOpen ? (
+        <Suspense fallback={null}>
+          <WhatsAppContactDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            initial={contact}
+            isSubmitting={isSaving}
+            showQuoteCheckbox={false}
+            title={copy.title}
+            description={copy.description}
+            submitLabel={copy.submitLabel}
+            onSubmit={handleSubmit}
+          />
+        </Suspense>
+      ) : null}
     </>
   );
 }

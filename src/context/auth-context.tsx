@@ -10,9 +10,13 @@ import {
   writeStoredAuthSession,
   type AuthUser,
 } from '@/lib/auth-storage';
-import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/lib/supabase-config';
-import { signInWithPasswordSafely, signOutSupabaseSafely } from '@/lib/supabase-auth-helpers';
+import {
+  signInWithPasswordSafely,
+  signOutSupabaseSafely,
+  signUpWithPasswordSafely,
+  subscribeSupabaseAuthChanges,
+} from '@/lib/supabase-auth-helpers';
 import { canAccessAdminPanel, hasAdminApiAccess } from '@/lib/admin-access';
 import { isUserRole, type UserRole } from '@/types/product';
 import { readViewAsRoles, writeViewAsRoles } from '@/lib/view-as-role-storage';
@@ -163,26 +167,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     void refreshSession();
 
-    if (!isSupabaseConfigured()) {
-      return;
-    }
+    // Solo cargar supabase-js si ya hay sesión supabase conocida.
+    if (!isSupabaseConfigured()) return;
+    const stored = readStoredAuthSession();
+    if (stored?.authProvider !== 'supabase') return;
 
-    try {
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (session) {
-          void refreshSession();
-        } else if (!getDemoToken()) {
-          applyMe({ user: null, role: 'public', authProvider: null });
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+
+    void subscribeSupabaseAuthChanges((_event, session) => {
+      if (session) {
+        void refreshSession();
+      } else if (!getDemoToken()) {
+        applyMe({ user: null, role: 'public', authProvider: null });
+      }
+    })
+      .then((unsub) => {
+        if (cancelled) {
+          unsub();
+          return;
         }
+        unsubscribe = unsub;
+      })
+      .catch((error) => {
+        console.warn('[auth] No se pudo suscribir a cambios de sesión:', error);
       });
 
-      return () => subscription.unsubscribe();
-    } catch (error) {
-      console.warn('[auth] No se pudo suscribir a cambios de sesión:', error);
-      return undefined;
-    }
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, [applyMe, refreshSession]);
 
   const login = React.useCallback(
@@ -245,15 +259,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = React.useCallback(
     async (email: string, password: string, fullName: string) => {
       setDemoToken(null);
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
+      const { data, error } = await signUpWithPasswordSafely(
+        email.trim(),
         password,
-        options: {
-          data: { full_name: fullName, role: 'public' },
-        },
-      });
+        fullName,
+      );
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       if (data.session) {
         await apiFetch('/api/auth/sync-profile', { method: 'POST' });

@@ -16,11 +16,9 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="robots" content="index,follow" />
     <meta name="theme-color" content="#E30613" />
-    <link rel="preload" href="/catalog/store-categories-tree.json" as="fetch" type="application/json" crossorigin />
     <script>
       (function () {
         var path = location.pathname || '/';
-        if (path !== '/' && path !== '') return;
         function preload(href, as, type) {
           var link = document.createElement('link');
           link.rel = 'preload';
@@ -33,8 +31,16 @@
           }
           document.head.appendChild(link);
         }
-        preload('/hero/home-hero-scene.webp', 'image', 'image/webp');
-        preload('/catalog/home-bundle.json', 'fetch', 'application/json');
+        var isHome = path === '/' || path === '';
+        var isStore = path === '/tienda' || path.indexOf('/tienda/') === 0;
+        var isCategory = path.indexOf('/categoria/') === 0;
+        if (isHome || isStore || isCategory) {
+          preload('/catalog/store-categories-tree.json', 'fetch', 'application/json');
+        }
+        if (isHome) {
+          preload('/hero/home-hero-scene.webp', 'image', 'image/webp');
+          preload('/catalog/home-bundle.json', 'fetch', 'application/json');
+        }
       })();
     </script>
     <title>HaiStore - Fotocopiadoras e Impresoras Ricoh | Distribuidor Autorizado</title>

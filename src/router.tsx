@@ -12,10 +12,13 @@ import { RootLayout } from '@/components/layout/root-layout';
 import { lazyWithRetry } from '@/lib/lazy-with-retry';
 import { prefetchHomeCatalog } from '@/lib/prefetch-home-catalog';
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
-import { HomePage } from '@/pages/home';
 import { queryClient } from '@/providers';
 
-/** Inicio eager: sin Suspense/spinner a pantalla completa. */
+/** Home lazy: /tienda y /categoria no arrastran hero/Embla/MDI. */
+const HomePage = lazyWithRetry(
+  () => import('@/pages/home').then((m) => ({ default: m.HomePage })),
+  'inicio',
+);
 const storePageImport = () =>
   import('@/pages/store').then((m) => ({ default: m.StorefrontRoutePage }));
 const StorefrontRoutePage = lazyWithRetry(storePageImport, 'tienda');
@@ -433,7 +436,7 @@ export const router = createBrowserRouter([
         index: true,
         // No await: no bloquear el pintado por home-bundle / API.
         loader: () => prefetchHomeCatalog(queryClient),
-        element: <HomePage />,
+        element: withSuspense(<HomePage />),
       },
       {
         path: 'foro',

@@ -22,7 +22,7 @@ export function warmStoreRouteChunk(): void {
   prefetchStoreRouteChunk();
 }
 
-/** Precarga chunk, árbol de categorías y datos provisionales; índice 1.3MB va idle en prefetchStorePage. */
+/** Precarga chunk, árbol de categorías y provisional; índice 1.3MB lo calienta useProducts. */
 export function prefetchStoreRoute(client: QueryClient = queryClient): void {
   prefetchStoreRouteChunk();
 

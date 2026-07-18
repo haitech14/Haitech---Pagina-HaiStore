@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { ClipboardList } from 'lucide-react';
 
-import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
 import { openHeroQuoteWhatsApp } from '@/lib/hero-whatsapp-message';
 import type { WhatsAppContact } from '@/lib/whatsapp-contact';
 import { cn } from '@/lib/utils';
+
+const WhatsAppContactDialog = lazy(() =>
+  import('@/components/whatsapp-contact-dialog').then((m) => ({
+    default: m.WhatsAppContactDialog,
+  })),
+);
 
 type HeaderCotizarButtonProps = {
   className?: string;
@@ -38,17 +43,21 @@ export function HeaderCotizarButton({ className }: HeaderCotizarButtonProps) {
         Cotizar ahora
       </button>
 
-      <WhatsAppContactDialog
-        open={open}
-        onOpenChange={setOpen}
-        initial={contact ?? undefined}
-        isSubmitting={isSaving}
-        showQuoteCheckbox={false}
-        title="Solicitar cotización"
-        description="Completa tus datos y te llevaremos a WhatsApp con el mensaje listo para enviar a nuestro equipo de ventas."
-        submitLabel="Continuar a WhatsApp"
-        onSubmit={handleSubmit}
-      />
+      {open ? (
+        <Suspense fallback={null}>
+          <WhatsAppContactDialog
+            open={open}
+            onOpenChange={setOpen}
+            initial={contact ?? undefined}
+            isSubmitting={isSaving}
+            showQuoteCheckbox={false}
+            title="Solicitar cotización"
+            description="Completa tus datos y te llevaremos a WhatsApp con el mensaje listo para enviar a nuestro equipo de ventas."
+            submitLabel="Continuar a WhatsApp"
+            onSubmit={handleSubmit}
+          />
+        </Suspense>
+      ) : null}
     </>
   );
 }
