@@ -61,6 +61,8 @@ export default defineConfig({
       'embla-carousel-react',
       'exceljs',
       'lucide-react',
+      '@mdi/react',
+      '@mdi/js',
     ],
   },
   server: {

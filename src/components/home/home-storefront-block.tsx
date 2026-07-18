@@ -43,28 +43,26 @@ function prefetchHomeBelowFold() {
   void import('@/components/home/home-storefront-service-section');
 }
 
-/** Arranca la descarga de rails en cuanto se evalúa el módulo (en paralelo al primer pintado). */
-prefetchHomeBelowFold();
-
 /**
  * Bloque de vitrina:
- * infobox → categorías (inmediato) → resto diferido para no bloquear el primer pintado.
+ * infobox → categorías (inmediato) → resto solo al acercarse al viewport.
  */
 export function HomeStorefrontBlock() {
   useEffect(() => {
-    preloadCatalogIndexNow();
-
+    // Índice de catálogo y rails below-fold: después del primer paint.
     let cancelled = false;
     const run = () => {
-      if (!cancelled) prefetchHomeBelowFold();
+      if (cancelled) return;
+      preloadCatalogIndexNow();
+      prefetchHomeBelowFold();
     };
 
     let idleId: number | undefined;
     let timeoutId: number | undefined;
     if (typeof window.requestIdleCallback === 'function') {
-      idleId = window.requestIdleCallback(run, { timeout: 1200 });
+      idleId = window.requestIdleCallback(run, { timeout: 2500 });
     } else {
-      timeoutId = window.setTimeout(run, 120);
+      timeoutId = window.setTimeout(run, 800);
     }
 
     return () => {
@@ -81,11 +79,11 @@ export function HomeStorefrontBlock() {
       <HomeStorefrontInfoStrip />
       <HomeStorefrontCategoriesSection />
 
-      <LazyHomeSection deferUntilVisible={false} minHeight="280px">
+      <LazyHomeSection minHeight="280px">
         <HomePromotionsSection />
       </LazyHomeSection>
 
-      <LazyHomeSection deferUntilVisible={false} minHeight="220px">
+      <LazyHomeSection minHeight="220px">
         <HomeTechnicalServiceHeroBanner />
       </LazyHomeSection>
 
@@ -93,7 +91,7 @@ export function HomeStorefrontBlock() {
         <FooterBrandsSection />
       </LazyHomeSection>
 
-      <LazyHomeSection deferUntilVisible={false} minHeight="720px">
+      <LazyHomeSection minHeight="720px">
         <HomeStorefrontFeaturedSection />
       </LazyHomeSection>
 

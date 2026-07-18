@@ -3,14 +3,32 @@ import { Outlet, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/layout/header';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
-import { SiteFooter } from '@/components/layout/site-footer';
-import { HomeStorefrontTrustBar } from '@/components/home/home-storefront-trust-bar';
-import { ShoppingCartDrawer } from '@/components/cart/shopping-cart-drawer';
-import { ProductCompareTray } from '@/components/product/product-compare-tray';
 import { CartProvider } from '@/context/cart-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { cn } from '@/lib/utils';
+
+const SiteFooter = lazy(() =>
+  import('@/components/layout/site-footer').then((m) => ({ default: m.SiteFooter })),
+);
+
+const HomeStorefrontTrustBar = lazy(() =>
+  import('@/components/home/home-storefront-trust-bar').then((m) => ({
+    default: m.HomeStorefrontTrustBar,
+  })),
+);
+
+const ShoppingCartDrawer = lazy(() =>
+  import('@/components/cart/shopping-cart-drawer').then((m) => ({
+    default: m.ShoppingCartDrawer,
+  })),
+);
+
+const ProductCompareTray = lazy(() =>
+  import('@/components/product/product-compare-tray').then((m) => ({
+    default: m.ProductCompareTray,
+  })),
+);
 
 const MobileBottomNav = lazy(() =>
   import('@/components/layout/mobile-bottom-nav').then((m) => ({
@@ -61,6 +79,7 @@ function useDeferredWidgetMount(delayMs = 2500) {
 export function RootLayout() {
   const { pathname } = useLocation();
   const widgetsReady = useDeferredWidgetMount();
+  const chromeReady = useDeferredWidgetMount(600);
   const showMobileBottomNav = shouldShowMobileBottomNav(pathname);
 
   return (
@@ -82,10 +101,16 @@ export function RootLayout() {
       >
         <Outlet />
       </main>
-      <HomeStorefrontTrustBar />
-      <SiteFooter />
+      {chromeReady ? (
+        <Suspense fallback={null}>
+          <HomeStorefrontTrustBar />
+          <SiteFooter />
+        </Suspense>
+      ) : null}
       <Suspense fallback={null}>
         <MobileBottomNav />
+        <ShoppingCartDrawer />
+        <ProductCompareTray />
       </Suspense>
       {widgetsReady ? (
         <Suspense fallback={null}>
@@ -93,8 +118,6 @@ export function RootLayout() {
           <HaibotFloatingMenu side="right" />
         </Suspense>
       ) : null}
-      <ShoppingCartDrawer />
-      <ProductCompareTray />
     </div>
     </MobileBottomInsetProvider>
     </CartProvider>

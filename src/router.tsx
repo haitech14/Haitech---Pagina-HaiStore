@@ -11,8 +11,6 @@ import {
 import { RootLayout } from '@/components/layout/root-layout';
 import { lazyWithRetry } from '@/lib/lazy-with-retry';
 import { prefetchHomeCatalog } from '@/lib/prefetch-home-catalog';
-import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
-import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 import { HomePage } from '@/pages/home';
 import { queryClient } from '@/providers';
@@ -471,7 +469,10 @@ export const router = createBrowserRouter([
       {
         path: 'tienda',
         element: withSuspense(<StorefrontRoutePage />),
-        loader: () => prefetchStoreRoute(queryClient),
+        loader: () =>
+          import('@/lib/prefetch-store-route').then((m) => {
+            m.prefetchStoreRoute(queryClient);
+          }),
       },
       { path: 'servicios', element: withSuspense(<ServiciosPage />) },
       { path: 'servicios/:slug', element: withSuspense(<ServicioDetallePage />) },
@@ -502,10 +503,11 @@ export const router = createBrowserRouter([
       },
       {
         path: 'categoria/:slug',
-        loader: ({ params, request }) => {
+        loader: async ({ params, request }) => {
           const url = new URL(request.url);
           const slug = params.slug ?? '';
-          let subSlug = url.searchParams.get('sub');
+          const subSlug = url.searchParams.get('sub');
+          const { prefetchCategoryPage } = await import('@/lib/prefetch-category-page');
 
           // Multifuncionales siempre entra con ?sub=todas (evita miss de prefetch + Navigate).
           if (slug === 'multifuncionales' && !subSlug) {
