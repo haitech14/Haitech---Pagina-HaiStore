@@ -1,6 +1,7 @@
 import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
 import { ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
 import { DualPrice } from '@/components/product/product-dual-price';
+import { PRODUCT_ON_REQUEST_STOCK_DETAIL_LABEL } from '@/lib/product-on-request-label';
 import { ensureFullPrices } from '@/lib/roles';
 import { cn, penToUsd } from '@/lib/utils';
 import type { ProductDetailViewModel } from '@/types/product-detail';
@@ -70,7 +71,9 @@ export function ProductDetailPriceBlock({
             {outOfStock ? '!' : '✓'}
           </span>
           <span className={outOfStock ? ON_REQUEST_STOCK_BADGE_CLASS : undefined}>
-            {outOfStock ? 'A pedido' : `${stockDisplay} en stock`}
+            {outOfStock
+              ? PRODUCT_ON_REQUEST_STOCK_DETAIL_LABEL
+              : `${stockDisplay} disponibles`}
           </span>
         </p>
       ) : null}

@@ -20,6 +20,7 @@ const STOCK_BY_SLUG: Record<string, string> = {
   'impresoras-laser-nuevas': '/categories/subcategories/equipo-nuevo.png',
   'impresoras-laser-seminuevas': '/categories/subcategories/equipo-seminuevo.png',
   'impresoras-laser-remanufacturadas': '/categories/subcategories/equipo-remanufacturado.png',
+  'impresoras-termicas': '/home/category-chips/equipment/impresora-termica.webp',
   'impresoras-nuevas': '/categories/subcategories/equipo-nuevo.png',
   'impresoras-seminuevas': '/categories/subcategories/equipo-seminuevo.png',
   'impresoras-remanufacturadas': '/categories/subcategories/equipo-remanufacturado.png',

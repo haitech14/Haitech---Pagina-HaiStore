@@ -59,28 +59,28 @@ export function AdminRolePricesTooltip({
         id={`role-prices-${productId}`}
         role="tooltip"
         className={cn(
-          'pointer-events-none absolute bottom-full left-0 z-50 mb-2 w-max min-w-[11rem] max-w-[min(100vw-2rem,16rem)]',
-          'rounded-lg border border-neutral-200 bg-white px-3 py-2.5 shadow-lg',
+          'pointer-events-none absolute bottom-full left-0 z-50 mb-1.5 w-max min-w-[9rem] max-w-[min(100vw-2rem,13rem)]',
+          'rounded-md border border-neutral-200 bg-white px-2 py-1.5 shadow-md',
           'opacity-0 transition-opacity duration-150',
           'group-hover/role-prices:opacity-100 group-focus-within/role-prices:opacity-100',
         )}
       >
-        <div className="mb-2 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-500">
+        <div className="mb-1 text-[0.55rem] font-semibold uppercase tracking-wide text-neutral-500">
           Precios por rol
         </div>
         {rolePrices ? (
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {PRICE_ROLES_EDIT_ORDER.map((role: PriceRole) => (
-              <li key={role} className="flex items-center justify-between gap-3">
-                <span className="text-xs font-medium text-neutral-700">
+              <li key={role} className="flex items-center justify-between gap-2">
+                <span className="text-[0.65rem] font-medium leading-none text-neutral-700">
                   {PRICE_ROLE_LABELS[role]}
                 </span>
-                <InventoryDualPrice usd={rolePrices[role]} />
+                <InventoryDualPrice usd={rolePrices[role]} compact />
               </li>
             ))}
           </ul>
         ) : (
-          <div className="text-xs text-neutral-600">
+          <div className="text-[0.65rem] leading-snug text-neutral-600">
             {pricesLoading
               ? 'Cargando listas de precio…'
               : 'No hay precios por rol para este producto.'}

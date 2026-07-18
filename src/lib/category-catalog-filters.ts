@@ -25,7 +25,7 @@ import {
 } from '../../shared/catalog-most-viewed-offers.js';
 // @ts-ignore módulo JS compartido sin declaración de tipos
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
-import { sortProductsByPublicPriceAsc } from '@/lib/inventory-product-order';
+import { compareCatalogProductsBySort } from '../../shared/catalog-price-sort.js';
 import type { Product } from '@/types/product';
 
 export {
@@ -269,7 +269,7 @@ export function dedupeCatalogProductsById(products: readonly Product[]): Product
 }
 
 function sortCatalogSubsectionProducts(products: readonly Product[]): Product[] {
-  return sortProductsByPublicPriceAsc([...products]);
+  return [...products].sort((a, b) => compareCatalogProductsBySort('price-asc', a, b));
 }
 
 function splitProductsByPaperFormat(products: readonly Product[]): {

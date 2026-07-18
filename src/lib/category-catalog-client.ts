@@ -1,3 +1,4 @@
+import { compareCatalogProductsBySort, isCatalogPriceOnRequest } from '../../shared/catalog-price-sort.js';
 import { applyEquipmentSubcategorySlugFilter } from '../../shared/category-inventory-labels.js';
 import {
   isPrinterEquipmentProduct,
@@ -23,11 +24,49 @@ import {
   resolveMostViewedOfferProductIds,
 } from '../../shared/catalog-most-viewed-offers.js';
 import { productMatchesSpeedFilterKeys } from '../../shared/catalog-speed-filter.js';
-import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
+import { getCatalogMediaEpoch, getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { dedupeCatalogProductsById } from '@/lib/category-catalog-filters';
 import { toPublicProduct } from '@/lib/pricing';
 import type { UseCategoryCatalogParams, CategoryCatalogResponse } from '@/hooks/use-category-catalog';
 import type { Product } from '@/types/product';
+
+type PublicProductsCache = {
+  role: string;
+  rowCount: number;
+  epoch: number;
+  firstId: string;
+  products: Product[];
+};
+
+let publicProductsCache: PublicProductsCache | null = null;
+
+/** Lista pública cacheada por rol; evita remapear ~1474 filas en cada navegación. */
+function getPublicProductsForRole(
+  role: string,
+  catalogRows: ReturnType<typeof getCatalogRows>,
+): Product[] {
+  const epoch = getCatalogMediaEpoch();
+  const firstId = catalogRows[0]?.id ?? '';
+  if (
+    publicProductsCache &&
+    publicProductsCache.role === role &&
+    publicProductsCache.rowCount === catalogRows.length &&
+    publicProductsCache.epoch === epoch &&
+    publicProductsCache.firstId === firstId
+  ) {
+    return publicProductsCache.products;
+  }
+
+  const products = catalogRows.map((row) => toPublicProduct(row, role));
+  publicProductsCache = {
+    role,
+    rowCount: catalogRows.length,
+    epoch,
+    firstId,
+    products,
+  };
+  return products;
+}
 
 function productMatchesAttributeFilters(
   product: Product,
@@ -44,13 +83,7 @@ function productMatchesAttributeFilters(
 }
 
 function compareProducts(sortBy: string, a: Product, b: Product): number {
-  if (sortBy === 'price-asc' && a.price !== b.price) return a.price - b.price;
-  if (sortBy === 'price-desc' && a.price !== b.price) return b.price - a.price;
-  if (sortBy === 'name-asc') return a.name.localeCompare(b.name, 'es');
-  const ao = Number.isFinite(Number(a.sort_order)) ? Number(a.sort_order) : Number.MAX_SAFE_INTEGER;
-  const bo = Number.isFinite(Number(b.sort_order)) ? Number(b.sort_order) : Number.MAX_SAFE_INTEGER;
-  if (ao !== bo) return ao - bo;
-  return a.name.localeCompare(b.name, 'es');
+  return compareCatalogProductsBySort(sortBy, a, b);
 }
 
 function buildAttributeFacets(products: Product[]) {
@@ -116,7 +149,7 @@ function queryCategoryCatalogFromRows(
   const slug = params.slug ?? '';
   const labels = params.labels ?? [];
   const catalogFamily = catalogFamilyForSlug(slug);
-  const allProducts = catalogRows.map((row) => toPublicProduct(row, role));
+  const allProducts = getPublicProductsForRole(role, catalogRows);
 
   let matched =
     labels.length > 0 ? filterByCategoryLabels(allProducts, labels, slug) : allProducts;
@@ -149,7 +182,10 @@ function queryCategoryCatalogFromRows(
   const safeMin = Math.min(min, max);
   const safeMax = Math.max(min, max);
 
-  matched = matched.filter((product) => product.price >= safeMin && product.price <= safeMax);
+  matched = matched.filter((product) => {
+    if (isCatalogPriceOnRequest(product.price)) return true;
+    return product.price >= safeMin && product.price <= safeMax;
+  });
 
   if ((params.attributeKeys?.length ?? 0) > 0 || params.productionKey) {
     matched = matched.filter((product) =>

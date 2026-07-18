@@ -2,6 +2,10 @@ import type { QueryClient } from '@tanstack/react-query';
 
 import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 import { prefetchStorePage } from '@/lib/prefetch-store-page';
+import {
+  fetchStoreCategoriesTreeWithFallback,
+  STORE_CATEGORIES_QUERY_KEY,
+} from '@/lib/store-categories-fetch';
 import { queryClient } from '@/providers';
 
 let storeChunkPrefetched = false;
@@ -14,10 +18,16 @@ export function prefetchStoreRouteChunk(): void {
   void import('@/pages/store');
 }
 
-/** Precarga chunk, índice de catálogo y datos de productos para /tienda. */
+/** Precarga chunk, índice de catálogo, árbol de categorías y datos de productos para /tienda. */
 export function prefetchStoreRoute(client: QueryClient = queryClient): void {
   prefetchStoreRouteChunk();
   preloadCatalogIndexNow();
+
+  void client.prefetchQuery({
+    queryKey: [STORE_CATEGORIES_QUERY_KEY],
+    queryFn: fetchStoreCategoriesTreeWithFallback,
+    staleTime: 1000 * 60 * 10,
+  });
 
   if (storeDataPrefetched) return;
   storeDataPrefetched = true;

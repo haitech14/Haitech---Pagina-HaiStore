@@ -24,6 +24,8 @@ export function ProductCardCopyButton({
   title,
   stock,
   priceUsd,
+  priceRole,
+  priceRoleLabel,
   normalPriceUsd,
   productId,
   condition,
@@ -46,6 +48,8 @@ export function ProductCardCopyButton({
       stock,
       priceUsd,
       ...(code != null ? { code } : {}),
+      ...(priceRole != null ? { priceRole } : {}),
+      ...(priceRoleLabel != null ? { priceRoleLabel } : {}),
       ...(normalPriceUsd != null ? { normalPriceUsd } : {}),
       ...(productId != null ? { productId } : {}),
       ...(condition != null ? { condition } : {}),
@@ -74,8 +78,8 @@ export function ProductCardCopyButton({
     <button
       type="button"
       className={cn(className)}
-      aria-label={`Copiar datos de ${productName}`}
-      title="Copiar datos"
+      aria-label={label ? `${label} de ${productName}` : `Texto de ${productName}`}
+      title={label ?? 'Texto'}
       onClick={(event) => {
         void handleClick(event);
       }}

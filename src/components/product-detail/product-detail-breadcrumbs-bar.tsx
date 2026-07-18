@@ -21,19 +21,6 @@ interface ProductDetailBreadcrumbsBarProps {
   className?: string;
 }
 
-function canNavigateBack(): boolean {
-  const state = window.history.state as { idx?: number } | null;
-  return typeof state?.idx === 'number' && state.idx > 0;
-}
-
-function parentCatalogHref(items: ProductBreadcrumb[]): string {
-  for (let index = items.length - 2; index >= 0; index -= 1) {
-    const href = items[index]?.href;
-    if (href) return href;
-  }
-  return '/tienda';
-}
-
 function isSessionAuthError(message: string): boolean {
   return /sesión|expirada|no válida|permisos de administrador|unauthorized|401/i.test(message);
 }
@@ -100,14 +87,6 @@ export function ProductDetailBreadcrumbsBar({
     [queryClient],
   );
 
-  const handleBack = useCallback(() => {
-    if (canNavigateBack()) {
-      navigate(-1);
-      return;
-    }
-    navigate(parentCatalogHref(items));
-  }, [items, navigate]);
-
   if (items.length === 0) return null;
 
   return (
@@ -119,10 +98,12 @@ export function ProductDetailBreadcrumbsBar({
             variant="ghost"
             size="sm"
             className="h-9 shrink-0 gap-0.5 px-2 text-neutral-500 hover:bg-muted/50 hover:text-neutral-700 focus-visible:ring-blue-600"
-            onClick={handleBack}
+            onClick={() => {
+              void navigate('/tienda');
+            }}
           >
             <ChevronLeft className="size-4" aria-hidden="true" />
-            Atrás
+            Volver a Tienda
           </Button>
           <ProductDetailBreadcrumbs items={items} className="mb-0 min-w-0 flex-1" />
         </div>

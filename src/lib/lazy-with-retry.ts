@@ -39,9 +39,10 @@ export function lazyWithRetry<T extends ComponentType<any>>(
           if (!reloaded) {
             sessionStorage.setItem(reloadKey, '1');
             window.location.reload();
-            await new Promise(() => {
-              /* espera recarga */
-            });
+            // No colgar Suspense: la recarga aborta este hilo.
+            throw error instanceof Error
+              ? error
+              : new Error(`Recargando ${pageName} tras error de chunk`);
           }
           sessionStorage.removeItem(reloadKey);
         }

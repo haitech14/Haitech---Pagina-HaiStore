@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { CategoryPage } from '@/pages/category';
 import { useSeo } from '@/hooks/use-seo';
@@ -37,4 +38,13 @@ export function CategoryStorefrontPage() {
       <CategoryPage storefrontMode />
     </div>
   );
+}
+
+/**
+ * Una sola entrada lazy para /tienda y /categoria/:slug (evita re-Suspense al cruzar rutas).
+ */
+export function StorefrontRoutePage() {
+  const { slug } = useParams<{ slug?: string }>();
+  if (slug) return <CategoryStorefrontPage />;
+  return <StorePage />;
 }

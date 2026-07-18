@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { queryCategoryCatalogClient, queryCategoryCatalogClientAsync } from '@/lib/category-catalog-client';
+import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { applyViewAsPriceToProducts, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
 import type { Product } from '@/types/product';
 import type { CategorySortValue } from '@/components/category/category-catalog-toolbar';
@@ -95,15 +96,39 @@ async function fetchCategoryCatalog(params: UseCategoryCatalogParams): Promise<C
   return apiFetch<CategoryCatalogResponse>(`/api/products/by-category?${query}`);
 }
 
-async function fetchCategoryCatalogWithFallback(
+/**
+ * Índice en memoria primero. Si está frío: API inmediata para primer paint
+ * y carga del inventory-index en background (sin bloquear la grilla).
+ * Compartido con prefetchCategoryPage para no divergir.
+ */
+export async function fetchCategoryCatalogWithFallback(
   params: UseCategoryCatalogParams,
   role: string,
 ): Promise<CategoryCatalogResponse> {
-  try {
-    return await fetchCategoryCatalog(params);
-  } catch {
-    return queryCategoryCatalogClientAsync(params, role);
+  if (getCatalogRows().length > 0) {
+    return queryCategoryCatalogClient(params, role);
   }
+
+  // Calentar índice en paralelo; no await para el primer paint.
+  const warmIndex = loadCatalogIndex().catch(() => null);
+
+  try {
+    const fromApi = await fetchCategoryCatalog(params);
+    void warmIndex;
+    return fromApi;
+  } catch {
+    /* API caída: esperar índice local */
+  }
+
+  try {
+    await warmIndex;
+    const fromIndex = await queryCategoryCatalogClientAsync(params, role);
+    if (fromIndex.products.length > 0 || fromIndex.total === 0) return fromIndex;
+  } catch {
+    /* reintentar API abajo */
+  }
+
+  return fetchCategoryCatalog(params);
 }
 
 export function useCategoryCatalog(params: UseCategoryCatalogParams) {
@@ -118,21 +143,10 @@ export function useCategoryCatalog(params: UseCategoryCatalogParams) {
     staleTime: 60_000,
     gcTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
-    retry: 3,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8_000),
-    placeholderData: (previousData, previousQuery) => {
-      if (!enabled) return undefined;
-      const viewAsKey = viewAsRolesQueryKey(viewAsRoles);
-      const currentKey = buildCategoryCatalogQueryKey(params, role, viewAsKey);
-      if (previousData && previousQuery) {
-        const previousKey = previousQuery.queryKey as ReturnType<typeof buildCategoryCatalogQueryKey>;
-        const sameFilter =
-          previousKey.slice(0, 14).join('\0') === currentKey.slice(0, 14).join('\0') &&
-          previousKey.slice(16).join('\0') === currentKey.slice(16).join('\0');
-        if (sameFilter) return previousData;
-      }
-      return queryCategoryCatalogClient(params, role);
-    },
+    retry: 1,
+    retryDelay: 400,
+    // Mantener página anterior al cambiar slug/sub (evita vacío falso + remap del índice en render).
+    placeholderData: keepPreviousData,
     select: (payload) =>
       shouldApplyViewAsPriceTransform(viewAsRoles)
         ? {

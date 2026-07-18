@@ -1,5 +1,8 @@
-/** Etiqueta de stock sin unidades inmediatas (tienda + portapapeles). */
+/** Etiqueta compacta de stock sin unidades inmediatas (cards + portapapeles). */
 export const PRODUCT_ON_REQUEST_STOCK_LABEL = 'A pedido';
+
+/** Etiqueta en ficha de producto cuando stock ≤ 0 (sidebar de compra). */
+export const PRODUCT_ON_REQUEST_STOCK_DETAIL_LABEL = 'Disponible bajo pedido';
 
 /** Stock numérico seguro desde featured / producto. */
 export function resolveFeaturedProductStock(product: { stock?: number | null }): number {

@@ -107,7 +107,9 @@ export function ProductCardFeaturedPricing({
   if (isPriceOnRequest(currentUsd)) {
     return (
       <div className={cn('space-y-0.5', className)}>
-        <p className={FEATURED_PRICE_CURRENT_CLASS}>{CONSULTAR_PRECIO_LABEL}</p>
+        <p className="text-xs font-semibold leading-tight text-[#6B7280] sm:text-sm">
+          {CONSULTAR_PRECIO_LABEL}
+        </p>
       </div>
     );
   }
@@ -119,13 +121,13 @@ export function ProductCardFeaturedPricing({
     <FeaturedDualCurrencyLine
       usd={currentUsd}
       usdClassName="text-[#111111]"
-      penClassName="text-red-600"
+      penClassName="text-[#111111]"
       separatorClassName="font-normal text-[#888888]"
     />
   ) : (
     <FeaturedSingleCurrencyLine
       usd={currentUsd}
-      className={showPen ? 'text-red-600' : 'text-[#111111]'}
+      className="text-[#111111]"
     />
   );
 

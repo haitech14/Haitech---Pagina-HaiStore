@@ -126,10 +126,37 @@ const TONER_COLOR_DISPLAY: Record<string, string> = {
   amarillo: 'Amarillo',
   yellow: 'Amarillo',
   cyan: 'Cyan',
+  cian: 'Cyan',
   magenta: 'Magenta',
   negro: 'Negro',
   black: 'Negro',
 };
+
+/** Palabras de color CMYK en títulos de tóner (cualquier posición). Sin flag `g` para conservar `index`. */
+const TONER_COLOR_WORD_PATTERN = /\b(amarillo|yellow|cyan|cian|magenta|negro|black)\b/i;
+
+function resolveTonerColorDisplayLabel(raw: string): string {
+  return TONER_COLOR_DISPLAY[raw.toLowerCase()] ?? raw;
+}
+
+/**
+ * Extrae la primera palabra de color CMYK del título y la devuelve para sufijar al final.
+ * Evita dejar el color entre marca y modelo (p. ej. «Ricoh negro IM C300F»).
+ */
+function extractTonerColorWord(name: string): { base: string; color: string | null } {
+  const match = TONER_COLOR_WORD_PATTERN.exec(name);
+  if (!match?.[0] || match.index == null) {
+    return { base: name, color: null };
+  }
+
+  const color = resolveTonerColorDisplayLabel(match[0]);
+  const base = `${name.slice(0, match.index)} ${name.slice(match.index + match[0].length)}`
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+[—–-]\s*$/g, '')
+    .trim();
+
+  return { base: base || name, color };
+}
 
 /** Títulos de tóner/cartucho que conviene limpiar en UI (búsqueda, tarjetas, listados). */
 export function looksLikeTonerDisplayName(name: string): boolean {
@@ -148,17 +175,19 @@ export function looksLikeTonerDisplayName(name: string): boolean {
  * - «INTERCOPY» → «compatible Intercopy»
  * - Evita «tóner … tóner» duplicado
  * - «MP 320F» → «M 320F»
+ * - Mueve color CMYK (negro, cyan, …) al final del título
  *
  * Ej.: «Tóner cartucho INTERCOPY TÓNER CARTUCHO MP 320F» → «Tóner compatible Intercopy M 320F»
+ * Ej.: «Tóner original Ricoh negro IM C300F (17,000 págs)» → «Tóner original Ricoh IM C300F (17,000 págs) Negro»
  */
 export function formatConsumableListDisplayName(name: string): string {
   let n = name.trim();
   if (!n) return n;
 
-  const colorMatch = n.match(/\+\s*(Amarillo|Cyan|Magenta|Negro|Yellow|Black)\s*$/i);
+  const colorMatch = n.match(/\+\s*(Amarillo|Cyan|Cian|Magenta|Negro|Yellow|Black)\s*$/i);
   let color: string | null = null;
   if (colorMatch?.[1]) {
-    color = TONER_COLOR_DISPLAY[colorMatch[1].toLowerCase()] ?? colorMatch[1];
+    color = resolveTonerColorDisplayLabel(colorMatch[1]);
     n = n.slice(0, colorMatch.index).trim();
   }
 
@@ -202,11 +231,20 @@ export function formatConsumableListDisplayName(name: string): string {
 
   n = n.replace(/\s{2,}/g, ' ').replace(/\s+[—–-]\s*$/g, '').trim();
 
+  if (!color) {
+    const extracted = extractTonerColorWord(n);
+    n = extracted.base;
+    color = extracted.color;
+  } else {
+    // Evitar color duplicado si ya venía como «+ Negro» y también inline.
+    n = extractTonerColorWord(n).base;
+  }
+
   if (packPrefix) {
     n = `${packPrefix} ${n}`.replace(/\s{2,}/g, ' ').trim();
   }
 
-  return color ? `${n} — ${color}` : n;
+  return color ? `${n} ${color}`.replace(/\s{2,}/g, ' ').trim() : n;
 }
 
 const COMPONENT_PATTERNS: { pattern: RegExp; label: string }[] = [
@@ -492,7 +530,14 @@ export function resolveEquipmentConsumables(
     .filter((row) => row.id !== equipment.id)
     .filter(isEquipmentConsumable)
     .filter((row) => !isTonerPackProduct(row))
-    .filter((row) => consumableMatchesEquipment(row, keys));
+    .filter((row) => {
+      const categoryId = classifyConsumable(row);
+      // Tóner: matching estricto por modelo (evita 418480 en IM 550F por texto “IM-550F” en descripción).
+      if (categoryId === 'toner') {
+        return tonerProductMatchesEquipment(row, equipment);
+      }
+      return consumableMatchesEquipment(row, keys);
+    });
 
   const byCategory = new Map<ConsumableCategoryId, ConsumableItem[]>();
 
@@ -542,6 +587,15 @@ export function tonerProductMatchesEquipment(
   equipment: Product,
   options?: { allowKnownTonerId?: boolean; knownTonerIds?: readonly string[] },
 ): boolean {
+  // Cartucho 418480: no listar en ficha IM 550F (se reserva para IM 600F).
+  if (
+    toner.id === '418480' &&
+    /\bim\s*550\s*f\b/i.test(equipment.name) &&
+    !/\bim\s*600\s*f\b/i.test(equipment.name)
+  ) {
+    return false;
+  }
+
   if (options?.allowKnownTonerId && options.knownTonerIds?.includes(toner.id)) {
     return true;
   }

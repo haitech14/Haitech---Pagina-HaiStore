@@ -1,4 +1,4 @@
-import type { HaibotSearchFocus } from '@/lib/haibot-inventory-search';
+import type { HaibotInventorySearchPayload, HaibotSearchFocus } from '@/lib/haibot-inventory-search';
 import type { HaibotWorkflowId } from '@/lib/haibot-quick-actions';
 
 export interface HaibotChatMessage {
@@ -6,17 +6,20 @@ export interface HaibotChatMessage {
   role: 'user' | 'assistant';
   content: string;
   time: string;
+  inventorySearch?: HaibotInventorySearchPayload;
 }
 
 export type HaibotAssistantResult = {
   reply: string;
   openWorkflow?: HaibotWorkflowId;
   openSearch?: HaibotSearchFocus;
+  inventorySearch?: HaibotInventorySearchPayload;
 };
 
 export function createHaibotMessage(
   role: HaibotChatMessage['role'],
   content: string,
+  extras?: { inventorySearch?: HaibotInventorySearchPayload },
 ): HaibotChatMessage {
   const time = new Intl.DateTimeFormat('es-PE', {
     hour: '2-digit',
@@ -28,6 +31,7 @@ export function createHaibotMessage(
     role,
     content,
     time,
+    ...(extras?.inventorySearch ? { inventorySearch: extras.inventorySearch } : {}),
   };
 }
 

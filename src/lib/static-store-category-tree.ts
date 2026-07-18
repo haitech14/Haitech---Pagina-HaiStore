@@ -1,159 +1,13 @@
 import { categories } from '@/data/categories';
 import { getCatalogRows, productMatchesCategories } from '@/lib/catalog-featured';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
+// @ts-expect-error módulo JS compartido
+import { EQUIPMENT_STORE_SUBCATEGORIES } from '../../shared/equipment-store-subcategories.js';
 
 const EQUIPMENT_SUBCATEGORIES: Record<
   string,
-  Array<{ slug: string; name: string; inventoryLabels: string[] }>
-> = {
-  multifuncionales: [
-    {
-      slug: 'multifuncionales-nuevas',
-      name: 'Multifuncionales Nuevas',
-      inventoryLabels: ['Multifuncionales Nuevas', 'Multifuncionales, Multifuncionales Nuevas'],
-    },
-    {
-      slug: 'multifuncionales-seminuevas',
-      name: 'Multifuncionales Seminuevas',
-      inventoryLabels: ['Multifuncionales Seminuevas', 'Multifuncionales, Multifuncionales Seminuevas'],
-    },
-    {
-      slug: 'multifuncionales-remanufacturadas',
-      name: 'Multifuncionales Remanufacturadas',
-      inventoryLabels: [
-        'Multifuncionales Remanufacturadas',
-        'Multifuncionales, Multifuncionales Remanufacturadas',
-      ],
-    },
-  ],
-  impresoras: [
-    {
-      slug: 'impresoras-laser-nuevas',
-      name: 'Impresoras Láser Nuevas',
-      inventoryLabels: [
-        'Impresoras Laser Nuevas',
-        'Impresoras Láser Nuevas',
-        'Impresoras, Impresoras Laser Nuevas',
-        'Impresoras, Impresoras Láser Nuevas',
-      ],
-    },
-    {
-      slug: 'impresoras-laser-seminuevas',
-      name: 'Impresoras Láser Seminuevas',
-      inventoryLabels: ['Impresoras Laser Seminuevas', 'Impresoras Láser Seminuevas'],
-    },
-    {
-      slug: 'impresoras-laser-remanufacturadas',
-      name: 'Impresoras Láser Remanufacturadas',
-      inventoryLabels: ['Impresoras Laser Remanufacturadas', 'Impresoras Láser Remanufacturadas'],
-    },
-  ],
-  'toner-suministros': [
-    {
-      slug: 'toner-originales',
-      name: 'Toner Originales',
-      inventoryLabels: [
-        'Suministros, Toner Originales',
-        'Suministros, Toner Original',
-        'Toner Original',
-        'Toner, Toner Original',
-        'Toner, Toner Originales',
-        'Toner y Suministros, Toner Original',
-        'Tóner y Suministros, Toner Original',
-      ],
-    },
-    {
-      slug: 'suministros',
-      name: 'Suministros',
-      inventoryLabels: ['Suministros', 'Toner, Suministros'],
-    },
-    {
-      slug: 'toner-compatibles',
-      name: 'Tóner Compatible',
-      inventoryLabels: [
-        'Toner Compatible',
-        'Suministros, Toner Compatible',
-        'Toner, Toner Compatible',
-        'Toner Compatibles',
-        'Toner, Toner Compatibles',
-        'Toner Compatibles HaiPrint',
-        'Toner Compatibles Haitone',
-      ],
-    },
-    {
-      slug: 'tintas-originales',
-      name: 'Tintas Originales',
-      inventoryLabels: ['Tintas Originales', 'Tinta Original', 'Tinta, Tinta Original', 'Tintas', 'Tinta'],
-    },
-    {
-      slug: 'tintas-compatibles',
-      name: 'Tintas Compatibles',
-      inventoryLabels: ['Tintas Compatibles', 'Tinta Compatible', 'Tinta, Tinta Compatible', 'Tintas'],
-    },
-    {
-      slug: 'toner-remanufacturado',
-      name: 'Toner Remanufacturado',
-      inventoryLabels: [
-        'Toner Remanufacturado',
-        'Toner Remanufacturados',
-        'Toner, Toner Remanufacturado',
-        'Toner, Toner Remanufacturados',
-        'Suministros, Toner Remanufacturado',
-        'Toner y Suministros, Toner Remanufacturado',
-      ],
-    },
-    {
-      slug: 'toner-recarga',
-      name: 'Toner Recarga',
-      inventoryLabels: [
-        'Toner Recargas',
-        'Recargas',
-        'Recarga',
-        'Toner, Recargas',
-        'Toner, Recarga',
-        'Suministros, Recarga',
-        'Suministros, Toner Recarga',
-        'Toner y Suministros, Recarga',
-        'Toner y Suministros, Toner Recarga',
-      ],
-    },
-  ],
-  escaneres: [
-    {
-      slug: 'escaneres-nuevos',
-      name: 'Escáneres Nuevos',
-      inventoryLabels: [
-        'Escáneres Nuevos',
-        'Escáneres, Escáneres Nuevos',
-        'Escaneres Nuevos',
-        'Escaner',
-        'Escáner',
-      ],
-    },
-  ],
-  'equipos-de-oficina': [
-    {
-      slug: 'espiraladoras',
-      name: 'Espiraladoras',
-      inventoryLabels: ['Espiraladoras', 'Espiraladora', 'Equipos de Oficina, Espiraladoras'],
-    },
-    {
-      slug: 'anilladoras',
-      name: 'Anilladoras',
-      inventoryLabels: ['Anilladoras', 'Anilladora', 'Equipos de Oficina, Anilladoras'],
-    },
-    {
-      slug: 'enmicadoras',
-      name: 'Enmicadoras',
-      inventoryLabels: ['Enmicadoras', 'Enmicadora', 'Equipos de Oficina, Enmicadora'],
-    },
-    {
-      slug: 'guillotinas',
-      name: 'Guillotinas',
-      inventoryLabels: ['Guillotinas', 'Guillotina', 'Equipos de Oficina, Guillotina'],
-    },
-  ],
-};
+  Array<{ slug: string; name: string; inventoryLabels: string[]; image?: string | null }>
+> = EQUIPMENT_STORE_SUBCATEGORIES;
 
 function countProductsForLabels(labels: readonly string[]): number {
   if (labels.length === 0) return 0;
@@ -162,7 +16,7 @@ function countProductsForLabels(labels: readonly string[]): number {
 
 function buildSubcategoryNodes(
   parentId: string,
-  entries: Array<{ slug: string; name: string; inventoryLabels: string[] }>,
+  entries: Array<{ slug: string; name: string; inventoryLabels: string[]; image?: string | null }>,
 ): StoreCategoryTreeNode[] {
   return entries.map((entry, index) => ({
     id: `static-${entry.slug}`,
@@ -171,7 +25,7 @@ function buildSubcategoryNodes(
     parentId,
     sortOrder: index,
     inventoryLabels: entry.inventoryLabels,
-    image: null,
+    image: entry.image ?? null,
     tagline: null,
     productCount: countProductsForLabels(entry.inventoryLabels),
     children: [],

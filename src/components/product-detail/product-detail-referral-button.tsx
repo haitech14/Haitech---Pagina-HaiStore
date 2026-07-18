@@ -3,13 +3,13 @@ import { Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { copyProductTextToClipboard } from '@/lib/copy-product-to-clipboard';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { buildProductClipboardPayload } from '@/lib/product-clipboard-text';
 import { productPath } from '@/lib/product-path';
-import { ensureFullPrices } from '@/lib/roles';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -27,9 +27,7 @@ export function ProductDetailReferralButton({
   const { title } = useMemo(() => getProductCardTitleContent(product), [product]);
   const condition = resolveProductCardBadgeLabel(product);
   const isColorProduct = inferColor(product) === 'Color';
-  const priceUsd = ensureFullPrices(
-    product.prices ? product.prices : { public: product.price },
-  ).public;
+  const displayPrice = useCatalogDisplayPrice(product);
   const code = product.code?.trim() || null;
 
   const handleClick = async () => {
@@ -39,7 +37,7 @@ export function ProductDetailReferralButton({
       const payload = buildProductClipboardPayload({
         title,
         stock: product.stock,
-        priceUsd,
+        ...clipboardPriceFieldsFromDisplay(displayPrice),
         productId: product.id,
         productPath: detailPath,
         isColorProduct,

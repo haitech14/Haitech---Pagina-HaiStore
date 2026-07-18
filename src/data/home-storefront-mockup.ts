@@ -12,7 +12,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { categoryLandingPath } from '@/lib/category-path';
+import { categoryLandingPath, categoryPath } from '@/lib/category-path';
 import { serviceDetailPathFromLanding, serviceHubPath } from '@/lib/service-hub';
 
 /** Paleta de vitrina alineada a la marca HaiStore. */
@@ -80,13 +80,22 @@ export const HOME_STOREFRONT_CATEGORIES: readonly HomeStorefrontCategoryCard[] =
     iconColor: '#E30613',
   },
   {
-    id: 'impresoras',
-    label: 'Impresoras',
+    id: 'impresoras-laser',
+    label: 'Impresoras Láser',
     href: categoryLandingPath('impresoras'),
     imageSrc: '/home/category-chips/equipment/impresora-laser.webp',
     imageAlt: 'Impresora láser',
     icon: Printer,
     iconColor: '#2563EB',
+  },
+  {
+    id: 'impresoras-tinta',
+    label: 'Impresoras de Tinta',
+    href: '/categoria/impresoras?buscar=tinta',
+    imageSrc: '/home/category-chips/equipment/impresora-tinta.webp',
+    imageAlt: 'Impresora de tinta',
+    icon: Printer,
+    iconColor: '#0EA5E9',
   },
   {
     id: 'escaneres',
@@ -127,7 +136,7 @@ export const HOME_STOREFRONT_CATEGORIES: readonly HomeStorefrontCategoryCard[] =
   {
     id: 'impresora-termica',
     label: 'Térmicas',
-    href: categoryLandingPath('impresoras'),
+    href: categoryPath('impresoras', 'impresoras-termicas'),
     imageSrc: '/home/category-chips/equipment/impresora-termica.webp',
     imageAlt: 'Impresora térmica',
     icon: Printer,

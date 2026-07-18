@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type MouseEvent,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Package, ShoppingCart } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
@@ -9,6 +16,7 @@ import { ProductCardPill } from '@/components/product/product-card-pill';
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
 import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
+import { TonerPartnerBrandsSection } from '@/components/layout/footer-brands-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/cart-context';
 import { useWishlist } from '@/context/wishlist-context';
@@ -20,7 +28,10 @@ import {
 import { HOME_LANDING_LINKS } from '@/data/home-landing-sections';
 import type { HomeFeaturedEquipmentConditionFilterId } from '@/data/home-featured-quick-filters-equipment';
 import { STOREFRONT_ORANGE } from '@/data/home-storefront-mockup';
-import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
+import {
+  clipboardPriceFieldsFromDisplay,
+  useCatalogDisplayPrice,
+} from '@/hooks/use-catalog-display-price';
 import { useCatalogProductRow } from '@/hooks/use-catalog-product-row';
 import { useHomeCatalogBundle } from '@/hooks/use-home-catalog-bundle';
 import {
@@ -28,12 +39,14 @@ import {
   resolveProductSpeedPpm,
   inferColor,
 } from '@/lib/category-catalog-filters';
-import { categoryLandingPath } from '@/lib/category-path';
+import { categoryLandingPath, categoryPath } from '@/lib/category-path';
 import {
   catalogRowToFeatured,
   getCatalogRows,
   loadCatalogIndex,
+  type CatalogRow,
 } from '@/lib/catalog-featured';
+import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { enrichFeaturedFromCatalog } from '@/lib/featured-catalog-enrich';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
@@ -68,14 +81,37 @@ const FEATURED_SLIDE_CLASS =
   'min-w-0 shrink-0 flex-[0_0_calc((100%-0.625rem)/2)] sm:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-3rem)/5)]';
 
 const STOREFRONT_FEATURED_DISPLAY_LIMIT = 15;
-/** Pool amplio: incluye inventory-index (escáneres, impresoras, etc.). */
+/** Pool desde home-bundle + candidatos del índice (no bloquear UI por el JSON completo). */
 const STOREFRONT_FEATURED_POOL_LIMIT = 2000;
+
+function normalizeStorefrontHaystack(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '');
+}
+
+/** Evita meter ~todo el inventario en el pool: solo filas útiles para los rails. */
+function isStorefrontCatalogCandidate(row: CatalogRow): boolean {
+  const haystack = normalizeStorefrontHaystack(`${row.category ?? ''} ${row.name}`);
+  return (
+    haystack.includes('escan') ||
+    haystack.includes('scanner') ||
+    haystack.includes('scansnap') ||
+    haystack.includes('impresor') ||
+    haystack.includes('multifunc') ||
+    haystack.includes('fotocop') ||
+    haystack.includes('toner') ||
+    haystack.includes('tonner') ||
+    haystack.includes('repuesto')
+  );
+}
 
 const FEATURED_HOVER_BADGES_REVEAL_CLASS =
   'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
 
 const VIEW_ALL_PRODUCTS_BUTTON_CLASS =
-  'inline-flex items-center justify-center gap-1.5 rounded-full border border-[#E30613] bg-[#E30613] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#C80511] hover:border-[#C80511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:px-5 sm:py-2.5 sm:text-sm';
+  'inline-flex items-center justify-center gap-1.5 rounded-full border border-[#E30613] bg-[#E30613] px-4 py-2 text-xs font-semibold text-white transition-colors hover:border-[#C40510] hover:bg-[#C40510] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:px-5 sm:py-2.5 sm:text-sm';
 
 const FEATURED_CARD_OVERLAY_BUTTON_CLASS =
   'flex size-7 shrink-0 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#4B5563] shadow-sm transition-colors hover:bg-[#FFF0F1] hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-1';
@@ -120,6 +156,7 @@ type StorefrontCardTitleMode = 'equipment' | 'consumable';
 type StorefrontCatalogKind =
   | 'multifuncionales'
   | 'impresoras'
+  | 'impresoras-termicas'
   | 'escaneres'
   | 'toner'
   | 'repuestos';
@@ -130,7 +167,6 @@ const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
   kind: StorefrontCatalogKind;
   titleId: string;
   title: string;
-  subtitle: string;
   viewAllHref: string;
   paginationLabel: string;
 }> = [
@@ -138,23 +174,27 @@ const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
     kind: 'multifuncionales',
     titleId: 'home-storefront-featured-title',
     title: 'Impresora Multifuncional Laser',
-    subtitle: 'Equipos listos para oficina, con stock y garantía',
     viewAllHref: categoryLandingPath('multifuncionales'),
     paginationLabel: 'impresoras multifuncionales',
   },
   {
     kind: 'impresoras',
     titleId: 'home-storefront-impresoras-title',
-    title: 'Impresoras',
-    subtitle: 'Impresoras láser y de tinta para oficina',
+    title: 'Impresoras Láser',
     viewAllHref: categoryLandingPath('impresoras'),
-    paginationLabel: 'impresoras',
+    paginationLabel: 'impresoras láser',
+  },
+  {
+    kind: 'impresoras-termicas',
+    titleId: 'home-storefront-impresoras-termicas-title',
+    title: 'Impresoras térmicas',
+    viewAllHref: categoryPath('impresoras', 'impresoras-termicas'),
+    paginationLabel: 'impresoras térmicas',
   },
   {
     kind: 'escaneres',
     titleId: 'home-storefront-escaneres-title',
     title: 'Escáneres',
-    subtitle: 'Digitalización rápida para documentos y oficina',
     viewAllHref: categoryLandingPath('escaneres'),
     paginationLabel: 'escáneres',
   },
@@ -162,7 +202,6 @@ const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
     kind: 'toner',
     titleId: 'home-storefront-toner-title',
     title: 'Toner',
-    subtitle: 'Tóner original y compatible con stock disponible',
     viewAllHref: HOME_LANDING_LINKS.tonerCatalog,
     paginationLabel: 'toner',
   },
@@ -170,7 +209,6 @@ const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
     kind: 'repuestos',
     titleId: 'home-storefront-repuestos-title',
     title: 'Repuestos',
-    subtitle: 'Repuestos para mantenimiento y servicio técnico',
     viewAllHref: HOME_LANDING_LINKS.sparePartsCatalog,
     paginationLabel: 'repuestos',
   },
@@ -231,12 +269,7 @@ function matchesFotocopiadorasCondition(
 }
 
 function matchesImpresorasSection(product: FeaturedProduct): boolean {
-  return (
-    matchesHomeFeaturedEquipmentCategoryFilter(product, 'impresora-laser') ||
-    matchesHomeFeaturedEquipmentCategoryFilter(product, 'impresora-tinta') ||
-    matchesHomeFeaturedEquipmentCategoryFilter(product, 'impresora-termica') ||
-    matchesHomeFeaturedEquipmentCategoryFilter(product, 'impresora-matricial')
-  );
+  return matchesHomeFeaturedEquipmentCategoryFilter(product, 'impresora-laser');
 }
 
 function matchesImpresorasCondition(
@@ -247,6 +280,21 @@ function matchesImpresorasCondition(
     product,
     equipmentCondition,
     'impresora-laser',
+  );
+}
+
+function matchesImpresorasTermicasSection(product: FeaturedProduct): boolean {
+  return matchesHomeFeaturedEquipmentCategoryFilter(product, 'impresora-termica');
+}
+
+function matchesImpresorasTermicasCondition(
+  product: FeaturedProduct,
+  equipmentCondition: HomeFeaturedEquipmentConditionFilterId,
+): boolean {
+  return matchesHomeFeaturedEquipmentConditionFilter(
+    product,
+    equipmentCondition,
+    'impresora-termica',
   );
 }
 
@@ -417,7 +465,7 @@ function HomeStorefrontProductCard({
               productName={product.name}
               title={productTitle}
               stock={stockCount}
-              priceUsd={displayPrice.priceUsd}
+              {...clipboardPriceFieldsFromDisplay(displayPrice)}
               productId={product.id}
               productPath={detailPath}
               isColorProduct={clipboardIsColor}
@@ -742,11 +790,13 @@ function StorefrontCatalogRail({
   rail,
   productPool,
   isLoading,
+  catalogIndexReady,
   showSeparator,
 }: {
   rail: (typeof STOREFRONT_CATALOG_RAILS)[number];
   productPool: FeaturedProduct[];
   isLoading: boolean;
+  catalogIndexReady: boolean;
   showSeparator: boolean;
 }) {
   const [equipmentCondition, setEquipmentCondition] =
@@ -757,6 +807,7 @@ function StorefrontCatalogRail({
   const isEquipmentRail =
     rail.kind === 'multifuncionales' ||
     rail.kind === 'impresoras' ||
+    rail.kind === 'impresoras-termicas' ||
     rail.kind === 'escaneres';
 
   const products = useMemo(() => {
@@ -777,6 +828,17 @@ function StorefrontCatalogRail({
           (product) =>
             matchesImpresorasSection(product) &&
             matchesImpresorasCondition(product, equipmentCondition),
+        )
+        .sort(compareHomeFeaturedEquipmentProducts)
+        .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
+    }
+
+    if (rail.kind === 'impresoras-termicas') {
+      return [...productPool]
+        .filter(
+          (product) =>
+            matchesImpresorasTermicasSection(product) &&
+            matchesImpresorasTermicasCondition(product, equipmentCondition),
         )
         .sort(compareHomeFeaturedEquipmentProducts)
         .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
@@ -805,6 +867,11 @@ function StorefrontCatalogRail({
   const titleMode: StorefrontCardTitleMode =
     rail.kind === 'multifuncionales' ? 'equipment' : 'consumable';
 
+  // Escáneres suelen venir del inventory-index; no bloquear el resto de rails.
+  const showSkeleton =
+    (isLoading && products.length === 0) ||
+    (rail.kind === 'escaneres' && !catalogIndexReady && products.length === 0);
+
   return (
     <>
       {showSeparator ? (
@@ -815,14 +882,13 @@ function StorefrontCatalogRail({
 
       <section aria-labelledby={rail.titleId}>
         <div className="container pb-5 pt-5 sm:pb-7 sm:pt-6">
-          <div className="mb-4 flex flex-col items-center text-center sm:mb-5">
+          <div className="mb-3 flex flex-col items-center text-center sm:mb-4">
             <h2
               id={rail.titleId}
-              className="text-2xl font-bold tracking-tight text-[#111111] sm:text-3xl lg:text-[2.125rem]"
+              className="text-lg font-bold tracking-tight text-[#111111] sm:text-xl lg:text-[1.375rem]"
             >
               {rail.title}
             </h2>
-            <p className="mt-1.5 max-w-lg text-sm text-[#6B7280] sm:text-base">{rail.subtitle}</p>
           </div>
 
           {isEquipmentRail ? (
@@ -841,7 +907,7 @@ function StorefrontCatalogRail({
             />
           )}
 
-          {isLoading && products.length === 0 ? (
+          {showSkeleton ? (
             <FeaturedSkeleton />
           ) : products.length === 0 ? (
             <div className="space-y-3 text-center">
@@ -872,14 +938,16 @@ export function HomeStorefrontFeaturedSection() {
   const [catalogReady, setCatalogReady] = useState(() => getCatalogRows().length > 0);
 
   useEffect(() => {
+    // No esperar el defer de 8s de la home: arrancar el índice en cuanto monta la vitrina.
+    preloadCatalogIndexNow();
     if (catalogReady) return;
     let cancelled = false;
     void loadCatalogIndex()
       .then(() => {
-        if (!cancelled) setCatalogReady(true);
+        if (!cancelled) startTransition(() => setCatalogReady(true));
       })
       .catch(() => {
-        if (!cancelled) setCatalogReady(true);
+        if (!cancelled) startTransition(() => setCatalogReady(true));
       });
     return () => {
       cancelled = true;
@@ -908,30 +976,46 @@ export function HomeStorefrontFeaturedSection() {
       }
     }
 
-    // Sincroniza inventario completo (p. ej. Escáneres que no vienen en el home-bundle).
-    for (const row of getCatalogRows()) {
-      pushUnique(catalogRowToFeatured(row));
-    }
-
     for (const item of getFeaturedProducts()) {
       pushUnique(item);
+    }
+
+    // Enriquecer en background cuando el índice ya está en memoria (escáneres, etc.).
+    if (catalogReady) {
+      for (const row of getCatalogRows()) {
+        if (!isStorefrontCatalogCandidate(row)) continue;
+        pushUnique(catalogRowToFeatured(row));
+      }
     }
 
     return merged;
   }, [catalogBundle?.featured, catalogBundle?.sections, catalogReady]);
 
-  const isLoading = bundleLoading || !catalogReady;
+  // Mostrar productos del home-bundle de inmediato; el índice no debe bloquear la UI.
+  const isLoading = bundleLoading;
 
   return (
     <div className="bg-[#FAFBFC]">
       {STOREFRONT_CATALOG_RAILS.map((rail, index) => (
-        <StorefrontCatalogRail
-          key={rail.kind}
-          rail={rail}
-          productPool={productPool}
-          isLoading={isLoading}
-          showSeparator={index > 0}
-        />
+        <div key={rail.kind}>
+          {rail.kind === 'toner' ? (
+            <>
+              {index > 0 ? (
+                <div className="container" aria-hidden="true">
+                  <div className={STOREFRONT_SECTION_DIVIDER_CLASS} />
+                </div>
+              ) : null}
+              <TonerPartnerBrandsSection />
+            </>
+          ) : null}
+          <StorefrontCatalogRail
+            rail={rail}
+            productPool={productPool}
+            isLoading={isLoading}
+            catalogIndexReady={catalogReady}
+            showSeparator={index > 0 && rail.kind !== 'toner'}
+          />
+        </div>
       ))}
     </div>
   );

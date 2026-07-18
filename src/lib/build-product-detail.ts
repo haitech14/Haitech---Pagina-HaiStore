@@ -44,7 +44,7 @@ import {
   GABINETE_ALTO_TIPO_I_PRODUCT_ID,
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
-  IM550F_ORIGINAL_TONER_PRODUCT_ID,
+  IM600F_ORIGINAL_TONER_PRODUCT_ID,
   IM_C320F_EQUIPMENT_PRODUCT_ID,
   M320F_COMPATIBLE_TONER_PRODUCT_ID,
   M320F_EQUIPMENT_PRODUCT_ID,
@@ -88,6 +88,7 @@ import {
   resolveStoredFeatureBar,
   resolveStoredHeroBullets,
 } from '@/lib/product-storefront-detail';
+import { PRODUCT_ON_REQUEST_STOCK_DETAIL_LABEL } from '@/lib/product-on-request-label';
 import { ensureFullPrices } from '@/lib/roles';
 import { usdToPen } from '@/lib/utils';
 
@@ -1198,7 +1199,13 @@ function buildGenericSpecs(product: Product, brandLabel: string, sku: string): P
     { label: 'Marca', value: brandLabel },
     { label: 'Código', value: sku },
     { label: 'Categoría', value: product.category ?? 'General' },
-    { label: 'Disponibilidad', value: product.stock > 0 ? `${product.stock} unidades` : 'Agotado' },
+    {
+      label: 'Disponibilidad',
+      value:
+        product.stock > 0
+          ? `${Math.max(0, Math.floor(Number(product.stock) || 0))} disponibles`
+          : PRODUCT_ON_REQUEST_STOCK_DETAIL_LABEL,
+    },
     { label: 'Moneda', value: product.currency },
     { label: 'Garantía', value: '12 meses' },
   ];
@@ -1391,8 +1398,11 @@ function buildAccessoryConfigOptions(product: Product): EquipmentConfigStep['opt
 
 function buildStarterTonerLabel(product: Product): string {
   const name = product.name;
-  if (/IM\s*550F/i.test(name) || /IM\s*600F/i.test(name)) {
-    return 'Tóner RICOH IM 550F, IM 600F';
+  if (/IM\s*600F/i.test(name)) {
+    return 'Tóner RICOH IM 600F';
+  }
+  if (/IM\s*550F/i.test(name)) {
+    return 'Tóner RICOH IM 550F';
   }
 
   const modelMatch = name.match(/\b(IM\s*\d+\s*[A-Z]?\w*)\b/i) ?? name.match(/\b(MP\s*[\w]+)\b/i);
@@ -1459,16 +1469,26 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
               included: true,
             },
           ]
-      : isImBnA4Sibling(product)
+      : isIm600f(product)
       ? [
           {
-            id: 'toner-ricoh-im-550f',
-            productId: IM550F_ORIGINAL_TONER_PRODUCT_ID,
-            name: 'Toner Original RICOH IM 550F',
+            id: 'toner-ricoh-im-600f',
+            productId: IM600F_ORIGINAL_TONER_PRODUCT_ID,
+            name: 'Toner Original RICOH IM 600F',
             description: '04 tóner de inicio (mín. 40%) — incluido con el equipo',
             pricePen: 0,
             included: true,
           },
+          {
+            id: 'toner-compatible',
+            productId: IM550F_COMPATIBLE_TONER_PRODUCT_ID,
+            name: 'Tóner compatible',
+            description: 'Rendimiento según modelo',
+            pricePen: 0,
+          },
+        ]
+      : isIm550f(product)
+      ? [
           {
             id: 'toner-compatible',
             productId: IM550F_COMPATIBLE_TONER_PRODUCT_ID,

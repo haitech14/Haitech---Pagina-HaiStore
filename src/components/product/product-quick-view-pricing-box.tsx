@@ -32,6 +32,7 @@ export function ProductQuickViewPricingBox({
     ...(discountPercent != null ? { discount: discountPercent } : {}),
   });
   const onRequest = isPriceOnRequest(pricing.currentUsd);
+  const hasDiscount = pricing.compareUsd > pricing.currentUsd && pricing.currentUsd > 0;
 
   return (
     <section
@@ -50,14 +51,14 @@ export function ProductQuickViewPricingBox({
             </p>
           </AdminRolePricesTooltip>
         )}
-        {!onRequest ? (
+        {!onRequest && hasDiscount ? (
           <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
             {pricing.discountPercent}% DSCTO
           </span>
         ) : null}
       </div>
 
-      {!onRequest ? (
+      {!onRequest && hasDiscount ? (
         <p className="mt-1 text-sm text-muted-foreground">
           Antes:{' '}
           <DualPrice usd={pricing.compareUsd} strikethrough className="inline" />

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetchWithRetry } from '@/lib/api';
@@ -9,6 +10,7 @@ import {
   STORE_CATEGORIES_QUERY_KEY,
   storeCategoriesTree,
   storeRemovedStaticSlugs,
+  subscribeStoreCategoriesLiveTree,
 } from '@/lib/store-categories-fetch';
 import {
   buildStaticStoreCategoryTree,
@@ -61,12 +63,20 @@ function patchQueryTreeAfterDelete(
 }
 
 export function useStoreCategoriesTree() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    return subscribeStoreCategoriesLiveTree((tree) => {
+      applyLiveTree(queryClient, tree, { finalized: true });
+    });
+  }, [queryClient]);
+
   return useQuery({
     queryKey: [STORE_CATEGORIES_QUERY_KEY],
     queryFn: fetchStoreCategoriesTreeWithFallback,
-    staleTime: 1000 * 30,
+    staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8_000),
     placeholderData: (previous) =>

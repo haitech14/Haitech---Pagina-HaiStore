@@ -7,6 +7,7 @@ import {
   Menu,
   ShoppingBag,
   User,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -21,7 +22,7 @@ import {
 import { useIsDesktopNav } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
 
-export type AccountTab = 'cuenta' | 'pedidos' | 'precios' | 'packing';
+export type AccountTab = 'cuenta' | 'pedidos' | 'precios' | 'packing' | 'billetera';
 
 interface AccountNavItem {
   id: string;
@@ -33,6 +34,7 @@ interface AccountNavItem {
 
 const accountNavItems: AccountNavItem[] = [
   { id: 'cuenta', label: 'Mi Perfil', icon: User, tab: 'cuenta' },
+  { id: 'billetera', label: 'Billetera', icon: Wallet, tab: 'billetera' },
   { id: 'pedidos', label: 'Mis Compras', icon: ShoppingBag, tab: 'pedidos' },
   { id: 'precios', label: 'Lista de Precios', icon: ListOrdered, tab: 'precios' },
   { id: 'packing', label: 'Packing List', icon: ClipboardList, tab: 'packing' },

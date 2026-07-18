@@ -1,3 +1,4 @@
+import { buildProductCardImageCandidates } from '@/lib/product-card-images';
 import {
   filterProductsBySearch,
   getSearchCategoryEmoji,
@@ -8,10 +9,32 @@ import {
 } from '@/lib/product-search';
 import { INVENTORY_STOCK_STATUS_LABELS, getInventoryStockStatus } from '@/lib/inventory-stock-status';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
+import { productPath } from '@/lib/product-path';
 import { formatPenFromUsd, formatUsd } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
 export const HAIBOT_INVENTORY_SEARCH_LIMIT = 5;
+/** Máximo de ítems guardados en el mensaje para ir revelando con «Ver más». */
+export const HAIBOT_INVENTORY_SEARCH_PAYLOAD_LIMIT = 50;
+
+export type HaibotInventorySearchItem = {
+  id: string;
+  name: string;
+  code: string;
+  category: string;
+  imageUrl: string | null;
+  href: string;
+  priceLabel: string;
+  stockLabel: string;
+};
+
+export type HaibotInventorySearchPayload = {
+  query: string;
+  focus: HaibotSearchFocus;
+  total: number;
+  items: HaibotInventorySearchItem[];
+  storeSearchHref: string;
+};
 
 export type HaibotSearchFocus = 'price' | 'stock' | 'all';
 
@@ -127,6 +150,56 @@ function formatProductResult(
   return lines.join('\n');
 }
 
+function toHaibotInventorySearchItem(
+  product: Product,
+  focus: HaibotSearchFocus,
+): HaibotInventorySearchItem {
+  const displayCode = formatProductDisplayCode(product.code, {
+    brand: product.brand,
+    category: product.category,
+    name: product.name,
+  });
+  const imageCandidates = buildProductCardImageCandidates(product, { stockFallback: true });
+  const priceLabel =
+    focus === 'stock'
+      ? ''
+      : `${formatUsd(product.price)} — ${formatPenFromUsd(product.price)}`;
+  const stockLabel = focus === 'price' ? '' : formatStockLine(product.stock);
+
+  return {
+    id: product.id,
+    name: product.name,
+    code: displayCode || product.code || '',
+    category: product.category?.trim() || 'Sin categoría',
+    imageUrl: imageCandidates[0] ?? product.image_url ?? product.gallery?.[0] ?? null,
+    href: productPath(product),
+    priceLabel,
+    stockLabel,
+  };
+}
+
+export function buildHaibotInventorySearchPayload(
+  query: string,
+  products: Product[],
+  focus: HaibotSearchFocus,
+): HaibotInventorySearchPayload | null {
+  const allMatches = filterProductsBySearch(products, query);
+  const total = allMatches.length;
+  if (total === 0) return null;
+
+  const ranked = allMatches.slice(0, HAIBOT_INVENTORY_SEARCH_PAYLOAD_LIMIT);
+  const params = new URLSearchParams();
+  params.set('buscar', query);
+
+  return {
+    query,
+    focus,
+    total,
+    items: ranked.map((product) => toHaibotInventorySearchItem(product, focus)),
+    storeSearchHref: `/tienda?${params.toString()}`,
+  };
+}
+
 export function formatHaibotInventorySearchReply(
   query: string,
   products: Product[],
@@ -167,10 +240,21 @@ export function formatHaibotInventorySearchReply(
 
   const footer =
     total > HAIBOT_INVENTORY_SEARCH_LIMIT
-      ? `\n\n✨ Hay ${total - shownCount} resultados más. Refina la búsqueda o visita la tienda.`
+      ? `\n\n✨ Hay ${total - shownCount} resultados más. Pulsa «Ver más» o visita la tienda.`
       : '\n\n✨ Escribe otro modelo o código para seguir consultando.';
 
   return `${header}\n${body}${footer}`;
+}
+
+export function formatHaibotInventorySearchHeader(
+  query: string,
+  shownCount: number,
+  total: number,
+): string {
+  if (total === 1) {
+    return `Haibot encontró 1 producto para «${query}»:`;
+  }
+  return `Haibot · ${shownCount} de ${total} productos para «${query}»:`;
 }
 
 export function getHaibotSearchPlaceholder(focus: HaibotSearchFocus | null): string {

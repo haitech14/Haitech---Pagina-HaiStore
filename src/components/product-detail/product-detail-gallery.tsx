@@ -10,6 +10,7 @@ import {
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
 import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
+import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
@@ -21,7 +22,6 @@ import {
   supportsResponsiveProductImage,
 } from '@/lib/responsive-image';
 import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
-import { ensureFullPrices } from '@/lib/roles';
 import { extractProductModel } from '@/lib/seo';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -292,18 +292,18 @@ export function ProductDetailGallery({
     [product?.storefront_ui],
   );
 
+  const priceSource = product ?? { price: 0, prices: undefined, price_role: undefined };
+  const displayPrice = useCatalogDisplayPrice(priceSource);
+
   const clipboard = useMemo(() => {
     if (!product || !storefrontUi.showGalleryCopyText) return null;
     const { title } = getProductCardTitleContent(product);
     const condition = resolveProductCardBadgeLabel(product);
     const code = product.code?.trim() || null;
-    const priceUsd = ensureFullPrices(
-      product.prices ? product.prices : { public: product.price },
-    ).public;
     return {
       title,
       stock: product.stock,
-      priceUsd,
+      ...clipboardPriceFieldsFromDisplay(displayPrice),
       productId: product.id,
       productPath: productPath(product),
       isColorProduct: inferColor(product) === 'Color',
@@ -315,7 +315,7 @@ export function ProductDetailGallery({
         : {}),
       ...(product.delivery_time != null ? { deliveryTime: product.delivery_time } : {}),
     };
-  }, [product, storefrontUi.showGalleryCopyText]);
+  }, [product, storefrontUi.showGalleryCopyText, displayPrice]);
 
   const showCopyImage = Boolean(activeImage && storefrontUi.showGalleryCopyImage);
 
@@ -425,7 +425,7 @@ export function ProductDetailGallery({
                   <ProductCardCopyImageButton
                     productName={productName}
                     imageUrl={activeImage.src}
-                    label="Copiar imagen"
+                    label="Imagen"
                     className={galleryCopyButtonClass}
                   />
                 ) : null}
@@ -438,6 +438,10 @@ export function ProductDetailGallery({
                     productId={clipboard.productId}
                     productPath={clipboard.productPath}
                     isColorProduct={clipboard.isColorProduct}
+                    {...(clipboard.priceRole != null ? { priceRole: clipboard.priceRole } : {})}
+                    {...(clipboard.priceRoleLabel != null
+                      ? { priceRoleLabel: clipboard.priceRoleLabel }
+                      : {})}
                     {...(clipboard.code != null ? { code: clipboard.code } : {})}
                     {...(clipboard.condition != null ? { condition: clipboard.condition } : {})}
                     {...(clipboard.category != null ? { category: clipboard.category } : {})}
@@ -447,7 +451,7 @@ export function ProductDetailGallery({
                     {...(clipboard.deliveryTime != null
                       ? { deliveryTime: clipboard.deliveryTime }
                       : {})}
-                    label="Copiar texto"
+                    label="Texto"
                     className={galleryCopyButtonClass}
                   />
                 ) : null}

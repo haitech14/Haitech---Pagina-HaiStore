@@ -3,17 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Send, X } from 'lucide-react';
 
 import { HaibotAgentAvatar } from '@/components/haibot/haibot-agent-avatar';
+import { HaibotInventorySearchCard } from '@/components/haibot/haibot-inventory-search-card';
 import { HaibotSalesWorkflow } from '@/components/haibot/haibot-sales-workflow';
 import { HaibotShippingWorkflow } from '@/components/haibot/haibot-shipping-workflow';
 import { HaibotSupportWorkflow } from '@/components/haibot/haibot-support-workflow';
 import {
   createHaibotMessage,
   getHaibotAssistantReply,
+  type HaibotAssistantResult,
   type HaibotChatMessage,
 } from '@/lib/haibot-assistant';
 import {
+  buildHaibotInventorySearchPayload,
+  formatHaibotInventorySearchHeader,
   formatHaibotInventorySearchReply,
   getHaibotSearchPlaceholder,
+  HAIBOT_INVENTORY_SEARCH_LIMIT,
   resolveHaibotInventorySearch,
   type HaibotSearchFocus,
 } from '@/lib/haibot-inventory-search';
@@ -43,8 +48,30 @@ const WORKFLOW_MODE_LABELS: Record<HaibotWorkflowId, string> = {
   sales: 'ventas',
 };
 
-function ChatBubble({ message }: { message: HaibotChatMessage }) {
+function ChatBubble({
+  message,
+  onNavigateAway,
+}: {
+  message: HaibotChatMessage;
+  onNavigateAway?: () => void;
+}) {
   const isUser = message.role === 'user';
+
+      if (!isUser && message.inventorySearch) {
+    return (
+      <div className="mr-auto flex w-full max-w-[92%] flex-col items-start gap-0.5">
+        <div className="w-full rounded-lg rounded-tl-sm bg-white px-3 py-2.5 shadow-sm">
+          <HaibotInventorySearchCard
+            payload={message.inventorySearch}
+            {...(onNavigateAway ? { onNavigateAway } : {})}
+          />
+        </div>
+        <time className="px-1 text-[0.65rem] text-[#667781]" dateTime={message.time}>
+          {message.time}
+        </time>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -133,9 +160,7 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
     node.scrollTop = node.scrollHeight;
   }, [messages, activeWorkflow, showMenu]);
 
-  const buildReply = async (
-    text: string,
-  ): Promise<{ reply: string; openWorkflow?: HaibotWorkflowId; openSearch?: HaibotSearchFocus }> => {
+  const buildReply = async (text: string): Promise<HaibotAssistantResult> => {
     // Citas / soporte técnico tienen prioridad sobre el modo buscador activo.
     const assistantFirst = getHaibotAssistantReply(text);
     if (assistantFirst.openWorkflow === 'support') {
@@ -146,8 +171,23 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
     if (search) {
       try {
         const { products: matches } = await searchCatalogProducts(search.query, { limit: 50 });
+        const inventorySearch = buildHaibotInventorySearchPayload(
+          search.query,
+          matches,
+          search.focus,
+        );
+        if (!inventorySearch) {
+          return {
+            reply: formatHaibotInventorySearchReply(search.query, matches, search.focus),
+          };
+        }
         return {
-          reply: formatHaibotInventorySearchReply(search.query, matches, search.focus),
+          reply: formatHaibotInventorySearchHeader(
+            inventorySearch.query,
+            Math.min(inventorySearch.items.length, HAIBOT_INVENTORY_SEARCH_LIMIT),
+            inventorySearch.total,
+          ),
+          inventorySearch,
         };
       } catch {
         return { reply: 'No pude consultar el inventario en este momento. Inténtalo de nuevo.' };
@@ -166,7 +206,14 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
     setMessages((prev) => [...prev, createHaibotMessage('user', trimmed)]);
 
     void buildReply(trimmed).then((result) => {
-      setMessages((prev) => [...prev, createHaibotMessage('assistant', result.reply)]);
+      setMessages((prev) => [
+        ...prev,
+        result.inventorySearch
+          ? createHaibotMessage('assistant', result.reply, {
+              inventorySearch: result.inventorySearch,
+            })
+          : createHaibotMessage('assistant', result.reply),
+      ]);
       if (result.openWorkflow) {
         setActiveWorkflow(result.openWorkflow);
         setSearchFocus(null);
@@ -276,7 +323,7 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
         }}
       >
         {messages.map((message) => (
-          <ChatBubble key={message.id} message={message} />
+          <ChatBubble key={message.id} message={message} onNavigateAway={onClose} />
         ))}
 
         {showMenu && !inGuidedMode ? (

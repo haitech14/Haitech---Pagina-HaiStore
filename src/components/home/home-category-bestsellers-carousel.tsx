@@ -65,18 +65,20 @@ function BestSellerCard({ product }: { product: FeaturedProduct }) {
         <h3 className="mt-3 line-clamp-3 min-h-[3.6rem] text-center text-sm font-medium leading-snug text-[#374151]">
           {product.name}
         </h3>
-        <p
-          className="mt-2 text-center text-lg font-bold tabular-nums sm:text-xl"
-          style={{ color: ACCENT }}
-        >
-          {unavailable ? (
-            <span className="text-sm text-[#6b7280]">No está disponible para venta</span>
-          ) : onRequest ? (
-            CONSULTAR_PRECIO_LABEL
-          ) : (
+        {unavailable ? (
+          <p className="mt-2 text-center text-sm text-[#6b7280]">No está disponible para venta</p>
+        ) : onRequest ? (
+          <p className="mt-2 text-center text-xs font-semibold leading-tight text-[#6B7280] sm:text-sm">
+            {CONSULTAR_PRECIO_LABEL}
+          </p>
+        ) : (
+          <p
+            className="mt-2 text-center text-lg font-bold tabular-nums sm:text-xl"
+            style={{ color: ACCENT }}
+          >
             <DualPrice usd={displayPrice.priceUsd} className="text-lg font-bold sm:text-xl" />
-          )}
-        </p>
+          </p>
+        )}
         <p className="mt-1.5 flex items-center justify-center gap-0.5 text-xs text-[#9ca3af]">
           {Array.from({ length: 5 }).map((_, index) => (
             <Star key={index} className="size-3.5 fill-none stroke-current" aria-hidden="true" />

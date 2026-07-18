@@ -1,6 +1,5 @@
-import { Package, Printer } from 'lucide-react';
+import { Package } from 'lucide-react';
 
-import { resolveProductSpeedPpm } from '@/lib/category-catalog-filters';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';
 import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { cn } from '@/lib/utils';
@@ -9,47 +8,58 @@ interface ProductCardStatsLineProps {
   product: ProductBadgeSource;
   stock: number;
   outOfStock?: boolean;
+  /** Código de producto a la izquierda; stock queda a la derecha. */
+  code?: string | null;
   className?: string;
 }
 
 function formatStockLabel(outOfStock: boolean, stock: number): string {
   if (outOfStock) return PRODUCT_ON_REQUEST_STOCK_LABEL;
-  const quantity = Math.max(0, Math.floor(Number(stock) || 0));
-  return `${quantity} ${quantity === 1 ? 'unidad' : 'unidades'}`;
+  return String(Math.max(0, Math.floor(Number(stock) || 0)));
 }
 
-/** Línea compacta: icono + ppm | icono + stock (mockup ecommerce). */
+/** Línea compacta: código (izq) + stock (der). Velocidad/SPDF van en badges. */
 export function ProductCardStatsLine({
-  product,
+  product: _product,
   stock,
   outOfStock = false,
+  code = null,
   className,
 }: ProductCardStatsLineProps) {
-  const ppm = resolveProductSpeedPpm(product);
+  void _product;
   const stockLabel = formatStockLabel(outOfStock, stock);
+  const codeLabel = code?.trim() || null;
 
   return (
     <div
       className={cn(
-        'flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.6875rem] font-medium leading-none text-[#8a93a3] sm:text-[0.75rem]',
+        'flex min-w-0 items-center gap-2 text-[0.6875rem] font-medium leading-none text-[#8a93a3] sm:text-[0.75rem]',
         className,
       )}
-      aria-label={[ppm != null ? `${ppm} ppm` : null, stockLabel].filter(Boolean).join(', ')}
+      aria-label={[
+        codeLabel ? `Código ${codeLabel}` : null,
+        outOfStock ? stockLabel : `Stock ${stockLabel}`,
+      ]
+        .filter(Boolean)
+        .join(', ')}
     >
-      {ppm != null ? (
-        <>
-          <span className="inline-flex items-center gap-1">
-            <Printer className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            <span className="tabular-nums">{ppm} ppm</span>
-          </span>
-          <span className="select-none text-[#c5cad3]" aria-hidden="true">
-            |
-          </span>
-        </>
-      ) : null}
-      <span className="inline-flex items-center gap-1">
-        <Package className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-        <span className="tabular-nums">{stockLabel}</span>
+      {codeLabel ? (
+        <span className="min-w-0 truncate tabular-nums" title={codeLabel}>
+          {codeLabel}
+        </span>
+      ) : (
+        <span className="min-w-0" aria-hidden="true" />
+      )}
+      <span
+        className={cn(
+          'ml-auto inline-flex shrink-0 items-center gap-1 tabular-nums',
+          outOfStock ? 'text-[#8a93a3]' : 'text-emerald-700',
+        )}
+      >
+        {!outOfStock ? (
+          <Package className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+        ) : null}
+        <span>{stockLabel}</span>
       </span>
     </div>
   );

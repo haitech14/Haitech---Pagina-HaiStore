@@ -2,56 +2,46 @@ import type { QueryClient } from '@tanstack/react-query';
 
 import {
   buildCategoryCatalogQueryKey,
+  fetchCategoryCatalogWithFallback,
   type UseCategoryCatalogParams,
 } from '@/hooks/use-category-catalog';
-import { getResponsiveCatalogPageSize } from '@/lib/catalog-product-pagination';
+import {
+  CATALOG_FORMAT_SECTION_MAX,
+  getResponsiveCatalogPageSize,
+} from '@/lib/catalog-product-pagination';
+import { shouldShowCatalogSpecFilterTabs } from '@/lib/category-catalog-filters';
 import { resolveCategoryPageProductLabels } from '@/lib/category-product-labels';
 import { resolveCategoryForPage } from '@/lib/store-category-page';
-import { queryCategoryCatalogClient, queryCategoryCatalogClientAsync } from '@/lib/category-catalog-client';
 import {
   STORE_CATEGORIES_QUERY_KEY,
   fetchStoreCategoriesTreeWithFallback,
 } from '@/lib/store-categories-fetch';
 import { buildStaticStoreCategoryTree } from '@/lib/static-store-category-tree';
-import { findStoreCategoryBySlug } from '@/lib/store-category-display';
-import { apiFetch } from '@/lib/api';
-import { getCatalogRows } from '@/lib/catalog-featured';
+import {
+  ALL_SUBCATEGORIES_QUERY,
+  findStoreCategoryBySlug,
+} from '@/lib/store-category-display';
+import { parseCategoryHref } from '@/lib/category-path';
 import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
-import type { CategoryCatalogResponse } from '@/hooks/use-category-catalog';
+import type { StoreCategoryTreeNode } from '@/types/store-category';
 
-async function fetchCategoryCatalog(params: UseCategoryCatalogParams): Promise<CategoryCatalogResponse> {
-  const query = new URLSearchParams();
-  query.set('slug', params.slug);
-  if (params.subSlug) query.set('sub', params.subSlug);
-  if (params.labels.length > 0) {
-    query.set('labels', params.labels.join('|'));
-  }
-  if (params.sortBy) query.set('sort', params.sortBy);
-  query.set('page', String(params.page ?? 1));
-  query.set('limit', String(params.limit ?? 30));
-  return apiFetch<CategoryCatalogResponse>(`/api/products/by-category?${query}`);
-}
+export { fetchCategoryCatalogWithFallback };
 
-async function fetchCategoryCatalogWithFallback(
-  params: UseCategoryCatalogParams,
-  role: string,
-): Promise<CategoryCatalogResponse> {
-  if (getCatalogRows().length > 0) {
-    return queryCategoryCatalogClient(params, role);
-  }
-
-  try {
-    const fromIndex = await queryCategoryCatalogClientAsync(params, role);
-    if (fromIndex.products.length > 0) return fromIndex;
-  } catch {
-    /* intentar API */
-  }
-
-  try {
-    return await fetchCategoryCatalog(params);
-  } catch {
-    return queryCategoryCatalogClientAsync(params, role);
-  }
+/** Prefetch desde un href de categoría (mega menú, cards home, etc.). */
+export function prefetchCategoryFromHref(
+  queryClient: QueryClient,
+  href: string,
+  role = 'public',
+): void {
+  const parsed = parseCategoryHref(href);
+  if (!parsed) return;
+  prefetchCategoryPage(queryClient, {
+    slug: parsed.slug,
+    subSlug:
+      parsed.subSlug ??
+      (parsed.slug === 'multifuncionales' ? ALL_SUBCATEGORIES_QUERY : null),
+    role,
+  });
 }
 
 export interface PrefetchCategoryPageOptions {
@@ -60,30 +50,16 @@ export interface PrefetchCategoryPageOptions {
   role?: string;
 }
 
-/** Precarga árbol de categorías y primera página del catálogo (hover en nav / loader de ruta). */
-export async function prefetchCategoryPage(
-  queryClient: QueryClient,
-  { slug, subSlug = null, role = 'public' }: PrefetchCategoryPageOptions,
-) {
-  preloadCatalogIndexNow();
+function buildPrefetchCatalogParams(
+  slug: string,
+  subSlug: string | null,
+  labels: string[],
+): UseCategoryCatalogParams {
+  const limit = shouldShowCatalogSpecFilterTabs(slug)
+    ? CATALOG_FORMAT_SECTION_MAX
+    : getResponsiveCatalogPageSize(false, 5);
 
-  const staticTree = buildStaticStoreCategoryTree();
-  queryClient.setQueryData([STORE_CATEGORIES_QUERY_KEY], staticTree);
-
-  void queryClient.prefetchQuery({
-    queryKey: [STORE_CATEGORIES_QUERY_KEY],
-    queryFn: fetchStoreCategoriesTreeWithFallback,
-    staleTime: 1000 * 60,
-  });
-
-  const storeCategory = findStoreCategoryBySlug(staticTree, slug);
-  const category = resolveCategoryForPage(slug, storeCategory);
-  if (!category) return;
-  const labels = resolveCategoryPageProductLabels(category, storeCategory, subSlug, staticTree);
-  if (labels.length === 0) return;
-
-  const limit = getResponsiveCatalogPageSize(false, 5);
-  const catalogParams: UseCategoryCatalogParams = {
+  return {
     slug,
     subSlug,
     labels,
@@ -91,14 +67,50 @@ export async function prefetchCategoryPage(
     page: 1,
     limit,
   };
+}
 
-  const queryKey = buildCategoryCatalogQueryKey(catalogParams, role, '');
-  const clientFallback = queryCategoryCatalogClient(catalogParams, role);
-  queryClient.setQueryData(queryKey, clientFallback);
+function resolveTreeForPrefetch(queryClient: QueryClient): StoreCategoryTreeNode[] {
+  const cached = queryClient.getQueryData<StoreCategoryTreeNode[]>([STORE_CATEGORIES_QUERY_KEY]);
+  if (cached?.length) return cached;
 
-  return queryClient.prefetchQuery({
-    queryKey,
-    queryFn: () => fetchCategoryCatalogWithFallback(catalogParams, role),
-    staleTime: 60_000,
+  const staticTree = buildStaticStoreCategoryTree();
+  queryClient.setQueryData([STORE_CATEGORIES_QUERY_KEY], staticTree);
+  return staticTree;
+}
+
+/**
+ * Precarga en background. El loader de ruta debe retornar al instante:
+ * cero map del índice ni rebuild del árbol en el path síncrono.
+ */
+export function prefetchCategoryPage(
+  queryClient: QueryClient,
+  { slug, subSlug = null, role = 'public' }: PrefetchCategoryPageOptions,
+): void {
+  preloadCatalogIndexNow();
+
+  void queryClient.prefetchQuery({
+    queryKey: [STORE_CATEGORIES_QUERY_KEY],
+    queryFn: fetchStoreCategoriesTreeWithFallback,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  // Trabajo pesado (labels / prefetch de catálogo) fuera del tick del loader.
+  queueMicrotask(() => {
+    const tree = resolveTreeForPrefetch(queryClient);
+    const storeCategory = findStoreCategoryBySlug(tree, slug);
+    const category = resolveCategoryForPage(slug, storeCategory);
+    if (!category) return;
+
+    const labels = resolveCategoryPageProductLabels(category, storeCategory, subSlug, tree);
+    if (labels.length === 0) return;
+
+    const catalogParams = buildPrefetchCatalogParams(slug, subSlug, labels);
+    const queryKey = buildCategoryCatalogQueryKey(catalogParams, role, '');
+
+    void queryClient.prefetchQuery({
+      queryKey,
+      queryFn: () => fetchCategoryCatalogWithFallback(catalogParams, role),
+      staleTime: 60_000,
+    });
   });
 }

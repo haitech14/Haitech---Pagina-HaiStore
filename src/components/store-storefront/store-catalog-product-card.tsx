@@ -13,7 +13,10 @@ import { ProductQuantityAddFooter } from '@/components/product/product-quantity-
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { useCart } from '@/context/cart-context';
 import { useWishlist } from '@/context/wishlist-context';
-import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
+import {
+  clipboardPriceFieldsFromDisplay,
+  useCatalogDisplayPrice,
+} from '@/hooks/use-catalog-display-price';
 import { catalogRowToFeatured, getCatalogProductById } from '@/lib/catalog-featured';
 import {
   buildProductCardImageCandidates,
@@ -33,9 +36,15 @@ import type { Product } from '@/types/product';
 
 interface StoreCatalogProductCardProps {
   product: Product;
+  imageLoading?: 'lazy' | 'eager';
+  imagePriority?: boolean;
 }
 
-export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProps) {
+export function StoreCatalogProductCard({
+  product,
+  imageLoading = 'lazy',
+  imagePriority = false,
+}: StoreCatalogProductCardProps) {
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
   const { addItem } = useCart();
@@ -100,6 +109,8 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
             alt={product.name}
             className="size-full"
             imageClassName="size-full object-contain"
+            loading={imageLoading}
+            {...(imagePriority ? { fetchPriority: 'high' as const } : {})}
           />
         </Link>
 
@@ -113,7 +124,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
           clipboard={{
             title,
             stock: product.stock,
-            priceUsd: displayPrice.priceUsd,
+            ...clipboardPriceFieldsFromDisplay(displayPrice),
             productId: product.id,
             productPath: detailHref,
             isColorProduct: clipboardIsColor,
@@ -153,6 +164,7 @@ export function StoreCatalogProductCard({ product }: StoreCatalogProductCardProp
           product={titleProduct}
           stock={stockCount}
           outOfStock={outOfStock}
+          code={code}
           className="mt-2.5"
         />
 

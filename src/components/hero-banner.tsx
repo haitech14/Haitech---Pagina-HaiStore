@@ -435,7 +435,6 @@ export function HeroBanner({
   const [whatsappCampaign, setWhatsappCampaign] = useState<string | undefined>();
   const { contact, saveContact, isSaving } = useWhatsAppContact();
   const showCarouselControls = slides.length > 1;
-  const hasHomeLandingSlide = slides.some((slide) => slide.layout === 'home-landing');
   const activeSlide = slides[selectedIndex];
   const carouselDotTheme: CarouselDotsTheme =
     activeSlide?.dotTheme ?? (activeSlide?.layout === 'home-landing' ? 'light' : 'dark');
@@ -505,7 +504,7 @@ export function HeroBanner({
     <section
       aria-labelledby={headingId}
       aria-roledescription={showCarouselControls ? 'carrusel' : undefined}
-      className="relative w-full leading-none"
+      className="relative mt-5 w-full leading-none sm:mt-6 lg:mt-7"
       onMouseEnter={pauseAutoplay}
       onFocus={pauseAutoplay}
     >
@@ -539,10 +538,8 @@ export function HeroBanner({
           theme={carouselDotTheme}
           size="lg"
           className={cn(
-            'absolute inset-x-0 z-20 gap-0',
-            hasHomeLandingSlide && selectedIndex === 0
-              ? 'bottom-2 sm:bottom-2.5 lg:bottom-3'
-              : 'bottom-1.5 sm:bottom-2 lg:bottom-2.5',
+            'absolute inset-x-0 z-10 gap-0',
+            'bottom-3 sm:bottom-3.5 lg:bottom-4',
           )}
         />
       ) : null}

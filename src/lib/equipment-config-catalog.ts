@@ -11,8 +11,10 @@ import type { Product } from '@/types/product';
 /** Tóner original IM 430F en inventario (código 419078). */
 export const IM430F_ORIGINAL_TONER_PRODUCT_ID = '419078';
 
-/** Tóner original IM 550F / IM 600F en inventario (código 418480). */
-export const IM550F_ORIGINAL_TONER_PRODUCT_ID = '418480';
+/** Tóner original IM 600F en inventario (código 418480). */
+export const IM600F_ORIGINAL_TONER_PRODUCT_ID = '418480';
+/** @deprecated Usar IM600F_ORIGINAL_TONER_PRODUCT_ID — el 418480 no se ofrece en IM 550F. */
+export const IM550F_ORIGINAL_TONER_PRODUCT_ID = IM600F_ORIGINAL_TONER_PRODUCT_ID;
 
 /** Tóner compatible IM 550 en inventario. */
 export const IM550F_COMPATIBLE_TONER_PRODUCT_ID = 'compat-tc-im-550-intercopy';
@@ -281,8 +283,8 @@ const OPTION_CATALOG_HINTS: Record<string, OptionCatalogHint> = {
     categories: ['Toner', 'Tóner', 'Toner Original'],
     fallbackImage: '/products/toner-419078.webp',
   },
-  'toner-ricoh-im-550f': {
-    keywords: ['toner', 'im 550', 'im 600', '418480', 'original'],
+  'toner-ricoh-im-600f': {
+    keywords: ['toner', 'im 600', '418480', 'original'],
     categories: ['Toner', 'Tóner', 'Toner Original'],
     fallbackImage: '/products/toner-418480.webp',
   },

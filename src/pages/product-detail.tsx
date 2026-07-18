@@ -79,7 +79,7 @@ export function ProductDetailPage() {
           El artículo que buscas no está disponible o el enlace no es válido.
         </p>
         <Button asChild className="bg-red-600 hover:bg-red-500">
-          <Link to="/tienda">Volver a la tienda</Link>
+          <Link to="/tienda">Volver a Tienda</Link>
         </Button>
       </div>
     );

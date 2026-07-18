@@ -24,6 +24,7 @@ import { ProductDetailPriceBlock } from '@/components/product-detail/product-det
 import { ProductDetailPurchaseAccordion } from '@/components/product-detail/product-detail-purchase-accordion';
 import type { ProductDetailViewModel } from '@/types/product-detail';
 import type { Product } from '@/types/product';
+import { PRODUCT_ON_REQUEST_STOCK_DETAIL_LABEL } from '@/lib/product-on-request-label';
 import { cn } from '@/lib/utils';
 
 interface ProductDetailPurchaseBoxProps {
@@ -71,7 +72,7 @@ export function ProductDetailPurchaseBox({ product, detail }: ProductDetailPurch
   const warrantyPanelId = useId();
   const outOfStock = isProductOutOfStock(product);
   const countdown = useOrderCountdown();
-  const stockDisplay = outOfStock ? 0 : Math.max(product.stock, 10);
+  const stockDisplay = outOfStock ? 0 : Math.max(0, Math.floor(Number(product.stock) || 0));
   const includesOnRequest = hasOnRequestQuantity(product, quantity);
   const orderHint = formatOrderQuantityHint(product, quantity);
 
@@ -108,7 +109,7 @@ export function ProductDetailPurchaseBox({ product, detail }: ProductDetailPurch
           ✓
         </span>
         <span className={outOfStock ? ON_REQUEST_STOCK_BADGE_CLASS : undefined}>
-          {outOfStock ? 'A pedido' : `${stockDisplay} en stock`}
+          {outOfStock ? PRODUCT_ON_REQUEST_STOCK_DETAIL_LABEL : `${stockDisplay} disponibles`}
         </span>
       </p>
 

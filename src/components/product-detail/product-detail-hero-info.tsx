@@ -230,7 +230,6 @@ export function ProductDetailHeroInfo({
           beforeTonerSlot={hasTonerSection ? preparationSelector : undefined}
           leadingSlot={!hasTonerSection ? preparationSelector : undefined}
           maintenanceSlot={maintenanceSlot}
-          tonerCatalog={tonerCatalog}
           {...(product.storefront_ui != null ? { storefrontUi: product.storefront_ui } : {})}
           className="mt-4"
         />

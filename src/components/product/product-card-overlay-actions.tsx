@@ -117,6 +117,10 @@ export function ProductCardOverlayActions({
           stock={clipboard.stock}
           priceUsd={clipboard.priceUsd}
           {...(clipboard.code != null ? { code: clipboard.code } : {})}
+          {...(clipboard.priceRole != null ? { priceRole: clipboard.priceRole } : {})}
+          {...(clipboard.priceRoleLabel != null
+            ? { priceRoleLabel: clipboard.priceRoleLabel }
+            : {})}
           {...(clipboard.normalPriceUsd != null
             ? { normalPriceUsd: clipboard.normalPriceUsd }
             : {})}

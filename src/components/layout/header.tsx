@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
-import { Headphones, Menu, ShoppingCart, X } from 'lucide-react';
+import { Menu, ShoppingCart, X } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,20 +14,15 @@ import {
   forumHeaderNavLinks,
   isForumPath,
 } from '@/components/layout/header-category-nav';
+import { HeaderCustomerServiceAction } from '@/components/layout/header-customer-service-action';
 import { HeaderForumPublishButton } from '@/components/layout/header-forum-publish-button';
+import { STORE_HEADER_LINKS } from '@/components/layout/header-main-menu';
 import { HeaderTopBar } from '@/components/layout/header-top-bar';
-import { HeaderWhatsAppContactAction } from '@/components/layout/header-whatsapp-contact-action';
 import { StoreNavMobileMegaAccordions } from '@/components/layout/store-nav-mobile-mega-accordions';
 import { HeaderBrandLogos } from '@/components/layout/site-logo';
 import { SiteSearchForm } from '@/components/layout/site-search-form';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
-import {
-  HEADER_BUY_RENT_WHATSAPP_LABEL,
-  HEADER_SALES_PHONE_DISPLAY,
-  HEADER_SERVICE_WHATSAPP_LABEL,
-  HEADER_SUPPORT_PHONE_DISPLAY,
-} from '@/data/site-header';
 import { cn, formatPenFromUsd } from '@/lib/utils';
 import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
 
@@ -43,8 +36,13 @@ type MainNavItem = {
 };
 
 const mobileNavItems: MainNavItem[] = [
-  { to: '/', label: 'Inicio', end: true },
-  { to: '/tienda', label: 'Equipos' },
+  ...STORE_HEADER_LINKS.map((item) => ({
+    to: item.to,
+    label: item.label,
+    ...(item.end !== undefined ? { end: item.end } : {}),
+    ...(item.matchActive ? { matchActive: item.matchActive } : {}),
+  })),
+  { to: '/contacto', label: 'Contacto' },
 ];
 
 function resolveNavItemActive(
@@ -125,7 +123,6 @@ export function Header() {
             width={160}
             height={35}
             loading="eager"
-            partnerTone={forumMode ? 'light' : 'dark'}
           />
         </div>
 
@@ -194,31 +191,7 @@ export function Header() {
               <StoreNavMobileMegaAccordions onNavigate={() => setMobileOpen(false)} />
             ) : null}
             {!forumMode ? (
-              <div className="flex flex-col gap-2 px-0.5">
-                <HeaderWhatsAppContactAction
-                  topic="ventas"
-                  variant="mobile"
-                  label={HEADER_BUY_RENT_WHATSAPP_LABEL}
-                  phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
-                  icon={
-                    <Icon
-                      path={mdiWhatsapp}
-                      size={0.72}
-                      className="shrink-0 text-[#25D366]"
-                      aria-hidden="true"
-                    />
-                  }
-                />
-                <HeaderWhatsAppContactAction
-                  topic="soporte"
-                  variant="mobile"
-                  label={HEADER_SERVICE_WHATSAPP_LABEL}
-                  phoneDisplay={HEADER_SUPPORT_PHONE_DISPLAY}
-                  icon={
-                    <Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                  }
-                />
-              </div>
+              <HeaderCustomerServiceAction variant="mobile" className="px-0.5" />
             ) : null}
             <nav aria-label={forumMode ? 'Navegación móvil del foro' : 'Navegación móvil'}>
               <ul className="flex flex-col">

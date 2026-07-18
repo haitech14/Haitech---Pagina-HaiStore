@@ -94,6 +94,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 3
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -129,6 +133,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -137,7 +145,7 @@
       "id": "07f8da66-9ecf-427b-b92e-d31edd4989c3",
       "name": "Impresora Multifuncional Seminueva RICOH MP C4504 220V",
       "currency": "USD",
-      "stock": 2,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/07f8da66-9ecf-427b-b92e-d31edd4989c3.webp",
@@ -175,7 +183,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 2
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -324,6 +336,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:33.895Z"
@@ -358,6 +374,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -441,6 +461,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -450,7 +474,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM 430F 220V",
       "description": "Multifuncional monocromática A4, 40 ppm, panel táctil 10.1\".",
       "currency": "USD",
-      "stock": 63,
+      "stock": 3,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/189620fe-a5e5-4526-a399-8aa6a308bd1d.webp",
@@ -494,11 +518,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 3
         },
         {
           "warehouse_id": "principal",
-          "quantity": 63
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -608,11 +636,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 1
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -794,6 +826,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -828,6 +864,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -886,6 +926,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -933,6 +977,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 2
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -941,7 +989,7 @@
       "id": "2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2",
       "name": "Impresora Multifuncional Seminueva RICOH IM 550F 220V",
       "currency": "USD",
-      "stock": 3,
+      "stock": 7,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp",
@@ -985,11 +1033,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 7
         },
         {
           "warehouse_id": "principal",
-          "quantity": 3
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -999,7 +1051,7 @@
       "name": "Impresora Multifuncional NUEVA RICOH IM 550F",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 38,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp",
@@ -1132,7 +1184,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 37
+          "quantity": 0
         },
         {
           "warehouse_id": "principal",
@@ -1140,7 +1192,7 @@
         },
         {
           "warehouse_id": "chiclayo",
-          "quantity": 1
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T19:11:27.590Z",
@@ -1162,7 +1214,7 @@
       "id": "371c5e40-c823-4db1-b36c-895ae1fb53e1",
       "name": "Impresora Multifuncional Seminueva RICOH MP 501 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/371c5e40-c823-4db1-b36c-895ae1fb53e1.webp",
@@ -1210,7 +1262,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1245,6 +1301,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -1313,6 +1373,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1370,6 +1434,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 32
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1416,6 +1484,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -1484,6 +1556,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1518,6 +1594,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -1660,6 +1740,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1667,8 +1751,8 @@
     {
       "id": "418480",
       "code": "418480",
-      "name": "Toner Cartucho Original RICOH IM 550F / IM 600F (Rend 40,000)",
-      "description": "Cartucho original negro alto rendimiento — Rend 40,000 páginas al 5% — IM-550F / IM-600F / P-800 / P-801",
+      "name": "Toner Cartucho Original RICOH IM 600F (Rend 40,000)",
+      "description": "Cartucho original negro alto rendimiento — Rend 40,000 páginas al 5% — IM 600F / P-800 / P-801",
       "currency": "USD",
       "stock": 0,
       "category": "Toner Original",
@@ -1696,6 +1780,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -1732,6 +1820,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 28
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1740,7 +1832,7 @@
       "id": "44413e3b-a3ef-4644-8eed-e550168ae9d8",
       "name": "Impresora Multifuncional Seminueva RICOH IM C3000 220V",
       "currency": "USD",
-      "stock": 15,
+      "stock": 2,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/44413e3b-a3ef-4644-8eed-e550168ae9d8.webp",
@@ -1774,11 +1866,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 2
         },
         {
           "warehouse_id": "principal",
-          "quantity": 15
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1787,7 +1883,7 @@
       "id": "45207219-5a92-4c59-b95a-7e5fe66c4a2d",
       "name": "Impresora Multifuncional Seminueva RICOH MP C2504 220V",
       "currency": "USD",
-      "stock": 2,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/45207219-5a92-4c59-b95a-7e5fe66c4a2d.webp",
@@ -1825,7 +1921,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 2
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1883,6 +1983,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 18
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -1891,7 +1995,7 @@
       "id": "46b85626-5927-4442-83ec-104c52e6a5e1",
       "name": "Impresora Multifuncional Seminueva RICOH MP 5055 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 3,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/46b85626-5927-4442-83ec-104c52e6a5e1.webp",
@@ -1935,11 +2039,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 3
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2081,6 +2189,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:33.895Z"
@@ -2129,6 +2241,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2186,6 +2302,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2242,6 +2362,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -2300,6 +2424,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 21
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2308,7 +2436,7 @@
       "id": "550c6815-7688-41f8-bb64-c362322d7f9d",
       "name": "Impresora Multifuncional Seminueva RICOH SP C840DN 110V",
       "currency": "USD",
-      "stock": 0,
+      "stock": 3,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/550c6815-7688-41f8-bb64-c362322d7f9d.webp",
@@ -2330,10 +2458,14 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 3
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -2343,7 +2475,7 @@
       "id": "5667a537-2ef8-4b25-b376-a61afe57ebf9",
       "name": "Impresora Multifuncional Seminueva RICOH M 320F 220V",
       "currency": "USD",
-      "stock": 6,
+      "stock": 9,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/5667a537-2ef8-4b25-b376-a61afe57ebf9.webp",
@@ -2387,11 +2519,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 9
         },
         {
           "warehouse_id": "principal",
-          "quantity": 6
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2434,11 +2570,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 4
         },
         {
           "warehouse_id": "principal",
-          "quantity": 4
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2555,6 +2695,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 2
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2589,6 +2733,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -2625,6 +2773,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2660,6 +2812,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2668,7 +2824,7 @@
       "id": "63c1beb6-9263-4680-87e2-141c72b44fd1",
       "name": "Impresora Multifuncional Seminueva RICOH IM 7000 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/63c1beb6-9263-4680-87e2-141c72b44fd1.webp",
@@ -2716,7 +2872,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -2751,6 +2911,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -2799,6 +2963,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3094,6 +3262,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3129,6 +3301,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3138,7 +3314,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH MP 4054 220V",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 2,
+      "stock": 0,
       "category": "Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/82333527-b02f-4696-bd6a-f4c317c5675a.webp",
@@ -3248,7 +3424,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 2
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3306,6 +3486,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3314,7 +3498,7 @@
       "id": "87bd0c8b-3b1c-436d-a2a3-7d59620406ef",
       "name": "Impresora Multifuncional Seminueva RICOH M C251FW 220V",
       "currency": "USD",
-      "stock": 5,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/87bd0c8b-3b1c-436d-a2a3-7d59620406ef.webp",
@@ -3352,7 +3536,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 5
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3410,6 +3598,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3457,6 +3649,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3524,6 +3720,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3581,6 +3781,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 2
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3737,6 +3941,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3771,6 +3979,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -3819,6 +4031,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -3853,6 +4069,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -3900,6 +4120,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -3983,6 +4207,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:33.895Z"
@@ -4062,6 +4290,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:33.895Z"
@@ -4119,6 +4351,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4127,7 +4363,7 @@
       "id": "ad426356-30b8-4c6c-a55c-b40bb22a495b",
       "name": "Impresora Multifuncional Seminueva RICOH MP 6055 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ad426356-30b8-4c6c-a55c-b40bb22a495b.webp",
@@ -4175,7 +4411,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4296,6 +4536,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4333,6 +4577,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 20
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4380,6 +4628,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 5
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4388,7 +4640,7 @@
       "id": "b0811a6f-0f94-4bea-8804-3f7dd0d28a1c",
       "name": "Impresora Multifuncional Seminueva RICOH IM C400F 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 4,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/b0811a6f-0f94-4bea-8804-3f7dd0d28a1c.webp",
@@ -4422,11 +4674,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 4
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4561,6 +4817,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4628,6 +4888,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4636,7 +4900,7 @@
       "id": "bdf63599-9741-4b7b-9168-77d49b29def3",
       "name": "Impresora Multifuncional Seminueva RICOH MP 7503 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/bdf63599-9741-4b7b-9168-77d49b29def3.webp",
@@ -4684,7 +4948,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4732,6 +5000,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -4857,6 +5129,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -5014,6 +5290,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5096,6 +5376,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:33.895Z"
@@ -5130,6 +5414,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -5187,6 +5475,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -5248,6 +5540,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 5
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5284,6 +5580,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 20
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5360,6 +5660,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -5456,6 +5760,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 4
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5488,6 +5796,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -5548,6 +5860,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5557,7 +5873,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH MP 4055 220V",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 0,
+      "stock": 1,
       "category": "Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/d3931df1-8564-4e5f-b8eb-b6e9759879a2.webp",
@@ -5664,10 +5980,14 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 1
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -5721,6 +6041,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 9
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5729,7 +6053,7 @@
       "id": "d90459c7-33f6-4441-942c-0f2aa9532f2a",
       "name": "Impresora Multifuncional Seminueva RICOH IM C6000 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/d90459c7-33f6-4441-942c-0f2aa9532f2a.webp",
@@ -5767,7 +6091,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5803,6 +6131,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5811,7 +6143,7 @@
       "id": "dd031da8-d2cd-4219-b582-c97514e144c9",
       "name": "Impresora Laser B/N NUEVA RICOH P 502",
       "currency": "USD",
-      "stock": 12,
+      "stock": 1,
       "category": "Impresoras Laser Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/dd031da8-d2cd-4219-b582-c97514e144c9.webp",
@@ -5833,11 +6165,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 1
         },
         {
           "warehouse_id": "principal",
-          "quantity": 12
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5847,7 +6183,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM C400F",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 3,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/dd5efa36-73f6-4241-b2ad-6e74ef058733.webp",
@@ -5935,7 +6271,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 3
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -5970,6 +6310,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -6053,6 +6397,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6120,6 +6468,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6167,6 +6519,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 1
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6176,7 +6532,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM C3000",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 2,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/e8f574f7-c70c-44b6-8d28-95023f47f72d.webp",
@@ -6264,7 +6620,11 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 2
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6300,6 +6660,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6308,7 +6672,7 @@
       "id": "ec2eeb41-3af8-4f81-ab78-fa92ec052e04",
       "name": "Impresora Multifuncional Seminueva RICOH MP C3004 220V",
       "currency": "USD",
-      "stock": 2,
+      "stock": 3,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ec2eeb41-3af8-4f81-ab78-fa92ec052e04.webp",
@@ -6342,11 +6706,15 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "1931",
-          "quantity": 0
+          "quantity": 3
         },
         {
           "warehouse_id": "principal",
-          "quantity": 2
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6383,6 +6751,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 16
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6419,6 +6791,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 10
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6475,6 +6851,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -6543,6 +6923,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6580,6 +6964,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 25
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6616,6 +7004,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 28
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6647,6 +7039,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 52
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6684,6 +7080,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 14
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6720,6 +7120,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 6
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6756,6 +7160,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 11
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6792,6 +7200,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 13
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6829,6 +7241,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 9
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6862,6 +7278,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 30
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "suppliers": [
@@ -6911,6 +7331,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 8
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6947,6 +7371,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 22
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -6978,6 +7406,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 15
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -7119,6 +7551,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 8
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -7155,6 +7591,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 14
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -7186,6 +7626,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 38
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -7223,6 +7667,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 18
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "updated_at": "2026-07-16T17:48:45.359Z"
@@ -7257,6 +7705,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 45
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "suppliers": [
@@ -7288,6 +7740,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -7358,6 +7814,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -7426,6 +7886,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -7496,6 +7960,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -7564,6 +8032,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -7634,6 +8106,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -7702,6 +8178,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -7772,6 +8252,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -7840,6 +8324,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -7910,6 +8398,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -7978,6 +8470,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -8048,6 +8544,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -8116,6 +8616,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -8186,6 +8690,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -8254,6 +8762,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -8324,6 +8836,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -8392,6 +8908,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -8462,6 +8982,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -8530,6 +9054,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -8600,6 +9128,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -8668,6 +9200,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -8738,6 +9274,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -8806,6 +9346,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -8876,6 +9420,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -8944,6 +9492,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -9014,6 +9566,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -9082,6 +9638,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -9174,6 +9734,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -9242,6 +9806,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -9312,6 +9880,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -9381,6 +9953,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -9449,6 +10025,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -9541,6 +10121,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -9609,6 +10193,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -9679,6 +10267,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -9748,6 +10340,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -9816,6 +10412,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -9908,6 +10508,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -9976,6 +10580,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -10046,6 +10654,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -10115,6 +10727,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -10183,6 +10799,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -10275,6 +10895,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -10343,6 +10967,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -10413,6 +11041,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -10482,6 +11114,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -10550,6 +11186,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -10642,6 +11282,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -10710,6 +11354,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -10780,6 +11428,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -10849,6 +11501,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -10917,6 +11573,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -11009,6 +11669,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -11077,6 +11741,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -11147,6 +11815,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -11216,6 +11888,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -11284,6 +11960,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -11376,6 +12056,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -11444,6 +12128,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -11514,6 +12202,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -11583,6 +12275,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -11651,6 +12347,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -11743,6 +12443,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -11811,6 +12515,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -11881,6 +12589,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -11950,6 +12662,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -12018,6 +12734,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -12110,6 +12830,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -12178,6 +12902,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -12248,6 +12976,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -12317,6 +13049,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -12385,6 +13121,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -12477,6 +13217,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -12545,6 +13289,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -12615,6 +13363,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -12684,6 +13436,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -12752,6 +13508,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -12844,6 +13604,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -12912,6 +13676,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -12982,6 +13750,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -13051,6 +13823,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -13119,6 +13895,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -13211,6 +13991,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -13279,6 +14063,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -13349,6 +14137,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -13418,6 +14210,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -13486,6 +14282,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -13578,6 +14378,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -13646,6 +14450,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -13716,6 +14524,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -13785,6 +14597,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -13853,6 +14669,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -13945,6 +14765,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14013,6 +14837,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -14083,6 +14911,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14152,6 +14984,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14220,6 +15056,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -14312,6 +15152,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14380,6 +15224,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -14450,6 +15298,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14519,6 +15371,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14587,6 +15443,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -14679,6 +15539,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14747,6 +15611,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -14817,6 +15685,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14886,6 +15758,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -14954,6 +15830,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -15046,6 +15926,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -15114,6 +15998,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -15184,6 +16072,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -15253,6 +16145,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -15321,6 +16217,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -15413,6 +16313,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -15481,6 +16385,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -15551,6 +16459,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -15620,6 +16532,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -15688,6 +16604,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -15780,6 +16700,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -15848,6 +16772,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -15918,6 +16846,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -15987,6 +16919,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -16055,6 +16991,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -16147,6 +17087,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -16215,6 +17159,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -16285,6 +17233,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -16354,6 +17306,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -16422,6 +17378,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -16514,6 +17474,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -16582,6 +17546,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -16652,6 +17620,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -16721,6 +17693,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -16789,6 +17765,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -16881,6 +17861,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -16949,6 +17933,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -17019,6 +18007,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -17088,6 +18080,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -17156,6 +18152,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -17248,6 +18248,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -17316,6 +18320,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -17386,6 +18394,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -17455,6 +18467,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -17523,6 +18539,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -17615,6 +18635,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -17683,6 +18707,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -17753,6 +18781,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -17822,6 +18854,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -17890,6 +18926,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -17982,6 +19022,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18050,6 +19094,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -18120,6 +19168,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18189,6 +19241,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18257,6 +19313,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -18349,6 +19409,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18417,6 +19481,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -18487,6 +19555,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18556,6 +19628,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18624,6 +19700,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -18716,6 +19796,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18784,6 +19868,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -18854,6 +19942,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18923,6 +20015,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -18991,6 +20087,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -19083,6 +20183,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -19151,6 +20255,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -19221,6 +20329,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -19290,6 +20402,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -19358,6 +20474,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -19450,6 +20570,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -19518,6 +20642,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -19588,6 +20716,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -19657,6 +20789,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -19725,6 +20861,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -19817,6 +20957,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -19885,6 +21029,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -19955,6 +21103,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20024,6 +21176,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20092,6 +21248,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -20184,6 +21344,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20252,6 +21416,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -20322,6 +21490,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20391,6 +21563,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20459,6 +21635,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -20551,6 +21731,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20619,6 +21803,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -20689,6 +21877,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20758,6 +21950,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20826,6 +22022,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -20918,6 +22118,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -20986,6 +22190,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -21056,6 +22264,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -21125,6 +22337,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -21193,6 +22409,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -21285,6 +22505,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -21353,6 +22577,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -21423,6 +22651,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -21492,6 +22724,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -21560,6 +22796,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -21652,6 +22892,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -21720,6 +22964,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -21790,6 +23038,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -21859,6 +23111,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -21927,6 +23183,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -22019,6 +23279,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -22087,6 +23351,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -22157,6 +23425,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -22226,6 +23498,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -22294,6 +23570,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -22386,6 +23666,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -22454,6 +23738,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -22524,6 +23812,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -22593,6 +23885,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -22661,6 +23957,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -22753,6 +24053,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -22821,6 +24125,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -22891,6 +24199,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -22960,6 +24272,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -23028,6 +24344,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -23120,6 +24440,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -23210,6 +24534,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -23302,6 +24630,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -23392,6 +24724,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -23484,6 +24820,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -23574,6 +24914,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -23666,6 +25010,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -23756,6 +25104,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -23939,6 +25291,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -24029,6 +25385,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -24212,6 +25572,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -24302,6 +25666,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -24394,6 +25762,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -24484,6 +25856,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -24576,6 +25952,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -24666,6 +26046,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -24758,6 +26142,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -24848,6 +26236,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -24940,6 +26332,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -25030,6 +26426,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -25122,6 +26522,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -25190,6 +26594,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -25260,6 +26668,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -25328,6 +26740,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -25398,6 +26814,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -25466,6 +26886,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -25536,6 +26960,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -25604,6 +27032,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -25674,6 +27106,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -25742,6 +27178,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -25812,6 +27252,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -25880,6 +27324,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -25950,6 +27398,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -26018,6 +27470,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -26088,6 +27544,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -26156,6 +27616,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -26226,6 +27690,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -26294,6 +27762,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -26364,6 +27836,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -26432,6 +27908,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -26502,6 +27982,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -26570,6 +28054,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -26640,6 +28128,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -26708,6 +28200,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -26778,6 +28274,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -26846,6 +28346,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -26916,6 +28420,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -26984,6 +28492,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -27054,6 +28566,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -27122,6 +28638,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -27192,6 +28712,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -27260,6 +28784,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -27606,6 +29134,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -27674,6 +29206,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -27744,6 +29280,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -27812,6 +29352,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -27882,6 +29426,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -27950,6 +29498,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -28020,6 +29572,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -28088,6 +29644,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -28434,6 +29994,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -28502,6 +30066,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -28572,6 +30140,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -28640,6 +30212,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -28710,6 +30286,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -28778,6 +30358,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -28848,6 +30432,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -28916,6 +30504,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -28986,6 +30578,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -29054,6 +30650,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -29124,6 +30724,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -29192,6 +30796,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -29262,6 +30870,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -29330,6 +30942,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -29400,6 +31016,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -29468,6 +31088,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -29794,6 +31418,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -29862,6 +31490,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -29932,6 +31564,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -30000,6 +31636,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -30070,6 +31710,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -30138,6 +31782,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -30208,6 +31856,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -30276,6 +31928,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -30346,6 +32002,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -30414,6 +32074,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -30484,6 +32148,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -30552,6 +32220,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -30622,6 +32294,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -30690,6 +32366,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -30760,6 +32440,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -30828,6 +32512,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -31090,6 +32778,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Compatible",
@@ -31158,6 +32850,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -31228,6 +32924,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -31296,6 +32996,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -31366,6 +33070,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -31434,6 +33142,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -31504,6 +33216,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -31572,6 +33288,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -31642,6 +33362,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -31710,6 +33434,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -31780,6 +33508,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -31848,6 +33580,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -31918,6 +33654,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -31986,6 +33726,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -32056,6 +33800,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -32124,6 +33872,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -32194,6 +33946,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -32262,6 +34018,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -32470,6 +34230,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -32608,6 +34372,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -32676,6 +34444,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -32746,6 +34518,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -32814,6 +34590,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -32884,6 +34664,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -32952,6 +34736,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -33022,6 +34810,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -33090,6 +34882,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -33160,6 +34956,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -33223,6 +35023,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -33288,6 +35092,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -33351,6 +35159,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -33416,6 +35228,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -33479,6 +35295,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -33544,6 +35364,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -33607,6 +35431,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -33672,6 +35500,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -33735,6 +35567,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -33800,6 +35636,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -33863,6 +35703,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -33928,6 +35772,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -33991,6 +35839,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -34056,6 +35908,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -34119,6 +35975,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -34184,6 +36044,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -34247,6 +36111,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -34312,6 +36180,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -34375,6 +36247,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -34440,6 +36316,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -34503,6 +36383,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -34568,6 +36452,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -34631,6 +36519,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -34696,6 +36588,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -34759,6 +36655,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -34829,6 +36729,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -34897,6 +36801,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -34967,6 +36875,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -35035,6 +36947,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -35105,6 +37021,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -35173,6 +37093,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -35243,6 +37167,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -35311,6 +37239,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -35381,6 +37313,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -35449,6 +37385,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -35519,6 +37459,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Unidades Compatibles",
@@ -35588,6 +37532,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -35640,6 +37588,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -35694,6 +37646,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -35746,6 +37702,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -35800,6 +37760,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -35852,6 +37816,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -35906,6 +37874,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -35958,6 +37930,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36012,6 +37988,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -36064,6 +38044,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36118,6 +38102,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -36170,6 +38158,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36224,6 +38216,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -36276,6 +38272,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36330,6 +38330,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -36383,6 +38387,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cilindros",
@@ -36435,6 +38443,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36495,6 +38507,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
@@ -36553,6 +38569,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36613,6 +38633,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
@@ -36671,6 +38695,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36731,6 +38759,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
@@ -36789,6 +38821,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36849,6 +38885,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
@@ -36907,6 +38947,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -36967,6 +39011,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
@@ -37025,6 +39073,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -37085,6 +39137,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
@@ -37143,6 +39199,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -37203,6 +39263,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Calor",
@@ -37261,6 +39325,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -37321,6 +39389,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -37379,6 +39451,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -37439,6 +39515,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -37497,6 +39577,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -37557,6 +39641,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -37615,6 +39703,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -37675,6 +39767,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -37733,6 +39829,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -37793,6 +39893,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -37851,6 +39955,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -37911,6 +40019,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -37969,6 +40081,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38029,6 +40145,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -38087,6 +40207,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38147,6 +40271,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -38205,6 +40333,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38265,6 +40397,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -38323,6 +40459,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38383,6 +40523,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -38441,6 +40585,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38501,6 +40649,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Presión",
@@ -38559,6 +40711,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38619,6 +40775,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
@@ -38677,6 +40837,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38737,6 +40901,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
@@ -38795,6 +40963,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38855,6 +41027,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
@@ -38913,6 +41089,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -38973,6 +41153,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
@@ -39031,6 +41215,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -39091,6 +41279,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
@@ -39149,6 +41341,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -39209,6 +41405,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
@@ -39267,6 +41467,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -39327,6 +41531,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja Fusora",
@@ -39385,6 +41593,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -39445,6 +41657,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
@@ -39503,6 +41719,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -39563,6 +41783,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
@@ -39621,6 +41845,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -39681,6 +41909,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
@@ -39739,6 +41971,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -39799,6 +42035,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
@@ -39857,6 +42097,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -39917,6 +42161,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
@@ -39975,6 +42223,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -40035,6 +42287,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
@@ -40094,6 +42350,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Cilindro",
@@ -40152,6 +42412,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -40217,6 +42481,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Transferencia",
@@ -40280,6 +42548,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -40345,6 +42617,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Transferencia",
@@ -40408,6 +42684,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -40473,6 +42753,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Cuchillas de Transferencia",
@@ -40536,6 +42820,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -40601,6 +42889,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Barra Lubricadora",
@@ -40664,6 +42956,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -40729,6 +43025,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Rodillo de Esponja",
@@ -40792,6 +43092,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -40857,6 +43161,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja de Transferencia",
@@ -40920,6 +43228,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -40985,6 +43297,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja de Transferencia",
@@ -41048,6 +43364,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -41113,6 +43433,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Faja de Transferencia",
@@ -41177,6 +43501,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Almohadilla",
@@ -41235,6 +43563,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -41295,6 +43627,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Almohadilla",
@@ -41353,6 +43689,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -41418,6 +43758,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Manta Web",
@@ -41481,6 +43825,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -41546,6 +43894,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Manta Web",
@@ -41609,6 +43961,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -41674,6 +44030,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Manta Web",
@@ -41737,6 +44097,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -41802,6 +44166,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Revelador",
@@ -41865,6 +44233,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -41930,6 +44302,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Revelador",
@@ -41993,6 +44369,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -42063,6 +44443,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Revelador",
@@ -42131,6 +44515,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -42201,6 +44589,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Revelador",
@@ -42270,6 +44662,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Revelador",
@@ -42333,6 +44729,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -42398,6 +44798,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -42461,6 +44865,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -42526,6 +44934,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -42589,6 +45001,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -42654,6 +45070,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -42717,6 +45137,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -42782,6 +45206,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -42845,6 +45273,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -42910,6 +45342,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -42973,6 +45409,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -43038,6 +45478,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -43101,6 +45545,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -43166,6 +45614,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -43229,6 +45681,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -43294,6 +45750,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -43357,6 +45817,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -43422,6 +45886,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Ruedas de Casetera",
@@ -43485,6 +45953,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -43550,6 +46022,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Engranaje/Piñon",
@@ -43613,6 +46089,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -43678,6 +46158,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Engranaje/Piñon",
@@ -43741,6 +46225,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -43806,6 +46294,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Engranaje/Piñon",
@@ -43869,6 +46361,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -43934,6 +46430,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Uñas de Fusor",
@@ -43997,6 +46497,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -44062,6 +46566,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Bocinas",
@@ -44126,6 +46634,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Piñon de Fusor",
@@ -44189,6 +46701,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -44259,6 +46775,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -44327,6 +46847,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -44397,6 +46921,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -44465,6 +46993,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -44535,6 +47067,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -44603,6 +47139,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -44673,6 +47213,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -44741,6 +47285,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -44811,6 +47359,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -44879,6 +47431,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -44949,6 +47505,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -45017,6 +47577,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -45087,6 +47651,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -45155,6 +47723,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -45225,6 +47797,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -45293,6 +47869,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -45363,6 +47943,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -45431,6 +48015,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -45501,6 +48089,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -45569,6 +48161,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -45639,6 +48235,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -45708,6 +48308,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Equipos de Oficina, Espiraladoras",
@@ -45772,6 +48376,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -45838,6 +48446,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Equipos de Oficina, Espiraladoras",
@@ -45902,6 +48514,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -45968,6 +48584,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Equipos de Oficina, Espiraladoras",
@@ -46032,6 +48652,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -46098,6 +48722,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Equipos de Oficina, Anilladoras",
@@ -46162,6 +48790,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -46228,6 +48860,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Equipos de Oficina, Anilladoras",
@@ -46292,6 +48928,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -46362,6 +49002,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -46430,6 +49074,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -46500,6 +49148,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -46568,6 +49220,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -46638,6 +49294,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -46706,6 +49366,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -46776,6 +49440,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos Compatibles, Chip de Toner",
@@ -46844,6 +49512,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -47026,6 +49698,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -47113,6 +49789,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -47202,6 +49882,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -47289,6 +49973,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -47378,6 +50066,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Impresoras, Impresoras Laser Nuevas",
@@ -47460,6 +50152,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -47549,6 +50245,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -47636,6 +50336,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -47725,6 +50429,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -47812,6 +50520,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -47901,6 +50613,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -47984,6 +50700,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -48066,6 +50786,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -48155,9 +50879,13 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
-      "category": "Impresoras, Impresoras Nuevas",
+      "category": "Impresoras, Impresoras Térmicas",
       "brand": "Pantum",
       "image_url": "/products/pantum-pd-80.webp",
       "gallery": [],
@@ -48232,6 +50960,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -48326,6 +51058,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -48419,6 +51155,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Formato Ancho",
@@ -48493,6 +51233,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Formato Ancho",
@@ -48566,6 +51310,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -48646,6 +51394,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Formato Ancho",
@@ -48724,6 +51476,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -48814,6 +51570,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -48902,6 +51662,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -48992,6 +51756,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -49081,6 +51849,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -49168,6 +51940,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -49257,6 +52033,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -49344,6 +52124,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -49433,6 +52217,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -49520,6 +52308,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -49609,6 +52401,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -49696,6 +52492,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -49785,6 +52585,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -49872,6 +52676,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -49961,6 +52769,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -50048,6 +52860,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -50137,6 +52953,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -50225,6 +53045,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Original",
@@ -50298,6 +53122,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -50373,6 +53201,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Original",
@@ -50447,6 +53279,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Toner Original",
@@ -50520,6 +53356,10 @@
         {
           "warehouse_id": "principal",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
         }
       ],
       "category": "Repuestos",
@@ -50584,6 +53424,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],
@@ -50650,6 +53494,10 @@
         },
         {
           "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
           "quantity": 0
         }
       ],

@@ -59,7 +59,7 @@ function CatalogCardPricing({ product }: { product: Product }) {
       <div className="space-y-1">
         {displayPrice.viewAsLabel ? <ViewAsRoleBadge label={displayPrice.viewAsLabel} /> : null}
         <div className="rounded-md border border-border/60 bg-muted/15 px-2 py-1.5">
-          <p className="text-base font-bold leading-tight text-foreground xl:text-lg">
+          <p className="text-xs font-semibold leading-tight text-muted-foreground sm:text-sm">
             {CONSULTAR_PRECIO_LABEL}
           </p>
         </div>
@@ -92,7 +92,7 @@ function CatalogCardPricing({ product }: { product: Product }) {
   const penColumn = showPen ? (
     <div className={cn('min-w-0', showUsd && !penFirst && 'border-l border-border/50 pl-2')}>
       <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-muted-foreground">PEN</p>
-      <p className="text-base font-bold tabular-nums leading-tight text-red-600 xl:text-lg">
+      <p className="text-base font-bold tabular-nums leading-tight text-foreground xl:text-lg">
         {formatPenFromUsd(pricing.currentUsd)}
       </p>
     </div>

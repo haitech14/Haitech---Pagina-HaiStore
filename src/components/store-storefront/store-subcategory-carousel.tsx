@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ResponsiveStaticImage } from '@/components/ui/responsive-static-image';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { CATEGORY_STRIP_TRACK_WRAPPER_CLASS } from '@/lib/category-strip-layout';
+import { resolveSubcategoryAttributeLabels } from '@/lib/subcategory-attribute-labels';
 import { resolveSubcategoryImage } from '@/lib/subcategory-product-image';
 import { formatSubcategoryTabLabel } from '@/lib/store-category-display';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,34 @@ import type { StoreCategoryTreeNode } from '@/types/store-category';
 
 const CAROUSEL_GAP_CLASS = 'gap-2 sm:gap-2.5';
 
+/** Placeholder mientras llega el árbol (evita salto de layout). */
+export function StoreSubcategoryCarouselSkeleton({
+  count = 3,
+  className,
+}: {
+  count?: number;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn('flex gap-2 sm:gap-2.5', className)}
+      aria-hidden="true"
+      role="presentation"
+    >
+      {Array.from({ length: count }, (_, index) => (
+        <div
+          key={index}
+          className="flex min-h-[11.5rem] min-w-[9.5rem] max-w-[12.5rem] flex-col items-center gap-2.5 rounded-xl border border-border/50 bg-white px-3 py-3.5 sm:min-h-[12.75rem] sm:min-w-[10.5rem] sm:gap-3 sm:py-4"
+        >
+          <div className="size-[4.25rem] animate-pulse rounded-lg bg-neutral-100 sm:size-[5rem]" />
+          <div className="h-3 w-20 animate-pulse rounded bg-neutral-100" />
+          <div className="h-2.5 w-16 animate-pulse rounded bg-neutral-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 interface StoreSubcategoryCarouselProps {
   subcategories: StoreCategoryTreeNode[];
   activeSubSlug: string | null;
@@ -20,21 +49,29 @@ interface StoreSubcategoryCarouselProps {
   parentImage?: string | null;
   products?: Product[];
   onSelect: (subSlug: string | null) => void;
+  /** Prefetch del catálogo al pasar el cursor (páginas de categoría). */
+  onPrefetch?: (subSlug: string) => void;
   /** Carrusel horizontal (default) o lista vertical junto al banner. */
   layout?: 'carousel' | 'stack';
+  /** Etiqueta accesible (p. ej. «Categorías» cuando se reutiliza para raíces). */
+  ariaLabel?: string;
   className?: string;
 }
 
 function SubcategoryCarouselCard({
   label,
   image,
+  attributes,
   isActive,
   onSelect,
+  onPrefetch,
 }: {
   label: string;
   image: string | null;
+  attributes: string[];
   isActive: boolean;
   onSelect: () => void;
+  onPrefetch?: () => void;
 }) {
   return (
     <button
@@ -42,15 +79,17 @@ function SubcategoryCarouselCard({
       role="tab"
       aria-selected={isActive}
       onClick={onSelect}
+      onMouseEnter={onPrefetch}
+      onFocus={onPrefetch}
       className={cn(
-        'flex w-full min-w-[10.5rem] max-w-[14rem] items-center gap-2.5 rounded-xl border bg-white px-2.5 py-2 text-left shadow-[0_1px_4px_rgba(15,31,61,0.06)] transition-all sm:min-w-[11.5rem] sm:gap-3 sm:px-3 sm:py-2.5',
+        'flex h-full min-h-[11.5rem] w-full min-w-[9.5rem] max-w-[12.5rem] flex-col items-center gap-2.5 rounded-xl border bg-white px-3 py-3.5 text-center shadow-[0_1px_4px_rgba(15,31,61,0.06)] transition-all sm:min-h-[12.75rem] sm:min-w-[10.5rem] sm:gap-3 sm:px-3.5 sm:py-4',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
         isActive
           ? 'border-red-600 ring-1 ring-red-600/20'
           : 'border-border/70 hover:border-border hover:shadow-[0_2px_8px_rgba(15,31,61,0.08)]',
       )}
     >
-      <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/30 p-1 sm:size-12">
+      <span className="flex size-[4.25rem] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/30 p-1 sm:size-[5rem] sm:p-1.5">
         {image ? (
           <ResponsiveStaticImage
             src={image}
@@ -61,13 +100,26 @@ function SubcategoryCarouselCard({
             loading="lazy"
           />
         ) : (
-          <span className="text-[0.625rem] font-bold text-muted-foreground" aria-hidden="true">
+          <span className="text-base font-bold text-muted-foreground sm:text-lg" aria-hidden="true">
             {label.charAt(0)}
           </span>
         )}
       </span>
-      <span className="line-clamp-2 min-w-0 flex-1 text-pretty text-xs font-semibold leading-snug text-foreground sm:text-[0.8125rem]">
-        {label}
+
+      <span className="flex min-h-0 w-full flex-1 flex-col items-center justify-start gap-1.5">
+        <span className="block min-h-[2.5rem] text-pretty text-xs font-semibold leading-snug text-foreground sm:min-h-[2.75rem] sm:text-[0.8125rem]">
+          {label}
+        </span>
+        <span className="flex min-h-[1.25rem] w-full flex-wrap items-start justify-center gap-1">
+          {attributes.map((attribute) => (
+            <span
+              key={attribute}
+              className="inline-flex max-w-full truncate rounded-full bg-muted/60 px-1.5 py-0.5 text-[0.625rem] font-medium leading-none text-muted-foreground"
+            >
+              {attribute}
+            </span>
+          ))}
+        </span>
       </span>
     </button>
   );
@@ -80,7 +132,9 @@ export function StoreSubcategoryCarousel({
   parentImage = null,
   products = [],
   onSelect,
+  onPrefetch,
   layout = 'carousel',
+  ariaLabel = 'Subcategorías',
   className,
 }: StoreSubcategoryCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -92,13 +146,16 @@ export function StoreSubcategoryCarousel({
   });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const fitsInView = !canScrollPrev && !canScrollNext;
 
   const items = useMemo(
     () =>
       subcategories.map((sub) => ({
         sub,
         label: formatSubcategoryTabLabel(sub.name, parentName),
-        image: resolveSubcategoryImage(sub, products, parentImage),
+        // Stock/tree primero: no esperar al grid de productos.
+        image: resolveSubcategoryImage(sub, products, parentImage, { preferStock: true }),
+        attributes: resolveSubcategoryAttributeLabels(sub, products),
       })),
     [parentImage, parentName, products, subcategories],
   );
@@ -132,20 +189,22 @@ export function StoreSubcategoryCarousel({
   if (layout === 'stack') {
     return (
       <section
-        aria-label="Subcategorías"
+        aria-label={ariaLabel}
         className={cn('w-full', className)}
         role="tablist"
       >
-        <ul className="flex max-h-[min(52vw,10.5rem)] flex-col gap-2 overflow-y-auto sm:max-h-[12rem] md:max-h-[13rem]">
-          {items.map(({ sub, label, image }) => {
+        <ul className="flex max-h-[min(70vw,22rem)] flex-col gap-2 overflow-y-auto sm:max-h-[24rem]">
+          {items.map(({ sub, label, image, attributes }) => {
             const isActive = activeSubSlug === sub.slug;
             return (
-              <li key={sub.id} className="min-w-0 shrink-0">
+              <li key={sub.id} className="flex min-w-0 shrink-0">
                 <SubcategoryCarouselCard
                   label={label}
                   image={image}
+                  attributes={attributes}
                   isActive={isActive}
                   onSelect={() => onSelect(isActive ? null : sub.slug)}
+                  {...(onPrefetch ? { onPrefetch: () => onPrefetch(sub.slug) } : {})}
                 />
               </li>
             );
@@ -163,7 +222,7 @@ export function StoreSubcategoryCarousel({
 
   return (
     <section
-      aria-label="Subcategorías"
+      aria-label={ariaLabel}
       className={cn('w-full', className)}
       role="tablist"
     >
@@ -181,23 +240,28 @@ export function StoreSubcategoryCarousel({
             onClick={scrollPrev}
             disabled={!canScrollPrev}
             className={cn(arrowClass, '-left-1')}
-            aria-label="Subcategorías anteriores"
+            aria-label={`${ariaLabel} anteriores`}
           >
             <ChevronLeft className="size-4 sm:size-5" aria-hidden="true" />
           </button>
         ) : null}
 
         <div ref={emblaRef} className="overflow-hidden px-0.5">
-          <ul className={cn('flex', CAROUSEL_GAP_CLASS)} role="list">
-            {items.map(({ sub, label, image }) => {
+          <ul
+            className={cn('flex', CAROUSEL_GAP_CLASS, fitsInView && 'w-full justify-center')}
+            role="list"
+          >
+            {items.map(({ sub, label, image, attributes }) => {
               const isActive = activeSubSlug === sub.slug;
               return (
-                <li key={sub.id} className="min-w-0 shrink-0">
+                <li key={sub.id} className="flex min-w-0 shrink-0">
                   <SubcategoryCarouselCard
                     label={label}
                     image={image}
+                    attributes={attributes}
                     isActive={isActive}
                     onSelect={() => onSelect(isActive ? null : sub.slug)}
+                    {...(onPrefetch ? { onPrefetch: () => onPrefetch(sub.slug) } : {})}
                   />
                 </li>
               );
@@ -211,7 +275,7 @@ export function StoreSubcategoryCarousel({
             onClick={scrollNext}
             disabled={!canScrollNext}
             className={cn(arrowClass, '-right-1')}
-            aria-label="Subcategorías siguientes"
+            aria-label={`${ariaLabel} siguientes`}
           >
             <ChevronRight className="size-4 sm:size-5" aria-hidden="true" />
           </button>

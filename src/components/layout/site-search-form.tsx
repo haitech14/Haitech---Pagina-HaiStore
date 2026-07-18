@@ -10,6 +10,10 @@ import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
 import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
+import {
+  clipboardPriceFieldsFromDisplay,
+  useCatalogDisplayPrice,
+} from '@/hooks/use-catalog-display-price';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { prefetchProductSearch, useProductSearch } from '@/hooks/use-product-search';
@@ -20,6 +24,8 @@ import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
 import {
   filterCategoriesBySearch,
   filterServicesBySearch,
+  groupEquiposSearchProductsByCondition,
+  groupRepuestosSearchProductsBySupplyType,
   groupSearchProductsByPanelSection,
   MIN_PRODUCT_SEARCH_LENGTH,
   normalizeSearchText,
@@ -73,7 +79,7 @@ type SiteSearchFormProps = {
   showSearchIcons?: boolean;
   /** Enfoca el campo al montar (p. ej. sheet de búsqueda móvil). */
   autoFocusInput?: boolean;
-  /** Muestra filtro de categoría encima del campo (variant simple). */
+  /** Filtro de categoría: encima del campo (simple) o segmento a la derecha (segmented). */
   showCategoryFilter?: boolean;
 };
 
@@ -137,15 +143,15 @@ const denseSearchButtonClass =
   'flex h-10 w-10 shrink-0 items-center justify-center rounded-r-full border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 const SEARCH_SUGGESTION_THUMB_CLASS =
-  'size-8 shrink-0 overflow-hidden rounded border border-border/50 bg-white sm:size-9';
+  'size-12 shrink-0 overflow-hidden rounded-md border border-border/50 bg-white sm:size-14';
 
 const SEARCH_SUGGESTION_CELL_CLASS =
-  'flex w-full items-center gap-1.5 px-2 py-1.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2 sm:px-2.5';
+  'flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-3 sm:px-3.5 sm:py-3';
 
 const SEARCH_DROPDOWN_PANEL_CLASS =
-  'absolute left-0 right-0 top-full z-[60] mt-2 max-h-[min(80vh,36rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,56rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,72rem)]';
+  'absolute left-0 right-0 top-full z-[60] mt-2 max-h-[min(80vh,40rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,44rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,48rem)]';
 
-/** Columnas fijas del panel: Equipos | Tóner | Repuestos */
+/** Pestañas del panel: Equipos | Tóner | Repuestos (lista en una columna). */
 const SEARCH_RESULT_COLUMNS = [
   {
     key: 'equipos',
@@ -164,9 +170,11 @@ const SEARCH_RESULT_COLUMNS = [
   },
 ] as const;
 
+type SearchResultColumnKey = (typeof SEARCH_RESULT_COLUMNS)[number]['key'];
+
 function SuggestionSectionHeading({ children }: { children: string }) {
   return (
-    <p className="border-b border-border/60 bg-muted/25 px-3 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:px-3.5">
+    <p className="border-b border-border/60 bg-muted/25 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:px-4">
       {children}
     </p>
   );
@@ -281,8 +289,8 @@ function SearchProductSuggestionCell({
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const pricing = getCatalogCardPricing({ id: product.id, price: product.price });
   const showPrice = product.price > 0;
-  const { headline, subtitle } = getHomeLandingProductCardLines(product);
-  const title = subtitle ? `${headline} · ${subtitle}` : headline;
+  const { headline } = getHomeLandingProductCardLines(product);
+  const title = headline;
   const priceAria = showPrice
     ? formatDisplayPriceFromUsd(pricing.currentUsd, displayCurrency, dualPriceOrder)
     : CONSULTAR_PRECIO_LABEL;
@@ -291,12 +299,13 @@ function SearchProductSuggestionCell({
   const clipboardCode = product.code?.trim() || null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const detailPath = productPath(product);
+  const displayPrice = useCatalogDisplayPrice(product);
   const clipboardImageUrl = useMemo(
     () => buildSearchSuggestionThumbCandidates(product)[0] ?? null,
     [product],
   );
   const copyActionClass =
-    'shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted/80 hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
+    'shrink-0 rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted/80 hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
 
   return (
     <div
@@ -313,24 +322,18 @@ function SearchProductSuggestionCell({
       onClick={onNavigateProduct}
     >
       <SearchProductSuggestionThumb product={product} />
-      <span className="flex min-w-0 flex-1 items-start gap-2">
+      <span className="flex min-w-0 flex-1 items-center gap-3">
         <span className="min-w-0 flex-1">
-          <span className="line-clamp-1 text-[0.75rem] font-medium leading-snug text-foreground sm:text-[0.8125rem]">
+          <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground sm:text-[0.9375rem]">
             {highlightSearchTerms(headline, query)}
-            {subtitle ? (
-              <span className="font-normal text-muted-foreground">
-                {' · '}
-                {subtitle}
-              </span>
-            ) : null}
           </span>
         </span>
         {showPrice ? (
-          <span className="shrink-0 text-[0.6875rem] font-semibold tabular-nums sm:text-xs">
+          <span className="shrink-0 text-sm font-semibold tabular-nums sm:text-[0.9375rem]">
             <DualPrice usd={pricing.currentUsd} />
           </span>
         ) : (
-          <span className="shrink-0 text-[0.6875rem] font-medium text-[#E30613]">
+          <span className="shrink-0 text-sm font-medium text-[#E30613]">
             {CONSULTAR_PRECIO_LABEL}
           </span>
         )}
@@ -347,7 +350,7 @@ function SearchProductSuggestionCell({
           productName={product.name}
           title={product.name}
           stock={stockCount}
-          priceUsd={product.price}
+          {...clipboardPriceFieldsFromDisplay(displayPrice)}
           productId={product.id}
           productPath={detailPath}
           isColorProduct={clipboardIsColor}
@@ -404,6 +407,7 @@ export function SiteSearchForm({
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES_VALUE);
   const [panelOpen, setPanelOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [activeResultTab, setActiveResultTab] = useState<SearchResultColumnKey>('equipos');
   const [pagination, setPagination] = useState({
     scopeKey: '',
     extraLoads: 0,
@@ -487,21 +491,74 @@ export function SiteSearchForm({
     });
   }, [productSuggestions, trimmedDebouncedQuery]);
 
-  const visibleProductSuggestions = useMemo(
-    () => productSectionGroups.flatMap((group) => group.products),
-    [productSectionGroups],
-  );
-
   useEffect(() => {
     if (!autoFocusInput) return;
     const timer = window.setTimeout(() => inputRef.current?.focus(), 100);
     return () => window.clearTimeout(timer);
   }, [autoFocusInput]);
 
-  const productSuggestionsWithIndices = useMemo(() => {
+  const productResultColumns = useMemo(() => {
+    return SEARCH_RESULT_COLUMNS.map((column) => {
+      const groups = productSectionGroups.filter((group) => column.match(group.category));
+      return {
+        key: column.key,
+        title: column.title,
+        groups,
+        productCount: groups.reduce((sum, group) => sum + group.products.length, 0),
+      };
+    });
+  }, [productSectionGroups]);
+
+  const hasProductResults = productResultColumns.some((column) => column.productCount > 0);
+
+  useEffect(() => {
+    if (!hasProductResults) return;
+    const activeHasResults = productResultColumns.some(
+      (column) => column.key === activeResultTab && column.productCount > 0,
+    );
+    if (activeHasResults) return;
+    const firstWithResults = productResultColumns.find((column) => column.productCount > 0);
+    if (firstWithResults) {
+      setActiveResultTab(firstWithResults.key);
+      setActiveIndex(-1);
+    }
+  }, [productResultColumns, activeResultTab, hasProductResults]);
+
+  const activeResultColumn = useMemo(
+    () => productResultColumns.find((column) => column.key === activeResultTab) ?? null,
+    [productResultColumns, activeResultTab],
+  );
+
+  /** Índices de sugerencia solo para productos visibles en la pestaña activa. */
+  const activeTabProductSuggestionsWithIndices = useMemo(() => {
     const baseIndex = categorySuggestions.length + serviceSuggestions.length;
+    if (!activeResultColumn) return [];
+
+    let displayGroups = activeResultColumn.groups.map((group) => ({
+      category: group.category,
+      products: group.products,
+      hiddenCount: group.hiddenCount,
+    }));
+
+    if (activeResultTab === 'equipos' || activeResultTab === 'repuestos') {
+      const allProducts = activeResultColumn.groups.flatMap((group) => group.products);
+      const totalHidden = activeResultColumn.groups.reduce(
+        (sum, group) => sum + group.hiddenCount,
+        0,
+      );
+      const grouped =
+        activeResultTab === 'equipos'
+          ? groupEquiposSearchProductsByCondition(allProducts)
+          : groupRepuestosSearchProductsBySupplyType(allProducts);
+      displayGroups = grouped.map((group, index) => ({
+        category: group.category,
+        products: group.products,
+        hiddenCount: index === grouped.length - 1 ? totalHidden : 0,
+      }));
+    }
+
     let offset = 0;
-    return productSectionGroups.map((group) => {
+    return displayGroups.map((group) => {
       const products = group.products.map((product, productIndex) => ({
         product,
         suggestionIndex: baseIndex + offset + productIndex,
@@ -513,21 +570,17 @@ export function SiteSearchForm({
         products,
       };
     });
-  }, [productSectionGroups, categorySuggestions.length, serviceSuggestions.length]);
+  }, [
+    activeResultColumn,
+    activeResultTab,
+    categorySuggestions.length,
+    serviceSuggestions.length,
+  ]);
 
-  const productResultColumns = useMemo(() => {
-    return SEARCH_RESULT_COLUMNS.map((column) => {
-      const groups = productSuggestionsWithIndices.filter((group) =>
-        column.match(group.category),
-      );
-      return {
-        key: column.key,
-        title: column.title,
-        groups,
-        productCount: groups.reduce((sum, group) => sum + group.products.length, 0),
-      };
-    }).filter((column) => column.productCount > 0);
-  }, [productSuggestionsWithIndices]);
+  const visibleProductSuggestions = useMemo(
+    () => activeTabProductSuggestionsWithIndices.flatMap((group) => group.products.map((p) => p.product)),
+    [activeTabProductSuggestionsWithIndices],
+  );
 
   const suggestions = useMemo<SearchSuggestionItem[]>(
     () => [
@@ -824,29 +877,33 @@ export function SiteSearchForm({
 
         {variant === 'segmented' ? (
           <>
-            <label htmlFor={categoryFieldId} className="sr-only">
-              Categoría
-            </label>
-            <div className="relative shrink-0">
-              <select
-                id={categoryFieldId}
-                value={categoryFilter}
-                onChange={(event) => setCategoryFilter(event.target.value)}
-                className={categoryClass}
-                aria-label="Filtrar por categoría"
-              >
-                {categoryOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                className="pointer-events-none absolute right-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
-            </div>
+            {showCategoryFilter ? (
+              <>
+                <label htmlFor={categoryFieldId} className="sr-only">
+                  Categoría
+                </label>
+                <div className="relative shrink-0">
+                  <select
+                    id={categoryFieldId}
+                    value={categoryFilter}
+                    onChange={(event) => setCategoryFilter(event.target.value)}
+                    className={categoryClass}
+                    aria-label="Filtrar por categoría"
+                  >
+                    {categoryOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    className="pointer-events-none absolute right-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                  />
+                </div>
+              </>
+            ) : null}
 
             {showSubmitIcon ? (
               <button type="submit" aria-label="Buscar" className={submitButtonClass}>
@@ -909,22 +966,22 @@ export function SiteSearchForm({
                             role="option"
                             aria-selected={isActive}
                             className={cn(
-                              'flex w-full items-center gap-2 px-3 py-1.5 text-left text-[0.8125rem] transition-colors',
+                              'flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm transition-colors',
                               isActive ? 'bg-accent' : 'hover:bg-muted/60',
                             )}
                             onMouseEnter={() => setActiveIndex(index)}
                             onClick={() => activateSuggestion(item)}
                           >
-                            <span className="flex size-8 shrink-0 items-center justify-center rounded border border-border/60 bg-muted/40 text-foreground/70 sm:size-9">
+                            <span className="flex size-11 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-foreground/70 sm:size-12">
                               <FolderOpen
-                                className="size-3.5"
+                                className="size-4"
                                 strokeWidth={1.75}
                                 aria-hidden="true"
                               />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="block font-medium text-foreground">{item.name}</span>
-                              <span className="mt-0.5 line-clamp-1 text-[0.6875rem] text-muted-foreground">
+                              <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                                 {item.subtitle}
                               </span>
                             </span>
@@ -951,18 +1008,18 @@ export function SiteSearchForm({
                             role="option"
                             aria-selected={isActive}
                             className={cn(
-                              'flex w-full items-center gap-2 px-3 py-1.5 text-left text-[0.8125rem] transition-colors',
+                              'flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm transition-colors',
                               isActive ? 'bg-accent' : 'hover:bg-muted/60',
                             )}
                             onMouseEnter={() => setActiveIndex(suggestionIndex)}
                             onClick={() => activateSuggestion(item)}
                           >
-                            <span className="flex size-8 shrink-0 items-center justify-center rounded border border-border/60 bg-red-600/10 text-red-600 sm:size-9">
-                              <Wrench className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            <span className="flex size-11 shrink-0 items-center justify-center rounded-md border border-border/60 bg-red-600/10 text-red-600 sm:size-12">
+                              <Wrench className="size-4" strokeWidth={1.75} aria-hidden="true" />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="block font-medium text-foreground">{item.name}</span>
-                              <span className="mt-0.5 line-clamp-1 text-[0.6875rem] text-muted-foreground">
+                              <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                                 {item.subtitle}
                               </span>
                             </span>
@@ -973,71 +1030,105 @@ export function SiteSearchForm({
                   </>
                 ) : null}
 
-                {productResultColumns.length > 0 ? (
+                {hasProductResults ? (
                   <li role="presentation" className="min-w-0">
                     <div
-                      className={cn(
-                        'grid divide-y divide-border/60 sm:divide-x sm:divide-y-0',
-                        productResultColumns.length === 1 && 'sm:grid-cols-1',
-                        productResultColumns.length === 2 && 'sm:grid-cols-2',
-                        productResultColumns.length >= 3 && 'sm:grid-cols-3',
-                      )}
+                      className="grid grid-cols-3 border-b border-border/60 bg-muted/25"
+                      role="tablist"
+                      aria-label="Tipo de resultado"
                     >
                       {productResultColumns.map((column) => {
-                        const showGroupSubheadings =
-                          column.groups.length > 1 ||
-                          (column.groups.length === 1 &&
-                            column.groups[0]?.category !== column.title &&
-                            !column.groups[0]?.category.startsWith(column.title));
+                        const selected = column.key === activeResultTab;
+                        const disabled = column.productCount === 0;
                         return (
-                          <div key={column.key} className="min-w-0">
-                            <SuggestionSectionHeading>{column.title}</SuggestionSectionHeading>
-                            {column.groups.map((group) => (
-                              <div key={`product-section-${group.category}`}>
-                                {showGroupSubheadings ? (
-                                  <p className="border-b border-border/40 bg-muted/10 px-3 py-1 text-[0.625rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground/90">
-                                    {group.category}
-                                  </p>
-                                ) : null}
-                                <ul
-                                  role="group"
-                                  aria-label={group.category}
-                                  className="divide-y divide-border/50"
-                                >
-                                  {group.products.map(({ product, suggestionIndex }) => {
-                                    const isActive = suggestionIndex === resolvedActiveIndex;
-                                    return (
-                                      <li key={product.id} role="presentation" className="min-w-0">
-                                        <SearchProductSuggestionCell
-                                          product={product}
-                                          query={trimmedQuery}
-                                          optionId={`${listboxId}-option-${suggestionIndex}`}
-                                          isActive={isActive}
-                                          onMouseEnter={() => setActiveIndex(suggestionIndex)}
-                                          onNavigateProduct={() =>
-                                            activateSuggestion({ type: 'product', product })
-                                          }
-                                        />
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                                {group.hiddenCount > 0 ? (
-                                  <button
-                                    type="button"
-                                    className="w-full border-b border-border/50 px-3 py-1.5 text-left text-xs font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
-                                    onClick={() => goToSearchResults(query, categoryFilter)}
-                                  >
-                                    Ver más en {group.category}
-                                    {group.hiddenCount > 0 ? ` (+${group.hiddenCount})` : ''}
-                                  </button>
-                                ) : null}
-                              </div>
-                            ))}
-                          </div>
+                          <button
+                            key={column.key}
+                            type="button"
+                            role="tab"
+                            aria-selected={selected}
+                            disabled={disabled}
+                            className={cn(
+                              'px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.08em] transition-colors sm:px-4 sm:py-3 sm:text-sm',
+                              selected
+                                ? 'border-b-2 border-red-600 bg-white text-red-600'
+                                : 'text-muted-foreground hover:bg-white/70 hover:text-foreground',
+                              disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground',
+                            )}
+                            onClick={() => {
+                              setActiveResultTab(column.key);
+                              setActiveIndex(-1);
+                            }}
+                          >
+                            {column.title}
+                            {column.productCount > 0 ? (
+                              <span className="ml-1 font-medium tabular-nums opacity-70">
+                                ({column.productCount})
+                              </span>
+                            ) : null}
+                          </button>
                         );
                       })}
                     </div>
+
+                    {activeTabProductSuggestionsWithIndices.length > 0 ? (
+                      <div role="tabpanel" aria-label={activeResultColumn?.title ?? 'Resultados'}>
+                        {activeTabProductSuggestionsWithIndices.map((group) => {
+                          const showGroupSubheading =
+                            activeResultTab === 'equipos' ||
+                            activeResultTab === 'repuestos' ||
+                            activeTabProductSuggestionsWithIndices.length > 1 ||
+                            (activeResultColumn != null &&
+                              group.category !== activeResultColumn.title &&
+                              !group.category.startsWith(activeResultColumn.title));
+                          return (
+                            <div key={`product-section-${group.category}`}>
+                              {showGroupSubheading ? (
+                                <p className="border-b border-border/40 bg-muted/10 px-3.5 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground/90 sm:px-4 sm:text-xs">
+                                  {group.category}
+                                </p>
+                              ) : null}
+                              <ul
+                                role="group"
+                                aria-label={group.category}
+                                className="divide-y divide-border/50"
+                              >
+                                {group.products.map(({ product, suggestionIndex }) => {
+                                  const isActive = suggestionIndex === resolvedActiveIndex;
+                                  return (
+                                    <li key={product.id} role="presentation" className="min-w-0">
+                                      <SearchProductSuggestionCell
+                                        product={product}
+                                        query={trimmedQuery}
+                                        optionId={`${listboxId}-option-${suggestionIndex}`}
+                                        isActive={isActive}
+                                        onMouseEnter={() => setActiveIndex(suggestionIndex)}
+                                        onNavigateProduct={() =>
+                                          activateSuggestion({ type: 'product', product })
+                                        }
+                                      />
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                              {group.hiddenCount > 0 ? (
+                                <button
+                                  type="button"
+                                  className="w-full border-b border-border/50 px-3.5 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+                                  onClick={() => goToSearchResults(query, categoryFilter)}
+                                >
+                                  Ver más en {group.category}
+                                  {` (+${group.hiddenCount})`}
+                                </button>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="px-3 py-4 text-center text-xs text-muted-foreground">
+                        Sin resultados en {activeResultColumn?.title ?? 'esta categoría'}.
+                      </p>
+                    )}
                   </li>
                 ) : null}
 
@@ -1063,10 +1154,10 @@ export function SiteSearchForm({
                   {canLoadMoreProducts ? (
                     <button
                       type="button"
-                      className="flex w-full items-center justify-center gap-1.5 px-3 py-2 text-center text-xs font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+                      className="flex w-full items-center justify-center gap-1.5 px-3 py-2.5 text-center text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
                       onClick={loadMoreProducts}
                     >
-                      <Plus className="size-3.5" aria-hidden="true" />
+                      <Plus className="size-4" aria-hidden="true" />
                       Agregar más productos
                     </button>
                   ) : null}
@@ -1074,7 +1165,7 @@ export function SiteSearchForm({
                     <button
                       type="button"
                       className={cn(
-                        'flex w-full items-center justify-center px-3 py-2.5 text-center text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset sm:text-[0.8125rem]',
+                        'flex w-full items-center justify-center px-3 py-3 text-center text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset',
                         canLoadMoreProducts && 'border-t border-border/60',
                       )}
                       onClick={() => goToSearchResults(query, categoryFilter)}

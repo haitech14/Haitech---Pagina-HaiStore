@@ -193,6 +193,7 @@ const EQUIPMENT_SUBCATEGORIES = {
     { slug: 'impresoras-laser-nuevas', name: 'Impresoras Láser Nuevas' },
     { slug: 'impresoras-laser-seminuevas', name: 'Impresoras Láser Seminuevas' },
     { slug: 'impresoras-laser-remanufacturadas', name: 'Impresoras Láser Remanufacturadas' },
+    { slug: 'impresoras-termicas', name: 'Impresoras Térmicas' },
   ],
   'toner-suministros': [
     { slug: 'toner-originales', name: 'Toner Originales' },

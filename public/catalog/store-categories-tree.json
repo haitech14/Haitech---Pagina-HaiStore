@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-17T10:18:09.509Z",
+  "generatedAt": "2026-07-17T18:05:20.666Z",
   "tree": [
     {
       "id": "cat-multifuncionales",
@@ -14,7 +14,53 @@
       ],
       "image": "/categories/multifuncionales.png",
       "tagline": "Imprime, escanea y copia en un solo equipo",
-      "children": [],
+      "children": [
+        {
+          "id": "static-multifuncionales-nuevas",
+          "name": "Multifuncionales Nuevas",
+          "slug": "multifuncionales-nuevas",
+          "parentId": "cat-multifuncionales",
+          "sortOrder": 0,
+          "inventoryLabels": [
+            "Multifuncionales Nuevas",
+            "Multifuncionales, Multifuncionales Nuevas"
+          ],
+          "image": "/categories/subcategories/equipo-nuevo.png",
+          "tagline": null,
+          "productCount": 0,
+          "children": []
+        },
+        {
+          "id": "static-multifuncionales-seminuevas",
+          "name": "Multifuncionales Seminuevas",
+          "slug": "multifuncionales-seminuevas",
+          "parentId": "cat-multifuncionales",
+          "sortOrder": 1,
+          "inventoryLabels": [
+            "Multifuncionales Seminuevas",
+            "Multifuncionales, Multifuncionales Seminuevas"
+          ],
+          "image": "/categories/subcategories/equipo-seminuevo.png",
+          "tagline": null,
+          "productCount": 0,
+          "children": []
+        },
+        {
+          "id": "static-multifuncionales-remanufacturadas",
+          "name": "Multifuncionales Remanufacturadas",
+          "slug": "multifuncionales-remanufacturadas",
+          "parentId": "cat-multifuncionales",
+          "sortOrder": 2,
+          "inventoryLabels": [
+            "Multifuncionales Remanufacturadas",
+            "Multifuncionales, Multifuncionales Remanufacturadas"
+          ],
+          "image": "/categories/subcategories/equipo-remanufacturado.png",
+          "tagline": null,
+          "productCount": 0,
+          "children": []
+        }
+      ],
       "productCount": 131
     },
     {
@@ -28,7 +74,72 @@
       ],
       "image": "/categories/impresoras.png",
       "tagline": "Láser, inkjet y soluciones de impresión",
-      "children": [],
+      "children": [
+        {
+          "id": "static-impresoras-laser-nuevas",
+          "name": "Impresoras Láser Nuevas",
+          "slug": "impresoras-laser-nuevas",
+          "parentId": "cat-impresoras",
+          "sortOrder": 0,
+          "inventoryLabels": [
+            "Impresoras Laser Nuevas",
+            "Impresoras Láser Nuevas",
+            "Impresoras, Impresoras Laser Nuevas",
+            "Impresoras, Impresoras Láser Nuevas"
+          ],
+          "image": "/categories/subcategories/equipo-nuevo.png",
+          "tagline": null,
+          "productCount": 0,
+          "children": []
+        },
+        {
+          "id": "static-impresoras-laser-seminuevas",
+          "name": "Impresoras Láser Seminuevas",
+          "slug": "impresoras-laser-seminuevas",
+          "parentId": "cat-impresoras",
+          "sortOrder": 1,
+          "inventoryLabels": [
+            "Impresoras Laser Seminuevas",
+            "Impresoras Láser Seminuevas"
+          ],
+          "image": "/categories/subcategories/equipo-seminuevo.png",
+          "tagline": null,
+          "productCount": 0,
+          "children": []
+        },
+        {
+          "id": "static-impresoras-laser-remanufacturadas",
+          "name": "Impresoras Láser Remanufacturadas",
+          "slug": "impresoras-laser-remanufacturadas",
+          "parentId": "cat-impresoras",
+          "sortOrder": 2,
+          "inventoryLabels": [
+            "Impresoras Laser Remanufacturadas",
+            "Impresoras Láser Remanufacturadas"
+          ],
+          "image": "/categories/subcategories/equipo-remanufacturado.png",
+          "tagline": null,
+          "productCount": 0,
+          "children": []
+        },
+        {
+          "id": "static-impresoras-termicas",
+          "name": "Impresoras Térmicas",
+          "slug": "impresoras-termicas",
+          "parentId": "cat-impresoras",
+          "sortOrder": 3,
+          "inventoryLabels": [
+            "Impresoras Térmicas",
+            "Impresoras Termicas",
+            "Impresoras, Impresoras Térmicas",
+            "Impresoras, Impresoras Termicas"
+          ],
+          "image": "/home/category-chips/equipment/impresora-termica.webp",
+          "tagline": null,
+          "productCount": 1,
+          "children": []
+        }
+      ],
       "productCount": 14
     },
     {
@@ -158,6 +269,21 @@
           "tagline": "Tintas compatibles y alternativas",
           "children": [],
           "productCount": 0
+        },
+        {
+          "id": "static-suministros",
+          "name": "Suministros",
+          "slug": "suministros",
+          "parentId": "cat-toner",
+          "sortOrder": 6,
+          "inventoryLabels": [
+            "Suministros",
+            "Toner, Suministros"
+          ],
+          "image": "/categories/toner-suministros.png",
+          "tagline": null,
+          "productCount": 0,
+          "children": []
         }
       ],
       "productCount": 134
@@ -174,6 +300,22 @@
       "image": "/categories/repuestos.png",
       "tagline": "Partes y componentes para impresoras",
       "children": [
+        {
+          "id": "cat-repuestos-originales",
+          "name": "Repuestos Originales",
+          "slug": "repuestos-originales",
+          "parentId": "cat-repuestos",
+          "sortOrder": 0,
+          "inventoryLabels": [
+            "Repuestos Originales",
+            "Repuesto Original",
+            "Repuestos, Repuestos Originales"
+          ],
+          "image": "/categories/repuestos.png",
+          "tagline": "Partes y componentes originales Ricoh",
+          "children": [],
+          "productCount": 1
+        },
         {
           "id": "cat-repuestos-compatibles",
           "name": "Repuestos Compatibles",
@@ -226,7 +368,7 @@
           "productCount": 79
         }
       ],
-      "productCount": 79
+      "productCount": 80
     },
     {
       "id": "cat-servicio-tecnico",

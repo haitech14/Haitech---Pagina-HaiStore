@@ -33,6 +33,12 @@ const SUBCATEGORY_INVENTORY_LABELS: Record<string, readonly string[]> = {
     'Impresoras Laser Remanufacturadas',
     'Impresoras Láser Remanufacturadas',
   ],
+  'impresoras-termicas': [
+    'Impresoras Térmicas',
+    'Impresoras Termicas',
+    'Impresoras, Impresoras Térmicas',
+    'Impresoras, Impresoras Termicas',
+  ],
   'toner-originales': [
     'Suministros, Toner Originales',
     'Suministros, Toner Original',

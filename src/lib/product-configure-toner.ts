@@ -1,5 +1,6 @@
 import { formatYieldLabel } from '@/lib/product-cost-per-copy';
 import { isTonerPackProduct } from '@/lib/product-bundle';
+import { IM600F_ORIGINAL_TONER_PRODUCT_ID } from '@/lib/equipment-config-catalog';
 import {
   isCrossSellEligibleProduct,
   isTonerMerchandisingProduct,
@@ -165,6 +166,15 @@ function isTonerProductAllowedForEquipment(
 ): boolean {
   if (!toner || !equipment) return true;
   if (isTonerSupplyAssemblyProduct(toner)) return false;
+
+  // Cartucho 418480: solo en ficha IM 600F (no en IM 550F).
+  if (
+    toner.id === IM600F_ORIGINAL_TONER_PRODUCT_ID &&
+    /\bim\s*550\s*f\b/i.test(equipment.name) &&
+    !/\bim\s*600\s*f\b/i.test(equipment.name)
+  ) {
+    return false;
+  }
 
   const knownTonerIds = resolveKnownTonerIdsForEquipment(equipment);
   if (knownTonerIds.includes(toner.id)) return true;

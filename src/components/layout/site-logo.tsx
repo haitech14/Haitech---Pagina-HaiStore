@@ -130,7 +130,7 @@ type HeaderBrandLogosProps = LogoImageProps & {
 export function HeaderBrandLogos({
   className,
   heightClass = 'h-10',
-  showPartner = true,
+  showPartner = false,
   partnerTone = 'dark',
   loading,
   ...logoProps

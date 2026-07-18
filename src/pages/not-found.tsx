@@ -10,9 +10,14 @@ export function NotFoundPage() {
       <p className="text-muted-foreground">
         La página que buscas no existe o se ha movido.
       </p>
-      <Button asChild>
-        <Link to="/">Volver al inicio</Link>
-      </Button>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Button asChild className="bg-red-600 hover:bg-red-500">
+          <Link to="/tienda">Regresar a la Tienda</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/">Volver al inicio</Link>
+        </Button>
+      </div>
     </div>
   );
 }

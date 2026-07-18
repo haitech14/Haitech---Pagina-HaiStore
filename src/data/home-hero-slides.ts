@@ -1,5 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
 import { BadgeCheck, Headphones, KeyRound, Percent, ShieldCheck, Tag, Truck } from 'lucide-react';
+
+import { HOME_LANDING_HERO_HEIGHT_CLASS } from '@/lib/home-landing-layout';
+
 export type HomeHeroTrustIcon =
   | 'badge-check'
   | 'tag'
@@ -85,18 +88,17 @@ export const TRUST_ICON_MAP: Record<HomeHeroTrustIcon, LucideIcon> = {
 export const HOME_LANDING_HERO_SLIDE: HomeHeroSlide = {
   id: 'home-landing',
   layout: 'home-landing',
-  /** Primera slide LCP: WebP responsive (home-hero-scene-*.webp). */
+  /** Primera slide LCP: escena de oficina + equipos. */
   backgroundImage: '/hero/home-hero-scene.png',
-  skipHeroWebpVariants: false,
+  skipHeroWebpVariants: true,
   singleAsset: true,
   dotTheme: 'light',
 };
 
-/** Altura del carrusel para banners promocionales (slides 2 y 3), alineada al hero principal. */
-export const HOME_HERO_PROMO_BANNER_HEIGHT_CLASS =
-  'h-[min(66vw,22rem)] sm:h-[min(52vw,25rem)] lg:h-[28rem] xl:h-[31rem]';
+/** Altura del carrusel: misma que el slide principal para evitar huecos. */
+export const HOME_HERO_PROMO_BANNER_HEIGHT_CLASS = HOME_LANDING_HERO_HEIGHT_CLASS;
 
-/** Ajustes compartidos de banners promocionales (más compactos que el slide principal). */
+/** Ajustes compartidos de banners promocionales. */
 const HOME_HERO_PROMO_IMAGE_SHARED = {
   imageOnly: true,
   singleAsset: true,

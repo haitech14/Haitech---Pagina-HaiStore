@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { AlertTriangle, CheckCircle2, Phone } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, MapPin, Phone } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  FOOTER_ADDRESS,
   FOOTER_SALES_PHONE_DISPLAY,
   FOOTER_SALES_WHATSAPP_LINK,
   FOOTER_SUPPORT_PHONE_DISPLAY,
@@ -40,6 +41,9 @@ type ContactValues = z.infer<typeof contactSchema>;
 
 const SERVICE_PREFILL_MESSAGE =
   'Solicito programar un servicio técnico. Modelo del equipo: ___ | Ciudad: ___ | Detalle del problema: ___';
+
+const QUOTE_PREFILL_MESSAGE =
+  'Solicito cotización de equipos.\n\nModelo o necesidad: ___ | Cantidad: ___ | Ciudad: ___ | Compra o alquiler: ___';
 
 export function ContactPage() {
   const [searchParams] = useSearchParams();
@@ -66,7 +70,12 @@ export function ContactPage() {
       );
       return;
     }
-    if (searchParams.get('tema') !== 'servicio') return;
+    const tema = searchParams.get('tema');
+    if (tema === 'cotizacion') {
+      setValue('message', QUOTE_PREFILL_MESSAGE, { shouldDirty: true });
+      return;
+    }
+    if (tema !== 'servicio') return;
     setValue('message', SERVICE_PREFILL_MESSAGE, { shouldDirty: true });
   }, [searchParams, setValue]);
 
@@ -102,6 +111,11 @@ export function ContactPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <p className="mb-4 flex items-start gap-2 text-sm text-muted-foreground">
+            <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <span>{FOOTER_ADDRESS}</span>
+          </p>
+
           <div className="mb-5 grid gap-2 sm:grid-cols-2">
             <Button asChild className="min-h-11 gap-2 bg-[#25D366] text-white hover:bg-[#20bd5a]">
               <a href={CONTACT_WHATSAPP_URL || FOOTER_SALES_WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">

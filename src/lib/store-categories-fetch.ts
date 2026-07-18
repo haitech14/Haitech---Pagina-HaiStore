@@ -123,24 +123,78 @@ export async function fetchStoreCategoriesTreeLive(): Promise<StoreCategoryTreeN
   return tree;
 }
 
+type LiveTreeListener = (tree: StoreCategoryTreeNode[]) => void;
+
+let liveRevalidateInFlight: Promise<StoreCategoryTreeNode[] | null> | null = null;
+let pendingLiveTree: StoreCategoryTreeNode[] | null = null;
+const liveTreeListeners = new Set<LiveTreeListener>();
+
+/** Suscribe actualizaciones en vivo tras un paint con snapshot/session. */
+export function subscribeStoreCategoriesLiveTree(listener: LiveTreeListener): () => void {
+  liveTreeListeners.add(listener);
+  if (pendingLiveTree) {
+    try {
+      listener(pendingLiveTree);
+    } catch {
+      /* ignore */
+    }
+  }
+  return () => {
+    liveTreeListeners.delete(listener);
+  };
+}
+
+function notifyLiveTreeListeners(tree: StoreCategoryTreeNode[]) {
+  pendingLiveTree = tree;
+  for (const listener of liveTreeListeners) {
+    try {
+      listener(tree);
+    } catch {
+      /* ignore subscriber errors */
+    }
+  }
+}
+
+/** Revalida /api/categories en background (una vez a la vez). */
+export function revalidateStoreCategoriesTreeLive(): Promise<StoreCategoryTreeNode[] | null> {
+  if (liveRevalidateInFlight) return liveRevalidateInFlight;
+
+  liveRevalidateInFlight = fetchStoreCategoriesTreeLive()
+    .then((tree) => {
+      notifyLiveTreeListeners(tree);
+      return tree;
+    })
+    .catch(() => null)
+    .finally(() => {
+      liveRevalidateInFlight = null;
+    });
+
+  return liveRevalidateInFlight;
+}
+
 /**
- * Prefiere la API en vivo para que categorías creadas/editadas se vean de inmediato.
- * Solo cae a snapshot estático / sessionStorage / árbol embebido si la API falla.
+ * Snapshot / session primero (paint inmediato); revalida API en background.
+ * Solo espera a la API si no hay árbol rápido disponible.
  */
 export async function fetchStoreCategoriesTreeWithFallback(): Promise<StoreCategoryTreeNode[]> {
+  const session = readStoredStoreCategoriesTree();
+  if (session?.length) {
+    const tree = finalizeStoreCategoryTree(session);
+    void revalidateStoreCategoriesTreeLive();
+    return tree;
+  }
+
+  const snapshot = await fetchStaticStoreCategoriesTree();
+  if (snapshot?.length) {
+    const tree = finalizeStoreCategoryTree(snapshot);
+    storeCategoriesTree(tree);
+    void revalidateStoreCategoriesTreeLive();
+    return tree;
+  }
+
   try {
     return await fetchStoreCategoriesTreeLive();
   } catch {
-    const snapshot = await fetchStaticStoreCategoriesTree();
-    if (snapshot?.length) {
-      const tree = finalizeStoreCategoryTree(snapshot);
-      storeCategoriesTree(tree);
-      return tree;
-    }
-
-    const cached = readStoredStoreCategoriesTree();
-    if (cached?.length) return finalizeStoreCategoryTree(cached);
-
     return buildStaticStoreCategoryTree(readRemovedStaticSlugs());
   }
 }

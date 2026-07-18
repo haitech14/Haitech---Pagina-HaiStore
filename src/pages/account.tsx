@@ -15,6 +15,8 @@ import {
 import { AccountSidebar, type AccountTab } from '@/components/account/account-sidebar';
 import { AccountPackingListPanel } from '@/components/account/account-packing-list-panel';
 import { AccountPriceListPanel } from '@/components/account/account-price-list-panel';
+import { AccountWalletPanel } from '@/components/account/account-wallet-panel';
+import { getHaiPointsBalance } from '@/lib/haipoints';
 import {
   OrderStatusSteps,
   orderStateLabel,
@@ -51,10 +53,13 @@ export function AccountPage() {
         ? 'precios'
         : rawTab === 'packing'
           ? 'packing'
-          : 'cuenta';
+          : rawTab === 'billetera'
+            ? 'billetera'
+            : 'cuenta';
   const { data: ordersPayload, isLoading: ordersLoading } = useMyOrders(Boolean(user));
   const { data: companySettings } = useCompanySettings();
   const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
+  const haiPoints = user ? getHaiPointsBalance(user) : 0;
 
   const [orderPdfPreview, setOrderPdfPreview] = useState<QuotePdfPreview | null>(null);
   const [orderPdfLoading, setOrderPdfLoading] = useState(false);
@@ -405,6 +410,8 @@ export function AccountPage() {
               <AccountPriceListPanel />
             ) : activeTab === 'packing' ? (
               <AccountPackingListPanel />
+            ) : activeTab === 'billetera' ? (
+              <AccountWalletPanel balance={haiPoints} ordersCount={orders.length} />
             ) : (
               <AccountPriceListPanel />
             )}

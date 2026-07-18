@@ -1,17 +1,9 @@
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
-import { Headphones, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
-import { HeaderWhatsAppContactAction } from '@/components/layout/header-whatsapp-contact-action';
-import {
-  HEADER_BUY_RENT_WHATSAPP_LABEL,
-  HEADER_SALES_PHONE_DISPLAY,
-  HEADER_SERVICE_WHATSAPP_LABEL,
-  HEADER_SUPPORT_PHONE_DISPLAY,
-} from '@/data/site-header';
+import { HeaderCustomerServiceAction } from '@/components/layout/header-customer-service-action';
 import { cn } from '@/lib/utils';
 
 type HeaderStoreDesktopActionsProps = {
@@ -28,22 +20,8 @@ export function HeaderStoreDesktopActions({
   className,
 }: HeaderStoreDesktopActionsProps) {
   return (
-    <div className={cn('hidden shrink-0 items-center gap-1.5 lg:flex', className)}>
-      <HeaderWhatsAppContactAction
-        topic="ventas"
-        label={HEADER_BUY_RENT_WHATSAPP_LABEL}
-        phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
-        icon={
-          <Icon path={mdiWhatsapp} size={0.72} className="shrink-0 text-[#25D366]" aria-hidden="true" />
-        }
-      />
-
-      <HeaderWhatsAppContactAction
-        topic="soporte"
-        label={HEADER_SERVICE_WHATSAPP_LABEL}
-        phoneDisplay={HEADER_SUPPORT_PHONE_DISPLAY}
-        icon={<Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
-      />
+    <div className={cn('hidden shrink-0 items-center gap-1 lg:flex xl:gap-1.5', className)}>
+      <HeaderCustomerServiceAction />
 
       <AccountDropdown triggerVariant="labeled" tone="dark" />
 

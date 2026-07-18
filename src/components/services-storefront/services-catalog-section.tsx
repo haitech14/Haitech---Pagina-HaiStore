@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Search, SlidersHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,9 @@ import type {
 import { cn } from '@/lib/utils';
 
 interface ServicesCatalogSectionProps {
-  initialCategory?: ServiceCatalogCategoryId | null;
+  /** Categoría controlada desde el hub (sincroniza hero + URL). */
+  activeCategory?: ServiceCatalogCategoryId | null;
+  onCategoryChange?: (categoryId: ServiceCatalogCategoryId | null) => void;
   className?: string;
 }
 
@@ -39,17 +41,35 @@ const EMPTY_FILTERS = (bounds: { min: number; max: number }): ServiceCatalogFilt
 });
 
 export function ServicesCatalogSection({
-  initialCategory = null,
+  activeCategory = null,
+  onCategoryChange,
   className,
 }: ServicesCatalogSectionProps) {
   const bounds = getCatalogPriceBounds();
   const [filters, setFilters] = useState<ServiceCatalogFilters>(() => ({
     ...EMPTY_FILTERS(bounds),
-    categories: initialCategory ? [initialCategory] : [],
+    categories: activeCategory ? [activeCategory] : [],
   }));
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  useEffect(() => {
+    setFilters((prev) => {
+      const nextCategories = activeCategory ? [activeCategory] : [];
+      const same =
+        prev.categories.length === nextCategories.length &&
+        prev.categories.every((id, index) => id === nextCategories[index]);
+      if (same) return prev;
+      return { ...prev, categories: nextCategories };
+    });
+  }, [activeCategory]);
+
   const filteredItems = useMemo(() => filterServices(filters), [filters]);
+
+  const handleFiltersChange = (next: ServiceCatalogFilters) => {
+    setFilters(next);
+    const selected = next.categories[0] ?? null;
+    onCategoryChange?.(selected);
+  };
 
   return (
     <section
@@ -102,7 +122,11 @@ export function ServicesCatalogSection({
                   <SheetTitle>Filtros</SheetTitle>
                 </SheetHeader>
                 <div className="mt-4">
-                  <ServicesCatalogFiltersPanel filters={filters} onChange={setFilters} className="border-0 shadow-none" />
+                  <ServicesCatalogFiltersPanel
+                    filters={filters}
+                    onChange={handleFiltersChange}
+                    className="border-0 shadow-none"
+                  />
                 </div>
               </SheetContent>
             </Sheet>
@@ -111,7 +135,7 @@ export function ServicesCatalogSection({
 
         <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)]">
           <div className="hidden lg:block">
-            <ServicesCatalogFiltersPanel filters={filters} onChange={setFilters} />
+            <ServicesCatalogFiltersPanel filters={filters} onChange={handleFiltersChange} />
           </div>
 
           <div>
@@ -125,7 +149,10 @@ export function ServicesCatalogSection({
                   type="button"
                   variant="outline"
                   className="mt-4"
-                  onClick={() => setFilters(EMPTY_FILTERS(bounds))}
+                  onClick={() => {
+                    setFilters(EMPTY_FILTERS(bounds));
+                    onCategoryChange?.(null);
+                  }}
                 >
                   Limpiar filtros
                 </Button>

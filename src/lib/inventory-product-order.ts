@@ -1,6 +1,7 @@
 import type { ProductRolePrices } from '@/lib/roles';
 import { ensureFullPrices } from '@/lib/roles';
 import type { InventoryProduct } from '@/types/product';
+import { isCatalogPriceOnRequest } from '../../shared/catalog-price-sort.js';
 
 /** Precio público USD para ordenar listados. */
 export function getProductPublicPriceUsd(product: {
@@ -9,12 +10,18 @@ export function getProductPublicPriceUsd(product: {
   return Number(ensureFullPrices(product.prices ?? { public: 0 }).public) || 0;
 }
 
-/** Menor precio público primero; desempate por nombre. */
+/** Menor precio público primero; «Consultar Precio» al final; desempate por nombre. */
 export function compareProductsByPublicPriceAsc(
   a: { prices?: ProductRolePrices; name: string },
   b: { prices?: ProductRolePrices; name: string },
 ): number {
-  const diff = getProductPublicPriceUsd(a) - getProductPublicPriceUsd(b);
+  const aPrice = getProductPublicPriceUsd(a);
+  const bPrice = getProductPublicPriceUsd(b);
+  const aOnRequest = isCatalogPriceOnRequest(aPrice);
+  const bOnRequest = isCatalogPriceOnRequest(bPrice);
+  if (aOnRequest !== bOnRequest) return aOnRequest ? 1 : -1;
+
+  const diff = aPrice - bPrice;
   if (diff !== 0) return diff;
   return a.name.localeCompare(b.name, 'es');
 }

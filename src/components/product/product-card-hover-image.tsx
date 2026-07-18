@@ -22,6 +22,7 @@ interface ProductCardHoverImageProps {
   placeholder?: ReactNode;
   /** Eager solo para primeras tarjetas above-the-fold. */
   loading?: 'lazy' | 'eager';
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 export function ProductCardHoverImage({
@@ -35,10 +36,13 @@ export function ProductCardHoverImage({
   watermarkClassName,
   placeholder,
   loading = 'lazy',
+  fetchPriority,
 }: ProductCardHoverImageProps) {
   const [failedIndices, setFailedIndices] = useState<Set<number>>(() => new Set());
   const [hoverFailed, setHoverFailed] = useState(false);
   const [hoverCapable, setHoverCapable] = useState(false);
+  /** Solo montar la 2.ª imagen tras interacción (evita N requests lazy en la grilla). */
+  const [hoverActivated, setHoverActivated] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(hover: hover)');
@@ -51,6 +55,7 @@ export function ProductCardHoverImage({
   useEffect(() => {
     setFailedIndices(new Set());
     setHoverFailed(false);
+    setHoverActivated(false);
   }, [candidates.join('|'), hoverSrc, storedCandidates?.join('|')]);
 
   const displayIndex = useMemo(() => {
@@ -64,7 +69,12 @@ export function ProductCardHoverImage({
 
   /** Solo segunda foto de galería explícita; sin fallback a otros candidatos. */
   const resolvedHoverSrc: string | null =
-    hoverCapable && !hoverFailed && hoverSrc && hoverSrc !== primarySrc ? hoverSrc : null;
+    hoverCapable && hoverActivated && !hoverFailed && hoverSrc && hoverSrc !== primarySrc
+      ? hoverSrc
+      : null;
+
+  const canHoverSwap =
+    hoverCapable && Boolean(hoverSrc) && hoverSrc !== primarySrc && !hoverFailed;
 
   const markFailed = (index: number) => {
     setFailedIndices((previous) => {
@@ -84,7 +94,7 @@ export function ProductCardHoverImage({
   }
 
   const hasHoverSwap = Boolean(resolvedHoverSrc);
-  const hasHoverZoom = hoverCapable && !hasHoverSwap;
+  const hasHoverZoom = hoverCapable && !canHoverSwap;
 
   return (
     <div
@@ -93,6 +103,16 @@ export function ProductCardHoverImage({
         hasHoverZoom && 'overflow-hidden',
         className,
       )}
+      onPointerEnter={() => {
+        if (canHoverSwap || (hoverCapable && hoverSrc && hoverSrc !== primarySrc)) {
+          setHoverActivated(true);
+        }
+      }}
+      onFocus={() => {
+        if (hoverCapable && hoverSrc && hoverSrc !== primarySrc) {
+          setHoverActivated(true);
+        }
+      }}
     >
       <div
         className={cn(
@@ -105,6 +125,7 @@ export function ProductCardHoverImage({
           src={primarySrc}
           alt={alt}
           loading={loading}
+          {...(fetchPriority ? { fetchPriority } : {})}
           className={cn(
             imageClassName,
             hasHoverZoom &&

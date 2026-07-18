@@ -157,6 +157,7 @@ export const SERVICIOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
     pathname === '/alquiler' ||
     pathname.startsWith('/categoria/alquiler'),
   items: [
+    { label: 'Ver todos los servicios', href: '/servicios' },
     { kind: 'heading', label: 'Alquiler' },
     { label: 'Ver alquiler', href: serviceHubPath('alquiler') },
     ...rentalCategories.map((category) => ({

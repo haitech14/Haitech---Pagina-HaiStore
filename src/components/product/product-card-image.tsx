@@ -16,6 +16,7 @@ interface ProductCardImageProps {
   /** Override del atributo `sizes` en variantes responsive (p. ej. miniaturas compactas). */
   responsiveSizes?: string;
   loading?: 'lazy' | 'eager';
+  fetchPriority?: 'high' | 'low' | 'auto';
   imageVersion?: string | null;
   onError?: () => void;
 }
@@ -35,6 +36,7 @@ export function ProductCardImage({
   watermarkClassName,
   responsiveSizes,
   loading = 'lazy',
+  fetchPriority,
   imageVersion = null,
   onError,
 }: ProductCardImageProps) {
@@ -85,6 +87,7 @@ export function ProductCardImage({
             className={imageClass}
             loading={loading}
             decoding="async"
+            {...(fetchPriority ? { fetchPriority } : {})}
             onLoad={handleLoad}
             onError={onError}
           />
@@ -105,6 +108,7 @@ export function ProductCardImage({
         className={imageClass}
         loading={loading}
         decoding="async"
+        {...(fetchPriority ? { fetchPriority } : {})}
         onLoad={handleLoad}
         onError={onError}
       />

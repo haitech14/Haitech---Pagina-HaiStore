@@ -28,9 +28,16 @@ const whatsappRevealClass =
 interface ProductHighlightCardProps {
   product: Product;
   variant?: 'default' | 'storefront';
+  imageLoading?: 'lazy' | 'eager';
+  imagePriority?: boolean;
 }
 
-export function ProductHighlightCard({ product, variant = 'default' }: ProductHighlightCardProps) {
+export function ProductHighlightCard({
+  product,
+  variant = 'default',
+  imageLoading = 'lazy',
+  imagePriority = false,
+}: ProductHighlightCardProps) {
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
   const catalogProduct = getCatalogProductById(product.id);
@@ -78,6 +85,8 @@ export function ProductHighlightCard({ product, variant = 'default' }: ProductHi
           alt={product.name}
           className="size-full"
           imageClassName={PRODUCT_CARD_IMAGE_CLASS}
+          loading={imageLoading}
+          {...(imagePriority ? { fetchPriority: 'high' as const } : {})}
         />
       </Link>
 

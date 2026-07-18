@@ -32,11 +32,18 @@ export const EQUIPMENT_PRODUCT_CONDITIONS: readonly ProductCondition[] = [
 ];
 
 export const EQUIPMENT_CONDITION_LABELS: Record<ProductCondition, string> = {
-  originales: 'Nuevos',
-  compatibles: 'Seminuevos',
-  remanufacturados: 'Remanufacturados',
+  originales: 'Nueva',
+  compatibles: 'Seminueva',
+  remanufacturados: 'Remanufacturada',
   partes: 'Partes',
 };
+
+/** Condición en tienda/equipos: sin «Partes» (solo Nueva / Seminueva / Remanufacturada). */
+export const EQUIPMENT_STOREFRONT_CONDITIONS: readonly ProductCondition[] = [
+  'originales',
+  'compatibles',
+  'remanufacturados',
+] as const;
 
 export function isEquipmentCatalogFamily(family: CatalogFamilySlug): boolean {
   return family === 'multifuncionales' || family === 'impresoras';

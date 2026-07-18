@@ -2,8 +2,7 @@
  * Fuente única de mensajes de confianza / entrega para home, header y PDP.
  * Mantener alineado con HEADER_TOPBAR_PROMO_TEXT en site-header.
  */
-export const STOREFRONT_FREE_SHIPPING_LIMA =
-  'Envío gratis por compras mayores a S/ 299 en Lima Metropolitana';
+export const STOREFRONT_FREE_SHIPPING_LIMA = 'Envío gratis desde S/ 299 (Lima)';
 
 export const STOREFRONT_SHIPPING_NATIONAL = 'Envío a todo el Perú';
 

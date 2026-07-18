@@ -14,7 +14,8 @@ interface CategoryCatalogFormatSectionsProps {
   gridColumns: CatalogGridColumns;
   sidebarOpen?: boolean;
   gridClassName?: string;
-  renderProduct: (product: Product) => ReactNode;
+  /** `index` es la posición visual en la página (para LCP / eager images). */
+  renderProduct: (product: Product, index: number) => ReactNode;
   className?: string;
 }
 
@@ -34,6 +35,8 @@ export function CategoryCatalogFormatSections({
     .filter((section) => section.subsections.length > 0);
 
   if (visibleSections.length === 0) return null;
+
+  let productIndex = 0;
 
   return (
     <div className={cn('space-y-6 sm:space-y-8', className)}>
@@ -56,11 +59,15 @@ export function CategoryCatalogFormatSections({
                     {section.title} {subsection.title} ({formatProductCount(subsection.products.length)})
                   </h3>
                   <div className={gridClassName ?? catalogGridClassName(gridColumns, sidebarOpen)}>
-                    {subsection.products.map((product) => (
-                      <div key={`${subsection.id}-${product.id}`} className="min-w-0">
-                        {renderProduct(product)}
-                      </div>
-                    ))}
+                    {subsection.products.map((product) => {
+                      const index = productIndex;
+                      productIndex += 1;
+                      return (
+                        <div key={`${subsection.id}-${product.id}`} className="min-w-0">
+                          {renderProduct(product, index)}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

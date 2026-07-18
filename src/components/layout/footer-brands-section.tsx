@@ -1,15 +1,36 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 
 import { BrandLogoCard } from '@/components/brand-strip';
-import { footerPartnerBrands, getBrandName } from '@/data/brands';
+import {
+  footerPartnerBrands,
+  getBrandName,
+  tonerPartnerBrands,
+  type Brand,
+} from '@/data/brands';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn } from '@/lib/utils';
 
 const BRAND_SLIDE_CLASS =
   'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/3)] sm:flex-[0_0_calc((100%-1rem)/4)] md:flex-[0_0_calc((100%-1.25rem)/5)] lg:flex-[0_0_calc((100%-1.5rem)/6)] xl:flex-[0_0_calc((100%-1.75rem)/7)]';
 
-export function FooterBrandsSection() {
+interface PartnerBrandsCarouselSectionProps {
+  title: ReactNode;
+  titleId: string;
+  brands: readonly Brand[];
+  listAriaLabel: string;
+  paginationAriaLabel: string;
+  className?: string;
+}
+
+export function PartnerBrandsCarouselSection({
+  title,
+  titleId,
+  brands,
+  listAriaLabel,
+  paginationAriaLabel,
+  className,
+}: PartnerBrandsCarouselSectionProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
@@ -43,20 +64,20 @@ export function FooterBrandsSection() {
   }, [emblaApi]);
 
   return (
-    <section aria-labelledby="marcas-footer-titulo" className="home-landing-sans bg-white py-3 sm:py-4">
+    <section aria-labelledby={titleId} className={cn('home-landing-sans bg-white py-3 sm:py-4', className)}>
       <div className="container">
         <header className="mb-3 text-center sm:mb-4">
           <h2
-            id="marcas-footer-titulo"
+            id={titleId}
             className="home-section-title text-balance text-lg font-bold tracking-tight text-[#0f1f3d] sm:text-xl md:text-2xl"
           >
-            Marcas Líderes
+            {title}
           </h2>
         </header>
 
         <div className="overflow-hidden" ref={emblaRef}>
-          <ul className="flex touch-pan-y gap-1.5 sm:gap-2" role="list" aria-label="Marcas disponibles">
-            {footerPartnerBrands.map((brand) => (
+          <ul className="flex touch-pan-y gap-1.5 sm:gap-2" role="list" aria-label={listAriaLabel}>
+            {brands.map((brand) => (
               <li key={getBrandName(brand)} className={BRAND_SLIDE_CLASS}>
                 <BrandLogoCard brand={brand} isDark={false} linkable />
               </li>
@@ -68,7 +89,7 @@ export function FooterBrandsSection() {
           <div
             className="mt-3 flex items-center justify-center gap-0 sm:mt-4"
             role="tablist"
-            aria-label="Paginación de marcas"
+            aria-label={paginationAriaLabel}
           >
             {scrollSnaps.map((_, index) => (
               <button
@@ -78,9 +99,7 @@ export function FooterBrandsSection() {
                 aria-selected={index === selectedIndex}
                 aria-label={`Ir al grupo ${index + 1} de marcas`}
                 onClick={() => scrollTo(index)}
-                className={cn(
-                  'flex size-7 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2',
-                )}
+                className="flex size-7 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
               >
                 <span
                   className={cn(
@@ -95,5 +114,36 @@ export function FooterBrandsSection() {
         ) : null}
       </div>
     </section>
+  );
+}
+
+export function FooterBrandsSection() {
+  return (
+    <PartnerBrandsCarouselSection
+      title="Marcas Líderes"
+      titleId="marcas-footer-titulo"
+      brands={footerPartnerBrands}
+      listAriaLabel="Marcas disponibles"
+      paginationAriaLabel="Paginación de marcas"
+    />
+  );
+}
+
+/** Carrusel de marcas de toner (TOPJET, RANKO, etc.) encima de la vitrina Toner. */
+export function TonerPartnerBrandsSection() {
+  return (
+    <PartnerBrandsCarouselSection
+      title={
+        <>
+          <span className="block">Marcas de</span>
+          <span className="block">Toner</span>
+        </>
+      }
+      titleId="marcas-toner-titulo"
+      brands={tonerPartnerBrands}
+      listAriaLabel="Marcas de toner disponibles"
+      paginationAriaLabel="Paginación de marcas de toner"
+      className="bg-[#FAFBFC]"
+    />
   );
 }

@@ -13,7 +13,10 @@ import { ProductQuickViewDialog } from '@/components/product/product-quick-view-
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { useCart } from '@/context/cart-context';
-import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
+import {
+  clipboardPriceFieldsFromDisplay,
+  useCatalogDisplayPrice,
+} from '@/hooks/use-catalog-display-price';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { useCatalogProductRow } from '@/hooks/use-catalog-product-row';
 import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
@@ -223,7 +226,7 @@ export function HomeLandingProductCard({
               productName={product.name}
               title={productTitle}
               stock={stockCount}
-              priceUsd={displayPrice.priceUsd}
+              {...clipboardPriceFieldsFromDisplay(displayPrice)}
               productId={product.id}
               productPath={detailPath}
               isColorProduct={clipboardIsColor}
@@ -266,6 +269,7 @@ export function HomeLandingProductCard({
           product={productSource}
           stock={stockCount}
           outOfStock={outOfStock}
+          code={cardCode ?? code}
           className="mt-2.5"
         />
 
@@ -273,7 +277,7 @@ export function HomeLandingProductCard({
 
         <div className="mt-3">
           {showPriceOnRequest ? (
-            <p className="text-base font-bold leading-tight text-[#111111] sm:text-lg">
+            <p className="text-xs font-semibold leading-tight text-[#6B7280] sm:text-sm">
               {CONSULTAR_PRECIO_LABEL}
             </p>
           ) : (

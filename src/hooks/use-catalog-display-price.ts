@@ -1,7 +1,14 @@
 import { useMemo } from 'react';
 
 import { useAuth } from '@/context/auth-context';
-import { ensureFullPrices, resolvePriceRole, USER_ROLE_LABELS, type PriceRole, type UserRole } from '@/lib/roles';
+import {
+  ensureFullPrices,
+  PRICE_ROLE_LABELS,
+  resolvePriceRole,
+  USER_ROLE_LABELS,
+  type PriceRole,
+  type UserRole,
+} from '@/lib/roles';
 import type { Product } from '@/types/product';
 
 type CatalogPriceSource = Pick<Product, 'price' | 'prices' | 'price_role'>;
@@ -68,6 +75,34 @@ export function resolveCatalogDisplayPrice(
     viewAsLabel: null,
     viewAsRolePrices: [],
     showAdminPriceTooltip: options.isAdmin,
+  };
+}
+
+/**
+ * Etiqueta de rol para «Copiar texto».
+ * Rol público (o sin vista previa pública) → null (no se indica en el copy).
+ */
+export function resolveClipboardPriceRoleLabel(display: CatalogDisplayPrice): string | null {
+  if (display.previewAsRole) {
+    const primary = display.viewAsRolePrices[0];
+    if (!primary || primary.role === 'public') return null;
+    return primary.label;
+  }
+  if (display.priceRole === 'public') return null;
+  return PRICE_ROLE_LABELS[display.priceRole];
+}
+
+/** Campos de precio/rol listos para el portapapeles. */
+export function clipboardPriceFieldsFromDisplay(display: CatalogDisplayPrice): {
+  priceUsd: number;
+  priceRole: PriceRole;
+  priceRoleLabel?: string;
+} {
+  const priceRoleLabel = resolveClipboardPriceRoleLabel(display);
+  return {
+    priceUsd: display.priceUsd,
+    priceRole: display.priceRole,
+    ...(priceRoleLabel != null ? { priceRoleLabel } : {}),
   };
 }
 

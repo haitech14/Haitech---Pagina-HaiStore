@@ -100,16 +100,16 @@ export function DualPrice({
     <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>
   ) : null;
   const penSpan = showPen ? (
-    <span className={cn(strike, 'text-red-600')}>{formatPenFromUsd(usd)}</span>
+    <span className={cn(strike, 'text-foreground')}>{formatPenFromUsd(usd)}</span>
   ) : null;
 
   if (stacked && showUsd && showPen) {
     const primary = penFirst
-      ? { label: formatPenFromUsd(usd), className: 'text-red-600' }
+      ? { label: formatPenFromUsd(usd), className: 'text-foreground' }
       : { label: formatUsd(usd), className: 'text-foreground' };
     const secondary = penFirst
       ? { label: formatUsd(usd), className: 'text-foreground' }
-      : { label: formatPenFromUsd(usd), className: 'text-red-600' };
+      : { label: formatPenFromUsd(usd), className: 'text-foreground' };
 
     return (
       <span

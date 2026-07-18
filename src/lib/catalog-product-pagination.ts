@@ -51,3 +51,14 @@ export function getCatalogPageSlice<T>(
 export function clampCatalogPage(page: number, totalPages: number): number {
   return Math.max(1, Math.min(page, Math.max(1, totalPages)));
 }
+
+/** Primeras tarjetas above-the-fold: eager + fetchPriority high. */
+export const CATALOG_PRIORITY_IMAGE_COUNT_MOBILE = 4;
+export const CATALOG_PRIORITY_IMAGE_COUNT_DESKTOP = 8;
+
+export function isCatalogCardImagePriority(index: number, isMobile: boolean): boolean {
+  const limit = isMobile
+    ? CATALOG_PRIORITY_IMAGE_COUNT_MOBILE
+    : CATALOG_PRIORITY_IMAGE_COUNT_DESKTOP;
+  return index >= 0 && index < limit;
+}

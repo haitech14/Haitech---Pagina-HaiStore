@@ -150,20 +150,35 @@ export const heroPartnerBrands: Brand[] = HERO_PARTNER_BRAND_NAMES.flatMap((name
   return brand ? [brand] : [];
 });
 
-/** Marcas del carrusel «Trabajamos con las mejores marcas» (home). */
+/** Marcas del carrusel «Marcas Líderes» (equipos / OEM en home). */
 const FOOTER_PARTNER_BRAND_NAMES = [
   'Ricoh',
+  'Canon',
+  'Kyocera',
   'Pantum',
   'Colortrac',
-  'Ramko',
-  'Topjet',
-  'Densitone',
-  'Intercopy',
-  'Katun',
   'Konica Minolta',
+  'Epson',
+  'HP',
+  'Lexmark',
+  'Oki',
 ] as const;
 
 export const footerPartnerBrands: Brand[] = FOOTER_PARTNER_BRAND_NAMES.flatMap((name) => {
+  const brand = printerBrands.find((item) => item.name === name);
+  return brand ? [brand] : [];
+});
+
+/** Marcas del carrusel encima de la vitrina Toner (consumibles). */
+const TONER_PARTNER_BRAND_NAMES = [
+  'Topjet',
+  'Ramko',
+  'Densitone',
+  'Intercopy',
+  'Katun',
+] as const;
+
+export const tonerPartnerBrands: Brand[] = TONER_PARTNER_BRAND_NAMES.flatMap((name) => {
   const brand = printerBrands.find((item) => item.name === name);
   return brand ? [brand] : [];
 });

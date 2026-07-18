@@ -77,8 +77,15 @@ export type ProductNameBrandDisplay = 'title' | 'uppercase';
 function resolveBrandDisplay(brand: string, display: ProductNameBrandDisplay = 'title'): string {
   const trimmed = brand.trim();
   if (!trimmed) return trimmed;
-  if (display === 'uppercase') return trimmed.toUpperCase();
-  const mapped = KNOWN_BRAND_DISPLAY[trimmed.toLowerCase()];
+  const key = trimmed.toLowerCase();
+  const mapped = KNOWN_BRAND_DISPLAY[key];
+  // Intercopy se muestra siempre en title case (nunca «INTERCOPY»).
+  if (key === 'intercopy') {
+    return mapped ?? 'Intercopy';
+  }
+  if (display === 'uppercase') {
+    return (mapped ?? trimmed).toUpperCase();
+  }
   return mapped ?? trimmed;
 }
 

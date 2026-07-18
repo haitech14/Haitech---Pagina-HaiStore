@@ -11,8 +11,10 @@ import {
   LogIn,
   LogOut,
   ShoppingBag,
+  Sparkles,
   User,
   UserPlus,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -33,6 +35,7 @@ import {
 import { useAuth } from '@/context/auth-context';
 import type { AuthUser } from '@/lib/auth-storage';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
+import { formatHaiPoints, getHaiPointsBalance } from '@/lib/haipoints';
 import { VIEW_AS_ROLE_OPTIONS } from '@/lib/view-as-role';
 import { cn } from '@/lib/utils';
 import { USER_ROLE_LABELS, type UserRole } from '@/types/product';
@@ -108,6 +111,7 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
     : user
       ? USER_ROLE_LABELS[user.role]
       : USER_ROLE_LABELS.public;
+  const haiPoints = user ? getHaiPointsBalance(user) : 0;
 
   const [open, setOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -187,13 +191,15 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
 
           {user ? (
             <>
-              <div className="px-3 py-2.5">
+              <div className="border-b border-border/60 px-3 py-2.5">
                 <div className="flex items-center gap-2.5">
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
                     <User className="size-4 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
                   </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-[0.8125rem] font-bold text-foreground">Hola {displayName}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[0.8125rem] font-bold text-foreground">
+                      Hola {displayName}
+                    </p>
                     <span
                       className={cn(
                         'mt-0.5 inline-block rounded px-1.5 py-px text-[0.625rem] font-semibold leading-none',
@@ -203,6 +209,31 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
                       {roleLabel}
                     </span>
                   </div>
+                </div>
+
+                <div className="mt-2.5 flex items-center gap-2">
+                  <div
+                    className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md bg-amber-50 px-2 py-1.5 text-amber-900"
+                    title="Saldo de HaiPoints"
+                  >
+                    <Sparkles className="size-3.5 shrink-0 text-amber-600" strokeWidth={1.75} aria-hidden="true" />
+                    <span className="truncate text-[0.6875rem] font-semibold tabular-nums">
+                      {formatHaiPoints(haiPoints)}{' '}
+                      <span className="font-medium text-amber-800/80">HaiPoints</span>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => goTo('/mi-cuenta?tab=billetera')}
+                    className={cn(
+                      'inline-flex shrink-0 items-center gap-1 rounded-md border border-border bg-white px-2 py-1.5',
+                      'text-[0.6875rem] font-semibold text-foreground transition-colors',
+                      'hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1',
+                    )}
+                  >
+                    <Wallet className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
+                    Billetera
+                  </button>
                 </div>
               </div>
 
@@ -256,6 +287,12 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
               )}
 
               <div>
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
+                  onSelect={() => goTo('/mi-cuenta?tab=billetera')}
+                >
+                  <AccountMenuRow icon={Wallet} label="Billetera" />
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
                   onSelect={() => goTo('/mi-cuenta')}

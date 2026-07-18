@@ -186,3 +186,59 @@ export async function fetchHomeCatalogBundleInitial(): Promise<HomeCatalogBundle
   }
   return readStoredHomeCatalogBundle() ?? null;
 }
+
+function featuredToProvisionalProduct(product: FeaturedProduct): Product {
+  return {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    brand: product.brand ?? null,
+    code: product.code ?? null,
+    attributes: product.attributes ?? [],
+    price: product.price,
+    ...(product.prices !== undefined ? { prices: product.prices } : {}),
+    ...(product.price_role !== undefined ? { price_role: product.price_role } : {}),
+    image_url: product.image,
+    gallery: product.gallery ?? [],
+    stock: Math.max(0, Math.floor(Number(product.stock) || 0)),
+    currency: 'USD',
+    description: null,
+    slug: product.id,
+    sort_order: 0,
+    is_featured: false,
+    view_count: 0,
+    created_at: '',
+  };
+}
+
+/**
+ * Productos provisionales para pintar /tienda mientras carga inventory-index.
+ * Combina `featured` (Product) + secciones (FeaturedProduct), dedupe por id.
+ */
+export function collectProvisionalStoreProductsFromBundle(
+  bundle: HomeCatalogBundleResponse,
+): Product[] {
+  const byId = new Map<string, Product>();
+
+  for (const product of bundle.featured) {
+    if (product?.id) byId.set(product.id, product);
+  }
+
+  for (const section of bundle.sections) {
+    for (const list of Object.values(section.productsByCondition ?? {})) {
+      for (const item of list) {
+        if (!item?.id || byId.has(item.id)) continue;
+        byId.set(item.id, featuredToProvisionalProduct(item));
+      }
+    }
+  }
+
+  return [...byId.values()];
+}
+
+/** Bundle ya en memoria (sessionStorage) para seed síncrono. */
+export function getCachedHomeBundleProvisionalProducts(): Product[] {
+  const bundle = readStoredHomeCatalogBundle();
+  if (!bundle) return [];
+  return collectProvisionalStoreProductsFromBundle(bundle);
+}

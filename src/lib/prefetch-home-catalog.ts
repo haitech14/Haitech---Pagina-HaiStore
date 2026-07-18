@@ -1,34 +1,56 @@
 import type { QueryClient } from '@tanstack/react-query';
 
 import {
-  fetchHomeCatalogBundleForDisplay,
   fetchHomeCatalogBundleInitial,
   HOME_CATALOG_BUNDLE_QUERY_KEY,
+  readStoredHomeCatalogBundle,
   revalidateHomeCatalogBundle,
 } from '@/lib/home-catalog-bundle';
 import { deferCatalogIndexPreload } from '@/lib/defer-catalog-index';
+import {
+  fetchStoreCategoriesTreeWithFallback,
+  STORE_CATEGORIES_QUERY_KEY,
+} from '@/lib/store-categories-fetch';
 import { viewAsRolesQueryKey } from '@/lib/view-as-role';
 
 /**
- * Precarga snapshot estático y revalida contra la API en segundo plano.
- * No dispara inventory-index (~1.3 MB) ni prefetch de tienda en cold start de home;
- * el índice se carga en idle (o al ir a /tienda / hover nav).
+ * Precarga snapshot/home-bundle sin bloquear el loader de React Router.
+ * Siembra sessionStorage al instante; JSON estático + API van en background.
  */
-export async function prefetchHomeCatalog(queryClient: QueryClient) {
-  deferCatalogIndexPreload(8000);
-
-  const queryKey = [HOME_CATALOG_BUNDLE_QUERY_KEY, 'public', viewAsRolesQueryKey([])];
-  const initial = await fetchHomeCatalogBundleInitial();
-
-  if (initial) {
-    queryClient.setQueryData(queryKey, initial);
-  }
+export function prefetchHomeCatalog(queryClient: QueryClient): null {
+  // Idle corto: rails de home; no esperar el índice completo en el camino crítico.
+  deferCatalogIndexPreload(1500);
 
   void queryClient.prefetchQuery({
-    queryKey,
-    queryFn: revalidateHomeCatalogBundle,
-    staleTime: 1000 * 60 * 5,
+    queryKey: [STORE_CATEGORIES_QUERY_KEY],
+    queryFn: fetchStoreCategoriesTreeWithFallback,
+    staleTime: 1000 * 60 * 10,
   });
 
-  return initial ?? (await fetchHomeCatalogBundleForDisplay());
+  const queryKey = [HOME_CATALOG_BUNDLE_QUERY_KEY, 'public', viewAsRolesQueryKey([])];
+
+  // Seed síncrono: pinta de inmediato si ya hubo visita en la pestaña.
+  const cached = readStoredHomeCatalogBundle();
+  if (cached) {
+    queryClient.setQueryData(queryKey, cached);
+  }
+
+  void (async () => {
+    try {
+      const initial = await fetchHomeCatalogBundleInitial();
+      if (initial) {
+        queryClient.setQueryData(queryKey, initial);
+      }
+    } catch {
+      /* useHomeCatalogBundle reintentará al montar */
+    }
+
+    void queryClient.prefetchQuery({
+      queryKey,
+      queryFn: revalidateHomeCatalogBundle,
+      staleTime: 1000 * 60 * 5,
+    });
+  })();
+
+  return null;
 }

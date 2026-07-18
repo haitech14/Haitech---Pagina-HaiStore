@@ -1,7 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   CalendarClock,
-  CircleDollarSign,
   ListOrdered,
   MessageCircle,
   PackageSearch,
@@ -33,17 +32,10 @@ export type HaibotQuickAction =
 export const HAIBOT_PRIMARY_ACTIONS: HaibotQuickAction[] = [
   {
     id: 'search',
-    label: 'Buscar producto',
+    label: 'Buscar / cotizar producto',
     icon: Search,
     kind: 'search',
     focus: 'all',
-  },
-  {
-    id: 'quote',
-    label: 'Cotización / precio',
-    icon: CircleDollarSign,
-    kind: 'search',
-    focus: 'price',
   },
   {
     id: 'support',
@@ -116,9 +108,8 @@ export function getHaibotQuickActionUserMessage(actionId: string): string {
 export function getHaibotQuickActionReply(actionId: string): string {
   switch (actionId) {
     case 'search':
-      return 'Modo buscador activado 🔍 Escribe marca, modelo o código y te muestro precio y stock del inventario.';
     case 'quote':
-      return 'Modo cotización 💲 Escribe el producto que buscas (ej. Ricoh IM 430F o su código).';
+      return 'Modo búsqueda y cotización 🔍💲 Escribe marca, modelo o código y te muestro precio y stock.';
     case 'shipping':
       return 'Completa el formulario de envíos 📦 y genera la orden lista para copiar.';
     case 'support':

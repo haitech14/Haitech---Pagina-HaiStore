@@ -1,19 +1,18 @@
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
-import { Award, ChevronRight, ShieldCheck, ShoppingCart, Users, type LucideIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Award, ChevronRight, FileText, ShieldCheck, ShoppingCart, Users, type LucideIcon } from 'lucide-react';
 
 import { StorePrefetchLink } from '@/components/store-prefetch-link';
 import { Button } from '@/components/ui/button';
-import { heroSingleAssetSources } from '@/lib/responsive-image';
-import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
+import { categoryLandingPath } from '@/lib/category-path';
+import { HOME_LANDING_HERO_HEIGHT_CLASS } from '@/lib/home-landing-layout';
 import { cn } from '@/lib/utils';
 
-const HERO_ADVISOR_WHATSAPP_URL = buildHaitechWhatsAppUrl(
-  'Hola, vengo desde HaiStore. Quiero cotizar un equipo para mi empresa.',
-);
+export { HOME_LANDING_HERO_HEIGHT_CLASS };
 
+/** Escena de oficina + equipos (PNG; sin variantes WebP antiguas). */
 const HERO_BACKGROUND = '/hero/home-hero-scene.png';
-const HERO_SOURCES = heroSingleAssetSources(HERO_BACKGROUND);
+const HERO_BUY_EQUIPMENT_HREF = categoryLandingPath('multifuncionales');
+const HERO_QUOTE_HREF = '/contacto?tema=cotizacion';
 
 const HERO_TRUST_ITEMS: {
   id: string;
@@ -41,8 +40,8 @@ const HERO_TRUST_ITEMS: {
   },
 ];
 
-export const HOME_LANDING_HERO_MIN_HEIGHT_CLASS =
-  'min-h-[min(62vw,20rem)] sm:min-h-[min(48vw,23rem)] lg:min-h-[26rem] xl:min-h-[29rem]';
+/** @deprecated Usar HOME_LANDING_HERO_HEIGHT_CLASS */
+export const HOME_LANDING_HERO_MIN_HEIGHT_CLASS = HOME_LANDING_HERO_HEIGHT_CLASS;
 
 type HomeLandingHeroSlideContentProps = {
   headingId?: string;
@@ -54,48 +53,39 @@ export function HomeLandingHeroSlideContent({
   return (
     <div
       className={cn(
-        'relative overflow-visible bg-[#F8F9FA]',
-        HOME_LANDING_HERO_MIN_HEIGHT_CLASS,
-        'pb-5 sm:pb-6 lg:pb-8',
+        'relative overflow-hidden bg-[#F8F9FA]',
+        HOME_LANDING_HERO_HEIGHT_CLASS,
       )}
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <picture>
-          <source type="image/webp" srcSet={HERO_SOURCES.webpSrcSet} sizes={HERO_SOURCES.sizes} />
-          <img
-            src={HERO_SOURCES.fallbackSrc}
-            alt=""
-            width={1672}
-            height={941}
-            className="absolute inset-0 size-full origin-[72%_72%] scale-[1.04] object-cover object-[86%_72%] sm:scale-[1.06] sm:object-[84%_72%] lg:origin-[68%_70%] lg:scale-[1.1] lg:object-[80%_70%]"
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-          />
-        </picture>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.97)_0%,rgba(255,255,255,0.94)_24%,rgba(255,255,255,0.82)_38%,rgba(255,255,255,0.45)_52%,transparent_68%)] lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_22%,rgba(255,255,255,0.84)_36%,rgba(255,255,255,0.42)_50%,transparent_64%)]" />
+        <img
+          src={HERO_BACKGROUND}
+          alt=""
+          width={1920}
+          height={640}
+          className="absolute inset-0 size-full origin-bottom scale-[1.22] object-cover object-[78%_bottom] sm:scale-[1.28] sm:object-[82%_bottom] lg:origin-bottom-right lg:scale-[1.32] lg:object-[88%_bottom]"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(248,249,250,0.96)_0%,rgba(248,249,250,0.92)_28%,rgba(248,249,250,0.72)_48%,rgba(248,249,250,0.28)_68%,transparent_82%)] lg:bg-[linear-gradient(to_right,rgba(248,249,250,0.97)_0%,rgba(248,249,250,0.93)_26%,rgba(248,249,250,0.7)_46%,rgba(248,249,250,0.22)_64%,transparent_78%)]" />
       </div>
 
-      <div className="container relative z-10">
-        <div className="grid items-center lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-6 xl:gap-8">
-          <div
-            className={cn(
-              'flex flex-col justify-center py-4 sm:py-5 lg:max-w-[40rem] lg:py-7 xl:py-8',
-              HOME_LANDING_HERO_MIN_HEIGHT_CLASS,
-            )}
-          >
+      <div className="container relative z-10 flex h-full items-center">
+        <div className="grid w-full items-center lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-4 xl:gap-6">
+          <div className="flex flex-col justify-center py-4 sm:py-5 lg:max-w-[40rem] lg:py-6">
             <div className="flex flex-col">
               <h1
                 id={headingId}
-                className="text-pretty font-hero text-[2.25rem] font-bold leading-[1.06] tracking-[-0.02em] text-[#111111] sm:text-[2.875rem] lg:text-[3.375rem] xl:text-[3.75rem]"
+                className="text-pretty font-hero text-[2rem] font-bold leading-[1.08] tracking-[-0.02em] text-[#111111] sm:text-[2.5rem] lg:text-[2.75rem] xl:text-[3rem]"
               >
                 Tu empresa no se detiene, tu{' '}
                 <span className="text-[#E30613]">impresión</span> tampoco
               </h1>
 
               <p className="mt-1.5 max-w-[36rem] text-pretty text-sm leading-[1.45] text-[#666666] sm:mt-2 sm:text-[0.875rem] lg:text-[0.9375rem]">
-                Fotocopiadoras e impresoras con garantía, instalación y atención especializada para
-                empresas.
+                Compra fotocopiadoras e impresoras Ricoh con stock, garantía e instalación en Lima y
+                provincias. ¿Prefieres no invertir? También alquilamos equipos.
               </p>
 
               <div className="mt-3 flex w-full flex-col gap-2 sm:mt-3.5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
@@ -103,21 +93,21 @@ export function HomeLandingHeroSlideContent({
                   asChild
                   className="min-h-10 gap-1.5 rounded-lg bg-[#E30613] px-5 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(227,6,19,0.2)] hover:bg-[#c90511]"
                 >
-                  <StorePrefetchLink to="/tienda">
+                  <StorePrefetchLink to={HERO_BUY_EQUIPMENT_HREF}>
                     <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
-                    <span>Ver equipos</span>
+                    <span>Comprar equipos</span>
                     <ChevronRight className="ml-0.5 size-3.5 shrink-0 opacity-90" aria-hidden="true" />
                   </StorePrefetchLink>
                 </Button>
                 <Button
                   asChild
                   variant="outline"
-                  className="min-h-10 gap-1.5 rounded-lg border-[#25D366]/50 bg-white px-5 text-sm font-medium text-[#128C7E] shadow-[0_2px_8px_rgba(37,211,102,0.12)] hover:bg-[#ecfdf5]"
+                  className="min-h-10 gap-1.5 rounded-lg border-[#111111]/15 bg-white px-5 text-sm font-medium text-[#111111] shadow-[0_2px_8px_rgba(15,23,42,0.06)] hover:bg-[#F3F4F6]"
                 >
-                  <a href={HERO_ADVISOR_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-                    <Icon path={mdiWhatsapp} size={0.75} aria-hidden="true" />
-                    <span>Cotizar por WhatsApp</span>
-                  </a>
+                  <Link to={HERO_QUOTE_HREF}>
+                    <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+                    <span>Solicitar cotización</span>
+                  </Link>
                 </Button>
               </div>
 
@@ -151,7 +141,7 @@ export function HomeLandingHeroSlideContent({
             </div>
           </div>
 
-          <div className="hidden min-h-[26rem] lg:block xl:min-h-[29rem]" aria-hidden="true" />
+          <div className="hidden lg:block" aria-hidden="true" />
         </div>
       </div>
     </div>

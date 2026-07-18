@@ -2,7 +2,11 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { readStoreCategoriesTree } from './store-categories-store.js';
+import { enrichEquipmentStoreSubcategories } from '../../shared/equipment-store-subcategories.js';
+import {
+  buildStoreCategoriesTreeFromInventory,
+  setStoreCategoriesTreeCache,
+} from './store-categories-store.js';
 
 const SNAPSHOT_PATH = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -11,7 +15,9 @@ const SNAPSHOT_PATH = path.join(
 
 /** Escribe el árbol en vivo para preload/PWA y fallback estático del cliente. */
 export async function writeStoreCategoriesTreeSnapshot() {
-  const tree = await readStoreCategoriesTree();
+  const rawTree = await buildStoreCategoriesTreeFromInventory();
+  // Persistir hijos de equipo (nuevas/seminuevas/…) para cold load sin enrich cliente.
+  const tree = enrichEquipmentStoreSubcategories(rawTree);
   await fs.mkdir(path.dirname(SNAPSHOT_PATH), { recursive: true });
   await fs.writeFile(
     SNAPSHOT_PATH,
@@ -25,5 +31,6 @@ export async function writeStoreCategoriesTreeSnapshot() {
       2,
     ),
   );
+  setStoreCategoriesTreeCache(tree);
   return tree;
 }

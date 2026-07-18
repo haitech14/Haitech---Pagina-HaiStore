@@ -131,6 +131,12 @@ export const SUBCATEGORY_INVENTORY_LABELS = {
     'Impresoras Laser Remanufacturadas',
     'Impresoras Láser Remanufacturadas',
   ],
+  'impresoras-termicas': [
+    'Impresoras Térmicas',
+    'Impresoras Termicas',
+    'Impresoras, Impresoras Térmicas',
+    'Impresoras, Impresoras Termicas',
+  ],
   'escaneres-nuevos': [
     'Escáneres Nuevos',
     'Escáneres, Escáneres Nuevos',

@@ -6,6 +6,7 @@ import {
 import { CATALOG_VOLUME_TIERS, getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
 import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
 import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
+import type { PriceRole } from '@/lib/roles';
 import { formatUsd } from '@/lib/utils';
 import type { ProductVolumeRolePriceTier } from '@/types/product';
 
@@ -30,8 +31,15 @@ export interface ProductClipboardTextInput {
   code?: string | null;
   title: string;
   stock: number;
-  /** Precio de oferta / vigente. */
+  /** Precio de oferta / vigente (del rol seleccionado). */
   priceUsd: number | null | undefined;
+  /** Rol de precio usado en `priceUsd` (para descuentos por volumen). */
+  priceRole?: PriceRole | null;
+  /**
+   * Etiqueta del rol en el copy (p. ej. «Mayorista»).
+   * Omitir o null cuando el rol es público — no se indica en el texto.
+   */
+  priceRoleLabel?: string | null;
   /**
    * Precio normal (tachado). Si no se pasa y hay `productId`, se toma de catálogo.
    */
@@ -138,7 +146,7 @@ export function resolveProductClipboardNormalPrice(
 /**
  * Precio con descuento por volumen.
  * Equipos desde 2+; tóner/repuestos desde 3+. Color → etiqueta «por Juego».
- * Prioriza `volume_role_prices` (rol público); si no hay, usa tiers por categoría.
+ * Prioriza `volume_role_prices` del rol seleccionado; si no hay, usa tiers por categoría.
  */
 export function resolveProductClipboardVolumeDiscount(
   priceUsd: number | null | undefined,
@@ -146,18 +154,20 @@ export function resolveProductClipboardVolumeDiscount(
   options?: {
     category?: string | null;
     isColorProduct?: boolean | null;
+    priceRole?: PriceRole | null;
   },
 ): ProductClipboardVolumeDiscount | null {
   if (isPriceOnRequest(priceUsd) || priceUsd == null || priceUsd <= 0) return null;
 
   const minUnits = resolveProductClipboardDiscountMinUnits(options?.category);
   const perSet = Boolean(options?.isColorProduct);
+  const priceRole = options?.priceRole ?? 'public';
 
   const roleTiers = volumeRolePrices ?? [];
   for (const tier of roleTiers) {
     const bounds = parseBulkDiscountRange(tier.range);
     if (!bounds || bounds.min < minUnits) continue;
-    const unit = Number(tier.prices?.public) || 0;
+    const unit = Number(tier.prices?.[priceRole] ?? tier.prices?.public) || 0;
     if (unit <= 0 || unit >= priceUsd) continue;
     const discountPercent = Math.round((1 - unit / priceUsd) * 1000) / 10;
     return {
@@ -211,6 +221,7 @@ function resolveVolume(
   return resolveProductClipboardVolumeDiscount(input.priceUsd, input.volumeRolePrices, {
     ...(input.category !== undefined ? { category: input.category } : {}),
     ...(input.isColorProduct !== undefined ? { isColorProduct: input.isColorProduct } : {}),
+    ...(input.priceRole != null ? { priceRole: input.priceRole } : {}),
   });
 }
 
@@ -289,6 +300,12 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
       `🔥 Oferta: ${waBold(priceLabel)} incl IGV`,
       `🔥 Oferta: ${htmlBold(priceLabel)} incl IGV`,
     );
+  }
+
+  // Rol de precio (omitir si es público)
+  const roleLabel = input.priceRoleLabel?.trim() || null;
+  if (roleLabel) {
+    push(`👤 Rol: ${waBold(roleLabel)}`, `👤 Rol: ${htmlBold(roleLabel)}`);
   }
 
   // Dscto en línea propia

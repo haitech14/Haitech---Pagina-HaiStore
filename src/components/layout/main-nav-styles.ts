@@ -15,7 +15,7 @@ export const DARK_NAV_ICON_CLASS = 'size-3.5 shrink-0';
 export const MAIN_NAV_LINKS_ROW_CLASS = 'flex min-w-0 flex-1 items-center gap-5 overflow-x-auto sm:gap-6 lg:gap-7 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden';
 
 export const MAIN_NAV_CATEGORIES_BUTTON_CLASS = cn(
-  'inline-flex shrink-0 items-center gap-2 rounded-lg bg-red-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm',
+  'inline-flex shrink-0 items-center gap-2 rounded-md bg-red-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm',
   'transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
 );
 

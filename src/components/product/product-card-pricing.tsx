@@ -55,10 +55,8 @@ export function ProductCardPricing({
         <p
           className={
             isTable
-              ? 'text-xs font-semibold text-foreground'
-              : featured
-                ? PRODUCT_CARD_PRICE_FEATURED_CLASS
-                : PRODUCT_CARD_PRICE_MAIN_CLASS
+              ? 'text-xs font-semibold text-muted-foreground'
+              : 'text-xs font-semibold leading-tight text-[#6B7280] sm:text-sm'
           }
         >
           {CONSULTAR_PRECIO_LABEL}
@@ -89,12 +87,13 @@ export function ProductCardPricing({
   const discountClass = isTable
     ? 'inline-flex rounded px-1 py-px text-[0.65rem] font-medium tabular-nums bg-green-50 text-green-700'
     : PRODUCT_CARD_DISCOUNT_CLASS;
+  const hasDiscount = pricing.compareUsd > pricing.currentUsd && pricing.currentUsd > 0;
 
   return (
     <div className={cn(isTable ? 'space-y-0 leading-tight' : 'space-y-0.5')}>
       <div className={priceMainClass}>
         {penOnly ? (
-          <span className="text-red-600">{formatPenFromUsd(pricing.currentUsd)}</span>
+          <span className="text-foreground">{formatPenFromUsd(pricing.currentUsd)}</span>
         ) : (
           <AdminRolePricesTooltip
             productId={productId}
@@ -105,20 +104,22 @@ export function ProductCardPricing({
           </AdminRolePricesTooltip>
         )}
       </div>
-      <div className="flex w-full flex-wrap items-baseline justify-between gap-x-1.5 gap-y-0.5">
-        <div className={cn(compareClass, 'min-w-0')}>
-          {penOnly ? (
-            formatPenStrike(pricing.compareUsd)
-          ) : (
-            <DualPrice usd={pricing.compareUsd} strikethrough className="text-pretty" />
-          )}
+      {hasDiscount ? (
+        <div className="flex w-full flex-wrap items-baseline justify-between gap-x-1.5 gap-y-0.5">
+          <div className={cn(compareClass, 'min-w-0')}>
+            {penOnly ? (
+              formatPenStrike(pricing.compareUsd)
+            ) : (
+              <DualPrice usd={pricing.compareUsd} strikethrough className="text-pretty" />
+            )}
+          </div>
+          <span className={cn(discountClass, 'shrink-0 text-right')}>
+            {Number.isFinite(pricing.discountPercent) && pricing.discountPercent > 0
+              ? `${pricing.discountPercent}% DSCTO`
+              : null}
+          </span>
         </div>
-        <span className={cn(discountClass, 'shrink-0 text-right')}>
-          {Number.isFinite(pricing.discountPercent) && pricing.discountPercent > 0
-            ? `${pricing.discountPercent}% DSCTO`
-            : null}
-        </span>
-      </div>
+      ) : null}
     </div>
   );
 }

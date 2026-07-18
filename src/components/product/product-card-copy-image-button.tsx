@@ -35,8 +35,8 @@ export function ProductCardCopyImageButton({
     <button
       type="button"
       className={cn(className)}
-      aria-label={`Copiar imagen de ${productName}`}
-      title="Copiar imagen"
+      aria-label={label ? `${label} de ${productName}` : `Imagen de ${productName}`}
+      title={label ?? 'Imagen'}
       onClick={(event) => {
         void handleClick(event);
       }}

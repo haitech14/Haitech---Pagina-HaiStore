@@ -12,8 +12,7 @@ export const HEADER_SUPPORT_PHONE_DISPLAY = '965 805 873';
 export const HEADER_SUPPORT_PHONE_TEL = 'tel:+51965805873';
 export const HEADER_SUPPORT_WHATSAPP_MSISDN = '51965805873';
 export const HEADER_SUPPORT_WHATSAPP_URL = `https://wa.me/${HEADER_SUPPORT_WHATSAPP_MSISDN}`;
-export const HEADER_TOPBAR_PROMO_TEXT =
-  'Envío gratis por compras mayores a S/ 299.00 para Lima Metropolitana. Aplica T&C';
+export const HEADER_TOPBAR_PROMO_TEXT = 'Envío gratis desde S/ 299 (Lima)';
 export const HEADER_TOPBAR_ADDRESS = 'Av. Petit Thouars 1935 - Lince';
 export const HEADER_PIURA_ADDRESS =
   'Calle Los Ficus N° 157, Urb. Miraflores I Etapa, Mz Q-1 - Piura';
@@ -30,6 +29,9 @@ export const HEADER_QUOTE_WHATSAPP_MESSAGE =
   'Hola, vengo desde HaiStore. Me gustaría cotizar un equipo o insumo.';
 export const HEADER_QUOTE_WHATSAPP_LINK = buildHaitechWhatsAppUrl(HEADER_QUOTE_WHATSAPP_MESSAGE);
 export const HEADER_QUOTE_WHATSAPP_LABEL = 'Cotizar por WhatsApp';
+
+/** Bloque unificado del header (ventas + soporte + horario). */
+export const HEADER_CUSTOMER_SERVICE_LABEL = 'Atención al cliente';
 
 /** CTA header: ventas y alquiler por WhatsApp. */
 export const HEADER_BUY_RENT_WHATSAPP_LABEL = 'Ventas/Alquiler';

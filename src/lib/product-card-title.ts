@@ -85,11 +85,13 @@ function formatProductCardDisplayName(
   if (isTonerTitle) {
     normalized = formatConsumableListDisplayName(normalized);
   }
-  return formatProductNameSentenceCase(normalized, {
+  const formatted = formatProductNameSentenceCase(normalized, {
     brand: options?.brand ?? null,
-    // Tóner Intercopy: mantener «Intercopy», no «INTERCOPY».
-    brandDisplay: isTonerTitle ? 'title' : 'uppercase',
+    // Marcas en mayúsculas (RICOH); Intercopy se mantiene en title case abajo.
+    brandDisplay: 'uppercase',
   });
+  // Tóner Intercopy: mantener «Intercopy», no «INTERCOPY».
+  return isTonerTitle ? formatted.replace(/\bINTERCOPY\b/g, 'Intercopy') : formatted;
 }
 
 function isColorPrinter(product: ProductBadgeSource): boolean {

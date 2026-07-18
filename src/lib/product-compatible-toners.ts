@@ -1,5 +1,6 @@
 import { isPrinterEquipment } from '@/lib/build-product-detail';
 import { IM430F_ORIGINAL_TONER_PRODUCT_ID } from '@/lib/equipment-config-catalog';
+import { tonerProductMatchesEquipment } from '@/lib/product-equipment-consumables';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { ensureFullPrices } from '@/lib/roles';
 import type { ProductComboItem } from '@/types/product-detail';
@@ -222,7 +223,12 @@ export function resolveFrequentlyBoughtItems(
   const matched = catalog
     .filter((row) => row.id !== equipment.id)
     .filter(isConsumableProduct)
-    .filter((row) => consumableMatchesEquipment(row, keys))
+    .filter((row) => {
+      const name = normalizeText(row.name);
+      const isToner = name.includes('toner') || name.includes('cartucho') || name.includes('tóner');
+      if (isToner) return tonerProductMatchesEquipment(row, equipment);
+      return consumableMatchesEquipment(row, keys);
+    })
     .slice(0, 6);
 
   if (matched.length > 0) {

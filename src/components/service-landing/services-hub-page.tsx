@@ -1,10 +1,14 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { RentalConfigurePlanSection } from '@/components/rental/rental-configure-plan-section';
+import { RentalFeaturesBar } from '@/components/rental/rental-features-bar';
 import { ServicesCatalogSection } from '@/components/services-storefront/services-catalog-section';
 import { ServicesCustomSolutionForm } from '@/components/services-storefront/services-custom-solution-form';
 import { ServicesStorefrontHero } from '@/components/services-storefront/services-storefront-hero';
-import { mapHubSectionToCategory, SERVICES_CATALOG_ID } from '@/data/services-catalog';
+import { mapHubSectionToCategory } from '@/data/services-catalog';
+import type { ServiceLandingSlug } from '@/data/service-landings';
+import type { ServiceCatalogCategoryId } from '@/types/services-catalog';
 import { useSeo } from '@/hooks/use-seo';
 import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
 import { buildServiceJsonLd, DEFAULT_SITE_TITLE } from '@/lib/seo';
@@ -13,10 +17,25 @@ import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import { cn } from '@/lib/utils';
 import { findServiceSeoRoute } from '@/lib/service-seo';
 
+function categoryToHubSection(categoryId: ServiceCatalogCategoryId | null): ServiceLandingSlug | null {
+  if (!categoryId) return null;
+  if (categoryId === 'alquiler') return 'alquiler';
+  if (categoryId === 'servicio-tecnico') return 'servicio-tecnico';
+  if (categoryId === 'outsourcing') return 'outsourcing';
+  if (
+    categoryId === 'servicios-corporativos' ||
+    categoryId === 'locales-eventos' ||
+    categoryId === 'paquetes-corporativos'
+  ) {
+    return 'servicios-corporativos';
+  }
+  return null;
+}
+
 export function ServicesHubPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const section = parseServiceHubSection(searchParams.get('seccion'));
-  const initialCategory = mapHubSectionToCategory(section);
+  const activeCategory = mapHubSectionToCategory(section);
 
   const seoRoute = useMemo(() => {
     const search = searchParams.toString();
@@ -55,23 +74,30 @@ export function ServicesHubPage() {
 
   useSeo(seoConfig);
 
-  useEffect(() => {
-    if (!searchParams.has('seccion')) return;
-
-    window.requestAnimationFrame(() => {
-      document.getElementById(SERVICES_CATALOG_ID)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    });
-  }, [searchParams]);
+  const handleCategoryChange = (categoryId: ServiceCatalogCategoryId | null) => {
+    const nextSection = categoryToHubSection(categoryId);
+    if (!nextSection) {
+      setSearchParams({}, { replace: true });
+      return;
+    }
+    if (nextSection === section) return;
+    setSearchParams({ seccion: nextSection }, { replace: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className={cn('services-storefront flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
-      <ServicesStorefrontHero />
+      <ServicesStorefrontHero section={section} />
+      {section === 'alquiler' ? (
+        <>
+          <RentalFeaturesBar />
+          <RentalConfigurePlanSection />
+        </>
+      ) : null}
       <ServicesCatalogSection
-        initialCategory={initialCategory}
-        key={initialCategory ?? 'all'}
+        activeCategory={activeCategory}
+        onCategoryChange={handleCategoryChange}
+        key={section}
       />
       <ServicesCustomSolutionForm />
     </div>

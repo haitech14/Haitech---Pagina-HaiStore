@@ -1,15 +1,11 @@
 import { ImageOff } from 'lucide-react';
-import { useEffect, useId, useMemo, useState, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 
-import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
-import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail/product-detail-hero-collapsible-section';
 import { ProductDetailHeroWarrantySelector } from '@/components/product-detail/product-detail-hero-warranty-selector';
-import { inferColor } from '@/lib/category-catalog-filters';
 import type { EquipmentSelectionState } from '@/lib/equipment-config-selection';
-import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import type {
   ConfigureHeroAccessoryCard,
   ConfigureHeroWarrantyUpgrade,
@@ -20,14 +16,9 @@ import {
   type ConfigureTonerCard,
   type ConfigureTonerSupplyType,
 } from '@/lib/product-configure-toner';
-import { productPath } from '@/lib/product-path';
 import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
 import { cn } from '@/lib/utils';
-import type { Product } from '@/types/product';
 import type { ResolvedStorefrontUi, StoredStorefrontUi } from '@/types/product-storefront';
-
-const tonerCopyButtonClass =
-  'flex size-6 items-center justify-center rounded-full border border-white/90 bg-white/95 text-[#333333] shadow-sm transition-colors hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
 
 interface ProductDetailComplementaCompraProps {
   tonerCards?: ConfigureTonerCard[];
@@ -44,8 +35,6 @@ interface ProductDetailComplementaCompraProps {
   beforeTonerSlot?: ReactNode;
   leadingSlot?: ReactNode;
   maintenanceSlot?: ReactNode;
-  /** Catálogo para stock / path al copiar datos del tóner. */
-  tonerCatalog?: Product[];
   storefrontUi?: StoredStorefrontUi | null;
   className?: string;
 }
@@ -125,11 +114,6 @@ function resolveTonerCardLabels(
   };
 }
 
-function stopCopyClick(event: MouseEvent) {
-  event.preventDefault();
-  event.stopPropagation();
-}
-
 function dedupeTonerCards(cards: ConfigureTonerCard[]): ConfigureTonerCard[] {
   const seen = new Map<string, ConfigureTonerCard>();
   for (const card of cards) {
@@ -145,14 +129,12 @@ function ComplementaTonerCards({
   onTonerToggle,
   defaultSupplyType,
   storefrontUi,
-  catalogById,
 }: {
   cards: ConfigureTonerCard[];
   selectedTonerOptionIds: Set<string>;
   onTonerToggle: (card: ConfigureTonerCard) => void;
   defaultSupplyType: ConfigureTonerSupplyType;
   storefrontUi: ResolvedStorefrontUi;
-  catalogById: Map<string, Product>;
 }) {
   const tabListId = useId();
   const originalPanelId = useId();
@@ -260,14 +242,7 @@ function ComplementaTonerCards({
               const color = resolveCardColor(card);
               const swatch = TONER_COLOR_SWATCH[color] ?? TONER_COLOR_SWATCH.Estándar;
               const inputId = `complementa-toner-${card.supplyType}-${card.productId}`;
-              const imageUrl = card.imageCandidates[0] ?? card.image ?? null;
-              const catalogProduct = catalogById.get(card.productId);
               const productName = card.name || card.title;
-              const code = card.code?.trim() || catalogProduct?.code?.trim() || null;
-              const condition = catalogProduct
-                ? resolveProductCardBadgeLabel(catalogProduct)
-                : null;
-              const category = catalogProduct?.category ?? null;
 
               return (
                 <li key={`${card.supplyType}-${card.productId}`}>
@@ -300,46 +275,6 @@ function ComplementaTonerCards({
                         style={{ backgroundColor: swatch }}
                         aria-hidden="true"
                       />
-                      {storefrontUi.showTonerCopyActions ? (
-                        <span
-                          className="absolute right-0.5 top-0.5 z-[1] flex flex-col gap-0.5"
-                          onClick={stopCopyClick}
-                          role="presentation"
-                        >
-                          {imageUrl ? (
-                            <ProductCardCopyImageButton
-                              productName={productName}
-                              imageUrl={imageUrl}
-                              className={tonerCopyButtonClass}
-                            />
-                          ) : null}
-                          <ProductCardCopyButton
-                            productName={productName}
-                            title={card.title || productName}
-                            stock={catalogProduct?.stock ?? 0}
-                            priceUsd={card.priceUsd}
-                            productId={card.productId}
-                            productPath={
-                              catalogProduct
-                                ? productPath(catalogProduct)
-                                : productPath(card.productId)
-                            }
-                            isColorProduct={
-                              catalogProduct ? inferColor(catalogProduct) === 'Color' : false
-                            }
-                            {...(code != null ? { code } : {})}
-                            {...(condition != null ? { condition } : {})}
-                            {...(category != null ? { category } : {})}
-                            {...(catalogProduct?.volume_role_prices != null
-                              ? { volumeRolePrices: catalogProduct.volume_role_prices }
-                              : {})}
-                            {...(catalogProduct?.delivery_time != null
-                              ? { deliveryTime: catalogProduct.delivery_time }
-                              : {})}
-                            className={tonerCopyButtonClass}
-                          />
-                        </span>
-                      ) : null}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[0.8125rem] font-semibold leading-tight text-[#0f1f3d]">
@@ -451,15 +386,10 @@ export function ProductDetailComplementaCompra({
   beforeTonerSlot,
   leadingSlot,
   maintenanceSlot,
-  tonerCatalog = [],
   storefrontUi,
   className,
 }: ProductDetailComplementaCompraProps) {
   const resolvedUi = useMemo(() => resolveStorefrontUi(storefrontUi), [storefrontUi]);
-  const catalogById = useMemo(
-    () => new Map(tonerCatalog.map((row) => [row.id, row])),
-    [tonerCatalog],
-  );
   const hasToner = tonerCards.length > 0;
   const hasAccessories = accessoryCards.length > 0;
   const hasWarranty =
@@ -487,7 +417,6 @@ export function ProductDetailComplementaCompra({
             onTonerToggle={onTonerToggle}
             defaultSupplyType={defaultTonerSupplyType}
             storefrontUi={resolvedUi}
-            catalogById={catalogById}
           />
         </>
       ) : null}

@@ -166,6 +166,7 @@ function isImpresoraTermicaProduct(product: FeaturedProduct): boolean {
   if (!isImpresoraBaseProduct(product)) return false;
 
   const haystack = productHaystack(product);
+  const category = (product.category ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   return (
     haystack.includes('termic') ||
@@ -173,7 +174,8 @@ function isImpresoraTermicaProduct(product: FeaturedProduct): boolean {
     haystack.includes('recibo') ||
     haystack.includes('receipt') ||
     /\bpos\b/.test(haystack) ||
-    haystack.includes('ticket')
+    haystack.includes('ticket') ||
+    category.includes('termica')
   );
 }
 

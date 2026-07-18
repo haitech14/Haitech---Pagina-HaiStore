@@ -1,0 +1,48 @@
+﻿# Acelera Cursor: no indexar assets/catalogo pesado.
+# La tienda sigue sirviendo estos archivos; solo se excluyen del indice del IDE.
+
+# Dependencias / build
+node_modules/
+dist/
+.vercel/
+*.tsbuildinfo
+coverage/
+.turbo/
+
+# Imagenes y media (miles de archivos; no aportan al codigo)
+public/products/
+public/album/
+public/categories/
+public/services/
+public/brands/
+public/logos/
+public/**/*.webp
+public/**/*.png
+public/**/*.jpg
+public/**/*.jpeg
+public/**/*.gif
+public/**/*.svg
+public/**/*.mp4
+public/**/*.webm
+public/**/*.ico
+
+# Catalogo / SEO generado (regenerable: npm run generate:*)
+public/catalog/inventory-index.json
+public/catalog/home-bundle.json
+public/catalog/seo-snapshot.json
+public/catalog/seo-snapshot/
+public/catalog/**/*.json
+
+# Datos locales y seeds pesados
+server/data/
+data/seeds/
+*.xlsx
+*.xls
+*.csv
+
+# Logs y dumps
+*.log
+*.zip
+*.tar
+*.gz
+*.7z

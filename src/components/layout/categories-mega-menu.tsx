@@ -148,17 +148,12 @@ export function CategoriesMegaMenu({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              aria-label={open ? `Cerrar menú de ${label}` : `Abrir menú de ${label}`}
+              aria-label={label}
               aria-haspopup="true"
               aria-expanded={open}
               onFocus={openMenu}
-              onClick={(event) => {
-                event.preventDefault();
-                if (open) {
-                  setOpen(false);
-                } else {
-                  openMenu();
-                }
+              onClick={() => {
+                clearCloseTimer();
               }}
               className="inline-flex items-center gap-1.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
@@ -190,7 +185,7 @@ export function CategoriesMegaMenu({
             columnGroups={columnGroups}
             featuredContent={featuredContent}
             onNavigate={closeMenu}
-            desktopContentMode="sidebar-only"
+            desktopContentMode="summary"
           />
         </DropdownMenuContent>
       </DropdownMenu>
@@ -217,7 +212,7 @@ export function CategoriesMegaMenu({
             )}
           >
             <Menu className={MAIN_NAV_ICON_CLASS} aria-hidden="true" />
-            Todas las categorías
+            {label}
           </button>
         ) : (
           <Button
@@ -260,7 +255,7 @@ export function CategoriesMegaMenu({
           columnGroups={columnGroups}
           featuredContent={featuredContent}
           onNavigate={closeMenu}
-          desktopContentMode="sidebar-only"
+          desktopContentMode="summary"
         />
       </DropdownMenuContent>
     </DropdownMenu>

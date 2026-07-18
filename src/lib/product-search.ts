@@ -1,6 +1,7 @@
 import { categories } from '@/data/categories';
 import { megaMenuServiceLinks } from '@/data/mega-menu';
 import { productMatchesCategoryFilterTree } from '@/lib/inventory-categories';
+import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
 import type { Product } from '@/types/product';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 import { productMatchesCategorySlugFilter } from '../../shared/home-catalog-filter.js';
@@ -37,6 +38,21 @@ export const SEARCH_PANEL_SECTION_ORDER = [
 ] as const;
 
 export type SearchPanelSectionLabel = (typeof SEARCH_PANEL_SECTION_ORDER)[number];
+
+/** Subgrupos de Equipos por condición en el panel de búsqueda. */
+export const SEARCH_EQUIPMENT_CONDITION_ORDER = [
+  'Nuevos',
+  'Seminuevos',
+  'Remanufacturados',
+  'Otros',
+] as const;
+
+/** Subgrupos de Repuestos por tipo (original / compatible). */
+export const SEARCH_REPLACEMENT_SUPPLY_ORDER = [
+  'Originales',
+  'Compatibles',
+  'Otros',
+] as const;
 
 export function normalizeSearchText(value: string): string {
   return normalizeCatalogSearchText(value);
@@ -279,6 +295,75 @@ export function groupSearchProductsByPanelSection(
       category,
       products: sortProducts(items),
     }));
+}
+
+/**
+ * Agrupa productos de Equipos por condición: Nuevos → Seminuevos → Remanufacturados.
+ */
+export function groupEquiposSearchProductsByCondition(
+  products: Product[],
+): SearchProductCategoryGroup[] {
+  const buckets: Record<(typeof SEARCH_EQUIPMENT_CONDITION_ORDER)[number], Product[]> = {
+    Nuevos: [],
+    Seminuevos: [],
+    Remanufacturados: [],
+    Otros: [],
+  };
+
+  for (const product of products) {
+    const condition = resolveProductCardConditionLabel(product);
+    if (condition === 'Nueva') buckets.Nuevos.push(product);
+    else if (condition === 'Seminueva') buckets.Seminuevos.push(product);
+    else if (condition === 'Remanufacturada') buckets.Remanufacturados.push(product);
+    else buckets.Otros.push(product);
+  }
+
+  return SEARCH_EQUIPMENT_CONDITION_ORDER.filter((label) => buckets[label].length > 0).map(
+    (label) => ({
+      category: label,
+      products: buckets[label],
+    }),
+  );
+}
+
+function resolveRepuestoSearchSupplyLabel(
+  product: Product,
+): (typeof SEARCH_REPLACEMENT_SUPPLY_ORDER)[number] {
+  const haystack = normalizeSearchText(
+    `${product.category ?? ''} ${product.name} ${product.description ?? ''}`,
+  );
+
+  if (/(compatible|compatibl|alternativ|gen[eé]ric|intercopy)/.test(haystack)) {
+    return 'Compatibles';
+  }
+  if (/(original|genuin|oem|oficial)/.test(haystack)) {
+    return 'Originales';
+  }
+  return 'Otros';
+}
+
+/**
+ * Agrupa productos de Repuestos: Originales → Compatibles → Otros.
+ */
+export function groupRepuestosSearchProductsBySupplyType(
+  products: Product[],
+): SearchProductCategoryGroup[] {
+  const buckets: Record<(typeof SEARCH_REPLACEMENT_SUPPLY_ORDER)[number], Product[]> = {
+    Originales: [],
+    Compatibles: [],
+    Otros: [],
+  };
+
+  for (const product of products) {
+    buckets[resolveRepuestoSearchSupplyLabel(product)].push(product);
+  }
+
+  return SEARCH_REPLACEMENT_SUPPLY_ORDER.filter((label) => buckets[label].length > 0).map(
+    (label) => ({
+      category: label,
+      products: buckets[label],
+    }),
+  );
 }
 
 /** Recorta grupos conservando el orden por división (equipos primero). */

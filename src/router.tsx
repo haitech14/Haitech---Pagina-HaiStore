@@ -13,18 +13,18 @@ import { lazyWithRetry } from '@/lib/lazy-with-retry';
 import { prefetchHomeCatalog } from '@/lib/prefetch-home-catalog';
 import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
+import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 import { queryClient } from '@/providers';
 
-const loadStoreModule = () => import('@/pages/store');
-const HomePage = lazyWithRetry(() => import('@/pages/home').then((m) => ({ default: m.HomePage })), 'inicio');
-const StorePage = lazyWithRetry(
-  () => loadStoreModule().then((m) => ({ default: m.StorePage })),
-  'tienda',
-);
-const CategoryStorefrontPage = lazyWithRetry(
-  () => loadStoreModule().then((m) => ({ default: m.CategoryStorefrontPage })),
-  'categoría',
-);
+const homePageImport = () => import('@/pages/home').then((m) => ({ default: m.HomePage }));
+/** Empieza a bajar el chunk de inicio en paralelo al layout (evita spinner largo). */
+void homePageImport();
+const HomePage = lazyWithRetry(homePageImport, 'inicio');
+const storePageImport = () =>
+  import('@/pages/store').then((m) => ({ default: m.StorefrontRoutePage }));
+/** Precarga chunk de tienda en paralelo (F5 / navegación). */
+void storePageImport();
+const StorefrontRoutePage = lazyWithRetry(storePageImport, 'tienda');
 const LoginPage = lazyWithRetry(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })), 'login');
 const LoginRegisterPage = lazyWithRetry(
   () => import('@/pages/login-register').then((m) => ({ default: m.LoginRegisterPage })),
@@ -437,6 +437,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
+        // No await: el spinner de Suspense no debe esperar home-bundle / API.
         loader: () => prefetchHomeCatalog(queryClient),
         element: withSuspense(<HomePage />),
       },
@@ -457,7 +458,11 @@ export const router = createBrowserRouter([
           { path: 'recursos', element: withSuspense(<ForumRecursosPage />) },
         ],
       },
-      { path: 'tienda', element: withSuspense(<StorePage />), loader: () => prefetchStoreRoute(queryClient) },
+      {
+        path: 'tienda',
+        element: withSuspense(<StorefrontRoutePage />),
+        loader: () => prefetchStoreRoute(queryClient),
+      },
       { path: 'servicios', element: withSuspense(<ServiciosPage />) },
       { path: 'servicios/:slug', element: withSuspense(<ServicioDetallePage />) },
       { path: 'preguntas-frecuentes', element: withSuspense(<PreguntasFrecuentesPage />) },
@@ -485,14 +490,28 @@ export const router = createBrowserRouter([
         path: 'categoria/software',
         element: <Navigate to="/software" replace />,
       },
-      { path: 'categoria/:slug', loader: ({ params, request }) => {
+      {
+        path: 'categoria/:slug',
+        loader: ({ params, request }) => {
           const url = new URL(request.url);
-          const subSlug = url.searchParams.get('sub');
-          return prefetchCategoryPage(queryClient, {
-            slug: params.slug ?? '',
-            subSlug,
-          });
-        }, element: withSuspense(<CategoryStorefrontPage />) },
+          const slug = params.slug ?? '';
+          let subSlug = url.searchParams.get('sub');
+
+          // Multifuncionales siempre entra con ?sub=todas (evita miss de prefetch + Navigate).
+          if (slug === 'multifuncionales' && !subSlug) {
+            url.searchParams.set('sub', ALL_SUBCATEGORIES_QUERY);
+            prefetchCategoryPage(queryClient, {
+              slug,
+              subSlug: ALL_SUBCATEGORIES_QUERY,
+            });
+            return redirect(`${url.pathname}?${url.searchParams.toString()}${url.hash}`);
+          }
+
+          prefetchCategoryPage(queryClient, { slug, subSlug });
+          return null;
+        },
+        element: withSuspense(<StorefrontRoutePage />),
+      },
       {
         path: 'tienda/producto/:slug',
         loader: ({ params, request }) => {

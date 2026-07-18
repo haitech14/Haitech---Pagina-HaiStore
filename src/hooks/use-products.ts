@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { getCatalogRows, loadCatalogIndex, patchCatalogIndexProductMedia } from '@/lib/catalog-featured';
+import { getCachedHomeBundleProvisionalProducts } from '@/lib/home-catalog-bundle';
 import { normalizeInventoryProductForAdminList, mergeInventoryProductPatch } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES, normalizeWarehouses } from '@/lib/inventory-stock';
 import { notifyProductCatalogChanged, upsertAdminInventoryProducts } from '@/lib/invalidate-product-queries';
@@ -24,12 +25,25 @@ function getCachedWarehouses(
 }
 
 export async function fetchProductsForRole(role = 'public'): Promise<Product[]> {
-  try {
-    return await apiFetch<Product[]>('/api/products', { cache: 'no-store' });
-  } catch {
-    const rows = getCatalogRows().length > 0 ? getCatalogRows() : await loadCatalogIndex();
-    return catalogRowsToPublicProducts(rows, role);
+  // Índice en memoria primero (misma fuente que la vitrina / categorías).
+  const cached = getCatalogRows();
+  if (cached.length > 0) {
+    return catalogRowsToPublicProducts(cached, role);
   }
+
+  // Primer paint lo cubre placeholderData (provisional / home-bundle).
+  // Aquí preferimos el índice completo; API solo si el índice falla.
+  try {
+    await loadCatalogIndex();
+    const fromIndex = getCatalogRows();
+    if (fromIndex.length > 0) {
+      return catalogRowsToPublicProducts(fromIndex, role);
+    }
+  } catch {
+    /* API fallback */
+  }
+
+  return apiFetch<Product[]>('/api/products', { cache: 'no-store' });
 }
 
 export interface UseProductsOptions {
@@ -50,8 +64,10 @@ export function useProducts(options?: UseProductsOptions) {
     placeholderData: (previous) => {
       if (previous?.length) return previous;
       const rows = getCatalogRows();
-      if (!rows.length) return undefined;
-      return catalogRowsToPublicProducts(rows, role);
+      if (rows.length) return catalogRowsToPublicProducts(rows, role);
+      // Primer paint de /tienda mientras baja inventory-index.
+      const provisional = getCachedHomeBundleProvisionalProducts();
+      return provisional.length > 0 ? provisional : undefined;
     },
     select: (products) =>
       shouldApplyViewAsPriceTransform(viewAsRoles)

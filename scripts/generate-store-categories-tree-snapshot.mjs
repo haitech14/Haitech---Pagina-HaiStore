@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { getInventoryPath } from '../server/lib/server-paths.js';
-import { readStoreCategoriesTree } from '../server/lib/store-categories-store.js';
+import { buildStoreCategoriesTreeFromInventory } from '../server/lib/store-categories-store.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = path.join(__dirname, '../public/catalog/store-categories-tree.json');
@@ -22,7 +22,7 @@ async function main() {
     return;
   }
 
-  const tree = await readStoreCategoriesTree();
+  const tree = await buildStoreCategoriesTreeFromInventory();
   await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
   await writeFile(
     OUTPUT_PATH,

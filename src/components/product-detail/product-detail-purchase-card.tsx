@@ -5,7 +5,6 @@ import { Calculator, FileText, ShoppingCart } from 'lucide-react';
 import {
   formatOrderQuantityHint,
   hasOnRequestQuantity,
-  isProductOutOfStock,
 } from '@/components/cart/add-to-cart-button';
 import { AttachmentPdfViewer } from '@/components/product-detail/attachment-pdf-viewer';
 import { PurchaseSidebarRolePrices } from '@/components/product-detail/product-detail-role-prices';
@@ -142,7 +141,6 @@ export function ProductDetailPurchaseCard({
   );
   const displayUsd = fullPrices.public;
   const publicUnitBaseUsd = displayUsd + preparationSurchargeUsd;
-  const outOfStock = isProductOutOfStock(product);
   const includesOnRequest = hasOnRequestQuantity(product, quantity);
   const orderHint = formatOrderQuantityHint(product, quantity);
   const hasVolumeDiscount =
@@ -222,7 +220,6 @@ export function ProductDetailPurchaseCard({
   };
 
   const buyNowLabel = includesOnRequest ? 'Reservar ahora' : 'Comprar ahora';
-  const stockCount = outOfStock ? 0 : Math.max(product.stock, 0);
   const installmentPreview = useMemo(
     () => calculateInstallmentPreview(configuredUnitUsd * quantity),
     [configuredUnitUsd, quantity],
@@ -257,18 +254,6 @@ export function ProductDetailPurchaseCard({
           offerUnitUsd={offerUnitUsd}
         />
       )}
-      <p className="mt-1.5 flex items-center gap-1.5 text-[0.6875rem] font-medium text-emerald-700">
-        {outOfStock ? (
-          'Disponible bajo pedido'
-        ) : stockCount > 0 ? (
-          <>
-            <span className="size-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden="true" />
-            {stockCount} disponibles
-          </>
-        ) : (
-          'Consulta disponibilidad con un asesor'
-        )}
-      </p>
     </div>
   );
 

@@ -1,10 +1,16 @@
 import { productCategoryTags } from '@/lib/inventory-categories';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
+import {
+  readCatalogIndexFromIdb,
+  writeCatalogIndexToIdb,
+} from '@/lib/catalog-index-idb';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { findProductBySlugOrId } from '@/lib/product-slug';
 import type { FeaturedProduct } from '@/data/featured-products';
-import type { InventoryProduct } from '@/types/product';
+import type { InventoryProduct, Product } from '@/types/product';
 import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
+
+export const CATALOG_INDEX_UPDATED_EVENT = 'haistore-catalog-index-updated';
 
 export type CatalogRow = InventoryProduct & {
   compare_at_price_usd?: number;
@@ -22,8 +28,29 @@ export const INVENTORY_INDEX_URL = '/catalog/inventory-index.json';
 let catalogCache: CatalogRow[] | null = null;
 let catalogLoadPromise: Promise<CatalogRow[]> | null = null;
 let catalogMediaEpoch = 0;
+/** Lookup O(1) por id sobre catalogCache (todas las filas, sin filtrar visibilidad). */
+let catalogById: Map<string, CatalogRow> | null = null;
+/** Lookup O(1) por slug normalizado. */
+let catalogBySlug: Map<string, CatalogRow> | null = null;
 
 const CATALOG_MEDIA_UPDATED_EVENT = 'haistore-catalog-media-updated';
+
+function rebuildCatalogLookupMaps(rows: CatalogRow[]): void {
+  const byId = new Map<string, CatalogRow>();
+  const bySlug = new Map<string, CatalogRow>();
+  for (const row of rows) {
+    byId.set(row.id, row);
+    const slug = typeof row.slug === 'string' ? row.slug.trim().toLowerCase() : '';
+    if (slug) bySlug.set(slug, row);
+  }
+  catalogById = byId;
+  catalogBySlug = bySlug;
+}
+
+function clearCatalogLookupMaps(): void {
+  catalogById = null;
+  catalogBySlug = null;
+}
 
 function bumpCatalogMediaEpoch(): void {
   catalogMediaEpoch += 1;
@@ -57,7 +84,7 @@ function normalizeCatalogRows(rawProducts: CatalogJsonRow[]): CatalogRow[] {
   });
 }
 
-async function fetchCatalogIndex(): Promise<CatalogRow[]> {
+async function fetchCatalogIndexFromNetwork(): Promise<CatalogRow[]> {
   const response = await fetch(INVENTORY_INDEX_URL, {
     cache: 'default',
     headers: { Accept: 'application/json' },
@@ -69,19 +96,65 @@ async function fetchCatalogIndex(): Promise<CatalogRow[]> {
   return normalizeCatalogRows(payload.products ?? []);
 }
 
-/** Carga el índice slim desde CDN (con caché en memoria). */
+function applyCatalogRows(rows: CatalogRow[]): CatalogRow[] {
+  catalogCache = rows;
+  rebuildCatalogLookupMaps(rows);
+  return rows;
+}
+
+/** Empuja el índice fresco a React Query (roles en queryKey). */
+function publishCatalogIndexToQueryClient(rows: CatalogRow[]): void {
+  void import('@/providers').then(async ({ queryClient }) => {
+    const { toPublicProduct } = await import('@/lib/pricing');
+    const visible = rows.filter((row) => isProductVisibleOnStorefront(row));
+    const queries = queryClient.getQueriesData<Product[]>({ queryKey: ['products'] });
+    for (const [queryKey] of queries) {
+      const role = typeof queryKey[1] === 'string' ? queryKey[1] : 'public';
+      queryClient.setQueryData(
+        queryKey,
+        visible.map((row) => toPublicProduct(row, role)),
+      );
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(CATALOG_INDEX_UPDATED_EVENT));
+    }
+  });
+}
+
+async function revalidateCatalogIndexInBackground(): Promise<void> {
+  try {
+    const rows = await fetchCatalogIndexFromNetwork();
+    applyCatalogRows(rows);
+    void writeCatalogIndexToIdb(rows);
+    publishCatalogIndexToQueryClient(rows);
+  } catch {
+    /* mantener snapshot IDB / memoria */
+  }
+}
+
+/** Carga el índice: memoria → IndexedDB (refresh rápido) → red. */
 export async function loadCatalogIndex(): Promise<CatalogRow[]> {
   if (catalogCache) return catalogCache;
   if (!catalogLoadPromise) {
-    catalogLoadPromise = fetchCatalogIndex()
-      .then((rows) => {
-        catalogCache = rows;
+    catalogLoadPromise = (async () => {
+      const idbRows = await readCatalogIndexFromIdb();
+      if (idbRows && idbRows.length > 0) {
+        const rows = idbRows as CatalogRow[];
+        applyCatalogRows(rows);
+        // Red en segundo plano; no bloquear el paint del refresh.
+        void revalidateCatalogIndexInBackground();
         return rows;
-      })
-      .catch((error) => {
-        catalogLoadPromise = null;
-        throw error;
-      });
+      }
+
+      const rows = await fetchCatalogIndexFromNetwork();
+      applyCatalogRows(rows);
+      void writeCatalogIndexToIdb(rows);
+      return rows;
+    })().catch((error) => {
+      catalogLoadPromise = null;
+      clearCatalogLookupMaps();
+      throw error;
+    });
   }
   return catalogLoadPromise;
 }
@@ -107,15 +180,20 @@ export function patchCatalogIndexProductMedia(
   const current = catalogCache[index];
   if (!current) return;
 
+  const nextRow: CatalogRow = {
+    ...current,
+    image_url: product.image_url ?? current.image_url,
+    gallery: Array.isArray(product.gallery) ? product.gallery : current.gallery,
+  };
+
   catalogCache = [
     ...catalogCache.slice(0, index),
-    {
-      ...current,
-      image_url: product.image_url ?? current.image_url,
-      gallery: Array.isArray(product.gallery) ? product.gallery : current.gallery,
-    },
+    nextRow,
     ...catalogCache.slice(index + 1),
   ];
+  catalogById?.set(nextRow.id, nextRow);
+  const slug = typeof nextRow.slug === 'string' ? nextRow.slug.trim().toLowerCase() : '';
+  if (slug) catalogBySlug?.set(slug, nextRow);
   bumpCatalogMediaEpoch();
 }
 
@@ -211,14 +289,25 @@ export function getCatalogFeaturedByCategories(
 }
 
 export function getCatalogProductById(id: string): CatalogRow | undefined {
+  const key = id.trim();
+  if (!key) return undefined;
+
+  if (catalogById || catalogBySlug) {
+    const byId = catalogById?.get(key);
+    if (byId && isProductVisibleOnStorefront(byId)) return byId;
+
+    const bySlug = catalogBySlug?.get(key.toLowerCase());
+    if (bySlug && isProductVisibleOnStorefront(bySlug)) return bySlug;
+
+    // Fallback: findProductBySlugOrId puede resolver códigos / slugs legacy.
+  }
+
   const rows = getCatalogRows();
-  const match = findProductBySlugOrId(rows, id);
+  const match = findProductBySlugOrId(rows, key);
   return match as CatalogRow | undefined;
 }
 
 export async function getCatalogProductByIdAsync(id: string): Promise<CatalogRow | undefined> {
-  const rows = await loadCatalogIndex();
-  const visible = rows.filter((row) => isProductVisibleOnStorefront(row));
-  const match = findProductBySlugOrId(visible, id);
-  return match as CatalogRow | undefined;
+  await loadCatalogIndex();
+  return getCatalogProductById(id);
 }

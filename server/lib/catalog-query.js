@@ -31,6 +31,7 @@ import {
   compareProductsByViewCount,
   resolveMostViewedOfferProductIds,
 } from '../../shared/catalog-most-viewed-offers.js';
+import { compareCatalogProductsBySort, isCatalogPriceOnRequest } from '../../shared/catalog-price-sort.js';
 import { productMatchesSpeedFilterKeys } from '../../shared/catalog-speed-filter.js';
 
 function normalizeSearchText(value) {
@@ -47,13 +48,7 @@ function productMatchesAttributeFilters(product, attributeKeys, productionKey, o
 }
 
 function compareProducts(sortBy, a, b) {
-  if (sortBy === 'price-asc' && a.price !== b.price) return a.price - b.price;
-  if (sortBy === 'price-desc' && a.price !== b.price) return b.price - a.price;
-  if (sortBy === 'name-asc') return a.name.localeCompare(b.name, 'es');
-  const ao = Number.isFinite(Number(a.sort_order)) ? Number(a.sort_order) : Number.MAX_SAFE_INTEGER;
-  const bo = Number.isFinite(Number(b.sort_order)) ? Number(b.sort_order) : Number.MAX_SAFE_INTEGER;
-  if (ao !== bo) return ao - bo;
-  return a.name.localeCompare(b.name, 'es');
+  return compareCatalogProductsBySort(sortBy, a, b);
 }
 
 function buildAttributeFacets(products) {
@@ -289,7 +284,10 @@ export async function queryProductsByCategory({
   const safeMin = Math.min(min, max);
   const safeMax = Math.max(min, max);
 
-  matched = matched.filter((product) => product.price >= safeMin && product.price <= safeMax);
+  matched = matched.filter((product) => {
+    if (isCatalogPriceOnRequest(product.price)) return true;
+    return product.price >= safeMin && product.price <= safeMax;
+  });
 
   if (attributeKeys.length > 0 || productionKey) {
     matched = matched.filter((product) =>

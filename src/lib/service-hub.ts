@@ -26,9 +26,12 @@ const SECTION_ALIASES: Record<string, ServiceLandingSlug> = {
   corporativos: 'servicios-corporativos',
 };
 
-export function parseServiceHubSection(value: string | null | undefined): ServiceLandingSlug {
+/** Resuelve `?seccion=` del hub; sin valor o inválido → `null` (landing de marketing). */
+export function tryParseServiceHubSection(
+  value: string | null | undefined,
+): ServiceLandingSlug | null {
   if (!value?.trim()) {
-    return DEFAULT_SERVICE_HUB_SECTION;
+    return null;
   }
   const key = value.trim().toLowerCase();
   const resolved = SECTION_ALIASES[key];
@@ -38,12 +41,20 @@ export function parseServiceHubSection(value: string | null | undefined): Servic
   if (SERVICE_LANDING_SLUGS.includes(key as ServiceLandingSlug)) {
     return key as ServiceLandingSlug;
   }
-  return DEFAULT_SERVICE_HUB_SECTION;
+  return null;
 }
 
+/** Dentro del hub con `?seccion=`; sin valor válido cae a alquiler. */
+export function parseServiceHubSection(value: string | null | undefined): ServiceLandingSlug {
+  return tryParseServiceHubSection(value) ?? DEFAULT_SERVICE_HUB_SECTION;
+}
+
+/** Landing de marketing (`/servicios`). Con sección → catálogo filtrado. */
 export function serviceHubPath(section?: ServiceLandingSlug): string {
-  const slug = section ?? DEFAULT_SERVICE_HUB_SECTION;
-  return `/servicios?seccion=${slug}`;
+  if (!section) {
+    return '/servicios';
+  }
+  return `/servicios?seccion=${section}`;
 }
 
 export function serviceDetailPathFromLanding(landingSlug: string, cardId: string): string {

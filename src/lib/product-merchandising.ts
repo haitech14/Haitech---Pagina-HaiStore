@@ -4,7 +4,7 @@ import { isColorPrinterEquipment } from '@/lib/build-product-detail';
 import {
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
-  IM550F_ORIGINAL_TONER_PRODUCT_ID,
+  IM600F_ORIGINAL_TONER_PRODUCT_ID,
   IM_C320F_COMPATIBLE_TONER_IDS,
   IM_C320F_EQUIPMENT_PRODUCT_ID,
   IM_C320F_ORIGINAL_TONER_IDS,
@@ -106,8 +106,13 @@ export function resolveKnownOriginalTonerProductIds(equipment: Product): string[
     return [IM430F_ORIGINAL_TONER_PRODUCT_ID];
   }
 
-  if (/\bim\s*550f\b/i.test(equipment.name) || /\bim\s*600f\b/i.test(equipment.name)) {
-    return [IM550F_ORIGINAL_TONER_PRODUCT_ID];
+  if (/\bim\s*600\s*f\b/i.test(equipment.name)) {
+    return [IM600F_ORIGINAL_TONER_PRODUCT_ID];
+  }
+
+  // IM 550F: no ofrecer el cartucho 418480 (listado IM 600F).
+  if (/\bim\s*550\s*f\b/i.test(equipment.name)) {
+    return [];
   }
 
   const normalized = normalizeEquipmentName(equipment.name);
@@ -150,8 +155,12 @@ export function resolveKnownCompatibleTonerProductIds(equipment: Product): strin
     return [M320F_COMPATIBLE_TONER_PRODUCT_ID];
   }
 
-  if (/\bim\s*550f\b/i.test(equipment.name) || /\bim\s*600f\b/i.test(equipment.name)) {
+  if (/\bim\s*550f\b/i.test(equipment.name)) {
     return [IM550F_COMPATIBLE_TONER_PRODUCT_ID];
+  }
+
+  if (/\bim\s*600f\b/i.test(equipment.name)) {
+    return [];
   }
 
   return [];

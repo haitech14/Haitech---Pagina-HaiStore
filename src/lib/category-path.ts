@@ -22,6 +22,21 @@ export function categoryLandingPath(slug: string): string {
   return `/categoria/${slug}`;
 }
 
+/** Parsea `/categoria/:slug` (+ `?sub=`) desde un href relativo o absoluto. */
+export function parseCategoryHref(href: string): { slug: string; subSlug: string | null } | null {
+  try {
+    const url = new URL(href, 'https://haitech.pe');
+    const match = url.pathname.match(/^\/categoria\/([^/]+)/);
+    if (!match?.[1]) return null;
+    return {
+      slug: decodeURIComponent(match[1]),
+      subSlug: url.searchParams.get('sub'),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function categoryPath(slug: string, subSlug?: string | null): string {
   return `/categoria/${slug}${categoryQueryString(subSlug)}#${CATEGORY_PRODUCTS_ID}`;
 }

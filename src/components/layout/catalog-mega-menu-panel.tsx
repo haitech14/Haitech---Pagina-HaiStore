@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import type {
   LandingCatalogMenuSidebarItem,
@@ -9,6 +10,8 @@ import type {
 } from '@/lib/mega-menu-from-store-categories';
 import { categoryLandingPath } from '@/lib/category-path';
 import { megaMenuIconForSlug, resolveMegaMenuColumnImage } from '@/lib/mega-menu-visuals';
+import { prefetchCategoryFromHref, prefetchCategoryPage } from '@/lib/prefetch-category-page';
+import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 import { cn } from '@/lib/utils';
 
 const ICON_STROKE = 1.75;
@@ -26,8 +29,17 @@ function MegaMenuLink({
   className?: string;
   children: React.ReactNode;
 }) {
+  const queryClient = useQueryClient();
+  const prefetch = () => prefetchCategoryFromHref(queryClient, to);
+
   return (
-    <Link to={to} onClick={onNavigate} className={className}>
+    <Link
+      to={to}
+      onClick={onNavigate}
+      onMouseEnter={prefetch}
+      onFocus={prefetch}
+      className={className}
+    >
       {children}
     </Link>
   );
@@ -322,33 +334,43 @@ function CatalogMegaMenuSidebar({
   /** Cada ítem navega a su categoría (sin panel derecho). */
   asLinks?: boolean;
 }) {
+  const queryClient = useQueryClient();
+
+  const prefetchSlug = (slug: string, href: string) => {
+    prefetchCategoryFromHref(queryClient, href);
+    prefetchCategoryPage(queryClient, {
+      slug,
+      subSlug: slug === 'multifuncionales' ? ALL_SUBCATEGORIES_QUERY : null,
+    });
+  };
+
   return (
     <aside
       className={cn(
         'shrink-0 border-[#E5E7EB] bg-[#FAFAFA]',
         isMobile
-          ? 'border-b bg-white px-3 py-2.5'
+          ? 'border-b bg-white px-2.5 py-2'
           : cn(
-              'w-[14.5rem] border-r py-3 pl-3 pr-2 sm:w-[15.5rem]',
+              'w-[13.5rem] border-r py-2.5 pl-2.5 pr-2 sm:w-[14.25rem]',
               asLinks && 'border-r-0',
             ),
       )}
     >
       {!isMobile ? (
-        <p className="mb-2 px-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">
+        <p className="mb-2 px-1 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
           Categorías
         </p>
       ) : null}
 
       <ul
         className={cn(
-          'flex gap-0.5',
+          'flex gap-1',
           isMobile
             ? 'flex-row overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
             : cn(
                 'flex-col',
                 scrollable &&
-                  'max-h-[min(32rem,calc(75vh-3.5rem))] overflow-y-auto overscroll-contain pr-1 [-ms-overflow-style:auto] [scrollbar-width:thin]',
+                  'max-h-[min(28rem,calc(75vh-3.5rem))] overflow-y-auto overscroll-contain pr-0.5 [-ms-overflow-style:auto] [scrollbar-width:thin]',
               ),
         )}
         role={asLinks ? 'list' : 'tablist'}
@@ -360,9 +382,9 @@ function CatalogMegaMenuSidebar({
           const href = item.viewAllHref ?? categoryLandingPath(item.slug);
 
           const itemClassName = cn(
-            'flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium transition-colors',
+            'flex min-h-8 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem] font-medium leading-snug transition-colors',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-            isMobile && 'whitespace-nowrap text-xs',
+            isMobile && 'whitespace-nowrap text-[0.75rem]',
             isActive
               ? 'border-l-[3px] bg-[#FFF5F5] font-semibold text-[#E30613]'
               : 'border-l-[3px] border-transparent text-[#374151] hover:bg-[#F3F4F6]',
@@ -372,7 +394,7 @@ function CatalogMegaMenuSidebar({
             <>
               <span
                 className={cn(
-                  'flex size-7 shrink-0 items-center justify-center rounded-md',
+                  'flex size-6 shrink-0 items-center justify-center rounded-md',
                   isActive
                     ? 'bg-[#E30613]/10 text-[#E30613]'
                     : 'bg-[#F3F4F6] text-[#6B7280]',
@@ -399,7 +421,15 @@ function CatalogMegaMenuSidebar({
                 <Link
                   to={href}
                   onClick={onNavigate}
-                  onMouseEnter={isMobile ? undefined : () => onCategoryChange(item.slug)}
+                  onMouseEnter={
+                    isMobile
+                      ? undefined
+                      : () => {
+                          prefetchSlug(item.slug, href);
+                          onCategoryChange(item.slug);
+                        }
+                  }
+                  onFocus={() => prefetchSlug(item.slug, href)}
                   className={itemClassName}
                   style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
                 >
@@ -410,8 +440,18 @@ function CatalogMegaMenuSidebar({
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  onMouseEnter={isMobile ? undefined : () => onCategoryChange(item.slug)}
-                  onFocus={() => onCategoryChange(item.slug)}
+                  onMouseEnter={
+                    isMobile
+                      ? undefined
+                      : () => {
+                          prefetchSlug(item.slug, href);
+                          onCategoryChange(item.slug);
+                        }
+                  }
+                  onFocus={() => {
+                    prefetchSlug(item.slug, href);
+                    onCategoryChange(item.slug);
+                  }}
                   onClick={() => onCategoryChange(item.slug)}
                   className={itemClassName}
                   style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
@@ -450,6 +490,7 @@ export function CatalogMegaMenuPanel({
   desktopContentMode = 'grid',
 }: CatalogMegaMenuPanelProps) {
   void featuredContent;
+  const queryClient = useQueryClient();
   const activeItem =
     sidebarItems.find((item) => item.slug === activeCategorySlug) ?? sidebarItems[0];
   const isMobile = layout === 'mobile';
@@ -457,13 +498,21 @@ export function CatalogMegaMenuPanel({
   const useSummaryLayout = !isMobile && desktopContentMode === 'summary' && columnGroups.length === 1;
   const desktopGridClass = desktopMegaMenuGridClass(columnGroups.length);
 
+  const handleCategoryChange = (slug: string) => {
+    prefetchCategoryPage(queryClient, {
+      slug,
+      subSlug: slug === 'multifuncionales' ? ALL_SUBCATEGORIES_QUERY : null,
+    });
+    onCategoryChange(slug);
+  };
+
   if (sidebarOnly) {
     return (
-      <div className="w-[14.5rem] bg-white sm:w-[15.5rem]">
+      <div className="w-[12rem] bg-white sm:w-[12.75rem]">
         <CatalogMegaMenuSidebar
           sidebarItems={sidebarItems}
           activeCategorySlug={activeCategorySlug}
-          onCategoryChange={onCategoryChange}
+          onCategoryChange={handleCategoryChange}
           onNavigate={onNavigate}
           isMobile={false}
           scrollable
@@ -479,7 +528,7 @@ export function CatalogMegaMenuPanel({
         <CatalogMegaMenuSidebar
           sidebarItems={sidebarItems}
           activeCategorySlug={activeCategorySlug}
-          onCategoryChange={onCategoryChange}
+          onCategoryChange={handleCategoryChange}
           isMobile={false}
           scrollable
         />
@@ -522,12 +571,12 @@ export function CatalogMegaMenuPanel({
 
   return (
     <div className="flex flex-col bg-white">
-      <CatalogMegaMenuSidebar
-        sidebarItems={sidebarItems}
-        activeCategorySlug={activeCategorySlug}
-        onCategoryChange={onCategoryChange}
-        isMobile
-      />
+        <CatalogMegaMenuSidebar
+          sidebarItems={sidebarItems}
+          activeCategorySlug={activeCategorySlug}
+          onCategoryChange={handleCategoryChange}
+          isMobile
+        />
 
       <div
         className="flex min-w-0 flex-1 flex-col"
@@ -547,6 +596,18 @@ export function CatalogMegaMenuPanel({
             <Link
               to={activeItem?.viewAllHref ?? categoryLandingPath(activeCategorySlug)}
               onClick={onNavigate}
+              onMouseEnter={() =>
+                prefetchCategoryFromHref(
+                  queryClient,
+                  activeItem?.viewAllHref ?? categoryLandingPath(activeCategorySlug),
+                )
+              }
+              onFocus={() =>
+                prefetchCategoryFromHref(
+                  queryClient,
+                  activeItem?.viewAllHref ?? categoryLandingPath(activeCategorySlug),
+                )
+              }
               className="inline-flex min-h-8 shrink-0 items-center gap-0.5 rounded-md px-1 text-sm font-semibold transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
               style={{ color: BRAND_RED }}
             >

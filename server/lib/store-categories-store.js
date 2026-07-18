@@ -747,12 +747,15 @@ export async function writeStoreCategories(categories, options = {}) {
   await fs.mkdir(path.dirname(categoriesPath()), { recursive: true });
   await writeJsonFileAtomic(categoriesPath(), { categories: normalized, removedStaticSlugs });
   invalidateStoreCategoriesTreeCache();
-  void writeStoreCategoriesTreeSnapshot().catch((error) => {
+  try {
+    // Await: evita que GET /api/categories sirva el snapshot disco previo al write.
+    await writeStoreCategoriesTreeSnapshot();
+  } catch (error) {
     console.warn(
       '[store-categories] No se pudo escribir store-categories-tree.json:',
       error instanceof Error ? error.message : error,
     );
-  });
+  }
   return normalized;
 }
 
@@ -826,17 +829,56 @@ export function invalidateStoreCategoriesTreeCache() {
   categoriesTreeCacheAt = 0;
 }
 
+export function setStoreCategoriesTreeCache(tree) {
+  categoriesTreeCache = tree;
+  categoriesTreeCacheAt = Date.now();
+}
+
+async function readTreeSnapshotFromDisk() {
+  try {
+    const raw = await fs.readFile(PUBLIC_CATEGORIES_TREE_SNAPSHOT_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    const tree = Array.isArray(parsed) ? parsed : parsed?.tree;
+    if (Array.isArray(tree) && tree.length > 0) {
+      const { enrichEquipmentStoreSubcategories } = await import(
+        '../../shared/equipment-store-subcategories.js'
+      );
+      return enrichEquipmentStoreSubcategories(tree);
+    }
+  } catch {
+    /* sin snapshot o JSON inválido */
+  }
+  return null;
+}
+
+/** Rebuild completo (inventario) — usado al regenerar el snapshot público. */
+export async function buildStoreCategoriesTreeFromInventory() {
+  const categories = await readStoreCategories();
+  const products = await listProducts({ role: 'public', adminView: false });
+  const { enrichEquipmentStoreSubcategories } = await import(
+    '../../shared/equipment-store-subcategories.js'
+  );
+  return enrichEquipmentStoreSubcategories(buildTree(categories, products));
+}
+
+/**
+ * Árbol para la tienda: memoria → snapshot público (~ms) → rebuild con inventario.
+ * Evita listProducts en el hot path de GET /api/categories.
+ */
 export async function readStoreCategoriesTree() {
   const now = Date.now();
   if (categoriesTreeCache && now - categoriesTreeCacheAt < CATEGORIES_TREE_CACHE_TTL_MS) {
     return categoriesTreeCache;
   }
 
-  const categories = await readStoreCategories();
-  const products = await listProducts({ role: 'public', adminView: false });
-  const tree = buildTree(categories, products);
-  categoriesTreeCache = tree;
-  categoriesTreeCacheAt = now;
+  const snapshot = await readTreeSnapshotFromDisk();
+  if (snapshot) {
+    setStoreCategoriesTreeCache(snapshot);
+    return snapshot;
+  }
+
+  const tree = await buildStoreCategoriesTreeFromInventory();
+  setStoreCategoriesTreeCache(tree);
   return tree;
 }
 

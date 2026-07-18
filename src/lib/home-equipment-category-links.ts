@@ -1,5 +1,5 @@
 import type { HomeFeaturedEquipmentCategoryFilterId } from '@/data/home-featured-quick-filters-equipment';
-import { categoryLandingPath } from '@/lib/category-path';
+import { categoryLandingPath, categoryPath } from '@/lib/category-path';
 
 /** Slugs de tienda asociados a cada chip de equipos (filtros rápidos del home). */
 export const HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS: Record<
@@ -23,5 +23,8 @@ export const HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS: Record<
 export function homeEquipmentCategoryLandingPath(
   filterId: HomeFeaturedEquipmentCategoryFilterId,
 ): string {
+  if (filterId === 'impresora-termica') {
+    return categoryPath('impresoras', 'impresoras-termicas');
+  }
   return categoryLandingPath(HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS[filterId]);
 }
