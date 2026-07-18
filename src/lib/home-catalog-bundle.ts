@@ -242,3 +242,18 @@ export function getCachedHomeBundleProvisionalProducts(): Product[] {
   if (!bundle) return [];
   return collectProvisionalStoreProductsFromBundle(bundle);
 }
+
+/**
+ * Deep-link frío a /tienda: lee home-bundle.json (~57KB) y deja provisional en sessionStorage.
+ * No espera inventory-index (1.3MB).
+ */
+export async function loadProvisionalStoreProductsFromStaticBundle(): Promise<Product[]> {
+  const cached = getCachedHomeBundleProvisionalProducts();
+  if (cached.length > 0) return cached;
+
+  const staticPayload = await fetchStaticHomeCatalogBundle();
+  if (!staticPayload) return [];
+
+  storeHomeCatalogBundle(staticPayload.bundle, staticPayload.generatedAt);
+  return collectProvisionalStoreProductsFromBundle(staticPayload.bundle);
+}

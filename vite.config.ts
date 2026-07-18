@@ -81,9 +81,11 @@ export default defineConfig({
         './src/providers.tsx',
         './src/router.tsx',
         './src/pages/home.tsx',
+        './src/pages/store.tsx',
         './src/components/layout/root-layout.tsx',
         './src/components/layout/header.tsx',
         './src/components/hero-banner.tsx',
+        './src/components/store-storefront/store-catalog-product-card.tsx',
       ],
     },
     // Proxy del API admin local (server/) durante el desarrollo.

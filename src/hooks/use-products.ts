@@ -3,7 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
 import { getCatalogRows, loadCatalogIndex, patchCatalogIndexProductMedia } from '@/lib/catalog-featured';
-import { getCachedHomeBundleProvisionalProducts } from '@/lib/home-catalog-bundle';
+import {
+  getCachedHomeBundleProvisionalProducts,
+  loadProvisionalStoreProductsFromStaticBundle,
+} from '@/lib/home-catalog-bundle';
 import { normalizeInventoryProductForAdminList, mergeInventoryProductPatch } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES, normalizeWarehouses } from '@/lib/inventory-stock';
 import { notifyProductCatalogChanged, upsertAdminInventoryProducts } from '@/lib/invalidate-product-queries';
@@ -24,15 +27,7 @@ function getCachedWarehouses(
   return normalizeWarehouses(cached ?? DEFAULT_WAREHOUSES);
 }
 
-export async function fetchProductsForRole(role = 'public'): Promise<Product[]> {
-  // Índice en memoria primero (misma fuente que la vitrina / categorías).
-  const cached = getCatalogRows();
-  if (cached.length > 0) {
-    return catalogRowsToPublicProducts(cached, role);
-  }
-
-  // Primer paint lo cubre placeholderData (provisional / home-bundle).
-  // Aquí preferimos el índice completo; API solo si el índice falla.
+async function loadFullCatalogForRole(role: string): Promise<Product[] | null> {
   try {
     await loadCatalogIndex();
     const fromIndex = getCatalogRows();
@@ -40,9 +35,50 @@ export async function fetchProductsForRole(role = 'public'): Promise<Product[]> 
       return catalogRowsToPublicProducts(fromIndex, role);
     }
   } catch {
-    /* API fallback */
+    /* API fallback abajo */
+  }
+  try {
+    return await apiFetch<Product[]>('/api/products', { cache: 'no-store' });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Catálogo de /tienda.
+ * Si hay provisional (sessionStorage o home-bundle.json), lo devuelve al instante
+ * y completa con inventory-index en background vía queryClient.
+ */
+export async function fetchProductsForRole(
+  role = 'public',
+  options?: {
+    queryClient?: ReturnType<typeof useQueryClient>;
+    queryKey?: readonly unknown[];
+  },
+): Promise<Product[]> {
+  const cached = getCatalogRows();
+  if (cached.length > 0) {
+    return catalogRowsToPublicProducts(cached, role);
   }
 
+  let provisional = getCachedHomeBundleProvisionalProducts();
+  if (provisional.length === 0) {
+    provisional = await loadProvisionalStoreProductsFromStaticBundle();
+  }
+
+  if (provisional.length > 0 && options?.queryClient && options.queryKey) {
+    const { queryClient, queryKey } = options;
+    void loadFullCatalogForRole(role).then((full) => {
+      if (full && full.length > 0) {
+        queryClient.setQueryData(queryKey, full);
+      }
+    });
+    return provisional;
+  }
+
+  const full = await loadFullCatalogForRole(role);
+  if (full && full.length > 0) return full;
+  if (provisional.length > 0) return provisional;
   return apiFetch<Product[]>('/api/products', { cache: 'no-store' });
 }
 
@@ -52,11 +88,13 @@ export interface UseProductsOptions {
 
 export function useProducts(options?: UseProductsOptions) {
   const { role, viewAsRoles, effectiveRole } = useAuth();
+  const queryClient = useQueryClient();
   const enabled = options?.enabled !== false;
+  const queryKey = ['products', role, viewAsRolesQueryKey(viewAsRoles)] as const;
 
   return useQuery({
-    queryKey: ['products', role, viewAsRolesQueryKey(viewAsRoles)],
-    queryFn: () => fetchProductsForRole(role),
+    queryKey,
+    queryFn: () => fetchProductsForRole(role, { queryClient, queryKey }),
     enabled,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,

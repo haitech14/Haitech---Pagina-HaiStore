@@ -1,6 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
 
-import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 import { prefetchStorePage } from '@/lib/prefetch-store-page';
 import {
   fetchStoreCategoriesTreeWithFallback,
@@ -18,10 +17,14 @@ export function prefetchStoreRouteChunk(): void {
   void import('@/pages/store');
 }
 
-/** Precarga chunk, índice de catálogo, árbol de categorías y datos de productos para /tienda. */
+/** Alias para calentar el chunk tras paint en home (sin importar el router). */
+export function warmStoreRouteChunk(): void {
+  prefetchStoreRouteChunk();
+}
+
+/** Precarga chunk, árbol de categorías y datos provisionales; índice 1.3MB va idle en prefetchStorePage. */
 export function prefetchStoreRoute(client: QueryClient = queryClient): void {
   prefetchStoreRouteChunk();
-  preloadCatalogIndexNow();
 
   void client.prefetchQuery({
     queryKey: [STORE_CATEGORIES_QUERY_KEY],

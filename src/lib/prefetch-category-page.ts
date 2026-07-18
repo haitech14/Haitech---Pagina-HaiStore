@@ -22,7 +22,6 @@ import {
   findStoreCategoryBySlug,
 } from '@/lib/store-category-display';
 import { parseCategoryHref } from '@/lib/category-path';
-import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 
 export { fetchCategoryCatalogWithFallback };
@@ -86,7 +85,7 @@ export function prefetchCategoryPage(
   queryClient: QueryClient,
   { slug, subSlug = null, role = 'public' }: PrefetchCategoryPageOptions,
 ): void {
-  preloadCatalogIndexNow();
+  // No precargar inventory-index aquí: /categoria es API-first; el índice calienta en idle.
 
   void queryClient.prefetchQuery({
     queryKey: [STORE_CATEGORIES_QUERY_KEY],

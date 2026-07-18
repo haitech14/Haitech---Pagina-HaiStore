@@ -91,10 +91,21 @@ function useDeferredWidgetMount(delayMs = 2500) {
   return ready;
 }
 
+function isStorefrontPath(pathname: string): boolean {
+  return (
+    pathname === '/tienda' ||
+    pathname.startsWith('/tienda/') ||
+    pathname.startsWith('/categoria/')
+  );
+}
+
 export function RootLayout() {
   const { pathname } = useLocation();
-  const widgetsReady = useDeferredWidgetMount();
-  const chromeReady = useDeferredWidgetMount(600);
+  const storefront = isStorefrontPath(pathname);
+  // En storefront: defer más largo para no competir con el grid.
+  const widgetsReady = useDeferredWidgetMount(storefront ? 3500 : 2500);
+  const chromeReady = useDeferredWidgetMount(storefront ? 1200 : 600);
+  const shellReady = useDeferredWidgetMount(storefront ? 900 : 200);
   const showMobileBottomNav = shouldShowMobileBottomNav(pathname);
 
   return (
@@ -124,13 +135,15 @@ export function RootLayout() {
           </Suspense>
         </SoftWidgetBoundary>
       ) : null}
-      <SoftWidgetBoundary name="shell">
-        <Suspense fallback={null}>
-          <MobileBottomNav />
-          <ShoppingCartDrawer />
-          <ProductCompareTray />
-        </Suspense>
-      </SoftWidgetBoundary>
+      {shellReady ? (
+        <SoftWidgetBoundary name="shell">
+          <Suspense fallback={null}>
+            <MobileBottomNav />
+            <ShoppingCartDrawer />
+            <ProductCompareTray />
+          </Suspense>
+        </SoftWidgetBoundary>
+      ) : null}
       {widgetsReady ? (
         <SoftWidgetBoundary name="fabs">
           <Suspense fallback={null}>

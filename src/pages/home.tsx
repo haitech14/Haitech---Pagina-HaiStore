@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { HeroBanner } from '@/components/hero-banner';
 import { HomeStorefrontBlock } from '@/components/home/home-storefront-block';
@@ -43,6 +43,21 @@ export function HomePage() {
   );
 
   useSeo(homeSeo);
+
+  // Calentar chunk de /tienda tras el primer paint (no en el boot global del router).
+  useEffect(() => {
+    const warm = () => {
+      void import('@/lib/prefetch-store-route').then((m) => {
+        m.warmStoreRouteChunk();
+      });
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(warm, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const timeoutId = window.setTimeout(warm, 1200);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>

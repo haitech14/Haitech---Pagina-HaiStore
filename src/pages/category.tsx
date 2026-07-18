@@ -1,5 +1,7 @@
 import {
+  lazy,
   startTransition,
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -21,7 +23,6 @@ import { CatalogFilterOption } from '@/components/catalog-filter-option';
 import { CatalogFilterGroup } from '@/components/catalog-filter-group';
 import { CatalogFilterSection } from '@/components/catalog-filter-section';
 import { CatalogSidebarNav } from '@/components/catalog-sidebar-nav';
-import { CategoryCatalogFormatSections } from '@/components/category/category-catalog-format-sections';
 import {
   CategoryCatalogToolbar,
   type CatalogViewMode,
@@ -33,14 +34,8 @@ import {
   ProductConditionTabs,
   useCategoryConditionFilter,
 } from '@/components/product-condition-tabs';
-import { RentalCategoryGrid } from '@/components/rental-category-grid';
 import { SubcategoryTabs } from '@/components/subcategory-tabs';
-import {
-  CategoryProductsTable,
-  CategoryProductsTableSkeleton,
-} from '@/components/category-products-table';
 import { ProductCard } from '@/components/product-card';
-import { ProductHighlightCard } from '@/components/product/product-highlight-card';
 import { Button } from '@/components/ui/button';
 import { RangeSlider } from '@/components/ui/range-slider';
 import {
@@ -78,7 +73,6 @@ import {
   formatSubcategoryTabLabel,
   parseCategorySubSearchParam,
 } from '@/lib/store-category-display';
-import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import {
   compareCatalogProductsBySort,
   isCatalogPriceOnRequest,
@@ -155,6 +149,38 @@ import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useIsDesktopNav, useIsMobile } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
+
+/** UI secundaria: no bloquear el chunk inicial de grid storefront. */
+const CategoryCatalogFormatSections = lazy(() =>
+  import('@/components/category/category-catalog-format-sections').then((m) => ({
+    default: m.CategoryCatalogFormatSections,
+  })),
+);
+const RentalCategoryGrid = lazy(() =>
+  import('@/components/rental-category-grid').then((m) => ({
+    default: m.RentalCategoryGrid,
+  })),
+);
+const CategoryProductsTable = lazy(() =>
+  import('@/components/category-products-table').then((m) => ({
+    default: m.CategoryProductsTable,
+  })),
+);
+const ProductHighlightCard = lazy(() =>
+  import('@/components/product/product-highlight-card').then((m) => ({
+    default: m.ProductHighlightCard,
+  })),
+);
+
+function CategoryProductsTableSkeleton() {
+  return (
+    <div className="space-y-2" aria-hidden="true">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div key={index} className="h-12 animate-pulse rounded-md bg-muted" />
+      ))}
+    </div>
+  );
+}
 
 const EMPTY_PRODUCT_LIST: Product[] = [];
 const EMPTY_LABEL_LIST: string[] = [];
@@ -961,7 +987,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       if (isStoreAll || isRentalCategory || isInventorySearch) return;
       const targetSlug = slug ?? findRootCategorySlugForSubcategory(categoryTree, nextSubSlug);
       if (!targetSlug) return;
-      void prefetchCategoryPage(queryClient, { slug: targetSlug, subSlug: nextSubSlug, role });
+      void import('@/lib/prefetch-category-page').then((m) => {
+        m.prefetchCategoryPage(queryClient, { slug: targetSlug, subSlug: nextSubSlug, role });
+      });
     },
     [slug, categoryTree, isStoreAll, isRentalCategory, isInventorySearch, role],
   );
@@ -1810,7 +1838,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
               {isRentalCategory && !hasSubcategoryHeroes ? (
                 <div className="mb-8">
-                  <RentalCategoryGrid activeSubSlug={subSlug} />
+                  <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-muted" />}>
+                    <RentalCategoryGrid activeSubSlug={subSlug} />
+                  </Suspense>
                 </div>
               ) : null}
 
@@ -1893,14 +1923,16 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                   </div>
                 )
               ) : showProductCatalog && viewMode === 'table' ? (
-                <CategoryProductsTable
-                  products={filteredProducts}
-                  {...(useServerCatalog && catalogData?.total != null
-                    ? { totalCount: catalogData.total }
-                    : {})}
-                  defaultCategory={defaultCategoryForNewProduct}
-                  bindOpenCreate={bindOpenCreate}
-                />
+                <Suspense fallback={<CategoryProductsTableSkeleton />}>
+                  <CategoryProductsTable
+                    products={filteredProducts}
+                    {...(useServerCatalog && catalogData?.total != null
+                      ? { totalCount: catalogData.total }
+                      : {})}
+                    defaultCategory={defaultCategoryForNewProduct}
+                    bindOpenCreate={bindOpenCreate}
+                  />
+                </Suspense>
               ) : showProductCatalog &&
                 !isLoading &&
                 !isError &&
@@ -1958,28 +1990,45 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                       ))}
                     </div>
                   ) : showFormatSections ? (
-                    <CategoryCatalogFormatSections
-                      sections={catalogFormatSections}
-                      gridColumns={gridColumns}
-                      sidebarOpen={catalogSidebarOpen}
-                      gridClassName={catalogGridClassName(gridColumns, catalogSidebarOpen)}
-                      renderProduct={(product, index) => {
-                        const imagePriority = isCatalogCardImagePriority(index, isMobile);
-                        return storefrontMode ? (
-                          <StoreCatalogProductCard
-                            product={product}
-                            imageLoading={imagePriority ? 'eager' : 'lazy'}
-                            imagePriority={imagePriority}
-                          />
-                        ) : (
-                          <ProductHighlightCard
-                            product={product}
-                            imageLoading={imagePriority ? 'eager' : 'lazy'}
-                            imagePriority={imagePriority}
-                          />
-                        );
-                      }}
-                    />
+                    <Suspense
+                      fallback={
+                        <div
+                          className={cn(
+                            'grid gap-4',
+                            catalogGridClassName(gridColumns, catalogSidebarOpen),
+                          )}
+                        >
+                          {Array.from({ length: catalogPageSize }).map((_, index) => (
+                            <ProductSkeleton key={index} />
+                          ))}
+                        </div>
+                      }
+                    >
+                      <CategoryCatalogFormatSections
+                        sections={catalogFormatSections}
+                        gridColumns={gridColumns}
+                        sidebarOpen={catalogSidebarOpen}
+                        gridClassName={catalogGridClassName(gridColumns, catalogSidebarOpen)}
+                        renderProduct={(product, index) => {
+                          const imagePriority = isCatalogCardImagePriority(index, isMobile);
+                          return storefrontMode ? (
+                            <StoreCatalogProductCard
+                              product={product}
+                              imageLoading={imagePriority ? 'eager' : 'lazy'}
+                              imagePriority={imagePriority}
+                            />
+                          ) : (
+                            <Suspense fallback={<ProductSkeleton />}>
+                              <ProductHighlightCard
+                                product={product}
+                                imageLoading={imagePriority ? 'eager' : 'lazy'}
+                                imagePriority={imagePriority}
+                              />
+                            </Suspense>
+                          );
+                        }}
+                      />
+                    </Suspense>
                   ) : (
                     <div className={catalogGridClassName(gridColumns, catalogSidebarOpen)}>
                       {pagedCatalogProducts.map((product, index) => {
@@ -1992,12 +2041,13 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                             imagePriority={imagePriority}
                           />
                         ) : (
-                          <ProductHighlightCard
-                            key={product.id}
-                            product={product}
-                            imageLoading={imagePriority ? 'eager' : 'lazy'}
-                            imagePriority={imagePriority}
-                          />
+                          <Suspense key={product.id} fallback={<ProductSkeleton />}>
+                            <ProductHighlightCard
+                              product={product}
+                              imageLoading={imagePriority ? 'eager' : 'lazy'}
+                              imagePriority={imagePriority}
+                            />
+                          </Suspense>
                         );
                       })}
                     </div>
