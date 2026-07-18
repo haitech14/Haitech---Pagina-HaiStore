@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
 import app from './app.js';
+import { listLanIpv4Addresses } from '../shared/dev-lan.js';
 import { prewarmStorefrontCatalog } from './lib/storefront-warmup.js';
 
 const PORT = process.env.ADMIN_PORT ?? 3080;
@@ -15,7 +16,10 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[api] HaiStore admin escuchando en http://localhost:${PORT} (red: 0.0.0.0:${PORT})`);
+    console.log(`[api] HaiStore admin en http://localhost:${PORT} (escucha 0.0.0.0:${PORT})`);
+    for (const ip of listLanIpv4Addresses()) {
+      console.log(`[api] Red/IP: http://${ip}:${PORT}`);
+    }
     void fetch(
       `http://127.0.0.1:${PORT}/api/products/home-bundle?featuredLimit=5&sectionsLimit=10&category=multifuncionales`,
     ).catch(() => {});

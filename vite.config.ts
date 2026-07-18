@@ -57,12 +57,17 @@ export default defineConfig({
     ],
   },
   server: {
+    // Escucha en todas las interfaces: localhost + IP de red.
     host: '0.0.0.0',
     port: devPort,
     // Evita que Vite salte a 5174/5175 en silencio si el puerto está ocupado.
     strictPort: true,
-    // Permite acceder desde móvil/tablet por IP, hostname o Tailscale sin 403.
+    // Permite Host: IP, hostname o Tailscale sin 403 (VITE_LAN=0 lo restringe).
     allowedHosts: buildAllowedHosts(),
+    // HMR usa el host de la pestaña (localhost o IP) para que recargue en ambos.
+    hmr: {
+      protocol: 'ws',
+    },
     // Proxy del API admin local (server/) durante el desarrollo.
     proxy: {
       '/api': {

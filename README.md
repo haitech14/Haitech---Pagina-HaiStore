@@ -44,13 +44,14 @@ cp .env.example .env   # en Windows: copy .env.example .env
 npm run dev:all
 ```
 
-- Frontend: http://localhost:5173
-- API admin: http://localhost:3080 (proxied en `/api`)
+- Frontend (localhost): http://localhost:5173
+- Frontend (IP LAN): la URL `http://<tu-ip>:5173` que imprime `npm run dev:all`
+- API admin: http://localhost:3080 (proxied en `/api` desde Vite; también escucha en `0.0.0.0`)
 
 ### Acceso desde móvil u otro PC en la red
 
 1. Arranca con `npm run dev:all`.
-2. Copia la URL **Network** que muestra Vite (ej. `http://192.168.1.2:5173`).
+2. En la consola verás **Localhost** y **Red/IP**. En el PC usa `http://localhost:5173`; en el móvil u otra PC usa la IP (ej. `http://192.168.1.2:5173`).
 3. Si no carga desde el teléfono, abre el firewall (PowerShell **como administrador**):
 
    ```bash
@@ -59,8 +60,8 @@ npm run dev:all
 
    Luego vuelve a ejecutar `npm run dev:all`.
 
-4. No uses `localhost` en el móvil; usa la IP de red que imprime Vite.
-5. Si el puerto 5173 está ocupado, Vite usará 5174: revisa la consola y usa ese puerto.
+4. No uses `localhost` en el móvil; usa la IP de red impresa al arrancar.
+5. Si el puerto 5173 está ocupado, libera el proceso o define `VITE_DEV_PORT` (Vite usa `strictPort` y no salta solo a 5174).
 
 ## Scripts
 
