@@ -31,25 +31,95 @@
     <div id="root">
       <div
         id="haistore-boot"
-        style="min-height:100dvh;display:flex;align-items:center;justify-content:center;font-family:Montserrat,system-ui,sans-serif;background:#f5f5f5;color:#1a1a1a;padding:1.5rem;text-align:center"
+        style="min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.75rem;font-family:Montserrat,system-ui,sans-serif;background:#f5f5f5;color:#1a1a1a;padding:1.5rem;text-align:center"
       >
-        <p style="margin:0;font-size:0.95rem;opacity:0.75">Cargando HaiStore…</p>
+        <p style="margin:0;font-size:1.35rem;font-weight:700;letter-spacing:0.04em">HAITECH</p>
+        <p id="haistore-boot-msg" style="margin:0;font-size:0.95rem;opacity:0.75">Cargando HaiStore…</p>
       </div>
     </div>
     <script>
-      window.addEventListener('error', function (event) {
+      (function () {
+        var bootStarted = Date.now();
         var root = document.getElementById('root');
-        if (!root || root.querySelector('[data-haistore-mounted]')) return;
-        var msg = (event && event.message) || 'Error al cargar la aplicación';
-        root.innerHTML =
-          '<div style="min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:Montserrat,system-ui,sans-serif;background:#fff;color:#0f172a;padding:1.5rem;text-align:center">' +
-          '<h1 style="margin:0;font-size:1.25rem">No se pudo cargar HaiStore</h1>' +
-          '<p style="margin:0;max-width:28rem;font-size:0.875rem;color:#475569"></p>' +
-          '<button type="button" onclick="location.reload()" style="min-height:2.75rem;padding:0 1rem;border:0;border-radius:0.375rem;background:#0f172a;color:#fff;font-size:0.875rem;cursor:pointer">Recargar</button>' +
-          '</div>';
-        var p = root.querySelector('p');
-        if (p) p.textContent = msg;
-      });
+        var msg = document.getElementById('haistore-boot-msg');
+
+        function stillBooting() {
+          return root && !root.getAttribute('data-haistore-mounted') && document.getElementById('haistore-boot');
+        }
+
+        function showBootHelp(title, detail) {
+          if (!stillBooting()) return;
+          root.innerHTML =
+            '<div style="min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:Montserrat,system-ui,sans-serif;background:#fff;color:#0f172a;padding:1.5rem;text-align:center">' +
+            '<p style="margin:0;font-size:1.35rem;font-weight:700;letter-spacing:0.04em">HAITECH</p>' +
+            '<h1 style="margin:0;font-size:1.15rem"></h1>' +
+            '<p style="margin:0;max-width:28rem;font-size:0.875rem;color:#475569;line-height:1.45"></p>' +
+            '<button type="button" onclick="location.reload()" style="min-height:2.75rem;padding:0 1rem;border:0;border-radius:0.375rem;background:#0f172a;color:#fff;font-size:0.875rem;cursor:pointer">Recargar</button>' +
+            '</div>';
+          var h1 = root.querySelector('h1');
+          var p = root.querySelectorAll('p')[1];
+          if (h1) h1.textContent = title;
+          if (p) p.textContent = detail;
+        }
+
+        window.addEventListener('error', function (event) {
+          if (!stillBooting()) return;
+          var text = (event && event.message) || 'Error al cargar la aplicación';
+          showBootHelp('No se pudo cargar HaiStore', text);
+        });
+
+        window.addEventListener('unhandledrejection', function (event) {
+          if (!stillBooting()) return;
+          var reason = event && event.reason;
+          var text =
+            reason && reason.message
+              ? reason.message
+              : 'Error al cargar módulos de la aplicación';
+          showBootHelp('No se pudo cargar HaiStore', text);
+        });
+
+        // Vite en red (IP/Wi‑Fi) puede tardar la 1.ª vez: avisar sin dejar «Cargando…» infinito.
+        window.setTimeout(function () {
+          if (!stillBooting() || !msg) return;
+          var host = location.hostname;
+          var viaIp = host !== 'localhost' && host !== '127.0.0.1';
+          msg.textContent = viaIp
+            ? 'Primera carga por IP puede tardar (Vite). Espera o abre http://localhost:5173 en el PC…'
+            : 'Sigue cargando… si no avanza, revisa que corre «npm run dev:all».';
+        }, 8000);
+
+        window.setTimeout(function () {
+          if (!stillBooting()) return;
+          var host = location.hostname;
+          var viaIp = host !== 'localhost' && host !== '127.0.0.1';
+          var detail = viaIp
+            ? 'Pasaron 25s sin montar la app. En el PC usa http://localhost:5173. En el móvil: misma Wi‑Fi, URL con tu IP:5173, y si hace falta ejecuta npm run dev:lan (admin) en Windows.'
+            : 'Pasaron 25s sin montar la app. Ejecuta npm run dev:all y revisa la consola del terminal/navegador.';
+          showBootHelp('HaiStore sigue cargando', detail);
+        }, 25000);
+
+        // Evita que un SW de producción deje el boot colgado en Vite/LAN.
+        var isLocalDev =
+          location.port === '5173' ||
+          location.port === '4173' ||
+          location.hostname === 'localhost' ||
+          location.hostname === '127.0.0.1' ||
+          /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.)/.test(
+            location.hostname,
+          );
+        if (isLocalDev && 'serviceWorker' in navigator) {
+          navigator.serviceWorker
+            .getRegistrations()
+            .then(function (regs) {
+              regs.forEach(function (reg) {
+                reg.unregister();
+              });
+            })
+            .catch(function () {});
+        }
+
+        void bootStarted;
+      })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>

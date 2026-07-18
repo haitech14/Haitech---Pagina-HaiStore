@@ -20,8 +20,20 @@ import { queryClient } from '@/providers';
 /** Inicio eager: sin Suspense/spinner a pantalla completa. */
 const storePageImport = () =>
   import('@/pages/store').then((m) => ({ default: m.StorefrontRoutePage }));
-/** Precarga chunk de tienda en paralelo (F5 / navegación). */
-void storePageImport();
+/**
+ * No precargar /tienda en el boot crítico: en Vite son cientos de módulos y por
+ * IP/Wi‑Fi deja la app en «Cargando…». Se agenda tras idle / primer paint.
+ */
+if (typeof window !== 'undefined') {
+  const warmStoreChunk = () => {
+    void storePageImport();
+  };
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(warmStoreChunk, { timeout: 2500 });
+  } else {
+    window.setTimeout(warmStoreChunk, 1200);
+  }
+}
 const StorefrontRoutePage = lazyWithRetry(storePageImport, 'tienda');
 const LoginPage = lazyWithRetry(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })), 'login');
 const LoginRegisterPage = lazyWithRetry(

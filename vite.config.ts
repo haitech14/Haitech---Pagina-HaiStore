@@ -46,11 +46,18 @@ export default defineConfig({
       'react',
       'react-dom',
       'react-dom/client',
+      'react-router-dom',
+      '@tanstack/react-query',
+      '@supabase/supabase-js',
       '@radix-ui/react-slot',
       '@radix-ui/react-label',
       '@radix-ui/react-dropdown-menu',
       '@radix-ui/react-dialog',
       '@radix-ui/react-checkbox',
+      'class-variance-authority',
+      'clsx',
+      'tailwind-merge',
+      'sonner',
       'embla-carousel-react',
       'exceljs',
       'lucide-react',
@@ -64,6 +71,19 @@ export default defineConfig({
     strictPort: true,
     // Permite Host: IP, hostname o Tailscale sin 403 (VITE_LAN=0 lo restringe).
     allowedHosts: buildAllowedHosts(),
+    // Pre-transforma el grafo crítico para que localhost/IP no se queden en «Cargando…».
+    warmup: {
+      clientFiles: [
+        './src/main.tsx',
+        './src/App.tsx',
+        './src/providers.tsx',
+        './src/router.tsx',
+        './src/pages/home.tsx',
+        './src/components/layout/root-layout.tsx',
+        './src/components/layout/header.tsx',
+        './src/components/hero-banner.tsx',
+      ],
+    },
     // Proxy del API admin local (server/) durante el desarrollo.
     // El cliente usa el mismo origen (localhost o IP); no fijar server.origin.
     proxy: {

@@ -22,5 +22,8 @@ if (ips.length === 0) {
 
 console.log('  Firewall Windows (opcional): npm run dev:lan  (como administrador)');
 console.log(
-  `  Si el puerto ${webPort} está ocupado, libera ese puerto o define VITE_DEV_PORT (strictPort).\n`,
+  `  Si el puerto ${webPort} está ocupado, libera ese puerto o define VITE_DEV_PORT (strictPort).`,
+);
+console.log(
+  '  Tip: la 1.ª carga por IP/Wi‑Fi puede tardar (Vite sirve muchos módulos). En el PC usa Localhost.\n',
 );
