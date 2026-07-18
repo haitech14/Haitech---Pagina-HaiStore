@@ -1,51 +1,66 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/layout/header';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
+import { SoftWidgetBoundary } from '@/components/layout/soft-widget-boundary';
 import { CartProvider } from '@/context/cart-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
+import { lazyOptional } from '@/lib/lazy-with-retry';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { cn } from '@/lib/utils';
 
-const SiteFooter = lazy(() =>
-  import('@/components/layout/site-footer').then((m) => ({ default: m.SiteFooter })),
+const SiteFooter = lazyOptional(
+  () => import('@/components/layout/site-footer').then((m) => ({ default: m.SiteFooter })),
+  'footer',
 );
 
-const HomeStorefrontTrustBar = lazy(() =>
-  import('@/components/home/home-storefront-trust-bar').then((m) => ({
-    default: m.HomeStorefrontTrustBar,
-  })),
+const HomeStorefrontTrustBar = lazyOptional(
+  () =>
+    import('@/components/home/home-storefront-trust-bar').then((m) => ({
+      default: m.HomeStorefrontTrustBar,
+    })),
+  'trust-bar',
 );
 
-const ShoppingCartDrawer = lazy(() =>
-  import('@/components/cart/shopping-cart-drawer').then((m) => ({
-    default: m.ShoppingCartDrawer,
-  })),
+const ShoppingCartDrawer = lazyOptional(
+  () =>
+    import('@/components/cart/shopping-cart-drawer').then((m) => ({
+      default: m.ShoppingCartDrawer,
+    })),
+  'cart-drawer',
 );
 
-const ProductCompareTray = lazy(() =>
-  import('@/components/product/product-compare-tray').then((m) => ({
-    default: m.ProductCompareTray,
-  })),
+const ProductCompareTray = lazyOptional(
+  () =>
+    import('@/components/product/product-compare-tray').then((m) => ({
+      default: m.ProductCompareTray,
+    })),
+  'compare-tray',
 );
 
-const MobileBottomNav = lazy(() =>
-  import('@/components/layout/mobile-bottom-nav').then((m) => ({
-    default: m.MobileBottomNav,
-  })),
+const MobileBottomNav = lazyOptional(
+  () =>
+    import('@/components/layout/mobile-bottom-nav').then((m) => ({
+      default: m.MobileBottomNav,
+    })),
+  'mobile-nav',
 );
 
-const WhatsAppFloatingButton = lazy(() =>
-  import('@/components/layout/whatsapp-floating-button').then((m) => ({
-    default: m.WhatsAppFloatingButton,
-  })),
+const WhatsAppFloatingButton = lazyOptional(
+  () =>
+    import('@/components/layout/whatsapp-floating-button').then((m) => ({
+      default: m.WhatsAppFloatingButton,
+    })),
+  'whatsapp-fab',
 );
 
-const HaibotFloatingMenu = lazy(() =>
-  import('@/components/haibot/haibot-floating-menu').then((m) => ({
-    default: m.HaibotFloatingMenu,
-  })),
+const HaibotFloatingMenu = lazyOptional(
+  () =>
+    import('@/components/haibot/haibot-floating-menu').then((m) => ({
+      default: m.HaibotFloatingMenu,
+    })),
+  'haibot',
 );
 
 function useDeferredWidgetMount(delayMs = 2500) {
@@ -102,21 +117,27 @@ export function RootLayout() {
         <Outlet />
       </main>
       {chromeReady ? (
-        <Suspense fallback={null}>
-          <HomeStorefrontTrustBar />
-          <SiteFooter />
-        </Suspense>
+        <SoftWidgetBoundary name="chrome">
+          <Suspense fallback={null}>
+            <HomeStorefrontTrustBar />
+            <SiteFooter />
+          </Suspense>
+        </SoftWidgetBoundary>
       ) : null}
-      <Suspense fallback={null}>
-        <MobileBottomNav />
-        <ShoppingCartDrawer />
-        <ProductCompareTray />
-      </Suspense>
-      {widgetsReady ? (
+      <SoftWidgetBoundary name="shell">
         <Suspense fallback={null}>
-          <WhatsAppFloatingButton />
-          <HaibotFloatingMenu side="right" />
+          <MobileBottomNav />
+          <ShoppingCartDrawer />
+          <ProductCompareTray />
         </Suspense>
+      </SoftWidgetBoundary>
+      {widgetsReady ? (
+        <SoftWidgetBoundary name="fabs">
+          <Suspense fallback={null}>
+            <WhatsAppFloatingButton />
+            <HaibotFloatingMenu side="right" />
+          </Suspense>
+        </SoftWidgetBoundary>
       ) : null}
     </div>
     </MobileBottomInsetProvider>
