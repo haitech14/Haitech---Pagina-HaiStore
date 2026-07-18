@@ -2,13 +2,11 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ShieldCheck, ShoppingCart } from 'lucide-react';
-import { Icon } from '@mdi/react';
-import { mdiWhatsapp } from '@mdi/js';
 
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { Button } from '@/components/ui/button';
 import { CarouselDots, type CarouselDotsTheme } from '@/components/ui/carousel-dots';
 import { HomeLandingHeroSlideContent } from '@/components/home/home-landing-hero';
-import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import {
   CATEGORY_STRIP_HERO_IMAGE_FRAME_CLASS,
   CATEGORY_STRIP_HERO_IMAGE_ZOOM_CLASS,
@@ -28,6 +26,12 @@ import { cn } from '@/lib/utils';
 
 const DiaPapaHomeHero = lazy(() =>
   import('@/components/home/dia-papa-home-hero').then((m) => ({ default: m.DiaPapaHomeHero })),
+);
+
+const WhatsAppContactDialog = lazy(() =>
+  import('@/components/whatsapp-contact-dialog').then((m) => ({
+    default: m.WhatsAppContactDialog,
+  })),
 );
 
 function heroResponsiveSources(imagePath: string, baseWidth: number) {
@@ -55,7 +59,7 @@ function HeroImageOnlyCtaOverlay({ onWhatsAppClick }: { onWhatsAppClick: () => v
         className="pointer-events-auto min-h-10 gap-1.5 bg-[#25D366] px-4 text-sm font-semibold text-white shadow-md hover:bg-[#20bd5a] focus-visible:ring-[#25D366]"
         onClick={onWhatsAppClick}
       >
-        <Icon path={mdiWhatsapp} size={0.85} aria-hidden="true" />
+        <WhatsAppIcon size={0.85} />
         Solicitar cotización
       </Button>
       <Button
@@ -358,7 +362,7 @@ function HeroSlideContent({
               className="h-10 rounded-md bg-[#25D366] px-4 text-sm font-semibold text-white shadow-[0_0_24px_rgba(37,211,102,0.35)] transition-all hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-black"
               onClick={() => onWhatsAppClick(slide.imageAlt ?? slide.id)}
             >
-              <Icon path={mdiWhatsapp} size={1} aria-hidden="true" />
+              <WhatsAppIcon size={1} />
               Cotizar por WhatsApp · {HOME_HERO_WHATSAPP_NUMBER}
             </Button>
           ) : slide.primaryCta?.kind === 'link' ? (
@@ -390,7 +394,7 @@ function HeroSlideContent({
             {slide.secondaryCta.external || slide.secondaryCta.href.startsWith('http') ? (
               <a href={slide.secondaryCta.href} target="_blank" rel="noopener noreferrer">
                 {slide.secondaryCta.label.includes('WhatsApp') ? (
-                  <Icon path={mdiWhatsapp} size={1} aria-hidden="true" />
+                  <WhatsAppIcon size={1} />
                 ) : (
                   <ShoppingCart aria-hidden="true" />
                 )}
@@ -544,19 +548,23 @@ export function HeroBanner({
         />
       ) : null}
 
-      <WhatsAppContactDialog
-        open={whatsappDialogOpen}
-        onOpenChange={setWhatsappDialogOpen}
-        initial={contact ?? undefined}
-        isSubmitting={isSaving}
-        showQuoteCheckbox={false}
-        title="Solicitar cotización"
-        description="Completa tus datos y te llevaremos a WhatsApp con el mensaje listo para enviar a nuestro equipo de ventas."
-        submitLabel="Continuar a WhatsApp"
-        onSubmit={async (nextContact) => {
-          await handleWhatsAppSubmit(nextContact);
-        }}
-      />
+      {whatsappDialogOpen ? (
+        <Suspense fallback={null}>
+          <WhatsAppContactDialog
+            open={whatsappDialogOpen}
+            onOpenChange={setWhatsappDialogOpen}
+            initial={contact ?? undefined}
+            isSubmitting={isSaving}
+            showQuoteCheckbox={false}
+            title="Solicitar cotización"
+            description="Completa tus datos y te llevaremos a WhatsApp con el mensaje listo para enviar a nuestro equipo de ventas."
+            submitLabel="Continuar a WhatsApp"
+            onSubmit={async (nextContact) => {
+              await handleWhatsAppSubmit(nextContact);
+            }}
+          />
+        </Suspense>
+      ) : null}
     </section>
   );
 }

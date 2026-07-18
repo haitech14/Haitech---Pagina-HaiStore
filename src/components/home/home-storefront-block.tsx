@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { HomeStorefrontCategoriesSection } from '@/components/home/home-storefront-categories-section';
 import { HomeStorefrontInfoStrip } from '@/components/home/home-storefront-info-strip';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
-import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 
 const HomePromotionsSection = lazy(() =>
   import('@/components/home/home-promotions-section').then((m) => ({
@@ -49,11 +48,10 @@ function prefetchHomeBelowFold() {
  */
 export function HomeStorefrontBlock() {
   useEffect(() => {
-    // Índice de catálogo y rails below-fold: después del primer paint.
+    // Solo chunks below-fold; el índice 1.3MB lo cargan búsqueda o /tienda.
     let cancelled = false;
     const run = () => {
       if (cancelled) return;
-      preloadCatalogIndexNow();
       prefetchHomeBelowFold();
     };
 

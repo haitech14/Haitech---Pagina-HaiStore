@@ -1,27 +1,31 @@
-import { useCallback, useState, type MouseEvent } from 'react';
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
+import { lazy, Suspense, useCallback, useState, type MouseEvent } from 'react';
 import { toast } from 'sonner';
 
-import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
-import {
-  ProductQuotePdfViewer,
-  type QuotePdfPreview,
-} from '@/components/product-detail/product-quote-pdf-viewer';
+import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { Button } from '@/components/ui/button';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
-import {
-  generateProductQuoteFromContact,
-  type ProductQuoteContext,
-} from '@/lib/generate-product-quote-from-contact';
+import type { ProductQuoteContext } from '@/lib/generate-product-quote-from-contact';
 import { openProductWhatsAppChat, type ProductWhatsAppLineItem } from '@/lib/product-whatsapp-message';
 import { productPath } from '@/lib/product-path';
 import { buildAbsoluteUrl } from '@/lib/site-url';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import { isCompleteWhatsAppContact, type WhatsAppContact } from '@/lib/whatsapp-contact';
 import { cn } from '@/lib/utils';
+
+const WhatsAppContactDialog = lazy(() =>
+  import('@/components/whatsapp-contact-dialog').then((m) => ({
+    default: m.WhatsAppContactDialog,
+  })),
+);
+
+const ProductQuotePdfViewer = lazy(() =>
+  import('@/components/product-detail/product-quote-pdf-viewer').then((m) => ({
+    default: m.ProductQuotePdfViewer,
+  })),
+);
 
 interface ProductWhatsAppButtonProps {
   product: ProductWhatsAppLineItem;
@@ -127,6 +131,9 @@ export function ProductWhatsAppButton({
               : {}),
           } satisfies ProductQuoteContext);
 
+        const { generateProductQuoteFromContact } = await import(
+          '@/lib/generate-product-quote-from-contact'
+        );
         const preview = await generateProductQuoteFromContact(
           nextContact,
           context,
@@ -213,28 +220,34 @@ export function ProductWhatsAppButton({
         onClick={handleClick}
         disabled={isProcessing}
       >
-        <Icon path={mdiWhatsapp} size={0.95} aria-hidden="true" />
+        <WhatsAppIcon size={0.95} />
         {label ? <span className="truncate">{label}</span> : null}
       </Button>
 
-      <WhatsAppContactDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        initial={contact ?? undefined}
-        isSubmitting={isSaving || isProcessing}
-        onSubmit={handleSubmit}
-        defaultGenerateQuote={resolvedDefaultGenerateQuote}
-        {...(dialogTitle ? { title: dialogTitle } : {})}
-        {...(dialogDescription ? { description: dialogDescription } : {})}
-        {...(submitLabel ? { submitLabel } : {})}
-      />
+      {dialogOpen ? (
+        <Suspense fallback={null}>
+          <WhatsAppContactDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            initial={contact ?? undefined}
+            isSubmitting={isSaving || isProcessing}
+            onSubmit={handleSubmit}
+            defaultGenerateQuote={resolvedDefaultGenerateQuote}
+            {...(dialogTitle ? { title: dialogTitle } : {})}
+            {...(dialogDescription ? { description: dialogDescription } : {})}
+            {...(submitLabel ? { submitLabel } : {})}
+          />
+        </Suspense>
+      ) : null}
 
-      {!onQuoteGenerated ? (
-        <ProductQuotePdfViewer
-          preview={quotePdfPreview}
-          onOpenChange={handleQuotePdfPreviewClose}
-          autoDownload
-        />
+      {!onQuoteGenerated && quotePdfPreview ? (
+        <Suspense fallback={null}>
+          <ProductQuotePdfViewer
+            preview={quotePdfPreview}
+            onOpenChange={handleQuotePdfPreviewClose}
+            autoDownload
+          />
+        </Suspense>
       ) : null}
     </>
   );

@@ -6,7 +6,6 @@ import {
   readStoredHomeCatalogBundle,
   revalidateHomeCatalogBundle,
 } from '@/lib/home-catalog-bundle';
-import { deferCatalogIndexPreload } from '@/lib/defer-catalog-index';
 import {
   fetchStoreCategoriesTreeWithFallback,
   STORE_CATEGORIES_QUERY_KEY,
@@ -16,11 +15,9 @@ import { viewAsRolesQueryKey } from '@/lib/view-as-role';
 /**
  * Precarga snapshot/home-bundle sin bloquear el loader de React Router.
  * Siembra sessionStorage al instante; JSON estático + API van en background.
+ * No calienta inventory-index (1.3MB): búsqueda /tienda lo cargan bajo demanda.
  */
 export function prefetchHomeCatalog(queryClient: QueryClient): null {
-  // Idle corto: rails de home; no esperar el índice completo en el camino crítico.
-  deferCatalogIndexPreload(1500);
-
   void queryClient.prefetchQuery({
     queryKey: [STORE_CATEGORIES_QUERY_KEY],
     queryFn: fetchStoreCategoriesTreeWithFallback,
