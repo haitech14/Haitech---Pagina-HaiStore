@@ -54,7 +54,7 @@ export function HomeLandingProductCard({
 }) {
   const { addItem } = useCart();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
-  const catalogProduct = useCatalogProductRow(product.id);
+  const catalogProduct = useCatalogProductRow(product.id, { fetchIfMissing: false });
   const displayPrice = useCatalogDisplayPrice({
     price: product.price,
     ...(product.prices ? { prices: product.prices } : {}),

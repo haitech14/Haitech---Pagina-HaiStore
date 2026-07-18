@@ -306,7 +306,7 @@ function HomeStorefrontProductCard({
 }) {
   const { addItem } = useCart();
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
-  const catalogProduct = useCatalogProductRow(product.id);
+  const catalogProduct = useCatalogProductRow(product.id, { fetchIfMissing: false });
   const displayPrice = useCatalogDisplayPrice({
     price: product.price,
     ...(product.prices ? { prices: product.prices } : {}),
