@@ -18,7 +18,7 @@ import { useProformaMutations } from '@/hooks/use-admin-proformas';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
 import { buildProformaPayloadFromProductQuote } from '@/lib/build-proforma-payload';
-import { contactToQuoteClient } from '@/lib/generate-product-quote-from-contact';
+import { contactToQuoteClient } from '@/lib/quote-client-from-contact';
 import {
   buildEquipmentRentalQuoteLines,
   buildEquipmentRentalQuotePdf,

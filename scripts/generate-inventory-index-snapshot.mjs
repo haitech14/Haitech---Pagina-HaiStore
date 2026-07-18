@@ -4,49 +4,17 @@
  * Uso: node scripts/generate-inventory-index-snapshot.mjs
  */
 import 'dotenv/config';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { getInventoryPath } from '../server/lib/server-paths.js';
 import { readInventory } from '../server/lib/inventory-store.js';
+import { writeInventoryIndexSnapshot } from '../server/lib/inventory-index-snapshot.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 const catalogPath = path.join(root, 'src', 'data', 'inventory-catalog.json');
-const outputPath = path.join(root, 'public', 'catalog', 'inventory-index.json');
-
-const SLIM_FIELDS = [
-  'id',
-  'slug',
-  'name',
-  'code',
-  'description',
-  'price',
-  'prices',
-  'currency',
-  'image_url',
-  'gallery',
-  'stock',
-  'category',
-  'brand',
-  'attributes',
-  'sort_order',
-  'created_at',
-  'compare_at_price_usd',
-  'is_new',
-  'view_count',
-  'is_featured',
-  'status',
-];
-
-function slimProduct(raw) {
-  const row = {};
-  for (const field of SLIM_FIELDS) {
-    if (raw[field] !== undefined) row[field] = raw[field];
-  }
-  return row;
-}
 
 async function loadSourceProducts() {
   const inventoryPath = getInventoryPath();
@@ -88,17 +56,9 @@ async function main() {
     return;
   }
 
-  const products = loaded.products.map(slimProduct);
-
-  mkdirSync(path.dirname(outputPath), { recursive: true });
-  const payload = {
-    version: 1,
-    generatedAt: new Date().toISOString(),
-    products,
-  };
-  writeFileSync(outputPath, `${JSON.stringify(payload)}\n`, 'utf8');
+  const { filePath, productCount } = await writeInventoryIndexSnapshot(loaded.products);
   console.log(
-    `✓ Índice de inventario escrito en ${outputPath} (${products.length} productos desde ${loaded.source})`,
+    `✓ Índice de inventario escrito en ${filePath} (${productCount} productos desde ${loaded.source})`,
   );
 }
 

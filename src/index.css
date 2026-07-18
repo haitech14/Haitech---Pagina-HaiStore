@@ -1,4 +1,4 @@
-/* Montserrat: @fontsource woff2 vía src/fonts.ts (400/500/600/700). */
+/* Montserrat: @fontsource woff2 vía src/fonts.ts (400/600/700). font-medium → 400. */
 
 @font-face {
   font-family: 'Myriad Pro';
@@ -11,6 +11,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Sin archivo latin-500: mapear font-medium al peso 400 ya cargado. */
+@layer utilities {
+  .font-medium {
+    font-weight: 400;
+  }
+}
 
 @layer base {
   :root {

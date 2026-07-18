@@ -34,6 +34,8 @@ const SLIM_FIELDS = [
 const DESCRIPTION_MAX_CHARS = 160;
 /** Hover de tarjeta: bastan 2 URLs; el grid usa image_url. */
 const GALLERY_MAX_URLS = 2;
+/** Atributos admin / ruido que no alimentan facetas storefront. */
+const ATTR_NAMES_OMIT = new Set(['proveedor', 'traducción', 'traduccion']);
 
 export function getInventoryIndexSnapshotPath() {
   if (process.env.HAISTORE_INVENTORY_INDEX_SNAPSHOT_PATH) {
@@ -62,6 +64,30 @@ function slimGallery(value) {
   return urls;
 }
 
+function normalizeAttrNameKey(name) {
+  return String(name ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '');
+}
+
+/** Solo { name, value } para filtros/cards; sin UUID id ni attrs admin. */
+function slimAttributes(value) {
+  if (!Array.isArray(value)) return value;
+  const out = [];
+  for (const attr of value) {
+    if (!attr || typeof attr !== 'object') continue;
+    const name = typeof attr.name === 'string' ? attr.name.trim() : '';
+    const attrValue = typeof attr.value === 'string' ? attr.value.trim() : attr.value;
+    if (!name) continue;
+    if (ATTR_NAMES_OMIT.has(normalizeAttrNameKey(name))) continue;
+    if (attrValue == null || attrValue === '') continue;
+    out.push({ name, value: attrValue });
+  }
+  return out;
+}
+
 function slimProduct(raw) {
   const row = {};
   for (const field of SLIM_FIELDS) {
@@ -72,6 +98,10 @@ function slimProduct(raw) {
     }
     if (field === 'gallery') {
       row[field] = slimGallery(raw[field]);
+      continue;
+    }
+    if (field === 'attributes') {
+      row[field] = slimAttributes(raw[field]);
       continue;
     }
     row[field] = raw[field];
