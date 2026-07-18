@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ChevronRight,
@@ -84,7 +84,7 @@ function FooterNavLinks({ links, ariaLabel }: { links: FooterLink[]; ariaLabel: 
   );
 }
 
-function SocialSvg({ children }: { children: React.ReactNode }) {
+function SocialSvg({ children }: { children: ReactNode }) {
   return (
     <svg viewBox="0 0 24 24" className="size-3.5" fill="currentColor" aria-hidden="true">
       {children}
