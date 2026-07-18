@@ -141,6 +141,7 @@ export function Header() {
             width={160}
             height={35}
             loading="eager"
+            partnerTone={forumMode ? 'light' : 'dark'}
           />
         </div>
 

@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   SITE_LOGO_ASSET_PATH,
   SITE_RICOH_PARTNER_BADGE_ARIA_LABEL,
-  SITE_RICOH_PARTNER_BADGE_BRAND,
-  SITE_RICOH_PARTNER_BADGE_SUBTITLE_LINE1,
-  SITE_RICOH_PARTNER_BADGE_SUBTITLE_LINE2,
+  SITE_RICOH_PARTNER_BADGE_ASSET_PATH,
+  SITE_RICOH_PARTNER_BADGE_ASSET_PATH_2X,
 } from '@/lib/site-logo-asset';
 import { cn } from '@/lib/utils';
 
@@ -53,24 +52,9 @@ export function HeaderLogoImage(props: LogoImageProps) {
 }
 
 const ricohPartnerBadgeSizeClasses = {
-  sm: {
-    root: 'gap-0',
-    ricoh: 'text-sm font-bold leading-none tracking-[0.06em] sm:text-base',
-    subtitle:
-      '-mt-1.5 text-[0.4375rem] font-normal leading-none tracking-[0.02em] text-current/75 sm:text-[0.5rem]',
-  },
-  md: {
-    root: 'gap-0',
-    ricoh: 'text-base font-bold leading-none tracking-[0.06em] sm:text-lg',
-    subtitle:
-      '-mt-1.5 text-[0.5rem] font-normal leading-none tracking-[0.02em] text-current/75 sm:text-[0.5625rem]',
-  },
-  lg: {
-    root: 'gap-0',
-    ricoh: 'text-xl font-bold leading-none tracking-[0.06em]',
-    subtitle:
-      '-mt-1.5 text-[0.625rem] font-normal leading-none tracking-[0.02em] text-current/75',
-  },
+  sm: 'h-7 sm:h-8',
+  md: 'h-8 sm:h-9',
+  lg: 'h-9 sm:h-10',
 } as const;
 
 type RicohPartnerBadgeSize = keyof typeof ricohPartnerBadgeSizeClasses;
@@ -83,34 +67,29 @@ type RicohPartnerBadgeProps = {
   tone?: RicohPartnerBadgeTone;
 };
 
-const ricohPartnerBadgeToneClasses: Record<RicohPartnerBadgeTone, string> = {
-  dark: 'text-white',
-  light: 'text-[#111111]',
-};
-
 export function RicohPartnerBadge({
   className,
   size = 'md',
-  tone = 'dark',
+  tone = 'light',
 }: RicohPartnerBadgeProps) {
-  const styles = ricohPartnerBadgeSizeClasses[size];
-
   return (
     <span
       className={cn(
-        'inline-flex w-fit shrink-0 flex-col items-start bg-transparent',
-        ricohPartnerBadgeToneClasses[tone],
-        styles.root,
+        'inline-flex shrink-0 items-center',
+        tone === 'dark' && 'rounded-sm bg-white px-1 py-0.5',
         className,
       )}
-      role="img"
-      aria-label={SITE_RICOH_PARTNER_BADGE_ARIA_LABEL}
     >
-      <span className={cn('whitespace-nowrap', styles.ricoh)}>{SITE_RICOH_PARTNER_BADGE_BRAND}</span>
-      <span className={cn('flex flex-col', styles.subtitle)}>
-        <span className="whitespace-nowrap">{SITE_RICOH_PARTNER_BADGE_SUBTITLE_LINE1}</span>
-        <span className="whitespace-nowrap">{SITE_RICOH_PARTNER_BADGE_SUBTITLE_LINE2}</span>
-      </span>
+      <img
+        src={SITE_RICOH_PARTNER_BADGE_ASSET_PATH}
+        srcSet={`${SITE_RICOH_PARTNER_BADGE_ASSET_PATH} 1x, ${SITE_RICOH_PARTNER_BADGE_ASSET_PATH_2X} 2x`}
+        alt={SITE_RICOH_PARTNER_BADGE_ARIA_LABEL}
+        width={111}
+        height={56}
+        className={cn('w-auto object-contain', ricohPartnerBadgeSizeClasses[size])}
+        loading="eager"
+        decoding="async"
+      />
     </span>
   );
 }
@@ -130,8 +109,8 @@ type HeaderBrandLogosProps = LogoImageProps & {
 export function HeaderBrandLogos({
   className,
   heightClass = 'h-10',
-  showPartner = false,
-  partnerTone = 'dark',
+  showPartner = true,
+  partnerTone = 'light',
   loading,
   ...logoProps
 }: HeaderBrandLogosProps) {

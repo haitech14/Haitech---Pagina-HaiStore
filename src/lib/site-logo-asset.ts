@@ -2,6 +2,11 @@
 
 export const SITE_LOGO_ASSET_PATH = '/logo.png';
 
+/** Insignia Ricoh Distribuidor Autorizado (archivo en /public). */
+export const SITE_RICOH_PARTNER_BADGE_ASSET_PATH = '/distruibuidor-autorizado-ricoh.png';
+
+export const SITE_RICOH_PARTNER_BADGE_ASSET_PATH_2X = '/distruibuidor-autorizado-ricoh@2x.png';
+
 /** Insignia Ricoh Alliance Partner — textos del componente CSS en header. */
 export const SITE_RICOH_PARTNER_BADGE_BRAND = 'RICOH';
 
