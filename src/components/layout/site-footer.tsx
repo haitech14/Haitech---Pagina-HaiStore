@@ -12,7 +12,6 @@ import { Icon } from '@mdi/react';
 import {
   mdiFacebook,
   mdiInstagram,
-  mdiWhatsapp,
   mdiYoutube,
 } from '@mdi/js';
 
@@ -32,6 +31,7 @@ import {
   FOOTER_VALUE_PROPS,
   type FooterLink,
 } from '@/data/site-footer';
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { FooterLogoImage } from '@/components/layout/site-logo';
 import { FooterSeoText } from '@/components/layout/footer-seo-text';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
@@ -209,18 +209,13 @@ export function SiteFooter() {
               rel="noopener noreferrer"
               className="mb-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] sm:w-auto"
             >
-              <Icon path={mdiWhatsapp} size={0.8} aria-hidden="true" />
+              <WhatsAppIcon size={0.8} />
               Cotizar por WhatsApp
             </a>
             <ul className="flex flex-col gap-2 text-xs sm:text-[0.8125rem]">
               <li>
                 <div className="flex items-start gap-2">
-                  <Icon
-                    path={mdiWhatsapp}
-                    size={0.65}
-                    className="mt-0.5 size-3.5 shrink-0 text-red-600"
-                    aria-hidden="true"
-                  />
+                  <WhatsAppIcon size={0.65} className="mt-0.5 size-3.5 text-red-600" />
                   <span className="text-white/55">
                     <a
                       href={FOOTER_SALES_WHATSAPP_LINK}

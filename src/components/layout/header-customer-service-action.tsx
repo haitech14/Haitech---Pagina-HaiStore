@@ -1,8 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
 import { Clock, Headphones, Headset, Wrench } from 'lucide-react';
 
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { HeaderWhatsAppContactAction } from '@/components/layout/header-whatsapp-contact-action';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
 import {
@@ -88,9 +87,7 @@ export function HeaderCustomerServiceAction({
             variant="mobile"
             label={HEADER_BUY_RENT_WHATSAPP_LABEL}
             phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
-            icon={
-              <Icon path={mdiWhatsapp} size={0.72} className="shrink-0 text-[#25D366]" aria-hidden="true" />
-            }
+            icon={<WhatsAppIcon size={0.72} className="text-[#25D366]" />}
           />
           <HeaderWhatsAppContactAction
             topic="soporte"
@@ -166,14 +163,7 @@ export function HeaderCustomerServiceAction({
               label={HEADER_BUY_RENT_WHATSAPP_LABEL}
               phoneDisplay={HEADER_SALES_PHONE_DISPLAY}
               className="w-full justify-start rounded-md px-2"
-              icon={
-                <Icon
-                  path={mdiWhatsapp}
-                  size={0.72}
-                  className="shrink-0 text-[#25D366]"
-                  aria-hidden="true"
-                />
-              }
+              icon={<WhatsAppIcon size={0.72} className="text-[#25D366]" />}
             />
             <HeaderWhatsAppContactAction
               topic="soporte"

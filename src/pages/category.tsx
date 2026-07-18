@@ -15,7 +15,7 @@ import { Plus, PanelLeftClose } from 'lucide-react';
 import { StoreCatalogHeader } from '@/components/store-storefront/store-catalog-header';
 import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
 import { StoreCatalogViewControls } from '@/components/store-storefront/store-catalog-view-controls';
-import { StoreSubcategoryCarousel } from '@/components/store-storefront/store-subcategory-carousel';
+import { StoreSubcategoryCarouselSkeleton } from '@/components/store-storefront/store-subcategory-carousel-skeleton';
 import { storeCatalogCopy } from '@/data/store-landing';
 import { getCatalogRows } from '@/lib/catalog-featured';
 import { getCachedHomeBundleProvisionalProducts } from '@/lib/home-catalog-bundle';
@@ -172,6 +172,12 @@ const CategoryFiltersSheet = lazy(() =>
 const CategoryFiltersPanel = lazy(() =>
   import('@/components/category/category-filters-panel').then((m) => ({
     default: m.CategoryFiltersPanel,
+  })),
+);
+/** Embla fuera del chunk store inicial. */
+const StoreSubcategoryCarousel = lazy(() =>
+  import('@/components/store-storefront/store-subcategory-carousel').then((m) => ({
+    default: m.StoreSubcategoryCarousel,
   })),
 );
 
@@ -1508,13 +1514,17 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           {storefrontMode && showProductCatalog ? (
             <>
               {sidebarCategoryTree.length > 0 ? (
-                <StoreSubcategoryCarousel
-                  className="min-w-0"
-                  ariaLabel="Categorías"
-                  subcategories={sidebarCategoryTree}
-                  activeSubSlug={isStoreAll ? storeFilterCategorySlug : (slug ?? null)}
-                  onSelect={selectStorefrontRootCategory}
-                />
+                <Suspense
+                  fallback={<StoreSubcategoryCarouselSkeleton className="min-w-0" count={5} />}
+                >
+                  <StoreSubcategoryCarousel
+                    className="min-w-0"
+                    ariaLabel="Categorías"
+                    subcategories={sidebarCategoryTree}
+                    activeSubSlug={isStoreAll ? storeFilterCategorySlug : (slug ?? null)}
+                    onSelect={selectStorefrontRootCategory}
+                  />
+                </Suspense>
               ) : null}
               {!catalogFamily || isEquipmentCatalogFamily(catalogFamily) ? (
                 <ProductConditionTabs

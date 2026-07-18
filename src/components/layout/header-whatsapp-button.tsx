@@ -1,6 +1,4 @@
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
-
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { HEADER_ADVISOR_WHATSAPP_LINK } from '@/data/site-header';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +18,7 @@ export function HeaderWhatsAppButton({ className }: HeaderWhatsAppButtonProps) {
         className,
       )}
     >
-      <Icon path={mdiWhatsapp} size={0.85} className="text-[#25D366]" aria-hidden="true" />
+      <WhatsAppIcon size={0.85} className="text-[#25D366]" />
       WhatsApp
     </a>
   );

@@ -1,7 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
+import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { FileText, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 
 import { ProductCardImage } from '@/components/product/product-card-image';
