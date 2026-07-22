@@ -39,9 +39,7 @@ import { featuredToWishlistItem } from '@/lib/wishlist-product';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
-// @ts-expect-error shared JS module
 import { inferColor, resolveFormatoPapelBadgeLabels } from '../../../shared/catalog-attribute-filters.js';
-// @ts-expect-error shared JS module
 import { resolveProductSpeedPpm } from '../../../shared/catalog-speed-filter.js';
 
 const ProductCardCopyButton = lazy(() =>
