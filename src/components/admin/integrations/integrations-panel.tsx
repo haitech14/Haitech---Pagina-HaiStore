@@ -94,7 +94,7 @@ export function IntegrationsPanel() {
 
   const handleSyncHaiSales = () => {
     void syncHaiSalesDb
-      .mutateAsync()
+      .mutateAsync({})
       .then((result) => {
         const { persona, ventas } = result.database;
         toast.success(
@@ -122,7 +122,7 @@ export function IntegrationsPanel() {
 
   const handleSyncAll = () => {
     void syncAll
-      .mutateAsync()
+      .mutateAsync({})
       .then(() => {
         toast.success('HaiSales y HaiSupport sincronizados.');
         void health.refetch();
