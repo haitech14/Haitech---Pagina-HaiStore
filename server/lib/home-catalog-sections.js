@@ -54,6 +54,19 @@ const SECTION_INVENTORY_LABELS = {
     'Repuestos Compatibles, Unidades Compatibles',
     'Repuestos, Repuestos Compatibles, Unidades Compatibles',
   ],
+  'impresoras-termicas': [
+    'Impresoras Térmicas',
+    'Impresoras Termicas',
+    'Impresoras, Impresoras Térmicas',
+    'Impresoras, Impresoras Termicas',
+  ],
+  escaneres: [
+    'Escáneres',
+    'Escáneres Nuevos',
+    'Escáneres, Escáneres Nuevos',
+    'Escaneres',
+    'Escaneres Nuevos',
+  ],
 };
 
 const VALID_SECTION_IDS = new Set(Object.keys(SECTION_INVENTORY_LABELS));

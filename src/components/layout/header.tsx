@@ -21,7 +21,7 @@ import { STORE_HEADER_LINKS } from '@/components/layout/header-main-menu';
 import { HeaderTopBar } from '@/components/layout/header-top-bar';
 import { StoreNavMobileMegaAccordions } from '@/components/layout/store-nav-mobile-mega-accordions';
 import { HeaderBrandLogos } from '@/components/layout/site-logo';
-import { SiteSearchForm } from '@/components/layout/site-search-form';
+import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { cn, formatPenFromUsd } from '@/lib/utils';
@@ -146,7 +146,7 @@ export function Header() {
 
         {forumMode ? (
           <div className="hidden flex-1 justify-center px-2 md:flex lg:px-4">
-            <SiteSearchForm className="max-w-3xl lg:max-w-4xl" variant="segmented" />
+            <DeferredSiteSearchForm className="max-w-3xl lg:max-w-4xl" variant="segmented" />
           </div>
         ) : null}
 
@@ -185,7 +185,7 @@ export function Header() {
       {!forumMode ? (
         <>
           <div className="container border-t border-white/15 pb-2.5 pt-2 lg:hidden">
-            <SiteSearchForm variant="header-dark" onNavigate={() => setMobileOpen(false)} />
+            <DeferredSiteSearchForm variant="header-dark" onNavigate={() => setMobileOpen(false)} />
           </div>
           <HeaderCategoryNav
             cartCount={totalItems}
@@ -196,7 +196,7 @@ export function Header() {
       ) : (
         <>
           <div className="container border-t border-border/60 pb-2 pt-2 md:hidden">
-            <SiteSearchForm variant="simple" onNavigate={() => setMobileOpen(false)} />
+            <DeferredSiteSearchForm variant="simple" onNavigate={() => setMobileOpen(false)} />
           </div>
           <HeaderCategoryNav />
         </>

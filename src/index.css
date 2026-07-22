@@ -1,12 +1,4 @@
-/* Montserrat: @fontsource woff2 vía src/fonts.ts (400/500/600/700). */
-
-@font-face {
-  font-family: 'Myriad Pro';
-  src: url('/categories/MYRIADPRO-BOLD.OTF') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* Montserrat: @fontsource woff2 vía src/fonts.ts (400/700 críticos; 500/600 diferidos). */
 
 @tailwind base;
 @tailwind components;

@@ -132,17 +132,25 @@ async function fetchHomeCatalogBundleFromApi(): Promise<HomeCatalogBundleRespons
 /** Datos para pintar la home: snapshot / sessionStorage primero (sin esperar API). */
 export async function fetchHomeCatalogBundleForDisplay(): Promise<HomeCatalogBundleResponse> {
   const cachedMeta = readStoredHomeCatalogBundleMeta();
-  const staticPayload = await fetchStaticHomeCatalogBundle();
 
-  if (
-    staticPayload &&
-    isStaticBundleNewer(cachedMeta, staticPayload.generatedAt)
-  ) {
-    storeHomeCatalogBundle(staticPayload.bundle, staticPayload.generatedAt);
-    return staticPayload.bundle;
+  // Visita previa en la pestaña: pintar ya; el static/API revalidan en background.
+  if (cachedMeta?.bundle) {
+    void fetchStaticHomeCatalogBundle()
+      .then((staticPayload) => {
+        if (
+          staticPayload &&
+          isStaticBundleNewer(cachedMeta, staticPayload.generatedAt)
+        ) {
+          storeHomeCatalogBundle(staticPayload.bundle, staticPayload.generatedAt);
+        }
+      })
+      .catch(() => {
+        /* revalidateHomeCatalogBundle cubre el fallo */
+      });
+    return cachedMeta.bundle;
   }
 
-  if (cachedMeta?.bundle) return cachedMeta.bundle;
+  const staticPayload = await fetchStaticHomeCatalogBundle();
 
   if (staticPayload) {
     storeHomeCatalogBundle(staticPayload.bundle, staticPayload.generatedAt);

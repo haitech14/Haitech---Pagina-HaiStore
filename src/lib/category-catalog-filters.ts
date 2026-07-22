@@ -105,7 +105,6 @@ const QUICK_FILTER_KEYS_BY_SLUG: Record<string, readonly string[]> = {
   multifuncionales: [
     'Color::B/N',
     'Color::Color',
-    ADF_ESTANDAR_KEY,
     ADF_DOBLE_SCAN_KEY,
     `${FORMATO_PAPEL_ATTR}::A4`,
     `${FORMATO_PAPEL_ATTR}::A3`,
@@ -113,7 +112,6 @@ const QUICK_FILTER_KEYS_BY_SLUG: Record<string, readonly string[]> = {
   impresoras: [
     'Color::B/N',
     'Color::Color',
-    ADF_ESTANDAR_KEY,
     ADF_DOBLE_SCAN_KEY,
     `${FORMATO_PAPEL_ATTR}::A4`,
     `${FORMATO_PAPEL_ATTR}::A3`,
@@ -129,10 +127,9 @@ const QUICK_FILTER_KEYS_BY_SLUG: Record<string, readonly string[]> = {
 };
 
 const QUICK_FILTER_CHIP_LABELS: Record<string, string> = {
-  [ADF_ESTANDAR_KEY]: 'ADF Estándar',
   [ADF_DOBLE_SCAN_KEY]: 'ADF Doble Scan',
-  [`${FORMATO_PAPEL_ATTR}::A4`]: 'Formato A4',
-  [`${FORMATO_PAPEL_ATTR}::A3`]: 'Formato A3',
+  [`${FORMATO_PAPEL_ATTR}::A4`]: 'A4',
+  [`${FORMATO_PAPEL_ATTR}::A3`]: 'A3',
   'Color::B/N': 'B/N',
   'Color::Color': 'Color',
   'Color::Cyan': 'Cyan',
@@ -358,8 +355,8 @@ export function getCatalogLayoutOrderedProducts(products: readonly Product[]): P
 export const CATALOG_SPEC_FILTER_TABS = [
   { key: 'Color::B/N', label: 'B/N' },
   { key: 'Color::Color', label: 'Color' },
-  { key: `${FORMATO_PAPEL_ATTR}::A4`, label: 'Formato A4' },
-  { key: `${FORMATO_PAPEL_ATTR}::A3`, label: 'Formato A3' },
+  { key: `${FORMATO_PAPEL_ATTR}::A4`, label: 'A4' },
+  { key: `${FORMATO_PAPEL_ATTR}::A3`, label: 'A3' },
 ] as const;
 
 const FORMAT_FILTER_KEYS = new Set<string>(

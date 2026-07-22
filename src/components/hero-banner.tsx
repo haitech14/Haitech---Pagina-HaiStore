@@ -2,13 +2,10 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ShieldCheck, ShoppingCart } from 'lucide-react';
-import { Icon } from '@mdi/react';
-import { mdiWhatsapp } from '@mdi/js';
 
 import { Button } from '@/components/ui/button';
 import { CarouselDots, type CarouselDotsTheme } from '@/components/ui/carousel-dots';
 import { HomeLandingHeroSlideContent } from '@/components/home/home-landing-hero';
-import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import {
   CATEGORY_STRIP_HERO_IMAGE_FRAME_CLASS,
   CATEGORY_STRIP_HERO_IMAGE_ZOOM_CLASS,
@@ -29,6 +26,21 @@ import { cn } from '@/lib/utils';
 const DiaPapaHomeHero = lazy(() =>
   import('@/components/home/dia-papa-home-hero').then((m) => ({ default: m.DiaPapaHomeHero })),
 );
+
+const WhatsAppContactDialog = lazy(() =>
+  import('@/components/whatsapp-contact-dialog').then((m) => ({
+    default: m.WhatsAppContactDialog,
+  })),
+);
+
+function WhatsAppGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={cn('size-4 fill-current', className)} aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+      <path d="M12 2.004C6.486 2.004 2 6.49 2 12.004c0 1.77.463 3.433 1.273 4.883L2.05 21.95l5.2-1.193A9.96 9.96 0 0 0 12 22.004c5.514 0 10-4.486 10-10s-4.486-9.996-10-9.996zm0 18.002a8 8 0 0 1-4.08-1.12l-.292-.173-3.086.708.715-3.01-.19-.31A7.96 7.96 0 0 1 4 12.004c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z" />
+    </svg>
+  );
+}
 
 function heroResponsiveSources(imagePath: string, baseWidth: number) {
   const base = imagePath.replace(/\.(png|jpe?g|webp)$/i, '');
@@ -55,7 +67,7 @@ function HeroImageOnlyCtaOverlay({ onWhatsAppClick }: { onWhatsAppClick: () => v
         className="pointer-events-auto min-h-10 gap-1.5 bg-[#25D366] px-4 text-sm font-semibold text-white shadow-md hover:bg-[#20bd5a] focus-visible:ring-[#25D366]"
         onClick={onWhatsAppClick}
       >
-        <Icon path={mdiWhatsapp} size={0.85} aria-hidden="true" />
+        <WhatsAppGlyph className="size-[0.85rem]" />
         Solicitar cotización
       </Button>
       <Button
@@ -96,7 +108,7 @@ function HeroSlideContent({
 
   if (slide.layout === 'home-landing') {
     return (
-      <HomeLandingHeroSlideContent headingId={headingId} />
+      <HomeLandingHeroSlideContent headingId={headingId} onQuoteClick={onWhatsAppClick} />
     );
   }
 
@@ -358,7 +370,7 @@ function HeroSlideContent({
               className="h-10 rounded-md bg-[#25D366] px-4 text-sm font-semibold text-white shadow-[0_0_24px_rgba(37,211,102,0.35)] transition-all hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-black"
               onClick={() => onWhatsAppClick(slide.imageAlt ?? slide.id)}
             >
-              <Icon path={mdiWhatsapp} size={1} aria-hidden="true" />
+              <WhatsAppGlyph />
               Cotizar por WhatsApp · {HOME_HERO_WHATSAPP_NUMBER}
             </Button>
           ) : slide.primaryCta?.kind === 'link' ? (
@@ -390,7 +402,7 @@ function HeroSlideContent({
             {slide.secondaryCta.external || slide.secondaryCta.href.startsWith('http') ? (
               <a href={slide.secondaryCta.href} target="_blank" rel="noopener noreferrer">
                 {slide.secondaryCta.label.includes('WhatsApp') ? (
-                  <Icon path={mdiWhatsapp} size={1} aria-hidden="true" />
+                  <WhatsAppGlyph />
                 ) : (
                   <ShoppingCart aria-hidden="true" />
                 )}
@@ -544,19 +556,23 @@ export function HeroBanner({
         />
       ) : null}
 
-      <WhatsAppContactDialog
-        open={whatsappDialogOpen}
-        onOpenChange={setWhatsappDialogOpen}
-        initial={contact ?? undefined}
-        isSubmitting={isSaving}
-        showQuoteCheckbox={false}
-        title="Solicitar cotización"
-        description="Completa tus datos y te llevaremos a WhatsApp con el mensaje listo para enviar a nuestro equipo de ventas."
-        submitLabel="Continuar a WhatsApp"
-        onSubmit={async (nextContact) => {
-          await handleWhatsAppSubmit(nextContact);
-        }}
-      />
+      {whatsappDialogOpen ? (
+        <Suspense fallback={null}>
+          <WhatsAppContactDialog
+            open={whatsappDialogOpen}
+            onOpenChange={setWhatsappDialogOpen}
+            initial={contact ?? undefined}
+            isSubmitting={isSaving}
+            showQuoteCheckbox={false}
+            title="Solicitar cotización"
+            description="Completa tus datos y te llevaremos a WhatsApp con el mensaje listo para enviar a nuestro equipo de ventas."
+            submitLabel="Continuar a WhatsApp"
+            onSubmit={async (nextContact) => {
+              await handleWhatsAppSubmit(nextContact);
+            }}
+          />
+        </Suspense>
+      ) : null}
     </section>
   );
 }

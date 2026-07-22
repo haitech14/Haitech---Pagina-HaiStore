@@ -20,8 +20,7 @@ import { queryClient } from '@/providers';
 /** Inicio eager: sin Suspense/spinner a pantalla completa. */
 const storePageImport = () =>
   import('@/pages/store').then((m) => ({ default: m.StorefrontRoutePage }));
-/** Precarga chunk de tienda en paralelo (F5 / navegación). */
-void storePageImport();
+/** Chunk de tienda bajo demanda; precarga en intent /main en /tienda|/categoria. */
 const StorefrontRoutePage = lazyWithRetry(storePageImport, 'tienda');
 const LoginPage = lazyWithRetry(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })), 'login');
 const LoginRegisterPage = lazyWithRetry(

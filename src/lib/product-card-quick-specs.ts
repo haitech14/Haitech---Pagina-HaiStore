@@ -1,8 +1,8 @@
 import {
   inferColor,
   resolveFormatoPapelBadgeLabels,
-  resolveProductSpeedPpm,
-} from '@/lib/category-catalog-filters';
+} from '../../shared/catalog-attribute-filters.js';
+import { resolveProductSpeedPpm } from '../../shared/catalog-speed-filter.js';
 import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
 import type { ProductAttribute } from '@/types/product';

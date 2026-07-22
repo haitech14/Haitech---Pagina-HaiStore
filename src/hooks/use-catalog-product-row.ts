@@ -8,11 +8,21 @@ import {
   type CatalogRow,
 } from '@/lib/catalog-featured';
 
+type UseCatalogProductRowOptions = {
+  /** Si es false, no dispara inventory-index (p. ej. cards de home con home-bundle). */
+  loadIfMissing?: boolean;
+};
+
 /** Fila del índice de inventario: caché síncrona + carga async si aún no está en memoria. */
-export function useCatalogProductRow(productId: string): CatalogRow | undefined {
+export function useCatalogProductRow(
+  productId: string,
+  options?: UseCatalogProductRowOptions,
+): CatalogRow | undefined {
+  const loadIfMissing = options?.loadIfMissing !== false;
   const [catalogVersion, setCatalogVersion] = useState(0);
 
   useEffect(() => {
+    if (!loadIfMissing) return;
     if (getCatalogProductById(productId)) return;
 
     let cancelled = false;
@@ -23,7 +33,7 @@ export function useCatalogProductRow(productId: string): CatalogRow | undefined 
     return () => {
       cancelled = true;
     };
-  }, [productId]);
+  }, [loadIfMissing, productId]);
 
   useEffect(() => {
     return subscribeCatalogMediaUpdates(() => {

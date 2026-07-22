@@ -5,9 +5,9 @@ import { Header } from '@/components/layout/header';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { HomeStorefrontTrustBar } from '@/components/home/home-storefront-trust-bar';
-import { ShoppingCartDrawer } from '@/components/cart/shopping-cart-drawer';
-import { ProductCompareTray } from '@/components/product/product-compare-tray';
+import { useCart } from '@/context/cart-context';
 import { CartProvider } from '@/context/cart-context';
+import { useProductCompare } from '@/context/product-compare-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,18 @@ const WhatsAppFloatingButton = lazy(() =>
 const HaibotFloatingMenu = lazy(() =>
   import('@/components/haibot/haibot-floating-menu').then((m) => ({
     default: m.HaibotFloatingMenu,
+  })),
+);
+
+const ShoppingCartDrawer = lazy(() =>
+  import('@/components/cart/shopping-cart-drawer').then((m) => ({
+    default: m.ShoppingCartDrawer,
+  })),
+);
+
+const ProductCompareTray = lazy(() =>
+  import('@/components/product/product-compare-tray').then((m) => ({
+    default: m.ProductCompareTray,
   })),
 );
 
@@ -56,6 +68,78 @@ function useDeferredWidgetMount(delayMs = 2500) {
   }, [delayMs]);
 
   return ready;
+}
+
+/** Monta el drawer al abrir o en idle (add-to-cart no espera parse del chunk). */
+function DeferredShoppingCartDrawer() {
+  const { isOpen } = useCart();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) setMounted(true);
+  }, [isOpen]);
+
+  useEffect(() => {
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+    const mount = () => setMounted(true);
+
+    if (typeof window.requestIdleCallback === 'function') {
+      idleId = window.requestIdleCallback(mount, { timeout: 4000 });
+    } else {
+      timeoutId = window.setTimeout(mount, 2000);
+    }
+
+    return () => {
+      if (idleId != null && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  if (!mounted) return null;
+  return (
+    <Suspense fallback={null}>
+      <ShoppingCartDrawer />
+    </Suspense>
+  );
+}
+
+/** Monta compare tray cuando hay items o en idle. */
+function DeferredProductCompareTray() {
+  const { items } = useProductCompare();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    if (items.length > 0) setMounted(true);
+  }, [items.length]);
+
+  useEffect(() => {
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+    const mount = () => setMounted(true);
+
+    if (typeof window.requestIdleCallback === 'function') {
+      idleId = window.requestIdleCallback(mount, { timeout: 5000 });
+    } else {
+      timeoutId = window.setTimeout(mount, 2500);
+    }
+
+    return () => {
+      if (idleId != null && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  if (!mounted) return null;
+  return (
+    <Suspense fallback={null}>
+      <ProductCompareTray />
+    </Suspense>
+  );
 }
 
 export function RootLayout() {
@@ -93,8 +177,8 @@ export function RootLayout() {
           <HaibotFloatingMenu side="right" />
         </Suspense>
       ) : null}
-      <ShoppingCartDrawer />
-      <ProductCompareTray />
+      <DeferredShoppingCartDrawer />
+      <DeferredProductCompareTray />
     </div>
     </MobileBottomInsetProvider>
     </CartProvider>

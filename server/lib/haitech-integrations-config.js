@@ -54,9 +54,14 @@ export function isHaiSalesRemoteProject() {
 }
 
 async function probeSupabaseTable(supabase, table) {
-  const { error } = await supabase.from(table).select('id', { count: 'exact', head: true });
+  // Prefer a real SELECT: HEAD/{count} can return 204 without error on missing tables.
+  const { error } = await supabase.from(table).select('*').limit(1);
   if (!error) return { ok: true, table };
   if (error.code === 'PGRST205') return { ok: false, table, missing: true };
+  const message = String(error.message ?? '').toLowerCase();
+  if (message.includes('schema cache') || message.includes('does not exist')) {
+    return { ok: false, table, missing: true, error: error.message };
+  }
   return { ok: false, table, error: error.message };
 }
 

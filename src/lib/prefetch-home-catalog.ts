@@ -18,14 +18,8 @@ import { viewAsRolesQueryKey } from '@/lib/view-as-role';
  * Siembra sessionStorage al instante; JSON estático + API van en background.
  */
 export function prefetchHomeCatalog(queryClient: QueryClient): null {
-  // Idle corto: rails de home; no esperar el índice completo en el camino crítico.
-  deferCatalogIndexPreload(1500);
-
-  void queryClient.prefetchQuery({
-    queryKey: [STORE_CATEGORIES_QUERY_KEY],
-    queryFn: fetchStoreCategoriesTreeWithFallback,
-    staleTime: 1000 * 60 * 10,
-  });
+  // Tras 2ª/3ª oleada: no pelear bandwidth con home-bundle ~56KB.
+  deferCatalogIndexPreload(8000);
 
   const queryKey = [HOME_CATALOG_BUNDLE_QUERY_KEY, 'public', viewAsRolesQueryKey([])];
 
@@ -45,11 +39,29 @@ export function prefetchHomeCatalog(queryClient: QueryClient): null {
       /* useHomeCatalogBundle reintentará al montar */
     }
 
-    void queryClient.prefetchQuery({
-      queryKey,
-      queryFn: revalidateHomeCatalogBundle,
-      staleTime: 1000 * 60 * 5,
-    });
+    const prefetchCategories = () => {
+      void queryClient.prefetchQuery({
+        queryKey: [STORE_CATEGORIES_QUERY_KEY],
+        queryFn: fetchStoreCategoriesTreeWithFallback,
+        staleTime: 1000 * 60 * 10,
+      });
+    };
+
+    const revalidate = () => {
+      void queryClient.prefetchQuery({
+        queryKey,
+        queryFn: revalidateHomeCatalogBundle,
+        staleTime: 1000 * 60 * 5,
+      });
+    };
+
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(prefetchCategories, { timeout: 2800 });
+      window.requestIdleCallback(revalidate, { timeout: 3500 });
+    } else {
+      window.setTimeout(prefetchCategories, 1500);
+      window.setTimeout(revalidate, 2000);
+    }
   })();
 
   return null;

@@ -9,7 +9,7 @@ import {
   mainNavLinkClass,
 } from '@/components/layout/main-nav-styles';
 import { HeaderBrandLogos } from '@/components/layout/site-logo';
-import { SiteSearchForm } from '@/components/layout/site-search-form';
+import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
 import { FORUM_HEADER_NAV } from '@/data/forum-home-layout';
 import {
   getHeaderNavSubmenuDefaultHref,
@@ -84,7 +84,7 @@ export function HeaderCategoryNav({
               id="header-store-search"
               className="mx-auto w-full max-w-[28rem] xl:max-w-[34rem] 2xl:max-w-[40rem]"
             >
-              <SiteSearchForm
+              <DeferredSiteSearchForm
                 className="w-full"
                 variant="segmented"
                 size="compact"
@@ -105,14 +105,14 @@ export function HeaderCategoryNav({
             aria-label="Navegación de productos"
             className="overflow-visible border-t border-black/10 bg-white"
           >
-            <div className="container flex min-h-9 items-center justify-start gap-4 overflow-visible py-1">
+            <div className="container flex h-10 items-stretch justify-start gap-4 overflow-visible">
               <HeaderMainMenu
                 linkClassName={mainNavLinkClass}
                 menuVariant="light"
                 showIcons={false}
                 menuDensity="default"
                 showCategories
-                className="justify-start gap-3 xl:gap-5"
+                className="h-full justify-start gap-3 xl:gap-5"
               />
             </div>
           </nav>

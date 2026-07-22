@@ -1,11 +1,19 @@
-import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-tooltip';
+import { lazy, Suspense, type ReactNode } from 'react';
+
 import { useDisplayCurrency } from '@/context/display-currency-context';
+import { useAuth } from '@/context/auth-context';
 import {
   CONSULTAR_PRECIO_LABEL,
   getDisplayPriceVisibility,
   isPriceOnRequest,
 } from '@/lib/display-price';
 import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
+
+const AdminRolePricesTooltip = lazy(() =>
+  import('@/components/admin/admin-role-prices-tooltip').then((m) => ({
+    default: m.AdminRolePricesTooltip,
+  })),
+);
 
 const FEATURED_PRICE_COMPARE_CLASS =
   'text-[0.6875rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] decoration-solid sm:text-[0.75rem]';
@@ -84,6 +92,27 @@ function FeaturedSingleCurrencyLine({
   );
 }
 
+function MaybeAdminRolePrices({
+  productId,
+  displayUsd,
+  children,
+}: {
+  productId: string;
+  displayUsd: number;
+  children: ReactNode;
+}) {
+  const { isAdmin, viewAsRoles } = useAuth();
+  if (!isAdmin || viewAsRoles.length > 0) return children;
+
+  return (
+    <Suspense fallback={children}>
+      <AdminRolePricesTooltip productId={productId} displayUsd={displayUsd}>
+        {children}
+      </AdminRolePricesTooltip>
+    </Suspense>
+  );
+}
+
 export interface ProductCardFeaturedPricingProps {
   currentUsd: number;
   compareUsd: number;
@@ -135,9 +164,9 @@ export function ProductCardFeaturedPricing({
     <div className={cn('space-y-0.5', className)}>
       <p className={FEATURED_PRICE_CURRENT_CLASS}>
         {productId ? (
-          <AdminRolePricesTooltip productId={productId} displayUsd={currentUsd}>
+          <MaybeAdminRolePrices productId={productId} displayUsd={currentUsd}>
             {currentPrice}
-          </AdminRolePricesTooltip>
+          </MaybeAdminRolePrices>
         ) : (
           currentPrice
         )}

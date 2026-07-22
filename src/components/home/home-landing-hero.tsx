@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Award, ChevronRight, FileText, ShieldCheck, ShoppingCart, Users, type LucideIcon } from 'lucide-react';
 
 import { StorePrefetchLink } from '@/components/store-prefetch-link';
@@ -9,10 +8,10 @@ import { cn } from '@/lib/utils';
 
 export { HOME_LANDING_HERO_HEIGHT_CLASS };
 
-/** Escena de oficina + equipos (PNG; sin variantes WebP antiguas). */
-const HERO_BACKGROUND = '/hero/home-hero-scene.png';
+/** Escena de oficina + equipos (WebP alineado al preload de index.html). */
+const HERO_BACKGROUND = '/hero/home-hero-scene.webp';
 const HERO_BUY_EQUIPMENT_HREF = categoryLandingPath('multifuncionales');
-const HERO_QUOTE_HREF = '/contacto?tema=cotizacion';
+const HERO_QUOTE_CAMPAIGN = 'home-landing-hero';
 
 const HERO_TRUST_ITEMS: {
   id: string;
@@ -45,10 +44,13 @@ export const HOME_LANDING_HERO_MIN_HEIGHT_CLASS = HOME_LANDING_HERO_HEIGHT_CLASS
 
 type HomeLandingHeroSlideContentProps = {
   headingId?: string;
+  /** Abre el formulario flotante de cotización → WhatsApp. */
+  onQuoteClick?: (campaign?: string) => void;
 };
 
 export function HomeLandingHeroSlideContent({
   headingId = 'hero-titulo',
+  onQuoteClick,
 }: HomeLandingHeroSlideContentProps) {
   return (
     <div
@@ -100,14 +102,13 @@ export function HomeLandingHeroSlideContent({
                   </StorePrefetchLink>
                 </Button>
                 <Button
-                  asChild
+                  type="button"
                   variant="outline"
                   className="min-h-12 w-full gap-1.5 rounded-lg border-[#111111]/15 bg-white px-6 text-sm font-medium text-[#111111] shadow-[0_2px_8px_rgba(15,23,42,0.06)] hover:bg-[#F3F4F6] sm:min-h-11 sm:w-auto sm:text-[0.9375rem]"
+                  onClick={() => onQuoteClick?.(HERO_QUOTE_CAMPAIGN)}
                 >
-                  <Link to={HERO_QUOTE_HREF}>
-                    <FileText className="size-3.5 shrink-0" aria-hidden="true" />
-                    <span>Solicitar cotización</span>
-                  </Link>
+                  <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+                  <span>Solicitar cotización</span>
                 </Button>
               </div>
 

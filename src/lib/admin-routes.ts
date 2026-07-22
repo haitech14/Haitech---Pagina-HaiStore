@@ -97,6 +97,7 @@ export const ADMIN_SETTINGS_SECTIONS = [
   'descuentos-volumen',
   'pdf',
   'apariencia',
+  'integraciones',
 ] as const;
 
 export type AdminSettingsSectionId = (typeof ADMIN_SETTINGS_SECTIONS)[number];
@@ -111,6 +112,7 @@ export const ADMIN_SETTINGS_NAV: Array<{
   { id: 'descuentos-volumen', label: 'Descuentos volumen', href: ADMIN_ROUTES.SETTINGS_VOLUME_DISCOUNTS },
   { id: 'pdf', label: 'PDF', href: ADMIN_ROUTES.SETTINGS_PDF },
   { id: 'apariencia', label: 'Apariencia', href: ADMIN_ROUTES.SETTINGS_APPEARANCE },
+  { id: 'integraciones', label: 'Integraciones', href: ADMIN_ROUTES.SETTINGS_INTEGRATIONS },
 ];
 
 export function isAdminSettingsPath(pathname: string): boolean {
@@ -227,7 +229,7 @@ export const ADMIN_SIDEBAR_GROUPS: AdminSidebarNavGroup[] = [
       { key: 'users', label: 'Usuarios', href: ADMIN_ROUTES.SETTINGS_USUARIOS, icon: 'user-cog' },
       { key: 'roles', label: 'Roles y permisos', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'shield' },
       { key: 'settings', label: 'Configuraciones', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'settings', technicianAllowed: true },
-      { key: 'payments', label: 'Métodos de pago', href: ADMIN_ROUTES.SETTINGS_INTEGRATIONS, icon: 'credit-card' },
+      { key: 'payments', label: 'Integraciones', href: ADMIN_ROUTES.SETTINGS_INTEGRATIONS, icon: 'link-2' },
       { key: 'shipping', label: 'Métodos de envío', href: ADMIN_ROUTES.SHIPPING, icon: 'truck' },
       { key: 'taxes', label: 'Impuestos', href: ADMIN_ROUTES.SETTINGS_GENERAL, icon: 'percent' },
       { key: 'logs', label: 'Logs del sistema', href: ADMIN_ROUTES.REPORTS, icon: 'scroll-text' },

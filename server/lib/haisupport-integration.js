@@ -27,12 +27,19 @@ async function countTable(table) {
   const supabase = getSupabaseAdmin();
   if (!supabase) return null;
 
-  const { count, error } = await supabase.from(table).select('id', { count: 'exact', head: true });
+  const { data, error, count } = await supabase
+    .from(table)
+    .select('id', { count: 'exact' })
+    .limit(1);
   if (error) {
     if (error.code === 'PGRST205') return { count: null, missing: true };
+    const message = String(error.message ?? '').toLowerCase();
+    if (message.includes('schema cache') || message.includes('does not exist')) {
+      return { count: null, missing: true, error: error.message };
+    }
     return { count: null, missing: false, error: error.message };
   }
-  return { count: count ?? 0, missing: false };
+  return { count: count ?? data?.length ?? 0, missing: false };
 }
 
 /** Estado detallado de la integración HaiSupport ↔ HaiStore. */
@@ -140,6 +147,24 @@ export async function getHaiSupportIntegrationStatus() {
 export async function syncHaiSupportFromDatabase() {
   if (!shouldUseSharedSupabaseData()) {
     throw new Error('Supabase compartido no configurado en HaiStore');
+  }
+
+  const storeDb = getSupabaseAdmin();
+  if (!storeDb) {
+    throw new Error('Supabase HaiStore no configurado');
+  }
+
+  const { error: storeCustomersError } = await storeDb.from('store_customers').select('id').limit(1);
+  if (storeCustomersError) {
+    if (
+      storeCustomersError.code === 'PGRST205' ||
+      String(storeCustomersError.message).toLowerCase().includes('schema cache')
+    ) {
+      throw new Error(
+        'Falta la tabla store_customers. Ejecuta npm run db:migrate:customers (requiere SUPABASE_ACCESS_TOKEN o SUPABASE_DB_URL).',
+      );
+    }
+    throw new Error(storeCustomersError.message);
   }
 
   const pull = await pullHaiSupportClientsToStore();

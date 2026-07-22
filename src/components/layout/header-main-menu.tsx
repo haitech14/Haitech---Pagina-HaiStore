@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 
-import { CategoriesMegaMenu } from '@/components/layout/categories-mega-menu';
+import { DeferredCategoriesMegaMenu } from '@/components/layout/deferred-categories-mega-menu';
 import { categoryLandingPath } from '@/lib/category-path';
 import { cn } from '@/lib/utils';
 import { serviceHubPath } from '@/lib/service-hub';
@@ -112,10 +112,13 @@ export function HeaderMainMenu({
           ? 'secondary'
           : 'default';
 
+  const categoriesButton = menuVariant === 'light';
+
   return (
     <ul
       className={cn(
-        'flex min-w-0 items-center',
+        'flex min-w-0',
+        categoriesButton ? 'items-stretch' : 'items-center',
         menuDensity === 'compact'
           ? 'gap-1.5 lg:gap-2'
           : showIcons
@@ -125,17 +128,20 @@ export function HeaderMainMenu({
       )}
     >
       {showCategories ? (
-        <li className="shrink-0">
-          <CategoriesMegaMenu
+        <li className={cn('shrink-0', categoriesButton && 'flex self-stretch')}>
+          <DeferredCategoriesMegaMenu
             navRow={dropdownVariant}
             showIcon={showIcons}
-            triggerVariant={menuVariant === 'light' ? 'categories-button' : 'nav'}
+            triggerVariant={categoriesButton ? 'categories-button' : 'nav'}
             label="Categorías"
           />
         </li>
       ) : null}
       {STORE_HEADER_LINKS.map((item) => (
-        <li key={item.id} className="shrink-0">
+        <li
+          key={item.id}
+          className={cn('shrink-0', categoriesButton && 'flex items-center')}
+        >
           <MockupNavLink item={item} linkClassName={linkClassName} />
         </li>
       ))}

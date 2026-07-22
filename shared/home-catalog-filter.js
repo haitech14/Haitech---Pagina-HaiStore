@@ -13,7 +13,12 @@ export const PRODUCT_CONDITIONS = ['originales', 'compatibles', 'remanufacturado
 export const EQUIPMENT_PRODUCT_CONDITIONS = ['originales', 'compatibles', 'remanufacturados'];
 
 export function getConditionsForCatalogFamily(family) {
-  if (family === 'multifuncionales' || family === 'impresoras') {
+  if (
+    family === 'multifuncionales' ||
+    family === 'impresoras' ||
+    family === 'impresoras-termicas' ||
+    family === 'escaneres'
+  ) {
     return EQUIPMENT_PRODUCT_CONDITIONS;
   }
   return PRODUCT_CONDITIONS;
@@ -78,6 +83,14 @@ function categoryIndicatesFamily(category, family) {
       return haystack.includes('multifuncional');
     case 'impresoras':
       return haystack.includes('impresor') && !haystack.includes('multifuncional');
+    case 'impresoras-termicas':
+      return haystack.includes('térmic') || haystack.includes('termic');
+    case 'escaneres':
+      return (
+        haystack.includes('escáner') ||
+        haystack.includes('escaner') ||
+        haystack.includes('scanner')
+      );
     case 'toner-suministros':
       return (
         (haystack.includes('toner') ||
@@ -344,6 +357,18 @@ export function productMatchesCatalogFamily(product, family) {
         /\bp\s*800\b/i.test(haystack) ||
         /\bp\s*801\b/i.test(haystack) ||
         /\bp\s*-?\s*c\s*600\b/i.test(haystack)
+      );
+    case 'impresoras-termicas':
+      return (
+        (haystack.includes('térmic') || haystack.includes('termic')) &&
+        !productMatchesCatalogFamily(product, 'toner-suministros') &&
+        !productMatchesCatalogFamily(product, 'repuestos')
+      );
+    case 'escaneres':
+      return (
+        haystack.includes('escáner') ||
+        haystack.includes('escaner') ||
+        haystack.includes('scanner')
       );
     case 'toner-suministros':
       return (

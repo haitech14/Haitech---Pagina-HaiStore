@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Building2, Coins, Palette, Save } from 'lucide-react';
 
 import { BulkDiscountTiersPanel } from '@/components/admin/bulk-discount-tiers-panel';
+import { IntegrationsPanel } from '@/components/admin/integrations/integrations-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -65,6 +66,10 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar la configuración.');
     }
   };
+
+  if (section === 'integraciones') {
+    return <IntegrationsPanel />;
+  }
 
   if (isLoading) {
     return <p className="text-muted-foreground">Cargando configuración…</p>;

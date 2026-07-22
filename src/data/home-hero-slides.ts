@@ -88,8 +88,8 @@ export const TRUST_ICON_MAP: Record<HomeHeroTrustIcon, LucideIcon> = {
 export const HOME_LANDING_HERO_SLIDE: HomeHeroSlide = {
   id: 'home-landing',
   layout: 'home-landing',
-  /** Primera slide LCP: escena de oficina + equipos. */
-  backgroundImage: '/hero/home-hero-scene.png',
+  /** Primera slide LCP: escena de oficina + equipos (mismo asset que preload). */
+  backgroundImage: '/hero/home-hero-scene.webp',
   skipHeroWebpVariants: true,
   singleAsset: true,
   /** Fondo claro: dots oscuros para contraste en móvil/desktop. */

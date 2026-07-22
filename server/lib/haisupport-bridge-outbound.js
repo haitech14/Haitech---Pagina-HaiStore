@@ -22,7 +22,7 @@ async function clientsTableAvailable() {
   const supabase = getHaiSupportSupabaseAdmin();
   if (!supabase) return false;
 
-  const { error } = await supabase.from('clients').select('id', { count: 'exact', head: true });
+  const { error } = await supabase.from('clients').select('id').limit(1);
   if (!error) return true;
   if (error.code === 'PGRST205') return false;
   const message = String(error.message ?? '').toLowerCase();

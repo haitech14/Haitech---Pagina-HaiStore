@@ -11,6 +11,10 @@ interface LazyHomeSectionProps {
   fallback?: ReactNode;
   /** Si es false, monta hijos de inmediato (p. ej. secciones above-the-fold). */
   deferUntilVisible?: boolean;
+  /** Monta en idle tras el primer paint (promos/banner de 2ª oleada). */
+  mountOnIdle?: boolean;
+  /** Timeout de idle en ms cuando `mountOnIdle` está activo. */
+  idleTimeoutMs?: number;
 }
 
 function DefaultFallback() {
@@ -28,34 +32,61 @@ export function LazyHomeSection({
   className,
   fallback,
   deferUntilVisible = true,
+  mountOnIdle = false,
+  idleTimeoutMs = 900,
 }: LazyHomeSectionProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(!deferUntilVisible);
+  const [isVisible, setIsVisible] = useState(!deferUntilVisible && !mountOnIdle);
 
   useEffect(() => {
-    if (!deferUntilVisible || isVisible) return;
+    if (isVisible) return;
 
-    const node = rootRef.current;
-    if (!node) return;
+    let cancelled = false;
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+    let observer: IntersectionObserver | undefined;
 
-    if (typeof IntersectionObserver === 'undefined') {
-      setIsVisible(true);
-      return;
+    const reveal = () => {
+      if (!cancelled) setIsVisible(true);
+    };
+
+    if (mountOnIdle) {
+      if (typeof window.requestIdleCallback === 'function') {
+        idleId = window.requestIdleCallback(reveal, { timeout: idleTimeoutMs });
+      } else {
+        timeoutId = window.setTimeout(reveal, Math.min(idleTimeoutMs, 200));
+      }
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '200px 0px' },
-    );
+    if (deferUntilVisible) {
+      const node = rootRef.current;
+      if (!node) {
+        /* wait for ref */
+      } else if (typeof IntersectionObserver === 'undefined') {
+        reveal();
+      } else {
+        observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry?.isIntersecting) {
+              reveal();
+              observer?.disconnect();
+            }
+          },
+          { rootMargin: '200px 0px' },
+        );
+        observer.observe(node);
+      }
+    }
 
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [deferUntilVisible, isVisible]);
+    return () => {
+      cancelled = true;
+      if (idleId != null && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+      observer?.disconnect();
+    };
+  }, [deferUntilVisible, idleTimeoutMs, isVisible, mountOnIdle]);
 
   return (
     <div
