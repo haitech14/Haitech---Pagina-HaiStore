@@ -8,11 +8,96 @@ import {
   preloadQuotePdfAssets,
   type QuoteClientData,
 } from '@/lib/generate-product-quote-pdf';
+import type { HaitechClientFormValues } from '@/lib/haitech-client-schema';
 import { usdToPen } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 import type { CartConfigurationLine, Product } from '@/types/product';
 import type { ProductHeroSpecBullet } from '@/types/product-detail';
 import type { WhatsAppContact } from '@/lib/whatsapp-contact';
+import { parseCompanyOrRucForStorage } from '@/lib/whatsapp-contact';
+
+export interface ProductQuoteFormValues {
+  ruc: string;
+  razonSocial: string;
+  atencion: string;
+  celular: string;
+  direccion: string;
+  ciudad: string;
+}
+
+export const EMPTY_PRODUCT_QUOTE_FORM: ProductQuoteFormValues = {
+  ruc: '',
+  razonSocial: '',
+  atencion: '',
+  celular: '',
+  direccion: '',
+  ciudad: '',
+};
+
+export function productQuoteFormFromCheckoutClient(
+  client: Partial<HaitechClientFormValues> | null | undefined,
+): ProductQuoteFormValues {
+  if (!client) return { ...EMPTY_PRODUCT_QUOTE_FORM };
+
+  return {
+    ruc: client.rucDni?.trim() ?? '',
+    razonSocial: client.nombre?.trim() ?? '',
+    atencion: client.nombreContacto?.trim() ?? '',
+    celular: client.telefono?.trim() ?? '',
+    direccion: client.direccion?.trim() ?? '',
+    ciudad: client.ciudad?.trim() ?? '',
+  };
+}
+
+export function isCompleteProductQuoteForm(
+  form: Partial<ProductQuoteFormValues> | null | undefined,
+): form is ProductQuoteFormValues {
+  return Boolean(
+    form?.ruc?.trim() &&
+      form?.razonSocial?.trim() &&
+      form?.atencion?.trim() &&
+      form?.celular?.trim() &&
+      form?.direccion?.trim() &&
+      form?.ciudad?.trim(),
+  );
+}
+
+export function quoteFormToQuoteClient(form: ProductQuoteFormValues): QuoteClientData {
+  return {
+    ruc: form.ruc.trim(),
+    razonSocial: form.razonSocial.trim(),
+    atencion: form.atencion.trim(),
+    celular: form.celular.trim(),
+    direccion: form.direccion.trim(),
+    ciudad: form.ciudad.trim(),
+  };
+}
+
+export function productQuoteFormFromWhatsAppContact(contact: WhatsAppContact): ProductQuoteFormValues {
+  const parsed = parseCompanyOrRucForStorage(contact.companyOrRuc);
+  const razonSocial = parsed.companyName ?? contact.companyOrRuc.trim();
+  return {
+    ruc: parsed.taxId ?? '',
+    razonSocial,
+    atencion: contact.name.trim(),
+    celular: '',
+    direccion: '',
+    ciudad: contact.city.trim(),
+  };
+}
+
+export function whatsAppContactFromProductQuoteForm(form: ProductQuoteFormValues): WhatsAppContact {
+  const ruc = form.ruc.trim();
+  const razonSocial = form.razonSocial.trim();
+  const companyOrRuc =
+    ruc && razonSocial ? `${ruc} · ${razonSocial}` : ruc || razonSocial;
+
+  return {
+    name: form.atencion.trim(),
+    companyOrRuc,
+    city: form.ciudad.trim(),
+  };
+}
 
 export interface ProductQuoteContext {
   product: Product;
@@ -39,6 +124,7 @@ export function contactToQuoteClient(contact: WhatsAppContact): QuoteClientData 
       ruc: digitsOnly,
       atencion: contact.name.trim(),
       celular: '—',
+      direccion: contact.city.trim(),
       ciudad: contact.city.trim(),
     };
   }
@@ -48,12 +134,27 @@ export function contactToQuoteClient(contact: WhatsAppContact): QuoteClientData 
     ruc: digitsOnly.length >= 8 && digitsOnly.length <= 11 ? digitsOnly : 'S/D',
     atencion: contact.name.trim(),
     celular: '—',
+    direccion: contact.city.trim(),
     ciudad: contact.city.trim(),
   };
 }
 
-export async function generateProductQuoteFromContact(
-  contact: WhatsAppContact,
+export async function generateProductQuoteFromForm(
+  form: ProductQuoteFormValues,
+  context: ProductQuoteContext,
+  companySettings: CompanySettings = DEFAULT_COMPANY_SETTINGS,
+  registerProductQuote?: (payload: ReturnType<typeof buildProformaPayloadFromProductQuote>) => Promise<unknown>,
+): Promise<QuotePdfPreview> {
+  return generateProductQuoteFromClient(
+    quoteFormToQuoteClient(form),
+    context,
+    companySettings,
+    registerProductQuote,
+  );
+}
+
+export async function generateProductQuoteFromClient(
+  client: QuoteClientData,
   context: ProductQuoteContext,
   companySettings: CompanySettings = DEFAULT_COMPANY_SETTINGS,
   registerProductQuote?: (payload: ReturnType<typeof buildProformaPayloadFromProductQuote>) => Promise<unknown>,
@@ -73,8 +174,6 @@ export async function generateProductQuoteFromContact(
   );
 
   await preloadQuotePdfAssets([context.product.image_url]);
-
-  const client = contactToQuoteClient(contact);
 
   let technicalSheet = null;
   try {
@@ -126,4 +225,18 @@ export async function generateProductQuoteFromContact(
   }
 
   return preview;
+}
+
+export async function generateProductQuoteFromContact(
+  contact: WhatsAppContact,
+  context: ProductQuoteContext,
+  companySettings: CompanySettings = DEFAULT_COMPANY_SETTINGS,
+  registerProductQuote?: (payload: ReturnType<typeof buildProformaPayloadFromProductQuote>) => Promise<unknown>,
+): Promise<QuotePdfPreview> {
+  return generateProductQuoteFromClient(
+    contactToQuoteClient(contact),
+    context,
+    companySettings,
+    registerProductQuote,
+  );
 }

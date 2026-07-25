@@ -15,7 +15,7 @@ const DEFAULT_SETTINGS = {
   businessDescription:
     'Venta y alquiler de equipos de impresión, repuestos, tóner y servicio técnico especializado.',
   ruc: '20612146561',
-  address: 'Av. Petit Thouars Nro. — LINCE - LIMA - LIMA',
+  address: 'Av. Petit Thouars 1935 - Lince, Lima - Perú',
   city: 'Lima',
   phone: '+51 915 149 290',
   email: 'ventas@haitech.com',

@@ -77,6 +77,7 @@ export function ProductRentalQuoteDialog({
       ruc: parsed.data.rucDni,
       atencion: parsed.data.nombreContacto,
       celular: parsed.data.telefono,
+      direccion: parsed.data.direccion,
       ciudad: parsed.data.ciudad,
     };
 

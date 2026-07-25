@@ -119,6 +119,7 @@ export function ProductEquipmentRentalQuoteDialog({
               ruc: values.ruc,
               atencion: values.atencion,
               celular: values.celular === '—' ? '000000000' : values.celular,
+              direccion: values.direccion,
               ciudad: values.ciudad,
             },
             quoteLines.map((line, index) => ({

@@ -12,6 +12,7 @@ import {
   User,
 } from 'lucide-react';
 
+import { AccountQuoteProfilePanel } from '@/components/account/account-quote-profile-panel';
 import { AccountSidebar, type AccountTab } from '@/components/account/account-sidebar';
 import { AccountPackingListPanel } from '@/components/account/account-packing-list-panel';
 import { AccountPriceListPanel } from '@/components/account/account-price-list-panel';
@@ -176,7 +177,7 @@ export function AccountPage() {
               <div className="grid gap-4 lg:grid-cols-3">
                 <article className="rounded-xl border bg-card p-5 lg:col-span-2">
                   <h2 className="mb-4 text-lg font-bold text-foreground">Mi Perfil</h2>
-                  <dl className="grid gap-4 sm:grid-cols-2">
+                  <dl className="mb-6 grid gap-4 sm:grid-cols-2">
                     <div className="rounded-lg border bg-background p-4">
                       <dt className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
                         Nombre
@@ -208,6 +209,11 @@ export function AccountPage() {
                       </dd>
                     </div>
                   </dl>
+
+                  <div className="border-t pt-6">
+                    <h3 className="mb-4 text-base font-bold text-foreground">Datos para cotizaciones</h3>
+                    <AccountQuoteProfilePanel />
+                  </div>
                 </article>
 
                 <aside className="rounded-xl border bg-card p-5">

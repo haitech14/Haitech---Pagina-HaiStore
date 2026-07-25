@@ -212,6 +212,85 @@ customersRouter.patch('/me', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: 'Inicia sesión con una cuenta registrada para guardar tus datos' });
     }
 
+    const quoteProfile = req.body?.quoteProfile;
+    if (quoteProfile && typeof quoteProfile === 'object') {
+      const taxId = trimOrNull(quoteProfile.ruc);
+      const companyName = trimOrNull(quoteProfile.razonSocial);
+      const nombreContacto = trimOrNull(quoteProfile.atencion);
+      const phone = trimOrNull(quoteProfile.celular);
+      const direccion = trimOrNull(quoteProfile.direccion);
+      const ciudad = trimOrNull(quoteProfile.ciudad);
+
+      if (!taxId || !companyName || !nombreContacto || !phone || !direccion || !ciudad) {
+        return res.status(400).json({
+          error: 'RUC, razón social, nombre, celular, dirección y ciudad son obligatorios',
+        });
+      }
+
+      const companyOrRuc = `${taxId} · ${companyName}`;
+      const billing = { city: ciudad, ciudad, address: direccion, direccion };
+
+      const { data: existing, error: fetchError } = await supabase
+        .from('store_customers')
+        .select('id, default_billing')
+        .eq('profile_id', req.user.id)
+        .maybeSingle();
+
+      if (fetchError) {
+        console.error('[customers] me quoteProfile fetch:', fetchError);
+        return res.status(500).json({ error: 'No se pudo actualizar el perfil de cotización' });
+      }
+
+      const payload = {
+        full_name: nombreContacto,
+        company_name: companyName,
+        tax_id: taxId,
+        phone,
+        nombre_contacto: nombreContacto,
+        direccion,
+        ciudad,
+        default_billing: billing,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (existing?.id) {
+        const { error: updateError } = await supabase
+          .from('store_customers')
+          .update(payload)
+          .eq('id', existing.id);
+        if (updateError) {
+          console.error('[customers] me quoteProfile patch:', updateError);
+          return res.status(500).json({ error: 'No se pudo guardar el perfil de cotización' });
+        }
+      } else {
+        const { error: insertError } = await supabase.from('store_customers').insert({
+          profile_id: req.user.id,
+          email: req.user.email,
+          ...payload,
+        });
+        if (insertError) {
+          console.error('[customers] me quoteProfile insert:', insertError);
+          return res.status(500).json({ error: 'No se pudo crear el perfil de cotización' });
+        }
+      }
+
+      await supabase.from('profiles').update({ full_name: nombreContacto }).eq('id', req.user.id);
+
+      return res.json({
+        contact: { name: nombreContacto, companyOrRuc, city: ciudad, source: 'account' },
+        checkoutClient: {
+          storeCustomerId: existing?.id ?? null,
+          nombre: companyName,
+          nombreContacto,
+          rucDni: taxId,
+          telefono: phone,
+          direccion,
+          ciudad,
+          email: req.user.email,
+        },
+      });
+    }
+
     const name = trimOrNull(req.body?.name);
     const companyOrRuc = trimOrNull(req.body?.companyOrRuc);
     const city = trimOrNull(req.body?.city);

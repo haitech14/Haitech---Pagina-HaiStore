@@ -1,7 +1,23 @@
 /** Quita extensión de imagen para construir rutas de variantes WebP. */
+const RESPONSIVE_WIDTH_SUFFIX_WITHOUT_EXT = /-(256|512|768|1024|1280|1920)$/i;
+
 export function imageBasePath(imagePath: string): string {
   const path = imagePath.split('?')[0].split('#')[0];
-  return path.replace(/\.(png|jpe?g|webp|avif)$/i, '');
+  const withoutExt = path.replace(/\.(png|jpe?g|webp|avif)$/i, '');
+  if (
+    withoutExt.startsWith('/products/') &&
+    RESPONSIVE_WIDTH_SUFFIX_WITHOUT_EXT.test(withoutExt)
+  ) {
+    return withoutExt.replace(RESPONSIVE_WIDTH_SUFFIX_WITHOUT_EXT, '');
+  }
+  return withoutExt;
+}
+
+/** URL canónica de la imagen principal (máxima calidad disponible en build). */
+export function productImageMasterUrl(imagePath: string): string {
+  const base = imageBasePath(imagePath);
+  const q = imageCacheQuery(imagePath);
+  return `${base}.webp${q}`;
 }
 
 /** Variantes WebP del hero banner (fiestaspatriasbanner-768.webp, etc.). */
@@ -95,7 +111,7 @@ export function productDetailThumbnailSources(imagePath: string) {
   const q = imageCacheQuery(imagePath);
   return {
     webpSrcSet: `${base}-256.webp${q} 256w, ${base}-512.webp${q} 512w`,
-    fallbackSrc: imagePath,
+    fallbackSrc: productImageMasterUrl(imagePath),
     sizes: '80px',
   };
 }
@@ -103,10 +119,23 @@ export function productDetailThumbnailSources(imagePath: string) {
 export function productDetailMainImageSources(imagePath: string) {
   const base = imageBasePath(imagePath);
   const q = imageCacheQuery(imagePath);
+  const master = productImageMasterUrl(imagePath);
   return {
-    webpSrcSet: `${base}-512.webp${q} 512w, ${base}-1024.webp${q} 1024w, ${base}.webp${q} ${1920}w`,
-    fallbackSrc: imagePath,
-    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 720px',
+    webpSrcSet: `${base}-1024.webp${q} 1024w, ${master} 2048w`,
+    fallbackSrc: master,
+    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 55vw, 680px',
+  };
+}
+
+/** Vista rápida: contenedor más estrecho, misma prioridad de calidad que ficha. */
+export function productQuickViewMainImageSources(imagePath: string) {
+  const base = imageBasePath(imagePath);
+  const q = imageCacheQuery(imagePath);
+  const master = productImageMasterUrl(imagePath);
+  return {
+    webpSrcSet: `${base}-1024.webp${q} 1024w, ${master} 2048w`,
+    fallbackSrc: master,
+    sizes: '(max-width: 1024px) 90vw, 480px',
   };
 }
 

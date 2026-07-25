@@ -33,8 +33,8 @@ export function ProductQuickViewFeaturePills({
 function FeaturePill({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
   return (
     <li className="shrink-0">
-      <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2.5 py-1.5 text-xs font-medium text-foreground">
-        <Icon className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
+      <span className="inline-flex items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm font-medium text-neutral-900">
+        <Icon className="size-4 shrink-0 text-red-600" strokeWidth={1.75} aria-hidden="true" />
         {label}
       </span>
     </li>

@@ -40,7 +40,7 @@ export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
   businessDescription:
     'Venta y alquiler de equipos de impresión, repuestos, tóner y servicio técnico especializado.',
   ruc: '20612146561',
-  address: 'Av. Petit Thouars 1931 - Lince',
+  address: 'Av. Petit Thouars 1935 - Lince, Lima - Perú',
   city: 'Lima',
   phone: '926 224 243 – 965 805 873',
   email: 'ventas@nbntecnologia.com',

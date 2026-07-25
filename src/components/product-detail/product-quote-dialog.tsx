@@ -15,12 +15,14 @@ import { Label } from '@/components/ui/label';
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
-import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
+import { useQuoteProfile } from '@/hooks/use-quote-profile';
 import {
-  generateProductQuoteFromContact,
+  EMPTY_PRODUCT_QUOTE_FORM,
+  generateProductQuoteFromForm,
+  isCompleteProductQuoteForm,
   type ProductQuoteContext,
+  type ProductQuoteFormValues,
 } from '@/lib/generate-product-quote-from-contact';
-import { isCompleteWhatsAppContact, type WhatsAppContact } from '@/lib/whatsapp-contact';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { CartConfigurationLine, Product } from '@/types/product';
 import type { ProductHeroSpecBullet } from '@/types/product-detail';
@@ -40,6 +42,8 @@ interface ProductQuoteDialogProps {
   onGenerated: (preview: QuotePdfPreview) => void;
 }
 
+const EMPTY_FORM = EMPTY_PRODUCT_QUOTE_FORM;
+
 export function ProductQuoteDialog({
   open,
   onOpenChange,
@@ -56,10 +60,8 @@ export function ProductQuoteDialog({
 }: ProductQuoteDialogProps) {
   const { data: companySettings } = useCompanySettings();
   const { registerProductQuote } = useProformaMutations();
-  const { contact, saveContact } = useWhatsAppContact();
-  const [name, setName] = useState('');
-  const [companyOrRuc, setCompanyOrRuc] = useState('');
-  const [city, setCity] = useState('');
+  const { profile, saveQuoteProfile, isSaving: isSavingProfile } = useQuoteProfile();
+  const [form, setForm] = useState<ProductQuoteFormValues>(EMPTY_FORM);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -68,33 +70,29 @@ export function ProductQuoteDialog({
 
   useEffect(() => {
     if (!open) return;
-    setName(contact?.name?.trim() ?? '');
-    setCompanyOrRuc(contact?.companyOrRuc?.trim() ?? '');
-    setCity(contact?.city?.trim() ?? '');
+    setForm(profile);
     setSubmitError(null);
     void import('@/lib/generate-product-quote-pdf').then(({ preloadQuotePdfAssets }) =>
       preloadQuotePdfAssets([product.image_url]),
     );
-  }, [open, contact?.name, contact?.companyOrRuc, contact?.city, product.image_url]);
+  }, [open, profile, product.image_url]);
+
+  const updateField = <K extends keyof ProductQuoteFormValues>(key: K, value: string) => {
+    setForm((current) => ({ ...current, [key]: value }));
+  };
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitError(null);
 
-    const nextContact: WhatsAppContact = {
-      name: name.trim(),
-      companyOrRuc: companyOrRuc.trim(),
-      city: city.trim(),
-    };
-
-    if (!isCompleteWhatsAppContact(nextContact)) {
-      setSubmitError('Completa nombre, RUC/empresa y ciudad.');
+    if (!isCompleteProductQuoteForm(form)) {
+      setSubmitError('Completa RUC, razón social, nombre, celular, dirección y ciudad.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await saveContact(nextContact);
+      await saveQuoteProfile(form);
 
       const context: ProductQuoteContext = {
         product,
@@ -108,8 +106,8 @@ export function ProductQuoteDialog({
         ...(equipmentConfiguration ? { equipmentConfiguration } : {}),
       };
 
-      const preview = await generateProductQuoteFromContact(
-        nextContact,
+      const preview = await generateProductQuoteFromForm(
+        form,
         context,
         companySettings ?? DEFAULT_COMPANY_SETTINGS,
         (payload) => registerProductQuote.mutateAsync(payload),
@@ -145,34 +143,69 @@ export function ProductQuoteDialog({
 
         <form onSubmit={(event) => void onSubmit(event)} className="grid gap-4" noValidate>
           <div className="space-y-2">
-            <Label htmlFor="quote-light-name">Nombre</Label>
+            <Label htmlFor="quote-ruc">RUC</Label>
             <Input
-              id="quote-light-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
+              id="quote-ruc"
+              value={form.ruc}
+              onChange={(event) => updateField('ruc', event.target.value)}
+              autoComplete="off"
+              inputMode="numeric"
+              placeholder="Ej. 20123456789"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="quote-razon-social">Razón Social</Label>
+            <Input
+              id="quote-razon-social"
+              value={form.razonSocial}
+              onChange={(event) => updateField('razonSocial', event.target.value)}
+              autoComplete="organization"
+              placeholder="Ej. Mi Empresa SAC"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="quote-atencion">Nombre (Atención)</Label>
+            <Input
+              id="quote-atencion"
+              value={form.atencion}
+              onChange={(event) => updateField('atencion', event.target.value)}
               autoComplete="name"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="quote-light-company">RUC/Empresa</Label>
+            <Label htmlFor="quote-direccion">Dirección</Label>
             <Input
-              id="quote-light-company"
-              value={companyOrRuc}
-              onChange={(event) => setCompanyOrRuc(event.target.value)}
-              autoComplete="organization"
-              placeholder="Ej. 20123456789 o Mi Empresa SAC"
+              id="quote-direccion"
+              value={form.direccion}
+              onChange={(event) => updateField('direccion', event.target.value)}
+              autoComplete="street-address"
+              placeholder="Ej. Av. Petit Thouars 123"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="quote-light-city">Ciudad</Label>
+            <Label htmlFor="quote-ciudad">Ciudad</Label>
             <Input
-              id="quote-light-city"
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
+              id="quote-ciudad"
+              value={form.ciudad}
+              onChange={(event) => updateField('ciudad', event.target.value)}
               autoComplete="address-level2"
               placeholder="Ej. Lima"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="quote-celular">Celular</Label>
+            <Input
+              id="quote-celular"
+              value={form.celular}
+              onChange={(event) => updateField('celular', event.target.value)}
+              autoComplete="tel"
+              inputMode="tel"
+              placeholder="Ej. 999 888 777"
               required
             />
           </div>
@@ -185,7 +218,7 @@ export function ProductQuoteDialog({
 
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isSavingProfile}
             className="gap-2 bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600"
           >
             <FileDown className="size-4" aria-hidden="true" />

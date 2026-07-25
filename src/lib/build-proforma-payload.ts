@@ -44,6 +44,7 @@ export function buildProformaPayloadFromProductQuote(
     ruc: string;
     atencion: string;
     celular: string;
+    direccion: string;
     ciudad: string;
   },
   lines: Array<{
@@ -83,7 +84,7 @@ export function buildProformaPayloadFromProductQuote(
       atencion: client.atencion.trim(),
       celular: client.celular.trim(),
       ciudad: client.ciudad.trim(),
-      direccion: client.ciudad.trim(),
+      direccion: client.direccion.trim(),
     },
     lineItems,
     currency: 'PEN',

@@ -44,18 +44,18 @@ function renderSpecItem(bullet: ProductHeroSpecBullet, index: number) {
   if (!copy) return null;
 
   return (
-    <li key={key} className="flex flex-row items-center gap-2">
+    <li key={key} className="flex flex-row items-center gap-2.5">
       <IconComponent
-        className="size-3.5 shrink-0 text-red-600"
+        className="size-4 shrink-0 text-red-600"
         strokeWidth={2}
         aria-hidden="true"
       />
-      <p className="min-w-0 text-pretty text-[13px] leading-snug">
-        <span className="text-[#0f1f3d]">{copy.label}:</span>
+      <p className="min-w-0 text-pretty text-sm leading-snug text-neutral-900">
+        <span className="font-semibold">{copy.label}:</span>
         {copy.description ? (
           <>
             {' '}
-            <span className="text-xs text-neutral-500">{copy.description}</span>
+            <span className="font-normal">{copy.description}</span>
           </>
         ) : null}
       </p>
@@ -71,7 +71,7 @@ export function ProductDetailHeroSpecs({ bullets, className }: ProductDetailHero
       className={cn('rounded-lg bg-white', className)}
       aria-label="Características destacadas"
     >
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-col gap-1.5">
         {bullets.map((bullet, index) => renderSpecItem(bullet, index))}
       </ul>
     </section>

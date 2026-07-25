@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { ProductGalleryResponsiveImage } from '@/components/product/product-gallery-responsive-image';
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
 import { cn } from '@/lib/utils';
 import type { ProductGalleryItem } from '@/types/product-detail';
@@ -61,10 +62,12 @@ export function ProductQuickViewGallery({
           src={active.src}
           className="flex max-h-56 w-full items-center justify-center lg:max-h-[min(52vh,420px)]"
         >
-          <img
+          <ProductGalleryResponsiveImage
             src={active.src}
             alt={active.item.type === 'image' ? active.item.alt ?? productName : productName}
             className="max-h-56 w-full object-contain drop-shadow-md lg:max-h-[min(52vh,420px)]"
+            loading="eager"
+            variant="quickView"
           />
         </ProductImageWatermarkOverlay>
       </div>

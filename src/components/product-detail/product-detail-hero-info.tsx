@@ -207,11 +207,11 @@ export function ProductDetailHeroInfo({
       </h1>
 
       {heroMetaSegments.length > 0 ? (
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-sm text-neutral-900">
           {heroMetaSegments.map((segment, index) => (
             <span key={segment.label}>
-              {index > 0 ? <span className="mx-1.5 text-neutral-300">·</span> : null}
-              <span className="font-medium text-neutral-600">{segment.label}:</span> {segment.value}
+              {index > 0 ? <span className="mx-1.5 text-neutral-400">·</span> : null}
+              <span className="font-semibold">{segment.label}:</span> {segment.value}
             </span>
           ))}
         </p>

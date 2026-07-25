@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
 import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
+import { ProductGalleryResponsiveImage } from '@/components/product/product-gallery-responsive-image';
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
 import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { inferColor } from '@/lib/category-catalog-filters';
@@ -16,11 +17,6 @@ import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { youtubeThumbnailUrl } from '@/lib/product-media';
 import { productPath } from '@/lib/product-path';
-import {
-  productDetailMainImageSources,
-  productDetailThumbnailSources,
-  supportsResponsiveProductImage,
-} from '@/lib/responsive-image';
 import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
 import { extractProductModel } from '@/lib/seo';
 import { cn } from '@/lib/utils';
@@ -62,81 +58,6 @@ function getThumbnailSrc(item: ProductGalleryItem): string {
   if (item.type === 'image') return item.src;
   if (item.type === 'video') return item.poster ?? youtubeThumbnailUrl(item.youtubeId);
   return item.poster ?? item.src;
-}
-
-function GalleryResponsiveImage({
-  src,
-  alt,
-  className,
-  loading = 'lazy',
-  sizes,
-  variant = 'main',
-  onError,
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-  loading?: 'lazy' | 'eager';
-  sizes?: string;
-  variant?: 'main' | 'thumb';
-  onError?: () => void;
-}) {
-  const [forcePlain, setForcePlain] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const responsive = supportsResponsiveProductImage(src) && !forcePlain;
-  const sources = responsive
-    ? variant === 'thumb'
-      ? productDetailThumbnailSources(src)
-      : productDetailMainImageSources(src)
-    : null;
-
-  useEffect(() => {
-    setForcePlain(false);
-    setLoaded(false);
-  }, [src]);
-
-  const handleError = () => {
-    if (responsive) {
-      setForcePlain(true);
-      return;
-    }
-    onError?.();
-  };
-
-  const imageClass = cn(
-    className,
-    'transition-opacity duration-300',
-    loaded ? 'opacity-100' : 'opacity-0',
-  );
-
-  if (sources) {
-    return (
-      <picture className="flex size-full items-center justify-center bg-muted/40">
-        <source type="image/webp" srcSet={sources.webpSrcSet} sizes={sizes ?? sources.sizes} />
-        <img
-          src={sources.fallbackSrc}
-          alt={alt}
-          className={imageClass}
-          loading={loading}
-          decoding="async"
-          onLoad={() => setLoaded(true)}
-          onError={handleError}
-        />
-      </picture>
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className={cn(imageClass, 'bg-muted/40')}
-      loading={loading}
-      decoding="async"
-      onLoad={() => setLoaded(true)}
-      onError={handleError}
-    />
-  );
 }
 
 function GalleryMainMedia({
@@ -189,7 +110,7 @@ function GalleryMainMedia({
 
   return (
     <ProductImageWatermarkOverlay src={item.src} className="flex size-full items-center justify-center">
-      <GalleryResponsiveImage
+      <ProductGalleryResponsiveImage
         src={item.src}
         alt={resolveProductImageAlt(productName, product, imageIndex, item.alt)}
         className="max-h-[min(72vh,680px)] w-full max-w-full object-contain object-center"
@@ -239,7 +160,7 @@ function GalleryThumbnailButton({
           className="size-full"
         >
           {item.type === 'image' ? (
-            <GalleryResponsiveImage
+            <ProductGalleryResponsiveImage
               src={item.src}
               alt=""
               className="size-full object-cover"
@@ -480,7 +401,7 @@ export function ProductDetailGallery({
           <DialogDescription className="sr-only">Vista ampliada del producto</DialogDescription>
           {activeImage ? (
             <ProductImageWatermarkOverlay src={activeImage.src}>
-              <GalleryResponsiveImage
+              <ProductGalleryResponsiveImage
                 src={activeImage.src}
                 alt={activeImage.alt}
                 className="mx-auto max-h-[85vh] w-full object-contain"

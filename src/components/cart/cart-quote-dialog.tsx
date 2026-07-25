@@ -108,6 +108,7 @@ export function CartQuoteDialog({ open, onOpenChange, items }: CartQuoteDialogPr
       ruc: quoteClient.ruc,
       atencion: quoteClient.atencion,
       celular: customer.celular,
+      direccion: quoteClient.direccion,
       ciudad: quoteClient.ciudad,
     };
 

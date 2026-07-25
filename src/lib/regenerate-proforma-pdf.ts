@@ -55,6 +55,7 @@ export async function regenerateProformaPdf(
         ruc: proforma.customer.documento,
         atencion: proforma.customer.atencion,
         celular: proforma.customer.celular,
+        direccion: proforma.customer.direccion ?? proforma.customer.ciudad ?? 'Lima',
         ciudad: proforma.customer.ciudad ?? proforma.customer.direccion ?? 'Lima',
       },
       quoteLines,
