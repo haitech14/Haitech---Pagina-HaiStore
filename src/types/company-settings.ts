@@ -68,7 +68,7 @@ export const DEFAULT_COMPANY_SETTINGS: CompanySettings = {
   ].join('\n'),
   quoteValidityDays: 3,
   primaryColor: '#dc2626',
-  usdToPenExchangeRate: 3.7,
-  usdToPenPurchaseExchangeRate: 3.7,
+  usdToPenExchangeRate: 3.42,
+  usdToPenPurchaseExchangeRate: 3.42,
   bulkDiscountTiers: DEFAULT_BULK_DISCOUNT_TIERS,
 };

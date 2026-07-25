@@ -29,7 +29,7 @@ export const FOOTER_VALUE_PROPS: FooterValueProp[] = [
 
 /** Enlaces esenciales alineados con Productos, Servicios y Empresa del menú principal. */
 export const FOOTER_NAV_LINKS: FooterLink[] = [
-  { label: 'Fotocopiadoras', href: categoryLandingPath('multifuncionales') },
+  { label: 'Multifuncionales', href: categoryLandingPath('multifuncionales') },
   { label: 'Impresoras', href: categoryLandingPath('impresoras') },
   { label: 'Tóner y tintas', href: categoryLandingPath('toner-suministros') },
   { label: 'Repuestos', href: categoryLandingPath('repuestos') },

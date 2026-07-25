@@ -10,6 +10,7 @@ import { useDisplayCurrency } from '@/context/display-currency-context';
 import {
   useCompanySettings,
   useCompanySettingsMutation,
+  useSyncSbsExchangeRateMutation,
 } from '@/hooks/use-company-settings';
 import { cn } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
@@ -293,10 +294,12 @@ function AdminExchangeRateEditor({
 }) {
   const { data: settings } = useCompanySettings();
   const mutation = useCompanySettingsMutation();
+  const syncSbs = useSyncSbsExchangeRateMutation();
   const [open, setOpen] = useState(false);
   const [compra, setCompra] = useState('');
   const [venta, setVenta] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const isBusy = mutation.isPending || syncSbs.isPending;
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
@@ -330,6 +333,18 @@ function AdminExchangeRateEditor({
         onError: () => setError('No se pudo guardar. Inténtalo de nuevo.'),
       },
     );
+  };
+
+  const handleSyncSbs = () => {
+    setError(null);
+    syncSbs.mutate(undefined, {
+      onSuccess: ({ settings: next, sbs }) => {
+        setCompra(String(next.usdToPenPurchaseExchangeRate ?? sbs.compra));
+        setVenta(String(next.usdToPenExchangeRate ?? sbs.venta));
+        setOpen(false);
+      },
+      onError: () => setError('No se pudo sincronizar con SBS. Inténtalo de nuevo.'),
+    });
   };
 
   return (
@@ -417,13 +432,24 @@ function AdminExchangeRateEditor({
               {error}
             </p>
           ) : null}
-          <Button
-            type="submit"
-            disabled={mutation.isPending}
-            className="h-9 w-full bg-red-600 text-sm font-semibold hover:bg-red-500"
-          >
-            {mutation.isPending ? 'Guardando…' : 'Guardar'}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isBusy || !settings}
+              className="h-9 w-full text-sm font-semibold"
+              onClick={handleSyncSbs}
+            >
+              {syncSbs.isPending ? 'Sincronizando SBS…' : 'Sincronizar SBS'}
+            </Button>
+            <Button
+              type="submit"
+              disabled={isBusy}
+              className="h-9 w-full bg-red-600 text-sm font-semibold hover:bg-red-500"
+            >
+              {mutation.isPending ? 'Guardando…' : 'Guardar'}
+            </Button>
+          </div>
         </form>
       </PopoverContent>
     </Popover>

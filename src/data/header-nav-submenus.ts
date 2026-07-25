@@ -71,7 +71,7 @@ export const PRODUCTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
     pathname.startsWith('/tienda') ||
     pathname.startsWith('/producto'),
   items: [
-    { label: 'Fotocopiadoras', href: categoryLandingPath('multifuncionales') },
+    { label: 'Multifuncionales', href: categoryLandingPath('multifuncionales') },
     { label: 'Impresoras', href: categoryLandingPath('impresoras') },
     { label: 'Formato ancho', href: categoryLandingPath('formato-ancho') },
     { label: 'Accesorios', href: categoryLandingPath('accesorios') },

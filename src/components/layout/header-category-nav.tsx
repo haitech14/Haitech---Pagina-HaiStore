@@ -60,7 +60,7 @@ type HeaderCategoryNavProps = {
 /**
  * Cabecera tienda (desktop):
  * Fila 1 — Logo | Buscador | Atención | Cuenta | Carrito
- * Fila 2 (blanca) — Categorías | Fotocopiadoras | Impresoras | … | Servicio técnico
+ * Fila 2 (blanca) — Categorías | Multifuncionales | Impresoras | … | Servicio técnico
  */
 export function HeaderCategoryNav({
   cartCount = 0,
@@ -75,15 +75,12 @@ export function HeaderCategoryNav({
     <div className={forumMode ? MAIN_NAV_LIGHT_BAR_CLASS : 'hidden overflow-visible lg:block'}>
       {!forumMode ? (
         <>
-          <div className="container grid h-16 grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 overflow-visible py-2.5 xl:gap-4">
+          <div className="container grid h-16 grid-cols-[minmax(0,12.5rem)_minmax(0,1fr)_minmax(0,auto)] items-center gap-3 overflow-visible py-2.5 xl:grid-cols-[minmax(0,13.5rem)_minmax(0,1fr)_minmax(0,auto)] xl:gap-4">
             <div className="flex min-w-0 items-center justify-start">
               <HeaderBrandLogo />
             </div>
 
-            <div
-              id="header-store-search"
-              className="mx-auto w-full max-w-[28rem] xl:max-w-[34rem] 2xl:max-w-[40rem]"
-            >
+            <div id="header-store-search" className="min-w-0 w-full">
               <DeferredSiteSearchForm
                 className="w-full"
                 variant="segmented"
@@ -105,14 +102,14 @@ export function HeaderCategoryNav({
             aria-label="Navegación de productos"
             className="overflow-visible border-t border-black/10 bg-white"
           >
-            <div className="container flex h-10 items-stretch justify-start gap-4 overflow-visible">
+            <div className="container flex h-9 items-stretch justify-start gap-3 overflow-visible xl:gap-4">
               <HeaderMainMenu
                 linkClassName={mainNavLinkClass}
                 menuVariant="light"
                 showIcons={false}
                 menuDensity="default"
                 showCategories
-                className="h-full justify-start gap-3 xl:gap-5"
+                className="h-full justify-start gap-2.5 xl:gap-4"
               />
             </div>
           </nav>

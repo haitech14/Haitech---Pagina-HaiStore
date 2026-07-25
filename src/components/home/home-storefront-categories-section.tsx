@@ -49,8 +49,8 @@ function CategoryCard({
 
       <span
         className={cn(
-          'line-clamp-2 px-1 text-center text-[0.6875rem] font-extrabold uppercase tracking-[0.04em] text-[#111111]',
-          'sm:text-sm lg:text-base',
+          'line-clamp-2 px-1 text-center text-[0.625rem] font-extrabold uppercase tracking-[0.04em] text-[#111111]',
+          'sm:text-xs lg:text-sm',
         )}
       >
         {category.label}

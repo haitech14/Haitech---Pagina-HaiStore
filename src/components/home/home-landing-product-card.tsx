@@ -273,11 +273,9 @@ export function HomeLandingProductCard({
           className="mt-2.5"
         />
 
-        <div className="mt-3 h-px w-full bg-[#eceff4]" aria-hidden="true" />
-
-        <div className="mt-3">
+        <div className="mt-2">
           {showPriceOnRequest ? (
-            <p className="text-xs font-semibold leading-tight text-[#6B7280] sm:text-sm">
+            <p className="text-sm font-semibold leading-tight text-[#6B7280] sm:text-[0.9375rem]">
               {CONSULTAR_PRECIO_LABEL}
             </p>
           ) : (
@@ -290,15 +288,20 @@ export function HomeLandingProductCard({
           )}
         </div>
 
-        <div className="relative z-[2] mt-auto pt-3">
+        <div className="relative z-[2] mt-auto pt-2.5">
           <ProductQuantityAddFooter
             product={cartProduct}
             size="sm"
             addLabel={buyNowLabel}
             revealQuantityOnHover
-            quantityPlacement="above"
+            quantityPlacement="inline"
             quantityClassName="h-10 rounded-lg"
-            addButtonClassName="h-10 min-h-10 max-h-10 min-w-0 flex-1 rounded-lg bg-[#E30613] px-3 text-xs font-semibold text-white shadow-none hover:bg-[#c90511] sm:text-sm"
+            addButtonClassName={cn(
+              'h-10 min-h-10 max-h-10 min-w-0 flex-1 rounded-lg px-3 text-xs font-semibold text-white shadow-none sm:text-sm',
+              outOfStock
+                ? 'bg-[#111111] hover:bg-black'
+                : 'bg-[#E30613] hover:bg-[#c90511]',
+            )}
             endAdornment={
               <ProductWhatsAppButton
                 stopPropagation

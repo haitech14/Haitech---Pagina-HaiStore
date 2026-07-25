@@ -40,7 +40,7 @@ const STORE_HEADER_LINKS: HeaderMainNavLink[] = [
   {
     id: 'fotocopiadoras',
     to: categoryLandingPath('multifuncionales'),
-    label: 'Fotocopiadoras',
+    label: 'Multifuncionales',
     matchActive: ({ pathname }) => pathname.startsWith('/categoria/multifuncionales'),
   },
   {
@@ -85,7 +85,7 @@ const STORE_HEADER_LINKS: HeaderMainNavLink[] = [
 
 /**
  * Menú comercial de la tienda.
- * Orden: Categorías · Fotocopiadoras · Impresoras · Toner · Repuestos · Ofertas · Alquiler · Servicio técnico
+ * Orden: Categorías · Multifuncionales · Impresoras · Toner · Repuestos · Ofertas · Alquiler · Servicio técnico
  */
 export function HeaderMainMenu({
   linkClassName,

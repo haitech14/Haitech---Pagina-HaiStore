@@ -168,9 +168,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           className="mt-2.5 max-md:hidden"
         />
 
-        <div className="mt-2 h-px w-full bg-[#eceff4] md:mt-3" aria-hidden="true" />
-
-        <div className="mt-2 md:mt-3">
+        <div className="mt-1.5 md:mt-2">
           <ProductCardFeaturedPricing
             productId={product.id}
             currentUsd={pricing.currentUsd}
@@ -179,18 +177,20 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           />
         </div>
 
-        <div className="relative z-[2] mt-auto pt-2 md:pt-3">
+        <div className="relative z-[2] mt-auto pt-2 md:pt-2.5">
           <ProductQuantityAddFooter
             product={product}
             size="sm"
             revealQuantityOnHover
-            quantityPlacement="above"
+            quantityPlacement="inline"
             addLabel={buyNowLabel}
             onQuantityChange={setQuantity}
             quantityClassName="h-9 rounded-lg md:h-10"
             addButtonClassName={cn(
-              'h-9 min-h-9 max-h-9 min-w-0 flex-1 rounded-lg bg-[#E30613] px-2 text-[0.6875rem] font-semibold text-white shadow-none hover:bg-[#c90511] md:h-10 md:min-h-10 md:max-h-10 md:px-3 md:text-sm',
-              outOfStock && 'font-semibold',
+              'h-9 min-h-9 max-h-9 min-w-0 flex-1 rounded-lg px-2 text-[0.6875rem] font-semibold text-white shadow-none md:h-10 md:min-h-10 md:max-h-10 md:px-3 md:text-sm',
+              outOfStock
+                ? 'bg-[#111111] hover:bg-black'
+                : 'bg-[#E30613] hover:bg-[#c90511]',
             )}
             endAdornment={
               <ProductWhatsAppButton
@@ -204,7 +204,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
                   category: product.category,
                   brand: product.brand ?? catalogProduct?.brand ?? null,
                 }}
-                className="h-10 w-10 min-h-10 max-h-10 min-w-10 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366]"
+                className="h-9 w-9 min-h-9 max-h-9 min-w-9 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366] md:h-10 md:w-10 md:min-h-10 md:max-h-10 md:min-w-10"
               />
             }
           />

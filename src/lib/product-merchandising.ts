@@ -5,6 +5,9 @@ import {
   IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
   IM600F_ORIGINAL_TONER_PRODUCT_ID,
+  IM_C300F_COMPATIBLE_TONER_IDS,
+  IM_C300F_EQUIPMENT_PRODUCT_ID,
+  IM_C300F_ORIGINAL_TONER_IDS,
   IM_C320F_COMPATIBLE_TONER_IDS,
   IM_C320F_EQUIPMENT_PRODUCT_ID,
   IM_C320F_ORIGINAL_TONER_IDS,
@@ -89,6 +92,13 @@ export function resolveKnownOriginalTonerProductIds(equipment: Product): string[
   }
 
   if (
+    equipment.id === IM_C300F_EQUIPMENT_PRODUCT_ID ||
+    /\bim\s*c\s*300\s*f\b/i.test(equipment.name)
+  ) {
+    return [...IM_C300F_ORIGINAL_TONER_IDS];
+  }
+
+  if (
     equipment.id === MPC407_EQUIPMENT_PRODUCT_ID ||
     /\bmp\s*c\s*407\b/i.test(equipment.name) ||
     /\bmp\s*c\s*306\b/i.test(equipment.name) ||
@@ -139,6 +149,13 @@ export function resolveKnownCompatibleTonerProductIds(equipment: Product): strin
     /\bim\s*c\s*320\s*f\b/i.test(equipment.name)
   ) {
     return [...IM_C320F_COMPATIBLE_TONER_IDS];
+  }
+
+  if (
+    equipment.id === IM_C300F_EQUIPMENT_PRODUCT_ID ||
+    /\bim\s*c\s*300\s*f\b/i.test(equipment.name)
+  ) {
+    return [...IM_C300F_COMPATIBLE_TONER_IDS];
   }
 
   if (

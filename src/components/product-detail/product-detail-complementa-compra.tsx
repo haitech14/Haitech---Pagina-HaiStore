@@ -65,10 +65,16 @@ function resolveCardColor(card: ConfigureTonerCard): string {
   );
 }
 
-function extractTonerYieldLabel(card: ConfigureTonerCard): string | null {
+function extractTonerYieldPagesLabel(card: ConfigureTonerCard): string | null {
   const fromDescription = card.description?.trim();
   if (fromDescription && fromDescription !== '—' && !/^rendimiento según modelo$/i.test(fromDescription)) {
-    if (/\d/.test(fromDescription)) return fromDescription;
+    const pagesMatch = fromDescription.match(/([\d][\d.,]*)/);
+    if (pagesMatch?.[1]) {
+      const pages = Number(pagesMatch[1].replace(/[.,\s]/g, ''));
+      if (Number.isFinite(pages) && pages > 0) {
+        return pages.toLocaleString('es-PE');
+      }
+    }
   }
 
   const raw = `${card.name} ${card.title}`;
@@ -77,7 +83,7 @@ function extractTonerYieldLabel(card: ConfigureTonerCard): string | null {
 
   const pages = Number(match[1].replace(/[.,\s]/g, ''));
   if (!Number.isFinite(pages) || pages <= 0) return null;
-  return `${pages.toLocaleString('es-PE')} pág.`;
+  return pages.toLocaleString('es-PE');
 }
 
 function extractTonerModelHint(card: ConfigureTonerCard): string | null {
@@ -86,32 +92,30 @@ function extractTonerModelHint(card: ConfigureTonerCard): string | null {
   if (!models || models.length === 0) return null;
 
   const unique = [...new Set(models.map((model) => model.replace(/\s+/g, ' ').trim().toUpperCase()))];
-  const shown = unique.slice(0, 3).join(' · ');
-  return unique.length > 3 ? `${shown}…` : shown;
+  return unique[0] ?? null;
 }
 
-function resolveTonerCardLabels(
-  card: ConfigureTonerCard,
-  ui: Pick<ResolvedStorefrontUi, 'tonerOriginalCardTitle' | 'tonerCompatibleCardTitle'>,
-): {
+function resolveTonerCardLabels(card: ConfigureTonerCard): {
   title: string;
-  meta: string | null;
+  code: string | null;
+  yieldLabel: string | null;
 } {
   const color = resolveCardColor(card);
-  const yieldLabel = extractTonerYieldLabel(card);
-  const models = extractTonerModelHint(card);
+  const model = extractTonerModelHint(card);
+  const yieldPages = extractTonerYieldPagesLabel(card);
+  const supplyPrefix =
+    card.supplyType === 'compatible' ? 'Toner Compatible' : 'Toner Original';
 
-  const title =
-    color !== 'Estándar'
-      ? color
-      : card.supplyType === 'compatible'
-        ? ui.tonerCompatibleCardTitle
-        : ui.tonerOriginalCardTitle;
+  const title = [supplyPrefix, model, color !== 'Estándar' ? color : null]
+    .filter(Boolean)
+    .join(' ');
 
-  const metaParts = [yieldLabel, models].filter(Boolean);
   return {
-    title,
-    meta: metaParts.length > 0 ? metaParts.join(' · ') : null,
+    title:
+      title ||
+      formatTonerCardDisplayTitle(card.title?.trim() || card.name?.trim() || supplyPrefix),
+    code: card.code?.trim() || null,
+    yieldLabel: yieldPages ? `Rendimiento al 5%: ${yieldPages} pág.` : null,
   };
 }
 
@@ -239,7 +243,7 @@ function ComplementaTonerCards({
           <ul className="grid grid-cols-1 gap-1.5" aria-label="Tóners disponibles">
             {activeCards.map((card) => {
               const selected = selectedTonerOptionIds.has(card.optionId);
-              const { title, meta } = resolveTonerCardLabels(card, storefrontUi);
+              const { title, code, yieldLabel } = resolveTonerCardLabels(card);
               const color = resolveCardColor(card);
               const swatch = TONER_COLOR_SWATCH[color] ?? TONER_COLOR_SWATCH.Estándar;
               const inputId = `complementa-toner-${card.supplyType}-${card.productId}`;
@@ -278,16 +282,21 @@ function ComplementaTonerCards({
                       />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[0.8125rem] font-semibold leading-tight text-[#0f1f3d]">
+                      <p className="truncate text-xs font-semibold leading-tight text-[#0f1f3d]">
                         {title}
                       </p>
-                      {meta ? (
-                        <p className="mt-0.5 truncate text-[0.6875rem] leading-snug text-neutral-500">
-                          {meta}
+                      {code ? (
+                        <p className="mt-0.5 truncate text-[0.625rem] leading-snug text-neutral-500">
+                          Código: {code}
+                        </p>
+                      ) : null}
+                      {yieldLabel ? (
+                        <p className="mt-0.5 truncate text-[0.625rem] leading-snug text-neutral-500">
+                          {yieldLabel}
                         </p>
                       ) : null}
                     </div>
-                    <p className="shrink-0 text-sm font-bold tabular-nums text-[#0f1f3d]">
+                    <p className="shrink-0 text-[0.6875rem] font-semibold tabular-nums text-[#0f1f3d]">
                       <DualPrice usd={card.prices.public} />
                     </p>
                   </label>
@@ -346,7 +355,7 @@ function ComplementaAccessoryCards({
                       SKU: {code}
                     </p>
                   ) : null}
-                  <p className="mt-0.5 text-xs font-bold text-red-600 sm:text-sm">
+                  <p className="mt-0.5 text-[0.6875rem] font-semibold text-red-600">
                     <DualPrice usd={card.prices.public} />
                   </p>
                 </div>

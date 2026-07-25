@@ -168,10 +168,10 @@ export function AccountPage() {
   return (
     <div className="bg-background">
       <section className="container py-8 sm:py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div className="flex flex-col gap-6">
           <AccountSidebar activeTab={activeTab} onSelectTab={handleSelectTab} />
 
-          <main className="min-w-0 flex-1" id="account-content">
+          <main className="min-w-0" id="account-content">
             {activeTab === 'cuenta' ? (
               <div className="grid gap-4 lg:grid-cols-3">
                 <article className="rounded-xl border bg-card p-5 lg:col-span-2">

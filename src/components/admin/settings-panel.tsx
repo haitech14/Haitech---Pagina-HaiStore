@@ -192,7 +192,10 @@ export function SettingsPanel({ section }: SettingsPanelProps) {
                   inputMode="decimal"
                   value={form.usdToPenExchangeRate}
                   onChange={(event) =>
-                    updateField('usdToPenExchangeRate', Number(event.target.value) || 3.7)
+                    updateField(
+                      'usdToPenExchangeRate',
+                      Number(event.target.value) || DEFAULT_COMPANY_SETTINGS.usdToPenExchangeRate,
+                    )
                   }
                   required
                 />

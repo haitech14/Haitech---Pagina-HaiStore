@@ -958,7 +958,13 @@ export function normalizeProductInput(body, existing, warehouses) {
   const gallery = Array.isArray(body.gallery)
     ? body.gallery.filter((url) => typeof url === 'string' && url.length > 0)
     : existing?.gallery ?? [];
-  const image_url = body.image_url ?? existing?.image_url ?? gallery[0] ?? null;
+  // `null` explícito borra la foto; `??` no debe restaurar la anterior.
+  const image_url =
+    body.image_url !== undefined
+      ? typeof body.image_url === 'string' && body.image_url.trim()
+        ? body.image_url.trim()
+        : null
+      : (existing?.image_url ?? gallery[0] ?? null);
 
   const rawId = existing?.id ?? body.id;
   const id =

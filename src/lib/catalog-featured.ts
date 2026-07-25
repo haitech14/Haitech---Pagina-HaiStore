@@ -169,6 +169,7 @@ export function preloadCatalogIndex(): void {
 /**
  * Actualiza image_url/gallery en la caché del índice (tarjetas home/tienda)
  * tras aplicar foto desde el álbum u otra mutación de medios.
+ * Respeta `null` / `[]` al borrar (no conserva la media anterior).
  */
 export function patchCatalogIndexProductMedia(
   product: Pick<InventoryProduct, 'id' | 'image_url' | 'gallery'>,
@@ -182,8 +183,14 @@ export function patchCatalogIndexProductMedia(
 
   const nextRow: CatalogRow = {
     ...current,
-    image_url: product.image_url ?? current.image_url,
-    gallery: Array.isArray(product.gallery) ? product.gallery : current.gallery,
+    image_url:
+      product.image_url !== undefined ? product.image_url : current.image_url,
+    gallery:
+      product.gallery !== undefined
+        ? Array.isArray(product.gallery)
+          ? product.gallery
+          : []
+        : current.gallery,
   };
 
   catalogCache = [

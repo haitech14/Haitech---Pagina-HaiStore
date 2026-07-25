@@ -33,10 +33,14 @@ const COLUMNS = [
   { key: 'condition', header: 'Condición', width: 14 },
   { key: 'publicUsd', header: 'Corporativo USD', width: 14 },
   { key: 'publicPen', header: 'Corporativo S/', width: 14 },
+  { key: 'distribuidorUsd', header: 'Distribuidor USD', width: 14 },
+  { key: 'distribuidorPen', header: 'Distribuidor S/', width: 14 },
   { key: 'tecnicoUsd', header: 'Técnico USD', width: 12 },
   { key: 'tecnicoPen', header: 'Técnico S/', width: 12 },
   { key: 'mayoristaUsd', header: 'Mayorista USD', width: 13 },
   { key: 'mayoristaPen', header: 'Mayorista S/', width: 13 },
+  { key: 'compraUsd', header: 'Compra USD', width: 12 },
+  { key: 'compraPen', header: 'Compra S/', width: 12 },
   { key: 'stock', header: 'Stock', width: 10 },
 ] as const;
 
@@ -49,6 +53,7 @@ export type ListaPreciosExportProduct = {
   brand?: string | null;
   stock: number;
   prices?: ProductRolePrices;
+  purchase_price_usd?: number | null;
   image_url?: string | null;
   gallery?: string[] | null;
   attributes?: ProductAttribute[];
@@ -263,8 +268,10 @@ export async function exportListaPreciosToExcel(
     const prices = ensureFullPrices(product.prices);
     const category = product.category ?? '';
     const publicUsd = Number(prices.public) || 0;
+    const distribuidorUsd = Number(prices.distribuidor) || 0;
     const tecnicoUsd = Number(prices.tecnico) || 0;
     const mayoristaUsd = Number(prices.mayorista) || 0;
+    const compraUsd = Number(product.purchase_price_usd) || 0;
 
     row.getCell(1).value = '';
     row.getCell(2).value = category.trim() || inventoryCategoryParentLabel(category);
@@ -274,17 +281,22 @@ export async function exportListaPreciosToExcel(
     row.getCell(6).value = resolveProductCardEstadoLabel(product) ?? '';
     row.getCell(7).value = publicUsd > 0 ? publicUsd : '';
     row.getCell(8).value = publicUsd > 0 ? commercialPen(publicUsd, category, rate) : '';
-    row.getCell(9).value = tecnicoUsd > 0 ? tecnicoUsd : '';
-    row.getCell(10).value = tecnicoUsd > 0 ? commercialPen(tecnicoUsd, category, rate) : '';
-    row.getCell(11).value = mayoristaUsd > 0 ? mayoristaUsd : '';
-    row.getCell(12).value = mayoristaUsd > 0 ? commercialPen(mayoristaUsd, category, rate) : '';
-    row.getCell(13).value = Number(product.stock) || 0;
+    row.getCell(9).value = distribuidorUsd > 0 ? distribuidorUsd : '';
+    row.getCell(10).value =
+      distribuidorUsd > 0 ? commercialPen(distribuidorUsd, category, rate) : '';
+    row.getCell(11).value = tecnicoUsd > 0 ? tecnicoUsd : '';
+    row.getCell(12).value = tecnicoUsd > 0 ? commercialPen(tecnicoUsd, category, rate) : '';
+    row.getCell(13).value = mayoristaUsd > 0 ? mayoristaUsd : '';
+    row.getCell(14).value = mayoristaUsd > 0 ? commercialPen(mayoristaUsd, category, rate) : '';
+    row.getCell(15).value = compraUsd > 0 ? compraUsd : '';
+    row.getCell(16).value = compraUsd > 0 ? commercialPen(compraUsd, category, rate) : '';
+    row.getCell(17).value = Number(product.stock) || 0;
 
-    for (const col of [7, 8, 9, 10, 11, 12]) {
+    for (const col of [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) {
       row.getCell(col).numFmt = '#,##0.00';
       row.getCell(col).alignment = { horizontal: 'right', vertical: 'middle' };
     }
-    row.getCell(13).alignment = { horizontal: 'center', vertical: 'middle' };
+    row.getCell(17).alignment = { horizontal: 'center', vertical: 'middle' };
     for (const col of [2, 3, 4, 5, 6]) {
       row.getCell(col).alignment = { vertical: 'middle', wrapText: col === 4 };
     }

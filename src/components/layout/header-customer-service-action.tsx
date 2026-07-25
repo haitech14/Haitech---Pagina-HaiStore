@@ -1,22 +1,40 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { Clock, Headphones, Headset, Wrench } from 'lucide-react';
+import { Clock, Headphones, Headset, MapPin } from 'lucide-react';
 
 import { HeaderWhatsAppContactAction } from '@/components/layout/header-whatsapp-contact-action';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
-import { TechnicalServiceRequestDialog } from '@/components/layout/technical-service-request-dialog';
 import {
   HEADER_BUSINESS_HOURS,
   HEADER_BUY_RENT_WHATSAPP_LABEL,
   HEADER_CUSTOMER_SERVICE_LABEL,
+  HEADER_LIMA_MAPS_LINK,
+  HEADER_PIURA_ADDRESS,
+  HEADER_PIURA_MAPS_LINK,
   HEADER_SALES_PHONE_DISPLAY,
   HEADER_SERVICE_WHATSAPP_LABEL,
   HEADER_SUPPORT_PHONE_DISPLAY,
+  HEADER_TOPBAR_ADDRESS,
 } from '@/data/site-header';
 import { cn } from '@/lib/utils';
 
 const HOVER_CLOSE_DELAY_MS = 180;
+
+const ADDRESS_ITEMS = [
+  {
+    id: 'lima',
+    city: 'Lima',
+    address: HEADER_TOPBAR_ADDRESS,
+    href: HEADER_LIMA_MAPS_LINK,
+  },
+  {
+    id: 'piura',
+    city: 'Piura',
+    address: HEADER_PIURA_ADDRESS,
+    href: HEADER_PIURA_MAPS_LINK,
+  },
+] as const;
 
 type HeaderCustomerServiceActionProps = {
   className?: string;
@@ -24,13 +42,48 @@ type HeaderCustomerServiceActionProps = {
   variant?: 'desktop' | 'mobile';
 };
 
-/** Unifica Ventas/Alquiler + Soporte + horario en «Atención al cliente». */
+function CustomerServiceAddresses({ variant }: { variant: 'desktop' | 'mobile' }) {
+  const isMobile = variant === 'mobile';
+
+  return (
+    <ul className={cn('flex flex-col', isMobile ? 'gap-1.5' : 'gap-0.5')}>
+      {ADDRESS_ITEMS.map(({ id, city, address, href }) => (
+        <li key={id}>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              'flex w-full items-start gap-2 rounded-md text-left transition-colors',
+              isMobile
+                ? 'min-h-10 px-2 py-2 text-sm text-white/90 hover:bg-white/10 hover:text-white'
+                : 'min-h-9 px-2 py-1.5 text-[0.8125rem] text-white/90 hover:bg-white/10 hover:text-white',
+            )}
+          >
+            <MapPin
+              className={cn('mt-0.5 shrink-0', isMobile ? 'size-4' : 'size-3.5')}
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <span className="min-w-0 leading-snug">
+              <span className="block font-semibold text-white">{city}</span>
+              <span className="mt-0.5 block text-[0.7rem] font-normal leading-snug text-white/65">
+                {address}
+              </span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Unifica Ventas/Alquiler + Soporte + horario + sedes en «Atención al cliente». */
 export function HeaderCustomerServiceAction({
   className,
   variant = 'desktop',
 }: HeaderCustomerServiceActionProps) {
   const [open, setOpen] = useState(false);
-  const [scheduleOpen, setScheduleOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearCloseTimer = useCallback(() => {
@@ -74,10 +127,6 @@ export function HeaderCustomerServiceAction({
           <Clock className="size-3.5 shrink-0 text-white/55 group-open:hidden" strokeWidth={1.75} aria-hidden="true" />
         </summary>
         <div className="flex flex-col gap-2 border-t border-white/10 px-3 pb-3 pt-2">
-          <p className="inline-flex items-center gap-1.5 text-xs text-white/70">
-            <Clock className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            {HEADER_BUSINESS_HOURS}
-          </p>
           <HeaderWhatsAppContactAction
             topic="ventas"
             variant="mobile"
@@ -94,18 +143,7 @@ export function HeaderCustomerServiceAction({
             phoneDisplay={HEADER_SUPPORT_PHONE_DISPLAY}
             icon={<Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
           />
-          <button
-            type="button"
-            className={cn(
-              'inline-flex min-h-10 w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium text-white/90',
-              'hover:bg-white/10 hover:text-white',
-            )}
-            onClick={() => setScheduleOpen(true)}
-          >
-            <Wrench className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            Agendar servicio técnico
-          </button>
-          <TechnicalServiceRequestDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
+          <CustomerServiceAddresses variant="mobile" />
         </div>
       </details>
     );
@@ -138,19 +176,12 @@ export function HeaderCustomerServiceAction({
         <div
           role="menu"
           className={cn(
-            'absolute right-0 top-full z-50 mt-1 w-[16.5rem] rounded-lg border border-white/15',
+            'absolute right-0 top-full z-50 mt-1 w-[17.5rem] rounded-lg border border-white/15',
             'bg-[#1A1A1A] p-2 shadow-[0_12px_40px_rgba(0,0,0,0.45)]',
           )}
           onMouseEnter={openMenu}
           onMouseLeave={scheduleClose}
         >
-          <p className="mb-1.5 px-2 pt-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white/55">
-            {HEADER_CUSTOMER_SERVICE_LABEL}
-          </p>
-          <p className="mb-2 inline-flex items-center gap-1.5 px-2 text-[0.7rem] text-white/75">
-            <Clock className="size-3 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden="true" />
-            {HEADER_BUSINESS_HOURS}
-          </p>
           <div className="flex flex-col gap-0.5">
             <HeaderWhatsAppContactAction
               topic="ventas"
@@ -173,26 +204,11 @@ export function HeaderCustomerServiceAction({
               className="w-full justify-start rounded-md px-2"
               icon={<Headphones className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
             />
-            <button
-              type="button"
-              role="menuitem"
-              className={cn(
-                'inline-flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem] font-medium text-white/90',
-                'hover:bg-white/10 hover:text-white',
-              )}
-              onClick={() => {
-                setOpen(false);
-                setScheduleOpen(true);
-              }}
-            >
-              <Wrench className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-              Agendar servicio técnico
-            </button>
+            <div className="my-1 border-t border-white/10" aria-hidden="true" />
+            <CustomerServiceAddresses variant="desktop" />
           </div>
         </div>
       ) : null}
-
-      <TechnicalServiceRequestDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
     </div>
   );
 }

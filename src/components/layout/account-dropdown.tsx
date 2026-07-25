@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 
 import {
-  headerIconActionButtonClass,
   type HeaderActionTone,
 } from '@/components/layout/header-action-strip';
 import { TechnicalServiceRequestDialog } from '@/components/layout/technical-service-request-dialog';
@@ -146,9 +145,13 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className={headerIconActionButtonClass(
-            tone,
-            triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'sm' : 'md',
+          className={cn(
+            'relative inline-flex shrink-0 items-center justify-center rounded-full bg-transparent transition-colors',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset',
+            triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'size-9' : 'size-11',
+            tone === 'dark'
+              ? 'text-white hover:text-white/80 focus-visible:ring-white/40'
+              : 'text-foreground hover:text-foreground/70 focus-visible:ring-ring',
           )}
           aria-label={user ? `Menú de cuenta de ${displayName}` : 'Iniciar sesión o crear cuenta'}
           aria-haspopup="true"
@@ -280,12 +283,6 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
               )}
 
               <div>
-                <DropdownMenuItem
-                  className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
-                  onSelect={() => goTo('/mi-cuenta?tab=billetera')}
-                >
-                  <AccountMenuRow icon={Wallet} label="Billetera" />
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
                   onSelect={() => goTo('/mi-cuenta')}

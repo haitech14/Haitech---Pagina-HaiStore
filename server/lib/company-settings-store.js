@@ -43,8 +43,8 @@ const DEFAULT_SETTINGS = {
   ].join('\n'),
   quoteValidityDays: 3,
   primaryColor: '#1e40af',
-  usdToPenExchangeRate: 3.7,
-  usdToPenPurchaseExchangeRate: 3.7,
+  usdToPenExchangeRate: 3.42,
+  usdToPenPurchaseExchangeRate: 3.42,
 };
 
 const DEFAULT_BULK_DISCOUNT_TIERS = [

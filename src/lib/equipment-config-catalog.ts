@@ -25,6 +25,9 @@ export const M320F_EQUIPMENT_PRODUCT_ID = 'bfb264b8-70dc-4ad4-9686-2df02df8c75e'
 /** Equipo IM C320F (color A4) en inventario. */
 export const IM_C320F_EQUIPMENT_PRODUCT_ID = '481dbc77-436b-464d-b76f-930f7d79f4ff';
 
+/** Equipo IM C300F (color A4, nueva) en inventario. */
+export const IM_C300F_EQUIPMENT_PRODUCT_ID = '442fe09a-886e-47fc-8f8b-219be0febbab';
+
 /** Tóneres CMYK originales IM C320F (Cyan / Magenta / Amarillo / Negro). */
 export const IM_C320F_ORIGINAL_TONER_IDS = [
   '842718',
@@ -39,6 +42,22 @@ export const IM_C320F_COMPATIBLE_TONER_IDS = [
   'compat-im-c320f-magenta',
   'compat-im-c320f-yellow',
   'compat-im-c320f-negro',
+] as const;
+
+/** Tóneres CMYK originales IM C300F (Cyan / Magenta / Amarillo / Negro). */
+export const IM_C300F_ORIGINAL_TONER_IDS = [
+  '842379',
+  '842380',
+  '842381',
+  '842378',
+] as const;
+
+/** Tóneres CMYK compatibles IM C300F (Cyan / Magenta / Amarillo / Negro). */
+export const IM_C300F_COMPATIBLE_TONER_IDS = [
+  'compat-im-c300f-cyan',
+  'compat-im-c300f-magenta',
+  'compat-im-c300f-yellow',
+  'compat-im-c300f-negro',
 ] as const;
 
 /** Equipo MP C407 (seminueva) en inventario. */

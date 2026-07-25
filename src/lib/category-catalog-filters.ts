@@ -105,16 +105,16 @@ const QUICK_FILTER_KEYS_BY_SLUG: Record<string, readonly string[]> = {
   multifuncionales: [
     'Color::B/N',
     'Color::Color',
-    ADF_DOBLE_SCAN_KEY,
     `${FORMATO_PAPEL_ATTR}::A4`,
     `${FORMATO_PAPEL_ATTR}::A3`,
+    ADF_DOBLE_SCAN_KEY,
   ],
   impresoras: [
     'Color::B/N',
     'Color::Color',
-    ADF_DOBLE_SCAN_KEY,
     `${FORMATO_PAPEL_ATTR}::A4`,
     `${FORMATO_PAPEL_ATTR}::A3`,
+    ADF_DOBLE_SCAN_KEY,
   ],
   'toner-compatibles': [
     'Color::Cyan',
@@ -137,6 +137,13 @@ const QUICK_FILTER_CHIP_LABELS: Record<string, string> = {
   'Color::Yellow': 'Amarillo',
   'Color::Negro': 'Negro',
 };
+
+/** Filtro de color por defecto en catálogo de equipos (junto a estado Nuevas). */
+export const STOREFRONT_DEFAULT_COLOR_ATTR = 'Color::B/N';
+
+export function getStorefrontDefaultAttributeKeys(applyEquipmentDefaults: boolean): string[] {
+  return applyEquipmentDefaults ? [STOREFRONT_DEFAULT_COLOR_ATTR] : [];
+}
 
 export function getQuickFilterChipLabel(attr: { key: string; label: string }): string {
   if (QUICK_FILTER_CHIP_LABELS[attr.key]) return QUICK_FILTER_CHIP_LABELS[attr.key];
@@ -350,6 +357,36 @@ export function getCatalogLayoutOrderedProducts(products: readonly Product[]): P
     section.subsections.flatMap((subsection) => subsection.products),
   );
   return dedupeCatalogProductsById(ordered);
+}
+
+/** Aplana secciones ya construidas (evita un segundo buildCatalogFormatSections). */
+export function flattenCatalogFormatSections(
+  sections: readonly CatalogFormatSectionGroup[],
+): Product[] {
+  return dedupeCatalogProductsById(
+    sections.flatMap((section) =>
+      section.subsections.flatMap((subsection) => subsection.products),
+    ),
+  );
+}
+
+/** Recorta secciones a los productos de la página visible. */
+export function sliceCatalogFormatSectionsToProducts(
+  sections: readonly CatalogFormatSectionGroup[],
+  products: readonly Product[],
+): CatalogFormatSectionGroup[] {
+  const pageIds = new Set(products.map((product) => product.id));
+  return sections
+    .map((section) => ({
+      ...section,
+      subsections: section.subsections
+        .map((subsection) => ({
+          ...subsection,
+          products: subsection.products.filter((product) => pageIds.has(product.id)),
+        }))
+        .filter((subsection) => subsection.products.length > 0),
+    }))
+    .filter((section) => section.subsections.length > 0);
 }
 
 export const CATALOG_SPEC_FILTER_TABS = [

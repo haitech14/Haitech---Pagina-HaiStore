@@ -143,16 +143,21 @@ const denseSearchButtonClass =
   'flex h-10 w-10 shrink-0 items-center justify-center rounded-r-full border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 const SEARCH_SUGGESTION_THUMB_CLASS =
-  'size-12 shrink-0 overflow-hidden rounded-md border border-border/50 bg-white sm:size-14';
+  'size-9 shrink-0 overflow-hidden rounded-md border border-border/50 bg-white sm:size-10';
 
 const SEARCH_SUGGESTION_CELL_CLASS =
-  'flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-3 sm:px-3.5 sm:py-3';
+  'flex w-full items-center gap-2 px-2.5 py-1.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2.5 sm:px-3 sm:py-2';
 
 const SEARCH_DROPDOWN_PANEL_CLASS =
-  'absolute left-0 right-0 top-full z-[60] mt-2 max-h-[min(80vh,40rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,44rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,48rem)]';
+  'absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-[min(70vh,28rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,32rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,34rem)]';
 
-/** Pestañas del panel: Equipos | Tóner | Repuestos (lista en una columna). */
+/** Pestañas del panel: Todos | Equipos | Tóner | Repuestos (lista en una columna). */
 const SEARCH_RESULT_COLUMNS = [
+  {
+    key: 'todos',
+    title: 'Todos',
+    match: () => true,
+  },
   {
     key: 'equipos',
     title: 'Equipos',
@@ -305,7 +310,7 @@ function SearchProductSuggestionCell({
     [product],
   );
   const copyActionClass =
-    'shrink-0 rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted/80 hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
+    'shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted/80 hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
 
   return (
     <div
@@ -322,18 +327,18 @@ function SearchProductSuggestionCell({
       onClick={onNavigateProduct}
     >
       <SearchProductSuggestionThumb product={product} />
-      <span className="flex min-w-0 flex-1 items-center gap-3">
+      <span className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
         <span className="min-w-0 flex-1">
-          <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground sm:text-[0.9375rem]">
+          <span className="line-clamp-1 text-[0.8125rem] font-medium leading-snug text-foreground sm:text-sm">
             {highlightSearchTerms(headline, query)}
           </span>
         </span>
         {showPrice ? (
-          <span className="shrink-0 text-sm font-semibold tabular-nums sm:text-[0.9375rem]">
+          <span className="shrink-0 text-[0.8125rem] font-semibold tabular-nums sm:text-sm">
             <DualPrice usd={pricing.currentUsd} />
           </span>
         ) : (
-          <span className="shrink-0 text-sm font-medium text-[#E30613]">
+          <span className="shrink-0 text-[0.8125rem] font-medium text-[#E30613] sm:text-sm">
             {CONSULTAR_PRECIO_LABEL}
           </span>
         )}
@@ -407,7 +412,7 @@ export function SiteSearchForm({
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES_VALUE);
   const [panelOpen, setPanelOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [activeResultTab, setActiveResultTab] = useState<SearchResultColumnKey>('equipos');
+  const [activeResultTab, setActiveResultTab] = useState<SearchResultColumnKey>('todos');
   const [pagination, setPagination] = useState({
     scopeKey: '',
     extraLoads: 0,
@@ -1051,7 +1056,7 @@ export function SiteSearchForm({
                             aria-selected={selected}
                             disabled={disabled}
                             className={cn(
-                              'px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.08em] transition-colors sm:px-4 sm:py-3 sm:text-sm',
+                              'px-2.5 py-2 text-center text-[0.6875rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:px-3 sm:py-2.5 sm:text-xs',
                               selected
                                 ? 'border-b-2 border-red-600 bg-white text-red-600'
                                 : 'text-muted-foreground hover:bg-white/70 hover:text-foreground',
@@ -1077,6 +1082,7 @@ export function SiteSearchForm({
                       <div role="tabpanel" aria-label={activeResultColumn?.title ?? 'Resultados'}>
                         {activeTabProductSuggestionsWithIndices.map((group) => {
                           const showGroupSubheading =
+                            activeResultTab === 'todos' ||
                             activeResultTab === 'equipos' ||
                             activeResultTab === 'repuestos' ||
                             activeTabProductSuggestionsWithIndices.length > 1 ||
@@ -1086,7 +1092,7 @@ export function SiteSearchForm({
                           return (
                             <div key={`product-section-${group.category}`}>
                               {showGroupSubheading ? (
-                                <p className="border-b border-border/40 bg-muted/10 px-3.5 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground/90 sm:px-4 sm:text-xs">
+                                <p className="border-b border-border/40 bg-muted/10 px-3 py-1 text-[0.625rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground/90 sm:px-3.5 sm:text-[0.6875rem]">
                                   {group.category}
                                 </p>
                               ) : null}

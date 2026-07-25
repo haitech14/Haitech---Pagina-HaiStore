@@ -71,11 +71,17 @@ export function promoCardImageSources(imagePath: string) {
   };
 }
 
+/** Conserva `?v=` (u otros query) para que srcset no ignore el cache-bust del inventario. */
+function imageCacheQuery(imagePath: string): string {
+  if (!imagePath.includes('?')) return '';
+  const query = `?${imagePath.split('?')[1]?.split('#')[0] ?? ''}`;
+  return query === '?' ? '' : query;
+}
+
 /** Variantes WebP para imágenes de producto en cards (~220px). */
 export function productCardImageSources(imagePath: string) {
   const base = imageBasePath(imagePath);
-  const query = imagePath.includes('?') ? `?${imagePath.split('?')[1]?.split('#')[0] ?? ''}` : '';
-  const q = query === '?' ? '' : query;
+  const q = imageCacheQuery(imagePath);
   return {
     webpSrcSet: `${base}-256.webp${q} 256w, ${base}-512.webp${q} 512w`,
     fallbackSrc: imagePath,
@@ -86,8 +92,9 @@ export function productCardImageSources(imagePath: string) {
 /** Variantes WebP para ficha de producto (miniatura y vista principal). */
 export function productDetailThumbnailSources(imagePath: string) {
   const base = imageBasePath(imagePath);
+  const q = imageCacheQuery(imagePath);
   return {
-    webpSrcSet: `${base}-256.webp 256w, ${base}-512.webp 512w`,
+    webpSrcSet: `${base}-256.webp${q} 256w, ${base}-512.webp${q} 512w`,
     fallbackSrc: imagePath,
     sizes: '80px',
   };
@@ -95,8 +102,9 @@ export function productDetailThumbnailSources(imagePath: string) {
 
 export function productDetailMainImageSources(imagePath: string) {
   const base = imageBasePath(imagePath);
+  const q = imageCacheQuery(imagePath);
   return {
-    webpSrcSet: `${base}-512.webp 512w, ${base}-1024.webp 1024w, ${base}.webp ${1920}w`,
+    webpSrcSet: `${base}-512.webp${q} 512w, ${base}-1024.webp${q} 1024w, ${base}.webp${q} ${1920}w`,
     fallbackSrc: imagePath,
     sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 720px',
   };

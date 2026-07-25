@@ -16,10 +16,10 @@ const AdminRolePricesTooltip = lazy(() =>
 );
 
 const FEATURED_PRICE_COMPARE_CLASS =
-  'text-[0.6875rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] decoration-solid sm:text-[0.75rem]';
+  'text-[0.75rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] decoration-solid sm:text-[0.8125rem]';
 
 const FEATURED_PRICE_CURRENT_CLASS =
-  'text-xs font-semibold tabular-nums leading-tight text-[#111111] sm:text-sm';
+  'text-sm font-semibold tabular-nums leading-tight text-[#111111] sm:text-[0.9375rem]';
 function FeaturedDualCurrencyLine({
   usd,
   usdClassName,

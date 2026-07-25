@@ -12,6 +12,7 @@ import {
 import {
   useCompanySettings,
   useCompanySettingsMutation,
+  useSyncSbsExchangeRateMutation,
 } from '@/hooks/use-company-settings';
 import { normalizeUsdToPenRate } from '@/lib/exchange-rate';
 import { cn, formatPenFromUsdPrecise, formatUsd } from '@/lib/utils';
@@ -40,12 +41,14 @@ export function AdminExchangeRateControl({
   const isSidebar = variant === 'sidebar';
   const { data: settings, isLoading } = useCompanySettings();
   const saveSettings = useCompanySettingsMutation();
+  const syncSbs = useSyncSbsExchangeRateMutation();
   const [open, setOpen] = useState(false);
   const [saleRate, setSaleRate] = useState(DEFAULT_COMPANY_SETTINGS.usdToPenExchangeRate);
   const [purchaseRate, setPurchaseRate] = useState(
     DEFAULT_COMPANY_SETTINGS.usdToPenPurchaseExchangeRate,
   );
   const [error, setError] = useState<string | null>(null);
+  const isBusy = saveSettings.isPending || syncSbs.isPending;
 
   useEffect(() => {
     if (!settings || !open) return;
@@ -76,6 +79,20 @@ export function AdminExchangeRateControl({
       setOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar el tipo de cambio.');
+    }
+  };
+
+  const handleSyncSbs = async () => {
+    setError(null);
+    try {
+      const { settings: next } = await syncSbs.mutateAsync();
+      setSaleRate(next.usdToPenExchangeRate);
+      setPurchaseRate(next.usdToPenPurchaseExchangeRate ?? next.usdToPenExchangeRate);
+      setOpen(false);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'No se pudo sincronizar el tipo de cambio con SBS.',
+      );
     }
   };
 
@@ -190,26 +207,44 @@ export function AdminExchangeRateControl({
             </p>
           ) : null}
 
-          <Button
-            type="button"
-            className={cn(
-              'w-full',
-              isSidebar
-                ? 'bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))]'
-                : 'bg-red-600 hover:bg-red-500',
-            )}
-            disabled={saveSettings.isPending || !settings}
-            onClick={() => void handleSave()}
-          >
-            {saveSettings.isPending ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
-                Guardando…
-              </>
-            ) : (
-              'Guardar'
-            )}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={isBusy || !settings}
+              onClick={() => void handleSyncSbs()}
+            >
+              {syncSbs.isPending ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                  Sincronizando SBS…
+                </>
+              ) : (
+                'Sincronizar SBS'
+              )}
+            </Button>
+            <Button
+              type="button"
+              className={cn(
+                'w-full',
+                isSidebar
+                  ? 'bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))]'
+                  : 'bg-red-600 hover:bg-red-500',
+              )}
+              disabled={isBusy || !settings}
+              onClick={() => void handleSave()}
+            >
+              {saveSettings.isPending ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                  Guardando…
+                </>
+              ) : (
+                'Guardar'
+              )}
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>

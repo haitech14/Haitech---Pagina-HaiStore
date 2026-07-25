@@ -10,6 +10,7 @@ import {
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Plus, PanelLeftClose } from 'lucide-react';
 
+import { StoreCatalogAttributeChips } from '@/components/store-storefront/store-catalog-attribute-chips';
 import { StoreCatalogHeader } from '@/components/store-storefront/store-catalog-header';
 import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
 import { StoreCatalogViewControls } from '@/components/store-storefront/store-catalog-view-controls';
@@ -147,8 +148,11 @@ import {
   shouldShowCatalogSpecFilterTabs,
   shouldShowProductionFilters,
   shouldUseCatalogSidebarLayout,
-  getCatalogLayoutOrderedProducts,
+  flattenCatalogFormatSections,
+  sliceCatalogFormatSectionsToProducts,
   getSpecFilterDisplayLabel,
+  getStorefrontDefaultAttributeKeys,
+  STOREFRONT_DEFAULT_COLOR_ATTR,
   toggleCatalogSpecFilter,
 } from '@/lib/category-catalog-filters';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
@@ -201,7 +205,8 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   const searchQuery = searchParams.get('buscar')?.trim() ?? '';
   const searchCategoryFilter = searchParams.get('cat')?.trim() || 'all';
   const isInventorySearch = searchQuery.length >= MIN_PRODUCT_SEARCH_LENGTH;
-  const estadoFilter = useCategoryConditionFilter();
+  const estadoParam = searchParams.get('estado');
+  const estadoFromUrl = useCategoryConditionFilter();
 
   const {
     data: categoryTreeData,
@@ -223,6 +228,22 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     if (storeFilterCategorySlug) return catalogFamilyForCategorySlug(storeFilterCategorySlug);
     return null;
   }, [slug, storeFilterCategorySlug]);
+  const usesEquipmentConditionTabs =
+    storefrontMode && (!catalogFamily || isEquipmentCatalogFamily(catalogFamily));
+  /** Storefront equipos: sin `estado` → Nuevas; `estado=all` → Todas. */
+  const estadoFilter = useMemo(() => {
+    if (estadoParam != null && estadoParam !== '') return estadoFromUrl;
+    if (usesEquipmentConditionTabs) return 'originales';
+    return estadoFromUrl;
+  }, [estadoParam, estadoFromUrl, usesEquipmentConditionTabs]);
+
+  useEffect(() => {
+    if (!usesEquipmentConditionTabs) return;
+    if (searchParams.has('estado')) return;
+    const next = new URLSearchParams(searchParams);
+    next.set('estado', 'nuevas');
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+  }, [usesEquipmentConditionTabs, searchParams, setSearchParams]);
   const syncSidebarCountsFromCatalog = !isInventorySearch && !isRentalCategory;
   // Solo /tienda necesita el catálogo completo; categorías usan árbol + useCategoryCatalog.
   const { data: allProductsData, isFetching: productsFetching, isPending: productsPending } =
@@ -242,7 +263,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }, [categoryTree, allProducts, storeCatalogProducts, isStoreAll, syncSidebarCountsFromCatalog]);
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>(() => {
     const raw = searchParams.get('attrs');
-    if (!raw?.trim()) return [];
+    if (!raw?.trim()) return getStorefrontDefaultAttributeKeys(usesEquipmentConditionTabs);
     return raw
       .split('|')
       .map((entry) => entry.trim())
@@ -608,7 +629,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   );
 
   useEffect(() => {
-    setSelectedAttributes([]);
+    setSelectedAttributes(getStorefrontDefaultAttributeKeys(usesEquipmentConditionTabs));
     const marcaFromUrl = searchParams.get('marca')?.trim().toLowerCase();
     setSelectedBrands(marcaFromUrl ? [marcaFromUrl] : []);
     setSelectedProduction(null);
@@ -617,7 +638,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     setPriceMin(null);
     setPriceMax(null);
     setCatalogSearch(searchQuery);
-  }, [slug, subSlug, searchQuery]);
+  }, [slug, subSlug, searchQuery, usesEquipmentConditionTabs]);
 
   const availableBrandKeys = useMemo(
     () => brandFilterOptions.map((brand: { key: string }) => brand.key).join('|'),
@@ -639,6 +660,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   useEffect(() => {
     if (!availableAttributeKeys) return;
     const validKeys = new Set(availableAttributeKeys.split('|').filter(Boolean));
+    // Mantener filtros de spec del storefront aunque el facet aún no los liste.
+    for (const key of CATALOG_SPEC_FILTER_TAB_KEYS) validKeys.add(key);
+    if (usesEquipmentConditionTabs) validKeys.add(STOREFRONT_DEFAULT_COLOR_ATTR);
     setSelectedAttributes((prev) => {
       const next = prev.filter((key) => validKeys.has(key));
       if (next.length === prev.length && next.every((key, index) => key === prev[index])) {
@@ -646,7 +670,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       }
       return next;
     });
-  }, [availableAttributeKeys]);
+  }, [availableAttributeKeys, usesEquipmentConditionTabs]);
 
   const filteredProducts = useMemo(() => {
     let list: Product[];
@@ -901,7 +925,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         next.delete('sub');
       }
       setCatalogPage(1);
-      setSearchParams(next, { replace: true, preventScrollReset: true });
+      startTransition(() => {
+        setSearchParams(next, { replace: true, preventScrollReset: true });
+      });
     },
     [searchParams, setSearchParams],
   );
@@ -914,19 +940,21 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         return;
       }
       setCatalogPage(1);
-      if (!rootSlug) {
-        navigate('/tienda', { replace: true, preventScrollReset: true });
-        return;
-      }
-      if (rootSlug === slug) {
-        const next = new URLSearchParams(searchParams);
-        next.set('sub', ALL_SUBCATEGORIES_QUERY);
-        setSearchParams(next, { replace: true, preventScrollReset: true });
-        return;
-      }
-      navigate(`/categoria/${rootSlug}?sub=${ALL_SUBCATEGORIES_QUERY}`, {
-        replace: true,
-        preventScrollReset: true,
+      startTransition(() => {
+        if (!rootSlug) {
+          navigate('/tienda', { replace: true, preventScrollReset: true });
+          return;
+        }
+        if (rootSlug === slug) {
+          const next = new URLSearchParams(searchParams);
+          next.set('sub', ALL_SUBCATEGORIES_QUERY);
+          setSearchParams(next, { replace: true, preventScrollReset: true });
+          return;
+        }
+        navigate(`/categoria/${rootSlug}?sub=${ALL_SUBCATEGORIES_QUERY}`, {
+          replace: true,
+          preventScrollReset: true,
+        });
       });
     },
     [isStoreAll, navigate, searchParams, selectRootCategory, setSearchParams, slug],
@@ -951,7 +979,9 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
         next.set('sub', ALL_SUBCATEGORIES_QUERY);
       }
       setCatalogPage(1);
-      setSearchParams(next, { replace: true, preventScrollReset: true });
+      startTransition(() => {
+        setSearchParams(next, { replace: true, preventScrollReset: true });
+      });
     },
     [searchParams, setSearchParams, isStoreAll, categoryTree, storeFilterCategorySlug],
   );
@@ -963,7 +993,19 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
       if (!targetSlug) return;
       void prefetchCategoryPage(queryClient, { slug: targetSlug, subSlug: nextSubSlug, role });
     },
-    [slug, categoryTree, isStoreAll, isRentalCategory, isInventorySearch, role],
+    [slug, categoryTree, isStoreAll, isRentalCategory, isInventorySearch, role, queryClient],
+  );
+
+  const prefetchStorefrontRootCategory = useCallback(
+    (rootSlug: string) => {
+      if (isRentalCategory || isInventorySearch || !rootSlug) return;
+      void prefetchCategoryPage(queryClient, {
+        slug: rootSlug,
+        subSlug: ALL_SUBCATEGORIES_QUERY,
+        role,
+      });
+    },
+    [isRentalCategory, isInventorySearch, queryClient, role],
   );
 
   const toggleAttribute = useCallback((key: string) => {
@@ -1000,6 +1042,22 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     [storefrontMode, quickAttributeFilters],
   );
 
+  const storefrontQuickAttributeKeys = useMemo(
+    () => new Set(storefrontAttributeChips.map((chip) => chip.key)),
+    [storefrontAttributeChips],
+  );
+
+  const storefrontAttributeAllActive = useMemo(
+    () => !selectedAttributes.some((key) => storefrontQuickAttributeKeys.has(key)),
+    [selectedAttributes, storefrontQuickAttributeKeys],
+  );
+
+  const clearStorefrontQuickAttributes = useCallback(() => {
+    startTransition(() => {
+      setSelectedAttributes((prev) => prev.filter((key) => !storefrontQuickAttributeKeys.has(key)));
+    });
+  }, [storefrontQuickAttributeKeys]);
+
   const toggleStorefrontAttribute = useCallback(
     (key: string) => {
       if (CATALOG_SPEC_FILTER_TAB_KEYS.has(key)) {
@@ -1023,10 +1081,16 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   const showFormatSections = showFormatSectionsEarly;
 
+  /** Una sola construcción de secciones B/N·A4/A3; la página recorta sin rebuild. */
+  const catalogFormatSectionsFull = useMemo(
+    () => (showFormatSections ? buildCatalogFormatSections(filteredProducts) : []),
+    [filteredProducts, showFormatSections],
+  );
+
   const paginationProducts = useMemo(() => {
     if (!showFormatSections) return filteredProducts;
-    return getCatalogLayoutOrderedProducts(filteredProducts);
-  }, [filteredProducts, showFormatSections]);
+    return flattenCatalogFormatSections(catalogFormatSectionsFull);
+  }, [filteredProducts, showFormatSections, catalogFormatSectionsFull]);
 
   const useServerPagination = useServerCatalog && !showFormatSections && !isTableView;
   const catalogTotalPages = useServerPagination
@@ -1048,8 +1112,11 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
 
   /** Solo la página visible: evita montar las ~100–500 tarjetas del fetch completo. */
   const catalogFormatSections = useMemo(
-    () => (showFormatSections ? buildCatalogFormatSections(pagedCatalogProducts) : []),
-    [pagedCatalogProducts, showFormatSections],
+    () =>
+      showFormatSections
+        ? sliceCatalogFormatSectionsToProducts(catalogFormatSectionsFull, pagedCatalogProducts)
+        : [],
+    [catalogFormatSectionsFull, pagedCatalogProducts, showFormatSections],
   );
 
   useEffect(() => {
@@ -1109,7 +1176,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }, [selectedAttributes, searchParams, setSearchParams]);
 
   const clearAllFilters = useCallback(() => {
-    setSelectedAttributes([]);
+    setSelectedAttributes(getStorefrontDefaultAttributeKeys(usesEquipmentConditionTabs));
     setSelectedBrands([]);
     setSelectedProduction(null);
     setSelectedSpeeds([]);
@@ -1123,14 +1190,15 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     next.delete('attrs');
     next.delete('buscar');
     next.delete('cat');
-    next.delete('estado');
+    if (usesEquipmentConditionTabs) next.set('estado', 'nuevas');
+    else next.delete('estado');
     next.delete('orden');
     next.delete('vista');
     next.delete('pagina');
     next.delete('precio_min');
     next.delete('precio_max');
     setSearchParams(next, { replace: true, preventScrollReset: true });
-  }, [selectSubcategory, searchParams, setSearchParams]);
+  }, [selectSubcategory, searchParams, setSearchParams, usesEquipmentConditionTabs]);
 
   const toggleProduction = useCallback((key: string) => {
     startTransition(() => {
@@ -1690,12 +1758,38 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                   subcategories={sidebarCategoryTree}
                   activeSubSlug={isStoreAll ? storeFilterCategorySlug : (slug ?? null)}
                   onSelect={selectStorefrontRootCategory}
+                  onPrefetch={prefetchStorefrontRootCategory}
                 />
               ) : null}
               {!catalogFamily || isEquipmentCatalogFamily(catalogFamily) ? (
-                <ProductConditionTabs
-                  activeCondition={estadoFilter}
-                  catalogFamily={catalogFamily ?? 'multifuncionales'}
+                <div className="flex flex-col gap-2.5">
+                  <ProductConditionTabs
+                    activeCondition={estadoFilter}
+                    catalogFamily={catalogFamily ?? 'multifuncionales'}
+                  />
+                  {storefrontAttributeChips.length > 0 ? (
+                    <StoreCatalogAttributeChips
+                      attributes={storefrontAttributeChips}
+                      selectedKeys={selectedAttributes}
+                      onToggle={toggleStorefrontAttribute}
+                      allOption={{
+                        label: 'Todas',
+                        active: storefrontAttributeAllActive,
+                        onSelect: clearStorefrontQuickAttributes,
+                      }}
+                    />
+                  ) : null}
+                </div>
+              ) : storefrontAttributeChips.length > 0 ? (
+                <StoreCatalogAttributeChips
+                  attributes={storefrontAttributeChips}
+                  selectedKeys={selectedAttributes}
+                  onToggle={toggleStorefrontAttribute}
+                  allOption={{
+                    label: 'Todas',
+                    active: storefrontAttributeAllActive,
+                    onSelect: clearStorefrontQuickAttributes,
+                  }}
                 />
               ) : null}
               <StoreCatalogHeader
@@ -1707,9 +1801,6 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                 searchPlaceholder={
                   isStoreAll ? storeCatalogCopy.searchPlaceholder : `Buscar en ${pageTitle}…`
                 }
-                attributeFilters={storefrontAttributeChips}
-                selectedAttributeKeys={selectedAttributes}
-                onToggleAttribute={toggleStorefrontAttribute}
                 viewControls={
                   <StoreCatalogViewControls
                     viewMode={viewMode}

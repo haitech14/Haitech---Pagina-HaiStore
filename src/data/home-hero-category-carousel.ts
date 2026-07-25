@@ -23,7 +23,7 @@ export const HOME_HERO_CATEGORY_CAROUSEL_SLUGS = [
 ] as const;
 
 const DISPLAY_NAMES: Record<string, string> = {
-  multifuncionales: 'Fotocopiadoras',
+  multifuncionales: 'Multifuncionales',
   'formato-ancho': 'Formato ancho',
   'toner-suministros': 'Tóner y tintas',
 };

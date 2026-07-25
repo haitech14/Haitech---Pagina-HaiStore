@@ -8,6 +8,15 @@ export const MPC407_EQUIPMENT_PRODUCT_ID = '92070b52-ac0d-4bc1-94d3-d51e69091bb4
 /** Equipo IM C320F (color A4) en inventario. */
 export const IMC320F_EQUIPMENT_PRODUCT_ID = '481dbc77-436b-464d-b76f-930f7d79f4ff';
 
+/** Equipo IM C300F (color A4, nueva) en inventario. */
+export const IMC300F_EQUIPMENT_PRODUCT_ID = '442fe09a-886e-47fc-8f8b-219be0febbab';
+
+/** Otras fichas IM C300F (seminuevas) que también ofrecen los mismos tóneres. */
+export const IMC300F_RELATED_EQUIPMENT_PRODUCT_IDS = [
+  '03b408ff-0b06-4ec5-90ed-94dcb40fd67c',
+  '4950b07c-50aa-4884-9e40-e7c9cd1362cb',
+];
+
 /** Tóneres CMYK Intercopy compatibles con MP C306/C406/C307/C407. */
 export const MPC407_COMPATIBLE_TONER_IDS = [
   'intercopy-mp-c306-cyan',
@@ -24,8 +33,20 @@ export const IMC320F_COMPATIBLE_TONER_IDS = [
   'compat-im-c320f-negro',
 ];
 
+/** Tóneres CMYK originales IM C300F. */
+export const IMC300F_ORIGINAL_TONER_IDS = ['842379', '842380', '842381', '842378'];
+
+/** Tóneres CMYK compatibles con IM C300F (Cyan / Magenta / Amarillo / Negro). */
+export const IMC300F_COMPATIBLE_TONER_IDS = [
+  'compat-im-c300f-cyan',
+  'compat-im-c300f-magenta',
+  'compat-im-c300f-yellow',
+  'compat-im-c300f-negro',
+];
+
 const MPC407_COMPATIBLE_TONER_PRICE_USD = 39.9;
 const IMC320F_COMPATIBLE_TONER_PRICE_USD = 39.9;
+const IMC300F_COMPATIBLE_TONER_PRICE_USD = 39.9;
 
 const MPC407_COMPATIBLE_TONER_META = {
   'intercopy-mp-c306-cyan': {
@@ -66,6 +87,29 @@ const IMC320F_COMPATIBLE_TONER_META = {
     color: 'Negro',
     code: '901053',
     name: 'Toner cartucho compatible RICOH IM C320F — Negro',
+  },
+};
+
+const IMC300F_COMPATIBLE_TONER_META = {
+  'compat-im-c300f-cyan': {
+    color: 'Cyan',
+    code: '901054',
+    name: 'Toner cartucho compatible RICOH IM C300F — Cyan',
+  },
+  'compat-im-c300f-magenta': {
+    color: 'Magenta',
+    code: '901055',
+    name: 'Toner cartucho compatible RICOH IM C300F — Magenta',
+  },
+  'compat-im-c300f-yellow': {
+    color: 'Amarillo',
+    code: '901056',
+    name: 'Toner cartucho compatible RICOH IM C300F — Amarillo',
+  },
+  'compat-im-c300f-negro': {
+    color: 'Negro',
+    code: '901057',
+    name: 'Toner cartucho compatible RICOH IM C300F — Negro',
   },
 };
 
@@ -201,6 +245,34 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
       supplyType: 'compatible',
     };
   }),
+  ...IMC300F_COMPATIBLE_TONER_IDS.map((tonerId) => {
+    const meta = IMC300F_COMPATIBLE_TONER_META[tonerId];
+    return {
+      id: tonerId,
+      code: meta.code,
+      name: meta.name,
+      description: `${meta.name} — Print Cartridge IM C300F (OEM 842378–842381)`,
+      category: CATEGORY_COMPATIBLE_TONER,
+      brand: '',
+      image_url: null,
+      gallery: [],
+      attributes: [
+        { name: 'Modelo de equipo', value: 'IM C300F' },
+        { name: 'Rendimiento (5%)', value: meta.color === 'Negro' ? '17,000' : '6,000' },
+        { name: 'Color', value: meta.color },
+      ],
+      prices: {
+        public: roundSalePriceToNinety(IMC300F_COMPATIBLE_TONER_PRICE_USD),
+        tecnico: roundSalePriceToNinety(33.5),
+        mayorista: roundSalePriceToNinety(31.9),
+        distribuidor: roundSalePriceToNinety(29.5),
+      },
+      purchase_price_usd: 22.9,
+      suppliers: [{ name: 'MICAMERB', purchase_price_usd: 22.9 }],
+      equipmentIds: [IMC300F_EQUIPMENT_PRODUCT_ID, ...IMC300F_RELATED_EQUIPMENT_PRODUCT_IDS],
+      supplyType: 'compatible',
+    };
+  }),
 ];
 
 /** Vincula tóneres ya existentes en inventario con equipos (sin reescribir el producto). */
@@ -229,6 +301,14 @@ export const KNOWN_EQUIPMENT_TONER_CROSS_SELL = [
       ...IMC320F_COMPATIBLE_TONER_IDS,
     ],
   },
+  {
+    equipmentId: IMC300F_EQUIPMENT_PRODUCT_ID,
+    tonerIds: [...IMC300F_ORIGINAL_TONER_IDS, ...IMC300F_COMPATIBLE_TONER_IDS],
+  },
+  ...IMC300F_RELATED_EQUIPMENT_PRODUCT_IDS.map((equipmentId) => ({
+    equipmentId,
+    tonerIds: [...IMC300F_ORIGINAL_TONER_IDS, ...IMC300F_COMPATIBLE_TONER_IDS],
+  })),
 ];
 
 /**
@@ -279,6 +359,77 @@ export function ensureImC320FCompatibleTonerProducts(products) {
         code: meta.code,
         name: meta.name,
         description: `${meta.name} — Print Cartridge IM C320 (OEM 842726–842729)`,
+        category: existing?.category || CATEGORY_COMPATIBLE_TONER,
+        brand: existing?.brand ?? '',
+        image_url: null,
+        gallery: [],
+        prices,
+        purchase_price_usd:
+          Number(existing?.purchase_price_usd) > 0 ? existing.purchase_price_usd : 22.9,
+        suppliers: existing?.suppliers ?? [{ name: 'MICAMERB', purchase_price_usd: 22.9 }],
+        attributes,
+      },
+      existing,
+    );
+
+    byId.set(tonerId, next);
+    if (existing) updated += 1;
+    else created += 1;
+  }
+
+  return {
+    products: [...byId.values()],
+    created,
+    updated,
+  };
+}
+
+/**
+ * Crea o actualiza los 4 tóneres CMYK IM C300F (precios, nombres, color).
+ * @param {Array<Record<string, unknown>>} products
+ */
+export function ensureImC300FCompatibleTonerProducts(products) {
+  const byId = new Map(products.map((product) => [product.id, { ...product }]));
+  let created = 0;
+  let updated = 0;
+
+  const publicPrice = roundSalePriceToNinety(IMC300F_COMPATIBLE_TONER_PRICE_USD);
+  const prices = {
+    public: publicPrice,
+    tecnico: roundSalePriceToNinety(33.5),
+    mayorista: roundSalePriceToNinety(31.9),
+    distribuidor: roundSalePriceToNinety(29.5),
+  };
+
+  for (const tonerId of IMC300F_COMPATIBLE_TONER_IDS) {
+    const meta = IMC300F_COMPATIBLE_TONER_META[tonerId];
+    const existing = byId.get(tonerId);
+    const attributes = Array.isArray(existing?.attributes)
+      ? existing.attributes.map((attr) => ({ ...attr }))
+      : [];
+
+    const upsertAttr = (name, value) => {
+      const found = attributes.find(
+        (attr) => String(attr?.name ?? '').trim().toLowerCase() === name.toLowerCase(),
+      );
+      if (found) {
+        found.value = value;
+      } else {
+        attributes.push({ id: `${name.toLowerCase()}-${tonerId}`, name, value });
+      }
+    };
+
+    upsertAttr('Color', meta.color);
+    upsertAttr('Modelo de equipo', 'IM C300F');
+    upsertAttr('Rendimiento (5%)', meta.color === 'Negro' ? '17,000' : '6,000');
+
+    const next = normalizeProductInput(
+      {
+        ...(existing ?? {}),
+        id: tonerId,
+        code: meta.code,
+        name: meta.name,
+        description: `${meta.name} — Print Cartridge IM C300F (OEM 842378–842381)`,
         category: existing?.category || CATEGORY_COMPATIBLE_TONER,
         brand: existing?.brand ?? '',
         image_url: null,

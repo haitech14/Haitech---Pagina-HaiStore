@@ -1,7 +1,7 @@
 import { startTransition } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { scrollToCategoryProducts } from '@/lib/category-path';
+import { scrollToCategoryProducts, CATEGORY_PRODUCTS_ID } from '@/lib/category-path';
 import {
   EQUIPMENT_STOREFRONT_CONDITIONS,
   getConditionsForCatalogFamily,
@@ -38,6 +38,14 @@ function resolveTabConditions(
   return getConditionsForCatalogFamily(catalogFamily);
 }
 
+function scrollToProductsIfOffscreen() {
+  const target = document.getElementById(CATEGORY_PRODUCTS_ID);
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  const inView = rect.top < window.innerHeight * 0.85 && rect.bottom > 64;
+  if (!inView) scrollToCategoryProducts('smooth');
+}
+
 export function ProductConditionTabs({
   activeCondition,
   counts,
@@ -51,12 +59,12 @@ export function ProductConditionTabs({
 
   const selectCondition = (condition: ProductCondition | null) => {
     const next = new URLSearchParams(searchParams);
-    if (condition) next.set('estado', condition);
-    else next.delete('estado');
+    if (condition) next.set('estado', condition === 'originales' ? 'nuevas' : condition);
+    else next.set('estado', 'all');
     startTransition(() => {
       setSearchParams(next, { replace: true, preventScrollReset: true });
     });
-    requestAnimationFrame(() => scrollToCategoryProducts('smooth'));
+    requestAnimationFrame(scrollToProductsIfOffscreen);
   };
 
   return (

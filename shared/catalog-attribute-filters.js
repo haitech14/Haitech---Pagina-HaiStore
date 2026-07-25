@@ -81,6 +81,7 @@ export function inferFormatoPapelFromModel(product) {
     /\b(pro\s+c9500|pro\s+c7500|pro\s+c5400|pro\s+c5410|im\s*c8000|im\s*c6010|im\s*c6510|im\s*c7510|pro\s+84)\b/.test(
       haystack,
     ) ||
+    /\bimageforce\s*(6155|6160|6170|8105i?|8186i?|8195i?)\b/i.test(haystack) ||
     haystack.includes('planos') ||
     haystack.includes('formato ancho')
   ) {
@@ -222,8 +223,10 @@ function productMatchesModelPatterns(product, patterns) {
   return patterns.some((pattern) => pattern.test(haystack));
 }
 
-/** Claves de filtro de catálogo (atributos almacenados + inferencia por modelo). */
-export function resolveProductCatalogAttributeKeys(product) {
+/** Cache por identidad de objeto: un producto del mismo fetch no re-infiere en cada toggle. */
+const catalogAttributeKeysCache = new WeakMap();
+
+function computeProductCatalogAttributeKeys(product) {
   const keys = productAttributeKeys(product);
   const isMultifuncional = /multifunc/i.test(product?.category ?? '');
   const useSpecInference = isMultifuncional || isPrinterEquipmentForSpecFilters(product);
@@ -258,6 +261,18 @@ export function resolveProductCatalogAttributeKeys(product) {
   return keys;
 }
 
+/** Claves de filtro de catálogo (atributos almacenados + inferencia por modelo). */
+export function resolveProductCatalogAttributeKeys(product) {
+  if (product == null || typeof product !== 'object') {
+    return computeProductCatalogAttributeKeys(product);
+  }
+  const cached = catalogAttributeKeysCache.get(product);
+  if (cached) return cached;
+  const keys = computeProductCatalogAttributeKeys(product);
+  catalogAttributeKeysCache.set(product, keys);
+  return keys;
+}
+
 export function productMatchesCatalogAttributeFilters(
   product,
   attributeKeys,
@@ -265,13 +280,14 @@ export function productMatchesCatalogAttributeFilters(
   offerIds = new Set(),
 ) {
   const resolved = resolveProductCatalogAttributeKeys(product);
-  if (offerIds.size > 0 && attributeKeys.includes(MOST_VIEWED_OFFER_ATTR_KEY)) {
-    if (productHasMostViewedOfferAttribute(product, offerIds)) {
-      resolved.add(MOST_VIEWED_OFFER_ATTR_KEY);
-    }
-  }
-  if (attributeKeys.length > 0 && !attributeKeys.every((key) => resolved.has(key))) {
-    return false;
+  if (attributeKeys.length > 0) {
+    const matches = attributeKeys.every((key) => {
+      if (key === MOST_VIEWED_OFFER_ATTR_KEY) {
+        return offerIds.size > 0 && productHasMostViewedOfferAttribute(product, offerIds);
+      }
+      return resolved.has(key);
+    });
+    if (!matches) return false;
   }
   if (productionKey && !resolved.has(productionKey)) return false;
   return true;

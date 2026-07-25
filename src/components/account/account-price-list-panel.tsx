@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FileSpreadsheet, ListOrdered, Loader2, Search } from 'lucide-react';
 
@@ -15,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useAuth } from '@/context/auth-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProducts } from '@/hooks/use-products';
 import { exportListaPreciosToExcel } from '@/lib/export-lista-precios-excel';
@@ -24,14 +23,23 @@ import { productPath } from '@/lib/product-path';
 import {
   groupSearchProductsByPanelSection,
   SEARCH_PANEL_SECTION_ORDER,
+  type SearchPanelSectionLabel,
 } from '@/lib/product-search';
 import { ensureFullPrices } from '@/lib/pricing';
-import { PRICE_ROLE_LABELS, resolvePriceRole, USER_ROLE_LABELS } from '@/lib/roles';
+import { PRICE_ROLE_LABELS } from '@/lib/roles';
 import { SITE_LOGO_ASSET_PATH } from '@/lib/site-logo-asset';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+
+const PRICE_COLUMNS = [
+  { key: 'public', label: PRICE_ROLE_LABELS.public },
+  { key: 'distribuidor', label: PRICE_ROLE_LABELS.distribuidor },
+  { key: 'tecnico', label: PRICE_ROLE_LABELS.tecnico },
+  { key: 'mayorista', label: PRICE_ROLE_LABELS.mayorista },
+  { key: 'compra', label: 'Compra' },
+] as const;
 
 function ProductThumb({ product }: { product: Product }) {
   const src = product.image_url?.trim() || product.gallery?.[0]?.trim() || '';
@@ -56,16 +64,25 @@ function ProductThumb({ product }: { product: Product }) {
   );
 }
 
+function resolvePurchaseUsd(product: Product): number {
+  const raw = (product as Product & { purchase_price_usd?: number }).purchase_price_usd;
+  return Number(raw) || 0;
+}
+
+function PriceCell({ usd }: { usd: number }) {
+  if (usd <= 0) {
+    return <span className="text-muted-foreground">—</span>;
+  }
+  return <DualPrice usd={usd} alwaysBoth className="justify-end text-[0.75rem]" />;
+}
+
 export function AccountPriceListPanel() {
-  const { role } = useAuth();
   const { data: products = [], isLoading } = useProducts();
   const { data: companySettings } = useCompanySettings();
   const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
   const [query, setQuery] = useState('');
   const [exportBusy, setExportBusy] = useState(false);
-
-  const priceRole = resolvePriceRole(role);
-  const roleLabel = USER_ROLE_LABELS[role] ?? PRICE_ROLE_LABELS[priceRole];
+  const [activeCategory, setActiveCategory] = useState<SearchPanelSectionLabel | null>(null);
 
   const inStockProducts = useMemo(
     () => products.filter((product) => Math.max(0, Math.floor(Number(product.stock) || 0)) > 0),
@@ -86,13 +103,27 @@ export function AccountPriceListPanel() {
 
   const sectionGroups = useMemo(() => {
     const groups = groupSearchProductsByPanelSection(filtered, query.trim() || undefined);
-    const order = new Map(
-      SEARCH_PANEL_SECTION_ORDER.map((label, index) => [label, index] as const),
-    );
-    return [...groups].sort(
-      (a, b) => (order.get(a.category as never) ?? 99) - (order.get(b.category as never) ?? 99),
-    );
+    const byLabel = new Map(groups.map((group) => [group.category, group] as const));
+    return SEARCH_PANEL_SECTION_ORDER.map((label) => ({
+      category: label,
+      products: byLabel.get(label)?.products ?? [],
+    })).filter((group) => group.products.length > 0);
   }, [filtered, query]);
+
+  useEffect(() => {
+    if (sectionGroups.length === 0) {
+      setActiveCategory(null);
+      return;
+    }
+    if (!activeCategory || !sectionGroups.some((group) => group.category === activeCategory)) {
+      setActiveCategory(sectionGroups[0]!.category as SearchPanelSectionLabel);
+    }
+  }, [activeCategory, sectionGroups]);
+
+  const activeGroup = useMemo(
+    () => sectionGroups.find((group) => group.category === activeCategory) ?? null,
+    [activeCategory, sectionGroups],
+  );
 
   const handleExport = async () => {
     if (filtered.length === 0 || exportBusy) return;
@@ -128,8 +159,8 @@ export function AccountPriceListPanel() {
               Lista de Precios
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Productos en stock agrupados por Equipos, Tóner, Repuestos y más. Precios según tu
-              perfil ({roleLabel}), en soles y dólares, con precio por mayor.
+              Productos en stock por categoría, con precios Corporativo, Distribuidor, Técnico,
+              Mayorista y Compra (USD · S/).
             </p>
           </div>
           <Button
@@ -183,16 +214,54 @@ export function AccountPriceListPanel() {
         ) : null}
 
         {!isLoading && sectionGroups.length > 0 ? (
-          <div className="space-y-6">
-            {sectionGroups.map((group) => (
-              <section key={group.category} aria-labelledby={`price-section-${group.category}`}>
+          <div className="space-y-4">
+            <div
+              role="tablist"
+              aria-label="Categorías de la lista de precios"
+              className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
+            >
+              {sectionGroups.map((group) => {
+                const selected = group.category === activeCategory;
+                return (
+                  <button
+                    key={group.category}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() =>
+                      setActiveCategory(group.category as SearchPanelSectionLabel)
+                    }
+                    className={cn(
+                      'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600',
+                      selected
+                        ? 'border-red-600 bg-red-600 text-white'
+                        : 'border-border bg-background text-muted-foreground hover:border-red-300 hover:text-foreground',
+                    )}
+                  >
+                    {group.category}
+                    <span
+                      className={cn(
+                        'rounded-full px-1.5 py-0.5 text-[0.625rem] font-medium',
+                        selected ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground',
+                      )}
+                    >
+                      {group.products.length}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {activeGroup ? (
+              <section aria-labelledby={`price-section-${activeGroup.category}`}>
                 <h3
-                  id={`price-section-${group.category}`}
+                  id={`price-section-${activeGroup.category}`}
                   className="mb-2 border-b border-border/70 pb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
                 >
-                  {group.category}
+                  {activeGroup.category}
                   <span className="ml-2 font-normal normal-case tracking-normal text-muted-foreground/80">
-                    ({group.products.length})
+                    ({activeGroup.products.length})
                   </span>
                 </h3>
                 <div className="overflow-x-auto rounded-lg border">
@@ -202,16 +271,21 @@ export function AccountPriceListPanel() {
                         <TableHead className="min-w-[5rem]">Código</TableHead>
                         <TableHead className="min-w-[14rem]">Producto</TableHead>
                         <TableHead className="min-w-[4.5rem] text-center">Stock</TableHead>
-                        <TableHead className="min-w-[8rem] text-right">Precio</TableHead>
-                        <TableHead className="min-w-[8rem] text-right">Precio x mayor</TableHead>
+                        {PRICE_COLUMNS.map((column) => (
+                          <TableHead
+                            key={column.key}
+                            className="min-w-[7.5rem] text-right"
+                          >
+                            {column.label}
+                          </TableHead>
+                        ))}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {group.products.map((product) => {
+                      {activeGroup.products.map((product) => {
                         const prices = ensureFullPrices(product.prices);
-                        const listUsd = Number(product.price) || Number(prices[priceRole]) || 0;
-                        const mayorUsd = Number(prices.mayorista) || 0;
                         const stock = Math.max(0, Math.floor(Number(product.stock) || 0));
+                        const purchaseUsd = resolvePurchaseUsd(product);
                         return (
                           <TableRow key={product.id}>
                             <TableCell className="align-middle font-mono text-xs text-muted-foreground">
@@ -232,22 +306,23 @@ export function AccountPriceListPanel() {
                                 </Link>
                               </div>
                             </TableCell>
-                            <TableCell className="align-middle text-center tabular-nums font-semibold text-foreground">
+                            <TableCell className="align-middle text-center font-semibold tabular-nums text-foreground">
                               {stock}
                             </TableCell>
-                            <TableCell className="align-middle text-right text-sm font-semibold tabular-nums">
-                              {listUsd > 0 ? (
-                                <DualPrice usd={listUsd} alwaysBoth className="justify-end" />
-                              ) : (
-                                <span className="text-muted-foreground">—</span>
-                              )}
+                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                              <PriceCell usd={Number(prices.public) || 0} />
                             </TableCell>
-                            <TableCell className="align-middle text-right text-sm font-semibold tabular-nums">
-                              {mayorUsd > 0 ? (
-                                <DualPrice usd={mayorUsd} alwaysBoth className="justify-end" />
-                              ) : (
-                                <span className="text-muted-foreground">—</span>
-                              )}
+                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                              <PriceCell usd={Number(prices.distribuidor) || 0} />
+                            </TableCell>
+                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                              <PriceCell usd={Number(prices.tecnico) || 0} />
+                            </TableCell>
+                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                              <PriceCell usd={Number(prices.mayorista) || 0} />
+                            </TableCell>
+                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                              <PriceCell usd={purchaseUsd} />
                             </TableCell>
                           </TableRow>
                         );
@@ -256,7 +331,7 @@ export function AccountPriceListPanel() {
                   </Table>
                 </div>
               </section>
-            ))}
+            ) : null}
           </div>
         ) : null}
 

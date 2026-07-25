@@ -41,12 +41,12 @@ export function ProductQuickViewPricingBox({
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         {onRequest ? (
-          <p className="text-2xl font-bold leading-tight text-foreground sm:text-[1.75rem]">
+          <p className="text-lg font-bold leading-tight text-foreground sm:text-xl">
             {CONSULTAR_PRECIO_LABEL}
           </p>
         ) : (
           <AdminRolePricesTooltip productId={productId} displayUsd={pricing.currentUsd}>
-            <p className="text-2xl font-bold leading-tight text-foreground sm:text-[1.75rem]">
+            <p className="text-lg font-bold leading-tight text-foreground sm:text-xl">
               <DualPrice usd={pricing.currentUsd} />
             </p>
           </AdminRolePricesTooltip>

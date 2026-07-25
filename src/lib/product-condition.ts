@@ -32,9 +32,9 @@ export const EQUIPMENT_PRODUCT_CONDITIONS: readonly ProductCondition[] = [
 ];
 
 export const EQUIPMENT_CONDITION_LABELS: Record<ProductCondition, string> = {
-  originales: 'Nueva',
-  compatibles: 'Seminueva',
-  remanufacturados: 'Remanufacturada',
+  originales: 'Nuevas',
+  compatibles: 'Seminuevas',
+  remanufacturados: 'Remanufacturadas',
   partes: 'Partes',
 };
 
@@ -475,6 +475,7 @@ export function productMatchesCatalogFamily(
 export function parseProductCondition(value: string | null): ProductCondition | null {
   if (!value) return null;
   const key = value.trim().toLowerCase();
+  if (key === 'all' || key === 'todas') return null;
   return CONDITION_URL_ALIASES[key] ?? null;
 }
 

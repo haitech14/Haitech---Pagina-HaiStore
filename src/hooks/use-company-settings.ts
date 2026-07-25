@@ -5,6 +5,13 @@ import { normalizeBulkDiscountTiers } from '@/lib/bulk-discount-tiers';
 import { normalizeUsdToPenRate, setExchangeRates } from '@/lib/exchange-rate';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 
+export type SbsExchangeRates = {
+  compra: number;
+  venta: number;
+  fecha: string | null;
+  origen: string;
+};
+
 function normalizeCompanySettings(data: CompanySettings): CompanySettings {
   const sale = normalizeUsdToPenRate(data.usdToPenExchangeRate);
   return {
@@ -49,6 +56,23 @@ export function useCompanySettingsMutation() {
     onSuccess: (data) => {
       setExchangeRates(data.usdToPenExchangeRate, data.usdToPenPurchaseExchangeRate);
       queryClient.setQueryData(['company-settings'], data);
+    },
+  });
+}
+
+export function useSyncSbsExchangeRateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<{ settings: CompanySettings; sbs: SbsExchangeRates }>(
+        '/api/settings/company/exchange-rate/sync-sbs',
+        { method: 'POST' },
+      ),
+    onSuccess: ({ settings }) => {
+      const normalized = normalizeCompanySettings(settings);
+      setExchangeRates(normalized.usdToPenExchangeRate, normalized.usdToPenPurchaseExchangeRate);
+      queryClient.setQueryData(['company-settings'], normalized);
     },
   });
 }

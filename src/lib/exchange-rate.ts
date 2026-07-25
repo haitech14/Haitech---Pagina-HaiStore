@@ -1,5 +1,5 @@
 /** Tipo de cambio por defecto USD → PEN (referencial). */
-export const DEFAULT_USD_TO_PEN = 3.7;
+export const DEFAULT_USD_TO_PEN = 3.42;
 
 let activeSaleRate = DEFAULT_USD_TO_PEN;
 let activePurchaseRate = DEFAULT_USD_TO_PEN;

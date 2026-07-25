@@ -61,27 +61,16 @@ export function StoreCatalogHeader({
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
-          <div className="shrink-0">
-            {eyebrow ? (
-              <p className="text-xs font-semibold uppercase tracking-wide text-red-600">{eyebrow}</p>
-            ) : null}
-            <h2 id="tienda-catalogo-titulo" className="text-xl font-bold text-foreground sm:text-2xl">
-              {title}
-            </h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {productCount} resultado{productCount === 1 ? '' : 's'}
-            </p>
-          </div>
-
-          {showAttributeFilters ? (
-            <StoreCatalogAttributeChips
-              className="min-w-0 flex-1 sm:pb-0.5"
-              attributes={attributeFilters!}
-              selectedKeys={selectedAttributeKeys}
-              onToggle={onToggleAttribute!}
-            />
+        <div className="shrink-0">
+          {eyebrow ? (
+            <p className="text-xs font-semibold uppercase tracking-wide text-red-600">{eyebrow}</p>
           ) : null}
+          <h2 id="tienda-catalogo-titulo" className="text-xl font-bold text-foreground sm:text-2xl">
+            {title}
+          </h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {productCount} resultado{productCount === 1 ? '' : 's'}
+          </p>
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center lg:max-w-xl lg:flex-none lg:justify-end">
@@ -116,6 +105,14 @@ export function StoreCatalogHeader({
           categories={categories!}
           activeSlug={activeCategorySlug}
           onSelect={onSelectCategory!}
+        />
+      ) : null}
+
+      {showAttributeFilters ? (
+        <StoreCatalogAttributeChips
+          attributes={attributeFilters!}
+          selectedKeys={selectedAttributeKeys}
+          onToggle={onToggleAttribute!}
         />
       ) : null}
     </div>

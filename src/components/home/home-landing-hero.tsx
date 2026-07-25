@@ -63,14 +63,14 @@ export function HomeLandingHeroSlideContent({
         <img
           src={HERO_BACKGROUND}
           alt=""
-          width={1920}
-          height={640}
-          className="absolute inset-0 size-full origin-bottom scale-[1.28] object-cover object-[80%_bottom] sm:scale-[1.34] sm:object-[84%_bottom] lg:origin-bottom-right lg:scale-[1.38] lg:object-[90%_bottom]"
+          width={2726}
+          height={577}
+          className="absolute inset-0 size-full origin-center scale-[1.7] object-cover object-[86%_28%] sm:scale-[1.55] sm:object-[78%_30%] lg:scale-[1.45] lg:object-[70%_32%] -translate-x-[4%] -translate-y-[14%] sm:-translate-x-[5%] sm:-translate-y-[16%] lg:-translate-x-[6%] lg:-translate-y-[18%]"
           loading="eager"
           fetchPriority="high"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(248,249,250,0.96)_0%,rgba(248,249,250,0.92)_28%,rgba(248,249,250,0.72)_48%,rgba(248,249,250,0.28)_68%,transparent_82%)] lg:bg-[linear-gradient(to_right,rgba(248,249,250,0.97)_0%,rgba(248,249,250,0.93)_26%,rgba(248,249,250,0.7)_46%,rgba(248,249,250,0.22)_64%,transparent_78%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.96)_0%,rgba(255,255,255,0.92)_24%,rgba(255,255,255,0.72)_42%,rgba(255,255,255,0.28)_58%,transparent_74%)] lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.97)_0%,rgba(255,255,255,0.93)_22%,rgba(255,255,255,0.7)_40%,rgba(255,255,255,0.22)_56%,transparent_72%)]" />
       </div>
 
       <div className="container relative z-10 flex h-full items-center">

@@ -26,6 +26,7 @@ interface ProductQuickViewActionsProps {
   className?: string;
   quantity?: number;
   onQuantityChange?: (quantity: number) => void;
+  rentalMode?: boolean;
 }
 
 export function ProductQuickViewActions({
@@ -35,6 +36,7 @@ export function ProductQuickViewActions({
   className,
   quantity: quantityProp,
   onQuantityChange,
+  rentalMode = false,
 }: ProductQuickViewActionsProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
@@ -86,8 +88,14 @@ export function ProductQuickViewActions({
     navigate('/checkout');
   };
 
-  const buyNowLabel = includesOnRequest ? 'Comprar a pedido' : 'Comprar ahora';
-  const addToCartLabel = getAddToCartLabel(product, 'default', quantity);
+  const buyNowLabel = rentalMode
+    ? 'Solicitar alquiler'
+    : includesOnRequest
+      ? 'Reservar'
+      : 'Comprar ahora';
+  const addToCartLabel = rentalMode
+    ? 'Ver ficha de alquiler'
+    : getAddToCartLabel(product, 'default', quantity);
 
   return (
     <div className={cn('space-y-3', className)}>
@@ -114,68 +122,91 @@ export function ProductQuickViewActions({
         {stockAvailability.label}
       </p>
 
-      <div
-        className="inline-flex items-center rounded-md border border-border bg-background"
-        role="group"
-        aria-label={
-          orderHint
-            ? `Cantidad de ${product.name}: ${quantity} (${orderHint})`
-            : `Cantidad de ${product.name}`
-        }
-      >
-        <button
-          type="button"
-          onClick={() => adjustQuantity(-1)}
-          disabled={quantity <= 1}
-          aria-label="Disminuir cantidad"
-          className="flex size-11 items-center justify-center text-muted-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
+      {!rentalMode ? (
+        <div
+          className="inline-flex items-center rounded-md border border-border bg-background"
+          role="group"
+          aria-label={
+            orderHint
+              ? `Cantidad de ${product.name}: ${quantity} (${orderHint})`
+              : `Cantidad de ${product.name}`
+          }
         >
-          <Minus className="size-4" aria-hidden="true" />
-        </button>
-        <span
-          className="min-w-8 text-center text-sm font-semibold tabular-nums"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {quantity}
-        </span>
-        <button
-          type="button"
-          onClick={() => adjustQuantity(1)}
-          aria-label="Aumentar cantidad"
-          className="flex size-11 items-center justify-center text-muted-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Plus className="size-4" aria-hidden="true" />
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => adjustQuantity(-1)}
+            disabled={quantity <= 1}
+            aria-label="Disminuir cantidad"
+            className="flex size-11 items-center justify-center text-muted-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
+          >
+            <Minus className="size-4" aria-hidden="true" />
+          </button>
+          <span
+            className="min-w-8 text-center text-sm font-semibold tabular-nums"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {quantity}
+          </span>
+          <button
+            type="button"
+            onClick={() => adjustQuantity(1)}
+            aria-label="Aumentar cantidad"
+            className="flex size-11 items-center justify-center text-muted-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-2">
-        <Button
-          type="button"
-          className={cn(
-            'min-h-11 w-full gap-2 bg-red-600 text-base font-semibold hover:bg-red-500',
-            includesOnRequest && ON_REQUEST_PRODUCT_BUTTON_CLASS,
-          )}
-          onClick={handleBuyNow}
-        >
-          {!includesOnRequest ? <ShoppingCart className="size-4 shrink-0" aria-hidden="true" /> : null}
-          {buyNowLabel}
-        </Button>
+        {rentalMode ? (
+          <Button
+            type="button"
+            className="min-h-11 w-full gap-2 bg-[#111111] text-base font-semibold text-white hover:bg-black"
+            asChild
+          >
+            <Link to={detailHref} onClick={onClose}>
+              {buyNowLabel}
+              <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
+            </Link>
+          </Button>
+        ) : (
+          <>
+            <Button
+              type="button"
+              className={cn(
+                'min-h-11 w-full gap-2 text-base font-semibold',
+                includesOnRequest
+                  ? 'bg-[#111111] text-white hover:bg-black'
+                  : 'bg-red-600 text-white hover:bg-red-500',
+              )}
+              onClick={handleBuyNow}
+            >
+              {!includesOnRequest ? (
+                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+              ) : null}
+              {buyNowLabel}
+            </Button>
 
-        <AddToCartButton
-          product={product}
-          addOptions={cartAddOptions}
-          className={cn(
-            'min-h-11 w-full gap-2 border-red-600 bg-background text-base font-semibold text-red-600 hover:bg-red-50',
-            includesOnRequest
-              ? ON_REQUEST_PRODUCT_BUTTON_CLASS
-              : 'border bg-background hover:text-red-600',
-          )}
-          variant="outline"
-        >
-          {!includesOnRequest ? <ShoppingCart className="size-4 shrink-0" aria-hidden="true" /> : null}
-          {addToCartLabel}
-        </AddToCartButton>
+            <AddToCartButton
+              product={product}
+              addOptions={cartAddOptions}
+              className={cn(
+                'min-h-11 w-full gap-2 border-red-600 bg-background text-base font-semibold text-red-600 hover:bg-red-50',
+                includesOnRequest
+                  ? ON_REQUEST_PRODUCT_BUTTON_CLASS
+                  : 'border bg-background hover:text-red-600',
+              )}
+              variant="outline"
+            >
+              {!includesOnRequest ? (
+                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+              ) : null}
+              {addToCartLabel}
+            </AddToCartButton>
+          </>
+        )}
 
         <Button
           type="button"

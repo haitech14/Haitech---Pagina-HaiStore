@@ -8,7 +8,6 @@ import {
   formatOrderQuantityHint,
   getAddToCartLabel,
   hasOnRequestQuantity,
-  ON_REQUEST_PRODUCT_BUTTON_CLASS,
 } from '@/components/cart/add-to-cart-button';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -156,7 +155,11 @@ export function ProductQuantityAddFooter({
       className={cn(
         addButtonClass,
         includesOnRequest
-          ? (addButtonClassName ?? ON_REQUEST_PRODUCT_BUTTON_CLASS)
+          ? cn(
+              addButtonClassName,
+              // Reserva / a pedido: negro (pisa fondos rojos de las cards).
+              'border border-foreground !bg-foreground !text-background shadow-none hover:!bg-foreground/90 hover:!text-background focus-visible:ring-ring',
+            )
           : cn(
               'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
               addButtonClassName,
@@ -192,14 +195,18 @@ export function ProductQuantityAddFooter({
     </AddToCartButton>
   );
 
+  const actionRow = (
+    <div className="flex min-w-0 flex-1 items-stretch gap-1.5 sm:gap-2">
+      {addButton}
+      {endAdornment}
+    </div>
+  );
+
   if (quantityAbove) {
     return (
       <div className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}>
         {quantityControl}
-        <div className="flex w-full min-w-0 items-stretch gap-2">
-          {addButton}
-          {endAdornment}
-        </div>
+        {actionRow}
       </div>
     );
   }
@@ -209,7 +216,7 @@ export function ProductQuantityAddFooter({
       className={cn(
         'flex w-full shrink-0 items-stretch',
         hideQuantity
-          ? 'gap-1.5 sm:gap-2'
+          ? 'gap-0'
           : revealQuantityOnHover
             ? 'gap-0 transition-[gap] duration-200 ease-out group-hover:gap-1.5 group-focus-within:gap-1.5 sm:group-hover:gap-2 max-md:gap-1.5 motion-reduce:transition-none'
             : 'gap-1.5 sm:gap-2',
@@ -217,8 +224,7 @@ export function ProductQuantityAddFooter({
       )}
     >
       {quantityControl}
-      {addButton}
-      {endAdornment}
+      {actionRow}
     </div>
   );
 }

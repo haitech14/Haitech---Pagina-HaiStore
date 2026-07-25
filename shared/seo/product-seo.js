@@ -7,7 +7,7 @@ import {
 } from '../inventory-product-name.js';
 import { proposeProductSlug } from '../product-slug.js';
 import { truncateMetaDescription } from './meta.js';
-export const DEFAULT_USD_TO_PEN_SEO = 3.7;
+export const DEFAULT_USD_TO_PEN_SEO = 3.42;
 
 const KNOWN_BRAND_PATTERN =
   /\b(RICOH|HP|CANON|EPSON|BROTHER|KONICA|KYOCERA|XEROX|LEXMARK|SAMSUNG)\b/i;
