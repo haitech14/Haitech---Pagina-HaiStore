@@ -99,7 +99,7 @@ const LIST_ROWS = [
   // B/N equipos
   { key: 'm320f', stock: 9, tecnico: 119, model: 'M 320F', notes: 'falta guía ADF', isColor: false, formato: 'A4', kind: 'equipment', match: [/M\s*320F/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'im430', stock: 8, tecnico: 329, model: 'IM 430F', notes: 'U. Imagen nueva P502', isColor: false, formato: 'A4', kind: 'equipment', match: [/IM\s*430F?/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
-  { key: 'im550-clp', stock: 6, tecnico: 369, model: 'IM 550F', notes: 'C/L.P.', isColor: false, formato: 'A4', kind: 'equipment', match: [/IM\s*550F?/i], preferCode: /CP908Y|550/i, category: 'Multifuncionales, Multifuncionales Seminuevas', allowSecond: true },
+  { key: 'im550-clp', stock: 6, tecnico: 369, model: 'IM 550F', notes: 'Ligero Punto', isColor: false, formato: 'A4', kind: 'equipment', match: [/IM\s*550F?/i], preferCode: /CP908Y|550/i, category: 'Multifuncionales, Multifuncionales Seminuevas', allowSecond: true },
   { key: 'im550', stock: 3, tecnico: 490, model: 'IM 550F', notes: 'Cilindro y cuchilla nueva', isColor: false, formato: 'A4', kind: 'equipment', match: [/IM\s*550F?/i], category: 'Multifuncionales, Multifuncionales Seminuevas', createIfMissing: true },
   { key: 'im600', stock: 5, tecnico: 439, model: 'IM 600F', notes: '120 Y 220', isColor: false, formato: 'A4', kind: 'equipment', match: [/IM\s*600F?/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'im2500', stock: 1, tecnico: 679, model: 'IM 2500', notes: '', isColor: false, formato: 'A3', kind: 'equipment', match: [/IM\s*2500/i], category: 'Multifuncionales, Multifuncionales Seminuevas', createIfMissing: true },

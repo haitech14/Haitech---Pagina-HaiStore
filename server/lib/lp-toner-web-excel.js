@@ -199,7 +199,7 @@ function buildSuppliersAndObservacion(canal, oferta, ofertaNote = '') {
  * @param {import('xlsx').WorkSheet} sheet
  * @param {unknown[][]} rows
  */
-function fillMergedModeloCells(sheet, rows) {
+export function fillMergedModeloCells(sheet, rows) {
   const merges = sheet['!merges'] ?? [];
   for (const merge of merges) {
     if (merge.s.c !== 0 || merge.e.c !== 0) continue;

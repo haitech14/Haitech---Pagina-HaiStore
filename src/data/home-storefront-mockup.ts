@@ -72,10 +72,10 @@ export type HomeStorefrontCategoryCard = {
 export const HOME_STOREFRONT_CATEGORIES: readonly HomeStorefrontCategoryCard[] = [
   {
     id: 'fotocopiadoras',
-    label: 'Fotocopiadoras',
+    label: 'Multifuncionales Láser',
     href: categoryLandingPath('multifuncionales'),
     imageSrc: '/home/category-chips/equipment/multifuncionales.webp',
-    imageAlt: 'Fotocopiadora multifuncional',
+    imageAlt: 'Multifuncional láser',
     icon: Printer,
     iconColor: '#E30613',
   },
@@ -132,15 +132,6 @@ export const HOME_STOREFRONT_CATEGORIES: readonly HomeStorefrontCategoryCard[] =
     imageAlt: 'Pantalla interactiva',
     icon: Sparkles,
     iconColor: '#EA580C',
-  },
-  {
-    id: 'impresora-termica',
-    label: 'Térmicas',
-    href: categoryPath('impresoras', 'impresoras-termicas'),
-    imageSrc: '/home/category-chips/equipment/impresora-termica.webp',
-    imageAlt: 'Impresora térmica',
-    icon: Printer,
-    iconColor: '#111111',
   },
   {
     id: 'formato-ancho',

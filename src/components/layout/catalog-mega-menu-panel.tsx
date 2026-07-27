@@ -268,10 +268,12 @@ function MegaMenuInterestBrands({
   categorySlug,
   labels,
   onNavigate,
+  layout = 'bar',
 }: {
   categorySlug: string;
   labels: readonly string[];
   onNavigate: () => void;
+  layout?: 'sidebar' | 'bar';
 }) {
   const [catalogReady, setCatalogReady] = useState(false);
 
@@ -296,31 +298,52 @@ function MegaMenuInterestBrands({
 
   if (brands.length === 0) return null;
 
+  const isBar = layout === 'bar';
+
   return (
-    <div className="min-w-0 border-t border-[#E5E7EB] pt-3">
+    <div
+      className={cn(
+        'min-w-0',
+        isBar ? 'w-full border-t border-[#E5E7EB] pt-3' : 'border-t border-[#E5E7EB] pt-3',
+      )}
+    >
       <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
         Marcas
       </p>
-      <ul className="flex flex-wrap items-center gap-2" role="list">
+      <ul
+        className={cn(
+          'flex items-center',
+          isBar
+            ? 'w-full flex-nowrap gap-2'
+            : 'flex-nowrap gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        )}
+        role="list"
+      >
         {brands.map((brand) => {
           const logo = getBrandLogo(brand);
           const name = getBrandName(brand);
           return (
-            <li key={getBrandSlug(brand)}>
+            <li key={getBrandSlug(brand)} className={cn(isBar ? 'min-w-0 flex-1' : 'shrink-0')}>
               <MegaMenuLink
                 to={megaMenuCategoryBrandHref(categorySlug, brand)}
                 onNavigate={onNavigate}
                 className={cn(
-                  'inline-flex h-9 min-w-[3.5rem] items-center justify-center rounded-md border border-[#E5E7EB] bg-white px-2.5 transition-colors',
+                  'inline-flex h-9 items-center justify-center rounded-md border border-[#E5E7EB] bg-white transition-colors',
+                  isBar ? 'w-full px-2' : 'min-w-[2.75rem] px-2',
                   'hover:border-[#E30613]/40 hover:bg-[#FFF5F5]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
                 )}
                 aria-label={`Ver ${name}`}
               >
                 {logo ? (
-                  <img src={logo} alt={name} className="max-h-5 max-w-[4.5rem] object-contain" loading="lazy" />
+                  <img
+                    src={logo}
+                    alt={name}
+                    className="max-h-5 max-w-full object-contain"
+                    loading="lazy"
+                  />
                 ) : (
-                  <span className="text-[0.6875rem] font-semibold text-[#374151]">{name}</span>
+                  <span className="truncate text-[0.6875rem] font-semibold text-[#374151]">{name}</span>
                 )}
               </MegaMenuLink>
             </li>
@@ -394,19 +417,20 @@ function MegaMenuSummaryPanel({
           </MegaMenuLink>
         </div>
 
-        <div className="flex w-[16.5rem] max-w-[20rem] shrink-0 flex-col gap-4 sm:w-[18rem]">
+        <div className="flex w-[16.5rem] max-w-[20rem] shrink-0 flex-col sm:w-[18rem]">
           <MegaMenuInterestProducts
-            categorySlug={categorySlug}
-            labels={categoryLabels}
-            onNavigate={onNavigate}
-          />
-          <MegaMenuInterestBrands
             categorySlug={categorySlug}
             labels={categoryLabels}
             onNavigate={onNavigate}
           />
         </div>
       </div>
+
+      <MegaMenuInterestBrands
+        categorySlug={categorySlug}
+        labels={categoryLabels}
+        onNavigate={onNavigate}
+      />
     </div>
   );
 }
@@ -737,28 +761,30 @@ export function CatalogMegaMenuPanel({
                   onNavigate={onNavigate}
                 />
               ) : (
-                <div className="flex w-max max-w-full gap-8">
-                  <div className={cn('grid w-max max-w-full items-start gap-x-8 gap-y-6', desktopGridClass)}>
-                    {columnGroups.map((group) => (
-                      <MegaMenuDesktopColumn
-                        key={`${activeCategorySlug}-${group.slug}`}
-                        group={group}
+                <div className="flex w-max max-w-full flex-col gap-4">
+                  <div className="flex w-max max-w-full gap-8">
+                    <div className={cn('grid w-max max-w-full items-start gap-x-8 gap-y-6', desktopGridClass)}>
+                      {columnGroups.map((group) => (
+                        <MegaMenuDesktopColumn
+                          key={`${activeCategorySlug}-${group.slug}`}
+                          group={group}
+                          onNavigate={onNavigate}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex w-[16.5rem] shrink-0 flex-col border-l border-[#E5E7EB] pl-6 sm:w-[18rem]">
+                      <MegaMenuInterestProducts
+                        categorySlug={activeCategorySlug}
+                        labels={categoryLabels}
                         onNavigate={onNavigate}
                       />
-                    ))}
+                    </div>
                   </div>
-                  <div className="flex w-[16.5rem] shrink-0 flex-col gap-4 border-l border-[#E5E7EB] pl-6 sm:w-[18rem]">
-                    <MegaMenuInterestProducts
-                      categorySlug={activeCategorySlug}
-                      labels={categoryLabels}
-                      onNavigate={onNavigate}
-                    />
-                    <MegaMenuInterestBrands
-                      categorySlug={activeCategorySlug}
-                      labels={categoryLabels}
-                      onNavigate={onNavigate}
-                    />
-                  </div>
+                  <MegaMenuInterestBrands
+                    categorySlug={activeCategorySlug}
+                    labels={categoryLabels}
+                    onNavigate={onNavigate}
+                  />
                 </div>
               )
             ) : (

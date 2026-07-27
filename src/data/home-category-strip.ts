@@ -87,7 +87,7 @@ const HOME_CATEGORY_STRIP_CONFIG: Record<string, HomeCategoryStripConfig> = {
   multifuncionales: {
     group: 'equipos',
     order: 1,
-    name: 'Fotocopiadoras',
+    name: 'Multifuncionales Láser',
     description: 'Equipos de alto rendimiento para tu oficina.',
     ctaLabel: 'Ver modelos',
     badge: 'Más vendido',

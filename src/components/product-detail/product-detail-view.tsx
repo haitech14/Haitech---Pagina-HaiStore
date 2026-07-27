@@ -38,6 +38,7 @@ import {
   type SeminuevaPreparationType,
 } from '@/lib/seminueva-preparation';
 import { useAuth } from '@/context/auth-context';
+import { useProductInventoryVariants } from '@/hooks/use-product-inventory-variants';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import {
   productQualifiesForMaintenancePlanCta,
@@ -184,6 +185,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     () => buildProductDetail(product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers),
     [product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers],
   );
+  const { options: inventoryVariantOptions } = useProductInventoryVariants(product);
   const { ref: relatedDeferRef, near: relatedNearViewport } = useNearViewport(true);
   const { data: catalogProducts = [], isLoading: catalogLoading } = useProducts({
     enabled: detail.isPrinterEquipment,
@@ -637,6 +639,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   onMaintenanceSupplyPlanChange={setMaintenanceSupplyPlan}
                   tonerCatalog={catalogForEquipment}
                   consumableGroups={consumableGroups}
+                  inventoryVariantOptions={inventoryVariantOptions}
                   mobilePurchaseSlot={
                     <div ref={mobilePurchaseVisibilityRef} className="mt-3 lg:hidden">
                       <ProductDetailPurchaseCard

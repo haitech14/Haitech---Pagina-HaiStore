@@ -76,9 +76,9 @@ function AccountMenuRow({ icon: Icon, label, variant = 'default' }: AccountMenuR
         strokeWidth={1.75}
         aria-hidden="true"
       />
-      <span className="flex-1 text-left font-medium">{label}</span>
+      <span className="flex-1 truncate text-left font-medium">{label}</span>
       <ChevronRight
-        className={cn('size-3.5 shrink-0', isDanger ? 'text-red-500' : 'text-muted-foreground/60')}
+        className={cn('size-3 shrink-0 opacity-70', isDanger ? 'text-red-500' : 'text-muted-foreground')}
         aria-hidden="true"
       />
     </span>
@@ -177,7 +177,10 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
         onMouseEnter={openMenu}
         onMouseLeave={scheduleClose}
         onCloseAutoFocus={(event) => event.preventDefault()}
-        className="z-50 w-[min(100vw-2rem,17.5rem)] overflow-visible border-0 bg-transparent p-0 shadow-none"
+        className={cn(
+          'z-50 overflow-visible border-0 bg-transparent p-0 shadow-none',
+          user ? 'w-[min(100vw-2rem,16rem)]' : 'w-[min(100vw-2rem,12.75rem)]',
+        )}
       >
         <div className="relative mt-1.5 overflow-hidden rounded-lg border border-border/80 bg-white shadow-lg">
           <span

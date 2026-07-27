@@ -400,15 +400,17 @@ export function ProductDetailGallery({
           <DialogTitle className="sr-only">{productName}</DialogTitle>
           <DialogDescription className="sr-only">Vista ampliada del producto</DialogDescription>
           {activeImage ? (
-            <ProductImageWatermarkOverlay src={activeImage.src}>
-              <ProductGalleryResponsiveImage
-                src={activeImage.src}
-                alt={activeImage.alt}
-                className="mx-auto max-h-[85vh] w-full object-contain"
-                loading="eager"
-                variant="main"
-              />
-            </ProductImageWatermarkOverlay>
+            <div className="overflow-hidden rounded-lg bg-white p-3 sm:p-4">
+              <ProductImageWatermarkOverlay src={activeImage.src}>
+                <ProductGalleryResponsiveImage
+                  src={activeImage.src}
+                  alt={activeImage.alt}
+                  className="mx-auto max-h-[85vh] w-full object-contain"
+                  loading="eager"
+                  variant="main"
+                />
+              </ProductImageWatermarkOverlay>
+            </div>
           ) : null}
         </DialogContent>
       </Dialog>

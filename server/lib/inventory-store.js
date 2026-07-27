@@ -891,6 +891,9 @@ export function toPublicProduct(product, role, warehouses) {
     upsell_product_ids: Array.isArray(product.upsell_product_ids)
       ? product.upsell_product_ids.filter((id) => typeof id === 'string' && id.trim())
       : [],
+    variant_product_ids: Array.isArray(product.variant_product_ids)
+      ? product.variant_product_ids.filter((id) => typeof id === 'string' && id.trim())
+      : [],
     cross_sell_optional_products: normalizeMerchandisingOptionalProducts(
       product.cross_sell_optional_products,
     ),

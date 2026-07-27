@@ -107,7 +107,6 @@ const STOREFRONT_CONSUMABLES_CONDITION_TABS = HOME_FEATURED_CONSUMABLES_CONDITIO
 type StorefrontCatalogKind =
   | 'multifuncionales'
   | 'impresoras'
-  | 'impresoras-termicas'
   | 'escaneres'
   | 'toner'
   | 'repuestos';
@@ -129,12 +128,6 @@ const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
     titleId: 'home-storefront-impresoras-title',
     title: 'Impresoras Láser',
     paginationLabel: 'impresoras láser',
-  },
-  {
-    kind: 'impresoras-termicas',
-    titleId: 'home-storefront-impresoras-termicas-title',
-    title: 'Impresoras térmicas',
-    paginationLabel: 'impresoras térmicas',
   },
   {
     kind: 'escaneres',
@@ -183,21 +176,6 @@ function matchesImpresorasCondition(
     product,
     equipmentCondition,
     'impresora-laser',
-  );
-}
-
-function matchesImpresorasTermicasSection(product: FeaturedProduct): boolean {
-  return matchesHomeFeaturedEquipmentCategoryFilter(product, 'impresora-termica');
-}
-
-function matchesImpresorasTermicasCondition(
-  product: FeaturedProduct,
-  equipmentCondition: HomeFeaturedEquipmentConditionFilterId,
-): boolean {
-  return matchesHomeFeaturedEquipmentConditionFilter(
-    product,
-    equipmentCondition,
-    'impresora-termica',
   );
 }
 
@@ -420,7 +398,6 @@ function StorefrontCatalogRail({
   const isEquipmentRail =
     rail.kind === 'multifuncionales' ||
     rail.kind === 'impresoras' ||
-    rail.kind === 'impresoras-termicas' ||
     rail.kind === 'escaneres';
 
   const products = useMemo(() => {
@@ -441,17 +418,6 @@ function StorefrontCatalogRail({
           (product) =>
             matchesImpresorasSection(product) &&
             matchesImpresorasCondition(product, equipmentCondition),
-        )
-        .sort(compareHomeFeaturedEquipmentProducts)
-        .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
-    }
-
-    if (rail.kind === 'impresoras-termicas') {
-      return [...productPool]
-        .filter(
-          (product) =>
-            matchesImpresorasTermicasSection(product) &&
-            matchesImpresorasTermicasCondition(product, equipmentCondition),
         )
         .sort(compareHomeFeaturedEquipmentProducts)
         .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);

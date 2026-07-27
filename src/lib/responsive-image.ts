@@ -1,5 +1,7 @@
+import { PRODUCT_IMAGE_MAX_EDGE } from '@/lib/product-media-upload-limits';
+
 /** Quita extensión de imagen para construir rutas de variantes WebP. */
-const RESPONSIVE_WIDTH_SUFFIX_WITHOUT_EXT = /-(256|512|768|1024|1280|1920)$/i;
+const RESPONSIVE_WIDTH_SUFFIX_WITHOUT_EXT = /-(256|512|768|1024|1280|1920|2560)$/i;
 
 export function imageBasePath(imagePath: string): string {
   const path = imagePath.split('?')[0].split('#')[0];
@@ -120,10 +122,11 @@ export function productDetailMainImageSources(imagePath: string) {
   const base = imageBasePath(imagePath);
   const q = imageCacheQuery(imagePath);
   const master = productImageMasterUrl(imagePath);
+  // Prioriza la master (hasta PRODUCT_IMAGE_MAX_EDGE) en retina / Ampliar.
   return {
-    webpSrcSet: `${base}-1024.webp${q} 1024w, ${master} 2048w`,
+    webpSrcSet: `${base}-1024.webp${q} 1024w, ${master} ${PRODUCT_IMAGE_MAX_EDGE}w`,
     fallbackSrc: master,
-    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 55vw, 680px',
+    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 720px',
   };
 }
 
@@ -133,9 +136,9 @@ export function productQuickViewMainImageSources(imagePath: string) {
   const q = imageCacheQuery(imagePath);
   const master = productImageMasterUrl(imagePath);
   return {
-    webpSrcSet: `${base}-1024.webp${q} 1024w, ${master} 2048w`,
+    webpSrcSet: `${base}-1024.webp${q} 1024w, ${master} ${PRODUCT_IMAGE_MAX_EDGE}w`,
     fallbackSrc: master,
-    sizes: '(max-width: 1024px) 90vw, 480px',
+    sizes: '(max-width: 1024px) 90vw, 520px',
   };
 }
 

@@ -6,6 +6,7 @@ import { ProductDetailComplementaCompra } from '@/components/product-detail/prod
 import { ProductDetailHeroSpecs } from '@/components/product-detail/product-detail-hero-specs';
 import { ProductDetailHeroTrustStrip } from '@/components/product-detail/product-detail-hero-trust-strip';
 import { ProductDetailPreparationTypeSelector } from '@/components/product-detail/product-detail-preparation-type-selector';
+import { ProductDetailInventoryVariantSelector } from '@/components/product-detail/product-detail-inventory-variant-selector';
 import type { PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
 import { ProductCardSpecTable } from '@/components/product/product-card-spec-table';
 import type { ConfigureHeroAccessoryCard, ConfigureHeroWarrantyUpgrade } from '@/lib/product-configure-hero-options';
@@ -29,6 +30,7 @@ import {
 } from '@/lib/supply-product-specs';
 import type { ProductDetailViewModel } from '@/types/product-detail';
 import type { FeaturedProduct } from '@/data/featured-products';
+import type { ProductInventoryVariantOption } from '@/lib/product-inventory-variants';
 import { cn } from '@/lib/utils';
 
 interface ProductDetailHeroInfoProps {
@@ -57,6 +59,7 @@ interface ProductDetailHeroInfoProps {
   onMaintenanceSupplyPlanChange?: (selection: MaintenanceSupplyPlanSelection) => void;
   tonerCatalog?: Product[];
   consumableGroups?: ConsumableGroup[];
+  inventoryVariantOptions?: ProductInventoryVariantOption[];
 }
 
 function resolveBestSellerBadge(
@@ -94,6 +97,7 @@ export function ProductDetailHeroInfo({
   onMaintenanceSupplyPlanChange,
   tonerCatalog = [],
   consumableGroups = [],
+  inventoryVariantOptions = [],
 }: ProductDetailHeroInfoProps) {
   const brandLabel = resolveProductHeroBrand(product) ?? detail.brandLabel;
   const displayRating = Number(detail.rating.toFixed(1));
@@ -128,6 +132,15 @@ export function ProductDetailHeroInfo({
         value={preparationType}
         onChange={onPreparationTypeChange}
         className="mb-2"
+      />
+    ) : null;
+
+  const inventoryVariantSelector =
+    inventoryVariantOptions.length > 1 ? (
+      <ProductDetailInventoryVariantSelector
+        product={product}
+        options={inventoryVariantOptions}
+        className="mt-3"
       />
     ) : null;
 
@@ -254,6 +267,8 @@ export function ProductDetailHeroInfo({
       )}
 
       {mobilePurchaseSlot}
+
+      {inventoryVariantSelector}
 
       {showComplementaCompra ? (
         <ProductDetailComplementaCompra

@@ -137,7 +137,7 @@ function scorePrimary(product, key) {
   if (/\b220V\b/.test(name)) score -= 3;
   if (/\bEX\b/.test(name)) score -= 50;
   if (key === 'IM C400' && /120V/.test(name)) score += 30;
-  if (key === 'IM 550' && /C\/L\.P/.test(name)) score += 40;
+  if (key === 'IM 550' && /Ligero\s+Punto|C\/L\.P/i.test(name)) score += 40;
   if (key === 'IM 550' && /CILINDRO/.test(name)) score -= 20;
   if (key === 'P 502' && /SEMINUEVAS/i.test(product.category || '')) score += 80;
   if (key === 'P 502' && /NUEVA/.test(name) && !/SEMINUEVAS/i.test(product.category || '')) {

@@ -38,7 +38,7 @@ import {
 } from '@/lib/product-search';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
-import { getHomeLandingProductCardLines } from '@/lib/product-card-title';
+import { formatInventoryProductName } from '@/lib/inventory-product-name';
 import { getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
 import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
 import { productPath } from '@/lib/product-path';
@@ -146,10 +146,10 @@ const SEARCH_SUGGESTION_THUMB_CLASS =
   'size-9 shrink-0 overflow-hidden rounded-md border border-border/50 bg-white sm:size-10';
 
 const SEARCH_SUGGESTION_CELL_CLASS =
-  'flex w-full items-center gap-2 px-2.5 py-1.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2.5 sm:px-3 sm:py-2';
+  'flex w-full items-start gap-2 px-2.5 py-2 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2.5 sm:px-3 sm:py-2.5';
 
 const SEARCH_DROPDOWN_PANEL_CLASS =
-  'absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-[min(70vh,28rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,32rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,34rem)]';
+  'absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-[min(70vh,32rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,42rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,48rem)] xl:w-[min(100vw-2rem,52rem)]';
 
 /** Pestañas del panel: Todos | Equipos | Tóner | Repuestos (lista en una columna). */
 const SEARCH_RESULT_COLUMNS = [
@@ -294,8 +294,7 @@ function SearchProductSuggestionCell({
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const pricing = getCatalogCardPricing({ id: product.id, price: product.price });
   const showPrice = product.price > 0;
-  const { headline } = getHomeLandingProductCardLines(product);
-  const title = headline;
+  const title = formatInventoryProductName(product.name);
   const priceAria = showPrice
     ? formatDisplayPriceFromUsd(pricing.currentUsd, displayCurrency, dualPriceOrder)
     : CONSULTAR_PRECIO_LABEL;
@@ -327,23 +326,24 @@ function SearchProductSuggestionCell({
       onClick={onNavigateProduct}
     >
       <SearchProductSuggestionThumb product={product} />
-      <span className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
-        <span className="min-w-0 flex-1">
-          <span className="line-clamp-1 text-[0.8125rem] font-medium leading-snug text-foreground sm:text-sm">
-            {highlightSearchTerms(headline, query)}
-          </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+        <span
+          className="min-w-0 flex-1 whitespace-normal break-words text-[0.8125rem] font-medium leading-snug text-foreground sm:text-sm"
+          title={title}
+        >
+          {highlightSearchTerms(title, query)}
         </span>
         {showPrice ? (
-          <span className="shrink-0 text-[0.8125rem] font-semibold tabular-nums sm:text-sm">
+          <span className="shrink-0 text-[0.8125rem] font-semibold tabular-nums sm:pt-0.5 sm:text-sm">
             <DualPrice usd={pricing.currentUsd} />
           </span>
         ) : (
-          <span className="shrink-0 text-[0.8125rem] font-medium text-[#E30613] sm:text-sm">
+          <span className="shrink-0 text-[0.8125rem] font-medium text-[#E30613] sm:pt-0.5 sm:text-sm">
             {CONSULTAR_PRECIO_LABEL}
           </span>
         )}
       </span>
-      <span className="flex shrink-0 items-center gap-0.5">
+      <span className="flex shrink-0 items-center gap-0.5 pt-0.5">
         {clipboardImageUrl ? (
           <ProductCardCopyImageButton
             productName={product.name}

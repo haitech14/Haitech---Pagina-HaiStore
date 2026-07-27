@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FileSpreadsheet, ListOrdered, Loader2, Search } from 'lucide-react';
 
-import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductCardImage } from '@/components/product/product-card-image';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,6 +18,7 @@ import {
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProducts } from '@/hooks/use-products';
 import { exportListaPreciosToExcel } from '@/lib/export-lista-precios-excel';
+import { formatAttributeLabel } from '@/lib/inventory-attributes';
 import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
 import { productPath } from '@/lib/product-path';
 import {
@@ -29,8 +30,8 @@ import { ensureFullPrices } from '@/lib/pricing';
 import { PRICE_ROLE_LABELS } from '@/lib/roles';
 import { SITE_LOGO_ASSET_PATH } from '@/lib/site-logo-asset';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
-import type { Product } from '@/types/product';
-import { cn } from '@/lib/utils';
+import type { Product, ProductAttribute } from '@/types/product';
+import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const PRICE_COLUMNS = [
@@ -41,23 +42,28 @@ const PRICE_COLUMNS = [
   { key: 'compra', label: 'Compra' },
 ] as const;
 
+const ATTR_PREVIEW_COUNT = 4;
+
+const tableHeadClass =
+  'h-10 bg-red-600 px-3 text-xs font-semibold uppercase tracking-wide text-white first:rounded-tl-lg last:rounded-tr-lg [&:has([role=checkbox])]:pr-0';
+
 function ProductThumb({ product }: { product: Product }) {
   const src = product.image_url?.trim() || product.gallery?.[0]?.trim() || '';
   if (!src) {
     return (
-      <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded border border-border/60 bg-muted/30">
-        <ProductNoImagePlaceholder className="size-7 text-muted-foreground/50" />
+      <span className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted/30">
+        <ProductNoImagePlaceholder className="size-10 text-muted-foreground/50" />
       </span>
     );
   }
   return (
-    <span className="relative size-12 shrink-0 overflow-hidden rounded border border-border/60 bg-white">
+    <span className="relative size-20 shrink-0 overflow-hidden rounded-md border border-border/60 bg-white">
       <ProductCardImage
         src={src}
         alt=""
-        className="size-full object-contain p-0.5"
+        className="size-full object-contain p-1"
         overlayClassName={PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS}
-        responsiveSizes="48px"
+        responsiveSizes="80px"
         loading="lazy"
       />
     </span>
@@ -69,11 +75,52 @@ function resolvePurchaseUsd(product: Product): number {
   return Number(raw) || 0;
 }
 
+/** USD arriba, S/ debajo (orden fijo para la lista de precios). */
 function PriceCell({ usd }: { usd: number }) {
   if (usd <= 0) {
     return <span className="text-muted-foreground">—</span>;
   }
-  return <DualPrice usd={usd} alwaysBoth className="justify-end text-[0.75rem]" />;
+  return (
+    <span className="inline-flex flex-col items-end gap-0.5 text-right tabular-nums leading-tight">
+      <span className="text-[0.8125rem] font-semibold text-foreground">{formatUsd(usd)}</span>
+      <span className="text-[0.6875rem] font-medium text-muted-foreground">
+        {formatPenFromUsd(usd)}
+      </span>
+    </span>
+  );
+}
+
+function ProductAttributes({ attributes }: { attributes: ProductAttribute[] | undefined }) {
+  const list = Array.isArray(attributes)
+    ? attributes.filter((a) => a.name?.trim() || a.value?.trim())
+    : [];
+  if (list.length === 0) {
+    return <p className="mt-1 text-[0.65rem] text-muted-foreground">Sin atributos</p>;
+  }
+
+  const visible = list.slice(0, ATTR_PREVIEW_COUNT);
+  const rest = list.length - visible.length;
+
+  return (
+    <div className="mt-1.5 flex min-w-0 flex-wrap gap-1">
+      {visible.map((attribute, index) => {
+        const label = formatAttributeLabel(attribute);
+        return (
+          <Badge
+            key={attribute.id ?? `${attribute.name}-${index}`}
+            variant="outline"
+            className="h-5 max-w-full justify-start truncate border-border/80 bg-muted/40 px-1.5 text-[0.625rem] font-normal text-muted-foreground"
+            title={label}
+          >
+            <span className="truncate">{label}</span>
+          </Badge>
+        );
+      })}
+      {rest > 0 ? (
+        <span className="self-center text-[0.65rem] text-muted-foreground">+{rest} más</span>
+      ) : null}
+    </div>
+  );
 }
 
 export function AccountPriceListPanel() {
@@ -93,7 +140,10 @@ export function AccountPriceListPanel() {
     const q = query.trim().toLowerCase();
     if (!q) return inStockProducts;
     return inStockProducts.filter((product) => {
-      const haystack = [product.name, product.code, product.category, product.brand]
+      const attrText = (product.attributes ?? [])
+        .map((attr) => `${attr.name ?? ''} ${attr.value ?? ''}`)
+        .join(' ');
+      const haystack = [product.name, product.code, product.category, product.brand, attrText]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -160,7 +210,7 @@ export function AccountPriceListPanel() {
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Productos en stock por categoría, con precios Corporativo, Distribuidor, Técnico,
-              Mayorista y Compra (USD · S/).
+              Mayorista y Compra (USD arriba · S/ abajo).
             </p>
           </div>
           <Button
@@ -194,7 +244,7 @@ export function AccountPriceListPanel() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Buscar por nombre, código o categoría…"
+            placeholder="Buscar por nombre, código, categoría o atributo…"
             className="min-h-11 pl-9"
           />
         </div>
@@ -267,14 +317,18 @@ export function AccountPriceListPanel() {
                 <div className="overflow-x-auto rounded-lg border">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="min-w-[5rem]">Código</TableHead>
-                        <TableHead className="min-w-[14rem]">Producto</TableHead>
-                        <TableHead className="min-w-[4.5rem] text-center">Stock</TableHead>
+                      <TableRow className="border-0 hover:bg-transparent">
+                        <TableHead className={cn(tableHeadClass, 'min-w-[5rem]')}>Código</TableHead>
+                        <TableHead className={cn(tableHeadClass, 'min-w-[16rem]')}>
+                          Producto
+                        </TableHead>
+                        <TableHead className={cn(tableHeadClass, 'min-w-[4.5rem] text-center')}>
+                          Stock
+                        </TableHead>
                         {PRICE_COLUMNS.map((column) => (
                           <TableHead
                             key={column.key}
-                            className="min-w-[7.5rem] text-right"
+                            className={cn(tableHeadClass, 'min-w-[6.5rem] text-right')}
                           >
                             {column.label}
                           </TableHead>
@@ -292,36 +346,39 @@ export function AccountPriceListPanel() {
                               {product.code ?? '—'}
                             </TableCell>
                             <TableCell className="align-middle">
-                              <div className="flex min-w-0 items-center gap-3">
+                              <div className="flex min-w-0 items-start gap-3">
                                 <ProductThumb product={product} />
-                                <Link
-                                  to={productPath(product)}
-                                  className={cn(
-                                    'min-w-0 font-medium text-foreground underline-offset-2',
-                                    'hover:text-red-600 hover:underline',
-                                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600',
-                                  )}
-                                >
-                                  <span className="line-clamp-2">{product.name}</span>
-                                </Link>
+                                <div className="min-w-0 flex-1">
+                                  <Link
+                                    to={productPath(product)}
+                                    className={cn(
+                                      'font-medium text-foreground underline-offset-2',
+                                      'hover:text-red-600 hover:underline',
+                                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600',
+                                    )}
+                                  >
+                                    <span className="line-clamp-2">{product.name}</span>
+                                  </Link>
+                                  <ProductAttributes attributes={product.attributes} />
+                                </div>
                               </div>
                             </TableCell>
                             <TableCell className="align-middle text-center font-semibold tabular-nums text-foreground">
                               {stock}
                             </TableCell>
-                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                            <TableCell className="align-middle text-right">
                               <PriceCell usd={Number(prices.public) || 0} />
                             </TableCell>
-                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                            <TableCell className="align-middle text-right">
                               <PriceCell usd={Number(prices.distribuidor) || 0} />
                             </TableCell>
-                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                            <TableCell className="align-middle text-right">
                               <PriceCell usd={Number(prices.tecnico) || 0} />
                             </TableCell>
-                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                            <TableCell className="align-middle text-right">
                               <PriceCell usd={Number(prices.mayorista) || 0} />
                             </TableCell>
-                            <TableCell className="align-middle text-right font-semibold tabular-nums">
+                            <TableCell className="align-middle text-right">
                               <PriceCell usd={purchaseUsd} />
                             </TableCell>
                           </TableRow>

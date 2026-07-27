@@ -8,7 +8,6 @@ import { HOME_HIGHLIGHTED_ROW_SIZE } from '../../shared/home-highlighted-product
 export const HOME_BUNDLE_SECTION_IDS = [
   'multifuncionales',
   'impresoras',
-  'impresoras-termicas',
   'escaneres',
   'toner-suministros',
   'repuestos',

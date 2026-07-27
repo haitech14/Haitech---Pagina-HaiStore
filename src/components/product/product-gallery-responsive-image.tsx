@@ -61,7 +61,7 @@ export function ProductGalleryResponsiveImage({
 
   if (sources) {
     return (
-      <picture className="flex size-full items-center justify-center bg-muted/40">
+      <picture className="flex size-full items-center justify-center bg-white">
         <source type="image/webp" srcSet={sources.webpSrcSet} sizes={sizes ?? sources.sizes} />
         <img
           src={sources.fallbackSrc}
@@ -80,7 +80,7 @@ export function ProductGalleryResponsiveImage({
     <img
       src={src}
       alt={alt}
-      className={cn(imageClass, 'bg-muted/40')}
+      className={cn(imageClass, 'bg-white')}
       loading={loading}
       decoding="async"
       onLoad={() => setLoaded(true)}

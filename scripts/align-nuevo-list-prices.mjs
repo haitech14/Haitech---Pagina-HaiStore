@@ -1,7 +1,7 @@
 /**
  * Alinea multifuncionales NUEVAS a lista julio 2026:
  * - Técnico = precio lista (si termina en 5 → 9)
- * - Distribuidor = Técnico + 50 (+ 80 si A3); 5→9 también
+ * - Distribuidor = Técnico + 50 (A4) o + 100 (A3); 5→9 también
  * - Stock / Velocidad / Año / formatos A4+A3
  * - Crea IM 6010 si falta
  */
@@ -22,7 +22,7 @@ const UPDATES = [
       !/C320/i.test(n) &&
       !/seminueva/i.test(n),
     list: 395,
-    stock: 20,
+    stock: 19,
     formats: ['A4'],
     speed: '30 ppm',
     year: 2024,
@@ -31,8 +31,9 @@ const UPDATES = [
     key: 'mp305',
     match: (n) => /nueva/i.test(n) && /MP\s*305\+/i.test(n) && !/seminueva/i.test(n),
     list: 889,
-    stock: 5,
+    stock: 18,
     formats: ['A4', 'A3'],
+    distribuidorAdd: 50,
     speed: '30 ppm',
     year: 2023,
   },
@@ -43,7 +44,7 @@ const UPDATES = [
       /IM\s*430F?\b/i.test(n) &&
       !/seminueva/i.test(n),
     list: 919,
-    stock: 49,
+    stock: 35,
     formats: ['A4'],
     speed: '40 ppm',
     year: 2024,
@@ -52,7 +53,7 @@ const UPDATES = [
     key: 'im460',
     match: (n) => /nueva/i.test(n) && /IM\s*460F?\b/i.test(n) && !/seminueva/i.test(n),
     list: 1049,
-    stock: 8,
+    stock: 19,
     formats: ['A4', 'A3'],
     speed: '40 ppm',
     year: 2024,
@@ -61,7 +62,7 @@ const UPDATES = [
     key: 'im550',
     match: (n) => /nueva/i.test(n) && /IM\s*550F?\b/i.test(n) && !/seminueva/i.test(n),
     list: 1499,
-    stock: 44,
+    stock: 37,
     formats: ['A4'],
     speed: '55 ppm',
     year: 2024,
@@ -90,7 +91,7 @@ const UPDATES = [
     match: (n) =>
       /nueva/i.test(n) && /IM\s*3000\b/i.test(n) && !/C3000/i.test(n) && !/seminueva/i.test(n),
     list: 4049,
-    stock: 2,
+    stock: 5,
     formats: ['A3'],
     speed: '30 ppm',
     year: 2023,
@@ -108,7 +109,7 @@ const UPDATES = [
     key: 'im6010',
     match: (n) => /nueva/i.test(n) && /IM\s*6010\b/i.test(n) && !/seminueva/i.test(n),
     list: 8499,
-    stock: 2,
+    stock: 1,
     formats: ['A3'],
     speed: '60 ppm',
     year: 2023,
@@ -193,10 +194,11 @@ function end5to9(n) {
   return v % 10 === 5 ? v + 4 : v;
 }
 
-function calcPrices(list, formats) {
+function calcPrices(list, formats, distribuidorAdd) {
   const tecnico = end5to9(list);
   const hasA3 = formats.includes('A3');
-  let distribuidor = tecnico + 50 + (hasA3 ? 80 : 0);
+  const bump = distribuidorAdd ?? (hasA3 ? 100 : 50);
+  let distribuidor = tecnico + bump;
   distribuidor = end5to9(distribuidor);
   return { tecnico, distribuidor };
 }
@@ -249,7 +251,7 @@ function patchFeatureBarSpeed(product, speed) {
 }
 
 function applyUpdate(product, rule) {
-  const { tecnico, distribuidor } = calcPrices(rule.list, rule.formats);
+  const { tecnico, distribuidor } = calcPrices(rule.list, rule.formats, rule.distribuidorAdd);
   let attributes = applyFormatAttrs(product.attributes, rule.formats);
   attributes = upsertAttr(attributes, 'Velocidad', rule.speed);
   attributes = upsertAttr(attributes, 'Año', String(rule.year));
@@ -285,7 +287,7 @@ function applyUpdate(product, rule) {
 function createIm6010(template) {
   const id = randomUUID();
   const rule = UPDATES.find((u) => u.key === 'im6010');
-  const { tecnico, distribuidor } = calcPrices(rule.list, rule.formats);
+  const { tecnico, distribuidor } = calcPrices(rule.list, rule.formats, rule.distribuidorAdd);
   const slug = `impresora-multifuncional-nueva-ricoh-im-6010-${id.slice(0, 12)}`;
 
   const base = {

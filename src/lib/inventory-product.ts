@@ -1,4 +1,3 @@
-import { optimizeImageDataUrl, optimizeImageFile } from '@/lib/optimize-image-for-web';
 import { randomId } from '@/lib/random-id';
 import { normalizeAttributes } from '@/lib/inventory-attributes';
 import { sanitizeStoredProductMedia } from '@/lib/product-media-sanitize';
@@ -32,23 +31,12 @@ import { formatNuevaProductName, resolveXrefProductFields } from '@/lib/inventor
 import type { InventoryProduct, ProductRolePrices } from '@/types/product';
 
 async function optimizeProductImages(product: InventoryProduct): Promise<InventoryProduct> {
+  // No recomprimir en cliente: Sharp en servidor (álbum / persist) hace una sola pasada
+  // a PRODUCT_IMAGE_MAX_EDGE + calidad WebP, evitando borrosidad por doble encode.
   const galleryFields = normalizeProductGalleryFields(product.image_url, product.gallery);
-  const optimizedGallery = await Promise.all(
-    galleryFields.gallery.map((url) =>
-      url.startsWith('data:image/') ? optimizeImageDataUrl(url, 'product') : Promise.resolve(url),
-    ),
-  );
-  const image_url = galleryFields.image_url
-    ? galleryFields.image_url.startsWith('data:image/')
-      ? await optimizeImageDataUrl(galleryFields.image_url, 'product')
-      : galleryFields.image_url
-    : optimizedGallery.find((url) => isImageMediaUrl(url)) ?? null;
-
-  const normalized = normalizeProductGalleryFields(image_url, optimizedGallery);
-
   return {
     ...product,
-    ...normalized,
+    ...galleryFields,
   };
 }
 
@@ -349,10 +337,22 @@ function assertImageUploadSize(file: File): void {
   }
 }
 
-/** Lee y comprime una imagen para uso web en inventario (~1200px, WebP). */
+/** Lee la imagen como data URL sin recomprimir; Sharp en servidor aplica el encode final. */
 export function readImageFile(file: File): Promise<string> {
   assertImageUploadSize(file);
-  return optimizeImageFile(file, 'product');
+  if (!file.type.startsWith('image/') && !/\.(jpe?g|png|webp|gif|avif)$/i.test(file.name)) {
+    return Promise.reject(new Error('Solo se admiten imágenes JPG, PNG o WebP'));
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') resolve(reader.result);
+      else reject(new Error('No se pudo leer la imagen'));
+    };
+    reader.onerror = () => reject(new Error('No se pudo leer la imagen'));
+    reader.readAsDataURL(file);
+  });
 }
 
 /** Añade vídeos MP4 a la galería. */

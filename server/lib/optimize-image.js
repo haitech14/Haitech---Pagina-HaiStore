@@ -9,7 +9,7 @@ import { applyHaitechWatermark } from './image-watermark.js';
 
 const WEBP_QUALITY = PRODUCT_IMAGE_WEBP_QUALITY;
 /** Por debajo de esto no reoptimizar (ya es liviano para web). */
-const MAX_BYTES_BEFORE_OPTIMIZE = 220_000;
+const MAX_BYTES_BEFORE_OPTIMIZE = 400_000;
 
 /**
  * Redimensiona y comprime data URLs de imagen para inventario / settings.
