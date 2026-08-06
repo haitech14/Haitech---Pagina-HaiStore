@@ -230,16 +230,21 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }, [slug, storeFilterCategorySlug]);
   const usesEquipmentConditionTabs =
     storefrontMode && (!catalogFamily || isEquipmentCatalogFamily(catalogFamily));
-  /** Storefront equipos: sin `estado` → Nuevas; `estado=all` → Todas. */
+  /** Storefront equipos: sin `estado` o `all` → Nuevas (no hay pestaña «Todas»). */
   const estadoFilter = useMemo(() => {
+    if (usesEquipmentConditionTabs) {
+      if (!estadoParam || estadoParam === 'all') return 'originales';
+      return estadoFromUrl ?? 'originales';
+    }
     if (estadoParam != null && estadoParam !== '') return estadoFromUrl;
-    if (usesEquipmentConditionTabs) return 'originales';
     return estadoFromUrl;
   }, [estadoParam, estadoFromUrl, usesEquipmentConditionTabs]);
 
   useEffect(() => {
     if (!usesEquipmentConditionTabs) return;
-    if (searchParams.has('estado')) return;
+    const raw = searchParams.get('estado');
+    // Sin estado o «all» (antigua Todas): forzar Nuevas.
+    if (raw && raw !== 'all') return;
     const next = new URLSearchParams(searchParams);
     next.set('estado', 'nuevas');
     setSearchParams(next, { replace: true, preventScrollReset: true });
@@ -1042,22 +1047,6 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     [storefrontMode, quickAttributeFilters],
   );
 
-  const storefrontQuickAttributeKeys = useMemo(
-    () => new Set(storefrontAttributeChips.map((chip) => chip.key)),
-    [storefrontAttributeChips],
-  );
-
-  const storefrontAttributeAllActive = useMemo(
-    () => !selectedAttributes.some((key) => storefrontQuickAttributeKeys.has(key)),
-    [selectedAttributes, storefrontQuickAttributeKeys],
-  );
-
-  const clearStorefrontQuickAttributes = useCallback(() => {
-    startTransition(() => {
-      setSelectedAttributes((prev) => prev.filter((key) => !storefrontQuickAttributeKeys.has(key)));
-    });
-  }, [storefrontQuickAttributeKeys]);
-
   const toggleStorefrontAttribute = useCallback(
     (key: string) => {
       if (CATALOG_SPEC_FILTER_TAB_KEYS.has(key)) {
@@ -1763,33 +1752,24 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
               ) : null}
               {!catalogFamily || isEquipmentCatalogFamily(catalogFamily) ? (
                 <div className="flex flex-col gap-2.5">
-                  <ProductConditionTabs
-                    activeCondition={estadoFilter}
-                    catalogFamily={catalogFamily ?? 'multifuncionales'}
-                  />
                   {storefrontAttributeChips.length > 0 ? (
                     <StoreCatalogAttributeChips
                       attributes={storefrontAttributeChips}
                       selectedKeys={selectedAttributes}
                       onToggle={toggleStorefrontAttribute}
-                      allOption={{
-                        label: 'Todas',
-                        active: storefrontAttributeAllActive,
-                        onSelect: clearStorefrontQuickAttributes,
-                      }}
                     />
                   ) : null}
+                  <ProductConditionTabs
+                    activeCondition={estadoFilter}
+                    catalogFamily={catalogFamily ?? 'multifuncionales'}
+                    showAllOption={false}
+                  />
                 </div>
               ) : storefrontAttributeChips.length > 0 ? (
                 <StoreCatalogAttributeChips
                   attributes={storefrontAttributeChips}
                   selectedKeys={selectedAttributes}
                   onToggle={toggleStorefrontAttribute}
-                  allOption={{
-                    label: 'Todas',
-                    active: storefrontAttributeAllActive,
-                    onSelect: clearStorefrontQuickAttributes,
-                  }}
                 />
               ) : null}
               <StoreCatalogHeader
