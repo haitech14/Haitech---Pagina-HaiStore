@@ -55,7 +55,11 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
               <img
                 src={slide.src}
                 alt={slide.alt}
-                className="absolute inset-0 size-full min-h-full min-w-full object-cover object-[center_72%] scale-[1.1]"
+                className={cn(
+                  'absolute inset-0 size-full min-h-full min-w-full object-cover scale-[1.1]',
+                  /* Primer banner: bajar el encuadre (más cielo / menos corte superior). */
+                  slideIndex === 0 ? 'object-[center_48%]' : 'object-[center_72%]',
+                )}
                 decoding={slideIndex === 0 ? 'sync' : 'async'}
                 fetchPriority={slideIndex === 0 ? 'high' : 'low'}
               />
@@ -100,7 +104,7 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
                 onClick={() => goTo(dotIndex)}
                 className={cn(
                   'size-2 rounded-full transition-colors duration-200',
-                  dotIndex === index ? 'bg-[#E30613]' : 'bg-white',
+                  dotIndex === index ? 'bg-[#E30613]' : 'bg-[#6B7280]',
                 )}
               />
             ))}
