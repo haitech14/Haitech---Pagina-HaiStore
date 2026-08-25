@@ -7,7 +7,7 @@ import sharp from 'sharp';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = path.join(root, 'public');
 const source = path.join(publicDir, 'logo.png');
-const bg = { r: 0, g: 0, b: 0, alpha: 1 };
+const bg = { r: 255, g: 255, b: 255, alpha: 1 };
 
 if (!fs.existsSync(source) || fs.statSync(source).size === 0) {
   throw new Error('Falta public/logo.png');

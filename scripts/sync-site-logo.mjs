@@ -11,10 +11,17 @@ import sharp from 'sharp';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const logoPng = path.join(root, 'public', 'logo.png');
 const logoIco = path.join(root, 'public', 'logo.ico');
-const gitLogo = 'public/Logo Haitech.png';
+const logosDirMaster = path.join(root, 'public', 'logos', 'Logo Haitech.png');
+const gitLogo = 'public/logos/Logo Haitech.png';
 
 function resolveSource() {
+  if (fs.existsSync(logosDirMaster) && fs.statSync(logosDirMaster).size > 0) {
+    return logosDirMaster;
+  }
+
   const gitCandidates = [
+    '":public/logos/Logo Haitech.png"',
+    '"HEAD:public/logos/Logo Haitech.png"',
     '":public/Logo Haitech.png"',
     '"HEAD:public/Logo Haitech.png"',
   ];

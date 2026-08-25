@@ -37,7 +37,7 @@ import { cn } from '@/lib/utils';
 const HOVER_CLOSE_DELAY_MS = 180;
 
 interface CategoriesMegaMenuProps {
-  triggerVariant?: 'button' | 'nav' | 'categories-button';
+  triggerVariant?: 'button' | 'nav' | 'categories-button' | 'brand-red';
   navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
   showIcon?: boolean;
   label?: string;
@@ -211,7 +211,32 @@ export function CategoriesMegaMenu({
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        {triggerVariant === 'categories-button' ? (
+        {triggerVariant === 'brand-red' ? (
+          <button
+            ref={(node) => {
+              triggerRef.current = node;
+            }}
+            type="button"
+            aria-label={label}
+            aria-haspopup="true"
+            aria-expanded={open}
+            onMouseEnter={openMenu}
+            onMouseLeave={scheduleClose}
+            onFocus={openMenu}
+            className={cn(
+              'inline-flex h-[38px] items-center gap-1.5 bg-[#E30613] px-3.5 text-[13px] font-normal text-white',
+              'transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
+              (open || isCatalogRoute) && 'bg-[#c90511]',
+            )}
+          >
+            {showIcon ? <Menu className="size-4 shrink-0" aria-hidden="true" /> : null}
+            {label}
+            <ChevronDown
+              aria-hidden="true"
+              className={cn('size-3.5 shrink-0 transition-transform', open && 'rotate-180')}
+            />
+          </button>
+        ) : triggerVariant === 'categories-button' ? (
           <button
             ref={(node) => {
               triggerRef.current = node;
@@ -243,7 +268,7 @@ export function CategoriesMegaMenu({
             className="h-full gap-2 rounded-none bg-red-700 text-white hover:bg-red-800 focus-visible:ring-white/50 data-[state=open]:bg-red-800"
           >
             <Menu aria-hidden="true" />
-            Categorías
+            {label}
             <ChevronDown
               aria-hidden="true"
               className={cn('size-4 transition-transform', open && 'rotate-180')}

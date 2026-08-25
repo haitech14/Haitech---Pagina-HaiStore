@@ -14,7 +14,7 @@ const CategoriesMegaMenu = lazy(() =>
 );
 
 type DeferredCategoriesMegaMenuProps = {
-  triggerVariant?: 'button' | 'nav' | 'categories-button';
+  triggerVariant?: 'button' | 'nav' | 'categories-button' | 'brand-red';
   navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
   showIcon?: boolean;
   label?: string;
@@ -29,6 +29,22 @@ function MegaMenuTriggerShell({
   triggerVariant?: DeferredCategoriesMegaMenuProps['triggerVariant'];
   className?: string;
 }) {
+  if (triggerVariant === 'brand-red') {
+    return (
+      <button
+        type="button"
+        aria-label={label}
+        className={cn(
+          'inline-flex h-[38px] items-center gap-1.5 bg-[#E30613] px-3.5 text-[13px] font-normal text-white',
+          'transition-colors hover:bg-[#c90511]',
+          className,
+        )}
+      >
+        {label}
+      </button>
+    );
+  }
+
   if (triggerVariant === 'categories-button') {
     return (
       <button
@@ -71,7 +87,9 @@ export function DeferredCategoriesMegaMenu(props: DeferredCategoriesMegaMenuProp
       <span
         className={cn(
           'inline-flex',
-          props.triggerVariant === 'categories-button' && 'flex self-stretch',
+          (props.triggerVariant === 'categories-button' ||
+            props.triggerVariant === 'brand-red') &&
+            'flex self-stretch',
         )}
         onFocusCapture={warm}
         onPointerEnter={warm}

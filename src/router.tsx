@@ -103,6 +103,10 @@ const HaiProtectPage = lazyWithRetry(
   () => import('@/pages/haiprotect').then((m) => ({ default: m.HaiProtectPage })),
   'haiprotect',
 );
+const QtcReplicaPage = lazyWithRetry(
+  () => import('@/pages/qtc-replica').then((m) => ({ default: m.QtcReplicaPage })),
+  'qtc-replica',
+);
 const ForumLayout = lazyWithRetry(
   () => import('@/components/forum/forum-layout').then((m) => ({ default: m.ForumLayout })),
   'foro',
@@ -363,6 +367,10 @@ export const router = createBrowserRouter([
   {
     path: '/login/registro',
     element: withSuspense(<LoginRegisterPage />),
+  },
+  {
+    path: '/qtc',
+    element: withSuspense(<QtcReplicaPage />),
   },
   {
     path: '/admin',

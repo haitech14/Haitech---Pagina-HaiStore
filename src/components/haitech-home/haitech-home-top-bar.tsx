@@ -1,0 +1,211 @@
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import { Briefcase, ChevronDown, Headphones, Mail, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+import { HAITECH_HOME, HAITECH_HOME_TOPBAR, HAITECH_TOPBAR_BRANDS } from '@/data/haitech-home-shell';
+import { cn } from '@/lib/utils';
+
+function ContactHoverEmail({
+  email,
+  children,
+}: {
+  email: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="group/contact relative">
+      {children}
+      <div
+        role="tooltip"
+        className={cn(
+          'pointer-events-none absolute left-1/2 top-full z-50 mt-1.5 w-max -translate-x-1/2',
+          'rounded-md border border-white/15 bg-[#1A1A1A] px-2.5 py-1.5',
+          'opacity-0 shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-opacity duration-150',
+          'group-hover/contact:pointer-events-auto group-hover/contact:opacity-100',
+          'group-focus-within/contact:pointer-events-auto group-focus-within/contact:opacity-100',
+        )}
+      >
+        <a
+          href={`mailto:${email}`}
+          className="inline-flex items-center gap-1.5 text-[11px] font-medium text-white hover:text-white/90"
+        >
+          <Mail className="size-3 shrink-0 text-white/75" strokeWidth={1.75} aria-hidden="true" />
+          {email}
+        </a>
+      </div>
+    </div>
+  );
+}
+
+export function HaitechHomeTopBar({ className }: { className?: string }) {
+  const {
+    promo,
+    salesLabel,
+    salesPhone,
+    salesHref,
+    salesEmail,
+    supportLabel,
+    supportPhone,
+    supportHref,
+    supportEmail,
+    locations,
+  } = HAITECH_HOME_TOPBAR;
+  const [sedesOpen, setSedesOpen] = useState(false);
+  const sedesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sedesOpen) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!sedesRef.current?.contains(event.target as Node)) {
+        setSedesOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSedesOpen(false);
+    };
+
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [sedesOpen]);
+
+  return (
+    <div
+      className={cn('relative z-40 w-full text-white', className)}
+      style={{ backgroundColor: HAITECH_HOME.blackNav }}
+    >
+      <div
+        className="mx-auto flex min-h-8 flex-wrap items-center justify-between gap-x-3 gap-y-0.5 px-4 py-0.5 text-[10.5px] leading-none xl:px-6"
+        style={{ maxWidth: HAITECH_HOME.maxWidth }}
+      >
+        <div className="flex shrink-0 items-center">
+          {HAITECH_TOPBAR_BRANDS.map((brand, index) => (
+            <div key={brand.label} className="flex items-center">
+              {index > 0 ? <span className="mx-2 h-3 w-px bg-white/35" aria-hidden="true" /> : null}
+              <a
+                href={brand.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold tracking-wide text-white/95 transition-opacity hover:opacity-90"
+              >
+                {brand.label}
+              </a>
+            </div>
+          ))}
+        </div>
+
+        <p className="hidden min-w-0 flex-1 truncate text-center text-white/95 lg:block">
+          {promo}.{' '}
+          <Link to="/terminos" className="underline underline-offset-2 hover:text-white">
+            Ver T&amp;C
+          </Link>
+        </p>
+
+        <div className="flex min-w-0 flex-wrap items-center justify-end gap-x-0 gap-y-1">
+          <ContactHoverEmail email={salesEmail}>
+            <a
+              href={salesHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2 py-0 transition-opacity hover:opacity-90"
+            >
+              <Icon path={mdiWhatsapp} size={0.5} className="text-white" aria-hidden="true" />
+              <span className="font-semibold">{salesLabel}</span>
+              <span className="tabular-nums text-white/90">{salesPhone}</span>
+            </a>
+          </ContactHoverEmail>
+          <span className="hidden h-3 w-px bg-white/35 sm:block" aria-hidden="true" />
+          <ContactHoverEmail email={supportEmail}>
+            <a
+              href={supportHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2 py-0 transition-opacity hover:opacity-90"
+            >
+              <Headphones className="size-2.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <span className="font-semibold">{supportLabel}</span>
+              <span className="tabular-nums text-white/90">{supportPhone}</span>
+            </a>
+          </ContactHoverEmail>
+          <span className="hidden h-3 w-px bg-white/35 md:block" aria-hidden="true" />
+
+          <div
+            ref={sedesRef}
+            className="relative hidden md:block"
+            onMouseEnter={() => setSedesOpen(true)}
+            onMouseLeave={() => setSedesOpen(false)}
+          >
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 px-2 py-0 transition-opacity hover:opacity-90"
+              aria-haspopup="menu"
+              aria-expanded={sedesOpen}
+              aria-controls="haitech-sedes-dropdown"
+              onClick={() => setSedesOpen((open) => !open)}
+            >
+              <MapPin className="size-2.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <span className="font-medium">Nuestras sedes</span>
+              <ChevronDown
+                className={cn(
+                  'size-2.5 shrink-0 opacity-80 transition-transform duration-200',
+                  sedesOpen && 'rotate-180',
+                )}
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+            </button>
+
+            {sedesOpen ? (
+              <div
+                id="haitech-sedes-dropdown"
+                role="menu"
+                aria-label="Direcciones de nuestras sedes"
+                className={cn(
+                  'absolute right-0 top-full z-50 mt-1 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-white/15',
+                  'bg-[#1A1A1A] py-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.45)]',
+                )}
+              >
+                {locations.map((loc) => (
+                  <a
+                    key={loc.id}
+                    href={loc.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    role="menuitem"
+                    className="flex items-start gap-2 px-3 py-2.5 text-[11px] leading-snug text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+                    onClick={() => setSedesOpen(false)}
+                  >
+                    <MapPin
+                      className="mt-0.5 size-3.5 shrink-0 text-white/80"
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0">
+                      <span className="block font-semibold text-white">{loc.city}</span>
+                      <span className="mt-0.5 block text-white/70">{loc.address}</span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <span className="hidden h-3 w-px bg-white/35 lg:block" aria-hidden="true" />
+          <Link
+            to="/contacto"
+            className="hidden items-center gap-1 px-2 py-0 transition-opacity hover:opacity-90 lg:inline-flex"
+          >
+            <Briefcase className="size-2.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            <span className="font-medium">Distribuidores</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

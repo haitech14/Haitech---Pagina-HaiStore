@@ -1,34 +1,21 @@
 import { useMemo } from 'react';
 
-import { HeroBanner } from '@/components/hero-banner';
-import { HomeStorefrontBlock } from '@/components/home/home-storefront-block';
-import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
+import { HaitechHomeBrandIntro } from '@/components/haitech-home/haitech-home-brand-intro';
+import { HaitechHomeCategoryCarousel } from '@/components/haitech-home/haitech-home-category-carousel';
+import { HaitechHomeCategoryNavigation } from '@/components/haitech-home/haitech-home-category-navigation';
+import { HaitechHomeFavoritesSection } from '@/components/haitech-home/haitech-home-favorites-section';
+import { HaitechHomeHeroCarousel } from '@/components/haitech-home/haitech-home-hero-carousel';
+import { HaitechHomeLandingSection } from '@/components/haitech-home/landing/haitech-home-landing-section';
+import { HaitechHomeLatestSection } from '@/components/haitech-home/haitech-home-latest-section';
+import { HaitechHomeMainHeader } from '@/components/haitech-home/haitech-home-main-header';
+import { HaitechHomeTopBar } from '@/components/haitech-home/haitech-home-top-bar';
+import { HaitechHomeWhatsAppButton } from '@/components/haitech-home/haitech-home-whatsapp-button';
+import { SiteFooter } from '@/components/layout/site-footer';
 import { useSeo } from '@/hooks/use-seo';
-import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
 import { buildHomeJsonLd, DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE } from '@/lib/seo';
 import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
-import { cn } from '@/lib/utils';
 
-const ClientRecommendationsSection = lazy(() =>
-  import('@/components/client-recommendations-section').then((m) => ({
-    default: m.ClientRecommendationsSection,
-  })),
-);
-
-const ClientsSection = lazy(() =>
-  import('@/components/clients-section').then((m) => ({ default: m.ClientsSection })),
-);
-
-const HomeFaqSection = lazy(() =>
-  import('@/components/home-faq-section').then((m) => ({ default: m.HomeFaqSection })),
-);
-
-const HomeFinalCtaSection = lazy(() =>
-  import('@/components/home-final-cta-section').then((m) => ({
-    default: m.HomeFinalCtaSection,
-  })),
-);
-
+/** Home ecommerce HAITECH (layout tipo tienda profesional). */
 export function HomePage() {
   const homeSeo = useMemo(
     () => ({
@@ -45,27 +32,18 @@ export function HomePage() {
   useSeo(homeSeo);
 
   return (
-    <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
-      <HeroBanner />
-
-      <HomeStorefrontBlock />
-
-      <LazyHomeSection minHeight="420px">
-        <div className="bg-white">
-          <ClientRecommendationsSection />
-          <ClientsSection />
-        </div>
-      </LazyHomeSection>
-
-      <LazyHomeSection minHeight="520px">
-        <div className="bg-white">
-          <HomeFaqSection />
-        </div>
-      </LazyHomeSection>
-
-      <LazyHomeSection minHeight="280px">
-        <HomeFinalCtaSection />
-      </LazyHomeSection>
+    <div className="min-h-screen bg-white font-sans antialiased [font-family:Inter,Roboto,Arial,Helvetica,sans-serif]">
+      <HaitechHomeTopBar />
+      <HaitechHomeMainHeader />
+      <HaitechHomeCategoryNavigation />
+      <HaitechHomeHeroCarousel />
+      <HaitechHomeBrandIntro />
+      <HaitechHomeCategoryCarousel />
+      <HaitechHomeFavoritesSection />
+      <HaitechHomeLandingSection />
+      <HaitechHomeLatestSection />
+      <SiteFooter />
+      <HaitechHomeWhatsAppButton />
     </div>
   );
 }
