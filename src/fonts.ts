@@ -3,6 +3,8 @@ import '@fontsource/montserrat/400.css';
 import '@fontsource/montserrat/700.css';
 import '@fontsource/space-grotesk/500.css';
 import '@fontsource/space-grotesk/700.css';
+import '@fontsource/source-sans-3/600.css';
+import '@fontsource/source-sans-3/700.css';
 
 /** 500/600 tras el primer paint — no compiten con LCP de la home. */
 function loadDeferredMontserratWeights() {

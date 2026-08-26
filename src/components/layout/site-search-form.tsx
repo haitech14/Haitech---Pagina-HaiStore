@@ -110,7 +110,7 @@ const searchInputWithIconClass =
   'h-11 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-10 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:pl-10';
 
 const searchButtonClass =
-  'flex h-11 w-11 shrink-0 items-center justify-center rounded-r-[calc(var(--radius)-1px)] border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
+  'flex h-11 w-11 shrink-0 items-center justify-center rounded-r-[calc(var(--radius)-1px)] border-0 bg-red-600 text-white [&_svg]:text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 const compactSearchBarClass =
   'flex w-full items-stretch overflow-hidden rounded-md border border-border/80 bg-white shadow-sm transition-shadow focus-within:border-border focus-within:ring-2 focus-within:ring-ring/20';
@@ -125,7 +125,7 @@ const compactSearchInputWithIconClass =
   'h-9 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-8 pr-2 text-[0.8125rem] text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset';
 
 const compactSearchButtonClass =
-  'flex h-9 w-9 shrink-0 items-center justify-center rounded-r-[calc(var(--radius)-1px)] border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
+  'flex h-9 w-9 shrink-0 items-center justify-center rounded-r-[calc(var(--radius)-1px)] border-0 bg-red-600 text-white [&_svg]:!text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 const denseSearchBarClass =
   'flex w-full max-w-full items-stretch overflow-hidden rounded-full border-0 bg-white shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-white/30';
@@ -140,7 +140,7 @@ const denseSearchInputWithIconClass =
   'h-10 w-full min-w-0 flex-1 border-0 bg-white py-0 pl-8 pr-2 text-[0.8125rem] text-foreground outline-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset';
 
 const denseSearchButtonClass =
-  'flex h-10 w-10 shrink-0 items-center justify-center rounded-r-full border-0 bg-red-600 text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
+  'flex h-10 w-10 shrink-0 items-center justify-center rounded-r-full border-0 bg-red-600 text-white [&_svg]:text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 const SEARCH_SUGGESTION_THUMB_CLASS =
   'size-9 shrink-0 overflow-hidden rounded-md border border-border/50 bg-white sm:size-10';
@@ -915,7 +915,11 @@ export function SiteSearchForm({
 
             {showSubmitIcon ? (
               <button type="submit" aria-label="Buscar" className={submitButtonClass}>
-                <Search className={isCompact ? 'size-3.5' : 'size-4'} strokeWidth={2} aria-hidden="true" />
+                <Search
+                  className={cn(isCompact ? 'size-3.5' : 'size-4', '!text-white')}
+                  strokeWidth={2}
+                  aria-hidden="true"
+                />
               </button>
             ) : null}
           </>

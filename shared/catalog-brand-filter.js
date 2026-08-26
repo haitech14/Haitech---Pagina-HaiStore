@@ -1,7 +1,5 @@
 export const BRAND_FILTER_OPTIONS = [
   { key: 'ricoh', label: 'RICOH' },
-  { key: 'canon', label: 'Canon' },
-  { key: 'pantum', label: 'Pantum' },
   { key: 'hp', label: 'HP' },
   { key: 'brother', label: 'Brother' },
   { key: 'epson', label: 'Epson' },

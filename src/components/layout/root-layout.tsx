@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
-import { Header } from '@/components/layout/header';
+import { HaitechStorefrontHeader } from '@/components/haitech-home/haitech-storefront-header';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { HomeStorefrontTrustBar } from '@/components/home/home-storefront-trust-bar';
@@ -146,6 +146,7 @@ export function RootLayout() {
   const { pathname } = useLocation();
   const widgetsReady = useDeferredWidgetMount();
   const showMobileBottomNav = shouldShowMobileBottomNav(pathname);
+  const isHomeShell = pathname === '/';
 
   return (
     <CartProvider>
@@ -155,28 +156,33 @@ export function RootLayout() {
       <a href="#contenido" className="skip-link">
         Saltar al contenido
       </a>
-      <Header />
+      <HaitechStorefrontHeader />
       <main
         id="contenido"
         className={cn(
           'flex-1',
-          showMobileBottomNav &&
+          !isHomeShell &&
+            showMobileBottomNav &&
             'pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0',
         )}
       >
         <Outlet />
       </main>
-      <HomeStorefrontTrustBar />
-      <SiteFooter />
-      <Suspense fallback={null}>
-        <MobileBottomNav />
-      </Suspense>
-      {widgetsReady ? (
-        <Suspense fallback={null}>
-          <WhatsAppFloatingButton />
-          <HaibotFloatingMenu side="right" />
-        </Suspense>
-      ) : null}
+      {isHomeShell ? null : (
+        <>
+          <HomeStorefrontTrustBar />
+          <SiteFooter />
+          <Suspense fallback={null}>
+            <MobileBottomNav />
+          </Suspense>
+          {widgetsReady ? (
+            <Suspense fallback={null}>
+              <WhatsAppFloatingButton />
+              <HaibotFloatingMenu side="right" />
+            </Suspense>
+          ) : null}
+        </>
+      )}
       <DeferredShoppingCartDrawer />
       <DeferredProductCompareTray />
     </div>

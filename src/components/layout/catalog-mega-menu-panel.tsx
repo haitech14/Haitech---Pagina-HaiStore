@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -8,24 +8,25 @@ import type {
   MegaMenuColumnGroup,
   MegaMenuFeaturedContent,
 } from '@/lib/mega-menu-from-store-categories';
-import { getBrandLogo, getBrandName, getBrandSlug } from '@/data/brands';
-import { loadCatalogIndex } from '@/lib/catalog-featured';
 import { categoryLandingPath } from '@/lib/category-path';
-import {
-  getMegaMenuInterestBrands,
-  getMegaMenuInterestProducts,
-  megaMenuCategoryBrandHref,
-  megaMenuCategorySectionHref,
-} from '@/lib/mega-menu-interest';
+import { megaMenuCategorySectionHref } from '@/lib/mega-menu-interest';
 import { megaMenuIconForSlug, resolveMegaMenuColumnImage } from '@/lib/mega-menu-visuals';
-import { productPath } from '@/lib/product-path';
 import { prefetchCategoryFromHref, prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 import { cn } from '@/lib/utils';
 
 const ICON_STROKE = 1.75;
 const BRAND_RED = '#E30613';
-const MEGA_MENU_NAVY = '#0f1f3d';
+const MEGA_MENU_NAVY = '#111827';
+const MEGA_PANEL_HEIGHT = 'min(28rem,calc(72vh-3rem))';
+
+function MegaMenuSectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mb-2.5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">
+      {children}
+    </p>
+  );
+}
 
 function MegaMenuLink({
   to,
@@ -112,7 +113,7 @@ function MegaMenuColumnTitle({
         'group/title inline-flex max-w-full items-center gap-2 rounded-md transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
         isSummary
-          ? 'mb-4 hover:text-[#E30613]'
+          ? 'mb-0 hover:text-[#E30613]'
           : isDesktop
             ? 'mb-2.5 hover:text-[#E30613]'
             : 'py-1.5 hover:text-[#E30613]',
@@ -120,12 +121,12 @@ function MegaMenuColumnTitle({
     >
       <span
         className={cn(
-          'flex shrink-0 items-center justify-center rounded-md bg-[#FFF5F5] text-[#E30613] transition-colors group-hover/title:bg-[#FEE2E2]',
-          isSummary ? 'size-8' : isDesktop ? 'size-7' : 'size-6',
+          'flex shrink-0 items-center justify-center rounded-lg bg-[#FFF1F1] text-[#E30613] transition-colors group-hover/title:bg-[#FFE4E4]',
+          isSummary ? 'size-9' : isDesktop ? 'size-7' : 'size-6',
         )}
       >
         <Icon
-          className={isSummary ? 'size-4' : isDesktop ? 'size-3.5' : 'size-3'}
+          className={isSummary ? 'size-[1.125rem]' : isDesktop ? 'size-3.5' : 'size-3'}
           strokeWidth={ICON_STROKE}
           aria-hidden="true"
         />
@@ -134,10 +135,10 @@ function MegaMenuColumnTitle({
         className={cn(
           'min-w-0 text-pretty font-semibold leading-snug',
           isSummary
-            ? 'text-sm uppercase tracking-[0.1em] text-[#0f1f3d] group-hover/title:text-[#E30613]'
+            ? 'text-[0.9375rem] tracking-tight text-[#111827] group-hover/title:text-[#E30613]'
             : isDesktop
               ? 'text-[0.6875rem] uppercase tracking-[0.12em] text-[#9CA3AF] group-hover/title:text-[#E30613]'
-              : 'text-sm text-[#0f1f3d]',
+              : 'text-sm text-[#111827]',
         )}
       >
         {group.title}
@@ -194,243 +195,69 @@ function MegaMenuDesktopColumn({
   );
 }
 
-function MegaMenuInterestProducts({
-  categorySlug,
-  labels,
-  onNavigate,
-}: {
-  categorySlug: string;
-  labels: readonly string[];
-  onNavigate: () => void;
-}) {
-  const [catalogReady, setCatalogReady] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    void loadCatalogIndex()
-      .then(() => {
-        if (!cancelled) setCatalogReady(true);
-      })
-      .catch(() => {
-        if (!cancelled) setCatalogReady(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [categorySlug]);
-
-  const products = useMemo(
-    () => (catalogReady ? getMegaMenuInterestProducts(labels, 4) : []),
-    [catalogReady, labels],
-  );
-
-  if (products.length === 0) return null;
-
-  return (
-    <div className="min-w-0">
-      <p className="mb-2.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
-        Te puede interesar
-      </p>
-      <ul className="grid grid-cols-2 gap-2.5 sm:gap-3" role="list">
-        {products.map((product) => (
-          <li key={product.id}>
-            <MegaMenuLink
-              to={productPath(product)}
-              onNavigate={onNavigate}
-              className={cn(
-                'group/product flex h-full flex-col gap-1.5 rounded-lg border border-[#E5E7EB] bg-[#FAFAFA] p-2 transition-colors',
-                'hover:border-[#E30613]/35 hover:bg-[#FFF5F5]',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-              )}
-            >
-              <span className="flex aspect-square items-center justify-center overflow-hidden rounded-md bg-white">
-                {product.image ? (
-                  <img
-                    src={product.image}
-                    alt=""
-                    className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover/product:scale-[1.03]"
-                    loading="lazy"
-                  />
-                ) : null}
-              </span>
-              <span className="line-clamp-2 text-[0.6875rem] font-medium leading-snug text-[#0f1f3d] group-hover/product:text-[#E30613]">
-                {product.name}
-              </span>
-            </MegaMenuLink>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function MegaMenuInterestBrands({
-  categorySlug,
-  labels,
-  onNavigate,
-  layout = 'bar',
-}: {
-  categorySlug: string;
-  labels: readonly string[];
-  onNavigate: () => void;
-  layout?: 'sidebar' | 'bar';
-}) {
-  const [catalogReady, setCatalogReady] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    void loadCatalogIndex()
-      .then(() => {
-        if (!cancelled) setCatalogReady(true);
-      })
-      .catch(() => {
-        if (!cancelled) setCatalogReady(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [categorySlug]);
-
-  const brands = useMemo(
-    () => (catalogReady ? getMegaMenuInterestBrands(labels, 6) : []),
-    [catalogReady, labels],
-  );
-
-  if (brands.length === 0) return null;
-
-  const isBar = layout === 'bar';
-
-  return (
-    <div
-      className={cn(
-        'min-w-0',
-        isBar ? 'w-full border-t border-[#E5E7EB] pt-3' : 'border-t border-[#E5E7EB] pt-3',
-      )}
-    >
-      <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
-        Marcas
-      </p>
-      <ul
-        className={cn(
-          'flex items-center',
-          isBar
-            ? 'w-full flex-nowrap gap-2'
-            : 'flex-nowrap gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-        )}
-        role="list"
-      >
-        {brands.map((brand) => {
-          const logo = getBrandLogo(brand);
-          const name = getBrandName(brand);
-          return (
-            <li key={getBrandSlug(brand)} className={cn(isBar ? 'min-w-0 flex-1' : 'shrink-0')}>
-              <MegaMenuLink
-                to={megaMenuCategoryBrandHref(categorySlug, brand)}
-                onNavigate={onNavigate}
-                className={cn(
-                  'inline-flex h-9 items-center justify-center rounded-md border border-[#E5E7EB] bg-white transition-colors',
-                  isBar ? 'w-full px-2' : 'min-w-[2.75rem] px-2',
-                  'hover:border-[#E30613]/40 hover:bg-[#FFF5F5]',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-                )}
-                aria-label={`Ver ${name}`}
-              >
-                {logo ? (
-                  <img
-                    src={logo}
-                    alt={name}
-                    className="max-h-5 max-w-full object-contain"
-                    loading="lazy"
-                  />
-                ) : (
-                  <span className="truncate text-[0.6875rem] font-semibold text-[#374151]">{name}</span>
-                )}
-              </MegaMenuLink>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
 function MegaMenuSummaryPanel({
   group,
-  categorySlug,
-  categoryLabels,
   onNavigate,
 }: {
   group: MegaMenuColumnGroup;
-  categorySlug: string;
-  categoryLabels: readonly string[];
   onNavigate: () => void;
 }) {
   const hasSubLinks = group.links.length > 0;
   const sectionHref = megaMenuCategorySectionHref(group.href);
 
   return (
-    <div className="flex w-max max-w-full flex-col gap-4">
-      <MegaMenuColumnTitle
-        group={{ ...group, href: sectionHref }}
-        onNavigate={onNavigate}
-        variant="summary"
-      />
-
-      <div className="flex gap-6">
-        <div className="flex w-[13.5rem] max-w-[16rem] shrink-0 flex-col sm:w-[15rem]">
-          <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
-            Subcategorías
-          </p>
-          {hasSubLinks ? (
-            <ul className="space-y-2" role="list">
-              {group.links.map((link) => (
-                <li key={`${group.slug}-${link.href}-${link.name}`}>
-                  <MegaMenuLink
-                    to={megaMenuCategorySectionHref(link.href)}
-                    onNavigate={onNavigate}
-                    className={cn(
-                      'block rounded-md py-0.5 text-sm leading-snug text-[#374151] transition-colors',
-                      'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-                    )}
-                  >
-                    {link.name}
-                  </MegaMenuLink>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-[#6B7280]">
-              Explora todos los productos de esta categoría.
-            </p>
-          )}
-
-          <MegaMenuLink
-            to={sectionHref}
-            onNavigate={onNavigate}
-            className={cn(
-              'mt-4 inline-flex items-center gap-0.5 text-sm font-semibold transition-colors',
-              'text-[#E30613] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-            )}
-          >
-            Ver todo
-            <ChevronRight className="size-4" aria-hidden="true" />
-          </MegaMenuLink>
-        </div>
-
-        <div className="flex w-[16.5rem] max-w-[20rem] shrink-0 flex-col sm:w-[18rem]">
-          <MegaMenuInterestProducts
-            categorySlug={categorySlug}
-            labels={categoryLabels}
-            onNavigate={onNavigate}
-          />
-        </div>
+    <div className="flex w-max max-w-full flex-col gap-5">
+      <div className="border-b border-[#EEF0F3] pb-3">
+        <MegaMenuColumnTitle
+          group={{ ...group, href: sectionHref }}
+          onNavigate={onNavigate}
+          variant="summary"
+        />
       </div>
 
-      <MegaMenuInterestBrands
-        categorySlug={categorySlug}
-        labels={categoryLabels}
-        onNavigate={onNavigate}
-      />
+      <div className="flex w-[14rem] max-w-[16rem] flex-col sm:w-[15.5rem]">
+        <MegaMenuSectionLabel>Subcategorías</MegaMenuSectionLabel>
+        {hasSubLinks ? (
+          <ul className="space-y-0.5" role="list">
+            {group.links.map((link) => (
+              <li key={`${group.slug}-${link.href}-${link.name}`}>
+                <MegaMenuLink
+                  to={megaMenuCategorySectionHref(link.href)}
+                  onNavigate={onNavigate}
+                  className={cn(
+                    'group/sub flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-[0.875rem] leading-snug text-[#374151] transition-colors',
+                    'hover:bg-[#F8F9FB] hover:text-[#111827]',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+                  )}
+                >
+                  <span className="min-w-0">{link.name}</span>
+                  <ChevronRight
+                    className="size-3.5 shrink-0 text-[#D1D5DB] transition-colors group-hover/sub:text-[#E30613]"
+                    aria-hidden="true"
+                  />
+                </MegaMenuLink>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-[#6B7280]">
+            Explora todos los productos de esta categoría.
+          </p>
+        )}
+
+        <MegaMenuLink
+          to={sectionHref}
+          onNavigate={onNavigate}
+          className={cn(
+            'mt-4 inline-flex items-center gap-1 rounded-lg px-2.5 py-2 text-sm font-semibold transition-colors',
+            'text-[#E30613] hover:bg-[#FFF5F5]',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+          )}
+        >
+          Ver todo
+          <ChevronRight className="size-4" aria-hidden="true" />
+        </MegaMenuLink>
+      </div>
     </div>
   );
 }
@@ -544,30 +371,30 @@ function CatalogMegaMenuSidebar({
   return (
     <aside
       className={cn(
-        'shrink-0 border-[#E5E7EB] bg-[#FAFAFA]',
+        'shrink-0 border-[#EEF0F3]',
         isMobile
           ? 'border-b bg-white px-2.5 py-2'
           : cn(
-              'w-[13.5rem] border-r py-2.5 pl-2.5 pr-2 sm:w-[14.25rem]',
+              'flex w-[14.5rem] flex-col border-r bg-[#F7F8FA] py-3 pl-2.5 pr-2 sm:w-[15.25rem]',
               asLinks && 'border-r-0',
             ),
       )}
+      style={!isMobile && scrollable ? { height: MEGA_PANEL_HEIGHT } : undefined}
     >
       {!isMobile ? (
-        <p className="mb-2 px-1 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
-          Categorías
-        </p>
+        <MegaMenuSectionLabel>
+          <span className="px-1.5">Categorías</span>
+        </MegaMenuSectionLabel>
       ) : null}
 
       <ul
         className={cn(
-          'flex gap-1',
+          'flex gap-0.5',
           isMobile
             ? 'flex-row overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
             : cn(
-                'flex-col',
-                scrollable &&
-                  'max-h-[min(28rem,calc(75vh-3.5rem))] overflow-y-auto overscroll-contain pr-0.5 [-ms-overflow-style:auto] [scrollbar-width:thin]',
+                'min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pr-1',
+                '[scrollbar-width:thin] [scrollbar-color:#D1D5DB_transparent]',
               ),
         )}
         role={useLinks && !navigateOnSelect ? 'list' : 'tablist'}
@@ -581,22 +408,28 @@ function CatalogMegaMenuSidebar({
           );
 
           const itemClassName = cn(
-            'flex min-h-8 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem] font-medium leading-snug transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+            'relative flex min-h-9 w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[0.8125rem] font-medium leading-snug transition-colors',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-1',
             isMobile && 'whitespace-nowrap text-[0.75rem]',
             isActive
-              ? 'border-l-[3px] bg-[#FFF5F5] font-semibold text-[#E30613]'
-              : 'border-l-[3px] border-transparent text-[#374151] hover:bg-[#F3F4F6]',
+              ? 'bg-white font-semibold text-[#E30613] shadow-[0_1px_2px_rgba(15,23,42,0.06)] ring-1 ring-black/[0.04]'
+              : 'text-[#4B5563] hover:bg-white/80 hover:text-[#111827]',
           );
 
           const content = (
             <>
+              {isActive ? (
+                <span
+                  className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-[#E30613]"
+                  aria-hidden="true"
+                />
+              ) : null}
               <span
                 className={cn(
-                  'flex size-6 shrink-0 items-center justify-center rounded-md',
+                  'flex size-7 shrink-0 items-center justify-center rounded-md',
                   isActive
-                    ? 'bg-[#E30613]/10 text-[#E30613]'
-                    : 'bg-[#F3F4F6] text-[#6B7280]',
+                    ? 'bg-[#FFF1F1] text-[#E30613]'
+                    : 'bg-white/70 text-[#6B7280] ring-1 ring-black/[0.04]',
                 )}
               >
                 <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" />
@@ -605,8 +438,8 @@ function CatalogMegaMenuSidebar({
               {!isMobile ? (
                 <ChevronRight
                   className={cn(
-                    'size-3.5 shrink-0',
-                    isActive ? 'text-[#E30613]' : 'text-[#D1D5DB]',
+                    'size-3.5 shrink-0 transition-opacity',
+                    isActive ? 'text-[#E30613] opacity-100' : 'text-[#D1D5DB] opacity-70',
                   )}
                   aria-hidden="true"
                 />
@@ -635,7 +468,6 @@ function CatalogMegaMenuSidebar({
                     onCategoryChange(item.slug);
                   }}
                   className={itemClassName}
-                  style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
                 >
                   {content}
                 </Link>
@@ -658,7 +490,6 @@ function CatalogMegaMenuSidebar({
                   }}
                   onClick={() => onCategoryChange(item.slug)}
                   className={itemClassName}
-                  style={isActive ? { borderLeftColor: BRAND_RED } : undefined}
                 >
                   {content}
                 </button>
@@ -681,7 +512,6 @@ export interface CatalogMegaMenuPanelProps {
   layout?: 'desktop' | 'mobile';
   /** Muestra imagen + lista plana cuando hay un solo grupo (p. ej. Productos). */
   desktopContentMode?: 'summary' | 'grid' | 'sidebar-only';
-  /** Etiquetas de inventario para sugerir productos/marcas de la categoría activa. */
   activeCategoryLabels?: readonly string[];
 }
 
@@ -697,6 +527,7 @@ export function CatalogMegaMenuPanel({
   activeCategoryLabels,
 }: CatalogMegaMenuPanelProps) {
   void featuredContent;
+  void activeCategoryLabels;
   const queryClient = useQueryClient();
   const activeItem =
     sidebarItems.find((item) => item.slug === activeCategorySlug) ?? sidebarItems[0];
@@ -704,10 +535,6 @@ export function CatalogMegaMenuPanel({
   const sidebarOnly = !isMobile && desktopContentMode === 'sidebar-only';
   const useSummaryLayout = !isMobile && desktopContentMode === 'summary' && columnGroups.length === 1;
   const desktopGridClass = desktopMegaMenuGridClass(columnGroups.length);
-  const categoryLabels = useMemo(() => {
-    if (activeCategoryLabels && activeCategoryLabels.length > 0) return activeCategoryLabels;
-    return activeItem?.label ? [activeItem.label] : [];
-  }, [activeCategoryLabels, activeItem?.label]);
 
   const handleCategoryChange = (slug: string) => {
     prefetchCategoryPage(queryClient, {
@@ -735,7 +562,7 @@ export function CatalogMegaMenuPanel({
 
   if (!isMobile) {
     return (
-      <div className="flex w-max max-w-full bg-white">
+      <div className="flex w-max max-w-full bg-white" style={{ height: MEGA_PANEL_HEIGHT }}>
         <CatalogMegaMenuSidebar
           sidebarItems={sidebarItems}
           activeCategorySlug={activeCategorySlug}
@@ -747,44 +574,23 @@ export function CatalogMegaMenuPanel({
         />
 
         <div
-          className="flex w-max max-w-full flex-col"
+          className="flex min-h-0 w-max max-w-full flex-1 flex-col overflow-y-auto overscroll-contain [scrollbar-width:thin] [scrollbar-color:#D1D5DB_transparent]"
           role="tabpanel"
           aria-label={activeItem?.label ?? 'Categoría'}
         >
-          <div className="flex max-h-[min(32rem,calc(75vh-3.5rem))] flex-col overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
+          <div className="flex flex-col px-6 py-5 sm:px-7 sm:py-6">
             {columnGroups.length > 0 ? (
               useSummaryLayout ? (
-                <MegaMenuSummaryPanel
-                  group={columnGroups[0]}
-                  categorySlug={activeCategorySlug}
-                  categoryLabels={categoryLabels}
-                  onNavigate={onNavigate}
-                />
+                <MegaMenuSummaryPanel group={columnGroups[0]} onNavigate={onNavigate} />
               ) : (
-                <div className="flex w-max max-w-full flex-col gap-4">
-                  <div className="flex w-max max-w-full gap-8">
-                    <div className={cn('grid w-max max-w-full items-start gap-x-8 gap-y-6', desktopGridClass)}>
-                      {columnGroups.map((group) => (
-                        <MegaMenuDesktopColumn
-                          key={`${activeCategorySlug}-${group.slug}`}
-                          group={group}
-                          onNavigate={onNavigate}
-                        />
-                      ))}
-                    </div>
-                    <div className="flex w-[16.5rem] shrink-0 flex-col border-l border-[#E5E7EB] pl-6 sm:w-[18rem]">
-                      <MegaMenuInterestProducts
-                        categorySlug={activeCategorySlug}
-                        labels={categoryLabels}
-                        onNavigate={onNavigate}
-                      />
-                    </div>
-                  </div>
-                  <MegaMenuInterestBrands
-                    categorySlug={activeCategorySlug}
-                    labels={categoryLabels}
-                    onNavigate={onNavigate}
-                  />
+                <div className={cn('grid w-max max-w-full items-start gap-x-8 gap-y-6', desktopGridClass)}>
+                  {columnGroups.map((group) => (
+                    <MegaMenuDesktopColumn
+                      key={`${activeCategorySlug}-${group.slug}`}
+                      group={group}
+                      onNavigate={onNavigate}
+                    />
+                  ))}
                 </div>
               )
             ) : (

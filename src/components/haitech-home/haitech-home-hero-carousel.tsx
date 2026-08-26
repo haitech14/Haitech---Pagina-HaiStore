@@ -30,15 +30,16 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
     <section
       aria-roledescription={showControls ? 'carrusel' : undefined}
       aria-label="Promociones HAITECH"
-      className={cn('w-full bg-white px-4 pb-0 pt-2 sm:px-6 sm:pt-3', className)}
+      className={cn('w-full bg-white px-3 pb-0 pt-2 sm:px-4 sm:pt-3 lg:px-5', className)}
     >
       <div
-        className="relative mx-auto overflow-hidden rounded-xl bg-neutral-900 shadow-[0_8px_28px_rgba(15,23,42,0.12)]"
-        style={{
-          maxWidth: HAITECH_HOME.maxWidth,
-          height: 'min(460px, 36vw)',
-          minHeight: 240,
-        }}
+        className={cn(
+          'relative mx-auto overflow-hidden rounded-lg bg-neutral-900 shadow-[0_8px_28px_rgba(15,23,42,0.12)] sm:rounded-xl',
+          'h-[min(188px,48vw)] min-h-[160px]',
+          'sm:h-[min(320px,42vw)] sm:min-h-[220px]',
+          'lg:h-[min(480px,34vw)] lg:min-h-[260px]',
+        )}
+        style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -52,17 +53,30 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
               )}
               aria-hidden={slideIndex !== index}
             >
-              <img
-                src={slide.src}
-                alt={slide.alt}
-                className={cn(
-                  'absolute inset-0 size-full min-h-full min-w-full object-cover scale-[1.1]',
-                  /* Primer banner: bajar el encuadre (más cielo / menos corte superior). */
-                  slideIndex === 0 ? 'object-[center_48%]' : 'object-[center_72%]',
-                )}
-                decoding={slideIndex === 0 ? 'sync' : 'async'}
-                fetchPriority={slideIndex === 0 ? 'high' : 'low'}
-              />
+              <a
+                href={slide.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 block cursor-pointer"
+                aria-label={
+                  slide.id === 'hero-1'
+                    ? 'Abrir WhatsApp para comprar o cotizar'
+                    : 'Abrir WhatsApp con la promoción Ricoh'
+                }
+              >
+                <img
+                  src={slide.src}
+                  alt={slide.alt}
+                  className={cn(
+                    'absolute inset-0 size-full min-h-full min-w-full object-cover scale-100 sm:scale-[1.02]',
+                    slideIndex === 0
+                      ? 'object-[center_50%] sm:object-[center_52%]'
+                      : 'object-[center_58%] sm:object-[center_62%]',
+                  )}
+                  decoding={slideIndex === 0 ? 'sync' : 'async'}
+                  fetchPriority={slideIndex === 0 ? 'high' : 'low'}
+                />
+              </a>
             </div>
           ))}
         </div>
@@ -73,24 +87,24 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
               type="button"
               aria-label="Banner anterior"
               onClick={() => goTo(index - 1)}
-              className="absolute left-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:scale-105 sm:left-4"
+              className="absolute left-1.5 top-1/2 z-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white text-[#333] shadow-[0_2px_10px_rgba(0,0,0,0.14)] transition-all duration-200 hover:scale-105 hover:text-[#E30613] hover:shadow-[0_4px_14px_rgba(0,0,0,0.2)] sm:left-2 sm:size-8"
             >
-              <ChevronLeft className="size-5 text-black" strokeWidth={2} aria-hidden="true" />
+              <ChevronLeft className="size-4" strokeWidth={2} aria-hidden="true" />
             </button>
             <button
               type="button"
               aria-label="Banner siguiente"
               onClick={() => goTo(index + 1)}
-              className="absolute right-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:scale-105 sm:right-4"
+              className="absolute right-1.5 top-1/2 z-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white text-[#333] shadow-[0_2px_10px_rgba(0,0,0,0.14)] transition-all duration-200 hover:scale-105 hover:text-[#E30613] hover:shadow-[0_4px_14px_rgba(0,0,0,0.2)] sm:right-2 sm:size-8"
             >
-              <ChevronRight className="size-5 text-black" strokeWidth={2} aria-hidden="true" />
+              <ChevronRight className="size-4" strokeWidth={2} aria-hidden="true" />
             </button>
           </>
         ) : null}
 
         {showControls ? (
           <div
-            className="pointer-events-auto absolute inset-x-0 bottom-3 z-10 flex items-center gap-2 px-4 sm:bottom-4 sm:px-6"
+            className="pointer-events-auto absolute inset-x-0 bottom-2 z-10 flex items-center justify-center gap-1.5 px-3 sm:bottom-4 sm:justify-start sm:gap-2 sm:px-6"
             role="tablist"
             aria-label="Indicadores"
           >
@@ -103,7 +117,7 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
                 aria-label={`Ir al banner ${dotIndex + 1}`}
                 onClick={() => goTo(dotIndex)}
                 className={cn(
-                  'size-2 rounded-full transition-colors duration-200',
+                  'size-1.5 rounded-full transition-colors duration-200 sm:size-2',
                   dotIndex === index ? 'bg-[#E30613]' : 'bg-[#6B7280]',
                 )}
               />

@@ -21,6 +21,7 @@ const config: Config = {
         myriad: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         landing: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         celebration: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        price: ['Source Sans 3', 'Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

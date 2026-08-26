@@ -6,7 +6,6 @@ import {
   HEADER_LIMA_MAPS_LINK,
   HEADER_PIURA_MAPS_LINK,
   HEADER_SALES_EMAIL,
-  HEADER_SALES_PHONE_DISPLAY,
   HEADER_SERVICE_WHATSAPP_LINK,
   HEADER_SUPPORT_EMAIL,
   HEADER_SUPPORT_PHONE_DISPLAY,
@@ -23,6 +22,8 @@ export const HAITECH_HOME = {
   text: '#343434',
   grayBg: '#F5F5F5',
   maxWidth: '1400px',
+  /** Contenedor del hero: ~7% más ancho en desktop, sin full-bleed. */
+  heroMaxWidth: '1500px',
 } as const;
 
 export const HAITECH_TOPBAR_BRANDS = [
@@ -38,17 +39,10 @@ export const HAITECH_PRIMARY_CATEGORIES_LEFT = [
   { label: 'Tóner y consumibles', to: categoryLandingPath('toner-suministros') },
 ] as const;
 
-/** Nav negra: servicios y empresa (derecha del separador, antes de Recursos). */
+/** Nav negra: servicios (derecha del separador). */
 export const HAITECH_PRIMARY_CATEGORIES_RIGHT = [
   { label: 'Servicio técnico', to: serviceHubPath('servicio-tecnico') },
-  { label: 'Renting', to: serviceHubPath('alquiler') },
-  { label: 'Empresas', to: '/por-que-comprar-con-nosotros' },
-] as const;
-
-export const HAITECH_NAV_RECURSOS = [
-  { label: 'Foro y comunidad', to: '/foro' },
-  { label: 'Preguntas frecuentes', to: '/preguntas-frecuentes' },
-  { label: 'Por qué comprar con nosotros', to: '/por-que-comprar-con-nosotros' },
+  { label: 'Alquiler', to: serviceHubPath('alquiler') },
 ] as const;
 
 export const HAITECH_NAV_QUOTE_HREF = buildHaitechWhatsAppUrl(
@@ -131,27 +125,38 @@ export const HAITECH_HOME_CATEGORY_CAROUSEL = [
   },
 ] as const;
 
-export const HAITECH_HOME_HERO_SLIDES = [
-  {
-    id: 'hero-1',
-    src: '/hero/haitech-home-hero.png',
-    alt: 'HAITECH — Banner promocional de impresión y tecnología',
-  },
-  {
-    id: 'hero-2',
-    src: '/hero/haitech-home-hero-2.png',
-    alt: 'HAITECH — Soluciones de impresión Ricoh',
-  },
-] as const;
-
 export const HAITECH_HOME_WHATSAPP_URL = buildHaitechWhatsAppUrl(
   'Hola HAITECH, quiero comprar / cotizar por WhatsApp.',
 );
 
+/** Mensaje precargado al hacer clic en el banner hero 2 (promo con precios). */
+export const HAITECH_HOME_HERO_2_WHATSAPP_MESSAGE = [
+  'Hola HAITECH, me interesa la promoción de equipos Ricoh:',
+  '• RICOH IM 430F — S/ 3,699',
+  '• RICOH IM 460F — S/ 4,199',
+  '• RICOH IM 550F — S/ 5,599',
+  'Con garantía de 1 año o 100,000 impresiones. ¿Me pueden cotizar?',
+].join('\n');
+
+export const HAITECH_HOME_HERO_SLIDES = [
+  {
+    id: 'hero-1',
+    src: '/hero/haitech-home-hero.png',
+    alt: 'HAITECH — Soluciones de impresión Ricoh',
+    href: HAITECH_HOME_WHATSAPP_URL,
+  },
+  {
+    id: 'hero-2',
+    src: '/hero/haitech-home-hero-2.png',
+    alt: 'HAITECH — Promoción Ricoh IM 430F, IM 460F e IM 550F',
+    href: buildHaitechWhatsAppUrl(HAITECH_HOME_HERO_2_WHATSAPP_MESSAGE),
+  },
+] as const;
+
 export const HAITECH_HOME_TOPBAR = {
   promo: HEADER_TOPBAR_PROMO_TEXT,
-  salesLabel: 'Ventas/Alquiler',
-  salesPhone: HEADER_SALES_PHONE_DISPLAY,
+  salesLabel: 'Ventas',
+  salesPhone: '915-149290',
   salesHref: HEADER_BUY_RENT_WHATSAPP_LINK,
   salesEmail: HEADER_SALES_EMAIL,
   supportLabel: 'Soporte',

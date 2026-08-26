@@ -1,7 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 
 import { DeferredCategoriesMegaMenu } from '@/components/layout/deferred-categories-mega-menu';
-import { categoryLandingPath } from '@/lib/category-path';
 import { cn } from '@/lib/utils';
 import { serviceHubPath } from '@/lib/service-hub';
 
@@ -35,57 +34,41 @@ function MockupNavLink({
   );
 }
 
-/** Enlaces comerciales de la cabecera (compra + alquiler + servicio). */
+/** Enlaces principales de la cabecera. */
 const STORE_HEADER_LINKS: HeaderMainNavLink[] = [
   {
-    id: 'fotocopiadoras',
-    to: categoryLandingPath('multifuncionales'),
-    label: 'Multifuncionales',
-    matchActive: ({ pathname }) => pathname.startsWith('/categoria/multifuncionales'),
+    id: 'inicio',
+    to: '/',
+    label: 'Inicio',
+    end: true,
   },
   {
-    id: 'impresoras',
-    to: categoryLandingPath('impresoras'),
-    label: 'Impresoras',
-    matchActive: ({ pathname }) => pathname.startsWith('/categoria/impresoras'),
-  },
-  {
-    id: 'toner',
-    to: categoryLandingPath('toner-suministros'),
-    label: 'Toner',
-    matchActive: ({ pathname }) => pathname.startsWith('/categoria/toner-suministros'),
-  },
-  {
-    id: 'repuestos',
-    to: categoryLandingPath('repuestos'),
-    label: 'Repuestos',
-    matchActive: ({ pathname }) => pathname.startsWith('/categoria/repuestos'),
-  },
-  {
-    id: 'ofertas',
-    to: '/#promociones',
-    label: 'Ofertas',
-    matchActive: ({ pathname, hash }) => pathname === '/' && hash === '#promociones',
-  },
-  {
-    id: 'alquiler',
-    to: serviceHubPath('alquiler'),
-    label: 'Alquiler',
-    matchActive: ({ pathname, search }) =>
-      pathname.startsWith('/servicios') && search.includes('seccion=alquiler'),
+    id: 'catalogo',
+    to: '/tienda',
+    label: 'Catálogo',
+    matchActive: ({ pathname }) =>
+      pathname === '/tienda' ||
+      pathname.startsWith('/tienda/') ||
+      pathname.startsWith('/categoria/'),
   },
   {
     id: 'servicio-tecnico',
     to: serviceHubPath('servicio-tecnico'),
-    label: 'Servicio técnico',
+    label: 'Servicio Técnico',
     matchActive: ({ pathname, search }) =>
       pathname.startsWith('/servicios') && search.includes('seccion=servicio-tecnico'),
+  },
+  {
+    id: 'nosotros',
+    to: '/por-que-comprar-con-nosotros',
+    label: 'Nosotros',
+    matchActive: ({ pathname }) => pathname.startsWith('/por-que-comprar-con-nosotros'),
   },
 ];
 
 /**
- * Menú comercial de la tienda.
- * Orden: Categorías · Multifuncionales · Impresoras · Toner · Repuestos · Ofertas · Alquiler · Servicio técnico
+ * Menú principal de la tienda.
+ * Orden: Inicio · Catálogo · Servicio Técnico · Nosotros
  */
 export function HeaderMainMenu({
   linkClassName,
@@ -93,14 +76,14 @@ export function HeaderMainMenu({
   menuVariant = 'default',
   menuDensity = 'default',
   showIcons = true,
-  showCategories = true,
+  showCategories = false,
 }: {
   linkClassName: (isActive: boolean) => string;
   className?: string;
   menuVariant?: 'default' | 'secondary' | 'light';
   menuDensity?: 'default' | 'compact';
   showIcons?: boolean;
-  /** Si false, Categorías va aparte (p. ej. a la izquierda del buscador). */
+  /** Mega menú Categorías (desactivado por defecto). */
   showCategories?: boolean;
 }) {
   const dropdownVariant =

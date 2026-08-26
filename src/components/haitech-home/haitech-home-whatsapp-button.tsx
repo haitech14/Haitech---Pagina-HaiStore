@@ -10,15 +10,17 @@ export function HaitechHomeWhatsAppButton({ className }: { className?: string })
       href={HAITECH_HOME_WHATSAPP_URL}
       target="_blank"
       rel="noopener noreferrer"
+      aria-label="Compra por WhatsApp"
       className={cn(
-        'fixed bottom-4 right-[25px] z-[80] inline-flex h-[45px] w-[220px] items-center justify-center gap-2',
-        'rounded-full bg-[#25D366] text-[14px] font-semibold text-white',
+        'fixed bottom-4 right-3 z-[80] inline-flex items-center justify-center gap-2',
+        'size-14 rounded-full bg-[#25D366] text-white sm:right-[25px] sm:h-[45px] sm:w-[220px] sm:rounded-full',
         'shadow-[0_6px_18px_rgba(0,0,0,0.22)] transition-transform duration-200 hover:scale-[1.03]',
+        'text-[14px] font-semibold',
         className,
       )}
     >
-      <Icon path={mdiWhatsapp} size={0.95} aria-hidden="true" />
-      Compra por WhatsApp
+      <Icon path={mdiWhatsapp} size={1.05} className="sm:size-[0.95]" aria-hidden="true" />
+      <span className="hidden sm:inline">Compra por WhatsApp</span>
     </a>
   );
 }

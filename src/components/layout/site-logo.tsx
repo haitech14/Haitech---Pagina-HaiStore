@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 
 import {
   SITE_LOGO_ASSET_PATH,
+  SITE_RICOH_AUTHORIZED_LOGO_PATH,
   SITE_RICOH_PARTNER_BADGE_ARIA_LABEL,
   SITE_RICOH_PARTNER_BADGE_BRAND,
   SITE_RICOH_PARTNER_BADGE_SUBTITLE_LINE1,
@@ -14,6 +15,7 @@ export const SITE_HEADER_LOGO_SRC = SITE_LOGO_ASSET_PATH;
 /** Mismo asset; en footer se invierte para fondos oscuros. */
 export const SITE_FOOTER_LOGO_SRC = SITE_LOGO_ASSET_PATH;
 export const SITE_LOGO_ALT = 'HaiStore - HAITECH Soluciones de impresión';
+export const SITE_RICOH_AUTHORIZED_LOGO_ALT = SITE_RICOH_PARTNER_BADGE_ARIA_LABEL;
 
 type LogoImageProps = {
   className?: string;
@@ -122,9 +124,21 @@ function partnerBadgeSizeFromLogoHeight(logoHeightClass: string): RicohPartnerBa
   return 'md';
 }
 
+function ricohAuthorizedLogoHeightClass(logoHeightClass: string): string {
+  if (logoHeightClass.includes('h-7')) return 'h-7 sm:h-8';
+  if (logoHeightClass.includes('h-11') || logoHeightClass.includes('lg:h-11')) return 'h-10 lg:h-11';
+  if (logoHeightClass.includes('h-10')) return 'h-9 sm:h-10';
+  if (logoHeightClass.includes('h-9')) return 'h-8 sm:h-9';
+  return 'h-9 sm:h-10';
+}
+
 type HeaderBrandLogosProps = LogoImageProps & {
   showPartner?: boolean;
   partnerTone?: RicohPartnerBadgeTone;
+  /** Usa el PNG de Distribuidor Autorizado Ricoh (por defecto true con showPartner). */
+  partnerAsImage?: boolean;
+  /** Altura del PNG Ricoh; por defecto se deriva de `heightClass`. */
+  partnerHeightClass?: string;
 };
 
 export function HeaderBrandLogos({
@@ -132,6 +146,8 @@ export function HeaderBrandLogos({
   heightClass = 'h-10',
   showPartner = false,
   partnerTone = 'dark',
+  partnerAsImage = true,
+  partnerHeightClass,
   loading,
   ...logoProps
 }: HeaderBrandLogosProps) {
@@ -148,10 +164,23 @@ export function HeaderBrandLogos({
         {...logoProps}
       />
       {showPartner ? (
-        <RicohPartnerBadge
-          size={partnerBadgeSizeFromLogoHeight(heightClass)}
-          tone={partnerTone}
-        />
+        partnerAsImage ? (
+          <img
+            src={SITE_RICOH_AUTHORIZED_LOGO_PATH}
+            alt={SITE_RICOH_AUTHORIZED_LOGO_ALT}
+            className={cn(
+              'w-auto object-contain',
+              partnerHeightClass ?? ricohAuthorizedLogoHeightClass(heightClass),
+            )}
+            loading={loading ?? 'eager'}
+            decoding="async"
+          />
+        ) : (
+          <RicohPartnerBadge
+            size={partnerBadgeSizeFromLogoHeight(heightClass)}
+            tone={partnerTone}
+          />
+        )
       ) : null}
     </Link>
   );

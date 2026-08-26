@@ -11,6 +11,7 @@ import {
   productMatchesCategories,
 } from '@/lib/catalog-featured';
 import { CATEGORY_PRODUCTS_ID, categoryLandingPath } from '@/lib/category-path';
+import { isStorefrontHiddenBrand } from '../../shared/product-catalog-status.js';
 
 const DEFAULT_PRODUCT_LIMIT = 4;
 const BRAND_SCAN_LIMIT = 80;
@@ -18,7 +19,10 @@ const DEFAULT_BRAND_LIMIT = 6;
 
 function categoryRowsForLabels(labels: readonly string[]) {
   if (labels.length === 0) return [];
-  return getCatalogRows().filter((row) => productMatchesCategories(row.category, labels));
+  return getCatalogRows().filter(
+    (row) =>
+      productMatchesCategories(row.category, labels) && !isStorefrontHiddenBrand(row.brand),
+  );
 }
 
 /** Productos en stock (prioridad) para el panel «Te puede interesar» del mega menú. */
@@ -33,6 +37,11 @@ export function getMegaMenuInterestProducts(
     const stockA = (a.stock ?? 0) > 0 ? 1 : 0;
     const stockB = (b.stock ?? 0) > 0 ? 1 : 0;
     if (stockB !== stockA) return stockB - stockA;
+    const brandA = String(a.brand ?? '').toLowerCase();
+    const brandB = String(b.brand ?? '').toLowerCase();
+    const ricohA = brandA.includes('ricoh') ? 1 : 0;
+    const ricohB = brandB.includes('ricoh') ? 1 : 0;
+    if (ricohB !== ricohA) return ricohB - ricohA;
     const newA = a.is_new ? 1 : 0;
     const newB = b.is_new ? 1 : 0;
     if (newB !== newA) return newB - newA;

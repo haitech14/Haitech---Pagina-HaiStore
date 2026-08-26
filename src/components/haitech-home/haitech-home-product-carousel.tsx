@@ -7,13 +7,13 @@ import type { HaitechShopProduct } from '@/data/haitech-home-shop';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn } from '@/lib/utils';
 
-const GAP = 'gap-3 sm:gap-4';
-/** ~1.4 móvil · 3 tablet · 5 desktop (cards un poco más anchas). */
+const GAP = 'gap-2.5 sm:gap-3 md:gap-4';
+/** ~1.15 móvil (peek) · 2.2 sm · 3 md · 5 desktop. */
 const SLIDE =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/1.4)] sm:flex-[0_0_calc((100%-2rem)/3)] lg:flex-[0_0_calc((100%-4rem)/5)]';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.625rem)/1.15)] sm:flex-[0_0_calc((100%-0.75rem)/2.15)] md:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-4rem)/5)]';
 
 const arrowClass =
-  'absolute top-[196px] z-10 flex size-[38px] -translate-y-1/2 items-center justify-center rounded-full border border-[#E8E8E8] bg-white text-[#1A1A1A] shadow-[0_4px_14px_rgba(15,31,61,0.14)] transition-colors hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 disabled:pointer-events-none disabled:opacity-30';
+  'absolute top-[42%] z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full text-white shadow-[0_6px_16px_rgba(227,6,19,0.35)] transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 disabled:pointer-events-none disabled:opacity-35 sm:flex sm:size-10 sm:top-[210px]';
 
 export function HaitechHomeProductCarousel({
   products,
@@ -79,7 +79,8 @@ export function HaitechHomeProductCarousel({
         <>
           <button
             type="button"
-            className={cn(arrowClass, '-left-2 sm:-left-3 lg:-left-4')}
+            className={cn(arrowClass, 'left-0 sm:-left-3 lg:-left-4')}
+            style={{ backgroundColor: '#E30613' }}
             aria-label="Productos anteriores"
             disabled={!canScrollPrev}
             onClick={scrollPrev}
@@ -88,7 +89,8 @@ export function HaitechHomeProductCarousel({
           </button>
           <button
             type="button"
-            className={cn(arrowClass, '-right-2 sm:-right-3 lg:-right-4')}
+            className={cn(arrowClass, 'right-0 sm:-right-3 lg:-right-4')}
+            style={{ backgroundColor: '#E30613' }}
             aria-label="Productos siguientes"
             disabled={!canScrollNext}
             onClick={scrollNext}

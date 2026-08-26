@@ -91,11 +91,12 @@ export { SUBMENU_PANEL_ANIMATION_CLASS };
  * Dimensiones compartidas de los mega menús del header (Productos, Toner, etc.).
  * El panel usa width:max-content y solo se limita con maxWidth al espacio disponible.
  */
-export const MEGA_MENU_MIN_WIDTH = 360;
-export const MEGA_MENU_MAX_HEIGHT = 'min(36rem, 75vh)';
+export const MEGA_MENU_MIN_WIDTH = 420;
+export const MEGA_MENU_MAX_HEIGHT = 'min(34rem, 72vh)';
 
 export const MEGA_MENU_DROPDOWN_CLASS = cn(
-  'z-50 w-max overflow-hidden rounded-xl border border-[#E5E7EB] p-0 shadow-[0_12px_40px_rgba(15,31,61,0.12)]',
+  'z-50 w-max overflow-hidden rounded-2xl border border-black/[0.06] bg-white p-0',
+  'shadow-[0_20px_50px_-12px_rgba(15,23,42,0.22),0_8px_16px_-8px_rgba(15,23,42,0.12)]',
   SUBMENU_PANEL_ANIMATION_CLASS,
 );
 

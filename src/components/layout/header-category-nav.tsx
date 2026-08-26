@@ -11,19 +11,15 @@ import {
 import { HeaderBrandLogos } from '@/components/layout/site-logo';
 import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
 import { FORUM_HEADER_NAV } from '@/data/forum-home-layout';
-import {
-  getHeaderNavSubmenuDefaultHref,
-  PRODUCTOS_NAV_SUBMENU,
-} from '@/data/header-nav-submenus';
 
 export type { HeaderMainNavLink } from '@/components/layout/header-main-menu';
 
 export const headerMainNavLinks: HeaderMainNavLink[] = [
   {
-    id: PRODUCTOS_NAV_SUBMENU.id,
-    to: getHeaderNavSubmenuDefaultHref(PRODUCTOS_NAV_SUBMENU.items),
-    label: 'Categorías',
-    matchActive: PRODUCTOS_NAV_SUBMENU.matchActive,
+    id: 'inicio',
+    to: '/',
+    label: 'Inicio',
+    end: true,
   },
 ];
 
@@ -60,7 +56,7 @@ type HeaderCategoryNavProps = {
 /**
  * Cabecera tienda (desktop):
  * Fila 1 — Logo | Buscador | Atención | Cuenta | Carrito
- * Fila 2 (blanca) — Categorías | Multifuncionales | Impresoras | … | Servicio técnico
+ * Fila 2 (blanca) — Inicio · Catálogo · Servicio Técnico · Nosotros
  */
 export function HeaderCategoryNav({
   cartCount = 0,
@@ -99,7 +95,7 @@ export function HeaderCategoryNav({
           </div>
 
           <nav
-            aria-label="Navegación de productos"
+            aria-label="Navegación principal"
             className="overflow-visible border-t border-black/10 bg-white"
           >
             <div className="container flex h-9 items-stretch justify-start gap-3 overflow-visible xl:gap-4">
@@ -108,7 +104,7 @@ export function HeaderCategoryNav({
                 menuVariant="light"
                 showIcons={false}
                 menuDensity="default"
-                showCategories
+                showCategories={false}
                 className="h-full justify-start gap-2.5 xl:gap-4"
               />
             </div>

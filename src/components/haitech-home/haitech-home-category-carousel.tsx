@@ -7,15 +7,15 @@ import { HAITECH_HOME, HAITECH_HOME_CATEGORY_CAROUSEL } from '@/data/haitech-hom
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn } from '@/lib/utils';
 
-const GAP = 'gap-3 sm:gap-4';
-/** 2 móvil · 3 tablet · 6 desktop. */
+const GAP = 'gap-2.5 sm:gap-3 md:gap-4';
+/** ~2.4 móvil · 3 tablet · 6 desktop. */
 const SLIDE =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] sm:flex-[0_0_calc((100%-2rem)/3)] lg:flex-[0_0_calc((100%-5rem)/6)]';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-1.25rem)/2.35)] sm:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-5rem)/6)]';
 
 const arrowClass =
-  'absolute top-[64px] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#E8E8E8] bg-white text-[#1A1A1A] shadow-[0_4px_14px_rgba(15,31,61,0.14)] transition-colors hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 disabled:pointer-events-none disabled:opacity-30 sm:top-[74px]';
+  'absolute top-[52px] z-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-[#EAEAEA] bg-white text-[#333] shadow-[0_2px_10px_rgba(15,31,61,0.10)] transition-all duration-200 hover:scale-105 hover:border-[#E30613]/30 hover:text-[#E30613] hover:shadow-[0_4px_14px_rgba(15,31,61,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35 disabled:pointer-events-none disabled:opacity-30 sm:top-[68px] sm:size-8';
 
-/** Carrusel de categorías en forma circular (sin fondo gris). */
+/** Carrusel de categorías con contenedor cuadrado (sin fondo gris). */
 export function HaitechHomeCategoryCarousel({ className }: { className?: string }) {
   const items = HAITECH_HOME_CATEGORY_CAROUSEL;
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -56,17 +56,22 @@ export function HaitechHomeCategoryCarousel({ className }: { className?: string 
       aria-labelledby="haitech-category-carousel-title"
     >
       <div
-        className="mx-auto px-4 pb-4 pt-1 sm:px-6 sm:pb-5"
+        className="mx-auto px-3 pb-4 pt-3 sm:px-6 sm:pb-5 sm:pt-4"
         style={{ maxWidth: HAITECH_HOME.maxWidth }}
       >
-        <h2
-          id="haitech-category-carousel-title"
-          className="mb-5 font-[family-name:var(--font-infobox)] text-[18px] font-bold text-black sm:mb-6 sm:text-[20px]"
-        >
-          Explora nuestras categorías
-        </h2>
+        <header className="mb-4 text-center sm:mb-5">
+          <h2
+            id="haitech-category-carousel-title"
+            className="font-[family-name:var(--font-infobox)] text-[17px] font-bold text-black sm:text-[20px]"
+          >
+            Explora nuestras categorías
+          </h2>
+          <p className="mx-auto mt-1.5 max-w-xl text-[13px] leading-snug text-[#6B6B6B] sm:mt-2 sm:text-[14px]">
+            Encuentra equipos, suministros y soluciones para cada necesidad.
+          </p>
+        </header>
 
-        <div className="relative px-1 sm:px-2">
+        <div className="relative px-0 sm:px-2">
           <div className="overflow-hidden" ref={emblaRef}>
             <ul className={cn('flex', GAP)} role="list" aria-label="Categorías">
               {items.map((item) => {
@@ -80,14 +85,14 @@ export function HaitechHomeCategoryCarousel({ className }: { className?: string 
                         'focus-visible:rounded-xl focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
                       )}
                     >
-                      <span className="relative flex size-[116px] items-center justify-center overflow-hidden rounded-full sm:size-[128px]">
+                      <span className="relative flex size-[100px] items-center justify-center overflow-hidden rounded-xl sm:size-[132px] sm:rounded-2xl md:size-[148px]">
                         {showImage ? (
                           <img
                             src={item.image}
                             alt=""
-                            width={128}
-                            height={128}
-                            className="size-full object-contain transition-transform duration-300 group-hover:scale-105"
+                            width={148}
+                            height={148}
+                            className="size-full object-contain transition-transform duration-300 group-hover:scale-[1.08]"
                             loading="lazy"
                             decoding="async"
                             onError={() =>
@@ -104,10 +109,10 @@ export function HaitechHomeCategoryCarousel({ className }: { className?: string 
                         )}
                       </span>
 
-                      <span className="mt-3 line-clamp-2 max-w-[12rem] font-[family-name:var(--font-infobox)] text-[13px] font-semibold leading-snug text-[#111] transition-colors group-hover:text-[#E30613] sm:text-[14px]">
+                      <span className="mt-2.5 line-clamp-2 max-w-[9.5rem] font-[family-name:var(--font-infobox)] text-[12px] font-semibold leading-snug text-[#111] transition-colors group-hover:text-[#E30613] sm:mt-3 sm:max-w-[12rem] sm:text-[14px]">
                         {item.name}
                       </span>
-                      <span className="mt-0.5 line-clamp-2 max-w-[12rem] text-[11px] leading-snug text-[#6B6B6B] sm:text-[12px]">
+                      <span className="mt-0.5 line-clamp-2 max-w-[9.5rem] text-[10px] leading-snug text-[#6B6B6B] sm:max-w-[12rem] sm:text-[12px]">
                         {item.description}
                       </span>
                     </Link>
@@ -117,25 +122,25 @@ export function HaitechHomeCategoryCarousel({ className }: { className?: string 
             </ul>
           </div>
 
-          {items.length > 6 ? (
+          {canScrollPrev || canScrollNext ? (
             <>
               <button
                 type="button"
                 aria-label="Categorías anteriores"
                 onClick={scrollPrev}
                 disabled={!canScrollPrev}
-                className={cn(arrowClass, 'left-0 -translate-x-1/2 sm:left-0 sm:translate-x-0')}
+                className={cn(arrowClass, 'left-0 hidden sm:flex sm:-left-1 lg:-left-2')}
               >
-                <ChevronLeft className="size-5" strokeWidth={2} aria-hidden="true" />
+                <ChevronLeft className="size-4" strokeWidth={2} aria-hidden="true" />
               </button>
               <button
                 type="button"
                 aria-label="Categorías siguientes"
                 onClick={scrollNext}
                 disabled={!canScrollNext}
-                className={cn(arrowClass, 'right-0 translate-x-1/2 sm:right-0 sm:translate-x-0')}
+                className={cn(arrowClass, 'right-0 hidden sm:flex sm:-right-1 lg:-right-2')}
               >
-                <ChevronRight className="size-5" strokeWidth={2} aria-hidden="true" />
+                <ChevronRight className="size-4" strokeWidth={2} aria-hidden="true" />
               </button>
             </>
           ) : null}

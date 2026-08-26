@@ -20,6 +20,8 @@ export const HEADER_LIMA_MAPS_LINK = `https://www.google.com/maps/search/?api=1&
 export const HEADER_PIURA_MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(HEADER_PIURA_ADDRESS)}`;
 export const HEADER_SALES_EMAIL = 'ventas@haitech.pe';
 export const HEADER_SALES_EMAIL_MAILTO = 'mailto:ventas@haitech.pe';
+export const HEADER_SUPPORT_EMAIL = 'soporte@haitech.pe';
+export const HEADER_SUPPORT_EMAIL_MAILTO = 'mailto:soporte@haitech.pe';
 export const HEADER_BUSINESS_HOURS = 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
 
 /** WhatsApp de asesoría comercial (barra superior). */

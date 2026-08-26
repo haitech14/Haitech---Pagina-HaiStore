@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Grid3x3, Menu, ShoppingCart, X } from 'lucide-react';
+import { Menu, ShoppingCart, X } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -118,23 +118,6 @@ export function Header() {
           >
             {mobileOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
           </Button>
-
-          {!forumMode ? (
-            <Button
-              type="button"
-              variant="ghost"
-              className={cn(
-                'h-9 gap-1.5 rounded-md px-2.5 text-xs font-semibold lg:hidden',
-                'text-white hover:bg-white/10 hover:text-white',
-              )}
-              aria-label={mobileOpen ? 'Cerrar categorías' : 'Abrir categorías'}
-              aria-expanded={mobileOpen}
-              onClick={() => setMobileOpen((open) => !open)}
-            >
-              <Grid3x3 className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-              <span className="hidden min-[380px]:inline">Categorías</span>
-            </Button>
-          ) : null}
 
           <HeaderBrandLogos
             heightClass="h-9 sm:h-10"

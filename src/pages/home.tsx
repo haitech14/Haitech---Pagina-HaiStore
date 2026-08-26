@@ -2,13 +2,10 @@ import { useMemo } from 'react';
 
 import { HaitechHomeBrandIntro } from '@/components/haitech-home/haitech-home-brand-intro';
 import { HaitechHomeCategoryCarousel } from '@/components/haitech-home/haitech-home-category-carousel';
-import { HaitechHomeCategoryNavigation } from '@/components/haitech-home/haitech-home-category-navigation';
 import { HaitechHomeFavoritesSection } from '@/components/haitech-home/haitech-home-favorites-section';
 import { HaitechHomeHeroCarousel } from '@/components/haitech-home/haitech-home-hero-carousel';
 import { HaitechHomeLandingSection } from '@/components/haitech-home/landing/haitech-home-landing-section';
 import { HaitechHomeLatestSection } from '@/components/haitech-home/haitech-home-latest-section';
-import { HaitechHomeMainHeader } from '@/components/haitech-home/haitech-home-main-header';
-import { HaitechHomeTopBar } from '@/components/haitech-home/haitech-home-top-bar';
 import { HaitechHomeWhatsAppButton } from '@/components/haitech-home/haitech-home-whatsapp-button';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { useSeo } from '@/hooks/use-seo';
@@ -33,9 +30,6 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-white font-sans antialiased [font-family:Inter,Roboto,Arial,Helvetica,sans-serif]">
-      <HaitechHomeTopBar />
-      <HaitechHomeMainHeader />
-      <HaitechHomeCategoryNavigation />
       <HaitechHomeHeroCarousel />
       <HaitechHomeBrandIntro />
       <HaitechHomeCategoryCarousel />
