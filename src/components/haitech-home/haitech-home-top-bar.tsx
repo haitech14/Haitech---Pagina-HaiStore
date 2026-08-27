@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Briefcase, ChevronDown, MapPin } from 'lucide-react';
+import { Briefcase, ChevronDown, MapPin, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { HAITECH_HOME, HAITECH_HOME_TOPBAR, HAITECH_TOPBAR_BRANDS } from '@/data/haitech-home-shell';
@@ -36,10 +36,11 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
       style={{ backgroundColor: HAITECH_HOME.blackNav }}
     >
       <div
-        className="mx-auto flex min-h-8 flex-wrap items-center justify-between gap-x-2 gap-y-1 px-3 py-1 text-[10px] leading-none sm:gap-x-3 sm:px-4 sm:py-0.5 sm:text-[10.5px] xl:px-6"
+        className="mx-auto flex min-h-8 items-center justify-between gap-x-2 gap-y-1 px-3 py-1.5 text-[10px] leading-none sm:min-h-8 sm:flex-wrap sm:px-4 sm:py-0.5 sm:text-[10.5px] xl:px-6"
         style={{ maxWidth: HAITECH_HOME.maxWidth }}
       >
-        <div className="flex shrink-0 items-center">
+        {/* Marcas solo tablet/desktop */}
+        <div className="hidden shrink-0 items-center sm:flex">
           {HAITECH_TOPBAR_BRANDS.map((brand, index) => (
             <div key={brand.label} className="flex items-center">
               {index > 0 ? <span className="mx-2 h-3 w-px bg-white/35" aria-hidden="true" /> : null}
@@ -55,14 +56,18 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
           ))}
         </div>
 
-        <p className="hidden min-w-0 flex-1 truncate text-center text-white/95 lg:block">
-          {promo}.{' '}
-          <Link to="/terminos" className="underline underline-offset-2 hover:text-white">
-            Ver T&amp;C
-          </Link>
+        {/* Promo: visible siempre; en móvil a la izquierda con ícono */}
+        <p className="flex min-w-0 flex-1 items-center gap-1.5 text-white/95 sm:justify-center sm:truncate sm:text-center">
+          <Truck className="size-3 shrink-0 sm:hidden" strokeWidth={1.75} aria-hidden="true" />
+          <span className="min-w-0 truncate">
+            {promo}.{' '}
+            <Link to="/terminos" className="underline underline-offset-2 hover:text-white">
+              Ver T&amp;C
+            </Link>
+          </span>
         </p>
 
-        <div className="flex min-w-0 flex-wrap items-center justify-end gap-x-0 gap-y-1">
+        <div className="flex shrink-0 items-center justify-end">
           <div
             ref={sedesRef}
             className="relative"
@@ -71,7 +76,7 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
           >
             <button
               type="button"
-              className="inline-flex items-center gap-1 px-2 py-0 transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-1 px-1.5 py-0 transition-opacity hover:opacity-90 sm:px-2"
               aria-haspopup="menu"
               aria-expanded={sedesOpen}
               aria-controls="haitech-sedes-dropdown"

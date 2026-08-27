@@ -13,12 +13,16 @@ const VALID_ROLES = new Set([
 /** @param {string | null | undefined} role */
 export function mapRoleToHaiSupportTipoCliente(role) {
   const norm = String(role ?? 'public').trim().toLowerCase();
+  // HaiSupport clients_tipo_cliente_check: tecnico | distribuidor_no_tecnico | publico
   if (norm === 'tecnico') return 'tecnico';
-  if (norm === 'distribuidor') return 'distribuidor';
-  if (norm === 'mayorista') return 'mayorista';
-  if (norm === 'corporativo') return 'corporativo';
-  if (norm === 'vip') return 'vip';
-  return 'cliente_publico';
+  if (
+    norm === 'distribuidor' ||
+    norm === 'distribuidor_no_tecnico' ||
+    norm === 'mayorista'
+  ) {
+    return 'distribuidor_no_tecnico';
+  }
+  return 'publico';
 }
 
 function cityFromBilling(billing) {

@@ -1,7 +1,7 @@
 import type { PriceRole } from '@/types/product';
 import type { TpvCurrency, TpvDocumentType } from '@/types/tpv';
 
-export type ProformaSource = 'tpv' | 'product';
+export type ProformaSource = 'tpv' | 'product' | 'web';
 
 export type ProformaFollowUpStatus =
   | 'pending'
@@ -31,6 +31,15 @@ export interface ProformaCustomer {
   storeCustomerId?: string | null;
 }
 
+export interface ProformaCaptureMeta {
+  ip?: string;
+  userAgent?: string;
+  referer?: string;
+  path?: string;
+  channel?: string;
+  channelLabel?: string;
+}
+
 export interface ProformaRecord {
   id: string;
   documentNumber: string;
@@ -49,6 +58,8 @@ export interface ProformaRecord {
   validityDays: number;
   createdAt: string;
   updatedAt: string;
+  channel?: string;
+  capture?: ProformaCaptureMeta;
 }
 
 export interface CreateProformaPayload {

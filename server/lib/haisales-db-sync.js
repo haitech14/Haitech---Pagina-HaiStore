@@ -6,6 +6,12 @@ import {
   isHaiSalesRemoteDatabase,
   isHaiSalesSupabaseConfigured,
 } from './haisales-supabase.js';
+import {
+  isPersonaMirrorRow,
+  isVentasMirrorRow,
+  mapErpClienteToPersonaRow,
+  mapErpVentaToMirrorRow,
+} from './haisales-erp-map.js';
 import { getSupabaseAdmin } from './supabase-auth.js';
 import { importVentasDocumentRows } from './ventas-excel.js';
 
@@ -20,6 +26,11 @@ function isMissingHaiSalesTable(error, tableName) {
 
 /** @param {Record<string, unknown>} row */
 function personaDbRowToImportRow(row) {
+  if (!isPersonaMirrorRow(row) && (row.razon_social != null || row.ruc != null)) {
+    const mapped = mapErpClienteToPersonaRow(row);
+    if (mapped) return mapped;
+  }
+
   /** @type {Record<string, string>} */
   const out = {};
   for (const key of PERSONA_DATA_KEYS) {
@@ -35,28 +46,39 @@ function personaDbRowToImportRow(row) {
 export async function upsertHaiSalesPersonaMirror(supabase, rows) {
   if (rows.length === 0) return { upserted: 0 };
 
-  const payload = rows.map((row) => {
+  /** @type {Map<string, Record<string, string>>} */
+  const byDoc = new Map();
+  for (const row of rows) {
     const record = { ...row, updated_at: new Date().toISOString() };
-    const doc = record.numero_documento?.trim();
-    if (!doc) return null;
+    const doc = String(record.numero_documento ?? '').trim();
+    if (!doc) continue;
     record.numero_documento = doc;
-    return record;
-  }).filter(Boolean);
-
-  const { error } = await supabase.from(HAISALES_TABLE_PERSONA).upsert(payload, {
-    onConflict: 'numero_documento',
-  });
-
-  if (error) {
-    if (isMissingHaiSalesTable(error, HAISALES_TABLE_PERSONA)) {
-      throw new Error(
-        `Falta la tabla ${HAISALES_TABLE_PERSONA}. Aplica supabase/migrations/012_haisales_mirror_tables.sql.`,
-      );
-    }
-    throw new Error(`No se pudo guardar en ${HAISALES_TABLE_PERSONA}: ${error.message}`);
+    byDoc.set(doc, record);
   }
 
-  return { upserted: payload.length };
+  const payload = [...byDoc.values()];
+  if (payload.length === 0) return { upserted: 0 };
+
+  const CHUNK = 200;
+  let upserted = 0;
+  for (let i = 0; i < payload.length; i += CHUNK) {
+    const chunk = payload.slice(i, i + CHUNK);
+    const { error } = await supabase.from(HAISALES_TABLE_PERSONA).upsert(chunk, {
+      onConflict: 'numero_documento',
+    });
+
+    if (error) {
+      if (isMissingHaiSalesTable(error, HAISALES_TABLE_PERSONA)) {
+        throw new Error(
+          `Falta la tabla ${HAISALES_TABLE_PERSONA}. Aplica supabase/migrations/012_haisales_mirror_tables.sql.`,
+        );
+      }
+      throw new Error(`No se pudo guardar en ${HAISALES_TABLE_PERSONA}: ${error.message}`);
+    }
+    upserted += chunk.length;
+  }
+
+  return { upserted };
 }
 
 /**
@@ -67,58 +89,75 @@ export async function upsertHaiSalesPersonaMirror(supabase, rows) {
 export async function upsertHaiSalesVentasMirror(supabase, rows, sourceFilename) {
   if (rows.length === 0) return { upserted: 0 };
 
-  const payload = rows
-    .map((row) => {
-      const externalKey = String(row.external_key ?? '').trim();
-      const invoiceDate = row.invoice_date ? String(row.invoice_date) : null;
-      const periodMonth = row.report_period_month ? String(row.report_period_month) : null;
-      if (!externalKey || !invoiceDate || !periodMonth) return null;
+  /** @type {Map<string, Record<string, unknown>>} */
+  const byKey = new Map();
 
-      /** @type {Record<string, string | number>} */
-      const reportPayload = {};
-      for (const [key, value] of Object.entries(row)) {
-        if (
-          [
-            'external_key',
-            'invoice_date',
-            'due_date',
-            'report_period_start',
-            'report_period_end',
-            'report_period_month',
-          ].includes(key)
-        ) {
-          continue;
-        }
-        if (value != null && value !== '') {
-          reportPayload[key] = typeof value === 'number' ? value : String(value);
-        }
+  for (const row of rows) {
+    const externalKey = String(row.external_key ?? '').trim();
+    const invoiceDate = row.invoice_date ? String(row.invoice_date) : null;
+    const periodMonth = row.report_period_month ? String(row.report_period_month) : null;
+    if (!externalKey || !invoiceDate || !periodMonth) continue;
+
+    /** @type {Record<string, string | number>} */
+    const reportPayload = {};
+    for (const [key, value] of Object.entries(row)) {
+      if (
+        [
+          'external_key',
+          'invoice_date',
+          'due_date',
+          'report_period_start',
+          'report_period_end',
+          'report_period_month',
+          'payload',
+          'source_filename',
+        ].includes(key)
+      ) {
+        continue;
       }
-
-      return {
-        external_key: externalKey,
-        invoice_date: invoiceDate,
-        report_period_month: periodMonth,
-        payload: reportPayload,
-        source_filename: sourceFilename ?? null,
-        updated_at: new Date().toISOString(),
-      };
-    })
-    .filter(Boolean);
-
-  const { error } = await supabase.from(HAISALES_TABLE_VENTAS).upsert(payload, {
-    onConflict: 'external_key',
-  });
-
-  if (error) {
-    if (isMissingHaiSalesTable(error, HAISALES_TABLE_VENTAS)) {
-      throw new Error(
-        `Falta la tabla ${HAISALES_TABLE_VENTAS}. Aplica supabase/migrations/012_haisales_mirror_tables.sql.`,
-      );
+      if (value != null && value !== '') {
+        reportPayload[key] = typeof value === 'number' ? value : String(value);
+      }
     }
-    throw new Error(`No se pudo guardar en ${HAISALES_TABLE_VENTAS}: ${error.message}`);
+
+    const existingPayload =
+      row.payload && typeof row.payload === 'object' && !Array.isArray(row.payload)
+        ? row.payload
+        : {};
+
+    byKey.set(externalKey, {
+      external_key: externalKey,
+      invoice_date: invoiceDate,
+      report_period_month: periodMonth,
+      payload: { ...existingPayload, ...reportPayload },
+      source_filename: sourceFilename ?? null,
+      updated_at: new Date().toISOString(),
+    });
   }
 
-  return { upserted: payload.length };
+  const payload = [...byKey.values()];
+  if (payload.length === 0) return { upserted: 0 };
+
+  const CHUNK = 200;
+  let upserted = 0;
+  for (let i = 0; i < payload.length; i += CHUNK) {
+    const chunk = payload.slice(i, i + CHUNK);
+    const { error } = await supabase.from(HAISALES_TABLE_VENTAS).upsert(chunk, {
+      onConflict: 'external_key',
+    });
+
+    if (error) {
+      if (isMissingHaiSalesTable(error, HAISALES_TABLE_VENTAS)) {
+        throw new Error(
+          `Falta la tabla ${HAISALES_TABLE_VENTAS}. Aplica supabase/migrations/012_haisales_mirror_tables.sql.`,
+        );
+      }
+      throw new Error(`No se pudo guardar en ${HAISALES_TABLE_VENTAS}: ${error.message}`);
+    }
+    upserted += chunk.length;
+  }
+
+  return { upserted };
 }
 
 async function fetchAllPersonaFromMirror(supabase) {
@@ -154,17 +193,21 @@ async function fetchAllVentasFromMirror(supabase) {
   /** @type {Array<Record<string, unknown>>} */
   const all = [];
   let from = 0;
+  const isErpTable = HAISALES_TABLE_VENTAS === 'ventas';
 
   while (true) {
-    const { data, error } = await supabase
-      .from(HAISALES_TABLE_VENTAS)
-      .select('external_key, invoice_date, report_period_month, payload, source_filename')
-      .range(from, from + PAGE_SIZE - 1);
+    const query = isErpTable
+      ? supabase.from(HAISALES_TABLE_VENTAS).select('*')
+      : supabase
+          .from(HAISALES_TABLE_VENTAS)
+          .select('external_key, invoice_date, report_period_month, payload, source_filename');
+
+    const { data, error } = await query.range(from, from + PAGE_SIZE - 1);
 
     if (error) {
       if (isMissingHaiSalesTable(error, HAISALES_TABLE_VENTAS)) {
         throw new Error(
-          `Falta la tabla ${HAISALES_TABLE_VENTAS}. Aplica la migración 012_haisales_mirror_tables.sql.`,
+          `Falta la tabla ${HAISALES_TABLE_VENTAS}. Aplica la migración 012_haisales_mirror_tables.sql o crea la vista ERP.`,
         );
       }
       throw new Error(error.message);
@@ -181,6 +224,11 @@ async function fetchAllVentasFromMirror(supabase) {
 
 /** Convierte fila espejo HaiSales → fila importación ventas. */
 function ventasMirrorRowToImportRow(mirrorRow) {
+  if (!isVentasMirrorRow(mirrorRow) || mirrorRow.cliente_ruc != null || mirrorRow.fecha != null) {
+    const mapped = mapErpVentaToMirrorRow(mirrorRow);
+    if (mapped) return mapped;
+  }
+
   const payload =
     mirrorRow.payload && typeof mirrorRow.payload === 'object' ? mirrorRow.payload : {};
 
@@ -210,15 +258,29 @@ export async function syncHaiSalesFromDatabase() {
     throw new Error('Supabase HaiStore no configurado');
   }
 
-  const personaMirrorRows = await fetchAllPersonaFromMirror(haisalesDb);
-  const personaImportRows = personaMirrorRows.map((row) => personaDbRowToImportRow(row));
-  const persona = await importPersonaCustomerRows(personaImportRows);
+  // Con HaiSales remoto: leer espejo local (tras mirror) para evitar latencia y rate-limits.
+  const mirrorSource = isHaiSalesRemoteDatabase() ? storeDb : haisalesDb;
 
-  const ventasMirrorRows = await fetchAllVentasFromMirror(haisalesDb);
+  console.log('[haisales-sync] leyendo espejo persona…');
+  const personaMirrorRows = await fetchAllPersonaFromMirror(mirrorSource);
+  console.log(`[haisales-sync] persona=${personaMirrorRows.length}, importando clientes…`);
+  const personaImportRows = personaMirrorRows.map((row) => personaDbRowToImportRow(row));
+  // Skip push a HaiSupport por fila; el sync HS hace push/pull en lote.
+  const persona = await importPersonaCustomerRows(personaImportRows, { skipHaiSupport: true });
+  console.log(
+    `[haisales-sync] clientes created=${persona.created} updated=${persona.updated} skipped=${persona.skipped} errors=${persona.errors.length}`,
+  );
+
+  console.log('[haisales-sync] leyendo espejo ventas…');
+  const ventasMirrorRows = await fetchAllVentasFromMirror(mirrorSource);
   const ventasImportRows = ventasMirrorRows.map((row) => ventasMirrorRowToImportRow(row));
+  console.log(`[haisales-sync] ventas=${ventasImportRows.length}, importando documentos…`);
   const ventas = await importVentasDocumentRows(ventasImportRows, {
     sourceFilename: 'haisales-database-sync',
   });
+  console.log(
+    `[haisales-sync] ventas created=${ventas.created} updated=${ventas.updated} skipped=${ventas.skipped}`,
+  );
 
   return {
     source: isHaiSalesRemoteDatabase() ? 'remote-supabase' : 'local-supabase',
@@ -256,16 +318,28 @@ export async function mirrorRemoteHaiSalesToStore() {
   const local = getSupabaseAdmin();
   if (!remote || !local) return { copied: false, persona: 0, ventas: 0 };
 
+  console.log('[haisales-mirror] leyendo remoto…');
   const personaRows = await fetchAllPersonaFromMirror(remote);
   const ventasRows = await fetchAllVentasFromMirror(remote);
+  console.log(`[haisales-mirror] remoto persona=${personaRows.length} ventas=${ventasRows.length}`);
 
   const personaImport = personaRows.map((row) => personaDbRowToImportRow(row));
-  await upsertHaiSalesPersonaMirror(local, personaImport);
+  const personaUpsert = await upsertHaiSalesPersonaMirror(local, personaImport);
 
   const ventasPayload = ventasRows.map((row) => ventasMirrorRowToImportRow(row));
-  await upsertHaiSalesVentasMirror(local, ventasPayload, 'remote-mirror');
+  const ventasUpsert = await upsertHaiSalesVentasMirror(local, ventasPayload, 'remote-mirror');
 
-  return { copied: true, persona: personaRows.length, ventas: ventasRows.length };
+  console.log(
+    `[haisales-mirror] local upsert persona=${personaUpsert.upserted} ventas=${ventasUpsert.upserted}`,
+  );
+
+  return {
+    copied: true,
+    persona: personaUpsert.upserted,
+    ventas: ventasUpsert.upserted,
+    remotePersona: personaRows.length,
+    remoteVentas: ventasRows.length,
+  };
 }
 
 export async function countHaiSalesMirrorRows() {

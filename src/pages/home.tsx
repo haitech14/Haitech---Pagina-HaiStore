@@ -6,6 +6,7 @@ import { HaitechHomeFavoritesSection } from '@/components/haitech-home/haitech-h
 import { HaitechHomeHeroCarousel } from '@/components/haitech-home/haitech-home-hero-carousel';
 import { HaitechHomeLandingSection } from '@/components/haitech-home/landing/haitech-home-landing-section';
 import { HaitechHomeLatestSection } from '@/components/haitech-home/haitech-home-latest-section';
+import { HaitechHomeMobileTrustStrip } from '@/components/haitech-home/haitech-home-mobile-trust-strip';
 import { HaitechHomeWhatsAppButton } from '@/components/haitech-home/haitech-home-whatsapp-button';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { useSeo } from '@/hooks/use-seo';
@@ -32,6 +33,7 @@ export function HomePage() {
     <div className="min-h-screen bg-white font-sans antialiased [font-family:Inter,Roboto,Arial,Helvetica,sans-serif]">
       <HaitechHomeHeroCarousel />
       <HaitechHomeBrandIntro />
+      <HaitechHomeMobileTrustStrip />
       <HaitechHomeCategoryCarousel />
       <HaitechHomeFavoritesSection />
       <HaitechHomeLandingSection />

@@ -118,15 +118,30 @@ export async function pushStoreCustomersToHaiSupport() {
     return { pushed: 0, linked: 0, errors: [{ message: 'Tabla clients no disponible en HaiSupport' }] };
   }
 
-  const { data: rows, error } = await storeDb.from('store_customers').select('*');
-  if (error) throw new Error(error.message);
+  /** @type {Array<Record<string, unknown>>} */
+  const rows = [];
+  const pageSize = 500;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await storeDb
+      .from('store_customers')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .range(from, from + pageSize - 1);
+    if (error) throw new Error(error.message);
+    const batch = data ?? [];
+    rows.push(...batch);
+    if (batch.length < pageSize) break;
+  }
 
   let pushed = 0;
   let linked = 0;
   /** @type {Array<{ id?: string; message: string }>} */
   const errors = [];
+  const total = rows.length;
+  console.log(`[haisupport-push] clientes a empujar: ${total}`);
 
-  for (const row of rows ?? []) {
+  for (let i = 0; i < total; i += 1) {
+    const row = rows[i];
     try {
       const client = storeCustomerRowToHaitechClient(row);
       const hsId = await upsertHaiSupportClient(client);
@@ -143,6 +158,11 @@ export async function pushStoreCustomersToHaiSupport() {
         id: row.id,
         message: err instanceof Error ? err.message : String(err),
       });
+    }
+    if ((i + 1) % 100 === 0 || i + 1 === total) {
+      console.log(
+        `[haisupport-push] ${i + 1}/${total} pushed=${pushed} linked=${linked} errors=${errors.length}`,
+      );
     }
   }
 
@@ -235,14 +255,35 @@ export async function pullHaiSupportClientsToStore() {
             .from('store_customers')
             .update(row)
             .eq('id', storeRow.id);
-          if (updateError) throw new Error(updateError.message);
+          if (updateError) {
+            if (/email_unique|duplicate key/i.test(updateError.message) && row.email) {
+              const { email: _e, ...withoutEmail } = row;
+              const { error: retryError } = await storeDb
+                .from('store_customers')
+                .update(withoutEmail)
+                .eq('id', storeRow.id);
+              if (retryError) throw new Error(retryError.message);
+            } else {
+              throw new Error(updateError.message);
+            }
+          }
           updated += 1;
         } else {
           row.id = hsId;
           row.created_at = hsRow.created_at ?? new Date().toISOString();
           const { error: insertError } = await storeDb.from('store_customers').insert(row);
-          if (insertError) throw new Error(insertError.message);
-          pulled += 1;
+          if (insertError) {
+            if (/email_unique|duplicate key/i.test(insertError.message) && row.email) {
+              const { email: _e, ...withoutEmail } = row;
+              const { error: retryError } = await storeDb.from('store_customers').insert(withoutEmail);
+              if (retryError) throw new Error(retryError.message);
+              pulled += 1;
+            } else {
+              throw new Error(insertError.message);
+            }
+          } else {
+            pulled += 1;
+          }
         }
       } catch (err) {
         errors.push({

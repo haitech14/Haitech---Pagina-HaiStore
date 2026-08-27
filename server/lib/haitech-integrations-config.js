@@ -186,8 +186,18 @@ export async function probeHaiSalesConnection(haisalesSupabase) {
   const personaTable = process.env.HAISALES_TABLE_PERSONA?.trim() || 'haisales_persona';
   const ventasTable = process.env.HAISALES_TABLE_VENTAS?.trim() || 'haisales_ventas';
 
-  const persona = await probeSupabaseTable(haisalesSupabase, personaTable);
-  const ventas = await probeSupabaseTable(haisalesSupabase, ventasTable);
+  let persona = await probeSupabaseTable(haisalesSupabase, personaTable);
+  let ventas = await probeSupabaseTable(haisalesSupabase, ventasTable);
+
+  // Fallback ERP nativo si aún no hay vistas espejo
+  if (!persona.ok) {
+    const erpClientes = await probeSupabaseTable(haisalesSupabase, 'clientes');
+    if (erpClientes.ok) persona = { ...erpClientes, table: 'clientes' };
+  }
+  if (!ventas.ok) {
+    const erpVentas = await probeSupabaseTable(haisalesSupabase, 'ventas');
+    if (erpVentas.ok) ventas = { ...erpVentas, table: 'ventas' };
+  }
 
   const connected = persona.ok || ventas.ok;
 
@@ -198,8 +208,8 @@ export async function probeHaiSalesConnection(haisalesSupabase) {
     url,
     remote: isHaiSalesRemoteProject(),
     tables: {
-      persona: persona.ok ? personaTable : persona.missing ? 'missing' : 'error',
-      ventas: ventas.ok ? ventasTable : ventas.missing ? 'missing' : 'error',
+      persona: persona.ok ? persona.table || personaTable : persona.missing ? 'missing' : 'error',
+      ventas: ventas.ok ? ventas.table || ventasTable : ventas.missing ? 'missing' : 'error',
     },
     ...(connected ? {} : { error: persona.error ?? ventas.error ?? 'tables-unavailable' }),
   };

@@ -13,18 +13,18 @@ const CATALOG_BOXES = [
     objectPosition: 'object-center',
   },
   {
-    id: 'seminuevos',
-    title: 'Catálogo Seminuevos',
-    image: '/A2.png',
-    to: categoryPathWithCondition('multifuncionales', 'compatibles'),
-    objectPosition: 'object-center',
-  },
-  {
     id: 'remanufacturado',
     title: 'Catálogo Remanufacturado',
     image: '/A3.png',
     to: categoryPathWithCondition('multifuncionales', 'remanufacturados'),
     objectPosition: 'object-[62%_center]',
+  },
+  {
+    id: 'seminuevos',
+    title: 'Catálogo Seminuevos',
+    image: '/A2.png',
+    to: categoryPathWithCondition('multifuncionales', 'compatibles'),
+    objectPosition: 'object-center',
   },
 ] as const;
 

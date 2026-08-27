@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { HaitechStorefrontHeader } from '@/components/haitech-home/haitech-storefront-header';
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { HomeStorefrontTrustBar } from '@/components/home/home-storefront-trust-bar';
@@ -11,12 +12,6 @@ import { useProductCompare } from '@/context/product-compare-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { cn } from '@/lib/utils';
-
-const MobileBottomNav = lazy(() =>
-  import('@/components/layout/mobile-bottom-nav').then((m) => ({
-    default: m.MobileBottomNav,
-  })),
-);
 
 const WhatsAppFloatingButton = lazy(() =>
   import('@/components/layout/whatsapp-floating-button').then((m) => ({
@@ -161,20 +156,19 @@ export function RootLayout() {
         id="contenido"
         className={cn(
           'flex-1',
-          !isHomeShell &&
-            showMobileBottomNav &&
-            'pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0',
+          showMobileBottomNav &&
+            'pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0',
         )}
       >
         <Outlet />
       </main>
-      {isHomeShell ? null : (
+      {isHomeShell ? (
+        <MobileBottomNav />
+      ) : (
         <>
           <HomeStorefrontTrustBar />
           <SiteFooter />
-          <Suspense fallback={null}>
-            <MobileBottomNav />
-          </Suspense>
+          <MobileBottomNav />
           {widgetsReady ? (
             <Suspense fallback={null}>
               <WhatsAppFloatingButton />

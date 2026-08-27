@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Grid3x3, Home, Search, ShoppingBag } from 'lucide-react';
+import { Grid3x3, Headphones, Home, Tag, User } from 'lucide-react';
 
 import { CatalogMegaMenuPanel } from '@/components/layout/catalog-mega-menu-panel';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { useCart } from '@/context/cart-context';
 import {
   MOBILE_BOTTOM_NAV_HEIGHT_PX,
   useSetMobileBottomNavInset,
 } from '@/context/mobile-bottom-inset-context';
+import { HAITECH_HOME_TOPBAR } from '@/data/haitech-home-shell';
+import { HAITECH_OPEN_CATEGORIES_EVENT } from '@/lib/haitech-mobile-nav-events';
 import { buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
@@ -16,33 +17,11 @@ import { cn } from '@/lib/utils';
 
 type MobileNavSheet = 'categories' | null;
 
-function focusSiteHeaderSearch() {
-  const input = document.querySelector<HTMLInputElement>('[data-site-header-search-input]');
-  if (!input) return;
-  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  window.setTimeout(() => {
-    input.focus({ preventScroll: true });
-  }, 200);
-}
-
 const navItemClass =
   'flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1 text-[0.625rem] font-semibold leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
-function NavBadge({ count }: { count: number }) {
-  if (count <= 0) return null;
-  return (
-    <span
-      className="absolute -right-1.5 -top-1 flex min-w-[1.125rem] items-center justify-center rounded-full bg-red-600 px-1 text-[0.625rem] font-bold leading-4 text-white"
-      aria-hidden="true"
-    >
-      {count > 99 ? '99+' : count}
-    </span>
-  );
-}
-
 export function MobileBottomNav() {
   const { pathname } = useLocation();
-  const { totalItems, setCartOpen } = useCart();
   const { data: categoryTree = [] } = useStoreCategoriesTree();
   const menu = useMemo(() => buildProductosNavMegaMenu(categoryTree), [categoryTree]);
 
@@ -73,6 +52,12 @@ export function MobileBottomNav() {
     }
   }, [activeCategorySlug, menu.defaultCategorySlug, menu.sidebarItems]);
 
+  useEffect(() => {
+    const onOpenCategories = () => setActiveSheet('categories');
+    window.addEventListener(HAITECH_OPEN_CATEGORIES_EVENT, onOpenCategories);
+    return () => window.removeEventListener(HAITECH_OPEN_CATEGORIES_EVENT, onOpenCategories);
+  }, []);
+
   if (!visible) return null;
 
   const closeSheet = () => setActiveSheet(null);
@@ -82,17 +67,17 @@ export function MobileBottomNav() {
     <>
       <nav
         aria-label="Navegación principal móvil"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8E8E8] bg-white lg:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <div className="container flex items-stretch gap-0.5 px-2 py-1.5">
+        <div className="flex items-stretch gap-0.5 px-1 py-1.5">
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
               cn(
                 navItemClass,
-                isActive ? 'text-red-600' : 'text-muted-foreground hover:text-foreground',
+                isActive ? 'text-[#E30613]' : 'text-[#6B6B6B] hover:text-[#222]',
               )
             }
           >
@@ -107,38 +92,48 @@ export function MobileBottomNav() {
             aria-controls="mobile-nav-categories-sheet"
             className={cn(
               navItemClass,
-              activeSheet === 'categories' ? 'text-red-600' : 'text-muted-foreground hover:text-foreground',
+              activeSheet === 'categories' ? 'text-[#E30613]' : 'text-[#6B6B6B] hover:text-[#222]',
             )}
           >
             <Grid3x3 className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
             <span>Categorías</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setCartOpen(true)}
-            className={cn(navItemClass, 'relative text-muted-foreground hover:text-foreground')}
-            aria-label={
-              totalItems > 0
-                ? `Carrito, ${totalItems} artículo${totalItems === 1 ? '' : 's'}`
-                : 'Carrito'
+          <NavLink
+            to="/tienda"
+            className={({ isActive }) =>
+              cn(
+                navItemClass,
+                isActive ? 'text-[#E30613]' : 'text-[#6B6B6B] hover:text-[#222]',
+              )
             }
           >
-            <span className="relative">
-              <ShoppingBag className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
-              <NavBadge count={totalItems} />
-            </span>
-            <span>Carrito</span>
-          </button>
+            <Tag className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
+            <span>Ofertas</span>
+          </NavLink>
 
-          <button
-            type="button"
-            onClick={focusSiteHeaderSearch}
-            className={cn(navItemClass, 'text-muted-foreground hover:text-foreground')}
+          <a
+            href={HAITECH_HOME_TOPBAR.supportHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(navItemClass, 'text-[#6B6B6B] hover:text-[#222]')}
           >
-            <Search className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
-            <span>Buscar</span>
-          </button>
+            <Headphones className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
+            <span>Soporte</span>
+          </a>
+
+          <NavLink
+            to="/mi-cuenta"
+            className={({ isActive }) =>
+              cn(
+                navItemClass,
+                isActive ? 'text-[#E30613]' : 'text-[#6B6B6B] hover:text-[#222]',
+              )
+            }
+          >
+            <User className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
+            <span>Cuenta</span>
+          </NavLink>
         </div>
       </nav>
 

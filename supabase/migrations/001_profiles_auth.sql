@@ -20,32 +20,55 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
-create policy "Usuarios leen su perfil"
-  on public.profiles for select
-  using (auth.uid() = id);
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'profiles' and policyname = 'Usuarios leen su perfil'
+  ) then
+    create policy "Usuarios leen su perfil"
+      on public.profiles for select
+      using (auth.uid() = id);
+  end if;
 
-create policy "Usuarios actualizan su perfil (sin cambiar rol)"
-  on public.profiles for update
-  using (auth.uid() = id)
-  with check (auth.uid() = id);
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'profiles' and policyname = 'Usuarios actualizan su perfil (sin cambiar rol)'
+  ) then
+    create policy "Usuarios actualizan su perfil (sin cambiar rol)"
+      on public.profiles for update
+      using (auth.uid() = id)
+      with check (auth.uid() = id);
+  end if;
 
-create policy "Admins leen todos los perfiles"
-  on public.profiles for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'profiles' and policyname = 'Admins leen todos los perfiles'
+  ) then
+    create policy "Admins leen todos los perfiles"
+      on public.profiles for select
+      using (
+        exists (
+          select 1 from public.profiles p
+          where p.id = auth.uid() and p.role = 'admin'
+        )
+      );
+  end if;
 
-create policy "Admins actualizan perfiles"
-  on public.profiles for update
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'profiles' and policyname = 'Admins actualizan perfiles'
+  ) then
+    create policy "Admins actualizan perfiles"
+      on public.profiles for update
+      using (
+        exists (
+          select 1 from public.profiles p
+          where p.id = auth.uid() and p.role = 'admin'
+        )
+      );
+  end if;
+end $$;
 
 -- Perfil automático al registrarse
 create or replace function public.handle_new_user()

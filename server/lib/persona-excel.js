@@ -168,13 +168,18 @@ export function sanitizePersonaData(persona) {
 }
 
 /** @param {Array<Record<string, string>>} rows */
-export async function importPersonaCustomerRows(rows) {
+/**
+ * @param {Array<Record<string, string>>} rows
+ * @param {{ skipHaiSupport?: boolean }} [options]
+ */
+export async function importPersonaCustomerRows(rows, options = {}) {
   let created = 0;
   let updated = 0;
   let skipped = 0;
   /** @type {Array<{ row: number; message: string }>} */
   const errors = [];
   const supabase = getSupabaseAdmin();
+  const skipHaiSupport = options.skipHaiSupport === true;
 
   for (let index = 0; index < rows.length; index += 1) {
     const persona = sanitizePersonaData(rows[index]);
@@ -190,7 +195,7 @@ export async function importPersonaCustomerRows(rows) {
         existed = Boolean(data?.id);
       }
 
-      const result = await ensureStoreCustomerFromHaitechClient(client);
+      const result = await ensureStoreCustomerFromHaitechClient(client, { skipHaiSupport });
       if (result.clientId) {
         if (existed) updated += 1;
         else created += 1;

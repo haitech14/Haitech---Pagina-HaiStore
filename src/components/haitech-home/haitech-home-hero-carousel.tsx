@@ -35,7 +35,7 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
       <div
         className={cn(
           'relative mx-auto overflow-hidden rounded-lg bg-neutral-900 shadow-[0_8px_28px_rgba(15,23,42,0.12)] sm:rounded-xl',
-          'h-[min(188px,48vw)] min-h-[160px]',
+          'h-[min(320px,82vw)] min-h-[240px]',
           'sm:h-[min(320px,42vw)] sm:min-h-[220px]',
           'lg:h-[min(480px,34vw)] lg:min-h-[260px]',
         )}

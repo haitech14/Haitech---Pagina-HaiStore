@@ -17,7 +17,26 @@ function proformasPath() {
 }
 
 const VALID_STATUSES = new Set(['pending', 'contacted', 'negotiating', 'won', 'lost']);
-const VALID_SOURCES = new Set(['tpv', 'product']);
+const VALID_SOURCES = new Set(['tpv', 'product', 'web']);
+
+function normalizeCapture(raw) {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const channel = typeof raw.channel === 'string' ? raw.channel.trim() : '';
+  const channelLabel = typeof raw.channelLabel === 'string' ? raw.channelLabel.trim() : '';
+  const ip = typeof raw.ip === 'string' ? raw.ip.trim() : '';
+  const userAgent = typeof raw.userAgent === 'string' ? raw.userAgent.trim() : '';
+  const referer = typeof raw.referer === 'string' ? raw.referer.trim() : '';
+  const path = typeof raw.path === 'string' ? raw.path.trim() : '';
+  if (!channel && !ip && !userAgent && !referer && !path) return undefined;
+  return {
+    ...(channel ? { channel } : {}),
+    ...(channelLabel ? { channelLabel } : {}),
+    ...(ip ? { ip } : {}),
+    ...(userAgent ? { userAgent: userAgent.slice(0, 300) } : {}),
+    ...(referer ? { referer: referer.slice(0, 400) } : {}),
+    ...(path ? { path: path.slice(0, 200) } : {}),
+  };
+}
 
 async function ensureFile() {
   try {
@@ -64,6 +83,11 @@ function normalizeProforma(raw) {
 
   const status = VALID_STATUSES.has(raw.followUpStatus) ? raw.followUpStatus : 'pending';
   const source = VALID_SOURCES.has(raw.source) ? raw.source : 'tpv';
+  const capture = normalizeCapture(raw.capture);
+  const channel =
+    typeof raw.channel === 'string' && raw.channel.trim()
+      ? raw.channel.trim()
+      : capture?.channel;
 
   return {
     id: String(raw.id ?? randomUUID()),
@@ -85,15 +109,28 @@ function normalizeProforma(raw) {
     validityDays: Math.max(1, Number(raw.validityDays) || 7),
     createdAt: raw.createdAt ?? new Date().toISOString(),
     updatedAt: raw.updatedAt ?? new Date().toISOString(),
+    ...(channel ? { channel } : {}),
+    ...(capture ? { capture } : {}),
   };
 }
 
 export async function readProformas() {
   if (shouldUseSharedSupabaseData()) {
-    const remote = await readProformasFromSupabase();
-    if (remote) return remote;
+    try {
+      const remote = await readProformasFromSupabase();
+      if (remote) return remote;
+    } catch (error) {
+      console.warn(
+        '[proformas] Lectura Supabase falló, usando JSON local:',
+        error instanceof Error ? error.message : error,
+      );
+    }
   }
 
+  return readProformasFromLocal();
+}
+
+async function readProformasFromLocal() {
   await ensureFile();
   const raw = await fs.readFile(proformasPath(), 'utf-8');
   const data = JSON.parse(raw);
@@ -101,6 +138,12 @@ export async function readProformas() {
     .map(normalizeProforma)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   return { proformas };
+}
+
+async function writeProformasToLocal(proformas) {
+  await ensureFile();
+  await fs.writeFile(proformasPath(), JSON.stringify({ proformas }, null, 2));
+  return proformas;
 }
 
 export async function writeProformas(proformas) {
@@ -123,16 +166,29 @@ export async function saveProforma(proforma, action = 'upsert') {
   const normalized = normalizeProforma(proforma);
 
   if (shouldUseSharedSupabaseData()) {
-    await upsertProformaInSupabase(normalized);
+    try {
+      await upsertProformaInSupabase(normalized);
+    } catch (error) {
+      console.warn(
+        '[proformas] Supabase no disponible, guardando en JSON local:',
+        error instanceof Error ? error.message : error,
+      );
+      const { proformas } = await readProformasFromLocal();
+      const index = proformas.findIndex((entry) => entry.id === normalized.id);
+      const next =
+        index >= 0
+          ? proformas.map((entry, i) => (i === index ? normalized : entry))
+          : [normalized, ...proformas];
+      await writeProformasToLocal(next);
+    }
   } else {
-    const { proformas } = await readProformas();
+    const { proformas } = await readProformasFromLocal();
     const index = proformas.findIndex((entry) => entry.id === normalized.id);
     const next =
       index >= 0
         ? proformas.map((entry, i) => (i === index ? normalized : entry))
         : [normalized, ...proformas];
-    await ensureFile();
-    await fs.writeFile(proformasPath(), JSON.stringify({ proformas: next }, null, 2));
+    await writeProformasToLocal(next);
   }
 
   notifyHaiSupportChange('proformas', action, normalized);
@@ -196,6 +252,8 @@ export function createProformaFromBody(body, req) {
     validityDays: body.validityDays,
     createdAt: now,
     updatedAt: now,
+    channel: body.channel,
+    capture: body.capture,
   });
 }
 

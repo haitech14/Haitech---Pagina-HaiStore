@@ -8,6 +8,7 @@ import {
 } from '@/lib/checkout-account-client';
 import type { HaitechClientFormValues } from '@/lib/haitech-client-schema';
 import { apiFetch } from '@/lib/api';
+import { submitWebLead, type WebLeadChannel } from '@/lib/submit-web-lead';
 import {
   companyOrRucFromCheckoutParts,
   mergeWhatsAppContactPrefill,
@@ -57,7 +58,13 @@ async function fetchAccountContact(): Promise<WhatsAppContact> {
   return mergeWhatsAppContactPrefill(data.contact, fromCheckout);
 }
 
-export function useWhatsAppContact() {
+type SaveContactVars = {
+  contact: WhatsAppContact;
+  channel?: WebLeadChannel;
+  createProforma?: boolean;
+};
+
+export function useWhatsAppContact(defaultChannel: WebLeadChannel = 'whatsapp-floating') {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -87,7 +94,7 @@ export function useWhatsAppContact() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (contact: WhatsAppContact) => {
+    mutationFn: async ({ contact, channel, createProforma }: SaveContactVars) => {
       storeWhatsAppContact(contact);
       if (user) {
         try {
@@ -99,6 +106,12 @@ export function useWhatsAppContact() {
           /* Sin sesión API: solo local */
         }
       }
+      await submitWebLead({
+        contact,
+        channel: channel ?? defaultChannel,
+        message: 'Contacto WhatsApp registrado desde la tienda',
+        createProforma: createProforma !== false,
+      });
       return contact;
     },
     onSuccess: (contact) => {
@@ -109,7 +122,15 @@ export function useWhatsAppContact() {
   return {
     contact: query.data ?? immediateFallback,
     isLoading: query.isLoading && !query.isPlaceholderData,
-    saveContact: saveMutation.mutateAsync,
+    saveContact: async (
+      contact: WhatsAppContact,
+      channelOrOpts?: WebLeadChannel | Omit<SaveContactVars, 'contact'>,
+    ) => {
+      if (typeof channelOrOpts === 'string') {
+        return saveMutation.mutateAsync({ contact, channel: channelOrOpts });
+      }
+      return saveMutation.mutateAsync({ contact, ...channelOrOpts });
+    },
     isSaving: saveMutation.isPending,
   };
 }

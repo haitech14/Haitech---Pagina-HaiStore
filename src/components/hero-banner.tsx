@@ -457,7 +457,7 @@ export function HeroBanner({
   }, []);
 
   const handleWhatsAppSubmit = async (nextContact: WhatsAppContact) => {
-    await saveContact(nextContact);
+    await saveContact(nextContact, 'whatsapp-hero');
     const opened = openHeroQuoteWhatsApp(
       nextContact,
       whatsappCampaign ? { campaign: whatsappCampaign } : {},

@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { createSupportTicket } from '../lib/haisupport.js';
 import { listAvailableSupportSlots } from '../lib/support-availability.js';
+import { captureFromRequest, registerWebLead } from '../lib/register-web-lead.js';
 import { getClientIp, isSupportRateLimited } from '../lib/support-rate-limit.js';
 
 export const supportRouter = Router();
@@ -74,6 +75,44 @@ supportRouter.post('/tickets', async (req, res, next) => {
     }
 
     const ticket = await createSupportTicket(parsed);
+
+    try {
+      const meta = parsed.metadata ?? {};
+      await registerWebLead({
+        name: parsed.name,
+        email: parsed.email,
+        phone: parsed.phone,
+        companyOrRuc:
+          typeof meta.company === 'string'
+            ? meta.company
+            : typeof meta.companyOrRuc === 'string'
+              ? meta.companyOrRuc
+              : null,
+        city:
+          typeof meta.city === 'string'
+            ? meta.city
+            : typeof parsed.country === 'string'
+              ? parsed.country
+              : null,
+        channel:
+          typeof meta.channel === 'string'
+            ? meta.channel
+            : parsed.type === 'subscription_ruleta'
+              ? 'subscription_ruleta'
+              : 'contact-page',
+        message: parsed.message,
+        ticketId: ticket.id ?? null,
+        ticketCode: ticket.code ?? ticket.ticket_code ?? null,
+        createProforma: true,
+        capture: captureFromRequest(req),
+      });
+    } catch (leadError) {
+      console.warn(
+        '[support] No se pudo registrar lead en Cotizaciones:',
+        leadError instanceof Error ? leadError.message : leadError,
+      );
+    }
+
     const isLocal = ticket.local === true;
     res.status(201).json({
       ...ticket,

@@ -288,8 +288,15 @@ export function SalesUnifiedListPanel({
         proforma.customer.atencion,
         proforma.customer.celular,
         proforma.customer.documento,
+        proforma.customer.ciudad,
+        proforma.customer.direccion,
         proforma.sellerName,
         proforma.sellerEmail,
+        proforma.channel,
+        proforma.capture?.channel,
+        proforma.capture?.channelLabel,
+        proforma.capture?.ip,
+        proforma.notes,
       ]
         .filter(Boolean)
         .join(' ')
@@ -698,6 +705,24 @@ export function SalesUnifiedListPanel({
                         {' · '}
                         {cotizacionClientTypeLabel(proforma)}
                       </p>
+                      {proforma.customer.ciudad || proforma.customer.direccion ? (
+                        <p className="text-xs text-muted-foreground">
+                          {[proforma.customer.direccion, proforma.customer.ciudad]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </p>
+                      ) : null}
+                      {proforma.capture?.channelLabel ||
+                      proforma.capture?.channel ||
+                      proforma.channel ||
+                      proforma.capture?.ip ? (
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          {proforma.capture?.channelLabel ||
+                            proforma.capture?.channel ||
+                            proforma.channel}
+                          {proforma.capture?.ip ? ` · IP ${proforma.capture.ip}` : ''}
+                        </p>
+                      ) : null}
                     </TableCell>
                     <TableCell>
                       <p className="text-sm">{proforma.sellerName}</p>

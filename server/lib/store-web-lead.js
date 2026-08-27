@@ -22,6 +22,10 @@ export const WEB_LEAD_CHANNEL_LABELS = {
   'whatsapp-hero': 'WhatsApp hero',
   'whatsapp-floating': 'WhatsApp flotante',
   'whatsapp-rental': 'WhatsApp alquiler',
+  'whatsapp-home': 'WhatsApp home',
+  'account-signup': 'Registro / inicio de sesión',
+  'account-login': 'Inicio de sesión',
+  'quote-pdf': 'Cotización PDF',
   contact: 'Contacto web',
 };
 
@@ -147,6 +151,11 @@ export async function upsertStoreCustomerFromWebLead(lead) {
   const message = String(lead.message ?? '').trim();
   const productName = String(lead.productName ?? '').trim() || null;
   const productId = String(lead.productId ?? '').trim() || null;
+  const meta = lead.metadata && typeof lead.metadata === 'object' ? lead.metadata : {};
+  const ip = typeof meta.ip === 'string' ? meta.ip.trim() : '';
+  const userAgent = typeof meta.userAgent === 'string' ? meta.userAgent.trim() : '';
+  const direccion =
+    typeof meta.direccion === 'string' ? meta.direccion.trim() : '';
   const now = new Date().toISOString();
 
   /** @type {Record<string, unknown> | null} */
@@ -155,7 +164,7 @@ export async function upsertStoreCustomerFromWebLead(lead) {
   if (taxId) {
     const { data } = await supabase
       .from('store_customers')
-      .select('id, email, persona_data, notes, full_name, phone, company_name, tax_id, ciudad')
+      .select('id, email, persona_data, notes, full_name, phone, company_name, tax_id, ciudad, direccion')
       .eq('tax_id', taxId)
       .maybeSingle();
     if (data) existing = data;
@@ -164,7 +173,7 @@ export async function upsertStoreCustomerFromWebLead(lead) {
   if (!existing) {
     const { data } = await supabase
       .from('store_customers')
-      .select('id, email, persona_data, notes, full_name, phone, company_name, tax_id, ciudad')
+      .select('id, email, persona_data, notes, full_name, phone, company_name, tax_id, ciudad, direccion')
       .eq('email', email)
       .maybeSingle();
     if (data) existing = data;
@@ -181,12 +190,15 @@ export async function upsertStoreCustomerFromWebLead(lead) {
     productId,
     ticketId: lead.ticketId ?? null,
     ticketCode: lead.ticketCode ?? null,
+    ip: ip || null,
+    userAgent: userAgent ? userAgent.slice(0, 240) : null,
+    direccion: direccion || null,
   });
   const trimmedHistory = history.slice(0, 25);
 
   const obsParts = [
     typeof persona.observaciones === 'string' ? persona.observaciones.trim() : '',
-    `[${now.slice(0, 16).replace('T', ' ')}] ${channelLabel}${productName ? ` · ${productName}` : ''}${message ? `: ${message.slice(0, 120)}` : ''}`,
+    `[${now.slice(0, 16).replace('T', ' ')}] ${channelLabel}${productName ? ` · ${productName}` : ''}${ip ? ` · IP ${ip}` : ''}${message ? `: ${message.slice(0, 120)}` : ''}`,
   ].filter(Boolean);
 
   const nextPersona = {
@@ -194,6 +206,8 @@ export async function upsertStoreCustomerFromWebLead(lead) {
     canal_ruta: channelLabel,
     web_lead_last_at: now,
     web_lead_last_channel: channel,
+    web_lead_last_ip: ip || persona.web_lead_last_ip || null,
+    web_lead_last_ua: userAgent ? userAgent.slice(0, 240) : persona.web_lead_last_ua || null,
     web_lead_history: JSON.stringify(trimmedHistory),
     observaciones: obsParts.join('\n').slice(0, 4000),
     ...(taxId ? { numero_documento: taxId, tipo_documento: taxId.length === 11 ? 'RUC' : 'DNI' } : {}),
@@ -202,6 +216,7 @@ export async function upsertStoreCustomerFromWebLead(lead) {
       : {}),
     ...(city ? { ubigeo: city } : {}),
     ...(phone ? { telefono_principal: phone } : {}),
+    ...(direccion ? { direccion } : {}),
     ...(email && !email.endsWith('@lead.haistore.local')
       ? { correo_principal: email }
       : {}),
@@ -221,6 +236,7 @@ export async function upsertStoreCustomerFromWebLead(lead) {
     tax_id: taxId ?? existing?.tax_id ?? null,
     nombre_contacto: name,
     ciudad: city ?? existing?.ciudad ?? null,
+    direccion: direccion || existing?.direccion || null,
     tipo_cliente: 'public',
     source: 'haistore',
     persona_data: nextPersona,

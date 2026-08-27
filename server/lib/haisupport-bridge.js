@@ -20,18 +20,50 @@ export async function upsertHaiSupportClient(client) {
   const row = haitechClientToHaiSupportClientRow(client);
   if (!row.nombre?.trim()) return null;
 
+  // Preferir id conocido; si no, reconciliar por RUC/DNI para no duplicar.
+  let targetId = row.id ?? null;
+  if (!targetId && row.ruc_dni) {
+    const { data: existing } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('ruc_dni', row.ruc_dni)
+      .maybeSingle();
+    if (existing?.id) targetId = existing.id;
+  }
+
+  const payload = { ...row, id: targetId ?? undefined, updated_at: new Date().toISOString() };
+
   const { data, error } = await supabase
     .from('clients')
-    .upsert(row, { onConflict: 'id' })
+    .upsert(payload, { onConflict: 'id' })
     .select('id')
     .maybeSingle();
 
   if (error) {
+    // Colisión de email/ruc: intentar update por ruc_dni
+    if (row.ruc_dni && (error.code === '23505' || /duplicate|unique/i.test(error.message))) {
+      const { data: byRuc } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('ruc_dni', row.ruc_dni)
+        .maybeSingle();
+      if (byRuc?.id) {
+        const { email: _email, ...rest } = payload;
+        const { data: updated, error: updateError } = await supabase
+          .from('clients')
+          .update({ ...rest, id: byRuc.id })
+          .eq('id', byRuc.id)
+          .select('id')
+          .maybeSingle();
+        if (!updateError) return updated?.id ?? byRuc.id;
+        console.warn('[haisupport-bridge] upsert client retry:', updateError.message);
+      }
+    }
     console.warn('[haisupport-bridge] upsert client:', error.message);
     return null;
   }
 
-  return data?.id ?? row.id ?? null;
+  return data?.id ?? payload.id ?? null;
 }
 
 export async function upsertHaiSupportServiceRequest(record) {
@@ -124,9 +156,14 @@ export async function deleteHaiSupportRentalRequest(id) {
 }
 
 /** Persiste o vincula cliente en store_customers y opcionalmente en HaiSupport. */
-export async function ensureStoreCustomerFromHaitechClient(clientInput) {
+/**
+ * @param {Record<string, unknown>} clientInput
+ * @param {{ skipHaiSupport?: boolean }} [options] — omitir push a HaiSupport (p. ej. sync masivo HaiSales)
+ */
+export async function ensureStoreCustomerFromHaitechClient(clientInput, options = {}) {
   const supabase = getSupabaseAdmin();
   const client = inboundPayloadToHaitechClient(clientInput);
+  const skipHaiSupport = options.skipHaiSupport === true;
 
   if (!client.nombre?.trim()) {
     throw new Error('La razón social del cliente es obligatoria');
@@ -275,7 +312,7 @@ export async function ensureStoreCustomerFromHaitechClient(clientInput) {
   }
 
   let hsClientId = client.haisupportClientId ?? storeRow?.haisupport_client_id ?? null;
-  if (isHaiSupportSupabaseConfigured()) {
+  if (!skipHaiSupport && isHaiSupportSupabaseConfigured()) {
     const hsId = await upsertHaiSupportClient({
       ...storeCustomerRowToHaitechClient(storeRow ?? client),
       haisupportClientId: hsClientId,

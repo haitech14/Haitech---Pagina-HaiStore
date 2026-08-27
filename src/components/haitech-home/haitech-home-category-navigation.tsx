@@ -27,7 +27,7 @@ export function HaitechHomeCategoryNavigation({ className }: { className?: strin
     <nav
       aria-label="Navegación principal"
       className={cn(
-        'w-full bg-black',
+        'hidden w-full bg-black sm:block',
         '[font-family:"Space_Grotesk",Montserrat,system-ui,sans-serif]',
         className,
       )}

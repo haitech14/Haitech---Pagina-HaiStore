@@ -47,7 +47,17 @@ comment on table public.imported_sale_documents is 'Ventas históricas importada
 
 alter table public.imported_sale_documents enable row level security;
 
-create policy "Admins gestionan ventas importadas"
-  on public.imported_sale_documents for all
-  using (public.is_admin())
-  with check (public.is_admin());
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'imported_sale_documents'
+      and policyname = 'Admins gestionan ventas importadas'
+  ) then
+    create policy "Admins gestionan ventas importadas"
+      on public.imported_sale_documents for all
+      using (public.is_admin())
+      with check (public.is_admin());
+  end if;
+end $$;

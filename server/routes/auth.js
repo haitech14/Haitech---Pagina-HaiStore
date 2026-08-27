@@ -10,6 +10,8 @@ import {
   verifySupabaseToken,
   getSupabaseAdmin,
 } from '../lib/supabase-auth.js';
+import { captureFromRequest, registerWebLead } from '../lib/register-web-lead.js';
+import { getClientIp, isSupportRateLimited } from '../lib/support-rate-limit.js';
 
 export const authRouter = Router();
 
@@ -88,6 +90,31 @@ authRouter.post('/sync-profile', async (req, res, next) => {
 
     const profile = await upsertProfileFromAuth(user);
     const sessionUser = await verifySupabaseToken(token);
+
+    try {
+      const fullName =
+        String(profile?.full_name ?? user.user_metadata?.full_name ?? user.email ?? '').trim() ||
+        'Usuario web';
+      const email = String(user.email ?? '').trim().toLowerCase();
+      const loginLeadKey = `account-login:${email || getClientIp(req)}`;
+      // Rate-limit: evita una cotización por cada sync-profile (máx. ~5/min por usuario).
+      const createProforma = !isSupportRateLimited(loginLeadKey);
+
+      await registerWebLead({
+        name: fullName,
+        email: user.email ?? null,
+        channel: 'account-login',
+        message: `Sesión sincronizada · ${user.email ?? ''}`,
+        createProforma,
+        capture: captureFromRequest(req),
+      });
+    } catch (leadError) {
+      console.warn(
+        '[auth/sync-profile] lead:',
+        leadError instanceof Error ? leadError.message : leadError,
+      );
+    }
+
     res.json({ user: sessionUser, profile });
   } catch (err) {
     next(err);

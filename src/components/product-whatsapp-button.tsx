@@ -95,7 +95,10 @@ export function ProductWhatsAppButton({
   ) => {
     setIsProcessing(true);
     try {
-      await saveContact(nextContact);
+      await saveContact(nextContact, {
+        channel: 'whatsapp-product',
+        createProforma: !options.generateQuote,
+      });
 
       let quoteNumber: string | undefined;
 
