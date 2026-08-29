@@ -71,6 +71,7 @@ export interface HomeHeroSlide {
   sealTitle?: string;
   sealSubtitle?: string;
 }
+
 export const HOME_HERO_WHATSAPP_NUMBER = '915 149 290';
 export const HOME_HERO_WHATSAPP_LINK = 'https://wa.me/51915149290';
 
@@ -87,25 +88,20 @@ export const TRUST_ICON_MAP: Record<HomeHeroTrustIcon, LucideIcon> = {
 /** Altura del carrusel: misma franja que el carrusel Ricoh / Cyber Days del home. */
 export const HOME_HERO_PROMO_BANNER_HEIGHT_CLASS = STORE_RICOH_PROMO_DEFAULT_HEIGHT_CLASS;
 
-/** Ajustes compartidos de banners promocionales. */
-const HOME_HERO_PROMO_IMAGE_SHARED = {
+/** Banner principal home — imagen completa (único slide del carrusel legacy). */
+export const HAITECH_HOME_HERO_BANNER_SLIDE: HomeHeroSlide = {
+  id: 'haitech-home-hero',
   imageOnly: true,
   singleAsset: true,
   compact: true,
   skipHeroWebpVariants: true,
   compactMaxHeightClass: HOME_HERO_PROMO_BANNER_HEIGHT_CLASS,
-  objectFit: 'cover' as const,
+  objectFit: 'cover',
   heroVerticalCrop: 1,
   objectPositionClass: 'object-center',
   compactImageFrameClass: 'h-full w-full',
   compactImageZoomClass: 'scale-100',
   linkHref: HOME_HERO_WHATSAPP_LINK,
-};
-
-/** Banner principal home — imagen completa (único slide del carrusel). */
-export const HAITECH_HOME_HERO_BANNER_SLIDE: HomeHeroSlide = {
-  ...HOME_HERO_PROMO_IMAGE_SHARED,
-  id: 'haitech-home-hero',
   dotTheme: 'dark',
   backgroundImage: '/hero/haitech-home-hero.png',
   imageWidth: 2094,
@@ -114,46 +110,5 @@ export const HAITECH_HOME_HERO_BANNER_SLIDE: HomeHeroSlide = {
     'Soluciones de impresión Ricoh — Fotocopiadoras inteligentes para tu empresa. Solicita tu cotización.',
 };
 
-/** Slide principal de la landing (texto + escena). Disponible si se vuelve a activar. */
-export const HOME_LANDING_HERO_SLIDE: HomeHeroSlide = {
-  id: 'home-landing',
-  layout: 'home-landing',
-  backgroundImage: '/hero/home-hero-scene.webp',
-  skipHeroWebpVariants: true,
-  singleAsset: true,
-  dotTheme: 'dark',
-};
-
-/** Banner Fiestas Patrias — promociones generales. */
-export const FIESTAS_PATRIAS_BANNER_HERO_SLIDE: HomeHeroSlide = {
-  ...HOME_HERO_PROMO_IMAGE_SHARED,
-  id: 'fiestas-patrias-promociones',
-  dotTheme: 'light',
-  backgroundImage: '/Banner2hero.png',
-  imageWidth: 2048,
-  imageHeight: 768,
-  imageAlt:
-    'Promociones por Fiestas Patrias — Fotocopiadoras Ricoh para tu oficina. Rendimiento, velocidad y calidad profesional.',
-};
-
-/** Banner Fiestas Patrias — ofertas con precios. */
-export const FIESTAS_PATRIAS_PROMO_NUEVAS_HERO_SLIDE: HomeHeroSlide = {
-  ...HOME_HERO_PROMO_IMAGE_SHARED,
-  id: 'fiestas-patrias-ofertas',
-  dotTheme: 'dark',
-  backgroundImage: '/hero/fiestas-patrias-ofertas.png',
-  imageWidth: 2172,
-  imageHeight: 724,
-  imageAlt:
-    'Ofertas por Fiestas Patrias — Fotocopiadoras Ricoh para tu oficina. Instalación, soporte técnico y garantía.',
-};
-
-/** Slides activos del hero (solo el banner HAITECH). */
+/** Slides activos del hero legacy (solo el banner HAITECH). */
 export const homeHeroSlides: HomeHeroSlide[] = [HAITECH_HOME_HERO_BANNER_SLIDE];
-
-/** Disponibles para rotar; no activos en el carrusel. */
-export const HOME_HERO_PROMO_SLIDES_UNUSED = [
-  HOME_LANDING_HERO_SLIDE,
-  FIESTAS_PATRIAS_BANNER_HERO_SLIDE,
-  FIESTAS_PATRIAS_PROMO_NUEVAS_HERO_SLIDE,
-] as const;

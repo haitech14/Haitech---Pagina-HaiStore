@@ -122,6 +122,12 @@ export interface ProductStockByWarehouse {
   quantity: number;
 }
 
+/** Desglose de stock por almacén para tooltips en tienda. */
+export interface ProductStockLocation {
+  name: string;
+  quantity: number;
+}
+
 export const PRODUCT_ATTACHMENT_KINDS = [
   'technical_sheet',
   'manual',

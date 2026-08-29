@@ -350,10 +350,8 @@ export function matchesHomeFeaturedEquipmentCategoryFilter(
         haystack.includes('scanner') ||
         haystack.includes('scansnap')
       );
-    case 'plotter':
-      return isPlotterProduct(product);
-    case 'multifuncional-planos':
-      return isMultifuncionalPlanosProduct(product);
+    case 'formato-ancho':
+      return isPlotterProduct(product) || isMultifuncionalPlanosProduct(product);
     case 'pantallas-interactivas':
       return isPantallasInteractivasProduct(product);
     case 'videoconferencia':

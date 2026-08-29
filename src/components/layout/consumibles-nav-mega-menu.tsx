@@ -13,7 +13,7 @@ import {
 export function ConsumiblesNavMegaMenu({
   navRow = 'default',
   showIcon = true,
-  label = 'Tóner y Consumibles',
+  label = 'Consumibles',
   triggerHref,
 }: {
   navRow?: 'default' | 'secondary' | 'light' | 'light-compact' | 'haitech-black' | 'haitech-white';
@@ -42,7 +42,7 @@ export function ConsumiblesNavMegaMenu({
       showIcon={showIcon}
       {...(triggerHref ? { triggerHref } : {})}
       {...(navRow === 'haitech-black' || navRow === 'haitech-white'
-        ? { mockupMenuKind: 'toner' as const }
+        ? { mockupMenuKind: 'consumibles' as const }
         : {})}
     />
   );

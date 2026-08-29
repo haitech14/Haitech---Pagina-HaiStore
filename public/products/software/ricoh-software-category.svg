@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img">
+  <g transform="translate(28 20)">
+    <rect x="0" y="0" width="88" height="120" rx="8" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+    <rect x="0" y="0" width="16" height="120" rx="4" fill="#E30613"/>
+    <rect x="58" y="8" width="24" height="12" rx="3" fill="#E30613"/>
+    <text x="70" y="17" fill="#fff" font-family="Arial,sans-serif" font-size="7" font-weight="700" text-anchor="middle">DVD</text>
+    <circle cx="48" cy="88" r="22" fill="#111827" stroke="#94a3b8" stroke-width="1.5"/>
+    <circle cx="48" cy="88" r="8" fill="#E30613"/>
+  </g>
+  <g transform="translate(84 36)">
+    <rect x="0" y="0" width="88" height="120" rx="8" fill="#312e81" stroke="#6366f1" stroke-width="2"/>
+    <rect x="0" y="0" width="16" height="120" rx="4" fill="#E30613"/>
+    <rect x="58" y="8" width="24" height="12" rx="3" fill="#E30613"/>
+    <text x="70" y="17" fill="#fff" font-family="Arial,sans-serif" font-size="7" font-weight="700" text-anchor="middle">DVD</text>
+    <circle cx="48" cy="88" r="22" fill="#111827" stroke="#94a3b8" stroke-width="1.5"/>
+    <circle cx="48" cy="88" r="8" fill="#E30613"/>
+  </g>
+</svg>

@@ -230,7 +230,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   }, [slug, storeFilterCategorySlug]);
   const usesEquipmentConditionTabs =
     storefrontMode && (!catalogFamily || isEquipmentCatalogFamily(catalogFamily));
-  /** Storefront equipos: sin `estado` o `all` → Nuevas (no hay pestaña «Todas»). */
+  /** Storefront equipos: sin `estado` o `all` → Nuevas (sin forzar query en la URL). */
   const estadoFilter = useMemo(() => {
     if (usesEquipmentConditionTabs) {
       if (!estadoParam || estadoParam === 'all') return 'originales';
@@ -240,15 +240,6 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     return estadoFromUrl;
   }, [estadoParam, estadoFromUrl, usesEquipmentConditionTabs]);
 
-  useEffect(() => {
-    if (!usesEquipmentConditionTabs) return;
-    const raw = searchParams.get('estado');
-    // Sin estado o «all» (antigua Todas): forzar Nuevas.
-    if (raw && raw !== 'all') return;
-    const next = new URLSearchParams(searchParams);
-    next.set('estado', 'nuevas');
-    setSearchParams(next, { replace: true, preventScrollReset: true });
-  }, [usesEquipmentConditionTabs, searchParams, setSearchParams]);
   const syncSidebarCountsFromCatalog = !isInventorySearch && !isRentalCategory;
   // Solo /tienda necesita el catálogo completo; categorías usan árbol + useCategoryCatalog.
   const { data: allProductsData, isFetching: productsFetching, isPending: productsPending } =
@@ -752,15 +743,20 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
   ]);
 
   useLayoutEffect(() => {
-    const behavior: ScrollBehavior = location.hash ? 'smooth' : 'auto';
     const hashId = location.hash.replace(/^#/, '');
+    // Sin ancla: respetar ScrollToTop (inicio de página). No saltar al hero del catálogo
+    // — en /tienda queda a mitad por el banner y la vitrina superiores.
+    if (!hashId) return;
 
+    const behavior: ScrollBehavior = 'smooth';
     const scrollToTarget = () => {
       if (hashId === CATEGORY_PRODUCTS_ID) {
         scrollToCategoryProducts(behavior);
         return;
       }
-      scrollToCategoryHero(behavior);
+      if (hashId === CATEGORY_HERO_ID) {
+        scrollToCategoryHero(behavior);
+      }
     };
 
     scrollToTarget();
@@ -1179,15 +1175,14 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
     next.delete('attrs');
     next.delete('buscar');
     next.delete('cat');
-    if (usesEquipmentConditionTabs) next.set('estado', 'nuevas');
-    else next.delete('estado');
+    next.delete('estado');
     next.delete('orden');
     next.delete('vista');
     next.delete('pagina');
     next.delete('precio_min');
     next.delete('precio_max');
     setSearchParams(next, { replace: true, preventScrollReset: true });
-  }, [selectSubcategory, searchParams, setSearchParams, usesEquipmentConditionTabs]);
+  }, [selectSubcategory, searchParams, setSearchParams]);
 
   const toggleProduction = useCallback((key: string) => {
     startTransition(() => {

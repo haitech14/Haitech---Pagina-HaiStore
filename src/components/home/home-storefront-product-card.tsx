@@ -32,6 +32,7 @@ import {
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { productHasSpdf } from '@/lib/product-card-pill-badges';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
+import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { productPath } from '@/lib/product-path';
@@ -90,7 +91,7 @@ function buildStorefrontHoverSpecBadges(
   return badges;
 }
 
-/** Títulos de vitrina: Impresora Multifuncional Laser {condición} {marca} {modelo}. */
+/** Títulos de vitrina: Multifuncional {modelo} (marca/condición van aparte). */
 function formatStorefrontProductTitle(
   title: string,
   brand: string | null,
@@ -120,19 +121,13 @@ function formatStorefrontProductTitle(
   }
 
   const model = next.replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
-
-  const parts = ['Impresora Multifuncional Laser'];
-  if (condition?.trim()) parts.push(condition.trim());
-  if (brand?.trim()) parts.push(brand.trim());
-  if (model) parts.push(model);
-
-  return parts.join(' ');
+  return model ? `Multifuncional ${model}` : 'Multifuncional';
 }
 
 function WhatsAppIconFallback() {
   return (
     <span
-      className="flex h-9 w-9 min-h-9 max-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg bg-[#25D366] text-white"
+      className="flex h-9 w-9 min-h-9 max-h-9 min-w-9 shrink-0 items-center justify-center rounded-[0.65rem] bg-[#25D366] text-white"
       aria-hidden="true"
     >
       <svg viewBox="0 0 24 24" className="size-4 fill-current" aria-hidden="true">
@@ -215,6 +210,7 @@ export function HomeStorefrontProductCard({
       : rawProductTitle;
   const hoverSpecBadges = buildStorefrontHoverSpecBadges(productSource);
   const productCodeLabel = (displayCode ?? code)?.trim() || null;
+  const clipboardBasicFeatures = buildProductCardQuickSpecsLine(productSource);
   const stockHoverLabel = outOfStock
     ? PRODUCT_ON_REQUEST_STOCK_LABEL
     : String(Math.max(0, Math.floor(stockCount)));
@@ -284,70 +280,74 @@ export function HomeStorefrontProductCard({
 
   return (
     <article
-      className="group flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-[0_2px_10px_rgba(15,31,61,0.05)] transition-shadow duration-200 hover:shadow-[0_4px_16px_rgba(15,31,61,0.09)]"
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#EAEAEA] bg-white shadow-[0_2px_10px_rgba(15,31,61,0.05)] transition-shadow duration-200 hover:shadow-[0_4px_16px_rgba(15,31,61,0.09)]"
       onPointerEnter={warmChrome}
       onFocusCapture={warmChrome}
     >
       <div className="relative px-1 pt-2.5 sm:px-1.5 sm:pt-3">
-        <div className="absolute right-2 top-2 z-[2] hidden flex-col gap-1 md:flex md:right-2.5 md:top-2.5">
-          <button
-            type="button"
-            aria-pressed={wishlistSelected}
-            aria-label={
-              wishlistSelected
-                ? `Quitar ${product.name} de favoritos`
-                : `Añadir ${product.name} a favoritos`
-            }
-            onClick={handleWishlist}
-            className={cn(
-              FEATURED_CARD_OVERLAY_BUTTON_CLASS,
-              'text-[#E30613]',
-              wishlistSelected && 'border-[#E30613]/40 bg-[#FFF0F1]',
-            )}
-          >
-            <Heart
-              className={cn('size-3.5', wishlistSelected && 'fill-[#E30613]')}
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-          </button>
+        <button
+          type="button"
+          aria-pressed={wishlistSelected}
+          aria-label={
+            wishlistSelected
+              ? `Quitar ${product.name} de favoritos`
+              : `Añadir ${product.name} a favoritos`
+          }
+          onClick={handleWishlist}
+          className={cn(
+            'absolute right-2 top-2 z-[2] flex size-8 items-center justify-center rounded-full text-[#E30613] transition-colors hover:bg-[#FFF0F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-1 sm:right-2.5 sm:top-2.5',
+            wishlistSelected && 'bg-[#FFF0F1]',
+          )}
+        >
+          <Heart
+            className={cn('size-4', wishlistSelected && 'fill-[#E30613]')}
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
+        </button>
 
-          {chromeReady ? (
-            <Suspense fallback={null}>
-              <div
-                className={cn(
-                  'flex flex-col gap-1 opacity-0 transition-opacity duration-200 ease-out',
-                  'group-hover:opacity-100 group-focus-within:opacity-100',
-                  'motion-reduce:opacity-100 motion-reduce:transition-none',
-                )}
-              >
-                {clipboardImageUrl ? (
-                  <ProductCardCopyImageButton
-                    productName={product.name}
-                    imageUrl={clipboardImageUrl}
-                    className={FEATURED_CARD_OVERLAY_BUTTON_CLASS}
-                  />
-                ) : null}
-                <ProductCardCopyButton
+        {chromeReady ? (
+          <Suspense fallback={null}>
+            <div
+              className={cn(
+                'absolute right-2 top-11 z-[2] hidden flex-col gap-1 opacity-0 transition-opacity duration-200 ease-out md:flex md:right-2.5',
+                'group-hover:opacity-100 group-focus-within:opacity-100',
+                'motion-reduce:opacity-100 motion-reduce:transition-none',
+              )}
+            >
+              {clipboardImageUrl ? (
+                <ProductCardCopyImageButton
                   productName={product.name}
-                  title={productTitle}
-                  stock={stockCount}
-                  {...clipboardPriceFieldsFromDisplay(displayPrice)}
-                  productId={product.id}
-                  productPath={detailPath}
-                  isColorProduct={clipboardIsColor}
-                  {...(productCodeLabel != null ? { code: productCodeLabel } : {})}
-                  {...(conditionLabel != null ? { condition: conditionLabel } : {})}
-                  {...(product.category != null ? { category: product.category } : {})}
-                  {...(catalogProduct?.volume_role_prices != null
-                    ? { volumeRolePrices: catalogProduct.volume_role_prices }
-                    : {})}
+                  imageUrl={clipboardImageUrl}
                   className={FEATURED_CARD_OVERLAY_BUTTON_CLASS}
                 />
-              </div>
-            </Suspense>
-          ) : null}
-        </div>
+              ) : null}
+              <ProductCardCopyButton
+                productName={product.name}
+                title={productTitle}
+                stock={stockCount}
+                {...clipboardPriceFieldsFromDisplay(displayPrice)}
+                productId={product.id}
+                productPath={detailPath}
+                isColorProduct={clipboardIsColor}
+                {...(productCodeLabel != null ? { code: productCodeLabel } : {})}
+                {...(conditionLabel != null ? { condition: conditionLabel } : {})}
+                {...(clipboardBasicFeatures != null
+                  ? { basicFeatures: clipboardBasicFeatures }
+                  : hoverSpecBadges.length > 0
+                    ? {
+                        basicFeatures: hoverSpecBadges.map((badge) => badge.label),
+                      }
+                    : {})}
+                {...(product.category != null ? { category: product.category } : {})}
+                {...(catalogProduct?.volume_role_prices != null
+                  ? { volumeRolePrices: catalogProduct.volume_role_prices }
+                  : {})}
+                className={FEATURED_CARD_OVERLAY_BUTTON_CLASS}
+              />
+            </div>
+          </Suspense>
+        ) : null}
 
         <Link
           to={detailPath}
@@ -367,17 +367,29 @@ export function HomeStorefrontProductCard({
       </div>
 
       <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-1 sm:px-3 sm:pb-3">
-        {brand || conditionLabel ? (
-          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+        {(brand || conditionLabel) ? (
+          <div className="flex min-w-0 items-center justify-between gap-2">
             {brand ? (
               <p className="min-w-0 truncate text-[0.6875rem] font-bold uppercase tracking-wide text-[#E30613] sm:text-xs">
                 {brand}
               </p>
-            ) : null}
+            ) : (
+              <span className="min-w-0" aria-hidden="true" />
+            )}
             {conditionLabel ? (
-              <p className="shrink-0 text-[0.625rem] font-semibold leading-none text-[#4B5563] sm:text-[0.6875rem]">
-                {conditionLabel}
-              </p>
+              <span
+                className={cn(
+                  'inline-flex h-[18px] shrink-0 items-center justify-center rounded-full px-2.5',
+                  'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
+                  /nuev/i.test(conditionLabel) && !/semi/i.test(conditionLabel)
+                    ? 'bg-[#111111] text-white'
+                    : 'border border-[#555] bg-white text-[#555]',
+                )}
+              >
+                {/nuev/i.test(conditionLabel) && !/semi/i.test(conditionLabel)
+                  ? 'NUEVO'
+                  : conditionLabel.toUpperCase()}
+              </span>
             ) : null}
           </div>
         ) : null}
@@ -386,10 +398,10 @@ export function HomeStorefrontProductCard({
           to={detailPath}
           className={cn(
             'rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]',
-            brand || conditionLabel ? 'mt-0.5' : null,
+            brand || conditionLabel ? 'mt-1.5' : null,
           )}
         >
-          <h3 className="line-clamp-2 text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-[0.8125rem]">
+          <h3 className="text-pretty break-words text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-[0.8125rem]">
             {productTitle}
           </h3>
         </Link>
@@ -398,18 +410,15 @@ export function HomeStorefrontProductCard({
           <div className="min-h-0 overflow-hidden">
             <div
               className="mt-1.5 flex min-w-0 items-center gap-1.5"
-              aria-label="Código, stock y especificaciones"
+              aria-label="Código y stock"
             >
-              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-                {productCodeLabel ? (
-                  <span className="shrink-0 text-[0.625rem] font-medium tabular-nums leading-none text-[#6B7280] sm:text-[0.6875rem]">
-                    {productCodeLabel}
-                  </span>
-                ) : null}
-                {hoverSpecBadges.map((badge) => (
-                  <ProductCardPill key={badge.id} label={badge.label} variant="secondary" />
-                ))}
-              </div>
+              {productCodeLabel ? (
+                <span className="min-w-0 truncate text-[0.625rem] font-medium tabular-nums leading-none text-[#6B7280] sm:text-[0.6875rem]">
+                  {productCodeLabel}
+                </span>
+              ) : (
+                <span className="min-w-0" aria-hidden="true" />
+              )}
               <span
                 className={cn(
                   'ml-auto inline-flex shrink-0 items-center gap-1 text-[0.625rem] font-medium tabular-nums leading-none sm:text-[0.6875rem]',
@@ -420,9 +429,19 @@ export function HomeStorefrontProductCard({
                 {!outOfStock ? (
                   <Package className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                 ) : null}
-                <span>{stockHoverLabel}</span>
+                <span>{outOfStock ? PRODUCT_ON_REQUEST_STOCK_LABEL : `Stock ${stockHoverLabel}`}</span>
               </span>
             </div>
+            {hoverSpecBadges.length > 0 ? (
+              <div
+                className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1"
+                aria-label="Especificaciones"
+              >
+                {hoverSpecBadges.map((badge) => (
+                  <ProductCardPill key={badge.id} label={badge.label} variant="secondary" />
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -435,6 +454,7 @@ export function HomeStorefrontProductCard({
               currentUsd={pricing.currentUsd}
               compareUsd={pricing.compareUsd}
               showAccentBar={false}
+              accentUsd
             />
           )}
         </div>
@@ -463,7 +483,7 @@ export function HomeStorefrontProductCard({
                   category: cartProduct.category,
                   brand: cartProduct.brand ?? null,
                 }}
-                className="h-9 w-9 min-h-9 max-h-9 min-w-9 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20BD5A] hover:text-white focus-visible:ring-[#25D366]"
+                className="h-9 w-9 min-h-9 max-h-9 min-w-9 shrink-0 rounded-[0.65rem] border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20BD5A] hover:text-white focus-visible:ring-[#25D366]"
               />
             </Suspense>
           ) : (

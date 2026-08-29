@@ -26,8 +26,10 @@ import {
 } from '@/components/layout/main-nav-styles';
 import {
   buildAlquilerMockupMegaMenu,
+  buildConsumiblesMockupMegaMenu,
   buildRepuestosMockupMegaMenu,
   buildServicioTecnicoMockupMegaMenu,
+  buildServiciosMockupMegaMenu,
   buildTonerMockupMegaMenu,
   type HaitechMockupMenuKind,
 } from '@/data/haitech-mega-menu-mockup';
@@ -35,6 +37,7 @@ import {
   buildDesktopMegaMenuColumns,
   type NavMegaMenuModel,
 } from '@/lib/mega-menu-from-store-categories';
+import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
@@ -177,16 +180,24 @@ export function StaticNavMegaMenu({
   const mockupData = useMemo(() => {
     if (!useHaitechMockupPanel || !mockupMenuKind) return null;
     if (mockupMenuKind === 'toner') return buildTonerMockupMegaMenu(menu);
+    if (mockupMenuKind === 'consumibles') return buildConsumiblesMockupMegaMenu(menu);
     if (mockupMenuKind === 'repuestos') return buildRepuestosMockupMegaMenu(menu);
     if (mockupMenuKind === 'servicio-tecnico') return buildServicioTecnicoMockupMegaMenu();
+    if (mockupMenuKind === 'servicios') return buildServiciosMockupMegaMenu();
     return buildAlquilerMockupMegaMenu();
   }, [menu, mockupMenuKind, useHaitechMockupPanel]);
 
   const hoverProps = enableHover
     ? {
-        onMouseEnter: openMenu,
+        onMouseEnter: () => {
+          openMenu();
+          if (triggerHref?.startsWith('/tienda')) prefetchStoreRouteFromEvent();
+        },
         onMouseLeave: scheduleClose,
-        onFocus: openMenu,
+        onFocus: () => {
+          openMenu();
+          if (triggerHref?.startsWith('/tienda')) prefetchStoreRouteFromEvent();
+        },
       }
     : {};
 
@@ -231,7 +242,10 @@ export function StaticNavMegaMenu({
 
       <DropdownMenuContent
         align="start"
+        side="bottom"
         sideOffset={navRow === 'haitech-black' ? 0 : 4}
+        alignOffset={0}
+        avoidCollisions={false}
         {...(enableHover
           ? {
               onMouseEnter: openMenu,

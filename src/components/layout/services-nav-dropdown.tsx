@@ -87,7 +87,7 @@ export function ServicesNavDropdown({
           className={navTriggerClass(isServicesRoute, open)}
         >
           {showIcon ? <Wrench className={iconClass} strokeWidth={1.75} aria-hidden="true" /> : null}
-          Servicios
+          Alquiler
           <HeaderNavChevron navRow={navRow} open={open} />
         </button>
       </DropdownMenuTrigger>

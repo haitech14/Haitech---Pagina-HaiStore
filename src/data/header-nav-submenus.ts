@@ -11,11 +11,9 @@ import {
 
 import { SOFTWARE_CATALOG_CATEGORIES } from '@/data/software-catalog';
 import { rentalCategories } from '@/data/rental-categories';
-import {
-  categoryLandingPath,
-  categoryPath,
-} from '@/lib/category-path';
-import { serviceDetailPathFromLanding, serviceHubPath } from '@/lib/service-hub';
+import { categoryPath } from '@/lib/category-path';
+import { serviceHubPath } from '@/lib/service-hub';
+import { storeShowcaseCategoryFromPathname, storeShowcasePath } from '@/lib/store-showcase-path';
 
 export type HeaderNavSubmenuHeadingItem = {
   kind: 'heading';
@@ -62,19 +60,30 @@ export const PRODUCTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'productos',
   label: 'Equipos',
   icon: Package,
-  matchActive: ({ pathname }) =>
-    (pathname.startsWith('/categoria') &&
+  matchActive: ({ pathname, search }) => {
+    const vitrinaSlug = storeShowcaseCategoryFromPathname(pathname);
+    if (vitrinaSlug && vitrinaSlug !== 'toner-repuestos') return true;
+    if (
+      pathname === '/tienda' &&
+      search.includes('vitrina=') &&
+      !search.includes('vitrina=toner-repuestos')
+    ) {
+      return true;
+    }
+    if (pathname.startsWith('/producto')) return true;
+    return (
+      pathname.startsWith('/categoria') &&
       !pathname.startsWith('/categoria/software') &&
       !pathname.startsWith('/categoria/toner-suministros') &&
       !pathname.startsWith('/categoria/repuestos') &&
-      !pathname.startsWith('/categoria/alquiler')) ||
-    pathname.startsWith('/tienda') ||
-    pathname.startsWith('/producto'),
+      !pathname.startsWith('/categoria/alquiler')
+    );
+  },
   items: [
-    { label: 'Multifuncionales', href: categoryLandingPath('multifuncionales') },
-    { label: 'Impresoras', href: categoryLandingPath('impresoras') },
-    { label: 'Formato ancho', href: categoryLandingPath('formato-ancho') },
-    { label: 'Accesorios', href: categoryLandingPath('accesorios') },
+    { label: 'Multifuncionales', href: storeShowcasePath({ categoryId: 'multifuncionales' }) },
+    { label: 'Impresoras', href: storeShowcasePath({ categoryId: 'impresoras' }) },
+    { label: 'Formato ancho', href: storeShowcasePath({ categoryId: 'formato-ancho' }) },
+    { label: 'Accesorios', href: storeShowcasePath({ categoryId: 'accesorios' }) },
   ],
 };
 
@@ -97,83 +106,105 @@ export const ALQUILER_NAV_SUBMENU: HeaderNavSubmenuConfig = {
 
 export const TONER_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'toner-repuestos',
-  label: 'Toner y Repuestos',
+  label: 'Consumibles',
   icon: Droplets,
-  matchActive: ({ pathname }) =>
+  matchActive: ({ pathname, search }) =>
+    storeShowcaseCategoryFromPathname(pathname) === 'toner-repuestos' ||
+    (pathname === '/tienda' && search.includes('vitrina=toner-repuestos')) ||
     pathname.startsWith('/categoria/toner-suministros') ||
     pathname.startsWith('/categoria/repuestos'),
   items: [
-    { kind: 'heading', label: 'Toner' },
-    { label: 'Ver toner y suministros', href: categoryLandingPath('toner-suministros') },
-    { label: 'Tóner originales', href: categoryPath('toner-suministros', 'toner-originales') },
-    { label: 'Tóner compatibles', href: categoryPath('toner-suministros', 'toner-compatibles') },
+    { kind: 'heading', label: 'Tóner' },
+    {
+      label: 'Ver tóner',
+      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
+    },
+    {
+      label: 'Tóner originales',
+      href: storeShowcasePath({
+        categoryId: 'toner-repuestos',
+        filter: 'originales',
+        consumableKind: 'toner',
+      }),
+    },
+    {
+      label: 'Tóner compatibles',
+      href: storeShowcasePath({
+        categoryId: 'toner-repuestos',
+        filter: 'compatibles',
+        consumableKind: 'toner',
+      }),
+    },
     {
       label: 'Tóner remanufacturado',
-      href: categoryPath('toner-suministros', 'toner-remanufacturado'),
+      href: storeShowcasePath({
+        categoryId: 'toner-repuestos',
+        filter: 'remanufacturados',
+        consumableKind: 'toner',
+      }),
     },
-    { label: 'Recargas de tóner', href: categoryPath('toner-suministros', 'toner-recarga') },
     { kind: 'heading', label: 'Repuestos' },
-    { label: 'Ver repuestos', href: categoryLandingPath('repuestos') },
-    { label: 'Partes y componentes', href: categoryLandingPath('repuestos') },
+    {
+      label: 'Ver repuestos',
+      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    },
+    {
+      label: 'Partes y componentes',
+      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    },
   ],
 };
 
-/** @deprecated Usar TONER_NAV_SUBMENU */
 export const CONSUMIBLES_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'consumibles',
   label: 'Consumibles',
   icon: Droplets,
-  matchActive: ({ pathname }) => pathname.startsWith('/categoria/toner-suministros'),
-  items: [
-    { label: 'Ver consumibles', href: categoryLandingPath('toner-suministros') },
-    { label: 'Tóner originales', href: categoryPath('toner-suministros', 'toner-originales') },
-    { label: 'Tóner compatibles', href: categoryPath('toner-suministros', 'toner-compatibles') },
-    {
-      label: 'Tóner remanufacturado',
-      href: categoryPath('toner-suministros', 'toner-remanufacturado'),
-    },
-    { label: 'Recargas de tóner', href: categoryPath('toner-suministros', 'toner-recarga') },
-  ],
+  matchActive: TONER_NAV_SUBMENU.matchActive,
+  items: TONER_NAV_SUBMENU.items,
 };
 
-/** @deprecated Usar TONER_NAV_SUBMENU */
+/** @deprecated Usar TONER_NAV_SUBMENU / CONSUMIBLES_NAV_SUBMENU */
 export const REPUESTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'repuestos',
   label: 'Repuestos',
   icon: Cog,
-  matchActive: ({ pathname }) => pathname.startsWith('/categoria/repuestos'),
+  matchActive: ({ pathname, search }) =>
+    (storeShowcaseCategoryFromPathname(pathname) === 'toner-repuestos' &&
+      search.includes('tipo=repuestos')) ||
+    (pathname === '/tienda' && search.includes('tipo=repuestos')) ||
+    pathname.startsWith('/categoria/repuestos'),
   items: [
-    { label: 'Ver repuestos', href: categoryLandingPath('repuestos') },
-    { label: 'Partes y componentes', href: categoryLandingPath('repuestos') },
+    {
+      label: 'Ver repuestos',
+      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    },
+    {
+      label: 'Partes y componentes',
+      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    },
   ],
 };
 
 export const SERVICIOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'servicios',
-  label: 'Servicios',
+  label: 'Alquiler',
   icon: Wrench,
-  matchActive: ({ pathname }) =>
+  matchActive: ({ pathname, search }) =>
     pathname.startsWith('/servicios') ||
     pathname === '/alquiler' ||
-    pathname.startsWith('/categoria/alquiler'),
+    pathname.startsWith('/categoria/alquiler') ||
+    (pathname === '/contacto' && search.includes('tema=leasing')),
   items: [
-    { label: 'Ver todos los servicios', href: '/servicios' },
     { kind: 'heading', label: 'Alquiler' },
     { label: 'Ver alquiler', href: serviceHubPath('alquiler') },
     ...rentalCategories.map((category) => ({
       label: category.name,
       href: categoryPath('alquiler', category.slug),
     })),
-    { kind: 'heading', label: 'Soporte' },
-    { label: 'Soporte técnico', href: serviceHubPath('servicio-tecnico') },
-    {
-      label: 'Mantenimiento',
-      href: serviceDetailPathFromLanding('servicio-tecnico', 'preventivo'),
-    },
-    {
-      label: 'Instalación',
-      href: serviceDetailPathFromLanding('servicio-tecnico', 'instalacion-config-capacitacion'),
-    },
+    { kind: 'heading', label: 'Leasing' },
+    { label: 'Cotizar leasing', href: '/contacto?tema=leasing' },
+    { kind: 'heading', label: 'Outsourcing' },
+    { label: 'Ver outsourcing', href: serviceHubPath('outsourcing') },
   ],
 };
 

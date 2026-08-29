@@ -1,9 +1,11 @@
 import { alquilerLanding } from '@/data/service-landings/alquiler';
+import { outsourcingLanding } from '@/data/service-landings/outsourcing';
 import { soporteTecnicoLanding } from '@/data/service-landings/soporte-tecnico';
 import { categoryLandingPath, categoryPath } from '@/lib/category-path';
 import type { MegaMenuColumnGroup, NavMegaMenuModel } from '@/lib/mega-menu-from-store-categories';
 import { megaMenuImageForSlug } from '@/data/mega-menu';
 import { serviceDetailPathFromLanding, serviceHubPath } from '@/lib/service-hub';
+import { storeShowcasePath } from '@/lib/store-showcase-path';
 
 export type HaitechMegaMenuRowItem = {
   slug: string;
@@ -35,9 +37,11 @@ export type HaitechMockupMegaMenuData = {
 
 export type HaitechMockupMenuKind =
   | 'toner'
+  | 'consumibles'
   | 'repuestos'
   | 'servicio-tecnico'
-  | 'alquiler';
+  | 'alquiler'
+  | 'servicios';
 
 function imageForSlug(slug: string, fallback?: string): string {
   return megaMenuImageForSlug(slug) ?? fallback ?? '/categories/multifuncionales.png';
@@ -54,28 +58,28 @@ export const EQUIPOS_MEGA_MENU_MOCKUP: HaitechMockupMegaMenuData = {
           slug: 'multifuncionales',
           title: 'Multifuncionales',
           subtitle: 'A3 · A4 · Color · B/N | Oficina y producción',
-          href: categoryLandingPath('multifuncionales'),
+          href: storeShowcasePath({ categoryId: 'multifuncionales' }),
           image: imageForSlug('multifuncionales'),
         },
         {
           slug: 'impresoras',
           title: 'Impresoras',
           subtitle: 'Láser · Color · B/N | Oficina y producción',
-          href: categoryLandingPath('impresoras'),
+          href: storeShowcasePath({ categoryId: 'impresoras' }),
           image: imageForSlug('impresoras'),
         },
         {
           slug: 'formato-ancho',
           title: 'Formato Ancho',
           subtitle: 'Plotters · CAD · Ingeniería | Arquitectura · Diseño',
-          href: categoryLandingPath('formato-ancho'),
+          href: storeShowcasePath({ categoryId: 'formato-ancho' }),
           image: imageForSlug('formato-ancho'),
         },
         {
           slug: 'produccion',
           title: 'Producción',
           subtitle: 'Alto volumen · Impresión profesional | Soluciones corporativas',
-          href: '/tienda?buscar=produccion',
+          href: storeShowcasePath({ categoryId: 'multifuncionales' }),
           image: '/products/de-producci-n-laser-color-ricoh-pro-c5300s-512.webp',
         },
       ],
@@ -88,28 +92,28 @@ export const EQUIPOS_MEGA_MENU_MOCKUP: HaitechMockupMegaMenuData = {
           slug: 'computadoras-laptop',
           title: 'Computadoras y Laptop',
           subtitle: 'Rendimiento y productividad para tu negocio',
-          href: categoryLandingPath('computadoras-laptop'),
+          href: storeShowcasePath({ categoryId: 'laptops' }),
           image: imageForSlug('computadoras-laptop'),
         },
         {
           slug: 'monitores',
           title: 'Monitores',
           subtitle: 'Calidad de imagen y mayor productividad',
-          href: categoryLandingPath('monitores'),
+          href: storeShowcasePath({ categoryId: 'monitores' }),
           image: imageForSlug('monitores'),
         },
         {
           slug: 'escaneres',
           title: 'Escáneres',
           subtitle: 'Digitalización profesional de documentos',
-          href: categoryLandingPath('escaneres'),
+          href: storeShowcasePath({ categoryId: 'escaneres' }),
           image: imageForSlug('escaneres'),
         },
         {
           slug: 'accesorios',
           title: 'Accesorios',
           subtitle: 'Teclados · Mouse · Cables | Soportes y más',
-          href: categoryLandingPath('accesorios'),
+          href: storeShowcasePath({ categoryId: 'accesorios' }),
           image: imageForSlug('accesorios'),
         },
         {
@@ -200,60 +204,72 @@ const TONER_FALLBACK_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     slug: 'toner-originales',
     title: 'Tóner originales',
     subtitle: TONER_ROW_SUBTITLES['toner-originales'],
-    href: categoryPath('toner-suministros', 'toner-originales'),
+    href: storeShowcasePath({
+      categoryId: 'toner-repuestos',
+      filter: 'originales',
+      consumableKind: 'toner',
+    }),
     image: imageForSlug('toner-suministros'),
   },
   {
     slug: 'toner-compatibles',
     title: 'Tóner compatibles',
     subtitle: TONER_ROW_SUBTITLES['toner-compatibles'],
-    href: categoryPath('toner-suministros', 'toner-compatibles'),
+    href: storeShowcasePath({
+      categoryId: 'toner-repuestos',
+      filter: 'compatibles',
+      consumableKind: 'toner',
+    }),
     image: imageForSlug('toner-suministros'),
   },
   {
     slug: 'toner-remanufacturado',
     title: 'Tóner remanufacturado',
     subtitle: TONER_ROW_SUBTITLES['toner-remanufacturado'],
-    href: categoryPath('toner-suministros', 'toner-remanufacturado'),
+    href: storeShowcasePath({
+      categoryId: 'toner-repuestos',
+      filter: 'remanufacturados',
+      consumableKind: 'toner',
+    }),
     image: imageForSlug('toner-suministros'),
   },
   {
-    slug: 'toner-recarga',
-    title: 'Recargas de tóner',
-    subtitle: TONER_ROW_SUBTITLES['toner-recarga'],
-    href: categoryPath('toner-suministros', 'toner-recarga'),
+    slug: 'toner-todos',
+    title: 'Ver todo el tóner',
+    subtitle: TONER_ROW_SUBTITLES['toner-recarga'] ?? 'Catálogo completo de tóner',
+    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
     image: imageForSlug('toner-suministros'),
   },
 ];
 
 const TONER_CONSUMIBLES_ITEMS: readonly HaitechMegaMenuRowItem[] = [
   {
-    slug: 'tambores',
-    title: 'Tambores y unidades',
-    subtitle: 'Drum units · Imaging units | Rendimiento estable',
-    href: categoryLandingPath('toner-suministros'),
-    image: imageForSlug('toner-suministros'),
+    slug: 'repuestos',
+    title: 'Repuestos',
+    subtitle: 'Partes · Fusores · Unidades | Componentes originales',
+    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    image: imageForSlug('repuestos'),
   },
   {
     slug: 'kits-mantenimiento',
     title: 'Kits de mantenimiento',
     subtitle: 'Preventivo · Correctivo | Piezas agrupadas por modelo',
-    href: categoryLandingPath('repuestos'),
+    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
     image: imageForSlug('repuestos'),
   },
   {
     slug: 'cartuchos-tinta',
     title: 'Cartuchos y tinta',
     subtitle: 'Color · B/N | Suministro para impresión diaria',
-    href: categoryLandingPath('toner-suministros'),
+    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
     image: imageForSlug('toner-suministros'),
   },
   {
-    slug: 'papel-medios',
-    title: 'Papel y medios',
-    subtitle: 'Bond · Etiquetas | Formatos para oficina y producción',
-    href: categoryLandingPath('toner-suministros'),
-    image: imageForSlug('accesorios'),
+    slug: 'toner-catalogo',
+    title: 'Ver catálogo completo',
+    subtitle: 'Tóner · Consumibles · Repuestos | Todo en un solo lugar',
+    href: storeShowcasePath({ categoryId: 'toner-repuestos' }),
+    image: imageForSlug('toner-suministros'),
   },
 ];
 
@@ -269,14 +285,18 @@ const TONER_CORPORATIVO_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     slug: 'consumibles-ricoh',
     title: 'Consumibles Ricoh',
     subtitle: 'Originales certificados | Compatibilidad garantizada',
-    href: categoryPath('toner-suministros', 'toner-originales'),
+    href: storeShowcasePath({
+      categoryId: 'toner-repuestos',
+      filter: 'originales',
+      consumableKind: 'toner',
+    }),
     image: imageForSlug('toner-suministros'),
   },
   {
     slug: 'toner-catalogo',
     title: 'Ver catálogo completo',
     subtitle: 'Tóner · Consumibles · Recargas | Todo en un solo lugar',
-    href: categoryLandingPath('toner-suministros'),
+    href: storeShowcasePath({ categoryId: 'toner-repuestos' }),
     image: '/categories/toner-suministros-512.webp',
   },
 ];
@@ -467,7 +487,43 @@ export function buildTonerMockupMegaMenu(menu: NavMegaMenuModel): HaitechMockupM
       imageAlt: featured.title,
       bullets: ['Calidad certificada', 'Rendimiento garantizado', 'Compatibilidad verificada'],
       ctaLabel: 'Ver tóner y consumibles',
-      ctaHref: categoryLandingPath('toner-suministros'),
+      ctaHref: storeShowcasePath({ categoryId: 'toner-repuestos' }),
+    },
+  };
+}
+
+/** Mega menú «Consumibles» (Tóner + Repuestos) con layout mockup. */
+export function buildConsumiblesMockupMegaMenu(menu: NavMegaMenuModel): HaitechMockupMegaMenuData {
+  const tonerData = buildTonerMockupMegaMenu(menu);
+  const repuestosGroups = menu.getColumnGroups('repuestos');
+  const repuestosItems =
+    repuestosGroups.length > 0
+      ? repuestosGroups.map((group) => columnGroupToRowItem(group, REPUESTOS_ROW_SUBTITLES[group.slug]))
+      : REPUESTOS_FALLBACK_SECTIONS[0]?.items ?? [];
+
+  return {
+    sections: [
+      tonerData.sections[0]!,
+      {
+        id: 'repuestos',
+        title: 'REPUESTOS',
+        items: repuestosItems.slice(0, 4),
+      },
+      {
+        id: 'suministros',
+        title: 'SUMINISTROS CORPORATIVOS',
+        showAdvisorCta: true,
+        items: TONER_CORPORATIVO_ITEMS,
+      },
+    ],
+    featured: {
+      headline: 'Consumibles para',
+      headlineAccent: 'tu flota Ricoh',
+      image: tonerData.featured.image,
+      imageAlt: 'Tóner y repuestos Ricoh',
+      bullets: ['Tóner originales y compatibles', 'Repuestos certificados', 'Stock nacional'],
+      ctaLabel: 'Ver consumibles',
+      ctaHref: storeShowcasePath({ categoryId: 'toner-repuestos' }),
     },
   };
 }
@@ -606,6 +662,70 @@ export function buildAlquilerMockupMegaMenu(): HaitechMockupMegaMenuData {
       imageAlt: 'Alquiler de equipos Ricoh para empresas',
       bullets: ['Equipos de última tecnología', 'Mantenimiento incluido', 'Planes flexibles'],
       ctaLabel: 'Ver opciones de alquiler',
+      ctaHref: serviceHubPath('alquiler'),
+    },
+  };
+}
+
+/** Mega menú «Servicios» (Alquiler · Leasing · Outsourcing). */
+export function buildServiciosMockupMegaMenu(): HaitechMockupMegaMenuData {
+  const alquiler = buildAlquilerMockupMegaMenu();
+  const outsourcingItems = outsourcingLanding.cards.slice(0, 4).map((card) => ({
+    slug: card.id,
+    title: card.title,
+    subtitle: card.description,
+    href: serviceDetailPathFromLanding('outsourcing', card.id),
+    image: card.image,
+  }));
+
+  return {
+    sections: [
+      {
+        id: 'alquiler',
+        title: 'ALQUILER',
+        items: alquiler.sections[0]?.items ?? [],
+      },
+      {
+        id: 'leasing',
+        title: 'LEASING',
+        items: [
+          {
+            slug: 'leasing-equipos',
+            title: 'Equipos en leasing',
+            subtitle: 'Multifuncionales · Laptops | Opción de compra',
+            href: '/contacto?tema=leasing',
+            image: imageForSlug('multifuncionales'),
+          },
+          {
+            slug: 'leasing-plazos',
+            title: 'Planes 12 a 36 meses',
+            subtitle: 'Cuotas predecibles | Sin desembolso inicial alto',
+            href: '/contacto?tema=leasing',
+            image: '/categories/alquiler-512.webp',
+          },
+          {
+            slug: 'leasing-asesoria',
+            title: 'Asesoría comercial',
+            subtitle: 'Cotización personalizada | Respuesta rápida',
+            href: '/contacto?tema=leasing',
+            image: '/Soporte Tecnico v2.png',
+          },
+        ],
+      },
+      {
+        id: 'outsourcing',
+        title: 'OUTSOURCING',
+        showAdvisorCta: true,
+        items: outsourcingItems,
+      },
+    ],
+    featured: {
+      headline: 'Servicios para',
+      headlineAccent: 'tu operación',
+      image: '/categories/alquiler-512.webp',
+      imageAlt: 'Alquiler, leasing y outsourcing HaiStore',
+      bullets: ['Alquiler flexible', 'Leasing con opción de compra', 'Outsourcing especializado'],
+      ctaLabel: 'Ver servicios',
       ctaHref: serviceHubPath('alquiler'),
     },
   };

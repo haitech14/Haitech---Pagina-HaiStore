@@ -13,7 +13,7 @@ export function HomeFinalCtaSection() {
   return (
     <section
       aria-labelledby="cta-asesor-titulo"
-      className="border-t border-red-700/30 bg-red-600 py-8 text-white sm:py-10"
+      className="bg-[#E30613] py-8 text-white sm:py-10"
     >
       <div className="container flex flex-col items-center gap-4 text-center sm:gap-5">
         <h2
@@ -25,10 +25,10 @@ export function HomeFinalCtaSection() {
 
         <Button
           asChild
-          className="min-h-11 gap-2 bg-white px-6 font-semibold text-red-600 hover:bg-white/90 focus-visible:ring-white"
+          className="min-h-11 gap-2 rounded-xl bg-white px-6 font-semibold text-[#0f1f3d] hover:bg-white/95 focus-visible:ring-white"
         >
           <a href={advisorWhatsAppUrl} target="_blank" rel="noopener noreferrer">
-            <Icon path={mdiWhatsapp} size={0.9} aria-hidden="true" />
+            <Icon path={mdiWhatsapp} size={0.9} color="#25D366" aria-hidden="true" />
             Hablar con un asesor
           </a>
         </Button>

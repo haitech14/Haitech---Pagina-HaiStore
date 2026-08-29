@@ -205,7 +205,7 @@ export function ProductWhatsAppButton({
             ? accent === 'outline'
               ? 'min-h-11 gap-2 border border-[#25D366] bg-white px-3 text-sm font-bold uppercase tracking-wide text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
               : 'min-h-9 gap-1.5 bg-[#25D366] px-2 text-xs font-semibold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
-            : 'h-10 w-10 min-h-10 min-w-10 shrink-0 rounded-lg border border-[#25D366] bg-white text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2',
+            : 'h-10 w-10 min-h-10 min-w-10 shrink-0 rounded-[0.65rem] border-0 bg-[#25D366] text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-2',
           className,
         )}
         aria-label={
@@ -216,7 +216,7 @@ export function ProductWhatsAppButton({
         onClick={handleClick}
         disabled={isProcessing}
       >
-        <Icon path={mdiWhatsapp} size={0.95} aria-hidden="true" />
+        <Icon path={mdiWhatsapp} size={0.95} color="currentColor" aria-hidden="true" />
         {label ? <span className="truncate">{label}</span> : null}
       </Button>
 

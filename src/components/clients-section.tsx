@@ -157,19 +157,19 @@ export function ClientsSection({ embedded = false }: { embedded?: boolean }) {
   }
 
   return (
-    <section id="clientes" aria-labelledby="clientes-titulo" className="home-landing-sans py-3 sm:py-4">
+    <section id="clientes" aria-labelledby="clientes-titulo" className="home-landing-sans py-5 sm:py-6">
       <div className="container">
         <header className="mb-3 text-center sm:mb-4">
           <div className="flex items-center justify-center gap-3 sm:gap-5">
-            <span className="h-px w-10 bg-red-600/70 sm:w-16" aria-hidden="true" />
+            <span className="h-px flex-1 max-w-[5rem] bg-[#0f1f3d]/25 sm:max-w-[7rem]" aria-hidden="true" />
             <h2
               id="clientes-titulo"
-              className="home-section-title text-balance text-lg font-bold tracking-tight text-[#0f1f3d] sm:text-xl md:text-2xl"
+              className="home-section-title shrink-0 text-balance text-lg font-bold tracking-tight text-[#0f1f3d] sm:text-xl md:text-2xl"
             >
               Algunos de nuestros{' '}
               <span className="text-red-600">clientes</span>
             </h2>
-            <span className="h-px w-10 bg-red-600/70 sm:w-16" aria-hidden="true" />
+            <span className="h-px flex-1 max-w-[5rem] bg-[#0f1f3d]/25 sm:max-w-[7rem]" aria-hidden="true" />
           </div>
         </header>
         {body}

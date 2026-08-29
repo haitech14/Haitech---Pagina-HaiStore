@@ -126,6 +126,9 @@ export function ProductCardOverlayActions({
             : {})}
           {...(clipboard.productId != null ? { productId: clipboard.productId } : {})}
           {...(clipboard.condition != null ? { condition: clipboard.condition } : {})}
+          {...(clipboard.basicFeatures != null
+            ? { basicFeatures: clipboard.basicFeatures }
+            : {})}
           {...(clipboard.category != null ? { category: clipboard.category } : {})}
           {...(clipboard.isColorProduct != null
             ? { isColorProduct: clipboard.isColorProduct }

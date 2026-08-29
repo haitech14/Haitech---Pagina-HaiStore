@@ -1,0 +1,435 @@
+{
+  "generatedAt": "2026-07-27T21:36:34.418Z",
+  "summary": {
+    "imported": 177,
+    "created": 0,
+    "updated": 177,
+    "codesFixed": 1,
+    "publicKeptHigher": 133,
+    "concatenatedModelsCount": 79
+  },
+  "concatenatedModels": [
+    {
+      "code": "841332",
+      "modelo": "MP 5500/ MP 6000/MP 6001/MP 6002/MP 6500/MP 6503/MP 7000/MP 7001/MP 7500/ MP 7502/MP 7503/ MP 8000/MP 8001/ MP 9001/MP 9002/ MP 9003/IM 7000/8000/9000",
+      "descripcion": "TONER 6110D->AFICIO 1060 / 1075 / MP7500"
+    },
+    {
+      "code": "419078",
+      "modelo": "IM 430/P502",
+      "descripcion": "PRINT CARTRIDGE IM 430"
+    },
+    {
+      "code": "418477",
+      "modelo": "IM 550F/IM 600F/P800/P801",
+      "descripcion": "PRINT CARTRIDGE IM-600F"
+    },
+    {
+      "code": "842124",
+      "modelo": "MP 2554/MP 255/3054/3055/3555/IM 2500/3000",
+      "descripcion": "PRINT CARTRIDGE MP 3554 SP"
+    },
+    {
+      "code": "407823",
+      "modelo": "MP 501 MP 601/5300/5310",
+      "descripcion": "BK PRINT CARTRIDGE MP 501 / MP 601"
+    },
+    {
+      "code": "842126",
+      "modelo": "MP 4054/MP 4055/5054/5055/6054/6055/IM 4000/5000/6000",
+      "descripcion": "Print Cartridge MP 6054"
+    },
+    {
+      "code": "408284",
+      "modelo": "SP-3710SF - SP-3710DN / M 320F / P-311 220V",
+      "descripcion": "PRINT CARTRIDGE SP 3710"
+    },
+    {
+      "code": "828553",
+      "modelo": "PRO 8300/8310/8320",
+      "descripcion": "PRO TONER 8300s"
+    },
+    {
+      "code": "828711",
+      "modelo": "PRO 8400/8410/8420",
+      "descripcion": "PRO TONER 8400S"
+    },
+    {
+      "code": "888029",
+      "modelo": "MP W2400/MP W3600/MP W3601/MP W6700",
+      "descripcion": "RICOH BLACK TONER TYPE 1160W"
+    },
+    {
+      "code": "842091",
+      "modelo": "MP C306 / MP C307 / MP C406 / MP C407",
+      "descripcion": "Print Cartridge BK MP C406"
+    },
+    {
+      "code": "842092",
+      "modelo": "MP C306 / MP C307 / MP C406 / MP C407",
+      "descripcion": "Print Cartridge CY MP C406"
+    },
+    {
+      "code": "842093",
+      "modelo": "MP C306 / MP C307 / MP C406 / MP C407",
+      "descripcion": "Print Cartridge MG MP C406"
+    },
+    {
+      "code": "842094",
+      "modelo": "MP C306 / MP C307 / MP C406 / MP C407",
+      "descripcion": "Print Cartridge YW MP C406"
+    },
+    {
+      "code": "841918",
+      "modelo": "MP C2003 / MP C2503 / MP C2004 / MP C2504",
+      "descripcion": "Print Cartridge BK MPC 2503"
+    },
+    {
+      "code": "841919",
+      "modelo": "MP C2003 / MP C2503 / MP C2004 / MP C2504",
+      "descripcion": "Print Cartridge YW MPC 2503H"
+    },
+    {
+      "code": "841920",
+      "modelo": "MP C2003 / MP C2503 / MP C2004 / MP C2504",
+      "descripcion": "Print Cartridge MG MPC2503H"
+    },
+    {
+      "code": "841921",
+      "modelo": "MP C2003 / MP C2503 / MP C2004 / MP C2504",
+      "descripcion": "Print Cartridge CY MPC 2503H"
+    },
+    {
+      "code": "841813",
+      "modelo": "MP C3003 / MP C3503 / MP C3004 / MP C3504",
+      "descripcion": "PRINT CARTRIDGE BK MP C3503"
+    },
+    {
+      "code": "841814",
+      "modelo": "MP C3003 / MP C3503 / MP C3004 / MP C3504",
+      "descripcion": "PRINT CARTRIDGE YW MP C3503"
+    },
+    {
+      "code": "841815",
+      "modelo": "MP C3003 / MP C3503 / MP C3004 / MP C3504",
+      "descripcion": "PRINT CARTRIDGE MG MP C3503"
+    },
+    {
+      "code": "841816",
+      "modelo": "MP C3003 / MP C3503 / MP C3004 / MP C3504",
+      "descripcion": "PRINT CARTRIDGE CY MP C3503"
+    },
+    {
+      "code": "841849",
+      "modelo": "MP C4503 / MP C4504 / MP C5503 / MP C6004",
+      "descripcion": "PRINT CARTRIDGE BLACK MP C6003"
+    },
+    {
+      "code": "841850",
+      "modelo": "MP C4503 / MP C4504 / MP C5503 / MP C6004",
+      "descripcion": "PRINT CARTRIDGE YW MPC6003"
+    },
+    {
+      "code": "841851",
+      "modelo": "MP C4503 / MP C4504 / MP C5503 / MP C6004",
+      "descripcion": "PRINT CARTRIDGE MG MPC6003"
+    },
+    {
+      "code": "841852",
+      "modelo": "MP C4503 / MP C4504 / MP C5503 / MP C6004",
+      "descripcion": "PRINT CARTRIDGE CY MPC6003"
+    },
+    {
+      "code": "842434",
+      "modelo": "IM C3000/ IM C3500",
+      "descripcion": "PRINT CART BK IM-C3000 IM-C3500"
+    },
+    {
+      "code": "842435",
+      "modelo": "IM C3000/ IM C3500",
+      "descripcion": "PRINT CART YW IM-C3000 IM-C3500"
+    },
+    {
+      "code": "842436",
+      "modelo": "IM C3000/ IM C3500",
+      "descripcion": "PRINT CART MG IM-C3000 IM-C3500"
+    },
+    {
+      "code": "842437",
+      "modelo": "IM C3000/ IM C3500",
+      "descripcion": "PRINT CART CY IM-C3000 IM-C3500"
+    },
+    {
+      "code": "842438",
+      "modelo": "IM C4500 / IM C6000",
+      "descripcion": "PRINT CART BK IM-C4500 IM-C6000"
+    },
+    {
+      "code": "842439",
+      "modelo": "IM C4500 / IM C6000",
+      "descripcion": "PRINT CART YW IM-C4500 IM-C6000"
+    },
+    {
+      "code": "842440",
+      "modelo": "IM C4500 / IM C6000",
+      "descripcion": "PRINT CART MG IM-C4500 IM-C6000"
+    },
+    {
+      "code": "842441",
+      "modelo": "IM C4500 / IM C6000",
+      "descripcion": "PRINT CART CY IM-C4500 IM-C6000"
+    },
+    {
+      "code": "842442",
+      "modelo": "IM-C2500 /IM C2000",
+      "descripcion": "PRINT CART BK IM-C2000 IM-C2500"
+    },
+    {
+      "code": "842443",
+      "modelo": "IM-C2500 /IM C2000",
+      "descripcion": "PRINT CART YW IM-C2000 IM-C250"
+    },
+    {
+      "code": "842444",
+      "modelo": "IM-C2500 /IM C2000",
+      "descripcion": "PRINT CART MG IM-C2000 IM-C2500"
+    },
+    {
+      "code": "842445",
+      "modelo": "IM-C2500 /IM C2000",
+      "descripcion": "PRINT CART CY IM-C2000 IM-C2500"
+    },
+    {
+      "code": "408336",
+      "modelo": "M C250FW/ M C251/ P-C311W",
+      "descripcion": "PRINT CARTRIDGE BLACK M C250H"
+    },
+    {
+      "code": "408337",
+      "modelo": "M C250FW/ M C251/ P-C311W",
+      "descripcion": "PRINT CARTRIDGE CYAN M C250H"
+    },
+    {
+      "code": "408338",
+      "modelo": "M C250FW/ M C251/ P-C311W",
+      "descripcion": "PRINT CARTRIDGE MAGENTA MC250H"
+    },
+    {
+      "code": "408339",
+      "modelo": "M C250FW/ M C251/ P-C311W",
+      "descripcion": "PRINT CARTRIDGE YELLOW M C250H"
+    },
+    {
+      "code": "406043",
+      "modelo": "M C250FW/ M C251/ P-C311W",
+      "descripcion": "WASTE TONER BOTTLE"
+    },
+    {
+      "code": "M0CS4013",
+      "modelo": "M C250FW/ M C251/ P-C311W",
+      "descripcion": "220v FUSING UNIT"
+    },
+    {
+      "code": "M0CS6000",
+      "modelo": "M C250FW/ M C251/ P-C311W",
+      "descripcion": "INTERMEDIATE TRANSFER SECTION ASSY"
+    },
+    {
+      "code": "M0CS6202",
+      "modelo": "M C250FW/ M C251/ P-C311W",
+      "descripcion": "TRANSFER ROLLER SUB ASSY"
+    },
+    {
+      "code": "842591",
+      "modelo": "IM C2010/ IM C2510",
+      "descripcion": "Print Cartridge BK IM C2510H"
+    },
+    {
+      "code": "842592",
+      "modelo": "IM C2010/ IM C2510",
+      "descripcion": "Print Cartridge YW IM C2510H"
+    },
+    {
+      "code": "842593",
+      "modelo": "IM C2010/ IM C2510",
+      "descripcion": "Print Cartridge MG IM C2510H"
+    },
+    {
+      "code": "842594",
+      "modelo": "IM C2010/ IM C2510",
+      "descripcion": "Print Cartridge CY IM C2510H"
+    },
+    {
+      "code": "842542",
+      "modelo": "IM C4510 / IM C6010",
+      "descripcion": "Print Cartridge BK IM C6010"
+    },
+    {
+      "code": "842543",
+      "modelo": "IM C4510 / IM C6010",
+      "descripcion": "Print Cartridge YW IM C6010"
+    },
+    {
+      "code": "842544",
+      "modelo": "IM C4510 / IM C6010",
+      "descripcion": "Print Cartridge MG IM C6010"
+    },
+    {
+      "code": "842545",
+      "modelo": "IM C4510 / IM C6010",
+      "descripcion": "Print Cartridge CY IM C6010"
+    },
+    {
+      "code": "821255",
+      "modelo": "SP C840DN/ SP C842DN",
+      "descripcion": "PRINT CARTRIDGE BLACK SPC840A"
+    },
+    {
+      "code": "821256",
+      "modelo": "SP C840DN/ SP C842DN",
+      "descripcion": "PRINT CARTRIDGE YELLOW SPC840A"
+    },
+    {
+      "code": "821257",
+      "modelo": "SP C840DN/ SP C842DN",
+      "descripcion": "PRINT CARTRIDGE MAGENTA SPC840A"
+    },
+    {
+      "code": "821258",
+      "modelo": "SP C840DN/ SP C842DN",
+      "descripcion": "PRINT CARTRIDGE CYAN SPC840A"
+    },
+    {
+      "code": "828422",
+      "modelo": "PRO C5200/ PRO C5210",
+      "descripcion": "Pro Print Cartridge BK C5200"
+    },
+    {
+      "code": "828423",
+      "modelo": "PRO C5200/ PRO C5210",
+      "descripcion": "Pro Print Cartridge YW C5200"
+    },
+    {
+      "code": "828424",
+      "modelo": "PRO C5200/ PRO C5210",
+      "descripcion": "Pro Print Cartridge MG C5200"
+    },
+    {
+      "code": "828425",
+      "modelo": "PRO C5200/ PRO C5210",
+      "descripcion": "Pro Print Cartridge CY C5200"
+    },
+    {
+      "code": "828528",
+      "modelo": "PRO C7200/ PRO C7210",
+      "descripcion": "PRO PRINT CARTRIDGE BLACK C7200X"
+    },
+    {
+      "code": "828529",
+      "modelo": "PRO C7200/ PRO C7210",
+      "descripcion": "PRO PRINT CARTRIDGE YELLOW C7200X"
+    },
+    {
+      "code": "828530",
+      "modelo": "PRO C7200/ PRO C7210",
+      "descripcion": "PRO PRINT CARTRIDGE MAGENTA C7200X"
+    },
+    {
+      "code": "828531",
+      "modelo": "PRO C7200/ PRO C7210",
+      "descripcion": "PRO PRINT CARTRIDGE CYAN C7200X"
+    },
+    {
+      "code": "828342",
+      "modelo": "C7200/C7100",
+      "descripcion": "Pro Print Cartridge White C7200"
+    },
+    {
+      "code": "828478",
+      "modelo": "C7200/C7100",
+      "descripcion": "Pro Print Cartridge Clear C7200"
+    },
+    {
+      "code": "828489",
+      "modelo": "C7200/C7100",
+      "descripcion": "Neon Yellow Toner Type C7200"
+    },
+    {
+      "code": "828527",
+      "modelo": "C7200/C7100",
+      "descripcion": "Neon Pink Toner Type C7200"
+    },
+    {
+      "code": "828537",
+      "modelo": "C7200/C7100",
+      "descripcion": "Invisible RED Toner Type C7200"
+    },
+    {
+      "code": "841720",
+      "modelo": "MPCW 2200/ MP CW220 IM CW2200 IIPCW2200",
+      "descripcion": "PRINT CARTRIDGE BLACK MPCW2200"
+    },
+    {
+      "code": "841721",
+      "modelo": "MPCW 2200/ MP CW220 IM CW2200 IIPCW2200",
+      "descripcion": "PRINT CARTRIDGE CYAN MPCW2200"
+    },
+    {
+      "code": "841722",
+      "modelo": "MPCW 2200/ MP CW220 IM CW2200 IIPCW2200",
+      "descripcion": "PRINT CRTRDGE MAGENTA MPCW2200"
+    },
+    {
+      "code": "841723",
+      "modelo": "MPCW 2200/ MP CW220 IM CW2200 IIPCW2200",
+      "descripcion": "PRINT CRTRDGE YELLOW MPCW2200"
+    },
+    {
+      "code": "D2622011",
+      "modelo": "MPCW 2200/ MP CW220 IM CW2200 IIPCW2200",
+      "descripcion": "[XREF TO D2622042]HEAD UNIT BLACK"
+    },
+    {
+      "code": "D2622112/ D2622113",
+      "modelo": "MPCW 2200/ MP CW220 IM CW2200 IIPCW2200",
+      "descripcion": "HEAD: UNIT: COLOR m2 YIELD"
+    },
+    {
+      "code": "D0CW3504",
+      "modelo": "MPCW 2200/ MP CW220 IM CW2200 IIPCW2200",
+      "descripcion": "Maintenance Unit m2 YIELD"
+    },
+    {
+      "code": "D6706413",
+      "modelo": "MPCW 2200/ MP CW220 IM CW2200 IIPCW2200",
+      "descripcion": "Ink Collection Tank m2 YIELD"
+    }
+  ],
+  "duplicateCodesMerged": [
+    {
+      "code": "828342",
+      "modelo": "C7200/C7100",
+      "name": "Toner Original RICOH C7200/C7100 (19,000 págs al 5%)"
+    },
+    {
+      "code": "828478",
+      "modelo": "C7200/C7100",
+      "name": "Toner Original RICOH C7200/C7100 (30,500 págs al 5%)"
+    },
+    {
+      "code": "828489",
+      "modelo": "C7200/C7100",
+      "name": "Neon Toner Type C7200 Amarillo C7200/C7100 (29,200 págs al 5%)"
+    },
+    {
+      "code": "828527",
+      "modelo": "C7200/C7100",
+      "name": "Neon Pink Toner Type C7200 C7200/C7100 (29,200 págs al 5%)"
+    },
+    {
+      "code": "828537",
+      "modelo": "C7200/C7100",
+      "name": "Invisible RED Toner Type C7200 C7200/C7100 (21,500 págs al 5%)"
+    }
+  ]
+}

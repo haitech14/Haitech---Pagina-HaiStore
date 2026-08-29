@@ -1,11 +1,10 @@
-const CACHE_VERSION = 'haistore-v1';
+const CACHE_VERSION = 'haistore-v2';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const CATALOG_CACHE = `${CACHE_VERSION}-catalog`;
 
 const CATALOG_PATHS = [
   '/catalog/home-bundle.json',
   '/catalog/store-categories-tree.json',
-  '/catalog/inventory-index.json',
 ];
 
 self.addEventListener('install', (event) => {

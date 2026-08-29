@@ -123,10 +123,10 @@ function HeaderSalesSupportContacts({ className }: { className?: string }) {
         className="inline-flex items-center gap-2 text-left transition-opacity hover:opacity-80"
       >
         <span
-          className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-[#25D366]/35 bg-transparent"
+          className="inline-flex size-7 shrink-0 items-center justify-center rounded-[0.45rem] bg-[#25D366] text-white"
           aria-hidden="true"
         >
-          <Icon path={mdiWhatsapp} size={0.78} className="text-[#25D366]" />
+          <Icon path={mdiWhatsapp} size={0.72} color="white" />
         </span>
         <span className="flex flex-col leading-[1.15]">
           <span className="text-[11px] font-normal text-[#888]">{salesLabel}</span>

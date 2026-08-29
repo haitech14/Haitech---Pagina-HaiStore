@@ -23,12 +23,16 @@ export function ProductCardCopyImageButton({
     event.preventDefault();
     event.stopPropagation();
 
-    const ok = await copyProductImageToClipboard(imageUrl);
-    if (ok) {
-      toast.success('Imagen del producto copiada 🖼️');
-      return;
+    try {
+      const ok = await copyProductImageToClipboard(imageUrl);
+      if (ok) {
+        toast.success('Imagen del producto copiada');
+        return;
+      }
+      toast.error('No se pudo copiar la imagen. Prueba en Chrome/Edge o vuelve a intentar.');
+    } catch {
+      toast.error('No se pudo copiar la imagen. Prueba en Chrome/Edge o vuelve a intentar.');
     }
-    toast.error('No se pudo copiar la imagen');
   };
 
   return (

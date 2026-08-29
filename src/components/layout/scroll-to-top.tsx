@@ -2,10 +2,12 @@ import { useLayoutEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 
 /**
- * Al cambiar de ruta, lleva la vista al inicio (salvo anclas `#` o retroceso del navegador).
+ * Al cambiar de ruta (pathname), lleva la vista al inicio.
+ * No reacciona a query (`?…`) para no saltar al filtrar en la misma página.
+ * Respeta anclas `#` y retroceso del navegador.
  */
 export function ScrollToTop() {
-  const { pathname, search, hash } = useLocation();
+  const { pathname, hash } = useLocation();
   const navigationType = useNavigationType();
 
   useLayoutEffect(() => {
@@ -22,7 +24,7 @@ export function ScrollToTop() {
       if (typeof state?.idx === 'number' && state.idx > 0) return;
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [pathname, search, hash, navigationType]);
+  }, [pathname, hash, navigationType]);
 
   return null;
 }

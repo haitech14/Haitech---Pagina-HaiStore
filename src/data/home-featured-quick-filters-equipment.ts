@@ -10,8 +10,7 @@ export type HomeFeaturedEquipmentCategoryFilterId =
   | 'impresora-termica'
   | 'impresora-matricial'
   | 'escaneres'
-  | 'plotter'
-  | 'multifuncional-planos'
+  | 'formato-ancho'
   | 'pantallas-interactivas'
   | 'videoconferencia'
   | 'laptops'
@@ -34,14 +33,13 @@ export const HOME_FEATURED_EQUIPMENT_CONDITION_FILTERS: HomeFeaturedEquipmentCon
 ];
 
 export const HOME_FEATURED_EQUIPMENT_CATEGORY_FILTERS: HomeFeaturedEquipmentCategoryFilter[] = [
-  { id: 'multifuncionales', label: 'Impresora Multifuncional Láser' },
+  { id: 'multifuncionales', label: 'Multifuncionales' },
   { id: 'impresora-laser', label: 'Impresora Laser' },
   { id: 'impresora-tinta', label: 'Impresora de Tinta' },
   { id: 'impresora-termica', label: 'Impresora Térmica' },
   { id: 'impresora-matricial', label: 'Impresora Matricial' },
   { id: 'escaneres', label: 'Escáneres' },
-  { id: 'plotter', label: 'Plotter' },
-  { id: 'multifuncional-planos', label: 'Multifuncional de Planos' },
+  { id: 'formato-ancho', label: 'Formato Ancho' },
   { id: 'pantallas-interactivas', label: 'Pantallas Interactivas' },
   { id: 'videoconferencia', label: 'Videoconferencia' },
   { id: 'laptops', label: 'Laptops' },

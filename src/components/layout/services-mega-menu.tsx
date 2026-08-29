@@ -78,7 +78,7 @@ export function ServicesMegaMenu() {
           className={cn(mainNavLinkClass(open || isServicesRoute), 'gap-1')}
         >
           <Settings className={MAIN_NAV_ICON_CLASS} strokeWidth={1.75} aria-hidden="true" />
-          Servicios
+          Alquiler
           <ChevronDown
             aria-hidden="true"
             className={cn('size-3 transition-transform', open && 'rotate-180')}

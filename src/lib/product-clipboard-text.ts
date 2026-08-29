@@ -48,6 +48,11 @@ export interface ProductClipboardTextInput {
   productId?: string | null;
   /** Nueva / Seminueva / Remanufacturada / Original, etc. */
   condition?: string | null;
+  /**
+   * Características básicas (p. ej. `B/N · A4 · 32 ppm · Dúplex`).
+   * También acepta lista de etiquetas.
+   */
+  basicFeatures?: string | readonly string[] | null;
   /** Categoría: equipos → dscto desde 2+; tóner/repuestos → desde 3+. */
   category?: string | null;
   /** Producto a color: el dscto se muestra «por Juego». */
@@ -241,15 +246,27 @@ export interface ProductClipboardPayload {
   html: string;
 }
 
+function resolveBasicFeaturesLabel(
+  basicFeatures?: string | readonly string[] | null,
+): string | null {
+  if (Array.isArray(basicFeatures)) {
+    const labels = basicFeatures.map((item) => String(item ?? '').trim()).filter(Boolean);
+    return labels.length > 0 ? labels.join(' · ') : null;
+  }
+  const single = basicFeatures?.trim();
+  return single || null;
+}
+
 /**
  * Bloque compacto para WhatsApp / cotización (etiquetas cortas).
- * Orden: Producto → Código → Cond. → Stock → Precio → Dscto → Validez → link.
+ * Orden: Producto → Código de Parte → Condición → Características → Stock → Precio → Dscto → Validez → link.
  * Negrita: WhatsApp `*…*` en plain; `<b>` en HTML.
  */
 export function buildProductClipboardPayload(input: ProductClipboardTextInput): ProductClipboardPayload {
   const code = input.code?.trim() || null;
   const title = input.title.trim();
   const condition = input.condition?.trim() || null;
+  const basicFeatures = resolveBasicFeaturesLabel(input.basicFeatures);
   const stockLabel = formatProductClipboardStock(input.stock);
   const priceValidity = resolvePriceValidity(input);
   const volume = resolveVolume(input);
@@ -269,15 +286,25 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
     htmlLines.push(html ?? escapeHtml(plain));
   };
 
-  // Identidad: Producto primero, Código debajo
+  // Identidad comercial
   push(`📦 Producto: ${waBold(title)}`, `📦 Producto: ${htmlBold(title)}`);
   if (code) {
-    push(`📋 Código: ${code}`, `📋 Código: ${escapeHtml(code)}`);
+    push(
+      `🔖 Código de Parte: ${waBold(code)}`,
+      `🔖 Código de Parte: ${htmlBold(code)}`,
+    );
   }
-
-  // Condición y stock en líneas propias (evita wrap raro de «unids.»)
   if (condition) {
-    push(`✨ Cond.: ${waBold(condition)}`, `✨ Cond.: ${htmlBold(condition)}`);
+    push(
+      `✨ Condición: ${waBold(condition)}`,
+      `✨ Condición: ${htmlBold(condition)}`,
+    );
+  }
+  if (basicFeatures) {
+    push(
+      `⚙️ Características: ${waBold(basicFeatures)}`,
+      `⚙️ Características: ${htmlBold(basicFeatures)}`,
+    );
   }
   push(`📊 Stock: ${stockLabel}`, `📊 Stock: ${escapeHtml(stockLabel)}`);
 
@@ -322,8 +349,8 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
   htmlLines.push('');
 
   push(
-    `⏳ Validez: ${priceValidity}`,
-    `⏳ Validez: ${escapeHtml(priceValidity)}`,
+    `⌛ Validez: ${priceValidity}`,
+    `⌛ Validez: ${escapeHtml(priceValidity)}`,
   );
 
   if (pageUrl) {

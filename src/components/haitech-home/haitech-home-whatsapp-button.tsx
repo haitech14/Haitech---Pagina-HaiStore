@@ -14,7 +14,7 @@ export function HaitechHomeWhatsAppButton({ className }: { className?: string })
       aria-label="¿Necesitas ayuda? Escríbenos por WhatsApp"
       title="¿Necesitas Ayuda? Escríbenos"
       className={cn(
-        'fixed z-[80] inline-flex size-14 items-center justify-center rounded-full bg-[#25D366] text-white',
+        'fixed z-[80] inline-flex size-14 items-center justify-center rounded-[1.1rem] bg-[#25D366] text-white',
         'shadow-[0_6px_18px_rgba(0,0,0,0.22)] transition-transform duration-200 hover:scale-[1.03]',
         'right-3 bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))]',
         'sm:bottom-6 sm:right-[25px]',

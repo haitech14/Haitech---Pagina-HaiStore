@@ -5,7 +5,6 @@ import {
   PRODUCTOS_NAV_SUBMENU,
   SERVICIOS_NAV_SUBMENU,
   SOFTWARE_NAV_SUBMENU,
-  TONER_NAV_SUBMENU,
 } from '@/data/header-nav-submenus';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
@@ -17,6 +16,8 @@ import {
   SOFTWARE_NAV_MEGA_MENU_ICON,
   TONER_NAV_MEGA_MENU_ICON,
 } from '@/lib/nav-mega-menu-builders';
+import { serviceHubPath } from '@/lib/service-hub';
+import { storeShowcasePath } from '@/lib/store-showcase-path';
 
 function ProductosNavMobileAccordion({ onNavigate }: { onNavigate?: () => void }) {
   const { data: categoryTree = [] } = useStoreCategoriesTree();
@@ -24,10 +25,10 @@ function ProductosNavMobileAccordion({ onNavigate }: { onNavigate?: () => void }
 
   return (
     <StaticNavMobileAccordion
-      label="Categorías"
+      label="Equipos"
       icon={PRODUCTOS_NAV_SUBMENU.icon}
       menu={menu}
-      labelHref="/tienda"
+      labelHref={storeShowcasePath({ categoryId: 'multifuncionales' })}
       {...(onNavigate ? { onNavigate } : {})}
     />
   );
@@ -49,15 +50,17 @@ export function StoreNavMobileMegaAccordions({ onNavigate }: { onNavigate?: () =
     <>
       <ProductosNavMobileAccordion {...(onNavigate ? { onNavigate } : {})} />
       <StaticNavMobileAccordion
-        label={TONER_NAV_SUBMENU.label}
+        label="Consumibles"
         icon={TONER_NAV_MEGA_MENU_ICON}
         menu={tonerRepuestosMenu}
+        labelHref={storeShowcasePath({ categoryId: 'toner-repuestos' })}
         {...(onNavigate ? { onNavigate } : {})}
       />
       <StaticNavMobileAccordion
         label={SERVICIOS_NAV_SUBMENU.label}
         icon={SERVICIOS_NAV_SUBMENU.icon}
         menu={servicesMenu}
+        labelHref={serviceHubPath('alquiler')}
         {...(onNavigate ? { onNavigate } : {})}
       />
       <StaticNavMobileAccordion

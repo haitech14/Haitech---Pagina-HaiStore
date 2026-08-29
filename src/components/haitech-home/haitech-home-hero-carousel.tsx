@@ -13,6 +13,8 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
   const total = HAITECH_HOME_HERO_SLIDES.length;
   const showControls = total > 1;
   const { requestQuote } = useHaitechWhatsAppQuoteContext();
+  const slide = HAITECH_HOME_HERO_SLIDES[index]!;
+  const srcPng = 'srcPng' in slide ? slide.srcPng : undefined;
 
   const handleHeroClick = useCallback(() => {
     requestQuote({ campaign: 'hero-home' });
@@ -47,36 +49,39 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        <div className="absolute inset-0">
-          {HAITECH_HOME_HERO_SLIDES.map((slide, slideIndex) => (
-            <div
-              key={slide.id}
-              className={cn(
-                'absolute inset-0 transition-opacity duration-300',
-                slideIndex === index ? 'opacity-100' : 'pointer-events-none opacity-0',
-              )}
-              aria-hidden={slideIndex !== index}
-            >
-              <button
-                type="button"
-                onClick={handleHeroClick}
-                className="absolute inset-0 block cursor-pointer border-0 bg-transparent p-0"
-                aria-label="Abrir WhatsApp para comprar o cotizar"
-              >
-                <img
-                  src={slide.src}
-                  alt={slide.alt}
-                  width={2094}
-                  height={670}
-                  className="absolute inset-0 size-full object-cover"
-                  style={{ objectPosition: slide.objectPosition }}
-                  decoding={slideIndex === 0 ? 'sync' : 'async'}
-                  fetchPriority={slideIndex === 0 ? 'high' : 'low'}
-                />
-              </button>
-            </div>
-          ))}
-        </div>
+        <button
+          type="button"
+          onClick={handleHeroClick}
+          className="absolute inset-0 block cursor-pointer border-0 bg-transparent p-0"
+          aria-label="Abrir WhatsApp para comprar o cotizar"
+        >
+          {srcPng ? (
+            <picture>
+              <source srcSet={slide.src} type="image/webp" />
+              <img
+                src={srcPng}
+                alt={slide.alt}
+                width={2094}
+                height={670}
+                className="absolute inset-0 size-full object-cover"
+                style={{ objectPosition: slide.objectPosition }}
+                decoding={index === 0 ? 'sync' : 'async'}
+                fetchPriority={index === 0 ? 'high' : 'low'}
+              />
+            </picture>
+          ) : (
+            <img
+              src={slide.src}
+              alt={slide.alt}
+              width={2094}
+              height={670}
+              className="absolute inset-0 size-full object-cover"
+              style={{ objectPosition: slide.objectPosition }}
+              decoding={index === 0 ? 'sync' : 'async'}
+              fetchPriority={index === 0 ? 'high' : 'low'}
+            />
+          )}
+        </button>
 
         {showControls ? (
           <>

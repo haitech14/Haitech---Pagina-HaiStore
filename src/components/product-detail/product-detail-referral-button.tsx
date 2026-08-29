@@ -8,6 +8,7 @@ import { copyProductTextToClipboard } from '@/lib/copy-product-to-clipboard';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
+import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { buildProductClipboardPayload } from '@/lib/product-clipboard-text';
 import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,7 @@ export function ProductDetailReferralButton({
   const isColorProduct = inferColor(product) === 'Color';
   const displayPrice = useCatalogDisplayPrice(product);
   const code = product.code?.trim() || null;
+  const basicFeatures = buildProductCardQuickSpecsLine(product);
 
   const handleClick = async () => {
     if (copying) return;
@@ -43,6 +45,7 @@ export function ProductDetailReferralButton({
         isColorProduct,
         ...(code != null ? { code } : {}),
         ...(condition != null ? { condition } : {}),
+        ...(basicFeatures != null ? { basicFeatures } : {}),
         ...(product.category != null ? { category: product.category } : {}),
         ...(product.volume_role_prices != null
           ? { volumeRolePrices: product.volume_role_prices }

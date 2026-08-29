@@ -9,9 +9,13 @@ import { buildServicesNavMegaMenu } from '@/lib/nav-mega-menu-builders';
 export function ServicesNavMegaMenu({
   navRow = 'default',
   showIcon = true,
+  label = 'Alquiler',
+  triggerHref,
 }: {
-  navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
+  navRow?: 'default' | 'secondary' | 'light' | 'light-compact' | 'haitech-black' | 'haitech-white';
   showIcon?: boolean;
+  label?: string;
+  triggerHref?: string;
 }) {
   const location = useLocation();
   const menu = useMemo(() => buildServicesNavMegaMenu(), []);
@@ -19,12 +23,16 @@ export function ServicesNavMegaMenu({
 
   return (
     <StaticNavMegaMenu
-      label="Servicios"
+      label={label}
       icon={Wrench}
       menu={menu}
       isRouteActive={isRouteActive}
       navRow={navRow}
       showIcon={showIcon}
+      {...(triggerHref ? { triggerHref } : {})}
+      {...(navRow === 'haitech-black' || navRow === 'haitech-white'
+        ? { mockupMenuKind: 'servicios' as const }
+        : {})}
     />
   );
 }

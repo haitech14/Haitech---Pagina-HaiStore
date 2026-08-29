@@ -7,15 +7,15 @@ import { HAITECH_HOME, HAITECH_HOME_CATEGORY_CAROUSEL } from '@/data/haitech-hom
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn } from '@/lib/utils';
 
-const COLUMN_GAP = 'gap-3 sm:gap-4 md:gap-5 lg:gap-5';
-/** Solapa filas para eliminar el hueco blanco entre la imagen superior e inferior. */
-const ROW_OVERLAP = '-mt-10 sm:-mt-12 md:-mt-14 lg:-mt-16 xl:-mt-20';
-/** Columnas visibles: ~2 móvil · 2.5 sm · 3 md · 4 lg · 5 xl (todas las categorías en desktop). */
+const COLUMN_GAP = 'gap-2.5 sm:gap-3 md:gap-4 lg:gap-4';
+/** Espacio mínimo entre fila superior e inferior. */
+const ROW_GAP = 'mt-2 sm:mt-2.5 md:mt-3';
+/** Columnas visibles: ~2 móvil · 2.5 sm · 3 md · 4 lg · 5 xl. */
 const SLIDE =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] sm:flex-[0_0_calc((100%-1.5rem)/2.5)] md:flex-[0_0_calc((100%-2.5rem)/3)] lg:flex-[0_0_calc((100%-4rem)/4)] xl:flex-[0_0_calc((100%-5rem)/5)]';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.625rem)/2)] sm:flex-[0_0_calc((100%-1.125rem)/2.5)] md:flex-[0_0_calc((100%-2rem)/3)] lg:flex-[0_0_calc((100%-3rem)/4)] xl:flex-[0_0_calc((100%-4rem)/5)]';
 
 const ICON_SIZES =
-  'size-[180px] sm:size-[200px] md:size-[220px] lg:size-[240px] xl:size-[260px]';
+  'aspect-square w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[240px] xl:max-w-[260px]';
 
 const arrowClass =
   'absolute top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#EAEAEA] bg-white text-[#333] shadow-[0_2px_10px_rgba(15,31,61,0.10)] transition-all duration-200 hover:scale-105 hover:border-[#E30613]/30 hover:text-[#E30613] hover:shadow-[0_4px_14px_rgba(15,31,61,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35 disabled:pointer-events-none disabled:opacity-30 sm:size-9';
@@ -48,7 +48,7 @@ function CategoryTile({
       to={item.to}
       aria-label={`${item.name}. ${item.description}`}
       className={cn(
-        'group relative z-0 block w-full outline-none hover:z-[1]',
+        'group relative z-0 flex w-full items-center justify-center outline-none hover:z-[1]',
         'focus-visible:z-[1] focus-visible:rounded-xl focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
         className,
       )}
@@ -65,7 +65,7 @@ function CategoryTile({
             alt=""
             width={304}
             height={304}
-            className="size-full object-contain transition-transform duration-300 group-hover:scale-[0.92]"
+            className="size-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
             loading="lazy"
             decoding="async"
             onError={() => onImgError(item.id)}
@@ -81,10 +81,12 @@ function CategoryTile({
 
         <span
           className={cn(
-            'absolute inset-0 z-[1] flex items-center justify-center px-2 text-balance text-center uppercase',
-            'font-[family-name:var(--font-infobox)] text-[15px] font-extrabold leading-tight tracking-[0.02em] text-white',
-            'sm:px-2.5 sm:text-[17px] md:text-[18px] lg:text-[20px] xl:text-[22px]',
-            '[text-shadow:0_2px_10px_rgba(0,0,0,0.85),0_0_3px_rgba(0,0,0,0.95)]',
+            'pointer-events-none absolute inset-0 z-[1] flex items-center justify-center px-2',
+            'font-[family-name:var(--font-infobox)] text-center uppercase',
+            'text-[15px] font-extrabold leading-tight tracking-[0.02em] text-white sm:text-[16px]',
+            'md:text-[18px] lg:text-[20px] xl:text-[22px]',
+            'drop-shadow-[0_2px_4px_rgba(0,0,0,0.75)] [text-shadow:0_1px_2px_rgba(0,0,0,0.85),0_0_12px_rgba(0,0,0,0.45)]',
+            'transition-transform duration-300 group-hover:scale-[1.03]',
           )}
         >
           {item.name}
@@ -94,7 +96,7 @@ function CategoryTile({
   );
 }
 
-/** Carrusel de categorías — 2 filas por columna, título blanco centrado sobre la imagen. */
+/** Carrusel de categorías — 2 filas × 5 columnas, título blanco centrado sobre la imagen. */
 export function HaitechHomeCategoryCarousel({ className }: { className?: string }) {
   const items = HAITECH_HOME_CATEGORY_CAROUSEL;
   const columns = useMemo(() => chunkIntoPairs(items), [items]);
@@ -160,7 +162,7 @@ export function HaitechHomeCategoryCarousel({ className }: { className?: string 
             <ul className={cn('flex', COLUMN_GAP)} role="list" aria-label="Categorías de productos">
               {columns.map(([top, bottom]) => (
                 <li key={`${top.id}-${bottom?.id ?? 'solo'}`} className={SLIDE}>
-                  <div className="flex h-full flex-col">
+                  <div className="flex h-full flex-col items-center">
                     <CategoryTile
                       item={top}
                       imgErrors={imgErrors}
@@ -171,7 +173,7 @@ export function HaitechHomeCategoryCarousel({ className }: { className?: string 
                         item={bottom}
                         imgErrors={imgErrors}
                         onImgError={handleImgError}
-                        className={ROW_OVERLAP}
+                        className={ROW_GAP}
                       />
                     ) : (
                       <span className="hidden flex-1 sm:block" aria-hidden="true" />

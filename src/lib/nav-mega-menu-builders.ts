@@ -1,10 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   AppWindow,
+  Briefcase,
   Building2,
   Calendar,
   Cog,
   Droplets,
+  FileSignature,
   GraduationCap,
   Headphones,
   HelpCircle,
@@ -17,6 +19,7 @@ import {
 import { categories } from '@/data/categories';
 import { megaMenuServiceLinks } from '@/data/mega-menu';
 import { alquilerLanding } from '@/data/service-landings/alquiler';
+import { outsourcingLanding } from '@/data/service-landings/outsourcing';
 import { soporteTecnicoLanding } from '@/data/service-landings/soporte-tecnico';
 import {
   SOFTWARE_CATALOG_CATEGORIES,
@@ -38,6 +41,7 @@ import {
   filterRedundantMegaMenuLinks,
 } from '@/lib/mega-menu-from-store-categories';
 import { serviceDetailPathFromLanding, serviceHubPath } from '@/lib/service-hub';
+import { storeShowcasePath } from '@/lib/store-showcase-path';
 import type { StoreCategoryTreeNode } from '@/types/store-category';
 
 const SERVICE_MEGA_SLUGS: ServiceLandingSlug[] = [
@@ -85,6 +89,23 @@ const SERVICIOS_SIDEBAR_SECTIONS = [
     icon: KeyRound,
     viewAllHref: serviceHubPath('alquiler'),
   },
+  {
+    slug: 'leasing',
+    label: 'Leasing',
+    description: 'Financiamiento tecnológico con opción de compra.',
+    icon: FileSignature,
+    viewAllHref: '/contacto?tema=leasing',
+  },
+  {
+    slug: 'outsourcing',
+    label: 'Outsourcing',
+    description: 'Gestión operativa y personal técnico especializado.',
+    icon: Briefcase,
+    viewAllHref: serviceHubPath('outsourcing'),
+  },
+] as const;
+
+const SERVICIO_TECNICO_SIDEBAR_SECTIONS = [
   {
     slug: 'servicio-tecnico',
     label: 'Soporte técnico',
@@ -155,6 +176,26 @@ const SERVICIOS_FEATURED: Record<
       'Impresoras, laptops y tecnología bajo demanda con planes flexibles adaptados a tu operación.',
     href: serviceHubPath('alquiler'),
   },
+  leasing: {
+    image: '/categories/alquiler-512.webp',
+    title: 'Leasing tecnológico',
+    description:
+      'Financia equipos con cuotas predecibles y opción de compra al final del contrato.',
+    href: '/contacto?tema=leasing',
+  },
+  outsourcing: {
+    image: '/services/hero/outsourcing-impresion.png',
+    title: 'Outsourcing de impresión y TI',
+    description:
+      'Personal técnico, operación diaria y gestión de flota para que tú te enfoques en tu negocio.',
+    href: serviceHubPath('outsourcing'),
+  },
+};
+
+const SERVICIO_TECNICO_FEATURED: Record<
+  (typeof SERVICIO_TECNICO_SIDEBAR_SECTIONS)[number]['slug'],
+  MegaMenuFeaturedContent
+> = {
   'servicio-tecnico': {
     image: '/Soporte Tecnico v2.png',
     title: 'Soporte técnico especializado',
@@ -270,14 +311,14 @@ const TONER_FEATURED: Record<string, MegaMenuFeaturedContent> = {
     title: 'Tóner y consumibles',
     description:
       'Originales Ricoh, compatibles certificados y opciones remanufacturadas para cada presupuesto.',
-    href: categoryLandingPath('toner-suministros'),
+    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
   },
   repuestos: {
     image: '/categories/repuestos-512.webp',
     title: 'Repuestos originales',
     description:
       'Rodillos, fusores, kits de mantenimiento y componentes para extender la vida de tus equipos.',
-    href: categoryLandingPath('repuestos'),
+    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
   },
 };
 
@@ -450,6 +491,54 @@ function serviciosColumnGroups(slug: (typeof SERVICIOS_SIDEBAR_SECTIONS)[number]
     }));
   }
 
+  if (slug === 'leasing') {
+    return [
+      {
+        slug: 'leasing-equipos',
+        title: 'Equipos en leasing',
+        image: '/categories/multifuncionales-512.webp',
+        href: '/contacto?tema=leasing',
+        links: [
+          { name: 'Multifuncionales', href: '/contacto?tema=leasing-multifuncionales' },
+          { name: 'Laptops y PCs', href: '/contacto?tema=leasing-laptops' },
+        ],
+      },
+      {
+        slug: 'leasing-planes',
+        title: 'Planes y plazos',
+        image: '/categories/alquiler-512.webp',
+        href: '/contacto?tema=leasing',
+        links: [
+          { name: '12 a 36 meses', href: '/contacto?tema=leasing' },
+          { name: 'Opción de compra', href: '/contacto?tema=leasing' },
+        ],
+      },
+      {
+        slug: 'leasing-asesoria',
+        title: 'Asesoría comercial',
+        image: '/Soporte Tecnico v2.png',
+        href: '/contacto?tema=leasing',
+        links: [{ name: 'Solicitar cotización', href: '/contacto?tema=leasing' }],
+      },
+    ];
+  }
+
+  if (slug === 'outsourcing') {
+    return outsourcingLanding.cards.map((card) => ({
+      slug: card.id,
+      title: card.title,
+      image: card.image,
+      href: serviceDetailPathFromLanding('outsourcing', card.id),
+      links: [],
+    }));
+  }
+
+  return [];
+}
+
+function servicioTecnicoColumnGroups(
+  slug: (typeof SERVICIO_TECNICO_SIDEBAR_SECTIONS)[number]['slug'],
+): MegaMenuColumnGroup[] {
   if (slug === 'servicio-tecnico') {
     return soporteTecnicoLanding.cards
       .filter((card) => ['soporte-remoto', 'general', 'garantia', 'suministro'].includes(card.id))
@@ -506,6 +595,26 @@ export function buildServicesNavMegaMenu(): NavMegaMenuModel {
     getFeaturedContent: (slug) =>
       SERVICIOS_FEATURED[slug as (typeof SERVICIOS_SIDEBAR_SECTIONS)[number]['slug']] ??
       SERVICIOS_FEATURED.alquiler,
+  };
+}
+
+export function buildServicioTecnicoNavMegaMenu(): NavMegaMenuModel {
+  const sidebarItems = SERVICIO_TECNICO_SIDEBAR_SECTIONS.map((section) => ({
+    slug: section.slug,
+    label: section.label,
+    description: section.description,
+    icon: section.icon,
+    viewAllHref: section.viewAllHref,
+  }));
+
+  return {
+    sidebarItems,
+    defaultCategorySlug: sidebarItems[0]?.slug ?? 'servicio-tecnico',
+    getColumnGroups: (slug) =>
+      servicioTecnicoColumnGroups(slug as (typeof SERVICIO_TECNICO_SIDEBAR_SECTIONS)[number]['slug']),
+    getFeaturedContent: (slug) =>
+      SERVICIO_TECNICO_FEATURED[slug as (typeof SERVICIO_TECNICO_SIDEBAR_SECTIONS)[number]['slug']] ??
+      SERVICIO_TECNICO_FEATURED['servicio-tecnico'],
   };
 }
 
@@ -664,21 +773,11 @@ function buildSingleRootCategoryNavMegaMenu(
 }
 
 export function buildConsumiblesNavMegaMenu(tree: StoreCategoryTreeNode[]): NavMegaMenuModel {
-  return buildSingleRootCategoryNavMegaMenu(tree, TONER_ROOT_SLUG, {
-    label: 'Consumibles',
-    description: 'Tóner original, compatible y remanufacturado para tu flota.',
-    icon: Droplets,
-    featured: TONER_FEATURED[TONER_ROOT_SLUG],
-  });
+  return buildTonerRepuestosNavMegaMenu(tree);
 }
 
 export function buildConsumiblesNavMegaMenuStatic(): NavMegaMenuModel {
-  return buildSingleRootCategoryNavMegaMenu([], TONER_ROOT_SLUG, {
-    label: 'Consumibles',
-    description: 'Tóner original, compatible y remanufacturado para tu flota.',
-    icon: Droplets,
-    featured: TONER_FEATURED[TONER_ROOT_SLUG],
-  });
+  return buildTonerRepuestosNavMegaMenuStatic();
 }
 
 export function buildRepuestosNavMegaMenu(tree: StoreCategoryTreeNode[]): NavMegaMenuModel {
@@ -705,8 +804,19 @@ export function buildTonerRepuestosNavMegaMenu(tree: StoreCategoryTreeNode[]): N
   const staticMenu = buildTonerRepuestosNavMegaMenuStatic();
 
   const sidebarLabels: Record<(typeof TONER_ROOT_SLUGS)[number], string> = {
-    'toner-suministros': 'Toner',
+    'toner-suministros': 'Tóner',
     repuestos: 'Repuestos',
+  };
+
+  const sidebarViewAll: Record<(typeof TONER_ROOT_SLUGS)[number], string> = {
+    'toner-suministros': storeShowcasePath({
+      categoryId: 'toner-repuestos',
+      consumableKind: 'toner',
+    }),
+    repuestos: storeShowcasePath({
+      categoryId: 'toner-repuestos',
+      consumableKind: 'repuestos',
+    }),
   };
 
   const sidebarItems = TONER_ROOT_SLUGS.flatMap((slug) => {
@@ -721,7 +831,7 @@ export function buildTonerRepuestosNavMegaMenu(tree: StoreCategoryTreeNode[]): N
         label: sidebarLabels[slug],
         description: source.tagline,
         icon: source.icon,
-        viewAllHref: categoryLandingPath(slug),
+        viewAllHref: sidebarViewAll[slug],
       },
     ];
   });
@@ -752,15 +862,24 @@ export function buildTonerRepuestosNavMegaMenu(tree: StoreCategoryTreeNode[]): N
 
 export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
   const sidebarLabels: Record<(typeof TONER_ROOT_SLUGS)[number], string> = {
-    'toner-suministros': 'Toner',
+    'toner-suministros': 'Tóner',
     repuestos: 'Repuestos',
+  };
+
+  const sidebarViewAll: Record<(typeof TONER_ROOT_SLUGS)[number], string> = {
+    'toner-suministros': storeShowcasePath({
+      categoryId: 'toner-repuestos',
+      consumableKind: 'toner',
+    }),
+    repuestos: storeShowcasePath({
+      categoryId: 'toner-repuestos',
+      consumableKind: 'repuestos',
+    }),
   };
 
   const sidebarItems = TONER_ROOT_SLUGS.flatMap((slug) => {
     const category = staticCategoryFallback(slug);
     if (!category) return [];
-
-    const href = categoryLandingPath(slug);
 
     return [
       {
@@ -768,7 +887,7 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         label: sidebarLabels[slug],
         description: category.tagline,
         icon: category.icon,
-        viewAllHref: href,
+        viewAllHref: sidebarViewAll[slug],
       },
     ];
   });
@@ -779,11 +898,19 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         slug: 'toner-originales',
         title: 'Tóner originales',
         image: '/categories/accesorios-impresoras.png',
-        href: categoryPath('toner-suministros', 'toner-originales'),
+        href: storeShowcasePath({
+          categoryId: 'toner-repuestos',
+          filter: 'originales',
+          consumableKind: 'toner',
+        }),
         links: [
           {
             name: 'Explorar',
-            href: categoryPath('toner-suministros', 'toner-originales'),
+            href: storeShowcasePath({
+              categoryId: 'toner-repuestos',
+              filter: 'originales',
+              consumableKind: 'toner',
+            }),
           },
         ],
       },
@@ -791,11 +918,19 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         slug: 'toner-compatibles',
         title: 'Tóner compatibles',
         image: '/categories/toner-suministros.png',
-        href: categoryPath('toner-suministros', 'toner-compatibles'),
+        href: storeShowcasePath({
+          categoryId: 'toner-repuestos',
+          filter: 'compatibles',
+          consumableKind: 'toner',
+        }),
         links: [
           {
             name: 'Explorar',
-            href: categoryPath('toner-suministros', 'toner-compatibles'),
+            href: storeShowcasePath({
+              categoryId: 'toner-repuestos',
+              filter: 'compatibles',
+              consumableKind: 'toner',
+            }),
           },
         ],
       },
@@ -803,20 +938,39 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         slug: 'toner-remanufacturado',
         title: 'Tóner remanufacturado',
         image: '/categories/toner-suministros.png',
-        href: categoryPath('toner-suministros', 'toner-remanufacturado'),
+        href: storeShowcasePath({
+          categoryId: 'toner-repuestos',
+          filter: 'remanufacturados',
+          consumableKind: 'toner',
+        }),
         links: [
           {
             name: 'Explorar',
-            href: categoryPath('toner-suministros', 'toner-remanufacturado'),
+            href: storeShowcasePath({
+              categoryId: 'toner-repuestos',
+              filter: 'remanufacturados',
+              consumableKind: 'toner',
+            }),
           },
         ],
       },
       {
-        slug: 'toner-recarga',
-        title: 'Recargas de tóner',
+        slug: 'toner-todos',
+        title: 'Ver todo el tóner',
         image: '/categories/toner-suministros.png',
-        href: categoryPath('toner-suministros', 'toner-recarga'),
-        links: [{ name: 'Explorar', href: categoryPath('toner-suministros', 'toner-recarga') }],
+        href: storeShowcasePath({
+          categoryId: 'toner-repuestos',
+          consumableKind: 'toner',
+        }),
+        links: [
+          {
+            name: 'Explorar',
+            href: storeShowcasePath({
+              categoryId: 'toner-repuestos',
+              consumableKind: 'toner',
+            }),
+          },
+        ],
       },
     ],
     repuestos: [
@@ -824,10 +978,25 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         slug: 'repuestos',
         title: 'Repuestos',
         image: '/categories/repuestos.png',
-        href: categoryLandingPath('repuestos'),
+        href: storeShowcasePath({
+          categoryId: 'toner-repuestos',
+          consumableKind: 'repuestos',
+        }),
         links: filterRedundantMegaMenuLinks('Repuestos', [
-          { name: 'Partes y componentes', href: categoryLandingPath('repuestos') },
-          { name: 'Explorar', href: categoryLandingPath('repuestos') },
+          {
+            name: 'Partes y componentes',
+            href: storeShowcasePath({
+              categoryId: 'toner-repuestos',
+              consumableKind: 'repuestos',
+            }),
+          },
+          {
+            name: 'Explorar',
+            href: storeShowcasePath({
+              categoryId: 'toner-repuestos',
+              consumableKind: 'repuestos',
+            }),
+          },
         ]),
       },
     ],
@@ -842,7 +1011,10 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         image: '/categories/toner-suministros-512.webp',
         title: 'Explorar catálogo',
         description: 'Tóner, repuestos y suministros para tu flota de impresión.',
-        href: categoryLandingPath(slug),
+        href:
+          slug === 'repuestos'
+            ? storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' })
+            : storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
       }),
   };
 }

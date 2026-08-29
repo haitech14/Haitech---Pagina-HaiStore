@@ -5,7 +5,7 @@ import { HaitechStorefrontHeader } from '@/components/haitech-home/haitech-store
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
-import { HomeStorefrontTrustBar } from '@/components/home/home-storefront-trust-bar';
+import { SitePrefooter } from '@/components/layout/site-prefooter';
 import { useCart } from '@/context/cart-context';
 import { CartProvider } from '@/context/cart-context';
 import { useProductCompare } from '@/context/product-compare-context';
@@ -168,7 +168,7 @@ export function RootLayout() {
         <MobileBottomNav />
       ) : (
         <>
-          <HomeStorefrontTrustBar />
+          <SitePrefooter />
           <SiteFooter />
           <MobileBottomNav />
           {widgetsReady ? (

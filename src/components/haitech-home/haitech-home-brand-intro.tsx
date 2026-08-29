@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { HAITECH_HOME } from '@/data/haitech-home-shell';
-import { categoryPathWithCondition } from '@/lib/category-path';
+import { storeShowcasePath } from '@/lib/store-showcase-path';
 import { cn } from '@/lib/utils';
 
 const CATALOG_BOXES = [
@@ -10,21 +10,21 @@ const CATALOG_BOXES = [
     title: 'Catálogo Nuevos',
     subtitle: 'Última tecnología para tu empresa.',
     image: '/catalog/haitech-home/catalogo-nuevos.png',
-    to: categoryPathWithCondition('multifuncionales', 'originales'),
+    to: storeShowcasePath({ categoryId: 'multifuncionales', condition: 'nuevas' }),
   },
   {
     id: 'seminuevos',
     title: 'Catálogo Seminuevos',
     subtitle: 'Equipos verificados y garantizados.',
     image: '/catalog/haitech-home/catalogo-seminuevos.png',
-    to: categoryPathWithCondition('multifuncionales', 'compatibles'),
+    to: storeShowcasePath({ categoryId: 'multifuncionales', condition: 'seminuevas' }),
   },
   {
     id: 'remanufacturado',
     title: 'Catálogo Remanufacturado',
     subtitle: 'Rendimiento y ahorro para tu negocio.',
     image: '/catalog/haitech-home/catalogo-remanufacturado.png',
-    to: categoryPathWithCondition('multifuncionales', 'remanufacturados'),
+    to: storeShowcasePath({ categoryId: 'multifuncionales', condition: 'remanufacturadas' }),
   },
 ] as const;
 
@@ -45,7 +45,7 @@ export function HaitechHomeBrandIntro({ className }: { className?: string }) {
               className="inline-block h-6 w-1 shrink-0 rounded-full bg-[#E30613]"
               aria-hidden="true"
             />
-            Equipos
+            Nuestros equipos
           </h2>
         </header>
 

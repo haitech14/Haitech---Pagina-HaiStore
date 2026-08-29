@@ -14,6 +14,10 @@ interface ProductStockHoverProps {
   iconClassName?: string;
   /** Si false, solo muestra el número (p. ej. sin ícono). */
   showIcon?: boolean;
+  /** Prefijo visible, p. ej. «Stock ». */
+  prefix?: string;
+  /** Texto cuando no hay stock (por defecto etiqueta «A pedido»). */
+  emptyLabel?: string;
 }
 
 function StockLocationsTooltipContent({
@@ -58,10 +62,11 @@ export function ProductStockHover({
   className,
   iconClassName = 'size-3.5 shrink-0',
   showIcon = true,
+  prefix = '',
+  emptyLabel = PRODUCT_ON_REQUEST_STOCK_LABEL,
 }: ProductStockHoverProps) {
-  const stockLabel = outOfStock
-    ? PRODUCT_ON_REQUEST_STOCK_LABEL
-    : String(Math.max(0, Math.floor(Number(stock) || 0)));
+  const qty = Math.max(0, Math.floor(Number(stock) || 0));
+  const stockLabel = outOfStock ? emptyLabel : `${prefix}${qty}`;
   const locations = (stockLocations ?? []).filter((row) => row.quantity > 0);
   const showWarehouseTooltip = !outOfStock && locations.length > 0;
 
@@ -87,10 +92,10 @@ export function ProductStockHover({
     <InventoryHoverTooltip
       side="top"
       align="end"
-      ariaLabel={`Stock ${stockLabel}. Lugar de almacén.`}
+      ariaLabel={`Stock ${qty}. Lugar de almacén.`}
       trigger={badge}
     >
-      <StockLocationsTooltipContent locations={locations} total={stock} />
+      <StockLocationsTooltipContent locations={locations} total={qty} />
     </InventoryHoverTooltip>
   );
 }

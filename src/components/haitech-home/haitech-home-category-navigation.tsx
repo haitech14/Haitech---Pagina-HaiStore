@@ -6,13 +6,13 @@ import { ConsumiblesNavMegaMenu } from '@/components/layout/consumibles-nav-mega
 import { DeferredCategoriesMegaMenu } from '@/components/layout/deferred-categories-mega-menu';
 import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
 import { haitechWhiteNavLinkClass } from '@/components/layout/main-nav-styles';
-import { RentalsNavMegaMenu } from '@/components/layout/rentals-nav-mega-menu';
-import { RepuestosNavMegaMenu } from '@/components/layout/repuestos-nav-mega-menu';
 import { ServicioTecnicoNavMegaMenu } from '@/components/layout/servicio-tecnico-nav-mega-menu';
+import { ServicesNavMegaMenu } from '@/components/layout/services-nav-mega-menu';
 import { HAITECH_BLACK_NAV_LINKS, HAITECH_HOME } from '@/data/haitech-home-shell';
 import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
-import { categoryLandingPath } from '@/lib/category-path';
+import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
 import { serviceHubPath } from '@/lib/service-hub';
+import { storeShowcasePath } from '@/lib/store-showcase-path';
 import { cn } from '@/lib/utils';
 
 type HaitechNavLinkItem = (typeof HAITECH_BLACK_NAV_LINKS)[number];
@@ -78,13 +78,35 @@ export function HaitechHomeCategoryNavigation({ className }: { className?: strin
         >
           <ul className="flex min-w-0 flex-1 items-stretch overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <li className="flex shrink-0 items-stretch">
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => haitechWhiteNavLinkClass(isActive)}
+              >
+                Inicio
+              </NavLink>
+            </li>
+
+            <li className="flex shrink-0 items-stretch">
+              <NavLink
+                to="/tienda"
+                end
+                onMouseEnter={prefetchStoreRouteFromEvent}
+                onFocus={prefetchStoreRouteFromEvent}
+                className={({ isActive }) => haitechWhiteNavLinkClass(isActive)}
+              >
+                Tienda
+              </NavLink>
+            </li>
+
+            <li className="flex shrink-0 items-stretch">
               <DeferredCategoriesMegaMenu
                 triggerVariant="nav"
                 navRow="haitech-white"
                 label="Equipos"
                 showIcon={false}
                 eager
-                triggerHref="/tienda"
+                triggerHref={storeShowcasePath({ categoryId: 'multifuncionales' })}
               />
             </li>
 
@@ -92,15 +114,8 @@ export function HaitechHomeCategoryNavigation({ className }: { className?: strin
               <ConsumiblesNavMegaMenu
                 navRow="haitech-white"
                 showIcon={false}
-                triggerHref={categoryLandingPath('toner-suministros')}
-              />
-            </li>
-
-            <li className="flex shrink-0 items-stretch">
-              <RepuestosNavMegaMenu
-                navRow="haitech-white"
-                showIcon={false}
-                triggerHref={categoryLandingPath('repuestos')}
+                label="Consumibles"
+                triggerHref={storeShowcasePath({ categoryId: 'toner-repuestos' })}
               />
             </li>
 
@@ -113,9 +128,10 @@ export function HaitechHomeCategoryNavigation({ className }: { className?: strin
             </li>
 
             <li className="flex shrink-0 items-stretch">
-              <RentalsNavMegaMenu
+              <ServicesNavMegaMenu
                 navRow="haitech-white"
                 showIcon={false}
+                label="Alquiler"
                 triggerHref={serviceHubPath('alquiler')}
               />
             </li>

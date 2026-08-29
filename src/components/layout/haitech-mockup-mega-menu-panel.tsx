@@ -43,15 +43,15 @@ function MegaMenuRowLink({
 
 function AdvisorCtaCard({ onNavigate }: { onNavigate: () => void }) {
   return (
-    <div className="mt-4 rounded-xl border border-[#E8EAED] bg-[#F7F8FA] p-3.5">
-      <div className="flex gap-3">
+    <div className="mt-3 rounded-xl border border-[#E8EAED] bg-[#F7F8FA] p-3">
+      <div className="flex gap-2.5">
         <span
-          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#E30613]/30 bg-white text-[#E30613]"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[#E30613]/30 bg-white text-[#E30613]"
           aria-hidden="true"
         >
-          <Settings2 className="size-4" strokeWidth={1.75} />
+          <Settings2 className="size-3.5" strokeWidth={1.75} />
         </span>
-        <p className="text-[0.8125rem] leading-snug text-[#4B5563]">
+        <p className="text-[0.75rem] leading-snug text-[#4B5563] sm:text-[0.8125rem]">
           ¿No encuentras el equipo que necesitas? Te asesoramos para encontrar la mejor solución
           Ricoh.
         </p>
@@ -60,8 +60,8 @@ function AdvisorCtaCard({ onNavigate }: { onNavigate: () => void }) {
         to="/contacto"
         onNavigate={onNavigate}
         className={cn(
-          'mt-3 inline-flex w-full items-center justify-center gap-1 rounded-lg border border-[#E30613] bg-white px-3 py-2',
-          'text-[0.8125rem] font-semibold text-[#E30613] transition-colors hover:bg-[#FFF5F5]',
+          'mt-2.5 inline-flex w-full items-center justify-center gap-1 rounded-lg border border-[#E30613] bg-white px-3 py-2',
+          'text-[0.75rem] font-semibold text-[#E30613] transition-colors hover:bg-[#FFF5F5] sm:text-[0.8125rem]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
         )}
       >
@@ -84,18 +84,18 @@ function MegaMenuSectionColumn({
   return (
     <div
       className={cn(
-        'flex min-w-[15.5rem] max-w-[17.5rem] flex-1 flex-col px-5 py-5 first:pl-6 last:pr-5',
+        'flex min-w-[15rem] max-w-[17rem] flex-1 flex-col px-4 py-4 first:pl-5 last:pr-4 sm:px-5 sm:py-5 sm:first:pl-6 sm:last:pr-5',
         withDivider && 'border-r border-[#EEF0F3]',
       )}
     >
       <h3
-        className="mb-3 text-[0.6875rem] font-bold uppercase tracking-[0.14em]"
+        className="mb-2.5 text-[0.6875rem] font-bold uppercase tracking-[0.14em]"
         style={{ color: BRAND_RED }}
       >
         {section.title}
       </h3>
 
-      <ul className="space-y-0.5" role="list">
+      <ul className="space-y-0" role="list">
         {section.items.map((item) => {
           const imageSrc = resolveMegaMenuColumnImage(item.slug, item.image);
 
@@ -105,21 +105,21 @@ function MegaMenuSectionColumn({
                 to={item.href}
                 onNavigate={onNavigate}
                 className={cn(
-                  'group flex items-center gap-3 rounded-lg px-1 py-2.5 transition-colors',
+                  'group flex items-center gap-2.5 rounded-lg px-1 py-2 transition-colors',
                   'hover:bg-[#F8F9FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
                 )}
               >
                 <img
                   src={imageSrc}
                   alt=""
-                  className="size-20 shrink-0 object-contain transition-transform duration-200 group-hover:scale-[1.05]"
+                  className="size-14 shrink-0 object-contain transition-transform duration-200 group-hover:scale-[1.05] sm:size-16"
                   loading="lazy"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[0.875rem] font-semibold leading-snug text-[#111827] group-hover:text-[#E30613]">
+                  <span className="block text-[0.8125rem] font-semibold leading-snug text-[#111827] group-hover:text-[#E30613] sm:text-[0.875rem]">
                     {item.title}
                   </span>
-                  <span className="mt-0.5 block text-pretty text-[0.75rem] leading-snug text-[#6B7280]">
+                  <span className="mt-0.5 block text-pretty text-[0.6875rem] leading-snug text-[#6B7280] sm:text-[0.75rem]">
                     {item.subtitle}
                   </span>
                 </span>

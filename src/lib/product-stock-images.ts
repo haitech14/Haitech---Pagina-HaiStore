@@ -20,6 +20,11 @@ export const PRODUCT_MODEL_STOCK_IMAGES = [
   { pattern: /\bp\s*c600\b/i, image: '/categories/impresoras.png' },
   { pattern: /\bim\s*c3000\b/i, image: '/categories/multifuncionales.png' },
   { pattern: /\bsp\s*330\s*dn\b/i, image: '/categories/impresoras.png' },
+  { pattern: /\boptiplex\b|\bpc\s+optiplex\b/i, image: '/products/laptop-lenovo-m70q-g5-i5.webp' },
+  {
+    pattern: /\blaptop\b|\bnotebook\b|\blatitude\b|\bcore\s*i5\s*6ta\b/i,
+    image: '/products/laptop-dell-latitude-3440-i5.webp',
+  },
 ] as const;
 
 export function sanitizeProductId(productId: string | undefined | null): string {

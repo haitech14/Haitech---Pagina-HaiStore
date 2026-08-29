@@ -13,6 +13,7 @@ import { Icon } from '@mdi/react';
 import { Link } from 'react-router-dom';
 
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
+import { ProductStockHover } from '@/components/product/product-stock-hover';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
@@ -21,6 +22,7 @@ import {
   formatHaitechPen,
   HAITECH_SHOP,
   HAITECH_SHOP_EQUIPMENT_FEATURES,
+  resolveHaitechShopStockLocations,
   type HaitechShopFeatureId,
   type HaitechShopProduct,
 } from '@/data/haitech-home-shop';
@@ -76,9 +78,10 @@ function toCartProduct(product: HaitechShopProduct, saleRate?: number): Product 
     price: priceUsd,
     currency: 'USD',
     image_url: product.image,
-    stock: 1,
+    stock: Math.max(0, Math.floor(Number(product.stock) || 0)),
     category: 'Equipos',
     brand: product.brand ?? 'RICOH',
+    ...(product.code ? { code: product.code } : {}),
     created_at: new Date().toISOString(),
   };
 }
@@ -101,10 +104,6 @@ function formatHaitechProductDisplayTitle(product: HaitechShopProduct): string {
     .trim();
 
   return baseName;
-}
-
-function isTopVentasBadge(badge?: string): boolean {
-  return Boolean(badge && /m[aá]s\s*vendido/i.test(badge));
 }
 
 function buildProductQuoteExtraLines(product: HaitechShopProduct, priceUsd: number): string[] {
@@ -173,7 +172,6 @@ export function HaitechHomeProductCard({
   const features = product.features?.length
     ? HAITECH_SHOP_EQUIPMENT_FEATURES.filter((f) => product.features?.includes(f.id))
     : [];
-  const brandLabel = <CardBrand brand={product.brand ?? 'RICOH'} />;
   const mediaBlock = (
     <div className="relative">
       <CardMedia product={product} imgError={imgError} onImgError={() => setImgError(true)} />
@@ -200,20 +198,16 @@ export function HaitechHomeProductCard({
       )}
       style={{ borderColor: HAITECH_SHOP.cardBorder }}
     >
-      {isTopVentasBadge(product.badge) ? <TopVentasCornerRibbon /> : null}
-
       {product.href ? (
         <Link
           to={product.href}
           className="flex flex-col outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/30"
         >
-          {brandLabel}
           {mediaBlock}
           <CardInfo product={product} priceUsd={priceUsd} saleRate={saleRate} />
         </Link>
       ) : (
         <div className="flex flex-col">
-          {brandLabel}
           {mediaBlock}
           <CardInfo product={product} priceUsd={priceUsd} saleRate={saleRate} />
         </div>
@@ -248,17 +242,17 @@ export function HaitechHomeProductCard({
           }
           aria-label="Comprar por WhatsApp"
           className={cn(
-            'group/wa inline-flex h-10 max-w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border px-0',
-            'border-transparent bg-white text-[#25D366]',
-            'transition-[max-width,padding,border-color,background-color] duration-300 ease-out',
-            'hover:max-w-[11.5rem] hover:border-[#25D366]/40 hover:bg-[#25D366]/5 hover:px-3',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/40 focus-visible:border-[#25D366]/40',
+            'group/wa inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[0.65rem]',
+            'bg-[#25D366] text-white shadow-sm',
+            'transition-[max-width,padding,background-color] duration-300 ease-out',
+            'hover:max-w-[11.5rem] hover:bg-[#20BD5A] hover:px-3',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/50 focus-visible:ring-offset-2',
           )}
         >
-          <Icon path={mdiWhatsapp} size={0.95} className="shrink-0" aria-hidden="true" />
+          <Icon path={mdiWhatsapp} size={0.95} color="white" className="shrink-0" aria-hidden="true" />
           <span
             className={cn(
-              'ml-0 max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-semibold text-[#25D366] opacity-0',
+              'ml-0 max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-semibold text-white opacity-0',
               'transition-[max-width,margin,opacity] duration-300 ease-out',
               'group-hover/wa:ml-2 group-hover/wa:max-w-[9rem] group-hover/wa:opacity-100',
               'group-focus-visible/wa:ml-2 group-focus-visible/wa:max-w-[9rem] group-focus-visible/wa:opacity-100',
@@ -290,6 +284,24 @@ function CardImageOverlayActions({
   onBuy: () => void;
 }) {
   const clipboardCondition = resolveClipboardCondition(product);
+  const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const clipboardBasicFeatures = [
+    product.equipment?.speedPpm,
+    product.equipment?.paperSize,
+    product.equipment?.scannerType,
+    product.equipment?.monthlyYield,
+    product.toner
+      ? [
+          product.toner.original ? 'Original' : 'Compatible',
+          product.toner.yieldLabel,
+          product.toner.colorLabel,
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : null,
+  ]
+    .flatMap((value) => (value ? [value] : []))
+    .join(' · ');
 
   return (
     <div
@@ -340,11 +352,15 @@ function CardImageOverlayActions({
       <ProductCardCopyButton
         productName={displayTitle}
         title={displayTitle}
-        stock={1}
+        stock={stockCount}
         priceUsd={priceUsd}
         productId={product.id}
         category={product.toner ? 'Consumibles' : 'Equipos'}
         {...(clipboardCondition ? { condition: clipboardCondition } : {})}
+        {...(product.code ? { code: product.code } : {})}
+        {...(clipboardBasicFeatures
+          ? { basicFeatures: clipboardBasicFeatures }
+          : {})}
         {...(product.href ? { productPath: product.href } : {})}
         className={cn(overlayButtonClass, 'text-neutral-700 hover:bg-neutral-50')}
       />
@@ -356,59 +372,59 @@ function CardBrand({ brand }: { brand?: string }) {
   if (!brand) return null;
 
   return (
-    <div className="mb-2 min-h-[18px]">
-      <span
-        className="font-[family-name:var(--font-infobox)] text-[12px] font-black uppercase leading-none tracking-[0.02em] text-[#E30613] sm:text-[13px]"
-        style={{ WebkitTextStroke: '0.35px currentColor' }}
-      >
-        {brand}
-      </span>
-    </div>
-  );
-}
-
-function TopVentasCornerRibbon() {
-  return (
     <span
-      className="pointer-events-none absolute right-0 top-0 z-20 size-[52px] sm:size-[58px]"
-      aria-label="Top Ventas"
+      className="min-w-0 truncate font-[family-name:var(--font-infobox)] text-[12px] font-black uppercase leading-none tracking-[0.02em] text-[#E30613] sm:text-[13px]"
+      style={{ WebkitTextStroke: '0.35px currentColor' }}
     >
-      <svg
-        viewBox="0 0 58 58"
-        className="size-full drop-shadow-[0_2px_6px_rgba(0,0,0,0.12)]"
-        aria-hidden="true"
-      >
-        {/* Triángulo de esquina con vértice en ángulo recto (sin redondeo). */}
-        <path
-          d="M0 0 H58 V58 Z"
-          className="fill-[#FFCC00]"
-        />
-      </svg>
-      <span className="absolute right-[7px] top-[6px] flex flex-col items-center leading-none text-[#111] sm:right-[8px] sm:top-[7px]">
-        <span className="text-[7px] font-black uppercase tracking-[0.04em] sm:text-[8px]">TOP</span>
-        <span className="mt-0.5 text-[8px] font-bold sm:text-[9px]">Ventas</span>
-      </span>
+      {brand}
     </span>
   );
 }
 
-function CardConditionBadge({ condition }: { condition?: HaitechShopProduct['condition'] }) {
+/** Badge NUEVO / SEMINUEVO — píldora negra del mockup. */
+function ConditionPillBadge({
+  condition,
+}: {
+  condition?: HaitechShopProduct['condition'];
+}) {
   if (condition !== 'nuevo' && condition !== 'seminuevo') return null;
-
   const isNuevo = condition === 'nuevo';
+
+  return (
+    <span
+      className={cn(
+        'inline-flex h-[18px] w-fit shrink-0 items-center justify-center rounded-full px-2.5',
+        'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
+        isNuevo
+          ? 'bg-[#111111] text-white'
+          : 'border border-[#555] bg-white text-[#555]',
+      )}
+    >
+      {isNuevo ? 'NUEVO' : 'SEMINUEVO'}
+    </span>
+  );
+}
+
+function isOriginalConsumable(product: HaitechShopProduct): boolean {
+  if (product.toner?.original === true) return true;
+  if (product.toner?.original === false) return false;
+  return /\boriginal\b/i.test(product.name);
+}
+
+function CardProductBadges({ product }: { product: HaitechShopProduct }) {
+  const showOriginal = isOriginalConsumable(product);
+  if (!showOriginal) return null;
 
   return (
     <Badge
       variant="outline"
       className={cn(
-        'mb-1.5 inline-flex h-[15px] w-fit items-center justify-center self-start rounded px-1.5 py-0 shadow-none',
-        'text-[7px] font-bold uppercase leading-none tracking-[0.06em] sm:h-4 sm:px-[7px] sm:text-[8px]',
-        isNuevo
-          ? 'border-transparent bg-[#111] text-white hover:bg-[#111]'
-          : 'border-[#555] bg-white text-[#555] hover:bg-white',
+        'inline-flex h-[18px] w-fit items-center justify-center rounded-full px-2.5 py-0 shadow-none',
+        'border-transparent bg-[#0f1f3d] text-white hover:bg-[#0f1f3d]',
+        'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
       )}
     >
-      {isNuevo ? 'Nuevo' : 'Seminuevo'}
+      Original
     </Badge>
   );
 }
@@ -457,56 +473,58 @@ function CardPriceBlock({
   saleRate?: number;
 }) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
-  const { showPen } = getDisplayPriceVisibility(displayCurrency);
+  const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const penFirst = dualPriceOrder === 'pen-usd';
-  const primaryClass =
-    'font-price text-[17px] font-semibold leading-none tracking-tight tabular-nums sm:text-[18px]';
-  const secondaryClass =
-    'font-price mt-1 text-[11px] font-medium leading-normal tracking-normal tabular-nums text-[#8A8A8A] sm:text-[12px]';
+  const compareUsd =
+    product.compareAt != null ? penToUsd(product.compareAt, saleRate) : null;
 
-  const penPrice = (
-    <span className="mr-1 text-[0.78em] font-semibold tracking-normal opacity-90">S/</span>
-  );
-  const penAmount = product.price.toLocaleString('es-PE', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  const compareLabel =
+    product.compareAt == null
+      ? null
+      : showPen && !showUsd
+        ? formatHaitechPen(product.compareAt)
+        : showUsd && !showPen && compareUsd != null
+          ? formatHaitechUsd(compareUsd)
+          : formatHaitechPen(product.compareAt);
 
   const penPrimary = (
-    <p className={primaryClass} style={{ color: HAITECH_SHOP.brand }}>
-      {penPrice}
-      {penAmount}
-    </p>
-  );
-  const penSecondary = (
-    <p className={secondaryClass}>
-      {penPrice}
-      {penAmount}
+    <p
+      className={cn(
+        'font-price text-[17px] font-semibold leading-none tracking-tight tabular-nums text-[#111] sm:text-[18px]',
+        (product.compareAt != null || product.discountLabel) && 'mt-1.5',
+      )}
+    >
+      {formatHaitechPen(product.price)}
     </p>
   );
   const usdPrimary = (
-    <p className={primaryClass} style={{ color: HAITECH_SHOP.brand }}>
+    <p
+      className={cn(
+        'font-price text-[17px] font-semibold leading-none tracking-tight tabular-nums text-[#E30613] sm:text-[18px]',
+        (product.compareAt != null || product.discountLabel) && 'mt-1.5',
+      )}
+    >
       {formatHaitechUsd(priceUsd)}
     </p>
   );
-  const usdSecondary = (
-    <p className={secondaryClass}>{formatHaitechUsd(priceUsd)}</p>
+  const penSecondary = (
+    <p className="mt-1 font-price text-[12px] font-semibold tabular-nums text-[#6B7280]">
+      {formatHaitechPen(product.price)}
+    </p>
   );
-
-  const compareUsd =
-    product.compareAt != null ? penToUsd(product.compareAt, saleRate) : null;
+  const usdSecondary = (
+    <p className="mt-1 font-price text-[12px] font-semibold tabular-nums text-[#6B7280]">
+      {formatHaitechUsd(priceUsd)}
+    </p>
+  );
 
   return (
     <>
       {product.compareAt != null || product.discountLabel ? (
         <div className="flex flex-wrap items-center gap-1.5">
-          {product.compareAt != null ? (
+          {compareLabel ? (
             <span className="font-price text-[10px] tabular-nums tracking-wide text-[#A0A0A0] line-through sm:text-[11px]">
-              {showPen
-                ? formatHaitechPen(product.compareAt)
-                : compareUsd != null
-                  ? formatHaitechUsd(compareUsd)
-                  : formatHaitechPen(product.compareAt)}
+              {compareLabel}
             </span>
           ) : null}
           {product.discountLabel ? (
@@ -520,26 +538,24 @@ function CardPriceBlock({
         </div>
       ) : null}
 
-      <div className={cn((product.compareAt != null || product.discountLabel) && 'mt-1.5')}>
-        {displayCurrency === 'PEN' && penPrimary}
-        {displayCurrency === 'USD' && priceUsd > 0 && usdPrimary}
-        {displayCurrency === 'BOTH' && priceUsd > 0 && (
-          <>
-            {penFirst ? (
-              <>
-                {penPrimary}
-                {usdSecondary}
-              </>
-            ) : (
-              <>
-                {usdPrimary}
-                {penSecondary}
-              </>
-            )}
-          </>
-        )}
-        {displayCurrency === 'BOTH' && priceUsd <= 0 && penPrimary}
-      </div>
+      {displayCurrency === 'PEN' && penPrimary}
+      {displayCurrency === 'USD' && priceUsd > 0 && usdPrimary}
+      {displayCurrency === 'BOTH' && priceUsd > 0 && (
+        <>
+          {penFirst ? (
+            <>
+              {penPrimary}
+              {usdSecondary}
+            </>
+          ) : (
+            <>
+              {usdPrimary}
+              {penSecondary}
+            </>
+          )}
+        </>
+      )}
+      {displayCurrency === 'BOTH' && priceUsd <= 0 && penPrimary}
     </>
   );
 }
@@ -554,16 +570,68 @@ function CardInfo({
   saleRate?: number;
 }) {
   const displayTitle = formatHaitechProductDisplayTitle(product);
+  const codeLabel = product.code?.trim() || null;
+  const hasStock = product.stock != null;
+  const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const outOfStock = hasStock && stockCount <= 0;
 
   return (
     <div className="mt-2 flex flex-col">
-      <CardConditionBadge condition={product.condition} />
+      <div className="mb-1.5 flex min-w-0 items-center justify-between gap-2">
+        <CardBrand brand={product.brand ?? 'RICOH'} />
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+          <ConditionPillBadge condition={product.condition} />
+          <CardProductBadges product={product} />
+        </div>
+      </div>
       <h3
-        className="line-clamp-2 text-[13px] font-bold leading-snug text-[#111] sm:text-[14px]"
+        className="text-pretty break-words text-[13px] font-bold leading-snug text-[#111] sm:text-[14px]"
         title={displayTitle}
       >
         {displayTitle}
       </h3>
+
+      {codeLabel || hasStock ? (
+        <div
+          className={cn(
+            'grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,margin,opacity] duration-200 ease-out',
+            'group-hover/card:mt-1.5 group-hover/card:grid-rows-[1fr] group-hover/card:opacity-100',
+            'group-focus-within/card:mt-1.5 group-focus-within/card:grid-rows-[1fr] group-focus-within/card:opacity-100',
+            'motion-reduce:mt-1.5 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100',
+          )}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div
+              className="flex min-w-0 items-center gap-1.5 text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
+              aria-label={[
+                codeLabel ? `Código ${codeLabel}` : null,
+                hasStock ? (outOfStock ? 'Sin stock' : `Stock ${stockCount}`) : null,
+              ]
+                .filter(Boolean)
+                .join(', ')}
+            >
+              {codeLabel ? (
+                <span className="min-w-0 truncate tabular-nums" title={codeLabel}>
+                  {codeLabel}
+                </span>
+              ) : (
+                <span className="min-w-0" aria-hidden="true" />
+              )}
+              {hasStock ? (
+                <ProductStockHover
+                  stock={stockCount}
+                  outOfStock={outOfStock}
+                  stockLocations={resolveHaitechShopStockLocations(product)}
+                  prefix="Stock "
+                  emptyLabel="Sin stock"
+                  className="ml-auto text-[10px] font-medium sm:text-[11px]"
+                  iconClassName="size-3 shrink-0"
+                />
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-4">
         <CardPriceBlock product={product} priceUsd={priceUsd} saleRate={saleRate} />

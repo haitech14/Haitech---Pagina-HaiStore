@@ -20,6 +20,16 @@ const FEATURED_PRICE_COMPARE_CLASS =
 
 const FEATURED_PRICE_CURRENT_CLASS =
   'text-sm font-semibold tabular-nums leading-tight text-[#111111] sm:text-[0.9375rem]';
+
+const FEATURED_PRICE_CURRENT_ACCENT_CLASS =
+  'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]';
+
+function formatFeaturedUsdLabel(usd: number): string {
+  return `US$ ${usd.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
 function FeaturedDualCurrencyLine({
   usd,
   usdClassName,
@@ -119,6 +129,8 @@ export interface ProductCardFeaturedPricingProps {
   productId?: string;
   /** Barra verde bajo el precio cuando hay descuento. */
   showAccentBar?: boolean;
+  /** Precio vigente en US$ rojo (vitrina / mockup). */
+  accentUsd?: boolean;
   className?: string;
 }
 
@@ -128,6 +140,7 @@ export function ProductCardFeaturedPricing({
   compareUsd,
   productId,
   showAccentBar = true,
+  accentUsd = false,
   className,
 }: ProductCardFeaturedPricingProps) {
   const { displayCurrency } = useDisplayCurrency();
@@ -143,8 +156,49 @@ export function ProductCardFeaturedPricing({
     );
   }
 
-  const showBoth = showUsd && showPen;
   const hasDiscount = compareUsd > currentUsd && currentUsd > 0;
+
+  if (accentUsd) {
+    const discountPct = hasDiscount
+      ? Math.round((1 - currentUsd / compareUsd) * 100)
+      : 0;
+    const currentPrice = (
+      <span className="text-[#E30613]">{formatFeaturedUsdLabel(currentUsd)}</span>
+    );
+    return (
+      <div className={cn('space-y-0.5', className)}>
+        {hasDiscount ? (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[0.75rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] sm:text-[0.8125rem]">
+              {formatFeaturedUsdLabel(compareUsd)}
+            </span>
+            {discountPct > 0 ? (
+              <span className="inline-flex rounded-full bg-[#E30613] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white">
+                {discountPct}% DSCT
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+        <p className={FEATURED_PRICE_CURRENT_ACCENT_CLASS}>
+          {productId ? (
+            <MaybeAdminRolePrices productId={productId} displayUsd={currentUsd}>
+              {currentPrice}
+            </MaybeAdminRolePrices>
+          ) : (
+            currentPrice
+          )}
+        </p>
+        {hasDiscount && showAccentBar ? (
+          <span
+            className="mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]"
+            aria-hidden="true"
+          />
+        ) : null}
+      </div>
+    );
+  }
+
+  const showBoth = showUsd && showPen;
 
   const currentPrice = showBoth ? (
     <FeaturedDualCurrencyLine

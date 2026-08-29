@@ -12,6 +12,7 @@ import {
   productSearchHaystack,
   sortProductsBySearchRelevance,
 } from '../../shared/catalog-search.js';
+import { excludeEquipmentVariantSkusFromSearch } from '../../shared/equipment-search-variants.js';
 
 export const MIN_PRODUCT_SEARCH_LENGTH = 3;
 /** Carga inicial del panel: todos los resultados visibles hasta el tope. */
@@ -408,6 +409,7 @@ export function filterProductsBySearch(
 
   const categoryFilter = options.categoryFilter?.trim() || 'all';
   let list = products.filter((product) => productMatchesSearchQuery(product, query));
+  list = excludeEquipmentVariantSkusFromSearch(list, products);
 
   if (categoryFilter !== 'all') {
     const tree = options.categoryTree ?? [];

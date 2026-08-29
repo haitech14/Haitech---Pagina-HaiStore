@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 
 import {
@@ -129,13 +128,11 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
     slidesToScroll: 1,
     watchDrag: emblaShouldWatchDrag,
   });
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
   const [lightboxItem, setLightboxItem] = useState<ClientRecommendation | null>(null);
 
-  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
@@ -144,7 +141,6 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
 
     const updateSnaps = () => setScrollSnaps(emblaApi.scrollSnapList());
     const onSelect = () => {
-      setSelectedIndex(emblaApi.selectedScrollSnap());
       setCanScrollPrev(emblaApi.canScrollPrev());
       setCanScrollNext(emblaApi.canScrollNext());
     };
@@ -172,7 +168,7 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
       aria-labelledby={embedded ? undefined : 'clientes-recomiendan-titulo'}
       className={cn(
         'home-landing-sans relative overflow-hidden',
-        embedded ? 'py-3 sm:py-4' : 'py-5 sm:py-6',
+        embedded ? 'py-3 sm:py-4' : 'py-6 sm:py-8',
       )}
     >
       <div className={cn('relative', embedded ? 'w-full' : 'container')}>
@@ -237,41 +233,7 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
               ))}
             </ul>
           </div>
-
-          {showCarouselChrome && scrollSnaps.length > 1 ? (
-            <div
-              className="mt-4 flex items-center justify-center gap-1.5 sm:mt-5"
-              role="tablist"
-              aria-label="Paginación de testimonios"
-            >
-              {scrollSnaps.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  role="tab"
-                  aria-selected={index === selectedIndex}
-                  aria-label={`Ir al grupo ${index + 1} de testimonios`}
-                  onClick={() => scrollTo(index)}
-                  className={cn(
-                    'size-2.5 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
-                    index === selectedIndex ? 'bg-red-600' : 'bg-neutral-300 hover:bg-neutral-400',
-                  )}
-                />
-              ))}
-            </div>
-          ) : null}
         </div>
-
-        {embedded ? null : (
-          <div className="mt-4 flex justify-center">
-            <Link
-              to="#clientes"
-              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-red-600/30 bg-white px-5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
-            >
-              Ver más entregas reales
-            </Link>
-          </div>
-        )}
       </div>
 
       <RecommendationLightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />

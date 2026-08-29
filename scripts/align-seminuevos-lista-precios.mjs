@@ -106,6 +106,7 @@ const LIST_ROWS = [
   { key: 'im4000', stock: 1, tecnico: 1100, model: 'IM 4000', notes: '120v', isColor: false, formato: 'A3', kind: 'equipment', match: [/IM\s*4000/i], category: 'Multifuncionales, Multifuncionales Seminuevas', createIfMissing: true },
   { key: 'im7000', stock: 1, tecnico: 2649, model: 'IM 7000', notes: '', isColor: false, formato: 'A3', kind: 'equipment', match: [/IM\s*7000/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'sp4510', stock: 10, tecnico: 119, model: 'SP 4510SF', notes: 'U. Imagen 120v', isColor: false, formato: 'A4', kind: 'equipment', match: [/SP\s*4510/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
+  { key: 'mp301', stock: 5, tecnico: 99, model: 'MP 301', notes: '', isColor: false, formato: 'A4', kind: 'equipment', match: [/MP\s*301/i], category: 'Multifuncionales, Multifuncionales Seminuevas', createIfMissing: true },
   { key: 'mp402', stock: 11, tecnico: 139, model: 'MP 402', notes: 'U. Imagen 4500', isColor: false, formato: 'A4', kind: 'equipment', match: [/MP\s*402/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'mp501', stock: 1, tecnico: 249, model: 'MP 501', notes: '', isColor: false, formato: 'A4', kind: 'equipment', match: [/MP\s*501/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'mp3055', stock: 1, tecnico: 549, model: 'MP 3055', notes: '', isColor: false, formato: 'A3', kind: 'equipment', match: [/MP\s*3055/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
@@ -116,15 +117,31 @@ const LIST_ROWS = [
   { key: 'sp377', stock: 18, tecnico: 59, model: 'SP 377DN', notes: 'Monocromático', isColor: false, formato: 'A4', kind: 'printer', match: [/SP\s*377/i], category: 'Impresoras Laser Seminuevas', createIfMissing: true },
   { key: 'mueble-mp501', stock: 5, tecnico: 29, model: 'Mueble MP 501 Metal', notes: '', isColor: false, formato: '', kind: 'accessory', match: [/Mueble.*MP\s*501/i], category: 'Accesorios', createIfMissing: true },
   { key: 'cass-im550', stock: 19, tecnico: 18, model: 'Cassetera 2 IM 550', notes: '2x30', isColor: false, formato: '', kind: 'accessory', match: [/Cassetera.*IM\s*550/i], category: 'Accesorios', createIfMissing: true },
-  { key: 'cw2200', stock: 1, tecnico: 2499, model: 'MP CW2200', notes: '120v', isColor: false, formato: 'Ancho', kind: 'plotter', match: [/CW\s*2200|MPCW2200/i], category: 'Formato Ancho Seminuevos', createIfMissing: true },
+  { key: 'cw2201', stock: 2, tecnico: 2499, model: 'MP CW2201', notes: '120v', isColor: false, formato: 'Ancho', kind: 'equipment', match: [/CW\s*2201|MP\s*CW2201/i], category: 'Formato Ancho Seminuevos', createIfMissing: true },
 
   // Color
   { key: 'imc400', stock: 4, tecnico: 429, model: 'IM C400F', notes: '120V', isColor: true, formato: 'A4', kind: 'equipment', match: [/IM\s*C\s*400/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
+  { key: 'imc300f', stock: 0, tecnico: 499, model: 'IM C300F', notes: '', isColor: true, formato: 'A4', kind: 'equipment', match: [/IM\s*C\s*300F/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'imc2000', stock: 2, tecnico: 689, model: 'IM C2000', notes: '', isColor: true, formato: 'A3', kind: 'equipment', match: [/IM\s*C\s*2000/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'imc2000b', stock: 2, tecnico: 719, model: 'IM C2000', notes: 'Cilindro cuchilla, rod. Carga', isColor: true, formato: 'A3', kind: 'equipment', match: [/IM\s*C\s*2500/i], category: 'Multifuncionales, Multifuncionales Seminuevas', createIfMissing: true, altMatch: [/IM\s*C\s*2000/i] },
   { key: 'imc3000', stock: 2, tecnico: 799, model: 'IM C3000', notes: '', isColor: true, formato: 'A3', kind: 'equipment', match: [/IM\s*C\s*3000/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'imc4500', stock: 2, tecnico: 1149, model: 'IM C4500', notes: '120V', isColor: true, formato: 'A3', kind: 'equipment', match: [/IM\s*C\s*4500/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
-  { key: 'mpc2004', stock: 2, tecnico: 699, model: 'MP C2004', notes: 'inc. Rod. Limp. carga, cilindro 120 y 220 V', isColor: true, formato: 'A3', kind: 'equipment', match: [/MP\s*C\s*2004/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
+  {
+    key: 'mpc2004',
+    stock: 2,
+    tecnico: 699,
+    model: 'MP C2004',
+    notes: 'inc. Rod. Limp. carga, cilindro 120 y 220 V',
+    isColor: true,
+    formato: 'A3',
+    kind: 'equipment',
+    match: [/MP\s*C\s*2004/i],
+    category: 'Multifuncionales, Multifuncionales Seminuevas',
+    createIfMissing: true,
+    cloneFromMatch: [/MP\s*C\s*3004/i],
+    cloneExclude: [/EX|toner|t[oó]ner|2003|2503|3503|3504|2504|C2004/i],
+    cloneImage: '/products/color-ricoh-mp-c2004-220v.webp',
+  },
   { key: 'mpc3004', stock: 3, tecnico: 669, model: 'MP C3004', notes: '', isColor: true, formato: 'A3', kind: 'equipment', match: [/MP\s*C\s*3004/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'mc251', stock: 4, tecnico: 159, model: 'M C251FW / M C250FW', notes: '', isColor: true, formato: 'A4', kind: 'equipment', match: [/M\s*C\s*251|M\s*C\s*250/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
   { key: 'mpc307', stock: 1, tecnico: 319, model: 'MP C307', notes: '', isColor: true, formato: 'A4', kind: 'equipment', match: [/MP\s*C\s*307/i], category: 'Multifuncionales, Multifuncionales Seminuevas' },
@@ -134,8 +151,8 @@ const LIST_ROWS = [
 
   // IT / accesorios
   { key: 'laptop-dell', stock: 2, tecnico: 189, model: 'Laptop DELL Core i5 6ta', notes: 'teclado nuevo', isColor: false, formato: '', kind: 'laptop', match: [/Laptop.*DELL|DELL.*i5.*6/i], category: 'Computadoras y Laptop', createIfMissing: true, skipPrep: true },
-  { key: 'pc-7040', stock: 52, tecnico: 129, model: 'PC Optiplex i5 7040 8GB 6ta 1T', notes: 'USB 6', isColor: false, formato: '', kind: 'pc', match: [/Optiplex.*7040|i5\s*7040/i], category: 'Computadoras y Laptop', createIfMissing: true, skipPrep: true },
-  { key: 'pc-micro', stock: 25, tecnico: 175, model: 'PC Optiplex Micro i5 3070 8GB 9na 500GB', notes: '1T USB 6', isColor: false, formato: '', kind: 'pc', match: [/Optiplex.*Micro|i5\s*3070/i], category: 'Computadoras y Laptop', createIfMissing: true, skipPrep: true },
+  { key: 'pc-7040', stock: 52, tecnico: 139, model: 'PC Optiplex i5 7040 8GB 6ta 1T', notes: 'USB 6', isColor: false, formato: '', kind: 'pc', match: [/Optiplex.*7040|i5\s*7040/i], category: 'Computadoras y Laptop', createIfMissing: true, skipPrep: true },
+  { key: 'pc-micro', stock: 25, tecnico: 179, model: 'PC Optiplex Micro i5 3070 8GB 9na 500GB', notes: '1T USB 6', isColor: false, formato: '', kind: 'pc', match: [/Optiplex.*Micro|i5\s*3070/i], category: 'Computadoras y Laptop', createIfMissing: true, skipPrep: true },
   { key: 'monitor-dell', stock: 38, tecnico: 39, model: 'Monitor DELL 18.5', notes: '', isColor: false, formato: '', kind: 'monitor', match: [/Monitor.*DELL.*18|DELL\s*18\.5/i], category: 'Monitores', createIfMissing: true, skipPrep: true },
 ];
 
@@ -232,9 +249,24 @@ function applyMeta(product, row) {
   if (row.notes) upsertAttr(product, 'Detalle lista', row.notes);
 }
 
-function createProduct(row) {
+function findCloneTemplate(products, row) {
+  if (!row.cloneFromMatch?.length) return null;
+  const excludes = row.cloneExclude || [];
+  return (
+    products.find((p) => {
+      const blob = blobOf(p);
+      if (excludes.some((re) => re.test(blob))) return false;
+      if (!row.cloneFromMatch.some((re) => re.test(blob))) return false;
+      if (/repuesto|t[oó]ner|suministro/i.test(String(p.category || ''))) return false;
+      return productQualifiesAsSeminuevaEquipment(p);
+    }) || null
+  );
+}
+
+function createProduct(row, products = []) {
   const id = randomUUID();
   const code = `LISTA-${row.key.toUpperCase()}-SN`;
+  const template = findCloneTemplate(products, row);
   const product = {
     id,
     slug: `seminuevo-${row.key}-${id.slice(0, 8)}`,
@@ -244,19 +276,27 @@ function createProduct(row) {
     price: 0,
     prices: ensureFullPrices({}),
     currency: 'USD',
-    image_url: null,
-    gallery: [],
+    image_url: row.cloneImage || template?.image_url || null,
+    gallery: template?.gallery ? [...template.gallery] : [],
     stock: row.stock,
     category: row.category,
     brand: row.kind === 'laptop' || row.kind === 'pc' || row.kind === 'monitor' ? 'DELL' : 'Ricoh',
-    attributes: [],
-    sort_order: 9000,
+    attributes: template?.attributes
+      ? template.attributes.map((a) => ({ ...a, id: randomUUID() }))
+      : [],
+    sort_order: template?.sort_order ?? 9000,
     status: 'activa',
     created_at: new Date().toISOString(),
     is_featured: false,
+    stock_by_warehouse: template?.stock_by_warehouse
+      ? template.stock_by_warehouse.map((w) => ({ ...w, quantity: 0 }))
+      : undefined,
   };
   applyMeta(product, row);
   applyPrices(product, row);
+  if (product.stock_by_warehouse?.length) {
+    product.stock_by_warehouse[0] = { ...product.stock_by_warehouse[0], quantity: row.stock };
+  }
   return product;
 }
 
@@ -280,7 +320,7 @@ function main() {
     }
 
     if (!product && row.createIfMissing) {
-      product = createProduct(row);
+      product = createProduct(row, data.products);
       data.products.push(product);
       created += 1;
       usedIds.add(product.id);

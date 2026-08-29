@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, FolderOpen, Loader2, Plus, Search, Wrench, X } from 'lucide-react';
 
+import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
 import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductCardImage } from '@/components/product/product-card-image';
+import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
+import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import {
@@ -25,7 +28,6 @@ import {
   filterCategoriesBySearch,
   filterServicesBySearch,
   groupEquiposSearchProductsByCondition,
-  groupRepuestosSearchProductsBySupplyType,
   groupSearchProductsByPanelSection,
   MIN_PRODUCT_SEARCH_LENGTH,
   normalizeSearchText,
@@ -38,6 +40,7 @@ import {
 } from '@/lib/product-search';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
+import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
 import { getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
 import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
@@ -151,7 +154,7 @@ const SEARCH_SUGGESTION_CELL_CLASS =
 const SEARCH_DROPDOWN_PANEL_CLASS =
   'absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-[min(70vh,32rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,42rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,48rem)] xl:w-[min(100vw-2rem,52rem)]';
 
-/** Pestañas del panel: Todos | Equipos | Tóner | Repuestos (lista en una columna). */
+/** Pestañas del panel: Todos | Equipos | Tóner (lista en una columna). */
 const SEARCH_RESULT_COLUMNS = [
   {
     key: 'todos',
@@ -167,11 +170,6 @@ const SEARCH_RESULT_COLUMNS = [
     key: 'toner',
     title: 'Tóner',
     match: (category: string) => category.startsWith('Tóner'),
-  },
-  {
-    key: 'repuestos',
-    title: 'Repuestos',
-    match: (category: string) => category === 'Repuestos' || category === 'Otros',
   },
 ] as const;
 
@@ -302,6 +300,11 @@ function SearchProductSuggestionCell({
   const clipboardIsColor = inferColor(product) === 'Color';
   const clipboardCode = product.code?.trim() || null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const outOfStock = isProductOutOfStock(product);
+  const stockAria = outOfStock
+    ? PRODUCT_ON_REQUEST_STOCK_LABEL
+    : `Stock ${stockCount}`;
+  const clipboardBasicFeatures = buildProductCardQuickSpecsLine(product);
   const detailPath = productPath(product);
   const displayPrice = useCatalogDisplayPrice(product);
   const clipboardImageUrl = useMemo(
@@ -316,7 +319,14 @@ function SearchProductSuggestionCell({
       id={optionId}
       role="option"
       aria-selected={isActive}
-      aria-label={[title, priceAria].filter(Boolean).join(', ')}
+      aria-label={[
+        title,
+        clipboardCode ? `Código ${clipboardCode}` : null,
+        stockAria,
+        priceAria,
+      ]
+        .filter(Boolean)
+        .join(', ')}
       className={cn(
         SEARCH_SUGGESTION_CELL_CLASS,
         'cursor-pointer',
@@ -327,11 +337,19 @@ function SearchProductSuggestionCell({
     >
       <SearchProductSuggestionThumb product={product} />
       <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-        <span
-          className="min-w-0 flex-1 whitespace-normal break-words text-[0.8125rem] font-medium leading-snug text-foreground sm:text-sm"
-          title={title}
-        >
-          {highlightSearchTerms(title, query)}
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          <span
+            className="min-w-0 whitespace-normal break-words text-[0.8125rem] font-medium leading-snug text-foreground sm:text-sm"
+            title={title}
+          >
+            {highlightSearchTerms(title, query)}
+          </span>
+          <ProductCardStatsLine
+            product={product}
+            stock={stockCount}
+            outOfStock={outOfStock}
+            code={clipboardCode}
+          />
         </span>
         {showPrice ? (
           <span className="shrink-0 text-[0.8125rem] font-semibold tabular-nums sm:pt-0.5 sm:text-sm">
@@ -361,6 +379,7 @@ function SearchProductSuggestionCell({
           isColorProduct={clipboardIsColor}
           {...(clipboardCode != null ? { code: clipboardCode } : {})}
           {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
+          {...(clipboardBasicFeatures != null ? { basicFeatures: clipboardBasicFeatures } : {})}
           {...(product.category != null ? { category: product.category } : {})}
           {...(product.volume_role_prices != null
             ? { volumeRolePrices: product.volume_role_prices }
@@ -545,16 +564,13 @@ export function SiteSearchForm({
       hiddenCount: group.hiddenCount,
     }));
 
-    if (activeResultTab === 'equipos' || activeResultTab === 'repuestos') {
+    if (activeResultTab === 'equipos') {
       const allProducts = activeResultColumn.groups.flatMap((group) => group.products);
       const totalHidden = activeResultColumn.groups.reduce(
         (sum, group) => sum + group.hiddenCount,
         0,
       );
-      const grouped =
-        activeResultTab === 'equipos'
-          ? groupEquiposSearchProductsByCondition(allProducts)
-          : groupRepuestosSearchProductsBySupplyType(allProducts);
+      const grouped = groupEquiposSearchProductsByCondition(allProducts);
       displayGroups = grouped.map((group, index) => ({
         category: group.category,
         products: group.products,
@@ -1088,7 +1104,6 @@ export function SiteSearchForm({
                           const showGroupSubheading =
                             activeResultTab === 'todos' ||
                             activeResultTab === 'equipos' ||
-                            activeResultTab === 'repuestos' ||
                             activeTabProductSuggestionsWithIndices.length > 1 ||
                             (activeResultColumn != null &&
                               group.category !== activeResultColumn.title &&

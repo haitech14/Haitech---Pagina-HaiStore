@@ -52,26 +52,26 @@ export const HAITECH_SHOP_EQUIPMENT_FEATURES: readonly {
 export const HAITECH_SHOP_TRUST_ITEMS = [
   {
     id: 'envio',
-    title: 'Envíos a nivel nacional',
-    subtitle: 'Despacho rápido y seguro',
+    title: 'Envíos a todo el país',
+    subtitle: 'Rápido y seguro',
     icon: 'truck',
   },
   {
     id: 'garantia',
-    title: 'Garantía oficial Ricoh',
-    subtitle: 'Equipos con respaldo de fábrica',
+    title: 'Garantía oficial',
+    subtitle: 'Equipos certificados',
     icon: 'shield',
   },
   {
     id: 'soporte',
-    title: 'Soporte técnico dedicado',
-    subtitle: 'Asesoría comercial y postventa',
+    title: 'Asesoría especializada',
+    subtitle: 'Te ayudamos a elegir',
     icon: 'headset',
   },
   {
     id: 'pago',
-    title: 'Pago seguro',
-    subtitle: 'Factura y contraentrega',
+    title: 'Múltiples medios de pago',
+    subtitle: 'Compra segura',
     icon: 'lock',
   },
 ] as const;
@@ -81,6 +81,12 @@ export type HaitechShopProduct = {
   name: string;
   image: string;
   brand?: string;
+  /** Código / SKU visible en card. */
+  code?: string;
+  /** Stock disponible (si falta, se omite la línea). */
+  stock?: number;
+  /** Desglose por almacén para el tooltip de stock. */
+  stockLocations?: readonly { name: string; quantity: number }[];
   colorSwatch?: string;
   colorLabel?: string;
   price: number;
@@ -96,6 +102,8 @@ export type HaitechShopProduct = {
   equipment?: {
     /** Velocidad de impresión, p. ej. `45 ppm`. */
     speedPpm?: string;
+    /** Formato de papel principal, o dual A4+A3. */
+    paperSize?: 'A4' | 'A3' | 'A4 / A3' | 'A0' | 'A1';
     /** Alimentador de documentos. */
     scannerType?: 'ARDF' | 'SPDF';
     /** Volumen mensual recomendado, p. ej. `20.000 pág/mes`. */
@@ -109,6 +117,27 @@ export type HaitechShopProduct = {
   };
   tabIds: readonly HaitechShopProductTabId[];
   href?: string;
+  /** Categorías vitrina /tienda cuando no aplican tabIds (formato ancho, laptops, monitores). */
+  showcaseCategoryIds?: readonly (
+    | 'multifuncionales'
+    | 'impresoras'
+    | 'formato-ancho'
+    | 'plotter'
+    | 'multifuncional-planos'
+    | 'laptops'
+    | 'monitores'
+    | 'accesorios'
+    | 'software'
+    | 'escaneres'
+  )[];
+  /** Precio mínimo de un grupo con variantes (muestra «Desde» en vitrina). */
+  hasVariants?: boolean;
+  /** Variante usada para el precio en vitrina (p. ej. cilindro nuevo). */
+  showcaseVariantLabel?: string;
+  /** Tipo dispositivo vitrina PC / Laptops. */
+  showcaseLaptopDevice?: 'pc' | 'laptop';
+  /** Procesador vitrina PC / Laptops. */
+  showcaseLaptopCpu?: 'i5' | 'i7';
 };
 
 export function formatHaitechPen(value: number): string {
@@ -116,6 +145,29 @@ export function formatHaitechPen(value: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
+}
+
+/** Almacenes por defecto en tooltips de stock (Lima / Piura). */
+export function resolveHaitechShopStockLocations(
+  product: Pick<HaitechShopProduct, 'stock' | 'stockLocations' | 'id'>,
+): { name: string; quantity: number }[] {
+  const explicit = (product.stockLocations ?? []).filter((row) => row.quantity > 0);
+  if (explicit.length > 0) {
+    return explicit.map((row) => ({ name: row.name, quantity: row.quantity }));
+  }
+
+  const total = Math.max(0, Math.floor(Number(product.stock) || 0));
+  if (total <= 0) return [];
+
+  // Distribución estable por id (no aleatoria) entre sedes Lima y Piura.
+  const hash = Array.from(product.id).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  const limaShare = 0.55 + (hash % 30) / 100;
+  const lima = Math.max(1, Math.min(total - (total > 1 ? 1 : 0), Math.round(total * limaShare)));
+  const piura = total - lima;
+
+  const locations = [{ name: 'Lima', quantity: lima }];
+  if (piura > 0) locations.push({ name: 'Piura', quantity: piura });
+  return locations;
 }
 
 const EQUIPMENT_FEATURES = ['copia', 'escanea', 'imprime', 'rendimiento'] as const;
@@ -129,6 +181,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'im-430f',
     name: 'Multifuncional RICOH IM 430F',
     brand: 'RICOH',
+    code: '418491',
+    stock: 12,
     image: '/products/ricoh-im-430f.webp',
     colorSwatch: '#1a1a1a',
     price: 3399,
@@ -138,8 +192,9 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     condition: 'nuevo',
     features: EQUIPMENT_FEATURES,
     equipment: {
-      speedPpm: '45 ppm',
-      scannerType: 'ARDF',
+      speedPpm: '43 ppm',
+      paperSize: 'A4',
+      scannerType: 'SPDF',
       monthlyYield: '20.000 pág/mes',
     },
     tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales'],
@@ -149,6 +204,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'im-550f',
     name: 'Multifuncional RICOH IM 550F',
     brand: 'RICOH',
+    code: '418460',
+    stock: 8,
     image: '/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp',
     colorSwatch: '#222',
     price: 5499,
@@ -160,6 +217,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     features: EQUIPMENT_FEATURES,
     equipment: {
       speedPpm: '55 ppm',
+      paperSize: 'A4',
       scannerType: 'SPDF',
       monthlyYield: '30.000 pág/mes',
     },
@@ -170,6 +228,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'm-320f',
     name: 'Multifuncional RICOH M 320F',
     brand: 'RICOH',
+    code: 'M320F',
+    stock: 15,
     image: '/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp',
     colorSwatch: '#111',
     price: 1499,
@@ -179,8 +239,9 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     condition: 'nuevo',
     features: EQUIPMENT_FEATURES,
     equipment: {
-      speedPpm: '34 ppm',
-      scannerType: 'ARDF',
+      speedPpm: '32 ppm',
+      paperSize: 'A4',
+      scannerType: 'SPDF',
       monthlyYield: '3.500 pág/mes',
     },
     tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales'],
@@ -190,6 +251,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'im-460f',
     name: 'Multifuncional RICOH IM 460F',
     brand: 'RICOH',
+    code: '423509',
+    stock: 6,
     image: '/products/71289ec2-dbca-4780-b319-eb3d259fadb5.webp',
     colorSwatch: '#2c2c2c',
     price: 4199,
@@ -199,7 +262,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     features: EQUIPMENT_FEATURES,
     equipment: {
       speedPpm: '46 ppm',
-      scannerType: 'ARDF',
+      paperSize: 'A4 / A3',
+      scannerType: 'SPDF',
       monthlyYield: '20.000 pág/mes',
     },
     tabIds: ['mas-vendidos', 'multifuncionales'],
@@ -209,6 +273,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'toner-im430',
     name: 'Tóner original RICOH IM 430F',
     brand: 'RICOH',
+    code: '419078',
+    stock: 42,
     image: '/products/ricoh-im-430f-rend-14-500.webp',
     colorSwatch: '#0a0a0a',
     colorLabel: 'Negro',
@@ -227,6 +293,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'toner-im550',
     name: 'Tóner original RICOH IM 550F / IM 600F',
     brand: 'RICOH',
+    code: '418480',
+    stock: 28,
     image: '/products/ricoh-im-550f-im-600f-rend-40-000.webp',
     colorSwatch: '#1a1a1a',
     colorLabel: 'Negro',
@@ -243,9 +311,51 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     href: productPath('418480'),
   },
   {
+    id: 'toner-im430-compatible',
+    name: 'Tóner compatible RICOH IM 430F',
+    brand: 'RICOH',
+    code: 'TON-C-430',
+    stock: 55,
+    image: '/products/ricoh-im-430f-rend-14-500.webp',
+    colorSwatch: '#0a0a0a',
+    colorLabel: 'Negro',
+    price: 119,
+    compareAt: 149,
+    discountLabel: '20% DSCT',
+    toner: {
+      original: false,
+      yieldLabel: '14.500 pág.',
+      colorLabel: 'Negro',
+    },
+    tabIds: ['ofertas', 'toner', 'mas-vendidos'],
+    href: categoryLandingPath('toner-compatibles'),
+  },
+  {
+    id: 'toner-spc352-reman',
+    name: 'Tóner remanufacturado RICOH SP C352',
+    brand: 'RICOH',
+    code: 'TON-R-C352',
+    stock: 33,
+    image: '/products/de-negro-ricoh-sp-c352.webp',
+    colorSwatch: '#0a0a0a',
+    colorLabel: 'Negro',
+    price: 64.9,
+    compareAt: 84.9,
+    discountLabel: '24% DSCT',
+    toner: {
+      original: false,
+      yieldLabel: 'Alto rendimiento',
+      colorLabel: 'Negro',
+    },
+    tabIds: ['ofertas', 'toner'],
+    href: categoryLandingPath('toner-suministros'),
+  },
+  {
     id: 'mc320fw',
     name: 'Multifuncional color RICOH M C320FW',
     brand: 'RICOH',
+    code: '418787',
+    stock: 9,
     image: '/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp',
     colorSwatch: '#1a1a1a',
     price: 3299,
@@ -255,7 +365,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     condition: 'nuevo',
     equipment: {
       speedPpm: '32 ppm',
-      scannerType: 'ARDF',
+      paperSize: 'A4',
+      scannerType: 'SPDF',
       monthlyYield: '3.000 pág/mes',
     },
     tabIds: ['ofertas', 'multifuncionales'],
@@ -265,16 +376,19 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'p-502',
     name: 'Impresora láser RICOH P 502',
     brand: 'RICOH',
+    code: '418495',
+    stock: 2,
     image: '/products/cece2c48-e44a-4b93-a11a-7e8b244ad8ea.webp',
     colorSwatch: '#1a1a1a',
-    price: 2390,
-    compareAt: 2699,
+    price: 2389,
+    compareAt: 2689,
     discountLabel: '11% DSCT',
     badge: 'MÁS VENDIDO',
     condition: 'nuevo',
     features: ['imprime', 'rendimiento'],
     equipment: {
       speedPpm: '43 ppm',
+      paperSize: 'A4',
       monthlyYield: '8.000 pág/mes',
     },
     tabIds: ['impresoras', 'ofertas', 'mas-vendidos'],
@@ -284,24 +398,49 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'p-800',
     name: 'Impresora láser RICOH P 800',
     brand: 'RICOH',
+    code: '418471',
+    stock: 2,
     image: '/products/73ab69b8-602b-4203-a389-070ef7bb80b0.webp',
     colorSwatch: '#222',
-    price: 3380,
+    price: 3379,
     compareAt: 3799,
     discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: ['imprime', 'rendimiento'],
     equipment: {
       speedPpm: '60 ppm',
+      paperSize: 'A4',
       monthlyYield: '20.000 pág/mes',
     },
     tabIds: ['impresoras', 'ofertas'],
     href: productPath('impresora-laser-b-n-nueva-ricoh-p-800-070ef7bb80b0'),
   },
   {
+    id: 'p-801',
+    name: 'Impresora láser RICOH P 801',
+    brand: 'RICOH',
+    code: '418474',
+    stock: 1,
+    image: '/products/be3457a0-76dd-4cf7-beca-31ad9aa7f541.webp',
+    colorSwatch: '#222',
+    price: 4439,
+    compareAt: 4989,
+    discountLabel: '11% DSCT',
+    condition: 'nuevo',
+    features: ['imprime', 'rendimiento'],
+    equipment: {
+      speedPpm: '66 ppm',
+      paperSize: 'A4',
+      monthlyYield: '20.000 pág/mes',
+    },
+    tabIds: ['impresoras', 'ofertas'],
+    href: productPath('impresora-laser-b-n-nueva-ricoh-p-801-31ad9aa7f541'),
+  },
+  {
     id: 'im-c2010',
     name: 'Multifuncional color RICOH IM C2010',
     brand: 'RICOH',
+    code: '419346',
     image: '/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp',
     colorSwatch: '#333',
     price: 8999,
@@ -312,6 +451,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     features: EQUIPMENT_FEATURES,
     equipment: {
       speedPpm: '20 ppm',
+      paperSize: 'A3',
       scannerType: 'SPDF',
       monthlyYield: '10.000 pág/mes',
     },
@@ -326,6 +466,7 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
     id: 'im-600f',
     name: 'Multifuncional RICOH IM 600F',
     brand: 'RICOH',
+    code: '418464',
     image: '/products/b32a43a1-09e4-49f6-8950-3639c9534700.webp',
     colorSwatch: '#111',
     price: 6899,
@@ -354,8 +495,9 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
   },
   {
     id: 'im-2500',
-    name: 'Multifuncional RICOH IM 2500 ARDF',
+    name: 'Multifuncional RICOH IM 2500',
     brand: 'RICOH',
+    code: '418843',
     image: '/products/196857c6-738b-4162-90aa-50dee575bcd8.webp',
     colorSwatch: '#222',
     price: 12499,
@@ -365,10 +507,11 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
     features: EQUIPMENT_FEATURES,
     equipment: {
       speedPpm: '25 ppm',
-      scannerType: 'ARDF',
+      paperSize: 'A3',
+      scannerType: 'SPDF',
       monthlyYield: '10.000 pág/mes',
     },
-    tabIds: ['ofertas'],
+    tabIds: ['ofertas', 'multifuncionales'],
     href: categoryLandingPath('multifuncionales'),
   },
   {
@@ -391,25 +534,6 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
     href: categoryLandingPath('toner-suministros'),
   },
   {
-    id: 'm-320f-latest',
-    name: 'Multifuncional RICOH M 320F',
-    brand: 'RICOH',
-    image: '/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp',
-    colorSwatch: '#1a1a1a',
-    price: 1499,
-    compareAt: 1799,
-    discountLabel: '17% DSCT',
-    condition: 'nuevo',
-    features: EQUIPMENT_FEATURES,
-    equipment: {
-      speedPpm: '34 ppm',
-      scannerType: 'ARDF',
-      monthlyYield: '3.500 pág/mes',
-    },
-    tabIds: ['ofertas'],
-    href: categoryLandingPath('multifuncionales'),
-  },
-  {
     id: 'toner-im430-latest',
     name: 'Tóner original RICOH IM 430F',
     brand: 'RICOH',
@@ -426,26 +550,6 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
     },
     tabIds: ['ofertas'],
     href: categoryLandingPath('toner-suministros'),
-  },
-  {
-    id: 'im-430f-latest',
-    name: 'Multifuncional RICOH IM 430F',
-    brand: 'RICOH',
-    image: '/products/ricoh-im-430f.webp',
-    colorSwatch: '#1a1a1a',
-    price: 3399,
-    compareAt: 3799,
-    discountLabel: '11% DSCT',
-    badge: 'MÁS VENDIDO',
-    condition: 'nuevo',
-    features: EQUIPMENT_FEATURES,
-    equipment: {
-      speedPpm: '45 ppm',
-      scannerType: 'ARDF',
-      monthlyYield: '20.000 pág/mes',
-    },
-    tabIds: ['ofertas'],
-    href: categoryLandingPath('multifuncionales'),
   },
 ];
 

@@ -3,58 +3,41 @@ import { Link } from 'react-router-dom';
 import { HOME_LANDING_LINKS } from '@/data/home-landing-sections';
 import { cn } from '@/lib/utils';
 
-const BANNER_BG = '/home/home-equipos-banner-bg.png';
+/** Banner recortado (origen: `ChatGPT Image 29 ago 2026, 12_11_53.png`). */
+const BANNER_SRC = '/home/home-equipos-banner-cropped.png';
 const BANNER_HREF = HOME_LANDING_LINKS.allProducts;
 
 /**
- * Banner promocional encima de la vitrina de equipos: enlace a la tienda.
+ * Banner promocional encima de «Somos Distribuidor Autorizado RICOH».
  */
 export function HomeEquiposHeroBanner({ className }: { className?: string }) {
   return (
     <section
       aria-labelledby="home-equipos-hero-title"
-      className={cn('bg-[#FAFBFC] py-4 sm:py-5', className)}
+      className={cn('bg-white py-0', className)}
     >
       <div className="container">
-        <div
+        <Link
+          to={BANNER_HREF}
           className={cn(
-            'group relative flex min-h-[8.5rem] overflow-hidden rounded-xl sm:min-h-[9rem]',
+            'group relative block overflow-hidden rounded-xl leading-none',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
           )}
+          aria-label="Explora nuestros equipos. Ir a la Tienda"
         >
+          <h2 id="home-equipos-hero-title" className="sr-only">
+            Explora nuestros equipos
+          </h2>
           <img
-            src={BANNER_BG}
-            alt=""
-            width={1920}
-            height={1080}
-            className="absolute inset-0 size-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
+            src={`${BANNER_SRC}?v=2`}
+            alt="Explora nuestros equipos. Soluciones de impresión que se adaptan a las necesidades de tu negocio. Ir a la Tienda."
+            width={2059}
+            height={528}
+            className="block h-auto w-full object-contain object-center transition-transform duration-500 group-hover:scale-[1.01]"
             loading="lazy"
             decoding="async"
           />
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/55 to-[#a3050d]/55"
-            aria-hidden="true"
-          />
-
-          <div className="relative z-[1] flex w-full flex-col items-center justify-center gap-3 px-4 py-5 text-center sm:gap-3.5 sm:px-6 sm:py-6 lg:px-8">
-            <h2
-              id="home-equipos-hero-title"
-              className="max-w-4xl text-2xl font-extrabold tracking-[0.02em] text-white sm:text-3xl lg:text-[2.25rem] lg:leading-tight"
-            >
-              Explora nuestros equipos
-            </h2>
-            <Link
-              to={BANNER_HREF}
-              className={cn(
-                'inline-flex items-center justify-center rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#111111]',
-                'shadow-sm transition-colors hover:bg-white/90',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#a3050d]',
-                'sm:px-6 sm:py-2.5 sm:text-base',
-              )}
-            >
-              Ir a la Tienda
-            </Link>
-          </div>
-        </div>
+        </Link>
       </div>
     </section>
   );

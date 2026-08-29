@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Headphones } from 'lucide-react';
 
 import { StaticNavMegaMenu } from '@/components/layout/static-nav-mega-menu';
-import { buildServicesNavMegaMenu } from '@/lib/nav-mega-menu-builders';
+import { buildServicioTecnicoNavMegaMenu } from '@/lib/nav-mega-menu-builders';
 
 export function ServicioTecnicoNavMegaMenu({
   navRow = 'default',
@@ -17,7 +17,7 @@ export function ServicioTecnicoNavMegaMenu({
   triggerHref?: string;
 }) {
   const location = useLocation();
-  const menu = useMemo(() => buildServicesNavMegaMenu(), []);
+  const menu = useMemo(() => buildServicioTecnicoNavMegaMenu(), []);
   const isRouteActive =
     location.pathname.startsWith('/servicios') &&
     location.search.includes('seccion=servicio-tecnico');

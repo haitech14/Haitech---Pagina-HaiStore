@@ -69,7 +69,6 @@ export default defineConfig({
       '@radix-ui/react-dialog',
       '@radix-ui/react-checkbox',
       'embla-carousel-react',
-      'exceljs',
       'lucide-react',
     ],
   },

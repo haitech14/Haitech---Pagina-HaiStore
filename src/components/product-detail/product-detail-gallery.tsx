@@ -15,6 +15,7 @@ import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
+import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { youtubeThumbnailUrl } from '@/lib/product-media';
 import { productPath } from '@/lib/product-path';
 import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
@@ -220,6 +221,7 @@ export function ProductDetailGallery({
     const { title } = getProductCardTitleContent(product);
     const condition = resolveProductCardBadgeLabel(product);
     const code = product.code?.trim() || null;
+    const basicFeatures = buildProductCardQuickSpecsLine(product);
     return {
       title,
       stock: product.stock,
@@ -229,6 +231,7 @@ export function ProductDetailGallery({
       isColorProduct: inferColor(product) === 'Color',
       ...(code != null ? { code } : {}),
       ...(condition != null ? { condition } : {}),
+      ...(basicFeatures != null ? { basicFeatures } : {}),
       ...(product.category != null ? { category: product.category } : {}),
       ...(product.volume_role_prices != null
         ? { volumeRolePrices: product.volume_role_prices }
@@ -364,6 +367,9 @@ export function ProductDetailGallery({
                       : {})}
                     {...(clipboard.code != null ? { code: clipboard.code } : {})}
                     {...(clipboard.condition != null ? { condition: clipboard.condition } : {})}
+                    {...(clipboard.basicFeatures != null
+                      ? { basicFeatures: clipboard.basicFeatures }
+                      : {})}
                     {...(clipboard.category != null ? { category: clipboard.category } : {})}
                     {...(clipboard.volumeRolePrices != null
                       ? { volumeRolePrices: clipboard.volumeRolePrices }

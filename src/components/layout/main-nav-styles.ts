@@ -139,11 +139,13 @@ export { SUBMENU_PANEL_ANIMATION_CLASS };
  * El panel usa width:max-content y solo se limita con maxWidth al espacio disponible.
  */
 export const MEGA_MENU_MIN_WIDTH = 420;
-export const MEGA_MENU_MAX_HEIGHT = 'min(34rem, 72vh)';
+/** Casi todo el viewport bajo la nav sticky, para no cortar columnas largas. */
+export const MEGA_MENU_MAX_HEIGHT = 'min(56rem, calc(100dvh - 3.25rem))';
 
 export const MEGA_MENU_DROPDOWN_CLASS = cn(
-  'z-50 w-max overflow-hidden rounded-2xl border border-black/[0.06] bg-white p-0',
+  'z-50 w-max overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-black/[0.06] bg-white p-0',
   'shadow-[0_20px_50px_-12px_rgba(15,23,42,0.22),0_8px_16px_-8px_rgba(15,23,42,0.12)]',
+  '[scrollbar-width:thin] [scrollbar-color:#D1D5DB_transparent]',
   SUBMENU_PANEL_ANIMATION_CLASS,
 );
 

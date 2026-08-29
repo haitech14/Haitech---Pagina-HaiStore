@@ -68,6 +68,50 @@ export interface ProductCardTitleContent {
   title: string;
 }
 
+/** Marcas conocidas (más largas primero) para inferir desde el nombre si falta `brand`. */
+const INFERABLE_BRANDS = [
+  'Konica Minolta',
+  'TP-Link',
+  'Ricoh',
+  'Canon',
+  'Epson',
+  'Brother',
+  'Kyocera',
+  'Xerox',
+  'Lexmark',
+  'Samsung',
+  'Pantum',
+  'Intercopy',
+  'Lanier',
+  'Lenovo',
+  'HP',
+  'LG',
+] as const;
+
+function escapeBrandPattern(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Extrae marca del nombre del producto cuando el campo `brand` viene vacío. */
+export function inferBrandFromProductName(name: string): string | null {
+  const haystack = name.trim();
+  if (!haystack) return null;
+
+  for (const brand of INFERABLE_BRANDS) {
+    const pattern = new RegExp(`\\b${escapeBrandPattern(brand)}\\b`, 'i');
+    if (pattern.test(haystack)) return brand.toUpperCase();
+  }
+  return null;
+}
+
+function resolveCardBrand(
+  product: ProductBadgeSource & { name: string; brand?: string | null },
+): string | null {
+  const explicit = product.brand?.trim();
+  if (explicit) return explicit.toUpperCase();
+  return inferBrandFromProductName(product.name);
+}
+
 const CARTUCHO_DE_DISPLAY_PREFIX = /^cartucho\s+de\s+/i;
 
 /** Quita «Cartucho de» / «CARTUCHO DE» del inicio del título mostrado en tarjetas. */
@@ -304,15 +348,15 @@ export function getProductCardTitleContent(
     code?: string | null;
   },
 ): ProductCardTitleContent {
-  const brand = product.brand?.trim() || null;
+  const brand = resolveCardBrand(product);
   const code = formatProductDisplayCode(product.code, {
-    brand: product.brand,
+    brand: product.brand ?? brand,
     category: product.category ?? null,
     name: product.name,
   });
 
   return {
-    brand: brand ? brand.toUpperCase() : null,
+    brand,
     code,
     title: stripEmbeddedProductCodeFromTitle(formatProductCardTitle(product), code),
   };

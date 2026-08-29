@@ -29,7 +29,7 @@ export function ServicesMobileAccordion({ onNavigate }: ServicesMobileAccordionP
       >
         <span className="inline-flex items-center gap-2">
           <Wrench className="size-4" strokeWidth={1.75} aria-hidden="true" />
-          Servicios
+          Alquiler
         </span>
         <ChevronDown
           aria-hidden="true"

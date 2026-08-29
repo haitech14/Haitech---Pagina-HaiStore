@@ -60,7 +60,7 @@ export function HaitechHomeFavoritesSection({ className }: { className?: string 
       aria-labelledby="haitech-favorites-title"
     >
       <div
-        className="mx-auto px-3 pb-8 pt-2 sm:px-4 sm:pb-10 sm:pt-3 lg:px-5 lg:pb-12 lg:pt-4 xl:px-6"
+        className="mx-auto px-3 pb-4 pt-5 sm:px-4 sm:pb-5 sm:pt-6 lg:px-5 lg:pb-6 lg:pt-7 xl:px-6"
         style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}
       >
         <header className="mb-5 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">

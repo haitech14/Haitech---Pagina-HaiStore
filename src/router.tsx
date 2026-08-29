@@ -14,14 +14,18 @@ import { prefetchHomeCatalog } from '@/lib/prefetch-home-catalog';
 import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
 import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
+import { legacyStoreShowcaseRedirectPath } from '@/lib/store-showcase-path';
 import { HomePage } from '@/pages/home';
 import { queryClient } from '@/providers';
 
 /** Inicio eager: sin Suspense/spinner a pantalla completa. */
 const storePageImport = () =>
   import('@/pages/store').then((m) => ({ default: m.StorefrontRoutePage }));
+const tiendaSlugPageImport = () =>
+  import('@/pages/store').then((m) => ({ default: m.TiendaSlugRoutePage }));
 /** Chunk de tienda bajo demanda; precarga en intent /main en /tienda|/categoria. */
 const StorefrontRoutePage = lazyWithRetry(storePageImport, 'tienda');
+const TiendaSlugRoutePage = lazyWithRetry(tiendaSlugPageImport, 'tienda-slug');
 const LoginPage = lazyWithRetry(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })), 'login');
 const LoginRegisterPage = lazyWithRetry(
   () => import('@/pages/login-register').then((m) => ({ default: m.LoginRegisterPage })),
@@ -57,10 +61,6 @@ const AccountPage = lazyWithRetry(
 const FavoritesPage = lazyWithRetry(
   () => import('@/pages/favorites').then((m) => ({ default: m.FavoritesPage })),
   'favoritos',
-);
-const ProductDetailPage = lazyWithRetry(
-  () => import('@/pages/product-detail').then((m) => ({ default: m.ProductDetailPage })),
-  'producto',
 );
 const NotFoundPage = lazyWithRetry(
   () => import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage })),
@@ -467,14 +467,8 @@ export const router = createBrowserRouter([
         path: 'tienda',
         element: withSuspense(<StorefrontRoutePage />),
         loader: ({ request }) => {
-          const url = new URL(request.url);
-          const estado = url.searchParams.get('estado');
-          // Evita ?estado= vacío (doble render) y fuerza Nuevas en storefront equipos.
-          if (!estado || estado === 'all') {
-            url.searchParams.set('estado', 'nuevas');
-            prefetchStoreRoute(queryClient);
-            return redirect(`${url.pathname}?${url.searchParams.toString()}${url.hash}`);
-          }
+          const legacyRedirect = legacyStoreShowcaseRedirectPath(request.url);
+          if (legacyRedirect) return redirect(legacyRedirect);
           prefetchStoreRoute(queryClient);
           return null;
         },
@@ -537,8 +531,8 @@ export const router = createBrowserRouter([
           return redirect(`/tienda/${encodeURIComponent(slug)}${search}`);
         },
       },
-      /* Categorías viven en /categoria/:slug — sin colisión con fichas en /tienda/:slug */
-      { path: 'tienda/:slug', element: withSuspense(<ProductDetailPage />) },
+      /* Vitrina en /tienda/:slug o ficha de producto si el slug no es categoría de vitrina */
+      { path: 'tienda/:slug', element: withSuspense(<TiendaSlugRoutePage />) },
       { path: 'checkout', element: withSuspense(<CheckoutPage />) },
       { path: 'checkout/exito/:orderNumber', element: withSuspense(<CheckoutSuccessPage />) },
       {

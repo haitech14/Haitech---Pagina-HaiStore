@@ -24,10 +24,10 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
-import { ProductCardBrandLine } from '@/components/product/product-card-title';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
+import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { productPath } from '@/lib/product-path';
 import { productToFeatured } from '@/lib/store-products';
 import { productToWishlistItem } from '@/lib/wishlist-product';
@@ -81,6 +81,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
   const clipboardCondition = resolveProductCardBadgeLabel(titleProduct);
   const clipboardIsColor = inferColor(titleProduct) === 'Color';
+  const clipboardBasicFeatures = buildProductCardQuickSpecsLine(titleProduct);
   const clipboardImageUrl = imageCandidates[0] ?? product.image_url ?? null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const isFeatured = product.is_featured === true || catalogProduct?.is_featured === true;
@@ -130,6 +131,9 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             isColorProduct: clipboardIsColor,
             ...(code != null ? { code } : {}),
             ...(clipboardCondition != null ? { condition: clipboardCondition } : {}),
+            ...(clipboardBasicFeatures != null
+              ? { basicFeatures: clipboardBasicFeatures }
+              : {}),
             ...(product.category != null ? { category: product.category } : {}),
             ...(product.volume_role_prices != null
               ? { volumeRolePrices: product.volume_role_prices }
@@ -147,26 +151,65 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col px-2 pb-2 pt-1.5 md:px-3 md:pb-3 md:pt-2">
-        <ProductCardBrandLine brand={brand} />
+        {(brand || clipboardCondition) ? (
+          <div className="flex min-w-0 items-center justify-between gap-2">
+            {brand ? (
+              <p className="min-w-0 truncate text-[0.6875rem] font-bold uppercase tracking-wide text-[#E30613] sm:text-xs">
+                {brand}
+              </p>
+            ) : (
+              <span className="min-w-0" aria-hidden="true" />
+            )}
+            {clipboardCondition ? (
+              <span
+                className={cn(
+                  'inline-flex h-[18px] shrink-0 items-center justify-center rounded-full px-2.5',
+                  'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
+                  /nuev/i.test(clipboardCondition) && !/semi/i.test(clipboardCondition)
+                    ? 'bg-[#111111] text-white'
+                    : 'border border-[#555] bg-white text-[#555]',
+                )}
+              >
+                {/nuev/i.test(clipboardCondition) && !/semi/i.test(clipboardCondition)
+                  ? 'NUEVO'
+                  : clipboardCondition.toUpperCase()}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
 
         <Link
           to={detailHref}
-          className="mt-0.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
+          className={cn(
+            'rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+            brand || clipboardCondition ? 'mt-1.5' : null,
+          )}
         >
-          <h3 className="line-clamp-2 text-pretty text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm">
+          <h3 className="text-pretty break-words text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm">
             {title}
           </h3>
         </Link>
 
         <ProductCardPromoBadges product={titleProduct} className="mt-2 max-md:hidden" />
 
-        <ProductCardStatsLine
-          product={titleProduct}
-          stock={stockCount}
-          outOfStock={outOfStock}
-          code={code}
-          className="mt-2.5 max-md:hidden"
-        />
+        <div
+          className={cn(
+            'grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,margin,opacity] duration-200 ease-out',
+            'group-hover:mt-2.5 group-hover:grid-rows-[1fr] group-hover:opacity-100',
+            'group-focus-within:mt-2.5 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
+            'motion-reduce:mt-2.5 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100',
+            'max-md:hidden',
+          )}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <ProductCardStatsLine
+              product={titleProduct}
+              stock={stockCount}
+              outOfStock={outOfStock}
+              code={code}
+            />
+          </div>
+        </div>
 
         <div className="mt-1.5 md:mt-2">
           <ProductCardFeaturedPricing
@@ -174,6 +217,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             currentUsd={pricing.currentUsd}
             compareUsd={pricing.compareUsd}
             showAccentBar={false}
+            accentUsd
           />
         </div>
 

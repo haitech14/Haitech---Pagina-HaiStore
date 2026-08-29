@@ -93,7 +93,7 @@ function BenefitsBlock() {
       style={{ backgroundColor: HAITECH_SHOWCASE_ACCENT }}
     >
       <div
-        className="relative z-[1] mx-auto px-3 py-14 sm:px-4 sm:py-16 lg:px-6 lg:py-20 xl:py-24"
+        className="relative z-[1] mx-auto px-3 py-7 sm:px-4 sm:py-8 lg:px-6 lg:py-9 xl:py-10"
         style={{ maxWidth: HAITECH_SHOWCASE_MAX_WIDTH }}
       >
         <BenefitsHeader />

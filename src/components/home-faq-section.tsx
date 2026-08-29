@@ -167,20 +167,12 @@ export function HomeFaqSection() {
   };
 
   return (
-    <section id="preguntas-frecuentes" aria-labelledby="faq-titulo" className="home-landing-sans pt-8 pb-10 sm:pt-10 sm:pb-12">
+    <section id="preguntas-frecuentes" aria-labelledby="faq-titulo" className="home-landing-sans bg-white pt-6 pb-8 sm:pt-8 sm:pb-10">
       <div className="container">
         <header className="mx-auto mb-6 max-w-3xl text-center sm:mb-8">
-          <div className="flex items-center justify-center gap-3 sm:gap-4">
-            <span className="h-px w-8 bg-red-600/70 sm:w-12" aria-hidden="true" />
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-red-600 sm:text-xs">
-              Resolvemos tus dudas
-            </p>
-            <span className="h-px w-8 bg-red-600/70 sm:w-12" aria-hidden="true" />
-          </div>
-
           <h2
             id="faq-titulo"
-            className="home-section-title mt-3 text-balance text-2xl font-bold tracking-tight text-[#0f1f3d] sm:mt-4 sm:text-3xl lg:text-[2rem]"
+            className="home-section-title text-balance text-2xl font-bold tracking-tight text-[#0f1f3d] sm:text-3xl lg:text-[2rem]"
           >
             Preguntas{' '}
             <span className="text-red-600">frecuentes</span>

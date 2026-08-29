@@ -2,6 +2,7 @@ import { megaMenuImageForSlug } from '@/data/mega-menu';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
+import { storeShowcasePath } from '@/lib/store-showcase-path';
 
 function homeCategoryImage(slug: string): string {
   return megaMenuImageForSlug(slug) ?? `/categories/${slug}.png`;
@@ -118,70 +119,70 @@ export const HAITECH_HOME_CATEGORY_CAROUSEL = [
     name: 'Multifuncionales',
     description: 'Impresión, copia y escaneo',
     image: homeCategoryImage('multifuncionales'),
-    to: categoryLandingPath('multifuncionales'),
+    to: storeShowcasePath({ categoryId: 'multifuncionales' }),
   },
   {
     id: 'impresoras',
     name: 'Impresoras',
     description: 'Láser mono y color',
     image: homeCategoryImage('impresoras'),
-    to: categoryLandingPath('impresoras'),
+    to: storeShowcasePath({ categoryId: 'impresoras' }),
   },
   {
     id: 'toner',
     name: 'Tóner y consumibles',
     description: 'Originales Ricoh',
     image: homeCategoryImage('toner-suministros'),
-    to: categoryLandingPath('toner-suministros'),
+    to: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
   },
   {
     id: 'repuestos',
     name: 'Repuestos',
     description: 'Unidades, fusores y más',
     image: homeCategoryImage('repuestos'),
-    to: categoryLandingPath('repuestos'),
+    to: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
   },
   {
     id: 'formato-ancho',
     name: 'Formato ancho',
     description: 'Plotters y planos',
     image: homeCategoryImage('formato-ancho'),
-    to: categoryLandingPath('formato-ancho'),
+    to: storeShowcasePath({ categoryId: 'formato-ancho' }),
   },
   {
     id: 'computadoras-laptop',
     name: 'Computadoras y laptop',
     description: 'Equipos de cómputo',
     image: homeCategoryImage('computadoras-laptop'),
-    to: categoryLandingPath('computadoras-laptop'),
+    to: storeShowcasePath({ categoryId: 'laptops' }),
   },
   {
     id: 'monitores',
     name: 'Monitores',
     description: 'Pantallas para oficina',
     image: homeCategoryImage('monitores'),
-    to: categoryLandingPath('monitores'),
+    to: storeShowcasePath({ categoryId: 'monitores' }),
   },
   {
     id: 'escaneres',
     name: 'Escáneres',
     description: 'Digitalización documental',
     image: homeCategoryImage('escaneres'),
-    to: categoryLandingPath('escaneres'),
+    to: storeShowcasePath({ categoryId: 'escaneres' }),
   },
   {
     id: 'accesorios',
     name: 'Accesorios',
     description: 'Complementos de impresión',
     image: homeCategoryImage('accesorios'),
-    to: categoryLandingPath('accesorios'),
+    to: storeShowcasePath({ categoryId: 'accesorios' }),
   },
   {
     id: 'software',
     name: 'Software',
     description: 'Licencias y soluciones',
     image: homeCategoryImage('software'),
-    to: categoryLandingPath('software'),
+    to: '/software',
   },
 ] as const;
 
@@ -196,7 +197,7 @@ export const HAITECH_HOME_MID_BANNER = {
   width: 1779,
   height: 445,
   alt: 'Repuestos originales para fotocopiadoras Ricoh — calidad garantizada y disponibilidad inmediata',
-  href: categoryLandingPath('repuestos'),
+  href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
 } as const;
 
 /** Banners intermedios de servicio técnico y alquiler. */
@@ -234,15 +235,10 @@ export const HAITECH_HOME_ALQUILER_HEADER = HAITECH_HOME_SERVICES_SECTION_HEADER
 
 export const HAITECH_HOME_HERO_SLIDES = [
   {
-    id: 'hero-slide-5',
-    src: '/hero/haitech-home-hero-slide-5.png',
-    alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
-    href: HAITECH_HOME_WHATSAPP_URL,
-    objectPosition: 'center 50%',
-  },
-  {
     id: 'hero-slide-3',
-    src: '/hero/haitech-home-hero-slide-3.png',
+    src: '/hero/haitech-home-hero-slide-3.webp',
+    /** Fallback si el navegador no soporta WebP. */
+    srcPng: '/hero/haitech-home-hero-slide-3.png',
     alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
     href: HAITECH_HOME_WHATSAPP_URL,
     objectPosition: 'center 50%',

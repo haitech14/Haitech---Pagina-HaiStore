@@ -28,6 +28,7 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
+import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { ProductCardBrandLine } from '@/components/product/product-card-title';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
@@ -83,6 +84,7 @@ export function HomeLandingProductCard({
   const { brand, code: cardCode } = getProductCardTitleContent(productSource);
   const clipboardCondition = resolveProductCardBadgeLabel(productSource);
   const clipboardIsColor = inferColor(productSource) === 'Color';
+  const clipboardBasicFeatures = buildProductCardQuickSpecsLine(productSource);
   const clipboardCategory = product.category ?? catalogProduct?.category ?? null;
   const outOfStock = stockCount <= 0;
   const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
@@ -232,6 +234,9 @@ export function HomeLandingProductCard({
               isColorProduct={clipboardIsColor}
               {...(cardCode != null ? { code: cardCode } : {})}
               {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
+              {...(clipboardBasicFeatures != null
+                ? { basicFeatures: clipboardBasicFeatures }
+                : {})}
               {...(clipboardCategory != null ? { category: clipboardCategory } : {})}
               {...(catalogProduct?.volume_role_prices != null
                 ? { volumeRolePrices: catalogProduct.volume_role_prices }
@@ -260,7 +265,7 @@ export function HomeLandingProductCard({
             'mt-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
           )}
         >
-          <h3 className="line-clamp-2 text-pretty text-left text-sm font-normal leading-snug text-[#111111] sm:text-[0.9375rem]">
+          <h3 className="text-pretty break-words text-left text-sm font-normal leading-snug text-[#111111] sm:text-[0.9375rem]">
             {productTitle}
           </h3>
         </Link>

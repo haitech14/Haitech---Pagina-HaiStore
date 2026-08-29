@@ -1,12 +1,11 @@
 import {
   startTransition,
-  lazy,
-  Suspense,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
 import {
@@ -17,10 +16,6 @@ import { LazyHomeSection } from '@/components/home/lazy-home-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type FeaturedProduct } from '@/data/featured-products';
 import { useIsMobile } from '@/hooks/use-media-query';
-import {
-  HOME_FEATURED_CONSUMABLES_CONDITION_FILTERS,
-  type HomeFeaturedConsumablesConditionFilterId,
-} from '@/data/home-featured-quick-filters-consumables';
 import type { HomeFeaturedEquipmentConditionFilterId } from '@/data/home-featured-quick-filters-equipment';
 import { useHomeCatalogBundle } from '@/hooks/use-home-catalog-bundle';
 import {
@@ -32,37 +27,20 @@ import {
 import { enrichFeaturedFromCatalog } from '@/lib/featured-catalog-enrich';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
-  compareHomeFeaturedConsumablesProducts,
   compareHomeFeaturedEquipmentProducts,
-  matchesHomeFeaturedConsumablesConditionFilter,
   matchesHomeFeaturedEquipmentCategoryFilter,
   matchesHomeFeaturedEquipmentConditionFilter,
 } from '@/lib/home-featured-product-filter';
 import { productToFeatured } from '@/lib/store-products';
 import { cn } from '@/lib/utils';
 
-const HomeEquiposHeroBanner = lazy(() =>
-  import('@/components/home/home-equipos-hero-banner').then((m) => ({
-    default: m.HomeEquiposHeroBanner,
-  })),
-);
-
-const HomeTonerRepuestosHeroBanner = lazy(() =>
-  import('@/components/home/home-toner-repuestos-hero-banner').then((m) => ({
-    default: m.HomeTonerRepuestosHeroBanner,
-  })),
-);
-
-const TonerPartnerBrandsSection = lazy(() =>
-  import('@/components/layout/footer-brands-section').then((m) => ({
-    default: m.TonerPartnerBrandsSection,
-  })),
-);
-
 const FEATURED_CAROUSEL_GAP_CLASS = 'gap-2.5 sm:gap-3';
 /** 2 móvil · 3 tablet · 5 desktop visibles por vista. */
 const FEATURED_SLIDE_CLASS =
   'min-w-0 shrink-0 flex-[0_0_calc((100%-0.625rem)/2)] sm:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-3rem)/5)]';
+
+const FEATURED_ARROW_CLASS =
+  'absolute top-[42%] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#EAEAEA] bg-white text-[#E30613] shadow-[0_2px_10px_rgba(15,31,61,0.10)] transition-all duration-200 hover:scale-105 hover:border-[#E30613]/30 hover:shadow-[0_4px_14px_rgba(15,31,61,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35 disabled:pointer-events-none disabled:opacity-30 sm:size-10';
 
 const STOREFRONT_FEATURED_DISPLAY_LIMIT = 15;
 /** Pool desde home-bundle + candidatos del índice (no bloquear UI por el JSON completo). */
@@ -84,10 +62,7 @@ function isStorefrontCatalogCandidate(row: CatalogRow): boolean {
     haystack.includes('scansnap') ||
     haystack.includes('impresor') ||
     haystack.includes('multifunc') ||
-    haystack.includes('fotocop') ||
-    haystack.includes('toner') ||
-    haystack.includes('tonner') ||
-    haystack.includes('repuesto')
+    haystack.includes('fotocop')
   );
 }
 
@@ -100,16 +75,7 @@ const STOREFRONT_EQUIPMENT_CONDITION_TABS: ReadonlyArray<{
   { id: 'remanufacturadas', label: 'Remanufacturada' },
 ];
 
-const STOREFRONT_CONSUMABLES_CONDITION_TABS = HOME_FEATURED_CONSUMABLES_CONDITION_FILTERS.filter(
-  (filter) => filter.id !== 'recargas',
-);
-
-type StorefrontCatalogKind =
-  | 'multifuncionales'
-  | 'impresoras'
-  | 'escaneres'
-  | 'toner'
-  | 'repuestos';
+type StorefrontCatalogKind = 'multifuncionales' | 'impresoras' | 'escaneres';
 
 const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
   kind: StorefrontCatalogKind;
@@ -120,8 +86,8 @@ const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
   {
     kind: 'multifuncionales',
     titleId: 'home-storefront-featured-title',
-    title: 'Impresora Multifuncional Laser',
-    paginationLabel: 'impresoras multifuncionales',
+    title: 'Multifuncionales',
+    paginationLabel: 'multifuncionales',
   },
   {
     kind: 'impresoras',
@@ -134,18 +100,6 @@ const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
     titleId: 'home-storefront-escaneres-title',
     title: 'Escáneres',
     paginationLabel: 'escáneres',
-  },
-  {
-    kind: 'toner',
-    titleId: 'home-storefront-toner-title',
-    title: 'Toner',
-    paginationLabel: 'toner',
-  },
-  {
-    kind: 'repuestos',
-    titleId: 'home-storefront-repuestos-title',
-    title: 'Repuestos',
-    paginationLabel: 'repuestos',
   },
 ];
 
@@ -277,31 +231,29 @@ function FeaturedProductsCarousel({
     slidesToScroll,
     watchDrag: emblaShouldWatchDrag,
   });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
 
-  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
   const pauseAutoplay = useCallback(() => setAutoplayPaused(true), []);
   const resumeAutoplay = useCallback(() => setAutoplayPaused(false), []);
 
   useEffect(() => {
     if (!emblaApi) return;
 
-    const updateSnaps = () => setScrollSnaps(emblaApi.scrollSnapList());
     const onSelect = () => {
-      setSelectedIndex(emblaApi.selectedScrollSnap());
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
     };
 
-    updateSnaps();
     onSelect();
     emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', updateSnaps);
     emblaApi.on('reInit', onSelect);
 
     return () => {
       emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', updateSnaps);
       emblaApi.off('reInit', onSelect);
     };
   }, [emblaApi]);
@@ -330,7 +282,7 @@ function FeaturedProductsCarousel({
 
   return (
     <div
-      className="relative"
+      className="relative px-0 sm:px-8 lg:px-10"
       onMouseEnter={pauseAutoplay}
       onMouseLeave={resumeAutoplay}
     >
@@ -348,32 +300,27 @@ function FeaturedProductsCarousel({
         </ul>
       </div>
 
-      {scrollSnaps.length > 1 ? (
-        <div
-          className="mt-2.5 flex items-center justify-center gap-0.5 opacity-80 sm:mt-2.5 sm:opacity-40"
-          role="tablist"
-          aria-label={`Paginación de ${paginationLabel}`}
-        >
-          {scrollSnaps.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              role="tab"
-              aria-selected={index === selectedIndex}
-              aria-label={`Ir al grupo ${index + 1} de ${paginationLabel}`}
-              onClick={() => scrollTo(index)}
-              className="flex size-4 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-1 sm:size-3"
-            >
-              <span
-                className={cn(
-                  'rounded-full transition-colors size-2 sm:size-1.5',
-                  index === selectedIndex ? 'bg-neutral-700' : 'bg-neutral-300 hover:bg-neutral-400',
-                )}
-                aria-hidden="true"
-              />
-            </button>
-          ))}
-        </div>
+      {products.length > 1 ? (
+        <>
+          <button
+            type="button"
+            className={cn(FEATURED_ARROW_CLASS, 'left-0 sm:-left-1 lg:-left-2')}
+            aria-label={`Anterior: ${paginationLabel}`}
+            disabled={!canScrollPrev}
+            onClick={scrollPrev}
+          >
+            <ChevronLeft className="size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={cn(FEATURED_ARROW_CLASS, 'right-0 sm:-right-1 lg:-right-2')}
+            aria-label={`Siguiente: ${paginationLabel}`}
+            disabled={!canScrollNext}
+            onClick={scrollNext}
+          >
+            <ChevronRight className="size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+        </>
       ) : null}
     </div>
   );
@@ -392,13 +339,6 @@ function StorefrontCatalogRail({
 }) {
   const [equipmentCondition, setEquipmentCondition] =
     useState<HomeFeaturedEquipmentConditionFilterId>('nuevas');
-  const [consumablesCondition, setConsumablesCondition] =
-    useState<HomeFeaturedConsumablesConditionFilterId>('originales');
-
-  const isEquipmentRail =
-    rail.kind === 'multifuncionales' ||
-    rail.kind === 'impresoras' ||
-    rail.kind === 'escaneres';
 
   const products = useMemo(() => {
     if (rail.kind === 'multifuncionales') {
@@ -423,25 +363,15 @@ function StorefrontCatalogRail({
         .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
     }
 
-    if (rail.kind === 'escaneres') {
-      return [...productPool]
-        .filter(
-          (product) =>
-            matchesEscaneresSection(product) &&
-            matchesEscaneresCondition(product, equipmentCondition),
-        )
-        .sort(compareHomeFeaturedEquipmentProducts)
-        .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
-    }
-
-    const categoryId = rail.kind === 'toner' ? 'toner' : 'repuestos-cat';
     return [...productPool]
-      .filter((product) =>
-        matchesHomeFeaturedConsumablesConditionFilter(product, consumablesCondition, categoryId),
+      .filter(
+        (product) =>
+          matchesEscaneresSection(product) &&
+          matchesEscaneresCondition(product, equipmentCondition),
       )
-      .sort(compareHomeFeaturedConsumablesProducts)
+      .sort(compareHomeFeaturedEquipmentProducts)
       .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
-  }, [consumablesCondition, equipmentCondition, productPool, rail.kind]);
+  }, [equipmentCondition, productPool, rail.kind]);
 
   const titleMode: StorefrontCardTitleMode =
     rail.kind === 'multifuncionales' ? 'equipment' : 'consumable';
@@ -449,32 +379,22 @@ function StorefrontCatalogRail({
   const showSkeleton = isLoading && products.length === 0;
 
   return (
-    <section aria-labelledby={rail.titleId} className="pt-1 sm:pt-2">
-      <div className="container pb-4 pt-3 sm:pb-7 sm:pt-5">
-        <header className="mb-2.5 flex flex-col gap-2 sm:mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <section aria-labelledby={rail.titleId} className="pt-0">
+      <div className="container pb-2 pt-2 sm:pb-3 sm:pt-3">
+        <header className="mb-2 flex flex-col gap-2 sm:mb-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <h2
             id={rail.titleId}
             className="min-w-0 shrink text-left text-base font-bold tracking-tight text-[#111111] sm:text-xl lg:text-[1.375rem]"
           >
             {rail.title}
           </h2>
-          {isEquipmentRail ? (
-            <StorefrontFilterTabs
-              filters={STOREFRONT_EQUIPMENT_CONDITION_TABS}
-              activeFilter={equipmentCondition}
-              onFilterChange={setEquipmentCondition}
-              ariaLabel="Condición de equipos"
-              className="sm:ml-auto"
-            />
-          ) : (
-            <StorefrontFilterTabs
-              filters={STOREFRONT_CONSUMABLES_CONDITION_TABS}
-              activeFilter={consumablesCondition}
-              onFilterChange={setConsumablesCondition}
-              ariaLabel={rail.kind === 'toner' ? 'Tipo de toner' : 'Tipo de repuesto'}
-              className="sm:ml-auto"
-            />
-          )}
+          <StorefrontFilterTabs
+            filters={STOREFRONT_EQUIPMENT_CONDITION_TABS}
+            activeFilter={equipmentCondition}
+            onFilterChange={setEquipmentCondition}
+            ariaLabel="Condición de equipos"
+            className="sm:ml-auto"
+          />
         </header>
 
         {showSkeleton ? (
@@ -569,25 +489,12 @@ export function HomeStorefrontFeaturedSection() {
     <div className="bg-[#FAFBFC]">
       {STOREFRONT_CATALOG_RAILS.map((rail, index) => {
         const railBlock = (
-          <>
-            {index === 0 ? (
-              <Suspense fallback={<div className="min-h-[120px]" aria-hidden="true" />}>
-                <HomeEquiposHeroBanner />
-              </Suspense>
-            ) : null}
-            {rail.kind === 'toner' ? (
-              <Suspense fallback={<div className="min-h-[160px]" aria-hidden="true" />}>
-                <HomeTonerRepuestosHeroBanner />
-                <TonerPartnerBrandsSection />
-              </Suspense>
-            ) : null}
-            <StorefrontCatalogRail
-              rail={rail}
-              productPool={productPool}
-              isLoading={isLoading}
-              eagerImageCount={index === 0 ? 3 : 0}
-            />
-          </>
+          <StorefrontCatalogRail
+            rail={rail}
+            productPool={productPool}
+            isLoading={isLoading}
+            eagerImageCount={index === 0 ? 3 : 0}
+          />
         );
 
         if (index === 0) {

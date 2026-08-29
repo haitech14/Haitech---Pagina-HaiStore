@@ -5,7 +5,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM C300F",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 3,
+      "stock": 0,
       "category": "Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/03b408ff-0b06-4ec5-90ed-94dcb40fd67c.webp?v=1784112814162",
@@ -105,7 +105,7 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 3
+          "quantity": 0
         }
       ],
       "attributes": []
@@ -221,14 +221,14 @@
       "name": "Impresora Multifuncional Nueva RICOH IM 3000",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 30,000 páginas al mes\nRegalo: 01 Toner de Inicio y Envío Gratis",
       "currency": "USD",
-      "stock": 5,
+      "stock": 2,
       "category": "Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/0aea108a-acd2-4ddd-af29-b2265097813c.webp?v=1784112813940",
       "gallery": [],
       "prices": {
-        "public": 4490,
-        "tecnico": 4049,
+        "public": 4249,
+        "tecnico": 3999,
         "mayorista": 3999,
         "distribuidor": 4149
       },
@@ -367,7 +367,7 @@
         },
         {
           "warehouse_id": "1931",
-          "quantity": 5
+          "quantity": 2
         },
         {
           "warehouse_id": "principal",
@@ -433,7 +433,7 @@
       "image_url": "/products/15ee65ab-6565-44c4-974e-ff5ba68b0c26.webp?v=1784095816079",
       "gallery": [],
       "prices": {
-        "public": 9499,
+        "public": 9199,
         "tecnico": 8949,
         "mayorista": 8850,
         "distribuidor": 9049
@@ -726,14 +726,14 @@
       "id": "196857c6-738b-4162-90aa-50dee575bcd8",
       "name": "Impresora Multifuncional Nueva RICOH IM 2500",
       "currency": "USD",
-      "stock": 8,
+      "stock": 6,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/196857c6-738b-4162-90aa-50dee575bcd8.webp?v=1784092875242",
       "gallery": [],
       "prices": {
-        "public": 4199,
-        "tecnico": 3699,
+        "public": 3799,
+        "tecnico": 3549,
         "mayorista": 3599,
         "distribuidor": 3799
       },
@@ -807,7 +807,7 @@
         },
         {
           "warehouse_id": "1931",
-          "quantity": 8
+          "quantity": 6
         },
         {
           "warehouse_id": "principal",
@@ -830,6 +830,377 @@
       ]
     },
     {
+      "id": "ricoh-im-2510",
+      "code": "IM-2510",
+      "name": "Impresora Multifuncional Nueva RICOH IM 2510",
+      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nARDF / Mueble\nFormato A3\nProducción mensual media\nRegalo: Envío Gratis",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/196857c6-738b-4162-90aa-50dee575bcd8.webp?v=1784092875242",
+      "gallery": [],
+      "created_at": "2026-08-29T20:21:30.402Z",
+      "sort_order": 1018,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-2510-ricoh-im-2510",
+      "prices": {
+        "public": 3799,
+        "tecnico": 3549,
+        "mayorista": 3599,
+        "distribuidor": 3799
+      },
+      "attributes": [
+        {
+          "id": "ff4e4c4e-9ecb-4106-9d9c-7dee3287d0df",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "2d679e15-012b-4ea5-8f9e-47dc786d212a",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "55fce3f1-9589-4395-a059-43daaab31827",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "369d05dd-a1b1-44c0-8413-52426978793f",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842124]\nCoste instalación — Compra: $64.26 | Mayorista: $74.78 | Técnico: $78.52 | Público: $86.37\nPaquete instalado — Compra: $2116.90 | Mayorista: $2440.90 | Técnico: $2562.90 | Público: $2818.90"
+        },
+        {
+          "id": "871292cc-db5b-4136-b2e6-11e47813ce65",
+          "name": "A3",
+          "value": "Sí"
+        },
+        {
+          "id": "8dbeb8ce-193d-4093-986d-05008ea2bda4",
+          "name": "Alimentador (ADF)",
+          "value": "ARDF"
+        },
+        {
+          "id": "73b4fb28-8a6c-46fe-b193-26303264b0c8",
+          "name": "Modelo de equipo",
+          "value": "IM 2510"
+        },
+        {
+          "id": "5c6455aa-7f92-4926-b90c-21c4aa8cf21a",
+          "name": "Velocidad",
+          "value": "25 ppm"
+        },
+        {
+          "id": "4bcc9fb2-9585-4b0e-bc24-56cd122eddd1",
+          "name": "Año",
+          "value": "2025"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 5
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        }
+      ]
+    },
+    {
+      "id": "ricoh-im-5010",
+      "code": "IM-5010",
+      "name": "Impresora Multifuncional Nueva RICOH IM 5010",
+      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nFormato A3\nRegalo: Envío Gratis",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/c0ad567a-6ad7-4857-a087-fd574a903a04.webp?v=1784093077030",
+      "gallery": [],
+      "created_at": "2026-08-29T21:02:48.901Z",
+      "sort_order": 1038,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-5010-ricoh-im-5010",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "7822e00b-072a-4854-b8d1-ea00572b9183",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "8d95bdae-03fd-4e08-a6d4-f534d3772abb",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "ed6ef0ed-2a24-40c2-8627-3ad7e0b26e9a",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "e810f168-de7d-498b-8089-3e7ac141e2ab",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842126]\nCoste instalación — Compra: $71.71 | Mayorista: $83.45 | Técnico: $87.63 | Público: $96.39\nPaquete instalado — Compra: $5136.90 | Mayorista: $5834.90 | Técnico: $6126.90 | Público: $6738.90"
+        },
+        {
+          "id": "feae9cf8-0d67-4245-8150-c44df3c2b89f",
+          "name": "A3",
+          "value": "Sí"
+        },
+        {
+          "id": "aff06cb8-60ef-4259-9b0e-caaa2ad46cb3",
+          "name": "Alimentador (ADF)",
+          "value": "ARDF"
+        },
+        {
+          "id": "04ad7b7c-0581-412d-b07f-ed349efd330c",
+          "name": "Modelo de equipo",
+          "value": "IM 5010"
+        },
+        {
+          "id": "77066be1-79f2-4a58-b390-e48ce11577b0",
+          "name": "Velocidad",
+          "value": "50 ppm"
+        },
+        {
+          "id": "a2b19dd4-b80d-4791-ada1-cba83cc50fde",
+          "name": "Año",
+          "value": "2025"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        }
+      ]
+    },
+    {
+      "id": "ricoh-im-4010",
+      "code": "IM-4010",
+      "name": "Impresora Multifuncional Nueva RICOH IM 4010",
+      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nFormato A3\nRegalo: Envío Gratis",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/40c36a2a-794e-41aa-b075-d855c218bf6f.webp?v=1784092931416",
+      "gallery": [],
+      "created_at": "2026-08-29T21:02:48.901Z",
+      "sort_order": 1036,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-4010-ricoh-im-4010",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "c3747565-420b-41fa-8cd5-f1a36549137c",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "ed899a8e-88d0-4761-8bd3-e7cbcf029ae3",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "494c4f7f-d7cb-4a22-b837-7ecb18c17690",
+          "name": "Producción",
+          "value": "Alta Producción (50,000 páginas aprox)"
+        },
+        {
+          "id": "c9186550-86af-4358-98de-32c341003240",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842126]\nCoste instalación — Compra: $71.71 | Mayorista: $83.45 | Técnico: $87.63 | Público: $96.39\nPaquete instalado — Compra: $4482.90 | Mayorista: $5101.90 | Técnico: $5356.90 | Público: $5892.90"
+        },
+        {
+          "id": "8019646d-bdb2-4112-b797-45e6c8e43797",
+          "name": "Alimentador (ADF)",
+          "value": "ARDF"
+        },
+        {
+          "id": "999e8fb2-9efb-40f0-8006-aa1f9eedb73d",
+          "name": "Modelo de equipo",
+          "value": "IM 4010"
+        },
+        {
+          "id": "27fe8944-bf21-49f2-9cae-ca4446a0b5e8",
+          "name": "Velocidad",
+          "value": "40 ppm"
+        },
+        {
+          "id": "85c6036a-46e3-4c98-9c8d-75a5a94eb568",
+          "name": "Año",
+          "value": "2025"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        }
+      ]
+    },
+    {
+      "id": "ricoh-im-3010",
+      "code": "IM-3010",
+      "name": "Impresora Multifuncional Nueva RICOH IM 3010",
+      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 30,000 páginas al mes\nRegalo: 01 Toner de Inicio y Envío Gratis",
+      "currency": "USD",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/0aea108a-acd2-4ddd-af29-b2265097813c.webp?v=1784112813940",
+      "gallery": [],
+      "created_at": "2026-08-29T21:02:48.900Z",
+      "sort_order": 1034,
+      "slug": "impresora-multifuncional-nueva-ricoh-im-3010-ricoh-im-3010",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "edea0894-fbff-41d3-aedd-88a4f4b0501e",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "dc7f4dca-0be1-4cdf-9260-387cca1a1542",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "d6adeeb5-0f33-437d-b1e1-b293728a6d68",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "d5a2ff4b-49d5-4bd7-b9bd-6ac3fbdc292f",
+          "name": "Instalación",
+          "value": "• Print Cartridge BK [842124]\nCoste instalación — Compra: $64.26 | Mayorista: $74.78 | Técnico: $78.52 | Público: $86.37\nPaquete instalado — Compra: $2596.90 | Mayorista: $2978.90 | Técnico: $3127.90 | Público: $3440.90"
+        },
+        {
+          "id": "7941edb2-971c-4747-9eba-342737167c58",
+          "name": "A3",
+          "value": "Sí"
+        },
+        {
+          "id": "2b41b541-996f-4825-9ab5-8c7b86bc9665",
+          "name": "Alimentador (ADF)",
+          "value": "ARDF"
+        },
+        {
+          "id": "b993eea6-f6ed-4739-ae4d-bf4959297b11",
+          "name": "Modelo de equipo",
+          "value": "IM 3010"
+        },
+        {
+          "id": "5b5a6e9c-8510-4db6-bf7a-c0012ca6f481",
+          "name": "Velocidad",
+          "value": "30 ppm"
+        },
+        {
+          "id": "4837ed74-5497-4257-853b-aac767ac96c6",
+          "name": "Año",
+          "value": "2025"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        }
+      ]
+    },
+    {
       "id": "21e2cbd5-f6e7-4b44-93db-ca736ea8727b",
       "name": "Impresora Multifuncional Nueva RICOH IM C2510",
       "currency": "USD",
@@ -839,7 +1210,7 @@
       "image_url": "/products/21e2cbd5-f6e7-4b44-93db-ca736ea8727b.webp?v=1784096274954",
       "gallery": [],
       "prices": {
-        "public": 6299,
+        "public": 6139,
         "tecnico": 5889,
         "mayorista": 5700,
         "distribuidor": 5989
@@ -1204,7 +1575,7 @@
         "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb-3.webp"
       ],
       "prices": {
-        "public": 1799,
+        "public": 1749,
         "tecnico": 1499,
         "mayorista": 1499,
         "distribuidor": 1549
@@ -1551,6 +1922,90 @@
         {
           "warehouse_id": "otros-estados",
           "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        }
+      ]
+    },
+    {
+      "id": "ricoh-mp-301-sn",
+      "code": "MP301-SN",
+      "name": "Impresora Multifuncional B/N Seminueva RICOH MP 301",
+      "description": "Multifuncional monocromática A4 Ricoh MP 301 seminueva.",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/393e6e4b-e246-4a5b-b4ba-4a58fd4b8cce.webp?v=1784112813941",
+      "gallery": [],
+      "prices": {
+        "tecnico": 99,
+        "mayorista": 91,
+        "distribuidor": 106,
+        "public": 399
+      },
+      "created_at": "2026-08-29T20:30:00.000Z",
+      "attributes": [
+        {
+          "id": "9de31613-fccd-49cf-811a-9936c208369f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "c0e6a6f2-faf4-4541-ac08-b72d0bf705b0",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "27f104e2-5af7-4337-996c-5bca6a68c438",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "e68bd4b5-734f-4710-8e5d-432dd0b42d35",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "f301-model-attr",
+          "name": "Modelo de equipo",
+          "value": "MP 301"
+        },
+        {
+          "id": "f301-speed-attr",
+          "name": "Velocidad",
+          "value": "28 ppm"
+        },
+        {
+          "id": "e2dd764a-0571-4fdd-a0fb-3397acfd460a",
+          "name": "Voltaje",
+          "value": "220V"
+        }
+      ],
+      "sort_order": 1055,
+      "slug": "impresora-multifuncional-seminueva-ricoh-mp-301-ricoh-mp-301-sn",
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 5
         },
         {
           "warehouse_id": "1931",
@@ -2406,7 +2861,7 @@
         "/products/481dbc77-436b-464d-b76f-930f7d79f4ff-2.webp"
       ],
       "prices": {
-        "public": 2190,
+        "public": 2079,
         "tecnico": 1929,
         "mayorista": 0,
         "distribuidor": 1979
@@ -3500,7 +3955,7 @@
       "name": "Impresora Multifuncional Nueva RICOH IM 460F",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4 (también A3)\nProducción mensual 50,000 páginas al mes\nRegalo: 01 Toner de Inicio 5,000 páginas y Envio Gratis",
       "currency": "USD",
-      "stock": 19,
+      "stock": 5,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/71289ec2-dbca-4780-b319-eb3d259fadb5.webp?v=1784112813935",
@@ -3509,8 +3964,8 @@
         "/products/71289ec2-dbca-4780-b319-eb3d259fadb5-3.webp"
       ],
       "prices": {
-        "public": 1399,
-        "tecnico": 1049,
+        "public": 1249,
+        "tecnico": 999,
         "mayorista": 1089,
         "distribuidor": 1149
       },
@@ -3651,7 +4106,7 @@
         },
         {
           "warehouse_id": "1931",
-          "quantity": 19
+          "quantity": 5
         },
         {
           "warehouse_id": "principal",
@@ -4265,8 +4720,8 @@
       "image_url": "/products/97079efe-de43-4619-b3f2-950d323fa773.webp?v=1784093158320",
       "gallery": [],
       "prices": {
-        "public": 19900,
-        "tecnico": 18900,
+        "public": 19100,
+        "tecnico": 18800,
         "mayorista": 18500,
         "distribuidor": 12299
       },
@@ -4291,17 +4746,27 @@
         {
           "id": "fbfb4287-3eb6-494c-a0af-6a78a801878c",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "Doble Scan"
         },
         {
           "id": "5c3ca343-7984-409a-ae15-7b4d28dbf4ed",
           "name": "Modelo de equipo",
-          "value": "IM-8000"
+          "value": "IM 8000 (SPDF)"
         },
         {
           "id": "fe9302f7-b05f-4914-860e-fd2ad7cb3cfe",
           "name": "Instalación",
           "value": "• TONER [841332]\n• Developer Type 24 Black [B0649645]\nCoste instalación — Compra: $146.07 | Mayorista: $169.99 | Técnico: $178.48 | Público: $196.34\nPaquete instalado — Compra: $13590.90 | Mayorista: $15386.90 | Técnico: $16155.90 | Público: $17771.90"
+        },
+        {
+          "id": "b6a71d6c-597f-48e2-906c-5a8607f75d0a",
+          "name": "Velocidad",
+          "value": "70 ppm"
+        },
+        {
+          "id": "0dbd0d2a-3217-4f56-a01a-583adb25651a",
+          "name": "Año",
+          "value": "2025"
         }
       ],
       "sort_order": 1041,
@@ -4411,13 +4876,13 @@
       "id": "9c65bcbd-3a13-41dd-81b1-95cb3256a7c1",
       "name": "Impresora Multifuncional Nueva RICOH IM C2010",
       "currency": "USD",
-      "stock": 4,
+      "stock": 3,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp?v=1784095816079",
       "gallery": [],
       "prices": {
-        "public": 4990,
+        "public": 4829,
         "tecnico": 4579,
         "mayorista": 4400,
         "distribuidor": 4679
@@ -4492,7 +4957,7 @@
         },
         {
           "warehouse_id": "1931",
-          "quantity": 4
+          "quantity": 3
         },
         {
           "warehouse_id": "principal",
@@ -4832,7 +5297,7 @@
       "image_url": "/products/a9c74a93-3a15-42da-a9cf-33d59e2b1019.webp?v=1784096279610",
       "gallery": [],
       "prices": {
-        "public": 12490,
+        "public": 12100,
         "tecnico": 11850,
         "mayorista": 11700,
         "distribuidor": 11950
@@ -4922,7 +5387,7 @@
       "name": "Impresora Multifuncional B/N Nueva RICOH MP 305+",
       "description": "Multifuncional monocromática A4 Ricoh MP 305+.",
       "currency": "USD",
-      "stock": 18,
+      "stock": 5,
       "category": "Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/ab878d89-61e0-4e51-a941-03455e1da407.webp?v=1784112813940",
@@ -4930,7 +5395,7 @@
       "purchase_price_usd": 610,
       "created_at": "2026-06-25T00:00:00.000Z",
       "prices": {
-        "public": 1099,
+        "public": 1069,
         "tecnico": 889,
         "mayorista": 809,
         "distribuidor": 939
@@ -4998,7 +5463,7 @@
         },
         {
           "warehouse_id": "1931",
-          "quantity": 18
+          "quantity": 5
         },
         {
           "warehouse_id": "principal",
@@ -5491,7 +5956,7 @@
       "image_url": "/products/b32a43a1-09e4-49f6-8950-3639c9534700.webp?v=1784112813935",
       "gallery": [],
       "prices": {
-        "public": 2099,
+        "public": 2119,
         "tecnico": 1869,
         "mayorista": 1829,
         "distribuidor": 1919
@@ -5852,7 +6317,7 @@
       "purchase_price_usd": 720,
       "created_at": "2026-06-25T00:00:00.000Z",
       "prices": {
-        "public": 549,
+        "public": 519,
         "tecnico": 399,
         "mayorista": 409,
         "distribuidor": 449
@@ -5990,13 +6455,13 @@
       "id": "c0ad567a-6ad7-4857-a087-fd574a903a04",
       "name": "Impresora Multifuncional Nueva RICOH IM 5000 (SPDF)",
       "currency": "USD",
-      "stock": 2,
+      "stock": 1,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/c0ad567a-6ad7-4857-a087-fd574a903a04.webp?v=1784093077030",
       "gallery": [],
       "prices": {
-        "public": 7399,
+        "public": 7149,
         "tecnico": 6899,
         "mayorista": 6699,
         "distribuidor": 6999
@@ -6071,7 +6536,7 @@
         },
         {
           "warehouse_id": "1931",
-          "quantity": 2
+          "quantity": 1
         },
         {
           "warehouse_id": "principal",
@@ -6171,7 +6636,7 @@
       "image_url": "/products/c44519d7-f600-43e5-8c08-b51f56d88b03.webp?v=1784112813942",
       "gallery": [],
       "prices": {
-        "public": 12890,
+        "public": 12240,
         "tecnico": 11990,
         "mayorista": 11890,
         "distribuidor": 12090
@@ -6510,7 +6975,7 @@
       "image_url": "/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp?v=1784112813940",
       "gallery": [],
       "prices": {
-        "public": 1199,
+        "public": 1049,
         "tecnico": 899,
         "mayorista": 949,
         "distribuidor": 949
@@ -7363,7 +7828,7 @@
       "image_url": "/products/e1bffdf0-3515-468e-859a-990d1cb12561.webp?v=1784095816079",
       "gallery": [],
       "prices": {
-        "public": 14490,
+        "public": 13869,
         "tecnico": 13619,
         "mayorista": 13500,
         "distribuidor": 13719
@@ -7981,8 +8446,8 @@
       "image_url": "/products/ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2.webp?v=1784093015135",
       "gallery": [],
       "prices": {
-        "public": 26590,
-        "tecnico": 24800,
+        "public": 25000,
+        "tecnico": 24700,
         "mayorista": 24300,
         "distribuidor": 24850
       },
@@ -8007,17 +8472,27 @@
         {
           "id": "a3abec29-16b3-4c79-8948-6c740fd9a219",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "Doble Scan"
         },
         {
           "id": "9dfff131-ad78-479f-9e0a-6ca0c65bdbaa",
           "name": "Modelo de equipo",
-          "value": "IM-9000"
+          "value": "IM 9000 (SPDF)"
         },
         {
           "id": "23528eba-906f-46e6-a38c-dc8a02143603",
           "name": "Instalación",
           "value": "• TONER [841332]\n• Developer Type 24 Black [B0649645]\nCoste instalación — Compra: $146.07 | Mayorista: $169.99 | Técnico: $178.48 | Público: $196.34\nPaquete instalado — Compra: $15792.90 | Mayorista: $17855.90 | Técnico: $18748.90 | Público: $20623.90"
+        },
+        {
+          "id": "ac8385c5-9991-4c38-a137-2ec17327bf87",
+          "name": "Velocidad",
+          "value": "70 ppm"
+        },
+        {
+          "id": "7b21c509-0685-4679-b38f-554496734d99",
+          "name": "Año",
+          "value": "2025"
         }
       ],
       "sort_order": 1044,
@@ -8653,7 +9128,7 @@
       "name": "Impresora Multifuncional Nueva RICOH IM 430F",
       "description": "Multifuncional monocromática A4, 40 ppm, panel táctil 10.1\".",
       "currency": "USD",
-      "stock": 35,
+      "stock": 45,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-430f.webp?v=1784112813935",
@@ -8664,8 +9139,8 @@
       "purchase_price_usd": 1127.18,
       "created_at": "2026-05-15T00:00:00.000Z",
       "prices": {
-        "public": 1099,
-        "tecnico": 919,
+        "public": 1079,
+        "tecnico": 899,
         "mayorista": 899,
         "distribuidor": 969
       },
@@ -8720,7 +9195,7 @@
         },
         {
           "warehouse_id": "1931",
-          "quantity": 35
+          "quantity": 45
         },
         {
           "warehouse_id": "principal",
@@ -61551,10 +62026,10 @@
     {
       "id": "2177d10d-b23c-4383-aa33-2eb3393de4e0",
       "code": "IM-6010",
-      "name": "Impresora Multifuncional NUEVA RICOH IM 6010",
+      "name": "Impresora Multifuncional NUEVA RICOH IM 6010 (ARDF)",
       "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nARDF / Mueble\nFormato A3\nProducción mensual alta\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 2,
+      "stock": 1,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/8e90c732-c859-49a5-bbba-7cfa3ac12a9c.webp",
@@ -61567,7 +62042,7 @@
       "sort_order": 1018,
       "slug": "impresora-multifuncional-nueva-ricoh-im-6010-2177d10d-b23",
       "prices": {
-        "public": 9179,
+        "public": 8749,
         "mayorista": 8329,
         "tecnico": 8499,
         "distribuidor": 8599
@@ -61597,20 +62072,33 @@
           "id": "cf5ad5d7-d850-4c95-9e18-9f966d14fec6",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "a4926ae1-33c1-49e3-ab09-21d64958bbff",
+          "name": "Variante",
+          "value": "ARDF"
+        },
+        {
+          "id": "646301f8-bcd2-444d-8c88-93b0f37206ae",
+          "name": "Alimentador (ADF)",
+          "value": "ARDF"
         }
       ],
       "stock_by_warehouse": [
         {
           "warehouse_id": "principal",
-          "quantity": 2
+          "quantity": 1
         }
+      ],
+      "variant_product_ids": [
+        "7459b432-72a0-420a-8bff-015a0072f5ac"
       ]
     },
     {
       "id": "7459b432-72a0-420a-8bff-015a0072f5ac",
       "code": "423796",
       "name": "Impresora Multifuncional Nueva RICOH IM 6010 (SPDF)",
-      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nARDF / Mueble\nFormato A3\nProducción mensual alta\nRegalo: Envío Gratis",
+      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador doble scan / Mueble\nFormato A3\nProducción mensual alta\nRegalo: Envío Gratis",
       "currency": "USD",
       "stock": 1,
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -61621,7 +62109,7 @@
       "sort_order": 43,
       "slug": "impresora-multifuncional-nueva-ricoh-im-6010-7459b432-72a",
       "prices": {
-        "public": 9179,
+        "public": 8749,
         "tecnico": 8499,
         "mayorista": 8329,
         "distribuidor": 8599
@@ -61656,6 +62144,11 @@
           "id": "7c5f679c-a540-44ca-aa33-9985b19730f3",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "a706dcf6-7df3-48a3-a580-cbaf0e51d8aa",
+          "name": "Variante",
+          "value": "SPDF"
         }
       ],
       "status": "activa",
@@ -61830,6 +62323,85 @@
       ],
       "purchase_price_usd": 31182,
       "variant_product_ids": []
+    },
+    {
+      "id": "ricoh-mp-cw2201-sn",
+      "code": "CW2201-SN",
+      "name": "Impresora Multifuncional de Planos Seminueva RICOH MP CW2201 (120v)",
+      "description": "Multifuncional de planos Ricoh MP CW2201 seminueva.\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador doble scan\nFormato ancho · 120V",
+      "currency": "USD",
+      "stock": 2,
+      "category": "Formato Ancho Seminuevos",
+      "brand": "Ricoh",
+      "image_url": "/products/plotter-laser-color-ricoh-im-cw2200.webp?v=1784229087695",
+      "gallery": [],
+      "prices": {
+        "tecnico": 2499,
+        "mayorista": 2299,
+        "distribuidor": 2675,
+        "public": 2799
+      },
+      "created_at": "2026-08-29T20:35:00.000Z",
+      "attributes": [
+        {
+          "id": "cw2201-color",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "cw2201-formato",
+          "name": "Formato papel",
+          "value": "Ancho"
+        },
+        {
+          "id": "cw2201-modelo",
+          "name": "Modelo de equipo",
+          "value": "MP CW2201"
+        },
+        {
+          "id": "cw2201-adf",
+          "name": "Alimentador (ADF)",
+          "value": "Doble Scan"
+        },
+        {
+          "id": "cw2201-detalle",
+          "name": "Detalle lista",
+          "value": "120v"
+        },
+        {
+          "id": "cw2201-voltaje",
+          "name": "Voltaje",
+          "value": "120V"
+        }
+      ],
+      "sort_order": 1053,
+      "slug": "impresora-multifuncional-de-planos-seminueva-ricoh-mp-cw2201-ricoh-mp-cw2201-sn",
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 2
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        }
+      ]
     },
     {
       "id": "4f977d63-4903-4b1d-aff0-b2a39e7242d8",
