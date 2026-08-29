@@ -11,9 +11,13 @@ import {
 export function RentalsNavMegaMenu({
   navRow = 'default',
   showIcon = true,
+  label = 'Alquiler',
+  triggerHref,
 }: {
-  navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
+  navRow?: 'default' | 'secondary' | 'light' | 'light-compact' | 'haitech-black' | 'haitech-white';
   showIcon?: boolean;
+  label?: string;
+  triggerHref?: string;
 }) {
   const location = useLocation();
   const menu = useMemo(() => buildRentalsNavMegaMenu(), []);
@@ -21,12 +25,16 @@ export function RentalsNavMegaMenu({
 
   return (
     <StaticNavMegaMenu
-      label="Alquiler"
+      label={label}
       icon={RENTALS_NAV_MEGA_MENU_ICON}
       menu={menu}
       isRouteActive={isRouteActive}
       navRow={navRow}
       showIcon={showIcon}
+      {...(triggerHref ? { triggerHref } : {})}
+      {...(navRow === 'haitech-black' || navRow === 'haitech-white'
+        ? { mockupMenuKind: 'alquiler' as const }
+        : {})}
     />
   );
 }

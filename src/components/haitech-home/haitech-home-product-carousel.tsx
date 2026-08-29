@@ -13,7 +13,7 @@ const SLIDE =
   'min-w-0 shrink-0 flex-[0_0_calc((100%-0.625rem)/1.15)] sm:flex-[0_0_calc((100%-0.75rem)/2.15)] md:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-4rem)/5)]';
 
 const arrowClass =
-  'absolute top-[42%] z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full text-white shadow-[0_6px_16px_rgba(227,6,19,0.35)] transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 disabled:pointer-events-none disabled:opacity-35 sm:flex sm:size-10 sm:top-[210px]';
+  'absolute top-[42%] z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#EAEAEA] bg-white text-[#E30613] shadow-[0_2px_10px_rgba(15,31,61,0.10)] transition-all duration-200 hover:scale-105 hover:border-[#E30613]/30 hover:shadow-[0_4px_14px_rgba(15,31,61,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35 disabled:pointer-events-none disabled:opacity-30 sm:flex sm:size-10 sm:top-[228px]';
 
 export function HaitechHomeProductCarousel({
   products,
@@ -64,7 +64,7 @@ export function HaitechHomeProductCarousel({
   if (products.length === 0) return null;
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative px-0 sm:px-8 lg:px-10', className)}>
       <div className="overflow-hidden" ref={emblaRef}>
         <ul className={cn('flex', GAP)} role="list" aria-label={ariaLabel}>
           {products.map((product) => (
@@ -79,23 +79,21 @@ export function HaitechHomeProductCarousel({
         <>
           <button
             type="button"
-            className={cn(arrowClass, 'left-0 sm:-left-3 lg:-left-4')}
-            style={{ backgroundColor: '#E30613' }}
+            className={cn(arrowClass, 'left-0 sm:-left-4 lg:-left-5')}
             aria-label="Productos anteriores"
             disabled={!canScrollPrev}
             onClick={scrollPrev}
           >
-            <ChevronLeft className="size-5" aria-hidden="true" />
+            <ChevronLeft className="size-5" strokeWidth={2} aria-hidden="true" />
           </button>
           <button
             type="button"
-            className={cn(arrowClass, 'right-0 sm:-right-3 lg:-right-4')}
-            style={{ backgroundColor: '#E30613' }}
+            className={cn(arrowClass, 'right-0 sm:-right-4 lg:-right-5')}
             aria-label="Productos siguientes"
             disabled={!canScrollNext}
             onClick={scrollNext}
           >
-            <ChevronRight className="size-5" aria-hidden="true" />
+            <ChevronRight className="size-5" strokeWidth={2} aria-hidden="true" />
           </button>
         </>
       ) : null}

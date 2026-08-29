@@ -1,7 +1,9 @@
-import { lazy, Suspense, useState } from 'react';
-import { Menu } from 'lucide-react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { ChevronDown, Menu } from 'lucide-react';
 
 import {
+  haitechBlackSubmenuTriggerClass,
+  haitechWhiteSubmenuTriggerClass,
   MAIN_NAV_CATEGORIES_BUTTON_CLASS,
   MAIN_NAV_ICON_CLASS,
 } from '@/components/layout/main-nav-styles';
@@ -15,18 +17,23 @@ const CategoriesMegaMenu = lazy(() =>
 
 type DeferredCategoriesMegaMenuProps = {
   triggerVariant?: 'button' | 'nav' | 'categories-button' | 'brand-red';
-  navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
+  navRow?: 'default' | 'secondary' | 'light' | 'light-compact' | 'haitech-black' | 'haitech-white';
   showIcon?: boolean;
   label?: string;
+  /** Precarga el mega menú (p. ej. nav HAITECH donde el clic debe abrir al primer intento). */
+  eager?: boolean;
+  triggerHref?: string;
 };
 
 function MegaMenuTriggerShell({
   label = 'Categorías',
   triggerVariant = 'button',
+  navRow,
   className,
 }: {
   label?: string;
   triggerVariant?: DeferredCategoriesMegaMenuProps['triggerVariant'];
+  navRow?: DeferredCategoriesMegaMenuProps['navRow'];
   className?: string;
 }) {
   if (triggerVariant === 'brand-red') {
@@ -35,7 +42,7 @@ function MegaMenuTriggerShell({
         type="button"
         aria-label={label}
         className={cn(
-          'inline-flex h-[38px] items-center gap-1.5 bg-[#E30613] px-3.5 text-[13px] font-normal text-white',
+          'inline-flex h-[38px] items-center gap-1.5 bg-[#E30613] px-3.5 text-[13px] font-semibold text-white',
           'transition-colors hover:bg-[#c90511]',
           className,
         )}
@@ -58,6 +65,36 @@ function MegaMenuTriggerShell({
     );
   }
 
+  if (triggerVariant === 'nav') {
+    if (navRow === 'haitech-white' || navRow === 'haitech-black') {
+      const triggerClass =
+        navRow === 'haitech-white'
+          ? haitechWhiteSubmenuTriggerClass(false, false)
+          : haitechBlackSubmenuTriggerClass(false, false);
+
+      return (
+        <button type="button" aria-label={label} className={cn(triggerClass, className)}>
+          {label}
+          <ChevronDown className="size-3.5 shrink-0 opacity-80" aria-hidden="true" />
+        </button>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        aria-label={label}
+        className={cn(
+          'inline-flex h-8 items-center gap-1.5 px-2 text-sm font-semibold text-[#111111] hover:bg-black/5',
+          className,
+        )}
+      >
+        <Menu className="size-4" aria-hidden="true" />
+        <span>{label}</span>
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
@@ -74,19 +111,28 @@ function MegaMenuTriggerShell({
 }
 
 /** Mega-menú: placeholder hasta intent; no entra en el chunk crítico del header. */
-export function DeferredCategoriesMegaMenu(props: DeferredCategoriesMegaMenuProps) {
-  const [ready, setReady] = useState(false);
+export function DeferredCategoriesMegaMenu({
+  eager = false,
+  ...props
+}: DeferredCategoriesMegaMenuProps) {
+  const [ready, setReady] = useState(eager);
   const warm = () => setReady(true);
+
+  useEffect(() => {
+    if (eager) setReady(true);
+  }, [eager]);
+
   const shellProps = {
     ...(props.label ? { label: props.label } : {}),
     ...(props.triggerVariant ? { triggerVariant: props.triggerVariant } : {}),
+    ...(props.navRow ? { navRow: props.navRow } : {}),
   };
 
   if (!ready) {
     return (
       <span
         className={cn(
-          'inline-flex',
+          'inline-flex items-stretch',
           (props.triggerVariant === 'categories-button' ||
             props.triggerVariant === 'brand-red') &&
             'flex self-stretch',

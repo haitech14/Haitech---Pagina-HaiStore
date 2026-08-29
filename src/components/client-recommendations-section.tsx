@@ -21,6 +21,9 @@ const CAROUSEL_GAP_CLASS = 'gap-3';
 /** 2 móvil · 4 desde sm (por vista). */
 const SLIDE_CLASS =
   'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] sm:flex-[0_0_calc((100%-2.25rem)/4)]';
+/** Home embebido: 2 móvil · 3 tablet · 5 desktop. */
+const EMBEDDED_SLIDE_CLASS =
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] sm:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-3rem)/5)]';
 
 const carouselArrowClass =
   'absolute top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-white text-foreground shadow-md transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-35 sm:size-9';
@@ -29,10 +32,12 @@ function RecommendationCard({
   item,
   onOpen,
   className,
+  compact = false,
 }: {
   item: ClientRecommendation;
   onOpen: (item: ClientRecommendation) => void;
   className?: string;
+  compact?: boolean;
 }) {
   const { webpSrc, fallbackSrc } = recommendationImageSources(item.image);
 
@@ -41,7 +46,8 @@ function RecommendationCard({
       type="button"
       onClick={() => onOpen(item)}
       className={cn(
-        'group relative w-full overflow-hidden rounded-xl border border-border/60 bg-muted aspect-[4/5]',
+        'group relative w-full overflow-hidden rounded-xl border border-border/60 bg-[#f3f3f3]',
+        compact ? 'aspect-[4/5]' : 'aspect-[4/5]',
         'shadow-[0_2px_16px_rgba(15,31,61,0.08)] transition-shadow hover:shadow-[0_4px_24px_rgba(15,31,61,0.12)]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
         className,
@@ -54,7 +60,10 @@ function RecommendationCard({
           alt=""
           width={320}
           height={400}
-          className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          className={cn(
+            'size-full transition-transform duration-300 group-hover:scale-[1.02]',
+            compact ? 'object-contain object-center' : 'object-cover',
+          )}
           loading="lazy"
         />
       </picture>
@@ -153,9 +162,9 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
     };
   }, [emblaApi]);
 
-  const visibleRecommendations = embedded
-    ? clientRecommendations.slice(0, 6)
-    : clientRecommendations;
+  const visibleRecommendations = clientRecommendations;
+  const slideClass = embedded ? EMBEDDED_SLIDE_CLASS : SLIDE_CLASS;
+  const showCarouselChrome = embedded || scrollSnaps.length > 1;
 
   return (
     <section
@@ -166,7 +175,7 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
         embedded ? 'py-3 sm:py-4' : 'py-5 sm:py-6',
       )}
     >
-      <div className="container relative">
+      <div className={cn('relative', embedded ? 'w-full' : 'container')}>
         {embedded ? null : (
           <header className="mx-auto mb-4 max-w-3xl text-center sm:mb-5">
             <div className="flex items-center justify-center gap-3 sm:gap-4">
@@ -191,8 +200,8 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
           </header>
         )}
 
-        <div className={cn('relative', scrollSnaps.length > 1 && 'px-9 sm:px-11')}>
-          {scrollSnaps.length > 1 ? (
+        <div className={cn('relative', showCarouselChrome && 'px-10 sm:px-12')}>
+          {showCarouselChrome ? (
             <>
               <button
                 type="button"
@@ -201,7 +210,7 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
                 className={cn(carouselArrowClass, 'left-0')}
                 aria-label="Testimonio anterior"
               >
-                <ChevronLeft className="size-4" aria-hidden="true" />
+                <ChevronLeft className="size-4 sm:size-5" aria-hidden="true" />
               </button>
               <button
                 type="button"
@@ -210,7 +219,7 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
                 className={cn(carouselArrowClass, 'right-0')}
                 aria-label="Testimonio siguiente"
               >
-                <ChevronRight className="size-4" aria-hidden="true" />
+                <ChevronRight className="size-4 sm:size-5" aria-hidden="true" />
               </button>
             </>
           ) : null}
@@ -218,14 +227,18 @@ export function ClientRecommendationsSection({ embedded = false }: { embedded?: 
           <div className="overflow-hidden" ref={emblaRef}>
             <ul className={cn('flex touch-pan-y', CAROUSEL_GAP_CLASS)}>
               {visibleRecommendations.map((item) => (
-                <li key={item.id} className={SLIDE_CLASS}>
-                  <RecommendationCard item={item} onOpen={setLightboxItem} />
+                <li key={item.id} className={slideClass}>
+                  <RecommendationCard
+                    item={item}
+                    onOpen={setLightboxItem}
+                    compact={embedded}
+                  />
                 </li>
               ))}
             </ul>
           </div>
 
-          {scrollSnaps.length > 1 ? (
+          {showCarouselChrome && scrollSnaps.length > 1 ? (
             <div
               className="mt-4 flex items-center justify-center gap-1.5 sm:mt-5"
               role="tablist"

@@ -7,26 +7,41 @@ const TRUST_ITEMS: readonly {
   id: string;
   title: string;
   icon: LucideIcon;
+  color: string;
+  fill: string;
+  glow: string;
 }[] = [
   {
     id: 'envios',
     title: 'Envíos a todo el Perú',
     icon: Truck,
+    color: '#059669',
+    fill: '#A7F3D0',
+    glow: 'rgba(5,150,105,0.18)',
   },
   {
     id: 'soporte',
     title: 'Soporte técnico especializado',
     icon: Headphones,
+    color: '#7C3AED',
+    fill: '#DDD6FE',
+    glow: 'rgba(124,58,237,0.18)',
   },
   {
     id: 'repuestos',
     title: 'Repuestos y consumibles',
     icon: Settings,
+    color: '#2563EB',
+    fill: '#BFDBFE',
+    glow: 'rgba(37,99,235,0.18)',
   },
   {
     id: 'compra',
     title: 'Compra segura y garantizada',
     icon: CreditCard,
+    color: '#D97706',
+    fill: '#FDE68A',
+    glow: 'rgba(217,119,6,0.18)',
   },
 ];
 
@@ -43,7 +58,18 @@ export function HaitechHomeMobileTrustStrip({ className }: { className?: string 
             const Icon = item.icon;
             return (
               <li key={item.id} className="flex flex-col items-center gap-1.5 px-0.5 text-center">
-                <Icon className="size-6 text-[#111]" strokeWidth={1.5} aria-hidden="true" />
+                <span
+                  className="flex size-10 items-center justify-center rounded-full"
+                  style={{ background: `radial-gradient(circle, ${item.glow} 0%, transparent 70%)` }}
+                >
+                  <Icon
+                    className="size-6"
+                    strokeWidth={1.6}
+                    style={{ color: item.color }}
+                    fill={item.fill}
+                    aria-hidden="true"
+                  />
+                </span>
                 <span className="text-[9px] font-medium leading-tight text-[#222]">{item.title}</span>
               </li>
             );

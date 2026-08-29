@@ -466,7 +466,18 @@ export const router = createBrowserRouter([
       {
         path: 'tienda',
         element: withSuspense(<StorefrontRoutePage />),
-        loader: () => prefetchStoreRoute(queryClient),
+        loader: ({ request }) => {
+          const url = new URL(request.url);
+          const estado = url.searchParams.get('estado');
+          // Evita ?estado= vacío (doble render) y fuerza Nuevas en storefront equipos.
+          if (!estado || estado === 'all') {
+            url.searchParams.set('estado', 'nuevas');
+            prefetchStoreRoute(queryClient);
+            return redirect(`${url.pathname}?${url.searchParams.toString()}${url.hash}`);
+          }
+          prefetchStoreRoute(queryClient);
+          return null;
+        },
       },
       { path: 'servicios', element: withSuspense(<ServiciosPage />) },
       { path: 'servicios/:slug', element: withSuspense(<ServicioDetallePage />) },

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, Package } from 'lucide-react';
 
 import { CatalogMegaMenuPanel } from '@/components/layout/catalog-mega-menu-panel';
+import { HaitechMockupMegaMenuPanel } from '@/components/layout/haitech-mockup-mega-menu-panel';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PRODUCTOS_NAV_SUBMENU } from '@/data/header-nav-submenus';
+import { EQUIPOS_MEGA_MENU_MOCKUP } from '@/data/haitech-mega-menu-mockup';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { buildDesktopMegaMenuColumns, buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
@@ -26,6 +28,8 @@ import {
   MAIN_NAV_ICON_COMPACT_CLASS,
   darkNavSecondarySubmenuTriggerClass,
   darkNavSubmenuTriggerClass,
+  haitechBlackSubmenuTriggerClass,
+  haitechWhiteSubmenuTriggerClass,
   lightNavSubmenuTriggerClass,
   lightNavSubmenuTriggerCompactClass,
   MEGA_MENU_DROPDOWN_CLASS,
@@ -36,11 +40,19 @@ import { cn } from '@/lib/utils';
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
+function isHaitechClickNavRow(
+  navRow: CategoriesMegaMenuProps['navRow'],
+): navRow is 'haitech-black' | 'haitech-white' {
+  return navRow === 'haitech-black' || navRow === 'haitech-white';
+}
+
 interface CategoriesMegaMenuProps {
   triggerVariant?: 'button' | 'nav' | 'categories-button' | 'brand-red';
-  navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
+  navRow?: 'default' | 'secondary' | 'light' | 'light-compact' | 'haitech-black' | 'haitech-white';
   showIcon?: boolean;
   label?: string;
+  /** Si se define, el clic navega a esta ruta (el menú se abre al hover). */
+  triggerHref?: string;
 }
 
 export function CategoriesMegaMenu({
@@ -48,6 +60,7 @@ export function CategoriesMegaMenu({
   navRow = 'default',
   showIcon = true,
   label = 'Equipos',
+  triggerHref,
 }: CategoriesMegaMenuProps) {
   const location = useLocation();
   const isCatalogRoute = PRODUCTOS_NAV_SUBMENU.matchActive(location);
@@ -65,10 +78,14 @@ export function CategoriesMegaMenu({
     [menu],
   );
 
+  const clickOnlyNav = isHaitechClickNavRow(navRow);
+  const enableHover = !clickOnlyNav || Boolean(triggerHref);
+
   const columnGroups = useMemo(() => {
+    if (clickOnlyNav) return allColumnGroups;
     const group = allColumnGroups.find((item) => item.slug === activeCategorySlug);
     return group ? [group] : [];
-  }, [allColumnGroups, activeCategorySlug]);
+  }, [activeCategorySlug, allColumnGroups, clickOnlyNav]);
 
   const featuredContent = useMemo(
     () => menu.getFeaturedContent(activeCategorySlug),
@@ -130,6 +147,19 @@ export function CategoriesMegaMenu({
 
   const closeMenu = () => setOpen(false);
 
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      if (next && triggerHref) return;
+      if (next) {
+        clearCloseTimer();
+        updateMenuWidth();
+        setActiveCategorySlug(menu.defaultCategorySlug);
+      }
+      setOpen(next);
+    },
+    [clearCloseTimer, menu.defaultCategorySlug, triggerHref, updateMenuWidth],
+  );
+
   const navTriggerClass =
     navRow === 'light-compact'
       ? lightNavSubmenuTriggerCompactClass
@@ -137,40 +167,82 @@ export function CategoriesMegaMenu({
         ? lightNavSubmenuTriggerClass
         : navRow === 'secondary'
           ? darkNavSecondarySubmenuTriggerClass
-          : darkNavSubmenuTriggerClass;
+          : navRow === 'haitech-white'
+            ? haitechWhiteSubmenuTriggerClass
+            : navRow === 'haitech-black'
+              ? haitechBlackSubmenuTriggerClass
+              : darkNavSubmenuTriggerClass;
 
   const navIconClass =
     navRow === 'light-compact'
       ? MAIN_NAV_ICON_COMPACT_CLASS
-      : navRow === 'light'
+      : navRow === 'light' || navRow === 'haitech-white'
         ? MAIN_NAV_ICON_CLASS
         : DARK_NAV_ICON_CLASS;
 
   const panelClassName = MEGA_MENU_DROPDOWN_CLASS;
   const panelStyle = megaMenuDropdownStyle(menuLayout);
+  const useHaitechMockupPanel = clickOnlyNav;
+
+  const mockupPanel = useHaitechMockupPanel ? (
+    <HaitechMockupMegaMenuPanel data={EQUIPOS_MEGA_MENU_MOCKUP} onNavigate={closeMenu} />
+  ) : null;
+
+  const catalogPanel = (
+    <CatalogMegaMenuPanel
+      activeCategorySlug={activeCategorySlug}
+      onCategoryChange={setActiveCategorySlug}
+      sidebarItems={menu.sidebarItems}
+      columnGroups={columnGroups}
+      featuredContent={featuredContent}
+      onNavigate={closeMenu}
+      desktopContentMode={clickOnlyNav ? 'grid' : 'summary'}
+      activeCategoryLabels={activeCategoryLabels}
+    />
+  );
 
   if (triggerVariant === 'nav') {
+    const hoverProps = enableHover
+      ? {
+          onMouseEnter: openMenu,
+          onMouseLeave: scheduleClose,
+          onFocus: openMenu,
+        }
+      : {};
+
     return (
-      <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-        <div
-          ref={(node) => {
-            triggerRef.current = node;
-          }}
-          onMouseEnter={openMenu}
-          onMouseLeave={scheduleClose}
-          className={navTriggerClass(isCatalogRoute, open)}
-        >
-          <DropdownMenuTrigger asChild>
+      <DropdownMenu open={open} onOpenChange={handleOpenChange} modal={false}>
+        <DropdownMenuTrigger asChild>
+          {triggerHref ? (
+            <Link
+              ref={(node) => {
+                triggerRef.current = node;
+              }}
+              to={triggerHref}
+              aria-label={label}
+              aria-haspopup="true"
+              aria-expanded={open}
+              {...hoverProps}
+              onClick={closeMenu}
+              className={navTriggerClass(isCatalogRoute, open)}
+            >
+              {showIcon ? (
+                <Package className={navIconClass} strokeWidth={1.75} aria-hidden="true" />
+              ) : null}
+              {label}
+              <HeaderNavChevron navRow={navRow} open={open} />
+            </Link>
+          ) : (
             <button
+              ref={(node) => {
+                triggerRef.current = node;
+              }}
               type="button"
               aria-label={label}
               aria-haspopup="true"
               aria-expanded={open}
-              onFocus={openMenu}
-              onClick={() => {
-                clearCloseTimer();
-              }}
-              className="inline-flex items-center gap-1.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              {...hoverProps}
+              className={navTriggerClass(isCatalogRoute, open)}
             >
               {showIcon ? (
                 <Package className={navIconClass} strokeWidth={1.75} aria-hidden="true" />
@@ -178,31 +250,26 @@ export function CategoriesMegaMenu({
               {label}
               <HeaderNavChevron navRow={navRow} open={open} />
             </button>
-          </DropdownMenuTrigger>
-        </div>
+          )}
+        </DropdownMenuTrigger>
 
         <DropdownMenuContent
           align="start"
           side="bottom"
-          sideOffset={0}
+          sideOffset={navRow === 'haitech-black' ? 0 : 4}
           alignOffset={0}
           avoidCollisions={false}
-          onMouseEnter={openMenu}
-          onMouseLeave={scheduleClose}
+          {...(enableHover
+            ? {
+                onMouseEnter: openMenu,
+                onMouseLeave: scheduleClose,
+              }
+            : {})}
           onCloseAutoFocus={(event) => event.preventDefault()}
           className={panelClassName}
           style={panelStyle}
         >
-          <CatalogMegaMenuPanel
-            activeCategorySlug={activeCategorySlug}
-            onCategoryChange={setActiveCategorySlug}
-            sidebarItems={menu.sidebarItems}
-            columnGroups={columnGroups}
-            featuredContent={featuredContent}
-            onNavigate={closeMenu}
-            desktopContentMode="summary"
-            activeCategoryLabels={activeCategoryLabels}
-          />
+          {useHaitechMockupPanel ? mockupPanel : catalogPanel}
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -224,7 +291,7 @@ export function CategoriesMegaMenu({
             onMouseLeave={scheduleClose}
             onFocus={openMenu}
             className={cn(
-              'inline-flex h-[38px] items-center gap-1.5 bg-[#E30613] px-3.5 text-[13px] font-normal text-white',
+              'inline-flex h-[38px] items-center gap-1.5 bg-[#E30613] px-3.5 text-[13px] font-semibold text-white',
               'transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
               (open || isCatalogRoute) && 'bg-[#c90511]',
             )}
@@ -289,16 +356,7 @@ export function CategoriesMegaMenu({
         className={panelClassName}
         style={panelStyle}
       >
-        <CatalogMegaMenuPanel
-          activeCategorySlug={activeCategorySlug}
-          onCategoryChange={setActiveCategorySlug}
-          sidebarItems={menu.sidebarItems}
-          columnGroups={columnGroups}
-          featuredContent={featuredContent}
-          onNavigate={closeMenu}
-          desktopContentMode="summary"
-          activeCategoryLabels={activeCategoryLabels}
-        />
+        {useHaitechMockupPanel ? mockupPanel : catalogPanel}
       </DropdownMenuContent>
     </DropdownMenu>
   );

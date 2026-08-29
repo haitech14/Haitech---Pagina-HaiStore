@@ -19,7 +19,7 @@ function ClientLogo({ client }: { client: Client }) {
   return (
     <div
       className={cn(
-        'flex h-14 w-full items-center justify-center rounded-lg border border-border/50 bg-white px-2.5 shadow-sm sm:h-16 md:h-[4.25rem]',
+        'flex h-20 w-full items-center justify-center rounded-lg border border-border/50 bg-white px-3 py-2 shadow-sm sm:h-24 md:h-28 lg:h-[7.5rem]',
         client.logoSurface === 'dark' && 'bg-neutral-950',
       )}
     >
@@ -32,8 +32,8 @@ function ClientLogo({ client }: { client: Client }) {
               <img
                 src={fallbackSrc}
                 alt={client.logoAlt}
-                width={160}
-                height={80}
+                width={200}
+                height={112}
                 className="max-h-full max-w-full object-contain object-center"
                 loading="lazy"
                 onError={() => setLogoError(true)}

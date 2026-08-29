@@ -1,6 +1,9 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- sin @types/compression en el proyecto
+// @ts-ignore
+import compression from 'compression';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -20,10 +23,24 @@ function buildAllowedHosts(): true | string[] {
   return ['localhost', '127.0.0.1', hostname, `${hostname}.local`];
 }
 
+/** Gzip en dev/preview: inventory-index (~1.3MB) y estáticos grandes por LAN. */
+function devCompressionPlugin(): Plugin {
+  return {
+    name: 'haistore-dev-compression',
+    configureServer(server) {
+      server.middlewares.use(compression());
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(compression());
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    devCompressionPlugin(),
     // Optimización de imágenes en build con Sharp.
     ViteImageOptimizer({
       includePublic: true,

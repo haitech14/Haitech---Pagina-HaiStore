@@ -3,6 +3,15 @@
 /** Ruta canónica del logo (sincronizada desde `public/logos/Logo Haitech.png`). */
 export const SITE_LOGO_ASSET_PATH = '/logo.png';
 
+/** Logo HAITECH oscuro (trazo negro) para cabecera y fondos claros. */
+export const SITE_STOREFRONT_HEADER_LOGO_DARK_PATH = '/logo.png';
+
+/** Logo HAITECH claro (trazo blanco) para footer y fondos oscuros. */
+export const SITE_STOREFRONT_HEADER_LOGO_PATH = '/logoclaro.png';
+
+/** Rojo marca RICOH en lockups de cabecera. */
+export const SITE_RICOH_BRAND_RED = '#E30613';
+
 /** Copia con nombre estable (sin espacios) para PDFs / enlaces externos. */
 export const SITE_LOGO_HAITECH_PATH = '/logo-haitech.png';
 

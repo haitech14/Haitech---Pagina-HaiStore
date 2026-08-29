@@ -1,4 +1,5 @@
 import { categoryLandingPath } from '@/lib/category-path';
+import { productPath } from '@/lib/product-path';
 
 /** Tokens visuales home ecommerce HAITECH. */
 export const HAITECH_SHOP = {
@@ -12,7 +13,7 @@ export const HAITECH_SHOP = {
   promoGreenBg: '#E8F8EE',
   promoGreenText: '#1B7A3D',
   discountRed: '#E30613',
-  maxWidth: '1400px',
+  maxWidth: '1500px',
 } as const;
 
 export type HaitechShopProductTabId =
@@ -28,10 +29,10 @@ export type HaitechShopFeatureId = 'copia' | 'escanea' | 'imprime' | 'rendimient
 export const HAITECH_SHOP_PRODUCT_TABS: readonly {
   id: HaitechShopProductTabId;
   label: string;
-  icon: 'star' | 'flame' | 'printer' | 'monitor' | 'droplet' | 'package';
+  icon: 'star' | 'chart' | 'printer' | 'monitor' | 'droplet' | 'package';
 }[] = [
   { id: 'ofertas', label: 'Ofertas top', icon: 'star' },
-  { id: 'mas-vendidos', label: 'Más vendidos', icon: 'flame' },
+  { id: 'mas-vendidos', label: 'Más vendidos', icon: 'chart' },
   { id: 'multifuncionales', label: 'Multifuncionales', icon: 'printer' },
   { id: 'impresoras', label: 'Impresoras', icon: 'monitor' },
   { id: 'toner', label: 'Tóner', icon: 'droplet' },
@@ -142,7 +143,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
       monthlyYield: '20.000 pág/mes',
     },
     tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales'],
-    href: categoryLandingPath('multifuncionales'),
+    href: productPath('ricoh-im-430f'),
   },
   {
     id: 'im-550f',
@@ -163,7 +164,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
       monthlyYield: '30.000 pág/mes',
     },
     tabIds: ['ofertas', 'multifuncionales'],
-    href: categoryLandingPath('multifuncionales'),
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-550f-e1db5bdf73fb'),
   },
   {
     id: 'm-320f',
@@ -182,8 +183,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
       scannerType: 'ARDF',
       monthlyYield: '3.500 pág/mes',
     },
-    tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales', 'impresoras'],
-    href: categoryLandingPath('impresoras'),
+    tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales'],
+    href: productPath('impresora-multifuncional-b-n-nueva-ricoh-m-320f-2df02df8c75e'),
   },
   {
     id: 'im-460f',
@@ -202,7 +203,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
       monthlyYield: '20.000 pág/mes',
     },
     tabIds: ['mas-vendidos', 'multifuncionales'],
-    href: categoryLandingPath('multifuncionales'),
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-460f-eb3d259fadb5'),
   },
   {
     id: 'toner-im430',
@@ -220,7 +221,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
       colorLabel: 'Negro',
     },
     tabIds: ['ofertas', 'toner', 'mas-vendidos', 'accesorios'],
-    href: categoryLandingPath('toner-suministros'),
+    href: productPath('419078'),
   },
   {
     id: 'toner-im550',
@@ -229,8 +230,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     image: '/products/ricoh-im-550f-im-600f-rend-40-000.webp',
     colorSwatch: '#1a1a1a',
     colorLabel: 'Negro',
-    price: 112.9,
-    compareAt: 139,
+    price: 547.2,
+    compareAt: 680.58,
     discountLabel: '19% DSCT',
     promoTag: '+ REGALO',
     toner: {
@@ -239,7 +240,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
       colorLabel: 'Negro',
     },
     tabIds: ['ofertas', 'toner', 'accesorios'],
-    href: categoryLandingPath('toner-suministros'),
+    href: productPath('418480'),
   },
   {
     id: 'mc320fw',
@@ -257,8 +258,45 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
       scannerType: 'ARDF',
       monthlyYield: '3.000 pág/mes',
     },
-    tabIds: ['impresoras', 'ofertas', 'multifuncionales'],
-    href: categoryLandingPath('impresoras'),
+    tabIds: ['ofertas', 'multifuncionales'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-m-c320fw-d4dae08723e4'),
+  },
+  {
+    id: 'p-502',
+    name: 'Impresora láser RICOH P 502',
+    brand: 'RICOH',
+    image: '/products/cece2c48-e44a-4b93-a11a-7e8b244ad8ea.webp',
+    colorSwatch: '#1a1a1a',
+    price: 2390,
+    compareAt: 2699,
+    discountLabel: '11% DSCT',
+    badge: 'MÁS VENDIDO',
+    condition: 'nuevo',
+    features: ['imprime', 'rendimiento'],
+    equipment: {
+      speedPpm: '43 ppm',
+      monthlyYield: '8.000 pág/mes',
+    },
+    tabIds: ['impresoras', 'ofertas', 'mas-vendidos'],
+    href: productPath('impresora-laser-b-n-nueva-ricoh-p-502-7e8b244ad8ea'),
+  },
+  {
+    id: 'p-800',
+    name: 'Impresora láser RICOH P 800',
+    brand: 'RICOH',
+    image: '/products/73ab69b8-602b-4203-a389-070ef7bb80b0.webp',
+    colorSwatch: '#222',
+    price: 3380,
+    compareAt: 3799,
+    discountLabel: '11% DSCT',
+    condition: 'nuevo',
+    features: ['imprime', 'rendimiento'],
+    equipment: {
+      speedPpm: '60 ppm',
+      monthlyYield: '20.000 pág/mes',
+    },
+    tabIds: ['impresoras', 'ofertas'],
+    href: productPath('impresora-laser-b-n-nueva-ricoh-p-800-070ef7bb80b0'),
   },
   {
     id: 'im-c2010',
@@ -278,7 +316,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
       monthlyYield: '10.000 pág/mes',
     },
     tabIds: ['multifuncionales', 'mas-vendidos'],
-    href: categoryLandingPath('multifuncionales'),
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-c2010-95cb3256a7c1'),
   },
 ];
 
@@ -369,7 +407,7 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
       monthlyYield: '3.500 pág/mes',
     },
     tabIds: ['ofertas'],
-    href: categoryLandingPath('impresoras'),
+    href: categoryLandingPath('multifuncionales'),
   },
   {
     id: 'toner-im430-latest',

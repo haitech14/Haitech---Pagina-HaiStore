@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
+  BarChart3,
   Droplets,
-  Flame,
   Headphones,
   Lock,
   Monitor,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import { HaitechHomeProductCarousel } from '@/components/haitech-home/haitech-home-product-carousel';
+import { HAITECH_HOME } from '@/data/haitech-home-shell';
 import {
   HAITECH_SHOP,
   HAITECH_SHOP_FAVORITE_PRODUCTS,
@@ -25,7 +26,7 @@ import { cn } from '@/lib/utils';
 
 const TAB_ICONS: Record<(typeof HAITECH_SHOP_PRODUCT_TABS)[number]['icon'], LucideIcon> = {
   star: Star,
-  flame: Flame,
+  chart: BarChart3,
   printer: Printer,
   monitor: Monitor,
   droplet: Droplets,
@@ -45,7 +46,7 @@ function productsForTab(tab: HaitechShopProductTabId) {
 }
 
 /**
- * Productos destacados — mockup ¡Encuentra tu favorito en HAITECH!
+ * Productos destacados — carrusel con tabs y barra de confianza.
  */
 export function HaitechHomeFavoritesSection({ className }: { className?: string }) {
   const [active, setActive] = useState<HaitechShopProductTabId>('ofertas');
@@ -59,82 +60,77 @@ export function HaitechHomeFavoritesSection({ className }: { className?: string 
       aria-labelledby="haitech-favorites-title"
     >
       <div
-        className="mx-auto px-3 py-8 sm:px-4 sm:py-10 xl:px-6"
-        style={{ maxWidth: HAITECH_SHOP.maxWidth }}
+        className="mx-auto px-3 pb-8 pt-2 sm:px-4 sm:pb-10 sm:pt-3 lg:px-5 lg:pb-12 lg:pt-4 xl:px-6"
+        style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}
       >
-        <header className="mb-5 text-center sm:mb-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8A8A8A] sm:text-[12px]">
-            Tecnología para tu empresa
-          </p>
+        <header className="mb-5 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
           <h2
             id="haitech-favorites-title"
-            className="mt-2 font-[family-name:var(--font-infobox)] text-[22px] font-bold leading-snug text-black sm:text-[28px] lg:text-[32px]"
+            className="flex shrink-0 items-center gap-2.5 font-[family-name:var(--font-infobox)] text-[20px] font-bold text-[#111111] sm:text-[24px] lg:text-[26px]"
           >
-            ¡Encuentra tu favorito en{' '}
-            <span style={{ color: HAITECH_SHOP.brand }}>HAITECH</span>!
+            <span
+              className="inline-block h-6 w-1 shrink-0 rounded-full bg-[#E30613]"
+              aria-hidden="true"
+            />
+            Nuestros Productos Más Vendidos
           </h2>
-          <p className="mx-auto mt-2 max-w-2xl text-[13px] leading-relaxed text-[#6B6B6B] sm:text-[14px]">
-            Equipos originales Ricoh con garantía, soporte técnico y precios especiales para tu
-            negocio.
-          </p>
-        </header>
 
-        <div
-          className="mb-5 flex items-center justify-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-7 [&::-webkit-scrollbar]:hidden"
-          role="tablist"
-          aria-label="Categorías de productos destacados"
-        >
-          {HAITECH_SHOP_PRODUCT_TABS.map((tab) => {
-            const isActive = tab.id === active;
-            const TabIcon = TAB_ICONS[tab.icon];
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => setActive(tab.id)}
-                className={cn(
-                  'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold transition-colors duration-200 sm:h-10 sm:px-4 sm:text-[13px]',
-                  isActive
-                    ? 'text-white shadow-[0_6px_16px_rgba(227,6,19,0.28)]'
-                    : 'border border-[#D8D8D8] bg-white text-[#333] hover:border-[#BDBDBD]',
-                )}
-                style={isActive ? { backgroundColor: HAITECH_SHOP.brand } : undefined}
-              >
-                <TabIcon
-                  className={cn('size-3.5', isActive && tab.icon === 'star' && 'fill-white')}
-                  strokeWidth={isActive && tab.icon === 'star' ? 0 : 1.75}
-                  aria-hidden="true"
-                />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+          <div
+            className="flex items-center justify-end gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:ml-4 sm:shrink-0 [&::-webkit-scrollbar]:hidden"
+            role="tablist"
+            aria-label="Categorías de productos destacados"
+          >
+            {HAITECH_SHOP_PRODUCT_TABS.map((tab) => {
+              const isActive = tab.id === active;
+              const TabIcon = TAB_ICONS[tab.icon];
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActive(tab.id)}
+                  className={cn(
+                    'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border bg-white px-3.5 text-[12px] font-semibold transition-colors duration-200 sm:h-10 sm:px-4 sm:text-[13px]',
+                    isActive
+                      ? 'border-[#E30613] text-[#E30613]'
+                      : 'border-[#D8D8D8] text-[#666] hover:border-[#BDBDBD]',
+                  )}
+                >
+                  <TabIcon
+                    className={cn(
+                      'size-3.5',
+                      isActive ? 'text-[#E30613]' : 'text-[#888]',
+                      isActive && tab.icon === 'star' && 'fill-[#E30613]',
+                    )}
+                    strokeWidth={isActive && tab.icon === 'star' ? 0 : 1.75}
+                    aria-hidden="true"
+                  />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </header>
 
         <HaitechHomeProductCarousel
           products={products}
           ariaLabel="Productos destacados"
-          className="sm:px-1 md:px-2"
         />
 
-        <div className="mt-7 rounded-2xl border border-[#E8E8E8] bg-white px-4 py-4 shadow-[0_4px_16px_rgba(15,31,61,0.05)] sm:mt-9 sm:px-5 sm:py-5">
+        <div className="mt-8 rounded-xl bg-[#ECECEC] px-4 py-5 sm:mt-10 sm:px-6 sm:py-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
             <ul className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-3">
               {HAITECH_SHOP_TRUST_ITEMS.map((item) => {
                 const TrustIcon = TRUST_ICONS[item.icon];
                 return (
                   <li key={item.id} className="flex items-start gap-2.5">
-                    <span
-                      className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full"
-                      style={{
-                        color: HAITECH_SHOP.brand,
-                        backgroundColor: 'rgba(227,6,19,0.08)',
-                      }}
-                    >
-                      <TrustIcon className="size-4" strokeWidth={1.75} aria-hidden="true" />
-                    </span>
+                    <TrustIcon
+                      className="mt-0.5 size-[18px] shrink-0"
+                      style={{ color: HAITECH_SHOP.brand }}
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
                     <span className="min-w-0">
                       <span className="block text-[12px] font-bold text-[#111] sm:text-[13px]">
                         {item.title}
@@ -148,7 +144,7 @@ export function HaitechHomeFavoritesSection({ className }: { className?: string 
               })}
             </ul>
 
-            <div className="flex shrink-0 items-center justify-center border-t border-[#EEE] pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+            <div className="flex shrink-0 items-center justify-center border-t border-[#D8D8D8] pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
               <img
                 src="/brands/ricoh.png"
                 alt="RICOH — imagine. change."

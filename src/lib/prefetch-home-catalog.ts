@@ -18,8 +18,8 @@ import { viewAsRolesQueryKey } from '@/lib/view-as-role';
  * Siembra sessionStorage al instante; JSON estático + API van en background.
  */
 export function prefetchHomeCatalog(queryClient: QueryClient): null {
-  // Tras 2ª/3ª oleada: no pelear bandwidth con home-bundle ~56KB.
-  deferCatalogIndexPreload(8000);
+  // Tras hero/home-bundle: arrancar índice (~1.3MB) pronto para /tienda.
+  deferCatalogIndexPreload(2500);
 
   const queryKey = [HOME_CATALOG_BUNDLE_QUERY_KEY, 'public', viewAsRolesQueryKey([])];
 

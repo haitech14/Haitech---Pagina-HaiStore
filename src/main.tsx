@@ -21,6 +21,13 @@ if (
   void import('@/lib/defer-catalog-index').then((m) => {
     m.preloadCatalogIndexNow();
   });
+  // Hint paralelo al fetch del índice (LAN / primer paint de /tienda).
+  const preload = document.createElement('link');
+  preload.rel = 'preload';
+  preload.as = 'fetch';
+  preload.href = '/catalog/inventory-index.json';
+  preload.crossOrigin = 'anonymous';
+  document.head.appendChild(preload);
 }
 
 const rootElement = document.getElementById('root');

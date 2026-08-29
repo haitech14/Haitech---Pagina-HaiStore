@@ -1,8 +1,14 @@
+import { megaMenuImageForSlug } from '@/data/mega-menu';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
+
+function homeCategoryImage(slug: string): string {
+  return megaMenuImageForSlug(slug) ?? `/categories/${slug}.png`;
+}
 import {
   HEADER_BUY_RENT_WHATSAPP_LINK,
+  HEADER_BUY_RENT_WHATSAPP_LABEL,
   HEADER_LIMA_MAPS_LINK,
   HEADER_PIURA_MAPS_LINK,
   HEADER_SALES_EMAIL,
@@ -32,7 +38,40 @@ export const HAITECH_TOPBAR_BRANDS = [
   { label: 'HaiSales', href: 'https://ventas.haitech.pe' },
 ] as const;
 
-/** Nav negra estilo barra soluciones (izquierda del separador). */
+/** Enlaces planos de la barra negra del home HAITECH (sin mega menú). */
+export const HAITECH_BLACK_NAV_LINKS = [
+  {
+    id: 'servicio-tecnico',
+    to: serviceHubPath('servicio-tecnico'),
+    label: 'Servicio Técnico',
+    matchActive: ({ pathname, search }: { pathname: string; search: string }) =>
+      pathname.startsWith('/servicios') && search.includes('seccion=servicio-tecnico'),
+  },
+  {
+    id: 'alquiler',
+    to: serviceHubPath('alquiler'),
+    label: 'Alquiler',
+    matchActive: ({ pathname }: { pathname: string }) =>
+      pathname.startsWith('/servicios/alquiler') ||
+      pathname === '/alquiler' ||
+      pathname.startsWith('/categoria/alquiler'),
+  },
+  {
+    id: 'nosotros',
+    to: '/por-que-comprar-con-nosotros',
+    label: 'Nosotros',
+    matchActive: ({ pathname }: { pathname: string }) =>
+      pathname.startsWith('/por-que-comprar-con-nosotros'),
+  },
+  {
+    id: 'contacto',
+    to: '/contacto',
+    label: 'Contacto',
+    matchActive: ({ pathname }: { pathname: string }) => pathname.startsWith('/contacto'),
+  },
+] as const;
+
+/** Nav negra legacy (izquierda del separador). */
 export const HAITECH_PRIMARY_CATEGORIES_LEFT = [
   { label: 'Multifuncionales', to: categoryLandingPath('multifuncionales') },
   { label: 'Impresión', to: categoryLandingPath('impresoras') },
@@ -78,50 +117,71 @@ export const HAITECH_HOME_CATEGORY_CAROUSEL = [
     id: 'multifuncionales',
     name: 'Multifuncionales',
     description: 'Impresión, copia y escaneo',
-    image: '/categories/haitech-home/cat-multifuncionales.png',
+    image: homeCategoryImage('multifuncionales'),
     to: categoryLandingPath('multifuncionales'),
   },
   {
     id: 'impresoras',
     name: 'Impresoras',
     description: 'Láser mono y color',
-    image: '/categories/haitech-home/cat-impresoras.png',
+    image: homeCategoryImage('impresoras'),
     to: categoryLandingPath('impresoras'),
   },
   {
     id: 'toner',
     name: 'Tóner y consumibles',
     description: 'Originales Ricoh',
-    image: '/categories/haitech-home/cat-toner.png',
+    image: homeCategoryImage('toner-suministros'),
     to: categoryLandingPath('toner-suministros'),
   },
   {
     id: 'repuestos',
     name: 'Repuestos',
     description: 'Unidades, fusores y más',
-    image: '/categories/haitech-home/cat-repuestos.png',
+    image: homeCategoryImage('repuestos'),
     to: categoryLandingPath('repuestos'),
   },
   {
     id: 'formato-ancho',
     name: 'Formato ancho',
     description: 'Plotters y planos',
-    image: '/categories/haitech-home/cat-formato-ancho.png',
+    image: homeCategoryImage('formato-ancho'),
     to: categoryLandingPath('formato-ancho'),
   },
   {
-    id: 'alquiler',
-    name: 'Alquiler',
-    description: 'Planes con mantenimiento',
-    image: '/categories/haitech-home/cat-alquiler.png',
-    to: serviceHubPath('alquiler'),
+    id: 'computadoras-laptop',
+    name: 'Computadoras y laptop',
+    description: 'Equipos de cómputo',
+    image: homeCategoryImage('computadoras-laptop'),
+    to: categoryLandingPath('computadoras-laptop'),
   },
   {
-    id: 'servicio',
-    name: 'Servicio técnico',
-    description: 'Soporte certificado',
-    image: '/categories/haitech-home/cat-servicio.png',
-    to: serviceHubPath('servicio-tecnico'),
+    id: 'monitores',
+    name: 'Monitores',
+    description: 'Pantallas para oficina',
+    image: homeCategoryImage('monitores'),
+    to: categoryLandingPath('monitores'),
+  },
+  {
+    id: 'escaneres',
+    name: 'Escáneres',
+    description: 'Digitalización documental',
+    image: homeCategoryImage('escaneres'),
+    to: categoryLandingPath('escaneres'),
+  },
+  {
+    id: 'accesorios',
+    name: 'Accesorios',
+    description: 'Complementos de impresión',
+    image: homeCategoryImage('accesorios'),
+    to: categoryLandingPath('accesorios'),
+  },
+  {
+    id: 'software',
+    name: 'Software',
+    description: 'Licencias y soluciones',
+    image: homeCategoryImage('software'),
+    to: categoryLandingPath('software'),
   },
 ] as const;
 
@@ -129,37 +189,88 @@ export const HAITECH_HOME_WHATSAPP_URL = buildHaitechWhatsAppUrl(
   'Hola HAITECH, quiero comprar / cotizar por WhatsApp.',
 );
 
-/** Mensaje precargado al hacer clic en el banner hero 2 (promo con precios). */
-export const HAITECH_HOME_HERO_2_WHATSAPP_MESSAGE = [
-  'Hola HAITECH, me interesa la promoción de equipos Ricoh:',
-  '• RICOH IM 430F — S/ 3,699',
-  '• RICOH IM 460F — S/ 4,199',
-  '• RICOH IM 550F — S/ 5,599',
-  'Con garantía de 1 año o 100,000 impresiones. ¿Me pueden cotizar?',
-].join('\n');
+/** Banner intermedio home — repuestos originales Ricoh. */
+export const HAITECH_HOME_MID_BANNER = {
+  png: '/hero/haitech-home-mid-banner-cropped.png',
+  webp: '/hero/haitech-home-mid-banner-cropped.webp',
+  width: 1779,
+  height: 445,
+  alt: 'Repuestos originales para fotocopiadoras Ricoh — calidad garantizada y disponibilidad inmediata',
+  href: categoryLandingPath('repuestos'),
+} as const;
+
+/** Banners intermedios de servicio técnico y alquiler. */
+export const HAITECH_HOME_POST_SERVICES_BANNERS = [
+  {
+    id: 'mid-servicio',
+    png: '/hero/haitech-home-mid-banner-servicio.png',
+    width: 2048,
+    height: 493,
+    alt: 'Servicio técnico especializado HAITECH — diagnóstico, mantenimiento y reparaciones',
+    href: serviceHubPath('servicio-tecnico'),
+  },
+  {
+    id: 'mid-alquiler',
+    png: '/hero/haitech-home-mid-banner-alquiler.png',
+    width: 1774,
+    height: 375,
+    alt: 'Alquiler de equipos Ricoh — planes flexibles para empresas',
+    href: serviceHubPath('alquiler'),
+  },
+] as const;
+
+/** Encabezado de la sección Nuestros Servicios (encima del banner de alquiler). */
+export const HAITECH_HOME_SERVICES_SECTION_HEADER = {
+  eyebrow: 'Soluciones para tu empresa',
+  titleBefore: 'Nuestros ',
+  titleAccent: 'Servicios',
+  description:
+    'Te acompañamos en cada etapa, con soluciones integrales para mejorar la productividad de tu negocio.',
+  tagline: 'Tu aliado en soluciones de impresión',
+} as const;
+
+/** @deprecated Usar HAITECH_HOME_SERVICES_SECTION_HEADER */
+export const HAITECH_HOME_ALQUILER_HEADER = HAITECH_HOME_SERVICES_SECTION_HEADER;
 
 export const HAITECH_HOME_HERO_SLIDES = [
   {
-    id: 'hero-1',
-    src: '/hero/haitech-home-hero.png',
-    alt: 'HAITECH — Soluciones de impresión Ricoh',
+    id: 'hero-slide-5',
+    src: '/hero/haitech-home-hero-slide-5.png',
+    alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
     href: HAITECH_HOME_WHATSAPP_URL,
+    objectPosition: 'center 50%',
   },
   {
-    id: 'hero-2',
-    src: '/hero/haitech-home-hero-2.png',
-    alt: 'HAITECH — Promoción Ricoh IM 430F, IM 460F e IM 550F',
-    href: buildHaitechWhatsAppUrl(HAITECH_HOME_HERO_2_WHATSAPP_MESSAGE),
+    id: 'hero-slide-3',
+    src: '/hero/haitech-home-hero-slide-3.png',
+    alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
+    href: HAITECH_HOME_WHATSAPP_URL,
+    objectPosition: 'center 50%',
+  },
+  {
+    id: 'hero-main',
+    src: '/hero/haitech-home-hero.png',
+    alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
+    href: HAITECH_HOME_WHATSAPP_URL,
+    /** Recorta margen superior y centra el contenido principal. */
+    objectPosition: 'center 62%',
+  },
+  {
+    id: 'hero-slide-2',
+    src: '/hero/haitech-home-hero-slide-2.png',
+    alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
+    href: HAITECH_HOME_WHATSAPP_URL,
+    objectPosition: 'center 70%',
   },
 ] as const;
 
 export const HAITECH_HOME_TOPBAR = {
   promo: HEADER_TOPBAR_PROMO_TEXT,
-  salesLabel: 'Ventas',
+  salesLabel: HEADER_BUY_RENT_WHATSAPP_LABEL,
   salesPhone: '915-149290',
   salesHref: HEADER_BUY_RENT_WHATSAPP_LINK,
   salesEmail: HEADER_SALES_EMAIL,
-  supportLabel: 'Soporte',
+  supportLabel: 'Soporte técnico',
   supportPhone: HEADER_SUPPORT_PHONE_DISPLAY,
   supportHref: HEADER_SERVICE_WHATSAPP_LINK,
   supportEmail: HEADER_SUPPORT_EMAIL,

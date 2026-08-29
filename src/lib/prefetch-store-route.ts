@@ -1,5 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 
+import { INVENTORY_INDEX_URL } from '@/lib/catalog-featured';
 import { preloadCatalogIndexNow } from '@/lib/defer-catalog-index';
 import { prefetchStorePage } from '@/lib/prefetch-store-page';
 import {
@@ -10,6 +11,21 @@ import { queryClient } from '@/providers';
 
 let storeChunkPrefetched = false;
 let storeDataPrefetched = false;
+let inventoryIndexPreloadLinked = false;
+
+/** Hint al navegador para bajar el índice de catálogo cuanto antes. */
+function ensureInventoryIndexPreloadLink(): void {
+  if (typeof document === 'undefined' || inventoryIndexPreloadLinked) return;
+  inventoryIndexPreloadLinked = true;
+  if (document.querySelector(`link[rel="preload"][href="${INVENTORY_INDEX_URL}"]`)) return;
+
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'fetch';
+  link.href = INVENTORY_INDEX_URL;
+  link.crossOrigin = 'anonymous';
+  document.head.appendChild(link);
+}
 
 /** Descarga el chunk JS de la tienda antes de navegar. */
 export function prefetchStoreRouteChunk(): void {
@@ -21,6 +37,7 @@ export function prefetchStoreRouteChunk(): void {
 /** Precarga chunk, índice de catálogo, árbol de categorías y datos de productos para /tienda. */
 export function prefetchStoreRoute(client: QueryClient = queryClient): void {
   prefetchStoreRouteChunk();
+  ensureInventoryIndexPreloadLink();
   preloadCatalogIndexNow();
 
   void client.prefetchQuery({

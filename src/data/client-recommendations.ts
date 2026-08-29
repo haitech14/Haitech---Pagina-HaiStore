@@ -56,4 +56,15 @@ export const clientRecommendations: ClientRecommendation[] = [
     customerName: 'Osías V.',
     customerCity: 'Lima',
   },
+  {
+    id: 'nbn-entrega-ricoh',
+    image: '/clients/recommendations/cliente-nbn-entrega-ricoh.png',
+    imageAlt:
+      'Cliente satisfecho recibiendo su equipo Ricoh en la entrega a domicilio con NBN Importadores',
+    title: 'Entrega Ricoh — NBN Importadores',
+    quote:
+      'Todo salió perfecto: el equipo, la instalación y el seguimiento. Volveremos a comprar con ustedes.',
+    customerName: 'Miguel A.',
+    customerCity: 'Lima',
+  },
 ];

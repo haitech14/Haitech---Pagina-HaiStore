@@ -1,43 +1,50 @@
-import { Gift } from 'lucide-react';
-
-import { HaitechHomeProductCarousel } from '@/components/haitech-home/haitech-home-product-carousel';
-import { HAITECH_SHOP, HAITECH_SHOP_LATEST_PRODUCTS } from '@/data/haitech-home-shop';
+import { ClientRecommendationsSection } from '@/components/client-recommendations-section';
+import { ClientsSection } from '@/components/clients-section';
+import { HAITECH_SHOP } from '@/data/haitech-home-shop';
 import { cn } from '@/lib/utils';
 
+const sectionTitleClass =
+  'flex items-center gap-2.5 font-[family-name:var(--font-infobox)] text-[20px] font-bold text-[#111111] sm:text-[24px] lg:text-[26px]';
+
 /**
- * Sección “Lo último” + segundo carrusel.
+ * Sección de prueba social: fotos de testimonios + logos de clientes.
  */
 export function HaitechHomeLatestSection({ className }: { className?: string }) {
   return (
     <section
-      className={cn('w-full', className)}
-      style={{ backgroundColor: HAITECH_SHOP.grayBg }}
-      aria-labelledby="haitech-latest-title"
+      className={cn('w-full bg-white', className)}
+      aria-labelledby="haitech-testimonials-title"
     >
       <div
-        className="mx-auto px-3 py-6 sm:px-4 sm:py-[35px] xl:px-6"
+        className="mx-auto px-3 pb-6 pt-2 sm:px-4 sm:pb-[35px] sm:pt-3 xl:px-6"
         style={{ maxWidth: HAITECH_SHOP.maxWidth }}
       >
-        <div className="mb-4 flex items-center gap-2 sm:mb-6 sm:gap-2.5">
-          <Gift
-            className="size-6 shrink-0 sm:size-8"
-            style={{ color: HAITECH_SHOP.brand }}
-            strokeWidth={2}
-            aria-hidden="true"
-          />
-          <h2
-            id="haitech-latest-title"
-            className="font-[family-name:var(--font-infobox)] text-[18px] font-bold text-black sm:text-[22px]"
-          >
-            Lo último
+        <header className="mb-4 sm:mb-6">
+          <h2 id="haitech-testimonials-title" className={sectionTitleClass}>
+            <span
+              className="inline-block h-6 w-1 shrink-0 rounded-full bg-[#E30613]"
+              aria-hidden="true"
+            />
+            Fotos de testimonios de clientes que nos respaldan
           </h2>
-        </div>
+          <p className="mt-2 max-w-2xl text-[13px] text-[#666] sm:text-sm">
+            Experiencias reales de compra, entrega y soporte. Toca una foto para verla en grande.
+          </p>
+        </header>
 
-        <HaitechHomeProductCarousel
-          products={HAITECH_SHOP_LATEST_PRODUCTS}
-          ariaLabel="Lo último en HAITECH"
-          className="sm:px-1 md:px-2"
-        />
+        <ClientRecommendationsSection embedded />
+
+        <header className="mb-4 mt-8 sm:mb-6 sm:mt-10">
+          <h2 id="haitech-clients-title" className={sectionTitleClass}>
+            <span
+              className="inline-block h-6 w-1 shrink-0 rounded-full bg-[#E30613]"
+              aria-hidden="true"
+            />
+            Algunos de nuestros clientes
+          </h2>
+        </header>
+
+        <ClientsSection embedded />
       </div>
     </section>
   );

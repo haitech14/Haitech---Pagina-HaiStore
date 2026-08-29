@@ -16,7 +16,7 @@ export function HaitechHomeCategoryTabs({ className }: { className?: string }) {
         style={{ maxWidth: HAITECH_HOME.maxWidth }}
       >
         <h2 className="text-[22px] font-bold text-black sm:text-[24px]">
-          ¡Encuentra tu favorito en HAITECH!
+          Nuestros Productos Más Vendidos
         </h2>
 
         <div className="flex flex-wrap items-center gap-2">

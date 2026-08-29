@@ -108,8 +108,8 @@ export const HAITECH_HOME_HERO_BANNER_SLIDE: HomeHeroSlide = {
   id: 'haitech-home-hero',
   dotTheme: 'dark',
   backgroundImage: '/hero/haitech-home-hero.png',
-  imageWidth: 1672,
-  imageHeight: 941,
+  imageWidth: 2094,
+  imageHeight: 751,
   imageAlt:
     'Soluciones de impresión Ricoh — Fotocopiadoras inteligentes para tu empresa. Solicita tu cotización.',
 };

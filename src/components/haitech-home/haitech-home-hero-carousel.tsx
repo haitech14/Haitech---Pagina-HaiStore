@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { HAITECH_HOME, HAITECH_HOME_HERO_SLIDES } from '@/data/haitech-home-shell';
+import { HAITECH_HOME_HERO_SLIDES } from '@/data/haitech-home-shell';
+import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
 import { cn } from '@/lib/utils';
 
 const AUTOPLAY_MS = 5000;
@@ -11,6 +12,11 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
   const [paused, setPaused] = useState(false);
   const total = HAITECH_HOME_HERO_SLIDES.length;
   const showControls = total > 1;
+  const { requestQuote } = useHaitechWhatsAppQuoteContext();
+
+  const handleHeroClick = useCallback(() => {
+    requestQuote({ campaign: 'hero-home' });
+  }, [requestQuote]);
 
   const goTo = useCallback(
     (next: number) => {
@@ -30,16 +36,14 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
     <section
       aria-roledescription={showControls ? 'carrusel' : undefined}
       aria-label="Promociones HAITECH"
-      className={cn('w-full bg-white px-3 pb-0 pt-2 sm:px-4 sm:pt-3 lg:px-5', className)}
+      className={cn('w-full bg-white', className)}
     >
       <div
         className={cn(
-          'relative mx-auto overflow-hidden rounded-lg bg-neutral-900 shadow-[0_8px_28px_rgba(15,23,42,0.12)] sm:rounded-xl',
-          'h-[min(320px,82vw)] min-h-[240px]',
-          'sm:h-[min(320px,42vw)] sm:min-h-[220px]',
-          'lg:h-[min(480px,34vw)] lg:min-h-[260px]',
+          'relative w-full overflow-hidden bg-white',
+          'aspect-[2094/670]',
+          'min-h-[130px] max-h-[min(560px,32vw)]',
         )}
-        style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -53,30 +57,23 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
               )}
               aria-hidden={slideIndex !== index}
             >
-              <a
-                href={slide.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="absolute inset-0 block cursor-pointer"
-                aria-label={
-                  slide.id === 'hero-1'
-                    ? 'Abrir WhatsApp para comprar o cotizar'
-                    : 'Abrir WhatsApp con la promoción Ricoh'
-                }
+              <button
+                type="button"
+                onClick={handleHeroClick}
+                className="absolute inset-0 block cursor-pointer border-0 bg-transparent p-0"
+                aria-label="Abrir WhatsApp para comprar o cotizar"
               >
                 <img
                   src={slide.src}
                   alt={slide.alt}
-                  className={cn(
-                    'absolute inset-0 size-full min-h-full min-w-full object-cover scale-100 sm:scale-[1.02]',
-                    slideIndex === 0
-                      ? 'object-[center_50%] sm:object-[center_52%]'
-                      : 'object-[center_58%] sm:object-[center_62%]',
-                  )}
+                  width={2094}
+                  height={670}
+                  className="absolute inset-0 size-full object-cover"
+                  style={{ objectPosition: slide.objectPosition }}
                   decoding={slideIndex === 0 ? 'sync' : 'async'}
                   fetchPriority={slideIndex === 0 ? 'high' : 'low'}
                 />
-              </a>
+              </button>
             </div>
           ))}
         </div>
@@ -100,29 +97,6 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
               <ChevronRight className="size-4" strokeWidth={2} aria-hidden="true" />
             </button>
           </>
-        ) : null}
-
-        {showControls ? (
-          <div
-            className="pointer-events-auto absolute inset-x-0 bottom-2 z-10 flex items-center justify-center gap-1.5 px-3 sm:bottom-4 sm:justify-start sm:gap-2 sm:px-6"
-            role="tablist"
-            aria-label="Indicadores"
-          >
-            {HAITECH_HOME_HERO_SLIDES.map((slide, dotIndex) => (
-              <button
-                key={slide.id}
-                type="button"
-                role="tab"
-                aria-selected={dotIndex === index}
-                aria-label={`Ir al banner ${dotIndex + 1}`}
-                onClick={() => goTo(dotIndex)}
-                className={cn(
-                  'size-1.5 rounded-full transition-colors duration-200 sm:size-2',
-                  dotIndex === index ? 'bg-[#E30613]' : 'bg-[#6B7280]',
-                )}
-              />
-            ))}
-          </div>
         ) : null}
       </div>
     </section>

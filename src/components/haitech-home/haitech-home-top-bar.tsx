@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Briefcase, ChevronDown, MapPin, Truck } from 'lucide-react';
+import { Briefcase, ChevronDown, MapPin, ShieldCheck, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { HAITECH_HOME, HAITECH_HOME_TOPBAR, HAITECH_TOPBAR_BRANDS } from '@/data/haitech-home-shell';
+import { HAITECH_HOME, HAITECH_HOME_TOPBAR } from '@/data/haitech-home-shell';
+import { SITE_RICOH_PARTNER_BADGE_ARIA_LABEL } from '@/lib/site-logo-asset';
 import { cn } from '@/lib/utils';
 
 export function HaitechHomeTopBar({ className }: { className?: string }) {
@@ -36,38 +37,25 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
       style={{ backgroundColor: HAITECH_HOME.blackNav }}
     >
       <div
-        className="mx-auto flex min-h-8 items-center justify-between gap-x-2 gap-y-1 px-3 py-1.5 text-[10px] leading-none sm:min-h-8 sm:flex-wrap sm:px-4 sm:py-0.5 sm:text-[10.5px] xl:px-6"
+        className="mx-auto grid min-h-7 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1 px-3 py-1 text-[10px] leading-none sm:min-h-7 sm:px-4 sm:py-0.5 sm:text-[10.5px] xl:px-6"
         style={{ maxWidth: HAITECH_HOME.maxWidth }}
       >
-        {/* Marcas solo tablet/desktop */}
-        <div className="hidden shrink-0 items-center sm:flex">
-          {HAITECH_TOPBAR_BRANDS.map((brand, index) => (
-            <div key={brand.label} className="flex items-center">
-              {index > 0 ? <span className="mx-2 h-3 w-px bg-white/35" aria-hidden="true" /> : null}
-              <a
-                href={brand.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold tracking-wide text-white/95 transition-opacity hover:opacity-90"
-              >
-                {brand.label}
-              </a>
-            </div>
-          ))}
-        </div>
-
-        {/* Promo: visible siempre; en móvil a la izquierda con ícono */}
-        <p className="flex min-w-0 flex-1 items-center gap-1.5 text-white/95 sm:justify-center sm:truncate sm:text-center">
-          <Truck className="size-3 shrink-0 sm:hidden" strokeWidth={1.75} aria-hidden="true" />
-          <span className="min-w-0 truncate">
-            {promo}.{' '}
-            <Link to="/terminos" className="underline underline-offset-2 hover:text-white">
-              Ver T&amp;C
-            </Link>
-          </span>
+        <p className="min-w-0 truncate font-medium text-white/95 sm:font-semibold">
+          {SITE_RICOH_PARTNER_BADGE_ARIA_LABEL}
         </p>
 
-        <div className="flex shrink-0 items-center justify-end">
+        <div className="hidden items-center justify-center gap-4 text-white/95 md:flex lg:gap-6">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <Truck className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            {promo}
+          </span>
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <ShieldCheck className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            Compra segura y garantizada
+          </span>
+        </div>
+
+        <div className="flex shrink-0 items-center justify-end justify-self-end">
           <div
             ref={sedesRef}
             className="relative"

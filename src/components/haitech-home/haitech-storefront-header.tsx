@@ -6,10 +6,13 @@ import { cn } from '@/lib/utils';
 /** Header storefront unificado (home + páginas internas). */
 export function HaitechStorefrontHeader({ className }: { className?: string }) {
   return (
-    <div className={cn('sticky top-0 z-50 w-full bg-white', className)}>
-      <HaitechHomeTopBar />
-      <HaitechHomeMainHeader />
+    <>
+      {/* Top + main fuera del sticky para que la nav pueda fijarse en todo el scroll */}
+      <div className={cn('w-full overflow-visible bg-white', className)}>
+        <HaitechHomeTopBar />
+        <HaitechHomeMainHeader />
+      </div>
       <HaitechHomeCategoryNavigation />
-    </div>
+    </>
   );
 }

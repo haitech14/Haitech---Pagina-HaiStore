@@ -1,79 +1,175 @@
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
-import { NavLink } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { FileText } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
 
+import { ConsumiblesNavMegaMenu } from '@/components/layout/consumibles-nav-mega-menu';
 import { DeferredCategoriesMegaMenu } from '@/components/layout/deferred-categories-mega-menu';
-import {
-  HAITECH_HOME,
-  HAITECH_NAV_QUOTE_HREF,
-  HAITECH_PRIMARY_CATEGORIES_LEFT,
-  HAITECH_PRIMARY_CATEGORIES_RIGHT,
-} from '@/data/haitech-home-shell';
+import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
+import { haitechWhiteNavLinkClass } from '@/components/layout/main-nav-styles';
+import { RentalsNavMegaMenu } from '@/components/layout/rentals-nav-mega-menu';
+import { RepuestosNavMegaMenu } from '@/components/layout/repuestos-nav-mega-menu';
+import { ServicioTecnicoNavMegaMenu } from '@/components/layout/servicio-tecnico-nav-mega-menu';
+import { HAITECH_BLACK_NAV_LINKS, HAITECH_HOME } from '@/data/haitech-home-shell';
+import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
+import { categoryLandingPath } from '@/lib/category-path';
+import { serviceHubPath } from '@/lib/service-hub';
 import { cn } from '@/lib/utils';
 
-function CategoryNavLink({ to, label }: { to: string; label: string }) {
+type HaitechNavLinkItem = (typeof HAITECH_BLACK_NAV_LINKS)[number];
+
+function HaitechWhiteNavLink({ item }: { item: HaitechNavLinkItem }) {
+  const location = useLocation();
+
   return (
     <NavLink
-      to={to}
-      className="inline-flex h-[38px] items-center whitespace-nowrap text-white transition-colors duration-200 hover:text-white/80"
+      to={item.to}
+      end={'end' in item && item.end === true}
+      className={({ isActive }) => {
+        const routeActive =
+          'matchActive' in item && item.matchActive
+            ? item.matchActive(location)
+            : isActive;
+        return haitechWhiteNavLinkClass(Boolean(routeActive));
+      }}
     >
-      {label}
+      {item.label}
     </NavLink>
   );
 }
 
 export function HaitechHomeCategoryNavigation({ className }: { className?: string }) {
+  const { requestQuote } = useHaitechWhatsAppQuoteContext();
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry) setIsSticky(!entry.isIntersecting);
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <nav
-      aria-label="Navegación principal"
-      className={cn(
-        'hidden w-full bg-black sm:block',
-        '[font-family:"Space_Grotesk",Montserrat,system-ui,sans-serif]',
-        className,
-      )}
-    >
-      <div
-        className="mx-auto flex h-[38px] items-center gap-2 overflow-x-auto px-3 text-[12.5px] font-medium tracking-[0.01em] text-white [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-3 sm:px-4 sm:text-[13px] xl:gap-4 xl:px-6 [&::-webkit-scrollbar]:hidden"
-        style={{ maxWidth: HAITECH_HOME.maxWidth }}
+    <>
+      <div ref={sentinelRef} className="hidden h-px w-full sm:block" aria-hidden="true" />
+
+      <nav
+        aria-label="Navegación principal"
+        className={cn(
+          'sticky top-0 z-50 hidden w-full bg-white sm:block',
+          'border-b transition-shadow duration-200',
+          isSticky
+            ? 'border-black/[0.06] shadow-[0_10px_28px_-8px_rgba(15,23,42,0.28)]'
+            : 'border-black/[0.05] shadow-none',
+          className,
+        )}
       >
-        <DeferredCategoriesMegaMenu
-          triggerVariant="brand-red"
-          label="Productos"
-          showIcon={false}
-        />
-
-        <ul className="flex min-w-0 items-center gap-3 sm:gap-3.5 xl:gap-5">
-          {HAITECH_PRIMARY_CATEGORIES_LEFT.map((item) => (
-            <li key={item.label} className="shrink-0">
-              <CategoryNavLink to={item.to} label={item.label} />
-            </li>
-          ))}
-        </ul>
-
-        <span className="mx-1 hidden h-4 w-px shrink-0 bg-white/30 sm:block" aria-hidden="true" />
-
-        <ul className="flex min-w-0 flex-1 items-center gap-3 sm:gap-3.5 xl:gap-5">
-          {HAITECH_PRIMARY_CATEGORIES_RIGHT.map((item) => (
-            <li key={item.label} className="shrink-0">
-              <CategoryNavLink to={item.to} label={item.label} />
-            </li>
-          ))}
-        </ul>
-
-        <a
-          href={HAITECH_NAV_QUOTE_HREF}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(
-            'ml-auto inline-flex h-[38px] shrink-0 items-center gap-1.5 bg-[#E30613] px-2.5 text-[12px] font-semibold text-white sm:px-3.5 sm:text-[12.5px]',
-            'transition-colors hover:bg-[#c90511]',
-          )}
+        <div
+          className="mx-auto flex h-[42px] items-center gap-2 px-3 sm:px-4 xl:px-6"
+          style={{ maxWidth: HAITECH_HOME.maxWidth }}
         >
-          <Icon path={mdiWhatsapp} size={0.7} className="shrink-0 text-white" aria-hidden="true" />
-          <span className="sm:hidden">WhatsApp</span>
-          <span className="hidden sm:inline">Comprar por Whatsapp</span>
-        </a>
-      </div>
-    </nav>
+          <ul className="flex min-w-0 flex-1 items-stretch overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <li className="flex shrink-0 items-stretch">
+              <DeferredCategoriesMegaMenu
+                triggerVariant="nav"
+                navRow="haitech-white"
+                label="Equipos"
+                showIcon={false}
+                eager
+                triggerHref="/tienda"
+              />
+            </li>
+
+            <li className="flex shrink-0 items-stretch">
+              <ConsumiblesNavMegaMenu
+                navRow="haitech-white"
+                showIcon={false}
+                triggerHref={categoryLandingPath('toner-suministros')}
+              />
+            </li>
+
+            <li className="flex shrink-0 items-stretch">
+              <RepuestosNavMegaMenu
+                navRow="haitech-white"
+                showIcon={false}
+                triggerHref={categoryLandingPath('repuestos')}
+              />
+            </li>
+
+            <li className="flex shrink-0 items-stretch">
+              <ServicioTecnicoNavMegaMenu
+                navRow="haitech-white"
+                showIcon={false}
+                triggerHref={serviceHubPath('servicio-tecnico')}
+              />
+            </li>
+
+            <li className="flex shrink-0 items-stretch">
+              <RentalsNavMegaMenu
+                navRow="haitech-white"
+                showIcon={false}
+                triggerHref={serviceHubPath('alquiler')}
+              />
+            </li>
+
+            {HAITECH_BLACK_NAV_LINKS.filter(
+              (item) => item.id !== 'servicio-tecnico' && item.id !== 'alquiler',
+            ).map((item) => (
+              <li key={item.id} className="flex shrink-0 items-stretch">
+                <HaitechWhiteNavLink item={item} />
+              </li>
+            ))}
+          </ul>
+
+          <div className="ml-auto flex shrink-0 items-center gap-2 self-center">
+            <div
+              className={cn(
+                'overflow-hidden transition-[width,opacity] duration-300 ease-out',
+                isSticky
+                  ? 'w-[200px] opacity-100 lg:w-[240px] xl:w-[280px]'
+                  : 'pointer-events-none w-0 opacity-0',
+              )}
+              aria-hidden={!isSticky}
+            >
+              <DeferredSiteSearchForm
+                className={cn(
+                  'w-[200px] lg:w-[240px] xl:w-[280px]',
+                  '[&_form]:h-8 [&_form]:rounded-lg [&_form]:border-[#D9D9D9] [&_form]:shadow-none',
+                  '[&_form]:focus-within:border-[#D9D9D9] [&_form]:focus-within:ring-1 [&_form]:focus-within:ring-black/10',
+                  '[&_input]:h-8 [&_input]:pl-8 [&_input]:pr-2 [&_input]:text-[12px] [&_input]:placeholder:text-[#9A9A9A]',
+                  '[&_button]:!size-8 [&_form>svg]:left-2 [&_form>svg]:size-3.5 [&_form>svg]:text-[#888]',
+                  '[&_button_svg]:!size-3.5 [&_button_svg]:!text-white',
+                  '[&_button]:!rounded-r-lg [&_button]:!bg-[#E30613]',
+                )}
+                variant="segmented"
+                size="dense"
+                showSearchIcons
+                showCategoryFilter={false}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => requestQuote({ campaign: 'nav-solicitar-cotizacion' })}
+              className={cn(
+                'inline-flex h-8 shrink-0 items-center gap-2 rounded-lg bg-[#E30613] px-3.5 text-[12px] font-semibold text-white',
+                'transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-offset-2',
+              )}
+            >
+              <FileText className="size-4 shrink-0" aria-hidden="true" />
+              <span className="whitespace-nowrap">Solicitar cotización</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+    </>
   );
 }

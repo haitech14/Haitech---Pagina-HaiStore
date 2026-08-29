@@ -43,11 +43,20 @@ export const CURRENCY_SYMBOL_TOGGLE_OPTIONS: {
 }[] = [
   { id: 'PEN', label: 'S/', ariaLabel: 'Mostrar precios en soles' },
   { id: 'USD', label: '$', ariaLabel: 'Mostrar precios en dólares' },
-  { id: 'BOTH', label: 'S/-$', ariaLabel: 'Mostrar precios en soles y dólares' },
+  { id: 'BOTH', label: 'S/ · $', ariaLabel: 'Mostrar precios en soles y dólares' },
 ];
 
 function getBothModeLabel(dualPriceOrder: DualPriceOrder): string {
-  return dualPriceOrder === 'pen-usd' ? 'S/-$' : '$-S/';
+  return dualPriceOrder === 'pen-usd' ? 'S/ · $' : '$ · S/';
+}
+
+export function resolveHeaderCurrencyLabel(
+  displayCurrency: DisplayCurrency,
+  dualPriceOrder: DualPriceOrder,
+): string {
+  if (displayCurrency === 'PEN') return 'S/';
+  if (displayCurrency === 'USD') return '$';
+  return getBothModeLabel(dualPriceOrder);
 }
 
 function getBothModeAriaLabel(dualPriceOrder: DualPriceOrder, isActive: boolean): string {
@@ -198,13 +207,18 @@ export function HeaderDarkCurrencyControl({ className }: { className?: string })
 }
 
 /** Selector S/ / $ / $-S/ bajo el carrito. */
-export function HeaderCurrencySymbolToggle({ className }: { className?: string }) {
+export function HeaderCurrencySymbolToggle({
+  className,
+  buttonClassName,
+  activeClassName,
+  inactiveClassName,
+}: CurrencySymbolToggleProps) {
   return (
     <CurrencySymbolToggle
       {...(className != null ? { className } : {})}
-      buttonClassName="min-h-5 rounded px-1 text-[0.6rem]"
-      activeClassName="bg-red-600 text-white"
-      inactiveClassName="text-muted-foreground hover:text-foreground"
+      buttonClassName={buttonClassName ?? 'min-h-5 rounded px-1 text-[0.6rem]'}
+      activeClassName={activeClassName ?? 'bg-red-600 text-white'}
+      inactiveClassName={inactiveClassName ?? 'text-muted-foreground hover:text-foreground'}
     />
   );
 }

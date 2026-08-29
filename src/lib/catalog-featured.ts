@@ -32,6 +32,8 @@ let catalogMediaEpoch = 0;
 let catalogById: Map<string, CatalogRow> | null = null;
 /** Lookup O(1) por slug normalizado. */
 let catalogBySlug: Map<string, CatalogRow> | null = null;
+/** Filas visibles cacheadas (evita refiltrar ~1500 filas en cada render de /tienda). */
+let catalogVisibleRows: CatalogRow[] | null = null;
 
 const CATALOG_MEDIA_UPDATED_EVENT = 'haistore-catalog-media-updated';
 
@@ -50,6 +52,7 @@ function rebuildCatalogLookupMaps(rows: CatalogRow[]): void {
 function clearCatalogLookupMaps(): void {
   catalogById = null;
   catalogBySlug = null;
+  catalogVisibleRows = null;
 }
 
 function bumpCatalogMediaEpoch(): void {
@@ -98,6 +101,7 @@ async function fetchCatalogIndexFromNetwork(): Promise<CatalogRow[]> {
 
 function applyCatalogRows(rows: CatalogRow[]): CatalogRow[] {
   catalogCache = rows;
+  catalogVisibleRows = null;
   rebuildCatalogLookupMaps(rows);
   return rows;
 }
@@ -198,6 +202,7 @@ export function patchCatalogIndexProductMedia(
     nextRow,
     ...catalogCache.slice(index + 1),
   ];
+  catalogVisibleRows = null;
   catalogById?.set(nextRow.id, nextRow);
   const slug = typeof nextRow.slug === 'string' ? nextRow.slug.trim().toLowerCase() : '';
   if (slug) catalogBySlug?.set(slug, nextRow);
@@ -206,7 +211,11 @@ export function patchCatalogIndexProductMedia(
 
 /** Filas del índice en caché (vacío hasta que termine la precarga). */
 export function getCatalogRows(): CatalogRow[] {
-  return (catalogCache ?? []).filter((row) => isProductVisibleOnStorefront(row));
+  if (!catalogCache) return [];
+  if (!catalogVisibleRows) {
+    catalogVisibleRows = catalogCache.filter((row) => isProductVisibleOnStorefront(row));
+  }
+  return catalogVisibleRows;
 }
 
 export function normalizeCategoryName(value: string): string {

@@ -10,6 +10,7 @@ import { useCart } from '@/context/cart-context';
 import { CartProvider } from '@/context/cart-context';
 import { useProductCompare } from '@/context/product-compare-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
+import { HaitechWhatsAppQuoteProvider } from '@/hooks/use-haitech-whatsapp-quote';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { cn } from '@/lib/utils';
 
@@ -146,6 +147,7 @@ export function RootLayout() {
   return (
     <CartProvider>
     <MobileBottomInsetProvider>
+    <HaitechWhatsAppQuoteProvider>
     <div className="flex min-h-dvh flex-col bg-background">
       <ScrollToTop />
       <a href="#contenido" className="skip-link">
@@ -180,6 +182,7 @@ export function RootLayout() {
       <DeferredShoppingCartDrawer />
       <DeferredProductCompareTray />
     </div>
+    </HaitechWhatsAppQuoteProvider>
     </MobileBottomInsetProvider>
     </CartProvider>
   );

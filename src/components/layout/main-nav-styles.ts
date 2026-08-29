@@ -28,12 +28,22 @@ export const MAIN_NAV_ICON_CLASS = 'size-4 shrink-0';
 
 export const MAIN_NAV_ICON_COMPACT_CLASS = 'size-3.5 shrink-0';
 
-export type MainNavRowVariant = 'default' | 'secondary' | 'light' | 'light-compact';
+export type MainNavRowVariant =
+  | 'default'
+  | 'secondary'
+  | 'light'
+  | 'light-compact'
+  | 'haitech-black'
+  | 'haitech-white';
 
 export function navChevronClass(navRow: MainNavRowVariant, open: boolean) {
   return cn(
     'shrink-0 transition-transform',
-    navRow === 'light' || navRow === 'light-compact' ? 'size-3.5 opacity-80' : 'size-3',
+    navRow === 'light' || navRow === 'light-compact' || navRow === 'haitech-white'
+      ? 'size-3.5 opacity-80'
+      : navRow === 'haitech-black'
+        ? 'size-3.5'
+        : 'size-3',
     open && 'rotate-180',
   );
 }
@@ -72,6 +82,43 @@ export function darkNavSecondarySubmenuTriggerClass(isRouteActive: boolean, isOp
   return cn(
     darkNavSecondaryLinkClass(isRouteActive),
     isOpen && !isRouteActive && 'text-white',
+  );
+}
+
+/** Enlaces planos de la barra blanca HAITECH (home storefront). */
+export function haitechWhiteNavLinkClass(isActive: boolean) {
+  return cn(
+    'inline-flex h-[38px] shrink-0 items-center whitespace-nowrap px-3 text-[13px] font-semibold text-[#111111] transition-colors',
+    'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/30',
+    isActive && 'text-[#E30613]',
+  );
+}
+
+/** Triggers con mega menú en la barra blanca HAITECH. */
+export function haitechWhiteSubmenuTriggerClass(isRouteActive: boolean, isOpen: boolean) {
+  return cn(
+    'inline-flex h-[38px] shrink-0 items-center gap-1 whitespace-nowrap px-3 text-[13px] font-semibold text-[#111111] transition-colors',
+    'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/30',
+    (isRouteActive || isOpen) && 'text-[#E30613]',
+  );
+}
+
+/** Enlaces planos de la barra negra HAITECH (home storefront). */
+export function haitechBlackNavLinkClass(isActive: boolean) {
+  return cn(
+    'inline-flex h-[38px] shrink-0 items-center whitespace-nowrap px-3 text-[13px] font-semibold text-white transition-colors',
+    'hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
+    isActive && 'text-white',
+  );
+}
+
+/** Triggers con mega menú en la barra negra HAITECH (rojo al abrir o en ruta activa). */
+export function haitechBlackSubmenuTriggerClass(isRouteActive: boolean, isOpen: boolean) {
+  return cn(
+    'inline-flex h-[38px] shrink-0 items-center gap-1 whitespace-nowrap px-3 text-[13px] font-semibold text-white transition-colors',
+    'hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
+    (isRouteActive || isOpen) && 'bg-[#E30613] hover:bg-[#c90511]',
+    isOpen && 'bg-[#c90511]',
   );
 }
 

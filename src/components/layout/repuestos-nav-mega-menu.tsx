@@ -13,9 +13,13 @@ import {
 export function RepuestosNavMegaMenu({
   navRow = 'default',
   showIcon = true,
+  label = 'Repuestos',
+  triggerHref,
 }: {
-  navRow?: 'default' | 'secondary' | 'light' | 'light-compact';
+  navRow?: 'default' | 'secondary' | 'light' | 'light-compact' | 'haitech-black' | 'haitech-white';
   showIcon?: boolean;
+  label?: string;
+  triggerHref?: string;
 }) {
   const location = useLocation();
   const { data: categoryTree = [] } = useStoreCategoriesTree();
@@ -30,12 +34,16 @@ export function RepuestosNavMegaMenu({
 
   return (
     <StaticNavMegaMenu
-      label="Repuestos"
+      label={label}
       icon={REPUESTOS_NAV_MEGA_MENU_ICON}
       menu={menu}
       isRouteActive={isRouteActive}
       navRow={navRow}
       showIcon={showIcon}
+      {...(triggerHref ? { triggerHref } : {})}
+      {...(navRow === 'haitech-black' || navRow === 'haitech-white'
+        ? { mockupMenuKind: 'repuestos' as const }
+        : {})}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
 import { HAITECH_HOME_WHATSAPP_URL } from '@/data/haitech-home-shell';
+import { dataplusPartnerBrands, printerBrands } from '@/data/brands';
 
 export const HAITECH_LANDING_MAX_WIDTH = '1320px';
 
@@ -12,6 +13,16 @@ export const HAITECH_LANDING_COLORS = {
   border: '#e7e7e7',
   backgroundSoft: '#fafafa',
   white: '#ffffff',
+} as const;
+
+/** Header extendido — mismo layout que Nuestros Beneficios. */
+export const HAITECH_LANDING_TRUSTED_BRANDS_HEADER = {
+  eyebrow: 'Soluciones para tu empresa',
+  titleBefore: 'Trabajamos con ',
+  titleAccent: 'las mejores marcas',
+  description:
+    'Aliados líderes en impresión y tecnología para ofrecerte equipos, consumibles y soporte de calidad.',
+  tagline: 'Tu aliado en soluciones de impresión',
 } as const;
 
 export type FeaturedLandingBadge = 'OFERTA' | 'NUEVO';
@@ -79,14 +90,33 @@ export const HAITECH_LANDING_WHY_BUY = [
   { id: 'empresas', title: '+1000 empresas', subtitle: 'confían en nosotros', icon: 'users' },
 ] as const;
 
-export const HAITECH_LANDING_TRUSTED_BRANDS = [
-  { name: 'Ricoh', logo: '/brands/ricoh.png' },
-  { name: 'HP', logo: '/brands/hp.png' },
-  { name: 'Epson', logo: '/brands/epson.png' },
-  { name: 'Brother', logo: '/brands/brother.svg' },
-  { name: 'Lexmark', logo: '/brands/lexmark.png' },
-  { name: 'Canon', logo: '/brands/canon.png' },
+export const HAITECH_LANDING_TRUSTED_BRAND_NAMES = [
+  'Oki',
+  'Intercopy',
+  'Katun',
+  'Ricoh',
+  'Canon',
+  'Epson',
+  'HP',
+  'Kyocera',
+  'Lexmark',
+  'Brother',
+  'Konica Minolta',
+  'Pantum',
 ] as const;
+
+function resolveLandingTrustedBrand(name: string): { name: string; logo: string } | null {
+  const printer = printerBrands.find((brand) => brand.name === name);
+  if (printer) return { name: printer.name, logo: printer.logo };
+  const dataplus = dataplusPartnerBrands.find((brand) => brand.name === name);
+  if (dataplus) return { name: dataplus.name, logo: dataplus.logo };
+  return null;
+}
+
+export const HAITECH_LANDING_TRUSTED_BRANDS = HAITECH_LANDING_TRUSTED_BRAND_NAMES.flatMap((name) => {
+  const brand = resolveLandingTrustedBrand(name);
+  return brand ? [brand] : [];
+});
 
 export const HAITECH_LANDING_COMPANY_BENEFITS = [
   {
@@ -134,6 +164,7 @@ export const HAITECH_LANDING_SERVICE_CARDS = [
     href: serviceHubPath('servicio-tecnico'),
     image: '/promo-cards/technician-service.webp',
     imageAlt: 'Técnico RICOH reparando una multifuncional',
+    icon: 'wrench',
   },
   {
     id: 'alquiler',
@@ -144,5 +175,6 @@ export const HAITECH_LANDING_SERVICE_CARDS = [
     href: serviceHubPath('alquiler'),
     image: '/services/alquiler/impresoras.png',
     imageAlt: 'Multifuncional profesional RICOH en alquiler',
+    icon: 'printer',
   },
 ] as const;
