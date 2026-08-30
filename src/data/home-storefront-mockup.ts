@@ -12,7 +12,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { categoryLandingPath, categoryPath } from '@/lib/category-path';
+import { categoryLandingPath } from '@/lib/category-path';
 import { serviceDetailPathFromLanding, serviceHubPath } from '@/lib/service-hub';
 
 /** Paleta de vitrina alineada a la marca HaiStore. */

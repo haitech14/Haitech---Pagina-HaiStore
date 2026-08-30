@@ -204,12 +204,20 @@ export function HaitechHomeProductCard({
           className="flex flex-col outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/30"
         >
           {mediaBlock}
-          <CardInfo product={product} priceUsd={priceUsd} saleRate={saleRate} />
+          <CardInfo
+            product={product}
+            priceUsd={priceUsd}
+            {...(saleRate != null ? { saleRate } : {})}
+          />
         </Link>
       ) : (
         <div className="flex flex-col">
           {mediaBlock}
-          <CardInfo product={product} priceUsd={priceUsd} saleRate={saleRate} />
+          <CardInfo
+            product={product}
+            priceUsd={priceUsd}
+            {...(saleRate != null ? { saleRate } : {})}
+          />
         </div>
       )}
 
@@ -634,7 +642,11 @@ function CardInfo({
       ) : null}
 
       <div className="mt-4">
-        <CardPriceBlock product={product} priceUsd={priceUsd} saleRate={saleRate} />
+        <CardPriceBlock
+          product={product}
+          priceUsd={priceUsd}
+          {...(saleRate != null ? { saleRate } : {})}
+        />
       </div>
     </div>
   );

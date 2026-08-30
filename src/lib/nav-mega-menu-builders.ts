@@ -29,7 +29,7 @@ import {
 import { getServiceLandingBySlug } from '@/data/service-landings';
 import type { ServiceLandingSlug } from '@/data/service-landings';
 import type { SoftwareCatalogCategoryId } from '@/types/software-catalog';
-import { categoryLandingPath, categoryPath } from '@/lib/category-path';
+import { categoryLandingPath } from '@/lib/category-path';
 import { buildLandingMenuCategoriesFromTree } from '@/lib/landing-menu-categories';
 import type {
   MegaMenuColumnGroup,

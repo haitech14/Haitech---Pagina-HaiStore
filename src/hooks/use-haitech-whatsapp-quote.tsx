@@ -55,9 +55,10 @@ export function useHaitechWhatsAppQuote({
       setIsProcessing(true);
       try {
         await saveContact(nextContact, { channel, createProforma });
+        const resolvedCampaign = request.campaign ?? campaign;
         const context: HaitechWhatsAppQuoteContext = {
-          campaign: request.campaign ?? campaign,
-          extraLines: request.extraLines,
+          ...(resolvedCampaign ? { campaign: resolvedCampaign } : {}),
+          ...(request.extraLines?.length ? { extraLines: request.extraLines } : {}),
         };
 
         if (request.messageBuilder) {

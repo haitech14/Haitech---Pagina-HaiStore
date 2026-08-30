@@ -18,11 +18,13 @@ function MegaMenuRowLink({
   to,
   onNavigate,
   className,
+  style,
   children,
 }: {
   to: string;
   onNavigate: () => void;
   className?: string;
+  style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
   const queryClient = useQueryClient();
@@ -35,6 +37,7 @@ function MegaMenuRowLink({
       onMouseEnter={prefetch}
       onFocus={prefetch}
       className={className}
+      style={style}
     >
       {children}
     </Link>

@@ -30,7 +30,7 @@ type SeminuevaProductMeta = {
   image: string;
   isColor: boolean;
   kind: 'equipment' | 'printer' | 'plotter' | 'accessory' | 'laptop' | 'pc' | 'monitor';
-  paperSize?: 'A4' | 'A3';
+  paperSize?: 'A4' | 'A3' | 'A4 / A3' | 'A0' | 'A1';
   scannerType?: 'ARDF' | 'SPDF';
   speedPpm?: string;
   monthlyYield?: string;
@@ -113,10 +113,10 @@ function pickPriceVariant(rows: SeminuevaPlanillaRow[]): {
     const selected = premium.reduce((best, row) =>
       row.tecnicoUsd > best.tecnicoUsd ? row : best,
     );
-    return {
-      tecnicoUsd: selected.tecnicoUsd,
-      variantLabel: formatSeminuevaVariantLabel(selected.notes),
-    };
+    const variantLabel = formatSeminuevaVariantLabel(selected.notes);
+    return variantLabel != null
+      ? { tecnicoUsd: selected.tecnicoUsd, variantLabel }
+      : { tecnicoUsd: selected.tecnicoUsd };
   }
   return { tecnicoUsd: Math.max(...rows.map((row) => row.tecnicoUsd)) };
 }

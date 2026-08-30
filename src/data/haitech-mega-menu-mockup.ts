@@ -1,7 +1,7 @@
 import { alquilerLanding } from '@/data/service-landings/alquiler';
 import { outsourcingLanding } from '@/data/service-landings/outsourcing';
 import { soporteTecnicoLanding } from '@/data/service-landings/soporte-tecnico';
-import { categoryLandingPath, categoryPath } from '@/lib/category-path';
+import { categoryLandingPath } from '@/lib/category-path';
 import type { MegaMenuColumnGroup, NavMegaMenuModel } from '@/lib/mega-menu-from-store-categories';
 import { megaMenuImageForSlug } from '@/data/mega-menu';
 import { serviceDetailPathFromLanding, serviceHubPath } from '@/lib/service-hub';

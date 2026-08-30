@@ -26,16 +26,16 @@ export function QtcPromoBanners({ className }: { className?: string }) {
                   <p
                     className={cn(
                       'text-[28px] font-extrabold leading-tight tracking-tight sm:text-[32px]',
-                      banner.darkText ? 'text-[#1A1A1A]' : 'text-white',
+                      'darkText' in banner && banner.darkText ? 'text-[#1A1A1A]' : 'text-white',
                     )}
-                    style={!banner.darkText ? { color: banner.accent } : undefined}
+                    style={'darkText' in banner && banner.darkText ? undefined : { color: banner.accent }}
                   >
                     {banner.title}
                   </p>
                   <p
                     className={cn(
                       'mt-2 text-[15px] font-semibold sm:text-base',
-                      banner.darkText ? 'text-[#333]' : 'text-white/90',
+                      'darkText' in banner && banner.darkText ? 'text-[#333]' : 'text-white/90',
                     )}
                   >
                     {banner.subtitle}

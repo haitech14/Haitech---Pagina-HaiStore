@@ -258,7 +258,7 @@ export function AccountPackingListPanel() {
   }, [inStockProducts, query, warehouses]);
 
   const sectionGroups = useMemo(() => {
-    const groups = groupSearchProductsByPanelSection(filtered, query.trim() || undefined);
+    const groups = groupSearchProductsByPanelSection(filtered as Product[], query.trim() || undefined);
     const order = new Map(
       SEARCH_PANEL_SECTION_ORDER.map((label, index) => [label, index] as const),
     );

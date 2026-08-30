@@ -1,10 +1,22 @@
 /**
  * Genera variantes WebP optimizadas para assets estáticos de la home.
  * Uso: node scripts/optimize-public-images.mjs
+ *
+ * En Vercel/CI las variantes ya están en git; omitir evita OOM en prebuild.
+ * Forzar local: HAISTORE_FORCE_IMAGE_OPTIMIZE=1
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
+
+const skipOptimize =
+  process.env.HAISTORE_FORCE_IMAGE_OPTIMIZE !== '1' &&
+  (process.env.HAISTORE_SKIP_IMAGE_OPTIMIZE === '1' || process.env.VERCEL === '1');
+
+if (skipOptimize) {
+  console.log('⏭ Optimización de imágenes omitida (Vercel/CI; variantes ya en repo).');
+  process.exit(0);
+}
 
 const PUBLIC = path.join(process.cwd(), 'public');
 

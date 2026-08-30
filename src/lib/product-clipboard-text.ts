@@ -253,7 +253,7 @@ function resolveBasicFeaturesLabel(
     const labels = basicFeatures.map((item) => String(item ?? '').trim()).filter(Boolean);
     return labels.length > 0 ? labels.join(' · ') : null;
   }
-  const single = basicFeatures?.trim();
+  const single = typeof basicFeatures === 'string' ? basicFeatures.trim() : null;
   return single || null;
 }
 
