@@ -84,10 +84,14 @@ export function HaitechMobileMenuSheetNav({ onNavigate }: HaitechMobileMenuSheet
             <li key={item.id} className="border-b border-[#E8E8E8] last:border-b-0">
               <NavLink
                 to={item.to}
-                end={item.end}
+                {...(item.end ? { end: true } : {})}
                 onClick={() => onNavigate?.()}
-                onMouseEnter={item.prefetch ? prefetchStoreRouteFromEvent : undefined}
-                onFocus={item.prefetch ? prefetchStoreRouteFromEvent : undefined}
+                {...(item.prefetch
+                  ? {
+                      onMouseEnter: prefetchStoreRouteFromEvent,
+                      onFocus: prefetchStoreRouteFromEvent,
+                    }
+                  : {})}
                 className={cn(
                   'flex min-h-12 items-center justify-between gap-3 px-4 py-3 text-[15px] font-medium transition-colors',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset',

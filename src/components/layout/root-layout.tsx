@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { HaitechStorefrontHeader } from '@/components/haitech-home/haitech-storefront-header';
+import { HaitechMobileMenuSheet } from '@/components/haitech-home/haitech-mobile-menu-sheet';
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
@@ -154,6 +155,7 @@ export function RootLayout() {
         Saltar al contenido
       </a>
       <HaitechStorefrontHeader />
+      <HaitechMobileMenuSheet />
       <main
         id="contenido"
         className={cn(
