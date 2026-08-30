@@ -256,11 +256,33 @@ function TecnicoDualPrice({ usd, className }: { usd: number; className?: string 
   );
 }
 
-function BuySidebarTecnicoPrice({ usd }: { usd: number }) {
+function BuySidebarSecondaryPrices({
+  tecnicoUsd,
+  showTecnico,
+  showAdminPurchaseLine,
+  productId,
+}: {
+  tecnicoUsd: number;
+  showTecnico: boolean;
+  showAdminPurchaseLine: boolean;
+  productId: string;
+}) {
+  if (!showTecnico && !showAdminPurchaseLine) return null;
+
   return (
-    <p className="mt-1 text-[0.6875rem] text-neutral-400">
-      Precio técnico: <TecnicoDualPrice usd={usd} />
-    </p>
+    <div className="mt-1 flex flex-wrap items-baseline gap-x-1 text-[0.6875rem] text-neutral-400">
+      {showTecnico ? (
+        <span>
+          Precio técnico: <TecnicoDualPrice usd={tecnicoUsd} />
+        </span>
+      ) : null}
+      {showTecnico && showAdminPurchaseLine ? (
+        <span className="text-neutral-300" aria-hidden="true">
+          |
+        </span>
+      ) : null}
+      {showAdminPurchaseLine ? <AdminPurchaseCostLine productId={productId} className="mt-0" /> : null}
+    </div>
   );
 }
 
@@ -323,6 +345,12 @@ interface PurchaseSidebarRolePricesProps extends ProductDetailRoleTotalsInput {
   isOnOffer?: boolean;
   catalogPublicUsd?: number;
   offerUnitUsd?: number;
+  /** Oculta badge % OFF cuando va en cabecera del sidebar mockup. */
+  showDiscountBadge?: boolean;
+  /** Muestra línea Compra para admin en layout mockup. */
+  showAdminPurchaseLine?: boolean;
+  /** Desglose Antes / DSCTO / Ahorras estilo mockup laptop. */
+  showOfferBreakdown?: boolean;
 }
 
 /** Sidebar y barra móvil: Público destacado y Técnico secundario para admin. */
@@ -341,6 +369,9 @@ export function PurchaseSidebarRolePrices({
   isOnOffer = false,
   catalogPublicUsd = 0,
   offerUnitUsd = 0,
+  showDiscountBadge = true,
+  showAdminPurchaseLine = false,
+  showOfferBreakdown = false,
 }: PurchaseSidebarRolePricesProps) {
   const { user, viewAsRoles } = useAuth();
   const { publicTotalUsd, tecnicoTotalUsd, visitorTotalUsd, viewAsTotals, showAdminBreakdown } =
@@ -430,15 +461,25 @@ export function PurchaseSidebarRolePrices({
         ) : null}
         <div className="flex flex-wrap items-baseline gap-1.5">
           <BuySidebarInlineDualPrice usd={publicTotalUsd} />
-          {displayDiscountPercent != null && displayDiscountPercent > 0 ? (
+          {showDiscountBadge && displayDiscountPercent != null && displayDiscountPercent > 0 ? (
             <DiscountBadge percent={displayDiscountPercent} />
           ) : null}
         </div>
-        <BuySidebarTecnicoPrice usd={tecnicoTotalUsd} />
-        <AdminPurchaseCostLine productId={product.id} />
+        <BuySidebarSecondaryPrices
+          tecnicoUsd={tecnicoTotalUsd}
+          showTecnico
+          showAdminPurchaseLine={showAdminPurchaseLine}
+          productId={product.id}
+        />
+        {!showAdminPurchaseLine ? <AdminPurchaseCostLine productId={product.id} /> : null}
       </div>
     );
   }
+
+  const savingsUsd =
+    showOfferBreakdown && antesTotalUsd != null
+      ? Math.max(0, antesTotalUsd - visitorTotalUsd)
+      : null;
 
   if (isBuySidebar) {
     return (
@@ -453,13 +494,30 @@ export function PurchaseSidebarRolePrices({
             />
           </p>
         ) : null}
+        {showOfferBreakdown && displayDiscountPercent != null && displayDiscountPercent > 0 ? (
+          <div className="mb-1.5 flex flex-wrap items-center gap-2">
+            <span className="rounded bg-pink-50 px-2 py-0.5 text-[0.6875rem] font-bold text-pink-700">
+              {displayDiscountPercent}% DSCTO
+            </span>
+            {savingsUsd != null && savingsUsd > 0.001 ? (
+              <span className="text-xs font-semibold text-emerald-600">
+                Ahorras: {formatPenFromUsd(savingsUsd)}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
         <div className="flex flex-wrap items-baseline gap-1.5">
           <BuySidebarInlineDualPrice usd={visitorTotalUsd} />
-          {displayDiscountPercent != null && displayDiscountPercent > 0 ? (
+          {showDiscountBadge && !showOfferBreakdown && displayDiscountPercent != null && displayDiscountPercent > 0 ? (
             <DiscountBadge percent={displayDiscountPercent} />
           ) : null}
         </div>
-        {showTecnicoSecondary ? <BuySidebarTecnicoPrice usd={tecnicoTotalUsd} /> : null}
+        <BuySidebarSecondaryPrices
+          tecnicoUsd={tecnicoTotalUsd}
+          showTecnico={showTecnicoSecondary}
+          showAdminPurchaseLine={showAdminPurchaseLine}
+          productId={product.id}
+        />
       </div>
     );
   }

@@ -54,6 +54,7 @@ import {
   type HaitechFormatoAnchoFilterId,
   type HaitechLaptopActiveFilters,
   type HaitechLaptopFilterId,
+  resolveShowcaseConsumableKind,
   type HaitechShowcaseConsumableKind,
   type HaitechShowcaseFilterId,
 } from '@/data/haitech-home-equipment-showcase';
@@ -66,6 +67,9 @@ import {
 } from '@/data/haitech-home-shop';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
+import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
+import { DEFAULT_USD_TO_PEN } from '@/lib/exchange-rate';
+import { buildShowcaseProductsFromCatalog } from '@/lib/showcase-catalog-consumables';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
@@ -697,6 +701,31 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
     () => parsed.consumableKind ?? 'all',
   );
   const [visibleCount, setVisibleCount] = useState(HAITECH_EQUIPMENT_SHOWCASE_VISIBLE);
+  const [catalogReady, setCatalogReady] = useState(() => getCatalogRows().length > 0);
+  const { data: companySettings } = useCompanySettings();
+  const exchangeRate = companySettings?.usdToPenExchangeRate ?? DEFAULT_USD_TO_PEN;
+
+  useEffect(() => {
+    if (catalogReady) return;
+    let cancelled = false;
+
+    void loadCatalogIndex()
+      .then(() => {
+        if (!cancelled) setCatalogReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setCatalogReady(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [catalogReady]);
+
+  const catalogConsumables = useMemo(
+    () => (catalogReady ? buildShowcaseProductsFromCatalog(getCatalogRows(), exchangeRate) : []),
+    [catalogReady, exchangeRate],
+  );
 
   useEffect(() => {
     if (parsed.categoryId) setCategoryId(parsed.categoryId);
@@ -804,7 +833,8 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
         ...(isFormatoAnchoCategory ? { formatoAnchoSpecFilters } : {}),
         ...(isLaptopCategory ? { laptopSpecFilters } : {}),
         condition,
-        consumableKind,
+        consumableKind: resolveShowcaseConsumableKind(categoryId, consumableKind),
+        ...(categoryId === 'toner' || categoryId === 'repuestos' ? { catalogConsumables } : {}),
         limit: Number.POSITIVE_INFINITY,
       }),
     [
@@ -815,6 +845,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
       laptopSpecFilters,
       formatoAnchoSpecFilters,
       condition,
+      catalogConsumables,
       isEquipmentCategory,
       isLaptopCategory,
       isFormatoAnchoCategory,
@@ -928,7 +959,12 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
           categoryId={categoryId}
           onSelect={(nextCategoryId) => {
             const nextFilter: HaitechShowcaseFilterId = 'todos';
-            const nextKind: HaitechShowcaseConsumableKind = 'all';
+            const nextKind: HaitechShowcaseConsumableKind =
+              nextCategoryId === 'toner'
+                ? 'toner'
+                : nextCategoryId === 'repuestos'
+                  ? 'repuestos'
+                  : 'all';
             const nextEquipmentFilters = EMPTY_EQUIPMENT_SPEC_FILTERS;
             const nextLaptopFilters = EMPTY_LAPTOP_SPEC_FILTERS;
             const nextFormatoAnchoFilters = EMPTY_FORMATO_ANCHO_SPEC_FILTERS;
@@ -973,7 +1009,9 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
             role="tablist"
             aria-label={
               isConsumableCategory
-                ? 'Filtros de tóner y repuestos'
+                ? categoryId === 'repuestos'
+                  ? 'Filtros de repuestos'
+                  : 'Filtros de tóner'
                 : categoryId === 'impresoras'
                   ? 'Subcategorías de impresoras'
                   : isLaptopCategory
@@ -1027,7 +1065,11 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
             <h3 className="font-[family-name:var(--font-infobox)] text-[20px] font-bold tracking-tight text-[#111] sm:text-[24px] lg:text-[26px]">
               Explora nuestros{' '}
               <span style={{ color: BRAND }}>
-                {isConsumableCategory ? 'suministros' : 'equipos'}
+                {isConsumableCategory
+                  ? categoryId === 'repuestos'
+                    ? 'repuestos'
+                    : 'tóner'
+                  : 'equipos'}
               </span>
             </h3>
           </div>

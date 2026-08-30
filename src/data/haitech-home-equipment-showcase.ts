@@ -23,7 +23,8 @@ export type HaitechEquipmentShowcaseCategoryId =
   | 'monitores'
   | 'pantallas-interactivas'
   | 'videoconferencia'
-  | 'toner-repuestos'
+  | 'toner'
+  | 'repuestos'
   | 'escaneres'
   | 'camaras'
   | 'accesorios'
@@ -136,12 +137,20 @@ export const HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES: readonly HaitechEquipmentSho
     shopTabId: null,
   },
   {
-    id: 'toner-repuestos',
-    label: 'Tóner y Repuestos',
+    id: 'toner',
+    label: 'Tóner',
     image: '/categories/toner-suministros.png',
     to: categoryLandingPath('toner-suministros'),
     filterMode: 'consumable',
     shopTabId: 'toner',
+  },
+  {
+    id: 'repuestos',
+    label: 'Repuestos',
+    image: '/categories/repuestos.png',
+    to: categoryLandingPath('repuestos'),
+    filterMode: 'consumable',
+    shopTabId: null,
   },
   {
     id: 'escaneres',
@@ -1535,8 +1544,11 @@ function matchesShowcaseCategory(
     return true;
   }
 
-  if (category.id === 'toner-repuestos') {
-    return isTonerOrRepuestoProduct(product);
+  if (category.id === 'toner') {
+    return isTonerOrRepuestoProduct(product) && !isRepuestoProduct(product);
+  }
+  if (category.id === 'repuestos') {
+    return isRepuestoProduct(product);
   }
   if (category.id === 'accesorios') {
     return isAccesorioProduct(product);
@@ -1577,6 +1589,45 @@ function matchesShowcaseCategory(
 
 export type HaitechShowcaseConsumableKind = 'all' | 'toner' | 'repuestos';
 
+export function isShowcaseConsumableCategory(
+  categoryId: HaitechEquipmentShowcaseCategoryId,
+): boolean {
+  return categoryId === 'toner' || categoryId === 'repuestos';
+}
+
+export function resolveShowcaseConsumableKind(
+  categoryId: HaitechEquipmentShowcaseCategoryId,
+  consumableKind: HaitechShowcaseConsumableKind = 'all',
+): HaitechShowcaseConsumableKind {
+  if (categoryId === 'toner') return 'toner';
+  if (categoryId === 'repuestos') return 'repuestos';
+  return consumableKind;
+}
+
+function mergeCatalogConsumablesIntoPool(
+  pool: HaitechShopProduct[],
+  catalogConsumables: readonly HaitechShopProduct[] | undefined,
+): HaitechShopProduct[] {
+  if (!catalogConsumables?.length) return pool;
+
+  const seenIds = new Set(pool.map((product) => product.id));
+  const seenCodes = new Set(
+    pool.map((product) => String(product.code ?? '').trim().toUpperCase()).filter(Boolean),
+  );
+  const merged = [...pool];
+
+  for (const product of catalogConsumables) {
+    if (seenIds.has(product.id)) continue;
+    const code = String(product.code ?? '').trim().toUpperCase();
+    if (code && seenCodes.has(code)) continue;
+    seenIds.add(product.id);
+    if (code) seenCodes.add(code);
+    merged.push(product);
+  }
+
+  return merged;
+}
+
 export function filterEquipmentShowcaseProducts(options: {
   categoryId: HaitechEquipmentShowcaseCategoryId;
   specFilter: HaitechShowcaseFilterId;
@@ -1585,6 +1636,7 @@ export function filterEquipmentShowcaseProducts(options: {
   laptopSpecFilters?: HaitechLaptopActiveFilters;
   condition: HaitechEquipmentConditionId;
   consumableKind?: HaitechShowcaseConsumableKind;
+  catalogConsumables?: readonly HaitechShopProduct[];
   limit?: number;
 }): HaitechShopProduct[] {
   const category = HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES.find((c) => c.id === options.categoryId);
@@ -1610,9 +1662,17 @@ export function filterEquipmentShowcaseProducts(options: {
 
   const limit = options.limit ?? HAITECH_EQUIPMENT_SHOWCASE_VISIBLE;
   const isConsumable = category.filterMode === 'consumable';
-  const consumableKind = options.consumableKind ?? 'all';
+  const consumableKind = resolveShowcaseConsumableKind(
+    options.categoryId,
+    options.consumableKind ?? 'all',
+  );
 
-  const filtered = showcaseProductPool()
+  const pool =
+    isShowcaseConsumableCategory(options.categoryId)
+      ? mergeCatalogConsumablesIntoPool(showcaseProductPool(), options.catalogConsumables)
+      : showcaseProductPool();
+
+  const filtered = pool
     .filter((product) => {
       if (!matchesShowcaseCategory(product, category)) return false;
 

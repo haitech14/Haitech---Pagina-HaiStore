@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 
@@ -11,7 +12,11 @@ import {
 } from '@/components/product-detail/product-quote-pdf-viewer';
 import { ProductDetailAdvisorBanner } from '@/components/product-detail/product-detail-advisor-banner';
 import { ProductDetailConsumables } from '@/components/product-detail/product-detail-consumables';
+import { ProductDetailCombo } from '@/components/product-detail/product-detail-combo';
+import { ProductDetailComboMockup } from '@/components/product-detail/product-detail-combo-mockup';
+import { ProductDetailComplementaCompra } from '@/components/product-detail/product-detail-complementa-compra';
 import { ProductDetailDescription } from '@/components/product-detail/product-detail-description';
+import { ProductDetailDescriptionValueProps } from '@/components/product-detail/product-detail-description-value-props';
 import { ProductDetailDescriptionPanel } from '@/components/product-detail/product-detail-description-panel';
 import { ProductDetailDescriptionStory } from '@/components/product-detail/product-detail-description-story';
 import { ProductDetailOptionalProducts, type PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
@@ -29,6 +34,18 @@ import { ProductRentalQuoteDialog } from '@/components/product-detail/product-re
 import { ProductDetailResources } from '@/components/product-detail/product-detail-resources';
 import { ProductDetailSpecsTable } from '@/components/product-detail/product-detail-specs-table';
 import { buildProductDetail, isColorPrinterEquipment } from '@/lib/build-product-detail';
+import { copyProductTextToClipboard } from '@/lib/copy-product-to-clipboard';
+import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
+import { inferColor } from '@/lib/category-catalog-filters';
+import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
+import { getProductCardTitleContent } from '@/lib/product-card-title';
+import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
+import { buildProductClipboardPayload } from '@/lib/product-clipboard-text';
+import { productPath } from '@/lib/product-path';
+import {
+  downloadProductAttachment,
+  isPdfAttachment,
+} from '@/lib/inventory-attachments';
 import { DEFAULT_BULK_DISCOUNT_TIERS, resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { ensureFullPrices } from '@/lib/roles';
 import {
@@ -57,6 +74,7 @@ import {
   mergeConsumableTonerOptions,
   mergeCrossSellTonerOptions,
   resolveConfigureTonerCards,
+  resolveDefaultTonerSupplyTypeForEquipment,
   resolveTonerCatalogLookupIds,
   type ConfigureTonerCard,
 } from '@/lib/product-configure-toner';
@@ -71,6 +89,8 @@ import {
   HERO_WARRANTY_BASE_OPTION_ID,
   HERO_WARRANTY_UPGRADE_OPTION_IDS,
   resolveHeroAccessoryCards,
+  resolveComplementaSidebarAccessoryCards,
+  resolveComplementaStabilizerCard,
   resolveHeroWarrantyBaseLabel,
   resolveHeroWarrantyUpgrades,
   type ConfigureHeroAccessoryCard,
@@ -101,6 +121,7 @@ import type { FeaturedProduct } from '@/data/featured-products';
 import type { Product } from '@/types/product';
 
 type DetailTab =
+  | 'combo'
   | 'description'
   | 'specifications'
   | 'configuration'
@@ -188,7 +209,12 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const { options: inventoryVariantOptions } = useProductInventoryVariants(product);
   const { ref: relatedDeferRef, near: relatedNearViewport } = useNearViewport(true);
   const { data: catalogProducts = [], isLoading: catalogLoading } = useProducts({
-    enabled: detail.isPrinterEquipment,
+    enabled:
+      detail.isPrinterEquipment ||
+      (detail.isLaptopProduct &&
+        ((product.upsell_product_ids?.length ?? 0) > 0 ||
+          (product.upsell_optional_products?.length ?? 0) > 0 ||
+          detail.comboItems.length > 0)),
   });
   const tonerCatalogLookupIds = useMemo(
     () =>
@@ -224,6 +250,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [product, detail.displayTitle, categoryTree],
   );
   const [activeTab, setActiveTab] = useState<DetailTab>('description');
+  const displayPrice = useCatalogDisplayPrice(product);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [maintenanceQuoteOpen, setMaintenanceQuoteOpen] = useState(false);
@@ -319,24 +346,69 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   );
 
   const useRicohTabs = detail.isPrinterEquipment;
+  const mockupLayout = detail.useMockupLayout;
 
-  const tabs = useMemo(
-    (): { id: DetailTab; label: string }[] => [
+  const tabs = useMemo((): { id: DetailTab; label: string }[] => {
+    if (!mockupLayout) {
+      return [
+        { id: 'description', label: 'Descripción' },
+        { id: 'specifications', label: 'Especificaciones' },
+        { id: 'consumables', label: 'Consumibles' },
+        { id: 'shipping', label: 'Envíos' },
+        { id: 'warranty', label: 'Garantía' },
+      ];
+    }
+
+    const mockupTabs: { id: DetailTab; label: string }[] = [];
+
+    if (detail.isLaptopProduct && detail.comboItems.length > 0) {
+      mockupTabs.push({ id: 'combo', label: 'Compra en combo' });
+    }
+
+    mockupTabs.push(
       { id: 'description', label: 'Descripción' },
       { id: 'specifications', label: 'Especificaciones' },
-      { id: 'consumables', label: 'Consumibles' },
-      { id: 'shipping', label: 'Envíos' },
-      { id: 'warranty', label: 'Garantía' },
-    ],
-    [],
-  );
+    );
 
-  const handleTechnicalSheetFallback = useCallback(() => {
-    setActiveTab('description');
-    requestAnimationFrame(() => {
-      productInfoSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }, []);
+    if (
+      detail.isPrinterEquipment ||
+      (detail.isLaptopProduct &&
+        ((product.upsell_product_ids?.length ?? 0) > 0 ||
+          (product.upsell_optional_products?.length ?? 0) > 0))
+    ) {
+      mockupTabs.push({ id: 'configuration', label: 'Accesorios' });
+    }
+
+    mockupTabs.push(
+      { id: 'resources', label: 'Descargas' },
+      { id: 'warranty', label: 'Garantía' },
+      {
+        id: 'reviews',
+        label:
+          detail.reviews > 0
+            ? `Valoraciones (${detail.reviews})`
+            : 'Valoraciones',
+      },
+    );
+
+    return mockupTabs;
+  }, [
+    mockupLayout,
+    detail.isPrinterEquipment,
+    detail.isLaptopProduct,
+    product.upsell_product_ids,
+    product.upsell_optional_products,
+    detail.reviews,
+    detail.comboItems.length,
+    catalogProducts,
+    product,
+  ]);
+
+  useEffect(() => {
+    if (mockupLayout && detail.isLaptopProduct && detail.comboItems.length > 0) {
+      setActiveTab('combo');
+    }
+  }, [product.id, mockupLayout, detail.isLaptopProduct, detail.comboItems.length]);
 
   const tabIds = useMemo(() => tabs.map((tab) => tab.id).join(','), [tabs]);
 
@@ -455,6 +527,132 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [garantiaStep],
   );
 
+  const handleHeroTechnicalSheet = useCallback(() => {
+    const fichaLink = detail.resourceLinks.find((link) => link.action === 'technical_sheet');
+    const fichaFileName = fichaLink?.fileName ?? 'ficha-tecnica.pdf';
+    const fichaCanPreview = Boolean(
+      fichaLink?.href &&
+        isPdfAttachment(fichaLink.href, fichaLink.mimeType, fichaFileName),
+    );
+
+    if (fichaLink?.href && fichaCanPreview) {
+      window.open(fichaLink.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    if (fichaLink?.href) {
+      downloadProductAttachment(fichaLink.href, fichaFileName);
+      return;
+    }
+
+    setActiveTab('specifications');
+    requestAnimationFrame(() => {
+      productInfoSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [detail.resourceLinks]);
+
+  const handleHeroShare = useCallback(async () => {
+    const { title } = getProductCardTitleContent(product);
+    const condition = resolveProductCardBadgeLabel(product);
+    const code = product.code?.trim() || null;
+    const basicFeatures = buildProductCardQuickSpecsLine(product);
+    const payload = buildProductClipboardPayload({
+      title,
+      stock: product.stock,
+      ...clipboardPriceFieldsFromDisplay(displayPrice),
+      productId: product.id,
+      productPath: productPath(product),
+      isColorProduct: inferColor(product) === 'Color',
+      ...(code != null ? { code } : {}),
+      ...(condition != null ? { condition } : {}),
+      ...(basicFeatures != null ? { basicFeatures } : {}),
+      ...(product.category != null ? { category: product.category } : {}),
+      ...(product.volume_role_prices != null ? { volumeRolePrices: product.volume_role_prices } : {}),
+      ...(product.delivery_time != null ? { deliveryTime: product.delivery_time } : {}),
+    });
+
+    const ok = await copyProductTextToClipboard({
+      plain: payload.plain,
+      html: payload.html,
+    });
+
+    if (ok) {
+      toast.success('Enlace del producto copiado');
+      return;
+    }
+    toast.error('No se pudo copiar el enlace');
+  }, [displayPrice, product]);
+
+  const comboMainUnitUsd = useMemo(
+    () =>
+      showPreparationTypeSelector
+        ? resolvePublicUnitBaseWithPreparationUsd(fullPrices.public, preparationType, product)
+        : fullPrices.public,
+    [fullPrices.public, preparationType, product, showPreparationTypeSelector],
+  );
+
+  const complementaSidebarSlot = useMemo(() => {
+    if (!mockupLayout || purchaseMode === 'rent' || detail.isSupplyProduct) return null;
+
+    if (detail.isLaptopProduct && detail.comboItems.length > 0) {
+      return (
+        <ProductDetailCombo
+          items={detail.comboItems}
+          mainProduct={product}
+          catalogProducts={catalogProducts}
+          title="Complementa tu compra"
+          layout="complement"
+          collapsible={false}
+          embedded
+          className="border-0 bg-transparent shadow-none"
+        />
+      );
+    }
+
+    const hasToner = purchasableTonerCards.length > 0;
+    const sidebarAccessoryCards = resolveComplementaSidebarAccessoryCards(equipmentSteps);
+    const stabilizerCard = resolveComplementaStabilizerCard(equipmentSteps);
+    const hasAccessories = sidebarAccessoryCards.length > 0;
+    const hasWarranty = heroWarrantyUpgrades.length > 0;
+    if (!hasToner && !hasAccessories && !hasWarranty && !stabilizerCard) return null;
+
+    return (
+      <ProductDetailComplementaCompra
+        variant="sidebar"
+        tonerCards={purchasableTonerCards}
+        defaultTonerSupplyType={resolveDefaultTonerSupplyTypeForEquipment(product)}
+        accessoryCards={sidebarAccessoryCards}
+        stabilizerCard={stabilizerCard}
+        selectedTonerOptionIds={equipmentSelection.toner ?? new Set<string>()}
+        equipmentSelection={equipmentSelection}
+        onTonerToggle={handleHeroTonerToggle}
+        onAccessoryToggle={handleHeroAccessoryToggle}
+        {...(heroWarrantyBaseLabel ? { warrantyBaseLabel: heroWarrantyBaseLabel } : {})}
+        warrantyUpgrades={heroWarrantyUpgrades}
+        selectedWarrantyOptionId={selectedWarrantyOptionId}
+        onWarrantySelect={handleHeroWarrantySelect}
+        {...(product.storefront_ui != null ? { storefrontUi: product.storefront_ui } : {})}
+      />
+    );
+  }, [
+    mockupLayout,
+    purchaseMode,
+    detail.isSupplyProduct,
+    detail.isLaptopProduct,
+    detail.comboItems,
+    catalogProducts,
+    equipmentSteps,
+    purchasableTonerCards,
+    heroWarrantyUpgrades,
+    heroWarrantyBaseLabel,
+    equipmentSelection,
+    handleHeroTonerToggle,
+    handleHeroAccessoryToggle,
+    selectedWarrantyOptionId,
+    handleHeroWarrantySelect,
+    product,
+  ]);
+
   const equipmentConfiguration = useMemo<CartConfigurationLine | undefined>(() => {
     const maintenanceSupplyPlanQuote = resolveMaintenanceSupplyPlanQuote(
       maintenanceSupplyPlan,
@@ -559,8 +757,9 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const heroGridClass =
     'grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start lg:gap-6';
 
-  const detailLayoutGridClass =
-    'lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)_minmax(280px,340px)] lg:items-start lg:gap-6 xl:gap-8';
+  const detailLayoutGridClass = mockupLayout
+    ? 'lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)_minmax(280px,340px)] lg:items-start lg:gap-6 xl:gap-8'
+    : 'lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)_minmax(280px,340px)] lg:items-start lg:gap-6 xl:gap-8';
 
   const showOriginalBadge =
     /ricoh/i.test(detail.brandLabel) &&
@@ -613,6 +812,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                     product={product}
                     showOriginalBadge={showOriginalBadge}
                     brandLabel={detail.brandLabel}
+                    layout={mockupLayout ? 'mockup' : 'default'}
                   />
                 </div>
 
@@ -640,6 +840,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   tonerCatalog={catalogForEquipment}
                   consumableGroups={consumableGroups}
                   inventoryVariantOptions={inventoryVariantOptions}
+                  layout={mockupLayout ? 'mockup' : 'default'}
+                  hideComplementaCompra={mockupLayout}
+                  onQuoteClick={() => setQuoteOpen(true)}
+                  onTechnicalSheetClick={handleHeroTechnicalSheet}
+                  onShareClick={() => {
+                    void handleHeroShare();
+                  }}
                   mobilePurchaseSlot={
                     <div ref={mobilePurchaseVisibilityRef} className="mt-3 lg:hidden">
                       <ProductDetailPurchaseCard
@@ -662,11 +869,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                         onRentalEstimateChange={setRentalEstimate}
                         rentalConfiguratorRef={rentalConfiguratorRef}
                         onQuoteClick={() => setQuoteOpen(true)}
-                        onTechnicalSheetFallback={handleTechnicalSheetFallback}
                         {...secondaryPurchaseActionProps}
                         {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
                         {...(showPreparationTypeSelector ? { preparationType } : {})}
                         onQuoteGenerated={setQuotePdfPreview}
+                        layout={mockupLayout ? 'mockup' : 'default'}
+                        outOfStock={outOfStock}
+                        complementaSlot={complementaSidebarSlot}
                       />
                     </div>
                   }
@@ -693,11 +902,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                 onRentalEstimateChange={setRentalEstimate}
                 rentalConfiguratorRef={rentalConfiguratorRef}
                 onQuoteClick={() => setQuoteOpen(true)}
-                onTechnicalSheetFallback={handleTechnicalSheetFallback}
                 {...secondaryPurchaseActionProps}
                 {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
                 {...(showPreparationTypeSelector ? { preparationType } : {})}
                 onQuoteGenerated={setQuotePdfPreview}
+                layout={mockupLayout ? 'mockup' : 'default'}
+                outOfStock={outOfStock}
+                complementaSlot={complementaSidebarSlot}
               />
             </div>
           </div>
@@ -719,9 +930,20 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               aria-labelledby={`tab-${activeTab}`}
               className="w-full py-4 sm:py-5"
             >
+              {activeTab === 'combo' ? (
+                <ProductDetailComboMockup
+                  mainProduct={product}
+                  items={detail.comboItems}
+                  catalogProducts={catalogProducts}
+                  mainUnitUsd={comboMainUnitUsd}
+                />
+              ) : null}
+
               {activeTab === 'description' ? (
                 <div className="w-full space-y-4 sm:space-y-5">
-                  <h2 className="text-base font-bold text-neutral-900 sm:text-lg">Descripción</h2>
+                  {!mockupLayout ? (
+                    <h2 className="text-base font-bold text-neutral-900 sm:text-lg">Descripción</h2>
+                  ) : null}
                   {detail.descriptionContent?.storyBlocks &&
                   detail.descriptionContent.storyBlocks.length > 0 ? (
                     <ProductDetailDescriptionStory
@@ -758,7 +980,19 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                       ) : null}
                     </div>
                   )}
-                  <ProductDetailAdvisorBanner />
+                  {mockupLayout ? (
+                    <ProductDetailDescriptionValueProps
+                      variant={
+                        detail.isSupplyProduct
+                          ? 'supply'
+                          : detail.isLaptopProduct
+                            ? 'laptop'
+                            : 'equipment'
+                      }
+                      className="mt-5"
+                    />
+                  ) : null}
+                  {!mockupLayout ? <ProductDetailAdvisorBanner /> : null}
                 </div>
               ) : null}
 

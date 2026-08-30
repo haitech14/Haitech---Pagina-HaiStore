@@ -31,10 +31,13 @@ const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
   },
   {
     id: 'consumibles',
-    to: storeShowcasePath({ categoryId: 'toner-repuestos' }),
+    to: storeShowcasePath({ categoryId: 'toner' }),
     label: 'Consumibles',
     prefetch: true,
-    matchActive: ({ pathname }) => pathname.includes('toner') || pathname.includes('consumible'),
+    matchActive: ({ pathname }) =>
+      pathname.includes('toner') ||
+      pathname.includes('repuestos') ||
+      pathname.includes('consumible'),
   },
   {
     id: 'servicio-tecnico',

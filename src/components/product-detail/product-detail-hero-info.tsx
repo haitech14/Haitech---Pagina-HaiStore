@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { Star } from 'lucide-react';
 
 import { ProductDetailComplementaCompra } from '@/components/product-detail/product-detail-complementa-compra';
+import { ProductDetailHeroActions } from '@/components/product-detail/product-detail-hero-actions';
+import { ProductDetailMockupTrustBadges } from '@/components/product-detail/product-detail-mockup-trust-badges';
 import { ProductDetailHeroSpecs } from '@/components/product-detail/product-detail-hero-specs';
 import { ProductDetailHeroTrustStrip } from '@/components/product-detail/product-detail-hero-trust-strip';
 import { ProductDetailPreparationTypeSelector } from '@/components/product-detail/product-detail-preparation-type-selector';
@@ -60,6 +62,13 @@ interface ProductDetailHeroInfoProps {
   tonerCatalog?: Product[];
   consumableGroups?: ConsumableGroup[];
   inventoryVariantOptions?: ProductInventoryVariantOption[];
+  /** Layout Ricoh mockup: título antes de rating, sin trust strip ni complementa en hero. */
+  layout?: 'default' | 'mockup';
+  onQuoteClick?: () => void;
+  onTechnicalSheetClick?: () => void;
+  onShareClick?: () => void;
+  /** Oculta «Complementa tu compra» del hero (p. ej. cuando va en el sidebar). */
+  hideComplementaCompra?: boolean;
 }
 
 function resolveBestSellerBadge(
@@ -98,7 +107,14 @@ export function ProductDetailHeroInfo({
   tonerCatalog = [],
   consumableGroups = [],
   inventoryVariantOptions = [],
+  layout = 'default',
+  onQuoteClick,
+  onTechnicalSheetClick,
+  onShareClick,
+  hideComplementaCompra = false,
 }: ProductDetailHeroInfoProps) {
+  const isMockupLayout = layout === 'mockup';
+  const isLaptopMockup = isMockupLayout && detail.isLaptopProduct;
   const brandLabel = resolveProductHeroBrand(product) ?? detail.brandLabel;
   const displayRating = Number(detail.rating.toFixed(1));
   const fullStars = Math.min(5, Math.max(0, Math.round(displayRating)));
@@ -119,6 +135,7 @@ export function ProductDetailHeroInfo({
   const hasComplementaItems =
     hasTonerSection || hasAccessorySection || hasWarrantySection || hasMaintenanceSection;
   const showComplementaCompra =
+    !hideComplementaCompra &&
     showBuyHeroOptions &&
     hasComplementaItems &&
     equipmentSelection != null &&
@@ -172,73 +189,113 @@ export function ProductDetailHeroInfo({
   const showHeroBullets = !isSupply && detail.heroSpecBullets.length > 0;
   const showCardSpecFallback = !showHeroBullets && cardSpecRows.length > 0;
 
+  const heroLead = detail.heroLead?.trim() || detail.heroDescription?.trim() || '';
+  const showHeroLead = heroLead.length > 0;
+
+  const bestSellerBadge = showBestSeller ? (
+    <span className="inline-flex w-fit rounded-md bg-red-600 px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-white">
+      Más vendido
+    </span>
+  ) : null;
+
+  const ratingBlock =
+    reviewCount > 0 ? (
+      <div
+        className="flex min-w-0 flex-wrap items-center gap-2"
+        aria-label={`Valoración ${displayRating} de 5, ${reviewCount} valoraciones`}
+      >
+        <div className="flex shrink-0 gap-0.5" aria-hidden="true">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Star
+              key={index}
+              className={
+                index < fullStars
+                  ? 'size-4 fill-amber-400 text-amber-400'
+                  : 'size-4 fill-neutral-200 text-neutral-200'
+              }
+            />
+          ))}
+        </div>
+        <span className="text-sm font-semibold text-neutral-700">{displayRating}</span>
+        <span className="text-sm text-neutral-500">
+          ({reviewCount} valoraciones de clientes)
+        </span>
+      </div>
+    ) : null;
+
+  const titleBlock = (
+    <h1 className="text-pretty text-lg font-bold leading-snug text-[#0f1f3d] sm:text-xl lg:text-2xl">
+      {detail.heroTitle ?? product.name}
+    </h1>
+  );
+
+  const metaBlock =
+    heroMetaSegments.length > 0 ? (
+      <p className="text-sm text-neutral-900">
+        {heroMetaSegments.map((segment, index) => (
+          <span key={segment.label}>
+            {index > 0 ? <span className="mx-1.5 text-neutral-400">·</span> : null}
+            <span className="font-semibold">{segment.label}:</span> {segment.value}
+          </span>
+        ))}
+      </p>
+    ) : null;
+
+  const leadBlock = showHeroLead ? (
+    <p className="text-sm leading-relaxed text-neutral-600">{heroLead}</p>
+  ) : null;
+
+  const specsBlock = showHeroBullets ? (
+    <ProductDetailHeroSpecs
+      bullets={detail.heroSpecBullets}
+      variant={isLaptopMockup ? 'grid' : 'list'}
+    />
+  ) : showCardSpecFallback ? (
+    <ProductCardSpecTable
+      rows={cardSpecRows}
+      className="max-w-md"
+      {...(isSupply ? { size: 'comfortable' as const } : {})}
+    />
+  ) : null;
+
+  const heroActionsBlock =
+    isMockupLayout && (onQuoteClick || onTechnicalSheetClick || onShareClick) ? (
+      <ProductDetailHeroActions
+        {...(onTechnicalSheetClick ? { onTechnicalSheetClick } : {})}
+        {...(onQuoteClick ? { onQuoteClick } : {})}
+        {...(onShareClick ? { onShareClick } : {})}
+        className="mt-1"
+      />
+    ) : null;
+
+  const laptopTrustBlock = isLaptopMockup ? (
+    <ProductDetailMockupTrustBadges className="mt-2.5" />
+  ) : null;
+
   return (
     <div className="flex min-w-0 flex-col">
-      {showBestSeller ? (
-        <span className="inline-flex w-fit rounded-md bg-orange-500 px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-white">
-          Más vendido
-        </span>
-      ) : null}
-
-      {reviewCount > 0 ? (
-        <div
-          className={cn(
-            'flex min-w-0 flex-wrap items-center gap-2',
-            showBestSeller && 'mt-2.5',
-          )}
-        >
-          <div
-            className="flex min-w-0 items-center gap-1.5"
-            aria-label={`Valoración ${displayRating} de 5, ${reviewCount} valoraciones`}
-          >
-            <div className="flex shrink-0 gap-0.5" aria-hidden="true">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <Star
-                  key={index}
-                  className={
-                    index < fullStars
-                      ? 'size-4 fill-amber-400 text-amber-400'
-                      : 'size-4 fill-neutral-200 text-neutral-200'
-                  }
-                />
-              ))}
-            </div>
-            <span className="text-sm text-blue-600">
-              ({reviewCount} valoraciones de clientes)
-            </span>
-          </div>
-        </div>
-      ) : null}
-
-      <h1
-        className={cn(
-          'text-pretty text-lg font-bold leading-snug text-[#0f1f3d] sm:text-xl lg:text-2xl',
-          (showBestSeller || reviewCount > 0) && 'mt-2.5',
-        )}
-      >
-        {detail.heroTitle ?? product.name}
-      </h1>
-
-      {heroMetaSegments.length > 0 ? (
-        <p className="mt-1 text-sm text-neutral-900">
-          {heroMetaSegments.map((segment, index) => (
-            <span key={segment.label}>
-              {index > 0 ? <span className="mx-1.5 text-neutral-400">·</span> : null}
-              <span className="font-semibold">{segment.label}:</span> {segment.value}
-            </span>
-          ))}
-        </p>
-      ) : null}
-
-      {showHeroBullets ? (
-        <ProductDetailHeroSpecs bullets={detail.heroSpecBullets} className="mt-3" />
-      ) : showCardSpecFallback ? (
-        <ProductCardSpecTable
-          rows={cardSpecRows}
-          className="mt-3 max-w-md"
-          {...(isSupply ? { size: 'comfortable' as const } : {})}
-        />
-      ) : null}
+      {isMockupLayout ? (
+        <>
+          {bestSellerBadge}
+          <div className={cn(showBestSeller && 'mt-2.5')}>{titleBlock}</div>
+          {ratingBlock ? <div className="mt-2">{ratingBlock}</div> : null}
+          {metaBlock ? <div className="mt-1">{metaBlock}</div> : null}
+          {laptopTrustBlock}
+          {leadBlock ? <div className="mt-2.5">{leadBlock}</div> : null}
+          {specsBlock ? <div className="mt-3">{specsBlock}</div> : null}
+          {heroActionsBlock}
+        </>
+      ) : (
+        <>
+          {bestSellerBadge}
+          {ratingBlock ? (
+            <div className={cn(showBestSeller && 'mt-2.5')}>{ratingBlock}</div>
+          ) : null}
+          <div className={cn((showBestSeller || reviewCount > 0) && 'mt-2.5')}>{titleBlock}</div>
+          {metaBlock ? <div className="mt-1">{metaBlock}</div> : null}
+          {specsBlock ? <div className="mt-3">{specsBlock}</div> : null}
+        </>
+      )}
 
       {compatibleModels.length > 0 ? (
         <div className="mt-3 space-y-2">
@@ -258,7 +315,7 @@ export function ProductDetailHeroInfo({
         </div>
       ) : null}
 
-      {detail.isSupplyProduct ? null : (
+      {detail.isSupplyProduct || isMockupLayout ? null : (
         <ProductDetailHeroTrustStrip
           product={product}
           giftSubtitle={detail.giftTrustSubtitle}

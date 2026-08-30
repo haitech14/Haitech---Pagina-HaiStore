@@ -311,14 +311,14 @@ const TONER_FEATURED: Record<string, MegaMenuFeaturedContent> = {
     title: 'Tóner y consumibles',
     description:
       'Originales Ricoh, compatibles certificados y opciones remanufacturadas para cada presupuesto.',
-    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
+    href: storeShowcasePath({ categoryId: 'toner' }),
   },
   repuestos: {
     image: '/categories/repuestos-512.webp',
     title: 'Repuestos originales',
     description:
       'Rodillos, fusores, kits de mantenimiento y componentes para extender la vida de tus equipos.',
-    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    href: storeShowcasePath({ categoryId: 'repuestos' }),
   },
 };
 
@@ -810,12 +810,10 @@ export function buildTonerRepuestosNavMegaMenu(tree: StoreCategoryTreeNode[]): N
 
   const sidebarViewAll: Record<(typeof TONER_ROOT_SLUGS)[number], string> = {
     'toner-suministros': storeShowcasePath({
-      categoryId: 'toner-repuestos',
-      consumableKind: 'toner',
+      categoryId: 'toner',
     }),
     repuestos: storeShowcasePath({
-      categoryId: 'toner-repuestos',
-      consumableKind: 'repuestos',
+      categoryId: 'repuestos',
     }),
   };
 
@@ -868,12 +866,10 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
 
   const sidebarViewAll: Record<(typeof TONER_ROOT_SLUGS)[number], string> = {
     'toner-suministros': storeShowcasePath({
-      categoryId: 'toner-repuestos',
-      consumableKind: 'toner',
+      categoryId: 'toner',
     }),
     repuestos: storeShowcasePath({
-      categoryId: 'toner-repuestos',
-      consumableKind: 'repuestos',
+      categoryId: 'repuestos',
     }),
   };
 
@@ -899,17 +895,15 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         title: 'Tóner originales',
         image: '/categories/accesorios-impresoras.png',
         href: storeShowcasePath({
-          categoryId: 'toner-repuestos',
+          categoryId: 'toner',
           filter: 'originales',
-          consumableKind: 'toner',
         }),
         links: [
           {
             name: 'Explorar',
             href: storeShowcasePath({
-              categoryId: 'toner-repuestos',
-              filter: 'originales',
-              consumableKind: 'toner',
+              categoryId: 'toner',
+          filter: 'originales',
             }),
           },
         ],
@@ -919,17 +913,15 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         title: 'Tóner compatibles',
         image: '/categories/toner-suministros.png',
         href: storeShowcasePath({
-          categoryId: 'toner-repuestos',
+          categoryId: 'toner',
           filter: 'compatibles',
-          consumableKind: 'toner',
         }),
         links: [
           {
             name: 'Explorar',
             href: storeShowcasePath({
-              categoryId: 'toner-repuestos',
-              filter: 'compatibles',
-              consumableKind: 'toner',
+              categoryId: 'toner',
+          filter: 'compatibles',
             }),
           },
         ],
@@ -939,17 +931,15 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         title: 'Tóner remanufacturado',
         image: '/categories/toner-suministros.png',
         href: storeShowcasePath({
-          categoryId: 'toner-repuestos',
+          categoryId: 'toner',
           filter: 'remanufacturados',
-          consumableKind: 'toner',
         }),
         links: [
           {
             name: 'Explorar',
             href: storeShowcasePath({
-              categoryId: 'toner-repuestos',
-              filter: 'remanufacturados',
-              consumableKind: 'toner',
+              categoryId: 'toner',
+          filter: 'remanufacturados',
             }),
           },
         ],
@@ -959,15 +949,13 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         title: 'Ver todo el tóner',
         image: '/categories/toner-suministros.png',
         href: storeShowcasePath({
-          categoryId: 'toner-repuestos',
-          consumableKind: 'toner',
+          categoryId: 'toner',
         }),
         links: [
           {
             name: 'Explorar',
             href: storeShowcasePath({
-              categoryId: 'toner-repuestos',
-              consumableKind: 'toner',
+              categoryId: 'toner',
             }),
           },
         ],
@@ -979,22 +967,19 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         title: 'Repuestos',
         image: '/categories/repuestos.png',
         href: storeShowcasePath({
-          categoryId: 'toner-repuestos',
-          consumableKind: 'repuestos',
+          categoryId: 'repuestos',
         }),
         links: filterRedundantMegaMenuLinks('Repuestos', [
           {
             name: 'Partes y componentes',
             href: storeShowcasePath({
-              categoryId: 'toner-repuestos',
-              consumableKind: 'repuestos',
+              categoryId: 'repuestos',
             }),
           },
           {
             name: 'Explorar',
             href: storeShowcasePath({
-              categoryId: 'toner-repuestos',
-              consumableKind: 'repuestos',
+              categoryId: 'repuestos',
             }),
           },
         ]),
@@ -1013,8 +998,8 @@ export function buildTonerRepuestosNavMegaMenuStatic(): NavMegaMenuModel {
         description: 'Tóner, repuestos y suministros para tu flota de impresión.',
         href:
           slug === 'repuestos'
-            ? storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' })
-            : storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
+            ? storeShowcasePath({ categoryId: 'repuestos' })
+            : storeShowcasePath({ categoryId: 'toner' }),
       }),
   };
 }

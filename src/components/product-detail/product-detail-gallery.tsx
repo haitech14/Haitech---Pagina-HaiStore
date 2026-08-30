@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Play, ShieldCheck, ZoomIn } from 'lucide-react';
 
 import {
@@ -7,25 +7,13 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
-import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductGalleryResponsiveImage } from '@/components/product/product-gallery-responsive-image';
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
-import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
-import { inferColor } from '@/lib/category-catalog-filters';
-import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
-import { getProductCardTitleContent } from '@/lib/product-card-title';
-import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { youtubeThumbnailUrl } from '@/lib/product-media';
-import { productPath } from '@/lib/product-path';
-import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
 import { extractProductModel } from '@/lib/seo';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 import type { ProductGalleryItem } from '@/types/product-detail';
-
-const galleryCopyButtonClass =
-  'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-border bg-white/95 px-3 text-xs font-medium text-foreground shadow-sm backdrop-blur-[1px] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
 
 interface ProductDetailGalleryProps {
   items: ProductGalleryItem[];
@@ -34,6 +22,8 @@ interface ProductDetailGalleryProps {
   showOriginalBadge?: boolean;
   brandLabel?: string;
   viewer3dUrl?: string | null;
+  layout?: 'default' | 'mockup';
+  maxVisibleThumbnails?: number;
 }
 
 function resolveProductImageAlt(
@@ -146,7 +136,7 @@ function GalleryThumbnailButton({
           'relative overflow-hidden rounded-md border bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600',
           'aspect-square w-16 sm:w-[4.25rem]',
           'max-sm:w-[4.5rem]',
-          isActive ? 'border-neutral-800' : 'border-neutral-200 hover:border-neutral-400',
+          isActive ? 'border-red-600 ring-1 ring-red-600/20' : 'border-neutral-200 hover:border-neutral-400',
         )}
         onClick={onSelect}
         aria-label={
@@ -193,11 +183,21 @@ export function ProductDetailGallery({
   showOriginalBadge = false,
   brandLabel = '',
   viewer3dUrl = null,
+  layout = 'default',
+  maxVisibleThumbnails = 4,
 }: ProductDetailGalleryProps) {
+  const isMockupLayout = layout === 'mockup';
   const galleryItems = items.filter(Boolean);
   const [activeIndex, setActiveIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [showAllThumbnails, setShowAllThumbnails] = useState(false);
+
+  const visibleThumbnails =
+    isMockupLayout && !showAllThumbnails && galleryItems.length > maxVisibleThumbnails
+      ? galleryItems.slice(0, maxVisibleThumbnails)
+      : galleryItems;
+  const hiddenThumbnailCount = galleryItems.length - visibleThumbnails.length;
 
   const safeIndex = galleryItems.length > 0 ? Math.min(activeIndex, galleryItems.length - 1) : 0;
   const activeItem = galleryItems[safeIndex] ?? null;
@@ -208,39 +208,6 @@ export function ProductDetailGallery({
           alt: resolveProductImageAlt(productName, product, safeIndex, activeItem.alt),
         }
       : null;
-
-  const storefrontUi = useMemo(
-    () => resolveStorefrontUi(product?.storefront_ui),
-    [product?.storefront_ui],
-  );
-
-  const displayPrice = useCatalogDisplayPrice(product ?? { price: 0 });
-
-  const clipboard = useMemo(() => {
-    if (!product || !storefrontUi.showGalleryCopyText) return null;
-    const { title } = getProductCardTitleContent(product);
-    const condition = resolveProductCardBadgeLabel(product);
-    const code = product.code?.trim() || null;
-    const basicFeatures = buildProductCardQuickSpecsLine(product);
-    return {
-      title,
-      stock: product.stock,
-      ...clipboardPriceFieldsFromDisplay(displayPrice),
-      productId: product.id,
-      productPath: productPath(product),
-      isColorProduct: inferColor(product) === 'Color',
-      ...(code != null ? { code } : {}),
-      ...(condition != null ? { condition } : {}),
-      ...(basicFeatures != null ? { basicFeatures } : {}),
-      ...(product.category != null ? { category: product.category } : {}),
-      ...(product.volume_role_prices != null
-        ? { volumeRolePrices: product.volume_role_prices }
-        : {}),
-      ...(product.delivery_time != null ? { deliveryTime: product.delivery_time } : {}),
-    };
-  }, [product, storefrontUi.showGalleryCopyText, displayPrice]);
-
-  const showCopyImage = Boolean(activeImage && storefrontUi.showGalleryCopyImage);
 
   useEffect(() => {
     setImageError(false);
@@ -255,16 +222,32 @@ export function ProductDetailGallery({
       )}
       aria-label={`Miniaturas de ${productName}`}
     >
-      {galleryItems.map((item, index) => (
-        <GalleryThumbnailButton
-          key={getItemKey(item)}
-          item={item}
-          index={index}
-          productName={productName}
-          isActive={index === safeIndex}
-          onSelect={() => setActiveIndex(index)}
-        />
-      ))}
+      {visibleThumbnails.map((item) => {
+        const index = galleryItems.indexOf(item);
+        return (
+          <GalleryThumbnailButton
+            key={getItemKey(item)}
+            item={item}
+            index={index}
+            productName={productName}
+            isActive={index === safeIndex}
+            onSelect={() => setActiveIndex(index)}
+          />
+        );
+      })}
+      {hiddenThumbnailCount > 0 ? (
+        <li className="shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowAllThumbnails(true)}
+            className="flex aspect-square w-16 flex-col items-center justify-center rounded-md border border-dashed border-neutral-300 bg-white text-[0.625rem] font-semibold text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:w-[4.25rem]"
+            aria-label={`Ver ${hiddenThumbnailCount} imágenes más`}
+          >
+            +{hiddenThumbnailCount}
+            <span className="mt-0.5 text-[0.5625rem] font-medium">Ver más</span>
+          </button>
+        </li>
+      ) : null}
     </ul>
   );
 
@@ -342,57 +325,14 @@ export function ProductDetailGallery({
               ) : null}
             </div>
 
-            {showCopyImage || clipboard ? (
-              <div className="absolute bottom-3 left-3 z-10 flex flex-wrap items-center gap-2 sm:bottom-4 sm:left-4">
-                {showCopyImage && activeImage ? (
-                  <ProductCardCopyImageButton
-                    productName={productName}
-                    imageUrl={activeImage.src}
-                    label="Imagen"
-                    className={galleryCopyButtonClass}
-                  />
-                ) : null}
-                {clipboard ? (
-                  <ProductCardCopyButton
-                    productName={productName}
-                    title={clipboard.title}
-                    stock={clipboard.stock}
-                    priceUsd={clipboard.priceUsd}
-                    productId={clipboard.productId}
-                    productPath={clipboard.productPath}
-                    isColorProduct={clipboard.isColorProduct}
-                    {...(clipboard.priceRole != null ? { priceRole: clipboard.priceRole } : {})}
-                    {...(clipboard.priceRoleLabel != null
-                      ? { priceRoleLabel: clipboard.priceRoleLabel }
-                      : {})}
-                    {...(clipboard.code != null ? { code: clipboard.code } : {})}
-                    {...(clipboard.condition != null ? { condition: clipboard.condition } : {})}
-                    {...(clipboard.basicFeatures != null
-                      ? { basicFeatures: clipboard.basicFeatures }
-                      : {})}
-                    {...(clipboard.category != null ? { category: clipboard.category } : {})}
-                    {...(clipboard.volumeRolePrices != null
-                      ? { volumeRolePrices: clipboard.volumeRolePrices }
-                      : {})}
-                    {...(clipboard.deliveryTime != null
-                      ? { deliveryTime: clipboard.deliveryTime }
-                      : {})}
-                    label="Texto"
-                    className={galleryCopyButtonClass}
-                  />
-                ) : null}
-              </div>
-            ) : null}
-
-            {activeImage ? (
+            {isMockupLayout && activeImage ? (
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
-                className="absolute bottom-3 right-3 z-10 flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-white/95 px-3 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:bg-white hover:text-[#0f1f3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:bottom-4 sm:right-4"
+                className="absolute bottom-3 right-3 z-10 flex size-9 items-center justify-center rounded-full border border-border/80 bg-white/95 text-muted-foreground shadow-sm transition-colors hover:bg-white hover:text-[#0f1f3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:bottom-4 sm:right-4"
                 aria-label={`Ampliar imagen de ${productName}`}
               >
-                <ZoomIn className="size-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
-                Ampliar
+                <ZoomIn className="size-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
               </button>
             ) : null}
           </div>

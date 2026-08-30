@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 
 import { InventoryProductFormDialog } from '@/components/admin/inventory/inventory-product-form-dialog';
 import { ProductDetailBreadcrumbs } from '@/components/product-detail/product-detail-breadcrumbs';
-import { ProductDetailReferralButton } from '@/components/product-detail/product-detail-referral-button';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { fetchAdminInventoryProductById } from '@/hooks/use-products';
@@ -108,7 +107,6 @@ export function ProductDetailBreadcrumbsBar({
           <ProductDetailBreadcrumbs items={items} className="mb-0 min-w-0 flex-1" />
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <ProductDetailReferralButton product={product} />
           {showEditButton ? (
             <Button
               type="button"

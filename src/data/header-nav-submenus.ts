@@ -62,11 +62,12 @@ export const PRODUCTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   icon: Package,
   matchActive: ({ pathname, search }) => {
     const vitrinaSlug = storeShowcaseCategoryFromPathname(pathname);
-    if (vitrinaSlug && vitrinaSlug !== 'toner-repuestos') return true;
+    if (vitrinaSlug && vitrinaSlug !== 'toner' && vitrinaSlug !== 'repuestos') return true;
     if (
       pathname === '/tienda' &&
       search.includes('vitrina=') &&
-      !search.includes('vitrina=toner-repuestos')
+      !search.includes('vitrina=toner') &&
+      !search.includes('vitrina=repuestos')
     ) {
       return true;
     }
@@ -105,52 +106,53 @@ export const ALQUILER_NAV_SUBMENU: HeaderNavSubmenuConfig = {
 };
 
 export const TONER_NAV_SUBMENU: HeaderNavSubmenuConfig = {
-  id: 'toner-repuestos',
+  id: 'consumibles',
   label: 'Consumibles',
   icon: Droplets,
   matchActive: ({ pathname, search }) =>
-    storeShowcaseCategoryFromPathname(pathname) === 'toner-repuestos' ||
-    (pathname === '/tienda' && search.includes('vitrina=toner-repuestos')) ||
+    storeShowcaseCategoryFromPathname(pathname) === 'toner' ||
+    storeShowcaseCategoryFromPathname(pathname) === 'repuestos' ||
+    (pathname === '/tienda' &&
+      (search.includes('vitrina=toner') ||
+        search.includes('vitrina=repuestos') ||
+        search.includes('vitrina=toner-repuestos'))) ||
     pathname.startsWith('/categoria/toner-suministros') ||
     pathname.startsWith('/categoria/repuestos'),
   items: [
     { kind: 'heading', label: 'Tóner' },
     {
       label: 'Ver tóner',
-      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
+      href: storeShowcasePath({ categoryId: 'toner' }),
     },
     {
       label: 'Tóner originales',
       href: storeShowcasePath({
-        categoryId: 'toner-repuestos',
+        categoryId: 'toner',
         filter: 'originales',
-        consumableKind: 'toner',
       }),
     },
     {
       label: 'Tóner compatibles',
       href: storeShowcasePath({
-        categoryId: 'toner-repuestos',
+        categoryId: 'toner',
         filter: 'compatibles',
-        consumableKind: 'toner',
       }),
     },
     {
       label: 'Tóner remanufacturado',
       href: storeShowcasePath({
-        categoryId: 'toner-repuestos',
+        categoryId: 'toner',
         filter: 'remanufacturados',
-        consumableKind: 'toner',
       }),
     },
     { kind: 'heading', label: 'Repuestos' },
     {
       label: 'Ver repuestos',
-      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+      href: storeShowcasePath({ categoryId: 'repuestos' }),
     },
     {
       label: 'Partes y componentes',
-      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+      href: storeShowcasePath({ categoryId: 'repuestos' }),
     },
   ],
 };
@@ -168,19 +170,17 @@ export const REPUESTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   id: 'repuestos',
   label: 'Repuestos',
   icon: Cog,
-  matchActive: ({ pathname, search }) =>
-    (storeShowcaseCategoryFromPathname(pathname) === 'toner-repuestos' &&
-      search.includes('tipo=repuestos')) ||
-    (pathname === '/tienda' && search.includes('tipo=repuestos')) ||
+  matchActive: ({ pathname }) =>
+    storeShowcaseCategoryFromPathname(pathname) === 'repuestos' ||
     pathname.startsWith('/categoria/repuestos'),
   items: [
     {
       label: 'Ver repuestos',
-      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+      href: storeShowcasePath({ categoryId: 'repuestos' }),
     },
     {
       label: 'Partes y componentes',
-      href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+      href: storeShowcasePath({ categoryId: 'repuestos' }),
     },
   ],
 };

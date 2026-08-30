@@ -205,9 +205,8 @@ const TONER_FALLBACK_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     title: 'Tóner originales',
     subtitle: TONER_ROW_SUBTITLES['toner-originales'],
     href: storeShowcasePath({
-      categoryId: 'toner-repuestos',
-      filter: 'originales',
-      consumableKind: 'toner',
+      categoryId: 'toner',
+          filter: 'originales',
     }),
     image: imageForSlug('toner-suministros'),
   },
@@ -216,9 +215,8 @@ const TONER_FALLBACK_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     title: 'Tóner compatibles',
     subtitle: TONER_ROW_SUBTITLES['toner-compatibles'],
     href: storeShowcasePath({
-      categoryId: 'toner-repuestos',
-      filter: 'compatibles',
-      consumableKind: 'toner',
+      categoryId: 'toner',
+          filter: 'compatibles',
     }),
     image: imageForSlug('toner-suministros'),
   },
@@ -227,9 +225,8 @@ const TONER_FALLBACK_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     title: 'Tóner remanufacturado',
     subtitle: TONER_ROW_SUBTITLES['toner-remanufacturado'],
     href: storeShowcasePath({
-      categoryId: 'toner-repuestos',
-      filter: 'remanufacturados',
-      consumableKind: 'toner',
+      categoryId: 'toner',
+          filter: 'remanufacturados',
     }),
     image: imageForSlug('toner-suministros'),
   },
@@ -237,7 +234,7 @@ const TONER_FALLBACK_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     slug: 'toner-todos',
     title: 'Ver todo el tóner',
     subtitle: TONER_ROW_SUBTITLES['toner-recarga'] ?? 'Catálogo completo de tóner',
-    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
+    href: storeShowcasePath({ categoryId: 'toner' }),
     image: imageForSlug('toner-suministros'),
   },
 ];
@@ -247,28 +244,28 @@ const TONER_CONSUMIBLES_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     slug: 'repuestos',
     title: 'Repuestos',
     subtitle: 'Partes · Fusores · Unidades | Componentes originales',
-    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    href: storeShowcasePath({ categoryId: 'repuestos' }),
     image: imageForSlug('repuestos'),
   },
   {
     slug: 'kits-mantenimiento',
     title: 'Kits de mantenimiento',
     subtitle: 'Preventivo · Correctivo | Piezas agrupadas por modelo',
-    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    href: storeShowcasePath({ categoryId: 'repuestos' }),
     image: imageForSlug('repuestos'),
   },
   {
     slug: 'cartuchos-tinta',
     title: 'Cartuchos y tinta',
     subtitle: 'Color · B/N | Suministro para impresión diaria',
-    href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
+    href: storeShowcasePath({ categoryId: 'toner' }),
     image: imageForSlug('toner-suministros'),
   },
   {
     slug: 'toner-catalogo',
     title: 'Ver catálogo completo',
     subtitle: 'Tóner · Consumibles · Repuestos | Todo en un solo lugar',
-    href: storeShowcasePath({ categoryId: 'toner-repuestos' }),
+    href: storeShowcasePath({ categoryId: 'toner' }),
     image: imageForSlug('toner-suministros'),
   },
 ];
@@ -286,9 +283,8 @@ const TONER_CORPORATIVO_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     title: 'Consumibles Ricoh',
     subtitle: 'Originales certificados | Compatibilidad garantizada',
     href: storeShowcasePath({
-      categoryId: 'toner-repuestos',
-      filter: 'originales',
-      consumableKind: 'toner',
+      categoryId: 'toner',
+          filter: 'originales',
     }),
     image: imageForSlug('toner-suministros'),
   },
@@ -296,7 +292,7 @@ const TONER_CORPORATIVO_ITEMS: readonly HaitechMegaMenuRowItem[] = [
     slug: 'toner-catalogo',
     title: 'Ver catálogo completo',
     subtitle: 'Tóner · Consumibles · Recargas | Todo en un solo lugar',
-    href: storeShowcasePath({ categoryId: 'toner-repuestos' }),
+    href: storeShowcasePath({ categoryId: 'toner' }),
     image: '/categories/toner-suministros-512.webp',
   },
 ];
@@ -487,7 +483,7 @@ export function buildTonerMockupMegaMenu(menu: NavMegaMenuModel): HaitechMockupM
       imageAlt: featured.title,
       bullets: ['Calidad certificada', 'Rendimiento garantizado', 'Compatibilidad verificada'],
       ctaLabel: 'Ver tóner y consumibles',
-      ctaHref: storeShowcasePath({ categoryId: 'toner-repuestos' }),
+      ctaHref: storeShowcasePath({ categoryId: 'toner' }),
     },
   };
 }
@@ -523,7 +519,7 @@ export function buildConsumiblesMockupMegaMenu(menu: NavMegaMenuModel): HaitechM
       imageAlt: 'Tóner y repuestos Ricoh',
       bullets: ['Tóner originales y compatibles', 'Repuestos certificados', 'Stock nacional'],
       ctaLabel: 'Ver consumibles',
-      ctaHref: storeShowcasePath({ categoryId: 'toner-repuestos' }),
+      ctaHref: storeShowcasePath({ categoryId: 'toner' }),
     },
   };
 }

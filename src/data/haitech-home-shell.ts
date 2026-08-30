@@ -130,17 +130,17 @@ export const HAITECH_HOME_CATEGORY_CAROUSEL = [
   },
   {
     id: 'toner',
-    name: 'Tóner y consumibles',
-    description: 'Originales Ricoh',
+    name: 'Tóner',
+    description: 'Originales y compatibles',
     image: homeCategoryImage('toner-suministros'),
-    to: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'toner' }),
+    to: storeShowcasePath({ categoryId: 'toner' }),
   },
   {
     id: 'repuestos',
     name: 'Repuestos',
     description: 'Unidades, fusores y más',
     image: homeCategoryImage('repuestos'),
-    to: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+    to: storeShowcasePath({ categoryId: 'repuestos' }),
   },
   {
     id: 'formato-ancho',
@@ -197,7 +197,7 @@ export const HAITECH_HOME_MID_BANNER = {
   width: 1779,
   height: 445,
   alt: 'Repuestos originales para fotocopiadoras Ricoh — calidad garantizada y disponibilidad inmediata',
-  href: storeShowcasePath({ categoryId: 'toner-repuestos', consumableKind: 'repuestos' }),
+  href: storeShowcasePath({ categoryId: 'repuestos' }),
 } as const;
 
 /** Banners intermedios de servicio técnico y alquiler. */

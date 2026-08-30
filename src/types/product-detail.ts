@@ -228,6 +228,9 @@ export interface ProductDetailViewModel {
   rentalPlans: RentalPlanOption[];
   isPrinterEquipment: boolean;
   isSupplyProduct: boolean;
+  isLaptopProduct: boolean;
+  /** Layout ficha estilo mockup Ricoh (equipos, consumibles, laptops). */
+  useMockupLayout: boolean;
   isOnOffer: boolean;
   oldPricePen: number | null;
   discountPercent: number | null;

@@ -53,7 +53,7 @@ export function StoreNavMobileMegaAccordions({ onNavigate }: { onNavigate?: () =
         label="Consumibles"
         icon={TONER_NAV_MEGA_MENU_ICON}
         menu={tonerRepuestosMenu}
-        labelHref={storeShowcasePath({ categoryId: 'toner-repuestos' })}
+        labelHref={storeShowcasePath({ categoryId: 'toner' })}
         {...(onNavigate ? { onNavigate } : {})}
       />
       <StaticNavMobileAccordion

@@ -9,6 +9,8 @@ import {
   Layers,
   Leaf,
   Monitor,
+  Cpu,
+  HardDrive,
   Lock,
   Network,
   Printer,
@@ -136,7 +138,8 @@ const IM_BN_A4_MONTHLY_PRODUCTION_BULLET: ProductHeroSpecBullet = {
   value: '50,000 páginas',
 };
 
-const IM430F_HERO_LEAD = '';
+const IM430F_HERO_LEAD =
+  'Multifuncional de alto rendimiento diseñada para optimizar los flujos de trabajo documentales de oficinas exigentes. Combina velocidad, seguridad avanzada y conectividad inteligente.';
 
 const IM430F_HERO_DESCRIPTION = '';
 
@@ -510,13 +513,78 @@ function buildHeroSpecBullets(
   product: Product,
   specs: ProductSpecRow[],
   isPrinter: boolean,
+  isLaptop: boolean,
 ): ProductHeroSpecBullet[] {
+  if (isLaptop) return buildLaptopHeroSpecBullets(product, specs);
   if (!isPrinter) return [];
   return buildPrinterHeroSpecBullets(product, specs);
 }
 
+function parseLaptopSpecFromName(name: string, pattern: RegExp, fallback: string): string {
+  const match = name.match(pattern);
+  return match?.[1]?.trim() ?? fallback;
+}
+
+function buildLaptopHeroSpecBullets(product: Product, specs: ProductSpecRow[]): ProductHeroSpecBullet[] {
+  const name = product.name;
+  const screen =
+    specValue(specs, 'pantalla', 'display', 'monitor') ||
+    findProductAttribute(product, 'pantalla', 'display', 'monitor') ||
+    parseLaptopSpecFromName(name, /(\d+(?:\.\d+)?"\s*(?:Retina|4\.5K|FHD|HD)?[^,]*)/i, '24"');
+  const chip =
+    specValue(specs, 'procesador', 'chip', 'cpu') ||
+    findProductAttribute(product, 'procesador', 'chip', 'cpu') ||
+    parseLaptopSpecFromName(name, /\b(M\d(?:\s*Pro)?|Core\s*i\d|Ryzen\s*\d|Snapdragon\s*\w*)\b/i, 'M4');
+  const ram =
+    specValue(specs, 'memoria', 'ram') ||
+    findProductAttribute(product, 'memoria', 'ram') ||
+    parseLaptopSpecFromName(name, /(\d+\s*GB(?!\s*SSD))/i, '16 GB');
+  const storage =
+    specValue(specs, 'almacenamiento', 'ssd', 'disco') ||
+    findProductAttribute(product, 'almacenamiento', 'ssd', 'disco') ||
+    parseLaptopSpecFromName(name, /(\d+\s*(?:GB|TB)\s*SSD)/i, '256 GB SSD');
+  const wifi =
+    specValue(specs, 'conectividad', 'wifi', 'red') ||
+    findProductAttribute(product, 'conectividad', 'wifi') ||
+    'Wi-Fi 6E';
+  const os =
+    specValue(specs, 'sistema operativo', 'so', 'os') ||
+    findProductAttribute(product, 'sistema operativo', 'so') ||
+    (/mac|imac|macbook|apple/i.test(name) ? 'macOS Sequoia' : 'Windows 11');
+
+  return [
+    { icon: Monitor, label: 'Pantalla', value: screen },
+    { icon: Cpu, label: 'Chip', value: chip },
+    { icon: Layers, label: 'RAM', value: ram },
+    { icon: HardDrive, label: 'SSD', value: storage },
+    { icon: Wifi, label: 'Conectividad', value: wifi },
+    { icon: Settings, label: 'Sistema', value: os },
+  ];
+}
+
+function buildLaptopSpecs(product: Product, brandLabel: string, sku: string): ProductSpecRow[] {
+  const bullets = buildLaptopHeroSpecBullets(product, []);
+  const fromBullets = bullets.map((bullet) => ({
+    label: bullet.label ?? 'Detalle',
+    value: bullet.value ?? bullet.text ?? '',
+  }));
+
+  return [
+    ...fromBullets,
+    { label: 'Marca', value: brandLabel },
+    { label: 'Código', value: sku },
+    { label: 'Categoría', value: product.category ?? 'Computadoras' },
+    { label: 'Garantía', value: '12 meses' },
+  ];
+}
+
 function resolveHeroLead(product: Product, isPrinter: boolean, isSupply: boolean): string {
-  if (isSupply) return '';
+  if (isSupply || isLaptopProduct(product)) {
+    const description = product.description?.trim() ?? '';
+    if (!description) return '';
+    const firstLine = description.split(/\r?\n/)[0]?.trim() ?? description;
+    return firstLine.length > 220 ? `${firstLine.slice(0, 217).trim()}…` : firstLine;
+  }
   if (isIm430f(product)) return IM430F_HERO_LEAD;
   if (isPrinter) {
     const description = product.description?.trim() ?? '';
@@ -527,7 +595,13 @@ function resolveHeroLead(product: Product, isPrinter: boolean, isSupply: boolean
 }
 
 function resolveHeroDescription(product: Product, isPrinter: boolean, isSupply: boolean): string {
-  if (isSupply) return '';
+  if (isSupply || isLaptopProduct(product)) {
+    const description = product.description?.trim() ?? '';
+    if (!description) return '';
+    const lines = description.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    if (lines.length <= 1) return '';
+    return lines.slice(1).join(' ');
+  }
   if (isIm430f(product)) return IM430F_HERO_DESCRIPTION;
   if (isPrinter) return '';
   return product.description ?? '';
@@ -989,7 +1063,7 @@ export function isColorPrinterEquipment(product: Product): boolean {
   );
 }
 
-function isSupplyProduct(product: Product): boolean {
+export function isSupplyProduct(product: Product): boolean {
   const cat = (product.category ?? '').toLowerCase();
   const name = product.name.toLowerCase();
   return (
@@ -1006,6 +1080,47 @@ function isSupplyProduct(product: Product): boolean {
     name.includes('cartucho') ||
     name.includes('grapa') ||
     name.includes('staple')
+  );
+}
+
+export function isLaptopProduct(product: Product): boolean {
+  if (isSupplyProduct(product) || isPrinterEquipment(product)) return false;
+
+  const cat = (product.category ?? '').toLowerCase();
+  const name = product.name.toLowerCase();
+  const haystack = `${cat} ${name}`;
+
+  return (
+    cat.includes('laptop') ||
+    cat.includes('computadora') ||
+    cat.includes('notebook') ||
+    cat.includes('portátil') ||
+    cat.includes('portatil') ||
+    cat.includes('pc ') ||
+    cat.endsWith(' pc') ||
+    haystack.includes('macbook') ||
+    haystack.includes('imac') ||
+    haystack.includes('thinkpad') ||
+    haystack.includes('elitebook') ||
+    haystack.includes('probook') ||
+    haystack.includes('ideapad') ||
+    haystack.includes('vivobook') ||
+    haystack.includes('all in one') ||
+    haystack.includes('all-in-one') ||
+    cat.includes('all in one') ||
+    cat.includes('all-in-one') ||
+    cat.includes('desktop') ||
+    cat.includes('escritorio') ||
+    name.includes('laptop')
+  );
+}
+
+/** Ficha tienda estilo mockup Ricoh: equipos, consumibles y laptops. */
+export function isProductDetailMockupLayout(product: Product): boolean {
+  return (
+    isPrinterEquipment(product) ||
+    isSupplyProduct(product) ||
+    isLaptopProduct(product)
   );
 }
 
@@ -1298,17 +1413,30 @@ function buildComboItems(product: Product, isPrinter: boolean, isSupply: boolean
 
   return [
     {
-      id: 'combo-case',
-      name: 'Funda protectora premium',
-      image: product.image_url ?? '/products/mochila-techpro.png',
-      pricePen: 89,
+      id: 'combo-main-care',
+      name: /apple|imac|macbook/i.test(product.name)
+        ? 'AppleCare+ 3 años de protección'
+        : 'Garantía extendida 2 años',
+      image: product.image_url ?? '/products/combo-garantia-extendida.webp',
+      pricePen: 349,
       defaultSelected: true,
     },
     {
-      id: 'combo-cable',
-      name: 'Cable y adaptador',
+      id: 'combo-adapter',
+      name: /apple|imac|macbook/i.test(product.name)
+        ? 'Adaptador USB-C multipuerto'
+        : 'Hub USB-C multipuerto',
       image: product.image_url ?? '/products/mochila-techpro.png',
-      pricePen: 45,
+      pricePen: 129,
+      defaultSelected: false,
+    },
+    {
+      id: 'combo-keyboard',
+      name: /apple|imac|macbook/i.test(product.name)
+        ? 'Magic Keyboard con Touch ID'
+        : 'Teclado inalámbrico premium',
+      image: product.image_url ?? '/products/mochila-techpro.png',
+      pricePen: 189,
       defaultSelected: false,
     },
   ];
@@ -1345,7 +1473,8 @@ function buildAccessoryConfigOptions(product: Product): EquipmentConfigStep['opt
       id: 'gabinete',
       productId: gabineteProductId,
       name: 'Gabinete',
-      pricePen: 0,
+      priceUsd: 60,
+      pricePen: usdToPen(60),
     },
     {
       id: 'router-wifi',
@@ -1406,7 +1535,7 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
           id: 'toner-ricoh-im-430f',
           productId: IM430F_ORIGINAL_TONER_PRODUCT_ID,
           name: 'Toner RICOH IM 430F',
-          description: 'Cartucho original — Rend 14,500',
+          description: '15,500 páginas al 5%',
           pricePen: 0,
         },
       ]
@@ -1528,8 +1657,9 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
         {
           id: 'estabilizador-2000w',
           productId: ESTABILIZADOR_2KVA_PRODUCT_ID,
-          name: 'Estabilizador 2000 watts 220v',
-          pricePen: 0,
+          name: 'Estabilizador Sólido 2000 watts',
+          priceUsd: 150,
+          pricePen: usdToPen(150),
         },
       ],
     },
@@ -1611,6 +1741,16 @@ function resolvePricing(
     };
   }
 
+  if (isLaptopProduct(product) && product.price > 400) {
+    const discountPercent = 28;
+    const oldPriceUsd = Math.round((product.price / (1 - discountPercent / 100)) * 100) / 100;
+    return {
+      oldPricePen: usdToPen(oldPriceUsd),
+      discountPercent,
+      isOnOffer: true,
+    };
+  }
+
   return {
     oldPricePen: null,
     discountPercent: null,
@@ -1626,6 +1766,8 @@ export function buildProductDetail(
 ): ProductDetailViewModel {
   const isPrinter = isPrinterEquipment(product);
   const isSupply = isSupplyProduct(product);
+  const isLaptop = isLaptopProduct(product);
+  const useMockupLayout = isProductDetailMockupLayout(product);
   const brandLabel =
     resolveProductHeroBrand(product) ?? (isSupply ? 'Compatible' : product.brand?.trim() || '');
   const categoryLabel = resolveHeroCategoryLabel(product, isPrinter);
@@ -1662,7 +1804,9 @@ export function buildProductDetail(
         ? buildSupplySpecs(product)
         : isPrinter
           ? buildDatasheetSpecs(product)
-          : buildGenericSpecs(product, brandLabel, sku);
+          : isLaptop
+            ? buildLaptopSpecs(product, brandLabel, sku)
+            : buildGenericSpecs(product, brandLabel, sku);
 
   const syncedSpecs =
     isPrinter && !isM320f(product) && !hasDatasheetSections(specs)
@@ -1670,12 +1814,15 @@ export function buildProductDetail(
       : specs;
   const specsWithCardHighlights = mergeCardSpecRowsIntoSpecs(product, syncedSpecs);
 
-  const generatedHeroBullets = buildHeroSpecBullets(product, specsWithCardHighlights, isPrinter).map(
-    (bullet) => ({
-      ...bullet,
-      icon: resolveHeroBulletIcon(bullet),
-    }),
-  );
+  const generatedHeroBullets = buildHeroSpecBullets(
+    product,
+    specsWithCardHighlights,
+    isPrinter,
+    isLaptop,
+  ).map((bullet) => ({
+    ...bullet,
+    icon: resolveHeroBulletIcon(bullet),
+  }));
   const heroSpecBullets = postProcessHeroSpecBullets(
     shouldPreferTitleSyncedHeroBullets(product) &&
       !Array.isArray(product.storefront_hero_bullets)
@@ -1798,6 +1945,8 @@ export function buildProductDetail(
     rentalPlans: isPrinter ? rentalPlansFromApi : [],
     isPrinterEquipment: isPrinter,
     isSupplyProduct: isSupply,
+    isLaptopProduct: isLaptop,
+    useMockupLayout,
     isOnOffer: pricing.isOnOffer,
     oldPricePen: pricing.oldPricePen,
     discountPercent: pricing.discountPercent,

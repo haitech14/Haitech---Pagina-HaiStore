@@ -32,7 +32,8 @@ const CATEGORY_IDS: readonly HaitechEquipmentShowcaseCategoryId[] = [
   'monitores',
   'pantallas-interactivas',
   'videoconferencia',
-  'toner-repuestos',
+  'toner',
+  'repuestos',
   'escaneres',
   'camaras',
   'accesorios',
@@ -94,17 +95,31 @@ function isFilterId(value: string): value is HaitechShowcaseFilterId {
   return (FILTER_IDS as readonly string[]).includes(value);
 }
 
+function isLegacyTonerRepuestosSlug(value: string): boolean {
+  return value === 'toner-repuestos';
+}
+
+function legacyConsumableCategoryFromTipo(
+  tipo: string | null,
+): HaitechEquipmentShowcaseCategoryId {
+  return tipo === 'repuestos' ? 'repuestos' : 'toner';
+}
+
 export function isStoreShowcaseCategorySlug(
   slug: string | undefined,
 ): slug is HaitechEquipmentShowcaseCategoryId {
-  return slug != null && isCategoryId(slug);
+  if (slug == null) return false;
+  if (isLegacyTonerRepuestosSlug(slug)) return true;
+  return isCategoryId(slug);
 }
 
 export function storeShowcaseCategoryFromPathname(
   pathname: string,
 ): HaitechEquipmentShowcaseCategoryId | null {
   const match = pathname.match(/^\/tienda\/([^/?#]+)$/);
-  if (match?.[1] && isCategoryId(match[1])) return match[1];
+  if (!match?.[1]) return null;
+  if (isLegacyTonerRepuestosSlug(match[1])) return 'toner';
+  if (isCategoryId(match[1])) return match[1];
   return null;
 }
 
@@ -223,14 +238,10 @@ export function storeShowcasePath(options?: {
   const formatoAnchoSpecFilters = options.formatoAnchoSpecFilters ?? EMPTY_FORMATO_ANCHO_SPEC_FILTERS;
   const laptopSpecFilters = options.laptopSpecFilters ?? EMPTY_LAPTOP_SPEC_FILTERS;
   const condition = options.condition ?? 'nuevas';
-  const consumableKind = options.consumableKind ?? 'all';
 
   if (categoryId === 'impresoras' && IMPRESORA_SUBTYPE_FILTERS.has(filter)) {
     params.set('tipo', filter);
-  } else if (categoryId === 'toner-repuestos') {
-    if (consumableKind === 'toner' || consumableKind === 'repuestos') {
-      params.set('tipo', consumableKind);
-    }
+  } else if (categoryId === 'toner' || categoryId === 'repuestos') {
     if (CONSUMABLE_ORIGIN_FILTERS.has(filter)) {
       params.set('origen', filter);
     }
@@ -270,6 +281,8 @@ export function parseStoreShowcaseLocation(
   if (pathMatch?.[1]) {
     if (pathMatch[1] === 'plotter' || pathMatch[1] === 'multifuncional-planos') {
       result.categoryId = 'formato-ancho';
+    } else if (isLegacyTonerRepuestosSlug(pathMatch[1])) {
+      result.categoryId = legacyConsumableCategoryFromTipo(searchParams.get('tipo'));
     } else if (isCategoryId(pathMatch[1])) {
       result.categoryId = pathMatch[1];
     }
@@ -279,6 +292,8 @@ export function parseStoreShowcaseLocation(
   const legacyVitrina = searchParams.get('vitrina');
   if (!result.categoryId && legacyVitrina && isCategoryId(legacyVitrina)) {
     result.categoryId = legacyVitrina;
+  } else if (!result.categoryId && legacyVitrina && isLegacyTonerRepuestosSlug(legacyVitrina)) {
+    result.categoryId = legacyConsumableCategoryFromTipo(searchParams.get('tipo'));
   } else if (
     !result.categoryId &&
     legacyVitrina &&
@@ -292,8 +307,11 @@ export function parseStoreShowcaseLocation(
   const categoryId = result.categoryId;
 
   if (tipo) {
-    if (categoryId === 'toner-repuestos' && (tipo === 'toner' || tipo === 'repuestos')) {
-      result.consumableKind = tipo;
+    if (
+      (result.categoryId === 'toner' || result.categoryId === 'repuestos') &&
+      (tipo === 'toner' || tipo === 'repuestos')
+    ) {
+      result.categoryId = tipo;
     } else if (isFilterId(tipo) && IMPRESORA_SUBTYPE_FILTERS.has(tipo)) {
       result.filter = tipo;
     }
@@ -307,7 +325,12 @@ export function parseStoreShowcaseLocation(
     result.laptopSpecFilters = parseLaptopSpecFilters(searchParams);
   } else if (categoryId === 'formato-ancho') {
     result.formatoAnchoSpecFilters = parseFormatoAnchoSpecFilters(searchParams);
-  } else if (categoryId && categoryId !== 'impresoras' && categoryId !== 'toner-repuestos') {
+  } else if (
+    categoryId &&
+    categoryId !== 'impresoras' &&
+    categoryId !== 'toner' &&
+    categoryId !== 'repuestos'
+  ) {
     result.equipmentSpecFilters = parseEquipmentSpecFilters(searchParams);
   } else if (filtro && isFilterId(filtro) && EQUIPMENT_SPEC_FILTERS.has(filtro)) {
     result.equipmentSpecFilters = parseEquipmentSpecFilters(searchParams);
@@ -335,7 +358,9 @@ export function parseStoreShowcaseSearchParams(
 /** Redirige URLs legacy ?vitrina=… → /tienda/:slug limpio. */
 export function legacyStoreShowcaseRedirectPath(requestUrl: string): string | null {
   const url = new URL(requestUrl);
-  const legacyCategoryMatch = url.pathname.match(/^\/tienda\/(plotter|multifuncional-planos)$/);
+  const legacyCategoryMatch = url.pathname.match(
+    /^\/tienda\/(plotter|multifuncional-planos|toner-repuestos)$/,
+  );
   if (legacyCategoryMatch) {
     const nextParams = new URLSearchParams(url.search);
     const condicion = nextParams.get('condicion');
@@ -344,6 +369,12 @@ export function legacyStoreShowcaseRedirectPath(requestUrl: string): string | nu
         ? condicion
         : undefined;
     const legacySlug = legacyCategoryMatch[1];
+    if (legacySlug === 'toner-repuestos') {
+      return storeShowcasePath({
+        categoryId: legacyConsumableCategoryFromTipo(nextParams.get('tipo')),
+        ...(condition ? { condition } : {}),
+      });
+    }
     const formatoAnchoSpecFilters = parseFormatoAnchoSpecFilters(nextParams);
     if (legacySlug === 'plotter' && !formatoAnchoSpecFilters.deviceClass) {
       formatoAnchoSpecFilters.deviceClass = 'plotter';
@@ -367,6 +398,8 @@ export function legacyStoreShowcaseRedirectPath(requestUrl: string): string | nu
 
   if (isCategoryId(vitrina)) {
     categoryId = vitrina;
+  } else if (isLegacyTonerRepuestosSlug(vitrina)) {
+    categoryId = legacyConsumableCategoryFromTipo(url.searchParams.get('tipo'));
   } else if (vitrina === 'plotter' || vitrina === 'multifuncional-planos') {
     categoryId = 'formato-ancho';
   } else if (LEGACY_IMPRESORA_CATEGORY_TO_FILTER[vitrina]) {
@@ -384,13 +417,14 @@ export function legacyStoreShowcaseRedirectPath(requestUrl: string): string | nu
   if (origen && isFilterId(origen)) filter = origen;
   else if (filtro && isFilterId(filtro)) filter = filtro;
 
-  let consumableKind: StoreShowcaseConsumableKind | undefined;
   const tipo = nextParams.get('tipo');
-  if (categoryId === 'toner-repuestos' && (tipo === 'toner' || tipo === 'repuestos')) {
-    consumableKind = tipo;
-    nextParams.delete('tipo');
-  } else if (tipo && isFilterId(tipo) && IMPRESORA_SUBTYPE_FILTERS.has(tipo)) {
+  if (tipo && isFilterId(tipo) && IMPRESORA_SUBTYPE_FILTERS.has(tipo)) {
     filter = tipo;
+    nextParams.delete('tipo');
+  } else if (tipo === 'toner' || tipo === 'repuestos') {
+    if (!categoryId || isLegacyTonerRepuestosSlug(String(categoryId))) {
+      categoryId = legacyConsumableCategoryFromTipo(tipo);
+    }
     nextParams.delete('tipo');
   }
 
@@ -415,11 +449,12 @@ export function legacyStoreShowcaseRedirectPath(requestUrl: string): string | nu
       ? { laptopSpecFilters: parseLaptopSpecFilters(url.searchParams) }
       : categoryId === 'formato-ancho'
         ? { formatoAnchoSpecFilters: parseFormatoAnchoSpecFilters(url.searchParams) }
-        : categoryId !== 'impresoras' && categoryId !== 'toner-repuestos'
+        : categoryId !== 'impresoras' &&
+            categoryId !== 'toner' &&
+            categoryId !== 'repuestos'
           ? { equipmentSpecFilters: parseEquipmentSpecFilters(url.searchParams) }
           : {}),
     ...(condition != null ? { condition } : {}),
-    ...(consumableKind != null ? { consumableKind } : {}),
   });
 
   const cleanUrl = new URL(cleanPath, url.origin);

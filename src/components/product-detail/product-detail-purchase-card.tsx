@@ -1,4 +1,4 @@
-import { useMemo, useState, type Ref, type RefObject } from 'react';
+import { useMemo, type Ref, type RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calculator, FileText, ShoppingCart } from 'lucide-react';
 
@@ -6,7 +6,6 @@ import {
   formatOrderQuantityHint,
   hasOnRequestQuantity,
 } from '@/components/cart/add-to-cart-button';
-import { AttachmentPdfViewer } from '@/components/product-detail/attachment-pdf-viewer';
 import { PurchaseSidebarRolePrices } from '@/components/product-detail/product-detail-role-prices';
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
@@ -16,10 +15,6 @@ import type { BulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { calculateInstallmentPreview } from '@/lib/checkout-totals';
 import { ensureFullPrices } from '@/lib/roles';
 import { isColorPrinterEquipment } from '@/lib/build-product-detail';
-import {
-  downloadProductAttachment,
-  isPdfAttachment,
-} from '@/lib/inventory-attachments';
 import { computeEquipmentExtrasUsd } from '@/lib/equipment-config-selection';
 import { cn, formatPenFromUsd, penToUsd } from '@/lib/utils';
 import { ProductDetailRentalConfigurator,
@@ -59,11 +54,14 @@ interface ProductDetailPurchaseCardProps {
   showMaintenancePlanAction?: boolean;
   onMaintenancePlanClick?: () => void;
   onQuoteClick?: () => void;
-  onTechnicalSheetFallback?: () => void;
   showRentalTab?: boolean;
   equipmentBasePriceUsd?: number;
   onRentalEstimateChange?: (estimate: EquipmentRentalEstimate) => void;
   rentalConfiguratorRef?: Ref<HTMLDivElement>;
+  /** Slot para «Complementa tu compra» (sidebar mockup). */
+  complementaSlot?: React.ReactNode;
+  layout?: 'default' | 'mockup';
+  outOfStock?: boolean;
 }
 
 export function ProductDetailPurchaseCard({
@@ -87,53 +85,18 @@ export function ProductDetailPurchaseCard({
   showMaintenancePlanAction = false,
   onMaintenancePlanClick,
   onQuoteClick,
-  onTechnicalSheetFallback,
   showRentalTab = false,
   equipmentBasePriceUsd,
   onRentalEstimateChange,
   rentalConfiguratorRef,
+  complementaSlot,
+  layout = 'default',
+  outOfStock = false,
 }: ProductDetailPurchaseCardProps) {
+  const isMockupLayout = layout === 'mockup';
+  const isLaptopMockup = isMockupLayout && detail.isLaptopProduct;
   const { addItem } = useCart();
   const navigate = useNavigate();
-  const [technicalSheetOpen, setTechnicalSheetOpen] = useState(false);
-
-  const fichaLink = useMemo(
-    () => detail.resourceLinks.find((link) => link.action === 'technical_sheet'),
-    [detail.resourceLinks],
-  );
-  const fichaFileName = fichaLink?.fileName ?? 'ficha-tecnica.pdf';
-  const fichaCanPreview = Boolean(
-    fichaLink?.href &&
-      isPdfAttachment(fichaLink.href, fichaLink.mimeType, fichaFileName),
-  );
-
-  const handleTechnicalSheetClick = () => {
-    if (fichaLink?.href) {
-      if (fichaCanPreview) {
-        setTechnicalSheetOpen(true);
-        return;
-      }
-      downloadProductAttachment(fichaLink.href, fichaFileName);
-      return;
-    }
-    onTechnicalSheetFallback?.();
-  };
-
-  const fichaTecnicaLabel = 'Ficha Técnica';
-
-  const purchaseSidebarLinks =
-    onTechnicalSheetFallback || fichaLink?.href ? (
-      <div className="mt-4 flex flex-row flex-nowrap items-center justify-center gap-2.5 border-t border-neutral-100 pt-3">
-        <button
-          type="button"
-          onClick={handleTechnicalSheetClick}
-          className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[0.6875rem] font-medium text-neutral-500 underline-offset-2 transition-colors hover:text-neutral-800 hover:underline"
-        >
-          <FileText className="size-3 shrink-0" aria-hidden="true" />
-          {fichaTecnicaLabel}
-        </button>
-      </div>
-    ) : null;
 
   const fullPrices = useMemo(
     () => ensureFullPrices(product.prices ? product.prices : { public: product.price }),
@@ -214,16 +177,29 @@ export function ProductDetailPurchaseCard({
     ],
   );
 
+  const handleAddToCart = () => {
+    addItem(product, { ...cartAddOptions, openDrawer: true });
+  };
+
   const handleBuyNow = () => {
     addItem(product, { ...cartAddOptions, openDrawer: false });
     navigate('/checkout');
   };
 
   const buyNowLabel = includesOnRequest ? 'Reservar ahora' : 'Comprar ahora';
+  const addToCartLabel = includesOnRequest ? 'Solicitar disponibilidad' : 'Agregar al carrito';
   const installmentPreview = useMemo(
     () => calculateInstallmentPreview(configuredUnitUsd * quantity),
     [configuredUnitUsd, quantity],
   );
+
+  const displayDiscountPercent =
+    detail.discountPercent ??
+    (detail.isOnOffer && detail.oldPricePen != null && offerUnitUsd > 0
+      ? Math.round(
+          ((penToUsd(detail.oldPricePen) - offerUnitUsd) / penToUsd(detail.oldPricePen)) * 100,
+        )
+      : null);
 
   const buyPriceBlock = (
     <div aria-live="polite" aria-atomic="true">
@@ -252,12 +228,59 @@ export function ProductDetailPurchaseCard({
           discountPercent={detail.discountPercent}
           catalogPublicUsd={displayUsd}
           offerUnitUsd={offerUnitUsd}
+          showDiscountBadge={!isMockupLayout}
+          showAdminPurchaseLine={isMockupLayout}
+          showOfferBreakdown={isLaptopMockup}
         />
       )}
     </div>
   );
 
   const showMockupBuyLayout = !isRentMode;
+
+  const mockupPromoHeader =
+    isMockupLayout && showMockupBuyLayout ? (
+      isLaptopMockup ? (
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span
+            className={cn(
+              'rounded px-2 py-0.5 text-[0.6875rem] font-semibold',
+              outOfStock ? 'bg-neutral-100 text-neutral-600' : 'bg-emerald-50 text-emerald-700',
+            )}
+          >
+            {outOfStock ? 'Consultar stock' : 'En stock'}
+          </span>
+          <span className="rounded bg-pink-50 px-2 py-0.5 text-[0.6875rem] font-semibold text-pink-700">
+            Exclusivo online
+          </span>
+        </div>
+      ) : (
+        <div className="mb-3 flex items-center justify-between gap-2">
+          {displayDiscountPercent != null && displayDiscountPercent > 0 ? (
+            <span className="rounded bg-red-600 px-2 py-0.5 text-[0.6875rem] font-bold text-white">
+              {displayDiscountPercent}% OFF
+            </span>
+          ) : (
+            <span aria-hidden="true" />
+          )}
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 text-xs font-medium',
+              outOfStock ? 'text-neutral-500' : 'text-emerald-600',
+            )}
+          >
+            <span
+              className={cn(
+                'size-2 rounded-full',
+                outOfStock ? 'bg-neutral-400' : 'bg-emerald-500',
+              )}
+              aria-hidden="true"
+            />
+            {outOfStock ? 'Consultar stock' : 'Stock disponible'}
+          </span>
+        </div>
+      )
+    ) : null;
 
   return (
     <aside
@@ -269,8 +292,8 @@ export function ProductDetailPurchaseCard({
         Comprar {product.name}
       </h2>
 
-      <div className="rounded-xl border border-neutral-100 bg-white p-4 sm:p-5">
-        {purchaseMode != null && onPurchaseModeChange ? (
+      <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5">
+        {purchaseMode != null && onPurchaseModeChange && !isMockupLayout ? (
           <ProductDetailPurchaseMode
             purchaseMode={purchaseMode}
             onPurchaseModeChange={onPurchaseModeChange}
@@ -295,18 +318,21 @@ export function ProductDetailPurchaseCard({
           </div>
         ) : null}
 
+        {showMockupBuyLayout ? mockupPromoHeader : null}
         {showMockupBuyLayout ? buyPriceBlock : null}
 
         {showMockupBuyLayout ? (
           <>
-            <ProductDetailVolumePurchaseHint
-              quantity={quantity}
-              basePriceUsd={publicUnitBaseUsd}
-              bulkDiscountTiers={detail.bulkDiscountTiers}
-              floorPriceUsd={fullPrices.tecnico}
-              equipmentExtrasUsd={equipmentExtrasUsd}
-              className="mt-3.5"
-            />
+            {!isMockupLayout ? (
+              <ProductDetailVolumePurchaseHint
+                quantity={quantity}
+                basePriceUsd={publicUnitBaseUsd}
+                bulkDiscountTiers={detail.bulkDiscountTiers}
+                floorPriceUsd={fullPrices.tecnico}
+                equipmentExtrasUsd={equipmentExtrasUsd}
+                className="mt-3.5"
+              />
+            ) : null}
 
             <div className="mt-4 flex w-full items-end gap-2">
               <ProductDetailPurchaseQuantity
@@ -317,11 +343,12 @@ export function ProductDetailPurchaseCard({
               />
               <Button
                 type="button"
-                onClick={handleBuyNow}
-                className="h-10 min-h-10 min-w-0 flex-1 gap-1.5 rounded-lg border-0 bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
+                onClick={isMockupLayout ? handleAddToCart : handleBuyNow}
+                disabled={outOfStock}
+                className="h-10 min-h-10 min-w-0 flex-1 gap-1.5 rounded-lg border-0 bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600 disabled:opacity-60"
               >
                 <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-                {buyNowLabel}
+                {isMockupLayout ? addToCartLabel : buyNowLabel}
               </Button>
             </div>
 
@@ -357,15 +384,17 @@ export function ProductDetailPurchaseCard({
               />
             </div>
 
-            {quoteButton}
+            {quoteButton && !isMockupLayout ? quoteButton : null}
 
-            <div className="mt-5">
-              <ProductDetailPurchasePaymentShipping />
-            </div>
+            {complementaSlot ? <div className="mt-4 border-t border-neutral-100 pt-4">{complementaSlot}</div> : null}
 
-            <ProductDetailPurchaseCardTrust className="mt-4" />
+            {!isMockupLayout ? (
+              <div className="mt-5">
+                <ProductDetailPurchasePaymentShipping />
+              </div>
+            ) : null}
 
-            {purchaseSidebarLinks}
+            <ProductDetailPurchaseCardTrust className="mt-4" variant={isLaptopMockup ? 'laptop' : 'default'} />
 
             {showRentalAction && onRentalClick && detail.rentalPlans.length === 0 ? (
               <Button
@@ -464,9 +493,7 @@ export function ProductDetailPurchaseCard({
 
             {quoteButton}
 
-            <ProductDetailPurchaseCardTrust className="mt-4" />
-
-            {purchaseSidebarLinks}
+            <ProductDetailPurchaseCardTrust className="mt-4" variant={isLaptopMockup ? 'laptop' : 'default'} />
           </>
         )}
       </div>
@@ -475,16 +502,6 @@ export function ProductDetailPurchaseCard({
         <p className={cn('sr-only')}>
           Cuota desde {formatPenFromUsd(installmentPreview.perInstallmentUsd)}
         </p>
-      ) : null}
-
-      {fichaLink?.href && fichaCanPreview ? (
-        <AttachmentPdfViewer
-          open={technicalSheetOpen}
-          onOpenChange={setTechnicalSheetOpen}
-          url={fichaLink.href}
-          filename={fichaFileName}
-          title={fichaTecnicaLabel}
-        />
       ) : null}
     </aside>
   );

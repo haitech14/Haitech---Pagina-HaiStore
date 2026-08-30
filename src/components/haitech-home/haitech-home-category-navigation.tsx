@@ -115,7 +115,7 @@ export function HaitechHomeCategoryNavigation({ className }: { className?: strin
                 navRow="haitech-white"
                 showIcon={false}
                 label="Consumibles"
-                triggerHref={storeShowcasePath({ categoryId: 'toner-repuestos' })}
+                triggerHref={storeShowcasePath({ categoryId: 'toner' })}
               />
             </li>
 

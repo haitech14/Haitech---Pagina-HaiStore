@@ -33,56 +33,62 @@ const EXCHANGE_RATE = (() => {
 const CATEGORY = 'Pizarras Interactivas';
 const BRAND = 'Ricoh';
 
-const ASSETS = 'C:/Users/nicol/.cursor/projects/c-Users-nicol-HaiStore/assets';
+const ASSETS = join(
+  process.env.USERPROFILE ?? '',
+  '.cursor',
+  'projects',
+  'd-Haitech-Software-HaiStore-Haitech-Pagina-HaiStore',
+  'assets',
+);
 
 const SCREENSHOTS = [
-  `${ASSETS}/c__Users_nicol_AppData_Roaming_Cursor_User_workspaceStorage_empty-window_images_image-f16dbe7d-63b5-411e-8e55-70cc5ae8e99a.png`,
-  `${ASSETS}/c__Users_nicol_AppData_Roaming_Cursor_User_workspaceStorage_empty-window_images_image-fd036170-5924-4a55-b645-1445330f22bf.png`,
+  `${ASSETS}/c__Users_nicol_AppData_Roaming_Cursor_User_workspaceStorage_efdaa8a5a4f29c24c24f96732c49ba2a_images_image-8ae12cb7-cda4-4f37-856e-ea5181a1137c.png`,
+  `${ASSETS}/c__Users_nicol_AppData_Roaming_Cursor_User_workspaceStorage_efdaa8a5a4f29c24c24f96732c49ba2a_images_image-f999cd40-1cf3-4010-89c6-96e1cda3fb51.png`,
 ];
 
-/** @type {Array<{ code: string; name: string; publicPen: number; shot: number; col: number; cols?: number }>} */
+const TECNICO_MARKUP_USD = 300;
+const PUBLIC_MARKUP_USD = 200;
+
+/** @type {Array<{ code: string; name: string; listPen: number; screen: string; shot: number; col: number; cols?: number }>} */
 const PRODUCTS = [
   {
     code: 'A6510',
     name: 'Pizarra Interactiva Nueva Ricoh A6510 65" IFPD 4K - Android 13 - Google Certified - 5 Year Warranty',
-    publicPen: 8854,
+    listPen: 8854,
+    screen: '65"',
     shot: 0,
     col: 0,
+    cols: 2,
   },
   {
     code: 'A8610',
     name: 'Pizarra Interactiva Nueva Ricoh A8610 86" IFPD 4K - Android 13 - Google Certified - 5 Year Warranty',
-    publicPen: 13920,
+    listPen: 13920,
+    screen: '86"',
     shot: 0,
     col: 1,
+    cols: 2,
   },
   {
     code: 'A7510',
     name: 'Pizarra Interactiva Nueva Ricoh A7510 75" IFPD 4K - Android 13 - Google Certified - 5 Year Warranty',
-    publicPen: 10904,
-    shot: 0,
-    col: 2,
-  },
-  {
-    code: 'NEARITY-WALL-347',
-    name: 'Soporte de pared para Pizarra Interactiva V410/V415/V520D Nearity',
-    publicPen: 347,
+    listPen: 10904,
+    screen: '75"',
     shot: 1,
     col: 0,
-    cols: 2,
-  },
-  {
-    code: 'NEARITY-WALL-TV-427',
-    name: 'Soporte de pared para Pizarra Interactiva V410/V415/V520D Nearity',
-    publicPen: 427,
-    shot: 1,
-    col: 1,
-    cols: 2,
+    cols: 1,
   },
 ];
 
 function penToUsd(pen) {
   return Math.round((pen / EXCHANGE_RATE) * 100) / 100;
+}
+
+function buildRolePricesFromListPen(listPen) {
+  const listUsd = penToUsd(listPen);
+  const tecnicoUsd = Math.round((listUsd + TECNICO_MARKUP_USD) * 100) / 100;
+  const publicUsd = Math.round((tecnicoUsd + PUBLIC_MARKUP_USD) * 100) / 100;
+  return { listUsd, tecnicoUsd, publicUsd };
 }
 
 function slugFromCode(code) {
@@ -127,8 +133,7 @@ async function saveProductImage(productId, shot, col, cols = 3) {
 }
 
 function buildProduct(entry, imageUrl, sortOrder) {
-  const publicUsd = penToUsd(entry.publicPen);
-  const tecnicoUsd = Math.round(publicUsd * 0.9 * 100) / 100;
+  const { listUsd, tecnicoUsd, publicUsd } = buildRolePricesFromListPen(entry.listPen);
   const id = slugFromCode(entry.code);
   const name = entry.name;
 
@@ -145,14 +150,19 @@ function buildProduct(entry, imageUrl, sortOrder) {
       brand: BRAND,
       image_url: imageUrl,
       gallery: [imageUrl],
-      purchase_price_usd: Math.round(publicUsd * 0.72 * 100) / 100,
+      purchase_price_usd: listUsd,
       created_at: new Date().toISOString(),
       sort_order: sortOrder,
       prices: ensureFullPrices({
         public: publicUsd,
         tecnico: tecnicoUsd,
       }),
-      attributes: [],
+      attributes: [
+        { name: 'Modelo de equipo', value: entry.code },
+        { name: 'Pantalla', value: entry.screen },
+        { name: 'Resolución', value: '4K' },
+        { name: 'Sistema operativo', value: 'Android 13' },
+      ],
     },
     undefined,
   );
@@ -224,10 +234,9 @@ async function main() {
   console.log(`Tipo de cambio USD→PEN: ${EXCHANGE_RATE}`);
   console.log(`Pizarras interactivas: ${created} nuevos, ${updated} actualizados.`);
   for (const entry of PRODUCTS) {
-    const publicUsd = penToUsd(entry.publicPen);
-    const tecnicoUsd = Math.round(publicUsd * 0.9 * 100) / 100;
+    const { listUsd, tecnicoUsd, publicUsd } = buildRolePricesFromListPen(entry.listPen);
     console.log(
-      `  [${entry.code}] ${entry.name} — público S/ ${entry.publicPen} ($${publicUsd}) · técnico $${tecnicoUsd}`,
+      `  [${entry.code}] lista S/ ${entry.listPen} ($${listUsd}) · técnico $${tecnicoUsd} · público $${publicUsd}`,
     );
   }
 }

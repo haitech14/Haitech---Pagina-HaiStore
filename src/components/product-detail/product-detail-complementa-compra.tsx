@@ -7,10 +7,12 @@ import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail
 import { ProductDetailHeroWarrantySelector } from '@/components/product-detail/product-detail-hero-warranty-selector';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import type { EquipmentSelectionState } from '@/lib/equipment-config-selection';
-import type {
-  ConfigureHeroAccessoryCard,
-  ConfigureHeroWarrantyUpgrade,
+import {
+  HERO_WARRANTY_BASE_OPTION_ID,
+  type ConfigureHeroAccessoryCard,
+  type ConfigureHeroWarrantyUpgrade,
 } from '@/lib/product-configure-hero-options';
+import { IM430F_ORIGINAL_TONER_PRODUCT_ID } from '@/lib/equipment-config-catalog';
 import {
   formatTonerCardDisplayTitle,
   resolveTonerColorLabel,
@@ -18,13 +20,14 @@ import {
   type ConfigureTonerSupplyType,
 } from '@/lib/product-configure-toner';
 import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
-import { cn } from '@/lib/utils';
+import { cn, penToUsd } from '@/lib/utils';
 import type { ResolvedStorefrontUi, StoredStorefrontUi } from '@/types/product-storefront';
 
 interface ProductDetailComplementaCompraProps {
   tonerCards?: ConfigureTonerCard[];
   defaultTonerSupplyType?: ConfigureTonerSupplyType;
   accessoryCards?: ConfigureHeroAccessoryCard[];
+  stabilizerCard?: ConfigureHeroAccessoryCard | null;
   selectedTonerOptionIds: Set<string>;
   equipmentSelection: EquipmentSelectionState;
   onTonerToggle: (card: ConfigureTonerCard) => void;
@@ -38,6 +41,8 @@ interface ProductDetailComplementaCompraProps {
   maintenanceSlot?: ReactNode;
   storefrontUi?: StoredStorefrontUi | null;
   className?: string;
+  /** Sidebar mockup: lista compacta sin tabs de tóner. */
+  variant?: 'default' | 'sidebar';
 }
 
 function ComplementaCardNoImage() {
@@ -66,12 +71,20 @@ function resolveCardColor(card: ConfigureTonerCard): string {
 }
 
 function extractTonerYieldPagesLabel(card: ConfigureTonerCard): string | null {
+  if (
+    card.productId === IM430F_ORIGINAL_TONER_PRODUCT_ID ||
+    /\bim\s*430\s*f\b/i.test(`${card.name} ${card.title}`)
+  ) {
+    return '15,500';
+  }
+
   const fromDescription = card.description?.trim();
   if (fromDescription && fromDescription !== '—' && !/^rendimiento según modelo$/i.test(fromDescription)) {
-    const pagesMatch = fromDescription.match(/([\d][\d.,]*)/);
-    if (pagesMatch?.[1]) {
-      const pages = Number(pagesMatch[1].replace(/[.,\s]/g, ''));
-      if (Number.isFinite(pages) && pages > 0) {
+    const rendMatch = fromDescription.match(/(?:rend(?:imiento)?|p[aá]g(?:inas)?)[^\d]*([\d][\d.,]*)/i);
+    const pagesMatch = rendMatch?.[1] ?? fromDescription.match(/([\d]{1,3}(?:[.,]\d{3})+)/)?.[1];
+    if (pagesMatch) {
+      const pages = Number(pagesMatch.replace(/[.,\s]/g, ''));
+      if (Number.isFinite(pages) && pages >= 1000) {
         return pages.toLocaleString('es-PE');
       }
     }
@@ -82,7 +95,7 @@ function extractTonerYieldPagesLabel(card: ConfigureTonerCard): string | null {
   if (!match?.[1]) return null;
 
   const pages = Number(match[1].replace(/[.,\s]/g, ''));
-  if (!Number.isFinite(pages) || pages <= 0) return null;
+  if (!Number.isFinite(pages) || pages < 1000) return null;
   return pages.toLocaleString('es-PE');
 }
 
@@ -115,7 +128,7 @@ function resolveTonerCardLabels(card: ConfigureTonerCard): {
       title ||
       formatTonerCardDisplayTitle(card.title?.trim() || card.name?.trim() || supplyPrefix),
     code: card.code?.trim() || null,
-    yieldLabel: yieldPages ? `Rendimiento al 5%: ${yieldPages} pág.` : null,
+    yieldLabel: yieldPages ? `${yieldPages} págs al 5%` : null,
   };
 }
 
@@ -381,10 +394,195 @@ function ComplementaAccessoryCards({
   );
 }
 
+function ComplementaSidebarAccessoryRow({
+  card,
+  selected,
+  onToggle,
+}: {
+  card: ConfigureHeroAccessoryCard;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const inputId = `sidebar-accessory-${card.stepId}-${card.optionId}`;
+  const hasPrice = card.prices.public > 0.001;
+
+  return (
+    <li>
+      <label
+        htmlFor={inputId}
+        className={cn(
+          'flex cursor-pointer items-start gap-2.5 rounded-md border px-2.5 py-2.5 transition-colors',
+          selected ? 'border-red-600/30 bg-red-50/50' : 'border-neutral-200 bg-white',
+        )}
+      >
+        <input
+          id={inputId}
+          type="checkbox"
+          checked={selected}
+          onChange={onToggle}
+          className="mt-1 size-3.5 shrink-0 accent-red-600"
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs font-semibold leading-snug text-[#0f1f3d]">
+            {card.title}
+          </span>
+        </span>
+        <span className="shrink-0 text-xs font-semibold tabular-nums text-[#0f1f3d]">
+          {hasPrice ? <DualPrice usd={card.prices.public} /> : 'Consultar precio'}
+        </span>
+      </label>
+    </li>
+  );
+}
+
+function ComplementaSidebarRows({
+  tonerCards,
+  selectedTonerOptionIds,
+  onTonerToggle,
+  accessoryCards,
+  stabilizerCard,
+  equipmentSelection,
+  onAccessoryToggle,
+  warrantyBaseLabel,
+  warrantyUpgrades,
+  selectedWarrantyOptionId,
+  onWarrantySelect,
+}: {
+  tonerCards: ConfigureTonerCard[];
+  selectedTonerOptionIds: Set<string>;
+  onTonerToggle: (card: ConfigureTonerCard) => void;
+  accessoryCards: ConfigureHeroAccessoryCard[];
+  stabilizerCard?: ConfigureHeroAccessoryCard | null;
+  equipmentSelection: EquipmentSelectionState;
+  onAccessoryToggle: (card: ConfigureHeroAccessoryCard) => void;
+  warrantyBaseLabel?: string;
+  warrantyUpgrades: ConfigureHeroWarrantyUpgrade[];
+  selectedWarrantyOptionId?: string | undefined;
+  onWarrantySelect?: ((optionId: string) => void) | undefined;
+}) {
+  const primaryToner = dedupeTonerCards(tonerCards)[0] ?? null;
+  const primaryWarranty = warrantyUpgrades[0] ?? null;
+  const warrantySelected =
+    primaryWarranty != null &&
+    selectedWarrantyOptionId != null &&
+    selectedWarrantyOptionId === primaryWarranty.optionId;
+
+  return (
+    <ul className="space-y-2" aria-label="Complementa tu compra">
+      {primaryToner ? (
+        <li>
+          {(() => {
+            const selected = selectedTonerOptionIds.has(primaryToner.optionId);
+            const { title, yieldLabel } = resolveTonerCardLabels(primaryToner);
+            const inputId = `sidebar-toner-${primaryToner.productId}`;
+            return (
+              <label
+                htmlFor={inputId}
+                className={cn(
+                  'flex cursor-pointer items-start gap-2.5 rounded-md border px-2.5 py-2.5 transition-colors',
+                  selected ? 'border-red-600/30 bg-red-50/50' : 'border-neutral-200 bg-white',
+                )}
+              >
+                <input
+                  id={inputId}
+                  type="checkbox"
+                  checked={selected}
+                  onChange={() => onTonerToggle(primaryToner)}
+                  className="mt-1 size-3.5 shrink-0 accent-red-600"
+                />
+                <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded border border-neutral-200 bg-white p-0.5">
+                  <ProductCardHoverImage
+                    candidates={primaryToner.imageCandidates}
+                    alt={title}
+                    className="size-full"
+                    imageClassName="size-full object-contain"
+                    placeholder={<ComplementaCardNoImage />}
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-semibold leading-snug text-[#0f1f3d]">
+                    {title}
+                  </span>
+                  {yieldLabel ? (
+                    <span className="mt-0.5 block text-[0.625rem] leading-snug text-neutral-500">
+                      {yieldLabel}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="shrink-0 text-xs font-semibold tabular-nums text-[#0f1f3d]">
+                  <DualPrice usd={primaryToner.prices.public} />
+                </span>
+              </label>
+            );
+          })()}
+        </li>
+      ) : null}
+
+      {primaryWarranty && onWarrantySelect && warrantyBaseLabel ? (
+        <li>
+          <label
+            htmlFor={`sidebar-warranty-${primaryWarranty.optionId}`}
+            className={cn(
+              'flex cursor-pointer items-start gap-2.5 rounded-md border px-2.5 py-2.5 transition-colors',
+              warrantySelected ? 'border-red-600/30 bg-red-50/50' : 'border-neutral-200 bg-white',
+            )}
+          >
+            <input
+              id={`sidebar-warranty-${primaryWarranty.optionId}`}
+              type="checkbox"
+              checked={warrantySelected}
+              onChange={() =>
+                onWarrantySelect(
+                  warrantySelected ? HERO_WARRANTY_BASE_OPTION_ID : primaryWarranty.optionId,
+                )
+              }
+              className="mt-1 size-3.5 shrink-0 accent-red-600"
+            />
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs font-semibold leading-snug text-[#0f1f3d]">
+                Garantía extendida
+              </span>
+              <span className="mt-0.5 block text-[0.625rem] leading-snug text-neutral-500">
+                {primaryWarranty.label}
+              </span>
+            </span>
+            <span className="shrink-0 text-xs font-semibold tabular-nums text-[#0f1f3d]">
+              <DualPrice usd={primaryWarranty.priceUsd ?? penToUsd(primaryWarranty.pricePen)} />
+            </span>
+          </label>
+        </li>
+      ) : null}
+
+      {accessoryCards.map((card) => {
+        const selected = (equipmentSelection[card.stepId] ?? new Set<string>()).has(card.optionId);
+        return (
+          <ComplementaSidebarAccessoryRow
+            key={`${card.stepId}-${card.optionId}`}
+            card={card}
+            selected={selected}
+            onToggle={() => onAccessoryToggle(card)}
+          />
+        );
+      })}
+
+      {stabilizerCard ? (
+        <ComplementaSidebarAccessoryRow
+          card={stabilizerCard}
+          selected={(equipmentSelection[stabilizerCard.stepId] ?? new Set<string>()).has(
+            stabilizerCard.optionId,
+          )}
+          onToggle={() => onAccessoryToggle(stabilizerCard)}
+        />
+      ) : null}
+    </ul>
+  );
+}
+
 export function ProductDetailComplementaCompra({
   tonerCards = [],
   defaultTonerSupplyType = 'original',
   accessoryCards = [],
+  stabilizerCard = null,
   selectedTonerOptionIds,
   equipmentSelection,
   onTonerToggle,
@@ -398,9 +596,11 @@ export function ProductDetailComplementaCompra({
   maintenanceSlot,
   storefrontUi,
   className,
+  variant = 'default',
 }: ProductDetailComplementaCompraProps) {
   const resolvedUi = useMemo(() => resolveStorefrontUi(storefrontUi), [storefrontUi]);
   const isDesktopLayout = useMediaQuery('(min-width: 1024px)');
+  const isSidebarVariant = variant === 'sidebar';
   const hasToner = tonerCards.length > 0;
   const hasAccessories = accessoryCards.length > 0;
   const hasWarranty =
@@ -408,9 +608,31 @@ export function ProductDetailComplementaCompra({
     warrantyBaseLabel != null &&
     selectedWarrantyOptionId != null &&
     onWarrantySelect != null;
-  const hasConfig = hasAccessories || hasWarranty || Boolean(maintenanceSlot);
+  const hasStabilizer = stabilizerCard != null;
+  const hasConfig = hasAccessories || hasWarranty || hasStabilizer || Boolean(maintenanceSlot);
 
   if (!hasToner && !hasConfig) return null;
+
+  if (isSidebarVariant) {
+    return (
+      <section className={className} aria-label="Complementa tu compra">
+        <h3 className="mb-2.5 text-xs font-semibold text-[#0f1f3d]">Complementa tu compra</h3>
+        <ComplementaSidebarRows
+          tonerCards={tonerCards}
+          selectedTonerOptionIds={selectedTonerOptionIds}
+          onTonerToggle={onTonerToggle}
+          accessoryCards={accessoryCards}
+          stabilizerCard={stabilizerCard}
+          equipmentSelection={equipmentSelection}
+          onAccessoryToggle={onAccessoryToggle}
+          warrantyUpgrades={warrantyUpgrades}
+          selectedWarrantyOptionId={selectedWarrantyOptionId}
+          {...(warrantyBaseLabel != null ? { warrantyBaseLabel } : {})}
+          {...(onWarrantySelect != null ? { onWarrantySelect } : {})}
+        />
+      </section>
+    );
+  }
 
   const body = (
     <>

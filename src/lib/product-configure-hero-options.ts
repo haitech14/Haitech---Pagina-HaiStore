@@ -18,20 +18,24 @@ export const COMPLEMENTA_ACCESSORY_STEP_IDS = ['accesorios'] as const;
 
 /** Accesorios con etiqueta compacta en el hero (mockup Complementa tu compra). */
 
-export const HERO_ACCESSORY_OPTION_IDS = ['casetera-500', 'gabinete'] as const;
+export const COMPLEMENTA_SIDEBAR_ACCESSORY_OPTION_IDS = [
+  'casetera-250',
+  'gabinete',
+] as const;
+
+export const COMPLEMENTA_SIDEBAR_STABILIZER_OPTION_ID = 'estabilizador-2000w';
 
 
 
-export type HeroAccessoryOptionId = (typeof HERO_ACCESSORY_OPTION_IDS)[number];
+export type HeroAccessoryOptionId = (typeof COMPLEMENTA_SIDEBAR_ACCESSORY_OPTION_IDS)[number];
 
 
 
 const COMPLEMENTA_ACCESSORY_LABELS: Partial<Record<string, string>> = {
-
+  'casetera-250': 'Casetera 250 Hojas',
   'casetera-500': 'Casetera Adicional',
-
-  gabinete: 'Gabinete Metálico',
-
+  gabinete: 'Gabinete',
+  'estabilizador-2000w': 'Estabilizador Sólido 2000 watts',
 };
 
 
@@ -163,6 +167,28 @@ function optionToAccessoryCard(
 }
 
 
+
+export function resolveComplementaSidebarAccessoryCards(
+  steps: EquipmentConfigStep[],
+): ConfigureHeroAccessoryCard[] {
+  const step = steps.find((entry) => entry.id === 'accesorios');
+  if (!step) return [];
+
+  return COMPLEMENTA_SIDEBAR_ACCESSORY_OPTION_IDS.flatMap((optionId) => {
+    const option = step.options.find((entry) => entry.id === optionId);
+    if (!option || option.included) return [];
+    return [optionToAccessoryCard(step, option)];
+  });
+}
+
+export function resolveComplementaStabilizerCard(
+  steps: EquipmentConfigStep[],
+): ConfigureHeroAccessoryCard | null {
+  const step = steps.find((entry) => entry.id === 'estabilizador');
+  const option = step?.options.find((entry) => entry.id === COMPLEMENTA_SIDEBAR_STABILIZER_OPTION_ID);
+  if (!step || !option || option.included) return null;
+  return optionToAccessoryCard(step, option);
+}
 
 export function resolveHeroAccessoryCards(
 

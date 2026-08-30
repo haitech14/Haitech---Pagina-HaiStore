@@ -2,6 +2,10 @@ import type { HaitechShopProduct } from '@/data/haitech-home-shop';
 
 const SCANNER_FEATURES = ['escanea', 'rendimiento'] as const;
 
+const MARKUP_USD = 200;
+const EXCHANGE_RATE = 3.42;
+const MARKUP_PEN = Math.round(MARKUP_USD * EXCHANGE_RATE);
+
 type ScannerShowcaseRow = {
   id: string;
   slug: string;
@@ -10,6 +14,8 @@ type ScannerShowcaseRow = {
   code: string;
   image: string;
   stock: number;
+  /** Precio base público en soles (antes del recargo comercial). */
+  basePen?: number;
 };
 
 function toShowcaseScanner(
@@ -23,7 +29,7 @@ function toShowcaseScanner(
     code: row.code,
     stock: row.stock,
     image: row.image,
-    price: 0,
+    price: row.basePen != null ? row.basePen + MARKUP_PEN : 0,
     condition,
     features: SCANNER_FEATURES,
     equipment: {
@@ -74,6 +80,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'SV-600',
     image: '/products/ricoh-scansnap-sv-600.webp',
     stock: 0,
+    basePen: 4773,
   },
   {
     id: '3f277125-e3ed-4479-b156-ce231f70970c',
@@ -101,6 +108,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-70F',
     image: '/products/ricoh-fi-70f.webp',
     stock: 0,
+    basePen: 2037,
   },
   {
     id: 'dbe29df7-3195-4f26-8f84-2cd9f1504ceb',
@@ -110,6 +118,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-800R',
     image: '/products/ricoh-fi-800r.webp',
     stock: 0,
+    basePen: 2810,
   },
   {
     id: 'e0ed6538-555f-4e32-ac42-1ea05f659aec',
@@ -119,6 +128,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-8040',
     image: '/products/ricoh-fi-8040.webp',
     stock: 0,
+    basePen: 3149,
   },
   {
     id: 'b7a08fda-17f7-416f-af3f-6cd60976d91d',
@@ -128,6 +138,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-8150',
     image: '/products/ricoh-fi-8150.webp',
     stock: 0,
+    basePen: 4582,
   },
   {
     id: '41125a96-f6ea-4c8a-b76b-95b372236905',
@@ -137,6 +148,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-8170',
     image: '/products/ricoh-fi-8170.webp',
     stock: 0,
+    basePen: 5091,
   },
   {
     id: '248a9189-ce2a-4985-ac1d-a5e84609fd9d',
@@ -146,6 +158,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-8190',
     image: '/products/ricoh-fi-8190.webp',
     stock: 0,
+    basePen: 8526,
   },
   {
     id: '53d83aa4-c8ea-45d8-b67a-4c4596366120',
@@ -173,6 +186,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-8270',
     image: '/products/ricoh-fi-8270.webp',
     stock: 0,
+    basePen: 7956,
   },
   {
     id: '03499158-6d76-4021-8c8e-b76d964bd8c2',
@@ -182,6 +196,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-8290',
     image: '/products/ricoh-fi-8290.webp',
     stock: 0,
+    basePen: 11288,
   },
   {
     id: 'e0aa08ce-5a60-4182-8b3d-859e175ae144',
@@ -200,6 +215,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-8820',
     image: '/products/ricoh-fi-8820.webp',
     stock: 0,
+    basePen: 34493,
   },
   {
     id: '12a0ba0f-1e30-4e4d-93e9-db1d38063ed6',
@@ -227,6 +243,7 @@ const HAITECH_SHOWCASE_SCANNERS_NUEVOS: readonly ScannerShowcaseRow[] = [
     code: 'FI-7600',
     image: '/products/ricoh-fi-7600.webp',
     stock: 0,
+    basePen: 18839,
   },
   {
     id: 'a60d94d2-7c9a-4a74-acfc-d3804d329bd9',
