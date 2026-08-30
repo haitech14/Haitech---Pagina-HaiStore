@@ -5,15 +5,13 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { HaitechHomeProductCard } from '@/components/haitech-home/haitech-home-product-card';
 import type { HaitechShopProduct } from '@/data/haitech-home-shop';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
+import {
+  HAITECH_PRODUCT_CAROUSEL_ARROW,
+  HAITECH_PRODUCT_CAROUSEL_GAP,
+  HAITECH_PRODUCT_CAROUSEL_GUTTER,
+  HAITECH_PRODUCT_CAROUSEL_SLIDE,
+} from '@/lib/haitech-product-carousel-layout';
 import { cn } from '@/lib/utils';
-
-const GAP = 'gap-2.5 sm:gap-3 md:gap-4';
-/** ~1.15 móvil (peek) · 2.2 sm · 3 md · 5 desktop. */
-const SLIDE =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.625rem)/1.15)] sm:flex-[0_0_calc((100%-0.75rem)/2.15)] md:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-4rem)/5)]';
-
-const arrowClass =
-  'absolute top-[42%] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#EAEAEA] bg-white text-[#E30613] shadow-[0_2px_10px_rgba(15,31,61,0.10)] transition-all duration-200 hover:scale-105 hover:border-[#E30613]/30 hover:shadow-[0_4px_14px_rgba(15,31,61,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35 disabled:pointer-events-none disabled:opacity-30 sm:size-10 sm:top-[42%]';
 
 export function HaitechHomeProductCarousel({
   products,
@@ -26,11 +24,13 @@ export function HaitechHomeProductCarousel({
 }) {
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const showNav = products.length > 1;
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
+    slidesToScroll: 1,
     watchDrag: emblaShouldWatchDrag,
   });
 
@@ -64,22 +64,12 @@ export function HaitechHomeProductCarousel({
   if (products.length === 0) return null;
 
   return (
-    <div className={cn('relative px-0 sm:px-8 lg:px-10', className)}>
-      <div className="overflow-hidden" ref={emblaRef}>
-        <ul className={cn('flex', GAP)} role="list" aria-label={ariaLabel}>
-          {products.map((product) => (
-            <li key={product.id} className={SLIDE}>
-              <HaitechHomeProductCard product={product} />
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {products.length > 1 ? (
+    <div className={cn('relative', showNav && HAITECH_PRODUCT_CAROUSEL_GUTTER, className)}>
+      {showNav ? (
         <>
           <button
             type="button"
-            className={cn(arrowClass, 'left-0 sm:-left-4 lg:-left-5')}
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'left-0')}
             aria-label="Productos anteriores"
             disabled={!canScrollPrev}
             onClick={scrollPrev}
@@ -88,7 +78,7 @@ export function HaitechHomeProductCarousel({
           </button>
           <button
             type="button"
-            className={cn(arrowClass, 'right-0 sm:-right-4 lg:-right-5')}
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'right-0')}
             aria-label="Productos siguientes"
             disabled={!canScrollNext}
             onClick={scrollNext}
@@ -97,6 +87,16 @@ export function HaitechHomeProductCarousel({
           </button>
         </>
       ) : null}
+
+      <div className="overflow-hidden" ref={emblaRef}>
+        <ul className={cn('flex touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list" aria-label={ariaLabel}>
+          {products.map((product) => (
+            <li key={product.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
+              <HaitechHomeProductCard product={product} />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

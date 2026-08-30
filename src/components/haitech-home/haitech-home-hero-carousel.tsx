@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { HAITECH_HOME_HERO_SLIDES } from '@/data/haitech-home-shell';
@@ -7,6 +7,65 @@ import { cn } from '@/lib/utils';
 
 const AUTOPLAY_MS = 5000;
 
+type HeroSlide = (typeof HAITECH_HOME_HERO_SLIDES)[number];
+
+const HERO_IMAGE_CLASS = cn(
+  'absolute inset-0 h-full object-cover',
+  'w-[290%] max-w-none',
+  'sm:w-full sm:max-w-full',
+);
+
+function heroSlideImageStyle(slide: HeroSlide): CSSProperties {
+  const mobilePos =
+    'mobileObjectPosition' in slide && slide.mobileObjectPosition
+      ? slide.mobileObjectPosition
+      : 'left 20%';
+
+  return {
+    ['--hero-desktop-pos' as string]: slide.objectPosition,
+    objectPosition: mobilePos,
+  };
+}
+
+function HeroSlidePicture({ slide, index }: { slide: HeroSlide; index: number }) {
+  const imageStyle = heroSlideImageStyle(slide);
+  const imageClass = cn(HERO_IMAGE_CLASS, 'sm:[object-position:var(--hero-desktop-pos)]');
+  const srcPng = 'srcPng' in slide ? slide.srcPng : undefined;
+  const loadProps = {
+    decoding: index === 0 ? ('sync' as const) : ('async' as const),
+    fetchPriority: index === 0 ? ('high' as const) : ('low' as const),
+  };
+
+  if (srcPng) {
+    return (
+      <picture>
+        <source srcSet={slide.src} type="image/webp" />
+        <img
+          src={srcPng}
+          alt={slide.alt}
+          width={2094}
+          height={670}
+          className={imageClass}
+          style={imageStyle}
+          {...loadProps}
+        />
+      </picture>
+    );
+  }
+
+  return (
+    <img
+      src={slide.src}
+      alt={slide.alt}
+      width={2094}
+      height={670}
+      className={imageClass}
+      style={imageStyle}
+      {...loadProps}
+    />
+  );
+}
+
 export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -14,7 +73,6 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
   const showControls = total > 1;
   const { requestQuote } = useHaitechWhatsAppQuoteContext();
   const slide = HAITECH_HOME_HERO_SLIDES[index]!;
-  const srcPng = 'srcPng' in slide ? slide.srcPng : undefined;
 
   const handleHeroClick = useCallback(() => {
     requestQuote({ campaign: 'hero-home' });
@@ -43,8 +101,8 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
       <div
         className={cn(
           'relative w-full overflow-hidden bg-white',
-          'aspect-[2094/670]',
-          'min-h-[130px] max-h-[min(560px,32vw)]',
+          'aspect-[16/11] min-h-[248px] max-h-[min(420px,92vw)]',
+          'sm:aspect-[2094/670] sm:min-h-[130px] sm:max-h-[min(560px,32vw)]',
         )}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -55,32 +113,7 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
           className="absolute inset-0 block cursor-pointer border-0 bg-transparent p-0"
           aria-label="Abrir WhatsApp para comprar o cotizar"
         >
-          {srcPng ? (
-            <picture>
-              <source srcSet={slide.src} type="image/webp" />
-              <img
-                src={srcPng}
-                alt={slide.alt}
-                width={2094}
-                height={670}
-                className="absolute inset-0 size-full object-cover"
-                style={{ objectPosition: slide.objectPosition }}
-                decoding={index === 0 ? 'sync' : 'async'}
-                fetchPriority={index === 0 ? 'high' : 'low'}
-              />
-            </picture>
-          ) : (
-            <img
-              src={slide.src}
-              alt={slide.alt}
-              width={2094}
-              height={670}
-              className="absolute inset-0 size-full object-cover"
-              style={{ objectPosition: slide.objectPosition }}
-              decoding={index === 0 ? 'sync' : 'async'}
-              fetchPriority={index === 0 ? 'high' : 'low'}
-            />
-          )}
+          <HeroSlidePicture slide={slide} index={index} />
         </button>
 
         {showControls ? (

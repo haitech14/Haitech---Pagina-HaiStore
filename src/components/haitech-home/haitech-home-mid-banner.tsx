@@ -6,6 +6,7 @@ import {
   HAITECH_HOME_POST_SERVICES_BANNERS,
   HAITECH_HOME_SERVICES_SECTION_HEADER,
 } from '@/data/haitech-home-shell';
+import { ResponsivePromoBannerImage } from '@/components/home/responsive-promo-banner-image';
 import { cn } from '@/lib/utils';
 
 type MidBannerItem = {
@@ -16,6 +17,7 @@ type MidBannerItem = {
   alt: string;
   href: string;
   id?: string;
+  mobileFocus?: 'left' | 'center';
 };
 
 function MidBannerLink({ banner }: { banner: MidBannerItem }) {
@@ -23,22 +25,18 @@ function MidBannerLink({ banner }: { banner: MidBannerItem }) {
     <Link
       to={banner.href}
       className={cn(
-        'group relative block w-full overflow-hidden rounded-xl leading-none',
+        'group relative block w-full leading-none',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
       )}
     >
-      <picture>
-        {banner.webp ? <source srcSet={banner.webp} type="image/webp" /> : null}
-        <img
-          src={banner.png}
-          alt={banner.alt}
-          width={banner.width}
-          height={banner.height}
-          className="block h-auto w-full transition-transform duration-500 group-hover:scale-[1.01]"
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
+      <ResponsivePromoBannerImage
+        src={banner.png}
+        webp={banner.webp}
+        alt={banner.alt}
+        width={banner.width}
+        height={banner.height}
+        mobileFocus={banner.mobileFocus ?? 'left'}
+      />
     </Link>
   );
 }
@@ -59,15 +57,15 @@ function SectionTitleHeader({
   titleId: string;
 }) {
   return (
-    <header className="mb-5 flex flex-col gap-5 sm:mb-6 lg:mb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
-      <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center sm:gap-6 lg:gap-8">
+    <header className="mb-5 flex flex-col items-center gap-4 text-center sm:mb-6 sm:gap-5 lg:mb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:text-left">
+      <div className="flex min-w-0 flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6 sm:text-left lg:gap-8">
         <div className="shrink-0">
           <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#E30613] sm:text-[12px]">
             {eyebrow}
           </p>
           <h2
             id={titleId}
-            className="mt-1 font-[family-name:var(--font-infobox)] text-[28px] font-bold leading-none tracking-tight text-[#111] sm:text-[34px] lg:text-[40px]"
+            className="mt-1 font-[family-name:var(--font-infobox)] text-[26px] font-bold leading-tight tracking-tight text-[#111] sm:text-[34px] lg:text-[40px]"
           >
             {titleBefore}
             <span className="text-[#E30613]">{titleAccent}</span>
@@ -86,7 +84,7 @@ function SectionTitleHeader({
           {tagline}
         </p>
         <span
-          className="mt-1.5 block h-[3px] w-12 rounded-sm bg-[#E30613] lg:ml-auto"
+          className="mx-auto mt-1.5 block h-[3px] w-12 rounded-sm bg-[#E30613] lg:ml-auto lg:mr-0"
           aria-hidden="true"
         />
       </div>

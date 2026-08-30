@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, FolderOpen, Loader2, Plus, Search, Wrench, X } from 'lucide-react';
+import { ChevronDown, FolderOpen, Loader2, Plus, Search, ShoppingCart, Wrench, X } from 'lucide-react';
 
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
+import { useCart } from '@/context/cart-context';
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
 import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductCardImage } from '@/components/product/product-card-image';
@@ -27,7 +28,6 @@ import { buildCategorySelectOptions } from '@/lib/inventory-category-options';
 import {
   filterCategoriesBySearch,
   filterServicesBySearch,
-  groupEquiposSearchProductsByCondition,
   groupSearchProductsByPanelSection,
   MIN_PRODUCT_SEARCH_LENGTH,
   normalizeSearchText,
@@ -146,38 +146,26 @@ const denseSearchButtonClass =
   'flex h-10 w-10 shrink-0 items-center justify-center rounded-r-full border-0 bg-red-600 text-white [&_svg]:text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 const SEARCH_SUGGESTION_THUMB_CLASS =
-  'size-9 shrink-0 overflow-hidden rounded-md border border-border/50 bg-white sm:size-10';
+  'size-8 shrink-0 overflow-hidden rounded-md border border-border/50 bg-white sm:size-10';
 
 const SEARCH_SUGGESTION_CELL_CLASS =
-  'flex w-full items-start gap-2 px-2.5 py-2 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2.5 sm:px-3 sm:py-2.5';
+  'flex w-full items-start gap-1.5 px-2 py-1.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2.5 sm:px-3 sm:py-2.5';
+
+const SEARCH_SUGGESTION_ICON_ACTION_CLASS =
+  'inline-flex size-7 shrink-0 items-center justify-center bg-transparent p-0 text-[#888] transition-colors hover:bg-transparent hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:size-8 [&_svg]:size-3.5 sm:[&_svg]:size-4';
+
+const SEARCH_SUGGESTION_CART_BTN_CLASS =
+  'inline-flex h-7 min-w-0 flex-1 items-center justify-center gap-0.5 rounded-md bg-[#E30613] px-1.5 text-[0.625rem] font-semibold text-white transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-inset sm:h-8 sm:gap-1 sm:px-2 sm:text-[0.6875rem]';
+
+const SEARCH_SUGGESTION_BUY_BTN_CLASS =
+  'inline-flex h-7 min-w-0 flex-1 items-center justify-center rounded-md border border-[#E30613] bg-white px-1.5 text-[0.625rem] font-semibold text-[#E30613] transition-colors hover:bg-[#FFF5F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-inset sm:h-8 sm:px-2 sm:text-[0.6875rem]';
 
 const SEARCH_DROPDOWN_PANEL_CLASS =
   'absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-[min(70vh,32rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,42rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,48rem)] xl:w-[min(100vw-2rem,52rem)]';
 
-/** Pestañas del panel: Todos | Equipos | Tóner (lista en una columna). */
-const SEARCH_RESULT_COLUMNS = [
-  {
-    key: 'todos',
-    title: 'Todos',
-    match: () => true,
-  },
-  {
-    key: 'equipos',
-    title: 'Equipos',
-    match: (category: string) => category === 'Equipos',
-  },
-  {
-    key: 'toner',
-    title: 'Tóner',
-    match: (category: string) => category.startsWith('Tóner'),
-  },
-] as const;
-
-type SearchResultColumnKey = (typeof SEARCH_RESULT_COLUMNS)[number]['key'];
-
 function SuggestionSectionHeading({ children }: { children: string }) {
   return (
-    <p className="border-b border-border/60 bg-muted/25 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:px-4">
+    <p className="border-b border-border/60 bg-muted/25 px-2.5 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.1em]">
       {children}
     </p>
   );
@@ -311,8 +299,21 @@ function SearchProductSuggestionCell({
     () => buildSearchSuggestionThumbCandidates(product)[0] ?? null,
     [product],
   );
-  const copyActionClass =
-    'shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted/80 hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600';
+  const { addItem } = useCart();
+  const cartButtonLabel = outOfStock ? 'Reservar' : 'Añadir al carrito';
+  const cartButtonShortLabel = outOfStock ? 'Reservar' : 'Añadir';
+
+  const handleAddToCart = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    addItem(product, { openDrawer: true });
+  };
+
+  const handleBuy = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onNavigateProduct();
+  };
 
   return (
     <div
@@ -336,56 +337,80 @@ function SearchProductSuggestionCell({
       onClick={onNavigateProduct}
     >
       <SearchProductSuggestionThumb product={product} />
-      <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5 sm:gap-1">
+        <span className="flex min-w-0 items-start justify-between gap-2">
           <span
-            className="min-w-0 whitespace-normal break-words text-[0.8125rem] font-medium leading-snug text-foreground sm:text-sm"
+            className="min-w-0 line-clamp-2 text-[0.75rem] font-medium leading-snug text-foreground sm:line-clamp-none sm:text-sm"
             title={title}
           >
             {highlightSearchTerms(title, query)}
           </span>
-          <ProductCardStatsLine
-            product={product}
-            stock={stockCount}
-            outOfStock={outOfStock}
-            code={clipboardCode}
-          />
+          {showPrice ? (
+            <span className="shrink-0 text-[0.75rem] font-semibold tabular-nums sm:text-sm">
+              <DualPrice usd={pricing.currentUsd} />
+            </span>
+          ) : (
+            <span className="shrink-0 text-[0.75rem] font-medium text-[#E30613] sm:text-sm">
+              {CONSULTAR_PRECIO_LABEL}
+            </span>
+          )}
         </span>
-        {showPrice ? (
-          <span className="shrink-0 text-[0.8125rem] font-semibold tabular-nums sm:pt-0.5 sm:text-sm">
-            <DualPrice usd={pricing.currentUsd} />
-          </span>
-        ) : (
-          <span className="shrink-0 text-[0.8125rem] font-medium text-[#E30613] sm:pt-0.5 sm:text-sm">
-            {CONSULTAR_PRECIO_LABEL}
-          </span>
-        )}
-      </span>
-      <span className="flex shrink-0 items-center gap-0.5 pt-0.5">
-        {clipboardImageUrl ? (
-          <ProductCardCopyImageButton
-            productName={product.name}
-            imageUrl={clipboardImageUrl}
-            className={copyActionClass}
-          />
-        ) : null}
-        <ProductCardCopyButton
-          productName={product.name}
-          title={product.name}
+        <ProductCardStatsLine
+          product={product}
           stock={stockCount}
-          {...clipboardPriceFieldsFromDisplay(displayPrice)}
-          productId={product.id}
-          productPath={detailPath}
-          isColorProduct={clipboardIsColor}
-          {...(clipboardCode != null ? { code: clipboardCode } : {})}
-          {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
-          {...(clipboardBasicFeatures != null ? { basicFeatures: clipboardBasicFeatures } : {})}
-          {...(product.category != null ? { category: product.category } : {})}
-          {...(product.volume_role_prices != null
-            ? { volumeRolePrices: product.volume_role_prices }
-            : {})}
-          className={copyActionClass}
+          outOfStock={outOfStock}
+          code={clipboardCode}
+          className="min-w-0 text-[0.625rem] sm:text-[0.75rem]"
         />
+        <span
+          className="flex min-w-0 items-center gap-1 pt-0.5"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {clipboardImageUrl ? (
+            <ProductCardCopyImageButton
+              productName={product.name}
+              imageUrl={clipboardImageUrl}
+              className={SEARCH_SUGGESTION_ICON_ACTION_CLASS}
+            />
+          ) : null}
+          <ProductCardCopyButton
+            productName={product.name}
+            title={product.name}
+            stock={stockCount}
+            {...clipboardPriceFieldsFromDisplay(displayPrice)}
+            productId={product.id}
+            productPath={detailPath}
+            isColorProduct={clipboardIsColor}
+            {...(clipboardCode != null ? { code: clipboardCode } : {})}
+            {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
+            {...(clipboardBasicFeatures != null ? { basicFeatures: clipboardBasicFeatures } : {})}
+            {...(product.category != null ? { category: product.category } : {})}
+            {...(product.volume_role_prices != null
+              ? { volumeRolePrices: product.volume_role_prices }
+              : {})}
+            className={SEARCH_SUGGESTION_ICON_ACTION_CLASS}
+          />
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className={SEARCH_SUGGESTION_CART_BTN_CLASS}
+            aria-label={`${cartButtonLabel}: ${title}`}
+          >
+            {!outOfStock ? (
+              <ShoppingCart className="size-3 shrink-0 sm:size-3.5" aria-hidden="true" />
+            ) : null}
+            <span className="truncate sm:hidden">{cartButtonShortLabel}</span>
+            <span className="hidden truncate sm:inline">{cartButtonLabel}</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleBuy}
+            className={SEARCH_SUGGESTION_BUY_BTN_CLASS}
+            aria-label={`Comprar: ${title}`}
+          >
+            Comprar
+          </button>
+        </span>
       </span>
     </div>
   );
@@ -395,9 +420,12 @@ function SearchProductSuggestionSkeleton() {
   return (
     <div className={cn(SEARCH_SUGGESTION_CELL_CLASS)} aria-hidden="true">
       <div className={cn('animate-pulse bg-muted', SEARCH_SUGGESTION_THUMB_CLASS)} />
-      <div className="min-w-0 flex-1 space-y-1.5">
-        <div className="h-3.5 w-4/5 animate-pulse rounded bg-muted" />
-        <div className="h-3.5 w-14 animate-pulse rounded bg-muted" />
+      <div className="min-w-0 flex-1 space-y-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="h-3 w-4/5 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-12 shrink-0 animate-pulse rounded bg-muted" />
+        </div>
+        <div className="h-3 w-2/5 animate-pulse rounded bg-muted" />
       </div>
     </div>
   );
@@ -431,7 +459,6 @@ export function SiteSearchForm({
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES_VALUE);
   const [panelOpen, setPanelOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [activeResultTab, setActiveResultTab] = useState<SearchResultColumnKey>('todos');
   const [pagination, setPagination] = useState({
     scopeKey: '',
     extraLoads: 0,
@@ -521,65 +548,14 @@ export function SiteSearchForm({
     return () => window.clearTimeout(timer);
   }, [autoFocusInput]);
 
-  const productResultColumns = useMemo(() => {
-    return SEARCH_RESULT_COLUMNS.map((column) => {
-      const groups = productSectionGroups.filter((group) => column.match(group.category));
-      return {
-        key: column.key,
-        title: column.title,
-        groups,
-        productCount: groups.reduce((sum, group) => sum + group.products.length, 0),
-      };
-    });
-  }, [productSectionGroups]);
+  const hasProductResults = productSectionGroups.some((group) => group.products.length > 0);
 
-  const hasProductResults = productResultColumns.some((column) => column.productCount > 0);
-
-  useEffect(() => {
-    if (!hasProductResults) return;
-    const activeHasResults = productResultColumns.some(
-      (column) => column.key === activeResultTab && column.productCount > 0,
-    );
-    if (activeHasResults) return;
-    const firstWithResults = productResultColumns.find((column) => column.productCount > 0);
-    if (firstWithResults) {
-      setActiveResultTab(firstWithResults.key);
-      setActiveIndex(-1);
-    }
-  }, [productResultColumns, activeResultTab, hasProductResults]);
-
-  const activeResultColumn = useMemo(
-    () => productResultColumns.find((column) => column.key === activeResultTab) ?? null,
-    [productResultColumns, activeResultTab],
-  );
-
-  /** Índices de sugerencia solo para productos visibles en la pestaña activa. */
-  const activeTabProductSuggestionsWithIndices = useMemo(() => {
+  /** Índices de sugerencia para productos visibles agrupados por categoría. */
+  const productSuggestionsWithIndices = useMemo(() => {
     const baseIndex = categorySuggestions.length + serviceSuggestions.length;
-    if (!activeResultColumn) return [];
-
-    let displayGroups = activeResultColumn.groups.map((group) => ({
-      category: group.category,
-      products: group.products,
-      hiddenCount: group.hiddenCount,
-    }));
-
-    if (activeResultTab === 'equipos') {
-      const allProducts = activeResultColumn.groups.flatMap((group) => group.products);
-      const totalHidden = activeResultColumn.groups.reduce(
-        (sum, group) => sum + group.hiddenCount,
-        0,
-      );
-      const grouped = groupEquiposSearchProductsByCondition(allProducts);
-      displayGroups = grouped.map((group, index) => ({
-        category: group.category,
-        products: group.products,
-        hiddenCount: index === grouped.length - 1 ? totalHidden : 0,
-      }));
-    }
-
     let offset = 0;
-    return displayGroups.map((group) => {
+
+    return productSectionGroups.map((group) => {
       const products = group.products.map((product, productIndex) => ({
         product,
         suggestionIndex: baseIndex + offset + productIndex,
@@ -591,16 +567,11 @@ export function SiteSearchForm({
         products,
       };
     });
-  }, [
-    activeResultColumn,
-    activeResultTab,
-    categorySuggestions.length,
-    serviceSuggestions.length,
-  ]);
+  }, [productSectionGroups, categorySuggestions.length, serviceSuggestions.length]);
 
   const visibleProductSuggestions = useMemo(
-    () => activeTabProductSuggestionsWithIndices.flatMap((group) => group.products.map((p) => p.product)),
-    [activeTabProductSuggestionsWithIndices],
+    () => productSuggestionsWithIndices.flatMap((group) => group.products.map((p) => p.product)),
+    [productSuggestionsWithIndices],
   );
 
   const suggestions = useMemo<SearchSuggestionItem[]>(
@@ -1060,103 +1031,48 @@ export function SiteSearchForm({
 
                 {hasProductResults ? (
                   <li role="presentation" className="min-w-0">
-                    <div
-                      className="grid grid-cols-3 border-b border-border/60 bg-muted/25"
-                      role="tablist"
-                      aria-label="Tipo de resultado"
-                    >
-                      {productResultColumns.map((column) => {
-                        const selected = column.key === activeResultTab;
-                        const disabled = column.productCount === 0;
-                        return (
-                          <button
-                            key={column.key}
-                            type="button"
-                            role="tab"
-                            aria-selected={selected}
-                            disabled={disabled}
-                            className={cn(
-                              'px-2.5 py-2 text-center text-[0.6875rem] font-semibold uppercase tracking-[0.08em] transition-colors sm:px-3 sm:py-2.5 sm:text-xs',
-                              selected
-                                ? 'border-b-2 border-red-600 bg-white text-red-600'
-                                : 'text-muted-foreground hover:bg-white/70 hover:text-foreground',
-                              disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground',
-                            )}
-                            onClick={() => {
-                              setActiveResultTab(column.key);
-                              setActiveIndex(-1);
-                            }}
+                    <div role="group" aria-label="Productos">
+                      {productSuggestionsWithIndices.map((group) => (
+                        <div key={`product-section-${group.category}`}>
+                          <p className="border-b border-border/40 bg-muted/10 px-3 py-1 text-[0.625rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground/90 sm:px-3.5 sm:text-[0.6875rem]">
+                            {group.category}
+                          </p>
+                          <ul
+                            role="group"
+                            aria-label={group.category}
+                            className="divide-y divide-border/50"
                           >
-                            {column.title}
-                            {column.productCount > 0 ? (
-                              <span className="ml-1 font-medium tabular-nums opacity-70">
-                                ({column.productCount})
-                              </span>
-                            ) : null}
-                          </button>
-                        );
-                      })}
+                            {group.products.map(({ product, suggestionIndex }) => {
+                              const isActive = suggestionIndex === resolvedActiveIndex;
+                              return (
+                                <li key={product.id} role="presentation" className="min-w-0">
+                                  <SearchProductSuggestionCell
+                                    product={product}
+                                    query={trimmedQuery}
+                                    optionId={`${listboxId}-option-${suggestionIndex}`}
+                                    isActive={isActive}
+                                    onMouseEnter={() => setActiveIndex(suggestionIndex)}
+                                    onNavigateProduct={() =>
+                                      activateSuggestion({ type: 'product', product })
+                                    }
+                                  />
+                                </li>
+                              );
+                            })}
+                          </ul>
+                          {group.hiddenCount > 0 ? (
+                            <button
+                              type="button"
+                              className="w-full border-b border-border/50 px-3.5 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+                              onClick={() => goToSearchResults(query, categoryFilter)}
+                            >
+                              Ver más en {group.category}
+                              {` (+${group.hiddenCount})`}
+                            </button>
+                          ) : null}
+                        </div>
+                      ))}
                     </div>
-
-                    {activeTabProductSuggestionsWithIndices.length > 0 ? (
-                      <div role="tabpanel" aria-label={activeResultColumn?.title ?? 'Resultados'}>
-                        {activeTabProductSuggestionsWithIndices.map((group) => {
-                          const showGroupSubheading =
-                            activeResultTab === 'todos' ||
-                            activeResultTab === 'equipos' ||
-                            activeTabProductSuggestionsWithIndices.length > 1 ||
-                            (activeResultColumn != null &&
-                              group.category !== activeResultColumn.title &&
-                              !group.category.startsWith(activeResultColumn.title));
-                          return (
-                            <div key={`product-section-${group.category}`}>
-                              {showGroupSubheading ? (
-                                <p className="border-b border-border/40 bg-muted/10 px-3 py-1 text-[0.625rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground/90 sm:px-3.5 sm:text-[0.6875rem]">
-                                  {group.category}
-                                </p>
-                              ) : null}
-                              <ul
-                                role="group"
-                                aria-label={group.category}
-                                className="divide-y divide-border/50"
-                              >
-                                {group.products.map(({ product, suggestionIndex }) => {
-                                  const isActive = suggestionIndex === resolvedActiveIndex;
-                                  return (
-                                    <li key={product.id} role="presentation" className="min-w-0">
-                                      <SearchProductSuggestionCell
-                                        product={product}
-                                        query={trimmedQuery}
-                                        optionId={`${listboxId}-option-${suggestionIndex}`}
-                                        isActive={isActive}
-                                        onMouseEnter={() => setActiveIndex(suggestionIndex)}
-                                        onNavigateProduct={() =>
-                                          activateSuggestion({ type: 'product', product })
-                                        }
-                                      />
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                              {group.hiddenCount > 0 ? (
-                                <button
-                                  type="button"
-                                  className="w-full border-b border-border/50 px-3.5 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
-                                  onClick={() => goToSearchResults(query, categoryFilter)}
-                                >
-                                  Ver más en {group.category}
-                                  {` (+${group.hiddenCount})`}
-                                </button>
-                              ) : null}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="px-3 py-4 text-center text-xs text-muted-foreground">
-                        Sin resultados en {activeResultColumn?.title ?? 'esta categoría'}.
-                      </p>
-                    )}
                   </li>
                 ) : null}
 

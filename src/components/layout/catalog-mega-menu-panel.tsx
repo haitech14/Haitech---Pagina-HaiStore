@@ -262,6 +262,181 @@ function MegaMenuSummaryPanel({
   );
 }
 
+function MegaMenuMobileSubcategoryRow({
+  group,
+  onNavigate,
+}: {
+  group: MegaMenuColumnGroup;
+  onNavigate: () => void;
+}) {
+  const hasSubLinks = group.links.length > 0;
+  const [expanded, setExpanded] = useState(false);
+  const Icon = megaMenuIconForSlug(group.slug);
+
+  if (!hasSubLinks) {
+    return (
+      <MegaMenuLink
+        to={group.href}
+        onNavigate={onNavigate}
+        className={cn(
+          'flex items-center gap-3 border-b border-[#EEF0F3] px-3 py-3.5 last:border-b-0',
+          'transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset',
+        )}
+      >
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF1F1] text-[#E30613]">
+          <Icon className="size-4" strokeWidth={ICON_STROKE} aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1 text-pretty text-sm font-semibold text-[#111827]">
+          {group.title}
+        </span>
+        <ChevronRight className="size-4 shrink-0 text-[#D1D5DB]" aria-hidden="true" />
+      </MegaMenuLink>
+    );
+  }
+
+  return (
+    <div className="border-b border-[#EEF0F3] last:border-b-0">
+      <button
+        type="button"
+        aria-expanded={expanded}
+        onClick={() => setExpanded((value) => !value)}
+        className={cn(
+          'flex w-full items-center gap-3 px-3 py-3.5 text-left transition-colors hover:bg-white',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset',
+        )}
+      >
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF1F1] text-[#E30613]">
+          <Icon className="size-4" strokeWidth={ICON_STROKE} aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1 text-pretty text-sm font-semibold text-[#111827]">
+          {group.title}
+        </span>
+        <ChevronDown
+          className={cn('size-4 shrink-0 text-[#9CA3AF] transition-transform', expanded && 'rotate-180')}
+          aria-hidden="true"
+        />
+      </button>
+
+      {expanded ? (
+        <ul className="space-y-0.5 border-t border-[#EEF0F3] bg-white pb-2 pt-1" role="list">
+          {group.links.map((link) => (
+            <li key={`${group.slug}-${link.href}-${link.name}`}>
+              <MegaMenuLink
+                to={link.href}
+                onNavigate={onNavigate}
+                className={cn(
+                  'flex items-center gap-2 rounded-md py-2 pl-14 pr-3 text-[0.8125rem] leading-snug text-[#4B5563]',
+                  'transition-colors hover:bg-[#F9FAFB] hover:text-[#E30613]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset',
+                )}
+              >
+                {link.name}
+              </MegaMenuLink>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+function MobileCatalogMegaMenuAccordion({
+  sidebarItems,
+  getColumnGroupsForSlug,
+  onNavigate,
+  initialOpenSlug,
+}: {
+  sidebarItems: LandingCatalogMenuSidebarItem[];
+  getColumnGroupsForSlug: (slug: string) => MegaMenuColumnGroup[];
+  onNavigate: () => void;
+  initialOpenSlug?: string;
+}) {
+  const queryClient = useQueryClient();
+  const [openSlug, setOpenSlug] = useState<string | null>(initialOpenSlug ?? sidebarItems[0]?.slug ?? null);
+
+  return (
+    <div className="px-1 py-2">
+      {sidebarItems.map((item) => {
+        const isOpen = openSlug === item.slug;
+        const Icon = item.icon;
+        const groups = getColumnGroupsForSlug(item.slug);
+        const viewAllHref = megaMenuCategorySectionHref(
+          item.viewAllHref ?? categoryLandingPath(item.slug),
+        );
+
+        return (
+          <div key={item.slug} className="border-b border-[#EEF0F3] last:border-b-0">
+            <button
+              type="button"
+              aria-expanded={isOpen}
+              onClick={() => setOpenSlug(isOpen ? null : item.slug)}
+              className={cn(
+                'flex w-full items-center gap-3 px-3 py-3.5 text-left transition-colors',
+                'hover:bg-[#FAFBFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset',
+                isOpen && 'bg-[#FFF8F8]',
+              )}
+            >
+              <span
+                className={cn(
+                  'flex size-8 shrink-0 items-center justify-center rounded-lg',
+                  isOpen ? 'bg-[#FFF1F1] text-[#E30613]' : 'bg-[#F3F4F6] text-[#6B7280]',
+                )}
+              >
+                <Icon className="size-4" strokeWidth={ICON_STROKE} aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1 text-pretty text-sm font-semibold text-[#111827]">
+                {item.label}
+              </span>
+              <ChevronDown
+                className={cn(
+                  'size-4 shrink-0 text-[#9CA3AF] transition-transform',
+                  isOpen && 'rotate-180 text-[#E30613]',
+                )}
+                aria-hidden="true"
+              />
+            </button>
+
+            {isOpen ? (
+              <div className="px-2 pb-3">
+                {item.description ? (
+                  <p className="mb-2 px-2 text-pretty text-xs leading-relaxed text-[#6B7280]">
+                    {item.description}
+                  </p>
+                ) : null}
+
+                <Link
+                  to={viewAllHref}
+                  onClick={onNavigate}
+                  onMouseEnter={() => prefetchCategoryFromHref(queryClient, viewAllHref)}
+                  onFocus={() => prefetchCategoryFromHref(queryClient, viewAllHref)}
+                  className="mb-2 inline-flex items-center gap-0.5 px-2 text-sm font-semibold text-[#E30613] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
+                >
+                  Ver todo
+                  <ChevronRight className="size-4" aria-hidden="true" />
+                </Link>
+
+                {groups.length > 0 ? (
+                  <div className="overflow-hidden rounded-xl border border-[#EEF0F3] bg-[#FAFBFC]">
+                    {groups.map((group) => (
+                      <MegaMenuMobileSubcategoryRow
+                        key={`${item.slug}-${group.slug}`}
+                        group={group}
+                        onNavigate={onNavigate}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="px-2 text-sm text-[#6B7280]">No hay subcategorías disponibles.</p>
+                )}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function MegaMenuLinkGroup({
   group,
   onNavigate,
@@ -510,6 +685,8 @@ export interface CatalogMegaMenuPanelProps {
   featuredContent: MegaMenuFeaturedContent;
   onNavigate: () => void;
   layout?: 'desktop' | 'mobile';
+  /** Móvil: resuelve subcategorías por slug para acordeón vertical. */
+  getColumnGroupsForSlug?: (categorySlug: string) => MegaMenuColumnGroup[];
   /** Muestra imagen + lista plana cuando hay un solo grupo (p. ej. Productos). */
   desktopContentMode?: 'summary' | 'grid' | 'sidebar-only';
   activeCategoryLabels?: readonly string[];
@@ -523,6 +700,7 @@ export function CatalogMegaMenuPanel({
   featuredContent,
   onNavigate,
   layout = 'desktop',
+  getColumnGroupsForSlug,
   desktopContentMode = 'grid',
   activeCategoryLabels,
 }: CatalogMegaMenuPanelProps) {
@@ -598,6 +776,19 @@ export function CatalogMegaMenuPanel({
             )}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (isMobile && getColumnGroupsForSlug) {
+    return (
+      <div className="flex flex-col bg-white">
+        <MobileCatalogMegaMenuAccordion
+          sidebarItems={sidebarItems}
+          getColumnGroupsForSlug={getColumnGroupsForSlug}
+          onNavigate={onNavigate}
+          initialOpenSlug={activeCategorySlug}
+        />
       </div>
     );
   }

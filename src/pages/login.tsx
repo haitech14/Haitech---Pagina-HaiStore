@@ -20,6 +20,7 @@ import { HeaderLogoImage } from '@/components/layout/site-logo';
 import { useAuth } from '@/context/auth-context';
 import { useSeo } from '@/hooks/use-seo';
 import { isAdminPanelEmail } from '@/lib/admin-access';
+import { cn } from '@/lib/utils';
 
 const heroFeatures = [
   { icon: Shield, label: 'Seguridad garantizada' },
@@ -48,6 +49,21 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? '/tienda';
+  const backTo =
+    from && from !== '/login' && !from.startsWith('/login') ? from : '/';
+
+  const backButtonClass =
+    'inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-semibold shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
+
+  const backButtonHeroClass = cn(
+    backButtonClass,
+    'fixed left-4 top-[max(1rem,env(safe-area-inset-top))] z-50 border-white/30 bg-black/50 text-white backdrop-blur-md hover:bg-black/65 lg:absolute lg:left-6 lg:top-6',
+  );
+
+  const backButtonFormClass = cn(
+    backButtonClass,
+    'hidden border-gray-200 bg-white text-gray-700 hover:bg-gray-50 lg:absolute lg:left-6 lg:top-6 lg:z-10 lg:inline-flex',
+  );
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -86,6 +102,11 @@ export function LoginPage() {
         />
         <div className="login-haitech__hero-shade absolute inset-0" aria-hidden="true" />
 
+        <Link to={backTo} className={backButtonHeroClass} aria-label="Volver">
+          <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
+          Volver
+        </Link>
+
         <div className="login-haitech__hero-footer relative z-10 mt-auto">
           <div className="flex items-start gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-white">
@@ -116,12 +137,9 @@ export function LoginPage() {
         aria-labelledby="login-titulo"
         className="login-haitech__form relative flex items-center justify-center bg-white px-4 py-10 sm:px-8 lg:min-h-dvh lg:py-12"
       >
-        <Link
-          to="/"
-          className="absolute left-4 top-4 z-10 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 sm:left-6 sm:top-6"
-        >
+        <Link to={backTo} className={backButtonFormClass} aria-label="Volver">
           <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
-          Volver al inicio
+          Volver
         </Link>
 
         <div className="login-card-white w-full max-w-[420px] rounded-2xl p-6 sm:p-8 lg:p-10">

@@ -63,6 +63,7 @@ export function CatalogMobileAccordion({ onNavigate }: CatalogMobileAccordionPro
             sidebarItems={menu.sidebarItems}
             columnGroups={columnGroups}
             featuredContent={featuredContent}
+            getColumnGroupsForSlug={menu.getColumnGroups}
             onNavigate={closeAll}
           />
         </div>

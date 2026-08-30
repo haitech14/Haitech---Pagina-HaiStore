@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import { ResponsivePromoBannerImage } from '@/components/home/responsive-promo-banner-image';
 import { HOME_LANDING_LINKS } from '@/data/home-landing-sections';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +21,7 @@ export function HomeTechnicalServiceHeroBanner({ className }: { className?: stri
         <Link
           to={BANNER_HREF}
           className={cn(
-            'group relative block overflow-hidden rounded-xl leading-none',
+            'group relative block leading-none',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
           )}
           aria-label="Somos Distribuidor Autorizado RICOH. Ver equipos"
@@ -28,14 +29,12 @@ export function HomeTechnicalServiceHeroBanner({ className }: { className?: stri
           <h2 id="home-ricoh-distributor-hero-title" className="sr-only">
             Somos Distribuidor Autorizado RICOH
           </h2>
-          <img
+          <ResponsivePromoBannerImage
             src={`${BANNER_SRC}?v=4`}
             alt="Somos Distribuidor Autorizado RICOH. Equipos originales, garantía oficial y soporte certificado. Multifuncionales, impresoras, plotters y consumibles."
             width={2084}
             height={408}
-            className="block h-auto w-full object-contain object-center transition-transform duration-500 group-hover:scale-[1.01]"
-            loading="lazy"
-            decoding="async"
+            mobileFocus="center"
           />
         </Link>
       </div>

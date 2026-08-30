@@ -221,7 +221,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
     if (priceOnRequest) {
       return (
         <span
-          className="text-[15px] font-bold text-[#6B7280] sm:text-[16px]"
+          className="text-[14px] font-bold text-[#6B7280] sm:text-[16px]"
         >
           {CONSULTAR_PRECIO_LABEL}
         </span>
@@ -230,7 +230,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
     if (displayCurrency === 'PEN') {
       return (
         <span
-          className="text-[16px] font-black tabular-nums sm:text-[17px]"
+          className="text-[14px] font-black tabular-nums sm:text-[17px]"
           style={{ color: HAITECH_SHOP.brand }}
         >
           {formatHaitechPen(product.price)}
@@ -240,7 +240,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
     if (displayCurrency === 'USD') {
       return (
         <span
-          className="text-[16px] font-black tabular-nums sm:text-[17px]"
+          className="text-[14px] font-black tabular-nums sm:text-[17px]"
           style={{ color: HAITECH_SHOP.brand }}
         >
           {formatHaitechUsd(priceUsd)}
@@ -249,9 +249,9 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
     }
     if (penFirst) {
       return (
-        <span className="flex w-full flex-col items-start gap-0.5">
+        <span className="flex w-full flex-col items-center gap-0.5 sm:items-start">
           <span
-            className="text-[16px] font-black tabular-nums sm:text-[17px]"
+            className="text-[14px] font-black tabular-nums sm:text-[17px]"
             style={{ color: HAITECH_SHOP.brand }}
           >
             {formatHaitechPen(product.price)}
@@ -263,9 +263,9 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
       );
     }
     return (
-      <span className="flex w-full flex-col items-start gap-0.5">
+      <span className="flex w-full flex-col items-center gap-0.5 sm:items-start">
         <span
-          className="text-[16px] font-black tabular-nums sm:text-[17px]"
+          className="text-[14px] font-black tabular-nums sm:text-[17px]"
           style={{ color: HAITECH_SHOP.brand }}
         >
           {formatHaitechUsd(priceUsd)}
@@ -294,28 +294,28 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
   return (
     <article
       className={cn(
-        'group/card flex h-full flex-col overflow-hidden rounded-[1.25rem] bg-white p-3.5',
-        'shadow-[0_10px_30px_rgba(15,23,42,0.08)] sm:p-4',
+        'group/card flex h-full flex-col overflow-hidden rounded-xl bg-white p-2.5',
+        'shadow-[0_10px_30px_rgba(15,23,42,0.08)] sm:rounded-[1.25rem] sm:p-4',
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-[13px] font-black tracking-[0.04em] text-[#E30613] sm:text-[14px]">
+      <div className="flex items-start justify-between gap-1.5 sm:gap-2">
+        <span className="min-w-0 truncate text-[10px] font-black tracking-[0.04em] text-[#E30613] sm:text-[14px]">
           {(product.brand ?? 'RICOH').toUpperCase()}
         </span>
         {isConsumable && originBadgeLabel ? (
-          <span className="inline-flex h-6 items-center rounded-full bg-black px-2.5 text-[10px] font-bold uppercase tracking-wide text-white">
+          <span className="inline-flex h-5 shrink-0 items-center rounded-full bg-black px-2 text-[8px] font-bold uppercase tracking-wide text-white sm:h-6 sm:px-2.5 sm:text-[10px]">
             {originBadgeLabel}
           </span>
         ) : isRemanufacturada ? (
-          <span className="inline-flex h-6 items-center rounded-full border border-emerald-600 bg-emerald-50 px-2.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+          <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-emerald-600 bg-emerald-50 px-2 text-[8px] font-bold uppercase tracking-wide text-emerald-700 sm:h-6 sm:px-2.5 sm:text-[10px]">
             Remanufacturada
           </span>
         ) : isNuevo ? (
-          <span className="inline-flex h-6 items-center rounded-full bg-black px-2.5 text-[10px] font-bold uppercase tracking-wide text-white">
+          <span className="inline-flex h-5 shrink-0 items-center rounded-full bg-black px-2 text-[8px] font-bold uppercase tracking-wide text-white sm:h-6 sm:px-2.5 sm:text-[10px]">
             Nuevo
           </span>
         ) : (
-          <span className="inline-flex h-6 items-center rounded-full border border-[#D4D4D4] bg-white px-2.5 text-[10px] font-bold uppercase tracking-wide text-[#666]">
+          <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-[#D4D4D4] bg-white px-2 text-[8px] font-bold uppercase tracking-wide text-[#666] sm:h-6 sm:px-2.5 sm:text-[10px]">
             Seminuevo
           </span>
         )}
@@ -323,7 +323,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
 
       <Link
         to={product.href ?? '/tienda'}
-        className="mt-1 flex min-h-[140px] flex-1 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] sm:min-h-[150px]"
+        className="mt-1 flex min-h-[96px] flex-1 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] sm:min-h-[150px]"
         aria-label={title}
       >
         {!imgError ? (
@@ -332,7 +332,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
             alt=""
             width={220}
             height={180}
-            className="max-h-[150px] w-auto max-w-full object-contain"
+            className="max-h-[108px] w-auto max-w-full object-contain sm:max-h-[150px]"
             loading="lazy"
             decoding="async"
             onError={() => setImgError(true)}
@@ -346,7 +346,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
 
       <div className="relative mt-2">
         <h3
-          className="text-pretty break-words text-center text-[13px] font-bold leading-snug text-[#111] sm:text-[14px]"
+          className="line-clamp-3 text-pretty break-words text-center text-[11px] font-bold leading-snug text-[#111] sm:line-clamp-none sm:text-[14px]"
           title={title}
         >
           {title}
@@ -467,19 +467,19 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
         </div>
       </div>
 
-      <div className="mt-2.5 flex w-full flex-col items-start gap-0.5">
+      <div className="mt-2 flex w-full flex-col items-center gap-0.5 sm:mt-2.5 sm:items-start">
         {product.hasVariants ? (
-          <span className="text-[11px] font-semibold leading-none text-[#6B7280] sm:text-[12px]">
+          <span className="text-[10px] font-semibold leading-none text-[#6B7280] sm:text-[12px]">
             Desde
           </span>
         ) : null}
         {compareLabel ? (
-          <div className="flex flex-wrap items-center justify-start gap-1.5">
-            <span className="text-[12px] font-medium tabular-nums text-[#9CA3AF] line-through decoration-[#9CA3AF]">
+          <div className="flex flex-wrap items-center justify-center gap-1 sm:justify-start">
+            <span className="text-[10px] font-medium tabular-nums text-[#9CA3AF] line-through decoration-[#9CA3AF] sm:text-[12px]">
               {compareLabel}
             </span>
             {discountPercent > 0 ? (
-              <span className="inline-flex rounded-full bg-[#E30613] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white">
+              <span className="inline-flex rounded-full bg-[#E30613] px-1 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white sm:px-1.5 sm:text-[8px]">
                 {discountPercent}% DSCT
               </span>
             ) : null}
@@ -488,13 +488,13 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
         {priceLine}
       </div>
 
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-2 flex items-center gap-1.5 sm:mt-3 sm:gap-2">
         <button
           type="button"
           onClick={() => addItem(toCartProduct(product, saleRate), { openDrawer: true })}
           className={cn(
-            'inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-2.5',
-            'text-[11px] font-bold text-white sm:text-[12px]',
+            'inline-flex h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg px-1.5 sm:h-10 sm:gap-2 sm:px-2.5',
+            'text-[10px] font-bold text-white sm:text-[12px]',
             'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             outOfStock
               ? 'bg-[#111111] hover:bg-[#222222] focus-visible:ring-[#111111]/40'
@@ -507,9 +507,10 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
           }
         >
           {!outOfStock ? (
-            <ShoppingCart className="size-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+            <ShoppingCart className="size-3.5 shrink-0 sm:size-4" strokeWidth={2} aria-hidden="true" />
           ) : null}
-          <span className="truncate">{cartButtonLabel}</span>
+          <span className="truncate sm:hidden">{outOfStock ? 'Reservar' : 'Añadir'}</span>
+          <span className="hidden truncate sm:inline">{cartButtonLabel}</span>
         </button>
         <button
           type="button"
@@ -535,7 +536,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
           }
           aria-label="Comprar por WhatsApp"
           className={cn(
-            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.65rem]',
+            'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.65rem] sm:h-10 sm:w-10',
             'bg-[#25D366] text-white shadow-sm',
             'transition-colors hover:bg-[#20BD5A]',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/50 focus-visible:ring-offset-2',
@@ -1020,8 +1021,8 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
           </div>
         </div>
 
-        <div className="mt-9 flex flex-col gap-4 sm:mt-10 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+        <div className="mt-9 flex flex-col items-center gap-4 text-center sm:mt-10 sm:flex-row sm:items-end sm:justify-between sm:text-left">
+          <div className="flex flex-col items-center sm:items-start">
             <span className="mb-2 block h-[3px] w-7 rounded-sm bg-[#E30613]" aria-hidden="true" />
             <h3 className="font-[family-name:var(--font-infobox)] text-[20px] font-bold tracking-tight text-[#111] sm:text-[24px] lg:text-[26px]">
               Explora nuestros{' '}
@@ -1033,7 +1034,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
 
           {showConditionToggle ? (
             <div
-              className="inline-flex self-start rounded-full border border-[#E5E7EB] bg-white p-1 shadow-sm sm:self-auto"
+              className="inline-flex self-center rounded-full border border-[#E5E7EB] bg-white p-1 shadow-sm sm:self-auto"
               role="tablist"
               aria-label="Condición del equipo"
             >
@@ -1072,7 +1073,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
 
         {products.length > 0 ? (
           <>
-            <ul className="mt-5 grid grid-cols-1 gap-4 sm:mt-6 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-5 lg:gap-4">
+            <ul className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-4 md:grid-cols-3 lg:grid-cols-5 lg:gap-4">
               {products.map((product) => (
                 <li key={product.id}>
                   <EquipmentShowcaseCard product={product} />

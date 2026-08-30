@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Grid3x3, Headphones, Home, Tag, User } from 'lucide-react';
+import { Headphones, Home, Menu, Tag, User } from 'lucide-react';
 
-import { CatalogMegaMenuPanel } from '@/components/layout/catalog-mega-menu-panel';
+import { HaitechMobileMenuSheetContacts } from '@/components/haitech-home/haitech-mobile-menu-sheet-contacts';
+import { HaitechMobileMenuSheetNav } from '@/components/haitech-home/haitech-mobile-menu-sheet-nav';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   MOBILE_BOTTOM_NAV_HEIGHT_PX,
@@ -10,61 +11,37 @@ import {
 } from '@/context/mobile-bottom-inset-context';
 import { HAITECH_HOME_TOPBAR } from '@/data/haitech-home-shell';
 import { HAITECH_OPEN_CATEGORIES_EVENT } from '@/lib/haitech-mobile-nav-events';
-import { buildProductosNavMegaMenu } from '@/lib/mega-menu-from-store-categories';
 import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
-import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { cn } from '@/lib/utils';
 
-type MobileNavSheet = 'categories' | null;
+type MobileNavSheet = 'menu' | null;
 
 const navItemClass =
   'flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1 text-[0.625rem] font-semibold leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2';
 
 export function MobileBottomNav() {
   const { pathname } = useLocation();
-  const { data: categoryTree = [] } = useStoreCategoriesTree();
-  const menu = useMemo(() => buildProductosNavMegaMenu(categoryTree), [categoryTree]);
-
   const [activeSheet, setActiveSheet] = useState<MobileNavSheet>(null);
-  const [activeCategorySlug, setActiveCategorySlug] = useState(menu.defaultCategorySlug);
 
   const visible = shouldShowMobileBottomNav(pathname);
   useSetMobileBottomNavInset(visible ? MOBILE_BOTTOM_NAV_HEIGHT_PX : 0);
-
-  const columnGroups = useMemo(
-    () => menu.getColumnGroups(activeCategorySlug),
-    [menu, activeCategorySlug],
-  );
-
-  const featuredContent = useMemo(
-    () => menu.getFeaturedContent(activeCategorySlug),
-    [menu, activeCategorySlug],
-  );
 
   useEffect(() => {
     setActiveSheet(null);
   }, [pathname]);
 
   useEffect(() => {
-    const slugs = menu.sidebarItems.map((item) => item.slug);
-    if (!slugs.includes(activeCategorySlug)) {
-      setActiveCategorySlug(menu.defaultCategorySlug);
-    }
-  }, [activeCategorySlug, menu.defaultCategorySlug, menu.sidebarItems]);
-
-  useEffect(() => {
-    const onOpenCategories = () => setActiveSheet('categories');
-    window.addEventListener(HAITECH_OPEN_CATEGORIES_EVENT, onOpenCategories);
-    return () => window.removeEventListener(HAITECH_OPEN_CATEGORIES_EVENT, onOpenCategories);
+    const onOpenMenu = () => setActiveSheet('menu');
+    window.addEventListener(HAITECH_OPEN_CATEGORIES_EVENT, onOpenMenu);
+    return () => window.removeEventListener(HAITECH_OPEN_CATEGORIES_EVENT, onOpenMenu);
   }, []);
-
-  if (!visible) return null;
 
   const closeSheet = () => setActiveSheet(null);
   const handleNavigate = () => closeSheet();
 
   return (
     <>
+      {visible ? (
       <nav
         aria-label="Navegación principal móvil"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8E8E8] bg-white lg:hidden"
@@ -87,16 +64,16 @@ export function MobileBottomNav() {
 
           <button
             type="button"
-            onClick={() => setActiveSheet('categories')}
-            aria-expanded={activeSheet === 'categories'}
-            aria-controls="mobile-nav-categories-sheet"
+            onClick={() => setActiveSheet('menu')}
+            aria-expanded={activeSheet === 'menu'}
+            aria-controls="mobile-nav-menu-sheet"
             className={cn(
               navItemClass,
-              activeSheet === 'categories' ? 'text-[#E30613]' : 'text-[#6B6B6B] hover:text-[#222]',
+              activeSheet === 'menu' ? 'text-[#E30613]' : 'text-[#6B6B6B] hover:text-[#222]',
             )}
           >
-            <Grid3x3 className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
-            <span>Categorías</span>
+            <Menu className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
+            <span>Menú</span>
           </button>
 
           <NavLink
@@ -136,28 +113,20 @@ export function MobileBottomNav() {
           </NavLink>
         </div>
       </nav>
+      ) : null}
 
-      <Sheet open={activeSheet === 'categories'} onOpenChange={(open) => !open && closeSheet()}>
+      <Sheet open={activeSheet === 'menu'} onOpenChange={(open) => !open && closeSheet()}>
         <SheetContent
-          id="mobile-nav-categories-sheet"
+          id="mobile-nav-menu-sheet"
           side="bottom"
-          className="flex max-h-[85dvh] flex-col gap-0 p-0"
+          className="flex max-h-[85dvh] flex-col gap-0 p-0 lg:hidden"
           aria-describedby={undefined}
         >
           <SheetHeader className="border-b border-border px-4 py-3 text-left">
-            <SheetTitle className="text-base">Categorías</SheetTitle>
+            <SheetTitle className="text-base">Menú</SheetTitle>
           </SheetHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <CatalogMegaMenuPanel
-              layout="mobile"
-              activeCategorySlug={activeCategorySlug}
-              onCategoryChange={setActiveCategorySlug}
-              sidebarItems={menu.sidebarItems}
-              columnGroups={columnGroups}
-              featuredContent={featuredContent}
-              onNavigate={handleNavigate}
-            />
-          </div>
+          <HaitechMobileMenuSheetContacts onNavigate={handleNavigate} />
+          <HaitechMobileMenuSheetNav onNavigate={handleNavigate} />
         </SheetContent>
       </Sheet>
     </>

@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { Headphones, ChevronDown, Heart, Menu, Search, ShoppingCart, User } from 'lucide-react';
+import { Headphones, ChevronDown, Heart, Menu, ShoppingCart, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
@@ -162,17 +162,6 @@ function HeaderSalesSupportContacts({ className }: { className?: string }) {
   );
 }
 
-function focusMobileHeaderSearch() {
-  const input = document.querySelector<HTMLInputElement>(
-    '[data-haitech-mobile-search] [data-site-header-search-input]',
-  );
-  if (!input) return;
-  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  window.setTimeout(() => {
-    input.focus({ preventScroll: true });
-  }, 200);
-}
-
 export function HaitechHomeMainHeader({ className }: { className?: string }) {
   const { openCart, totalItems } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
@@ -188,7 +177,7 @@ export function HaitechHomeMainHeader({ className }: { className?: string }) {
           <button
             type="button"
             className="inline-flex size-9 shrink-0 items-center justify-center text-[#222] sm:hidden"
-            aria-label="Abrir menú de categorías"
+            aria-label="Abrir menú"
             onClick={openHaitechMobileCategories}
           >
             <Menu className="size-6" strokeWidth={1.75} aria-hidden="true" />
@@ -221,27 +210,9 @@ export function HaitechHomeMainHeader({ className }: { className?: string }) {
           <div className="ml-auto flex shrink-0 items-center gap-1 sm:ml-0 sm:gap-2.5">
             <HeaderAction
               bare
-              className="sm:hidden"
-              onClick={focusMobileHeaderSearch}
-              icon={<Search className="size-[20px]" strokeWidth={1.75} aria-hidden="true" />}
-              label="Buscar"
-            />
-            <HeaderAction
-              bare
               to="/login"
               icon={<User className="size-[20px]" strokeWidth={1.75} aria-hidden="true" />}
               label="Iniciar sesión"
-            />
-            <HeaderAction
-              bare
-              to="/favoritos"
-              icon={
-                <span className="relative">
-                  <Heart className="size-[20px]" strokeWidth={1.75} aria-hidden="true" />
-                  <HeaderIconBadge count={wishlistCount} />
-                </span>
-              }
-              label="Mis favoritos"
             />
             <HeaderAction
               bare
@@ -254,7 +225,21 @@ export function HaitechHomeMainHeader({ className }: { className?: string }) {
               }
               label="Mi carrito"
             />
-            <HeaderCurrencyAction />
+            <HeaderAction
+              bare
+              className="hidden sm:inline-flex"
+              to="/favoritos"
+              icon={
+                <span className="relative">
+                  <Heart className="size-[20px]" strokeWidth={1.75} aria-hidden="true" />
+                  <HeaderIconBadge count={wishlistCount} />
+                </span>
+              }
+              label="Mis favoritos"
+            />
+            <div className="hidden sm:block">
+              <HeaderCurrencyAction />
+            </div>
           </div>
         </div>
 

@@ -351,7 +351,7 @@ export function HomeStorefrontProductCard({
 
         <Link
           to={detailPath}
-          className="relative mx-auto flex aspect-square max-h-[210px] w-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:max-h-[230px] lg:max-h-[220px]"
+          className="relative mx-auto flex aspect-square max-h-[132px] w-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:max-h-[230px] lg:max-h-[220px]"
           aria-label={`Ver ficha de ${product.name}`}
         >
           <ProductCardHoverImage
@@ -360,8 +360,8 @@ export function HomeStorefrontProductCard({
             hoverSrc={hoverImageSrc}
             alt={product.name}
             loading={priority ? 'eager' : 'lazy'}
-            className="size-full max-h-[200px] max-w-[200px] sm:max-h-[220px] sm:max-w-[220px] lg:max-h-[208px] lg:max-w-[208px]"
-            imageClassName="size-full max-h-[200px] max-w-[200px] object-contain object-center sm:max-h-[220px] sm:max-w-[220px] lg:max-h-[208px] lg:max-w-[208px]"
+            className="size-full max-h-[124px] max-w-[124px] sm:max-h-[220px] sm:max-w-[220px] lg:max-h-[208px] lg:max-w-[208px]"
+            imageClassName="size-full max-h-[124px] max-w-[124px] object-contain object-center sm:max-h-[220px] sm:max-w-[220px] lg:max-h-[208px] lg:max-w-[208px]"
           />
         </Link>
       </div>
@@ -401,7 +401,7 @@ export function HomeStorefrontProductCard({
             brand || conditionLabel ? 'mt-1.5' : null,
           )}
         >
-          <h3 className="text-pretty break-words text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-[0.8125rem]">
+          <h3 className="line-clamp-2 text-pretty break-words text-[0.6875rem] font-bold leading-snug text-[#111111] sm:line-clamp-none sm:text-[0.8125rem]">
             {productTitle}
           </h3>
         </Link>

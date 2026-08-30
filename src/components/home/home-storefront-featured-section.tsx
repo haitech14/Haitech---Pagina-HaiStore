@@ -15,9 +15,13 @@ import {
 import { LazyHomeSection } from '@/components/home/lazy-home-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type FeaturedProduct } from '@/data/featured-products';
-import { useIsMobile } from '@/hooks/use-media-query';
-import type { HomeFeaturedEquipmentConditionFilterId } from '@/data/home-featured-quick-filters-equipment';
 import { useHomeCatalogBundle } from '@/hooks/use-home-catalog-bundle';
+import {
+  HAITECH_PRODUCT_CAROUSEL_ARROW,
+  HAITECH_PRODUCT_CAROUSEL_GAP,
+  HAITECH_PRODUCT_CAROUSEL_GUTTER,
+  HAITECH_PRODUCT_CAROUSEL_SLIDE,
+} from '@/lib/haitech-product-carousel-layout';
 import {
   catalogRowToFeatured,
   getCatalogRows,
@@ -33,14 +37,7 @@ import {
 } from '@/lib/home-featured-product-filter';
 import { productToFeatured } from '@/lib/store-products';
 import { cn } from '@/lib/utils';
-
-const FEATURED_CAROUSEL_GAP_CLASS = 'gap-2.5 sm:gap-3';
-/** 2 móvil · 3 tablet · 5 desktop visibles por vista. */
-const FEATURED_SLIDE_CLASS =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.625rem)/2)] sm:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-3rem)/5)]';
-
-const FEATURED_ARROW_CLASS =
-  'absolute top-[42%] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#EAEAEA] bg-white text-[#E30613] shadow-[0_2px_10px_rgba(15,31,61,0.10)] transition-all duration-200 hover:scale-105 hover:border-[#E30613]/30 hover:shadow-[0_4px_14px_rgba(15,31,61,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35 disabled:pointer-events-none disabled:opacity-30 sm:size-10';
+import type { HomeFeaturedEquipmentConditionFilterId } from '@/data/home-featured-quick-filters-equipment';
 
 const STOREFRONT_FEATURED_DISPLAY_LIMIT = 15;
 /** Pool desde home-bundle + candidatos del índice (no bloquear UI por el JSON completo). */
@@ -146,9 +143,9 @@ function matchesEscaneresCondition(
 
 function FeaturedSkeleton() {
   return (
-    <ul className={cn('flex', FEATURED_CAROUSEL_GAP_CLASS)} role="list">
+    <ul className={cn('flex', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list">
       {Array.from({ length: 5 }).map((_, index) => (
-        <li key={index} className={FEATURED_SLIDE_CLASS}>
+        <li key={index} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
           <div className="rounded-lg bg-white p-2.5">
             <Skeleton className="aspect-square w-full rounded-md" />
             <Skeleton className="mt-2 h-2.5 w-12" />
@@ -222,13 +219,12 @@ function FeaturedProductsCarousel({
   eagerImageCount?: number;
 }) {
   const productIdsKey = products.map((product) => product.id).join('|');
-  const isMobile = useIsMobile();
-  const slidesToScroll = isMobile ? 2 : 1;
+  const showNav = products.length > 1;
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     dragFree: false,
     loop: true,
-    slidesToScroll,
+    slidesToScroll: 1,
     watchDrag: emblaShouldWatchDrag,
   });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -260,10 +256,10 @@ function FeaturedProductsCarousel({
 
   useEffect(() => {
     if (!emblaApi) return;
-    emblaApi.reInit({ slidesToScroll });
+    emblaApi.reInit({ slidesToScroll: 1 });
     emblaApi.scrollTo(0);
     setAutoplayPaused(false);
-  }, [emblaApi, productIdsKey, slidesToScroll]);
+  }, [emblaApi, productIdsKey]);
 
   useEffect(() => {
     if (!emblaApi || autoplayPaused || products.length < 2) return;
@@ -282,14 +278,37 @@ function FeaturedProductsCarousel({
 
   return (
     <div
-      className="relative px-0 sm:px-8 lg:px-10"
+      className={cn('relative', showNav && HAITECH_PRODUCT_CAROUSEL_GUTTER)}
       onMouseEnter={pauseAutoplay}
       onMouseLeave={resumeAutoplay}
     >
+      {showNav ? (
+        <>
+          <button
+            type="button"
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'left-0')}
+            aria-label={`Anterior: ${paginationLabel}`}
+            disabled={!canScrollPrev}
+            onClick={scrollPrev}
+          >
+            <ChevronLeft className="size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'right-0')}
+            aria-label={`Siguiente: ${paginationLabel}`}
+            disabled={!canScrollNext}
+            onClick={scrollNext}
+          >
+            <ChevronRight className="size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+        </>
+      ) : null}
+
       <div className="overflow-hidden" ref={emblaRef}>
-        <ul className={cn('flex touch-pan-y', FEATURED_CAROUSEL_GAP_CLASS)} role="list">
+        <ul className={cn('flex touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list">
           {products.map((product, index) => (
-            <li key={product.id} className={FEATURED_SLIDE_CLASS}>
+            <li key={product.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
               <HomeStorefrontProductCard
                 product={product}
                 priority={index < eagerImageCount}
@@ -299,29 +318,6 @@ function FeaturedProductsCarousel({
           ))}
         </ul>
       </div>
-
-      {products.length > 1 ? (
-        <>
-          <button
-            type="button"
-            className={cn(FEATURED_ARROW_CLASS, 'left-0 sm:-left-1 lg:-left-2')}
-            aria-label={`Anterior: ${paginationLabel}`}
-            disabled={!canScrollPrev}
-            onClick={scrollPrev}
-          >
-            <ChevronLeft className="size-5" strokeWidth={2} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            className={cn(FEATURED_ARROW_CLASS, 'right-0 sm:-right-1 lg:-right-2')}
-            aria-label={`Siguiente: ${paginationLabel}`}
-            disabled={!canScrollNext}
-            onClick={scrollNext}
-          >
-            <ChevronRight className="size-5" strokeWidth={2} aria-hidden="true" />
-          </button>
-        </>
-      ) : null}
     </div>
   );
 }
@@ -398,7 +394,9 @@ function StorefrontCatalogRail({
         </header>
 
         {showSkeleton ? (
-          <FeaturedSkeleton />
+          <div className={HAITECH_PRODUCT_CAROUSEL_GUTTER}>
+            <FeaturedSkeleton />
+          </div>
         ) : products.length === 0 ? (
           <p className="rounded-lg border border-dashed border-[#D9DEE7] bg-white px-4 py-7 text-center text-sm text-[#666666]">
             No hay productos para este filtro.

@@ -108,6 +108,7 @@ export function StaticNavMobileAccordion({
             sidebarItems={menu.sidebarItems}
             columnGroups={columnGroups}
             featuredContent={featuredContent}
+            getColumnGroupsForSlug={menu.getColumnGroups}
             onNavigate={closeAll}
           />
         </div>

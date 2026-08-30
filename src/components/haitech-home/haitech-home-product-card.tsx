@@ -191,7 +191,7 @@ export function HaitechHomeProductCard({
   return (
     <article
       className={cn(
-        'group/card relative flex w-full flex-col overflow-hidden rounded-xl border bg-white p-3.5',
+        'group/card relative flex w-full flex-col overflow-hidden rounded-xl border bg-white p-2.5',
         'shadow-[0_4px_18px_rgba(15,31,61,0.07)] transition-shadow duration-300 hover:shadow-[0_8px_24px_rgba(15,31,61,0.1)]',
         'sm:p-4',
         className,
@@ -221,19 +221,20 @@ export function HaitechHomeProductCard({
         </div>
       )}
 
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-2 flex items-center gap-1.5 sm:mt-3 sm:gap-2">
         <button
           type="button"
           onClick={() => addItem(toCartProduct(product, saleRate), { openDrawer: true })}
           className={cn(
-            'inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg border px-3',
-            'border-[#E30613] bg-[#E30613] text-[12px] font-bold text-white sm:text-[13px]',
+            'inline-flex h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg border px-1.5 sm:h-10 sm:gap-2 sm:px-3',
+            'border-[#E30613] bg-[#E30613] text-[10px] font-bold text-white sm:text-[13px]',
             'transition-colors hover:border-[#c90511] hover:bg-[#c90511]',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-offset-2',
           )}
         >
-          <ShoppingCart className="size-4 shrink-0" strokeWidth={2} aria-hidden="true" />
-          <span className="truncate">Añadir al carrito</span>
+          <ShoppingCart className="size-3.5 shrink-0 sm:size-4" strokeWidth={2} aria-hidden="true" />
+          <span className="truncate sm:hidden">Añadir</span>
+          <span className="hidden truncate sm:inline">Añadir al carrito</span>
         </button>
         <button
           type="button"
@@ -250,7 +251,7 @@ export function HaitechHomeProductCard({
           }
           aria-label="Comprar por WhatsApp"
           className={cn(
-            'group/wa inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[0.65rem]',
+            'group/wa inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-[0.65rem] sm:h-10 sm:w-10',
             'bg-[#25D366] text-white shadow-sm',
             'transition-[max-width,padding,background-color] duration-300 ease-out',
             'hover:max-w-[11.5rem] hover:bg-[#20BD5A] hover:px-3',
@@ -447,7 +448,7 @@ function CardMedia({
   onImgError: () => void;
 }) {
   return (
-    <div className="relative flex h-[160px] w-full shrink-0 items-center justify-center overflow-hidden sm:h-[184px]">
+    <div className="relative flex h-[120px] w-full shrink-0 items-center justify-center overflow-hidden sm:h-[184px]">
       {!imgError ? (
         <img
           src={product.image}

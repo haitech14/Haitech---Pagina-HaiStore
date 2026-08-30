@@ -1,10 +1,62 @@
 import { useEffect, useRef, useState } from 'react';
-import { Briefcase, ChevronDown, MapPin, ShieldCheck, Truck } from 'lucide-react';
+import { mdiWhatsapp } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import { Briefcase, ChevronDown, Headphones, MapPin, ShieldCheck, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { HAITECH_HOME, HAITECH_HOME_TOPBAR } from '@/data/haitech-home-shell';
+import {
+  HEADER_SALES_PHONE_DISPLAY,
+  HEADER_SUPPORT_PHONE_DISPLAY,
+} from '@/data/site-header';
+import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
 import { SITE_RICOH_PARTNER_BADGE_ARIA_LABEL } from '@/lib/site-logo-asset';
 import { cn } from '@/lib/utils';
+
+const topBarContactLinkClass =
+  'inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40';
+
+function HaitechTopBarMobileContacts() {
+  const { salesLabel, supportLabel, supportHref } = HAITECH_HOME_TOPBAR;
+  const { requestQuote } = useHaitechWhatsAppQuoteContext();
+
+  return (
+    <div className="flex items-stretch gap-2 border-b border-white/10 px-3 py-1.5 sm:hidden">
+      <button
+        type="button"
+        onClick={() => requestQuote({ campaign: 'topbar-ventas' })}
+        className={topBarContactLinkClass}
+        aria-label={`${salesLabel}: ${HEADER_SALES_PHONE_DISPLAY}`}
+      >
+        <Icon path={mdiWhatsapp} size={0.62} className="shrink-0 text-[#25D366]" aria-hidden="true" />
+        <span className="flex min-w-0 flex-col items-start leading-[1.15]">
+          <span className="truncate text-[9px] font-semibold text-white">{salesLabel}</span>
+          <span className="truncate text-[10px] font-medium tabular-nums text-white/85">
+            {HEADER_SALES_PHONE_DISPLAY}
+          </span>
+        </span>
+      </button>
+
+      <span className="w-px shrink-0 bg-white/20" aria-hidden="true" />
+
+      <a
+        href={supportHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={topBarContactLinkClass}
+        aria-label={`${supportLabel}: ${HEADER_SUPPORT_PHONE_DISPLAY}`}
+      >
+        <Headphones className="size-3 shrink-0 text-white/85" strokeWidth={1.75} aria-hidden="true" />
+        <span className="flex min-w-0 flex-col items-start leading-[1.15]">
+          <span className="truncate text-[9px] font-semibold text-white">{supportLabel}</span>
+          <span className="truncate text-[10px] font-medium tabular-nums text-white/85">
+            {HEADER_SUPPORT_PHONE_DISPLAY}
+          </span>
+        </span>
+      </a>
+    </div>
+  );
+}
 
 export function HaitechHomeTopBar({ className }: { className?: string }) {
   const { promo, locations } = HAITECH_HOME_TOPBAR;
@@ -36,6 +88,7 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
       className={cn('relative z-40 w-full text-white', className)}
       style={{ backgroundColor: HAITECH_HOME.blackNav }}
     >
+      <HaitechTopBarMobileContacts />
       <div
         className="mx-auto grid min-h-7 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1 px-3 py-1 text-[10px] leading-none sm:min-h-7 sm:px-4 sm:py-0.5 sm:text-[10.5px] xl:px-6"
         style={{ maxWidth: HAITECH_HOME.maxWidth }}

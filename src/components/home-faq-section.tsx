@@ -35,7 +35,7 @@ function FaqItem({
         type="button"
         id={triggerId}
         className={cn(
-          'flex min-h-11 w-full items-center gap-3 px-4 py-3.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 sm:px-4 sm:py-4',
+          'flex min-h-11 w-full flex-col items-center gap-2 px-4 py-3.5 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:gap-3 sm:px-4 sm:py-4 sm:text-left',
           expanded && 'bg-transparent',
         )}
         aria-expanded={expanded}
@@ -53,7 +53,7 @@ function FaqItem({
         </span>
         <ChevronDown
           className={cn(
-            'size-4 shrink-0 text-red-600 transition-transform duration-200',
+            'size-4 shrink-0 text-red-600 transition-transform duration-200 sm:ml-auto',
             expanded && 'rotate-180',
           )}
           aria-hidden="true"
@@ -67,8 +67,8 @@ function FaqItem({
         hidden={!expanded}
         className="border-t border-red-100/80 px-4 pb-4 pt-3 sm:px-4"
       >
-        <div className="flex gap-3">
-          <Icon className="mt-0.5 size-5 shrink-0 text-red-600" strokeWidth={2} aria-hidden="true" />
+        <div className="flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-3 sm:text-left">
+          <Icon className="size-5 shrink-0 text-red-600 sm:mt-0.5" strokeWidth={2} aria-hidden="true" />
           <p className="text-pretty text-sm leading-relaxed text-[#0f1f3d]/85">{item.answer}</p>
         </div>
       </div>

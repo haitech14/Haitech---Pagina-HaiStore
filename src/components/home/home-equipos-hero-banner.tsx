@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import { ResponsivePromoBannerImage } from '@/components/home/responsive-promo-banner-image';
 import { HOME_LANDING_LINKS } from '@/data/home-landing-sections';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +21,7 @@ export function HomeEquiposHeroBanner({ className }: { className?: string }) {
         <Link
           to={BANNER_HREF}
           className={cn(
-            'group relative block overflow-hidden rounded-xl leading-none',
+            'group relative block leading-none',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
           )}
           aria-label="Explora nuestros equipos. Ir a la Tienda"
@@ -28,14 +29,12 @@ export function HomeEquiposHeroBanner({ className }: { className?: string }) {
           <h2 id="home-equipos-hero-title" className="sr-only">
             Explora nuestros equipos
           </h2>
-          <img
+          <ResponsivePromoBannerImage
             src={`${BANNER_SRC}?v=2`}
             alt="Explora nuestros equipos. Soluciones de impresión que se adaptan a las necesidades de tu negocio. Ir a la Tienda."
             width={2059}
             height={528}
-            className="block h-auto w-full object-contain object-center transition-transform duration-500 group-hover:scale-[1.01]"
-            loading="lazy"
-            decoding="async"
+            mobileFocus="left"
           />
         </Link>
       </div>
