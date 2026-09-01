@@ -616,7 +616,7 @@ export function SiteSearchForm({
   }, [showPanel, queryTooShort, suggestions.length, activeIndex]);
 
   useEffect(() => {
-    const handlePointerDown = (event: MouseEvent) => {
+    const handlePointerDown = (event: globalThis.MouseEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) {
         setPanelOpen(false);
       }

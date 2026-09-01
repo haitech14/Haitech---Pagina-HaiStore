@@ -17,7 +17,10 @@ import { ProductDetailComboMockup } from '@/components/product-detail/product-de
 import { ProductDetailComplementaCompra } from '@/components/product-detail/product-detail-complementa-compra';
 import { ProductDetailDescription } from '@/components/product-detail/product-detail-description';
 import { ProductDetailDescriptionValueProps } from '@/components/product-detail/product-detail-description-value-props';
-import { ProductDetailDescriptionPanel } from '@/components/product-detail/product-detail-description-panel';
+import {
+  ProductDetailDescriptionPanel,
+  ProductDetailSpecsAside,
+} from '@/components/product-detail/product-detail-description-panel';
 import { ProductDetailDescriptionStory } from '@/components/product-detail/product-detail-description-story';
 import { ProductDetailOptionalProducts, type PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
 import type { EquipmentRentalEstimate } from '@/components/product-detail/product-detail-rental-configurator';
@@ -32,7 +35,6 @@ import { ProductDetailShippingRows } from '@/components/product-detail/product-d
 import { ProductEquipmentRentalQuoteDialog } from '@/components/product-detail/product-equipment-rental-quote-dialog';
 import { ProductRentalQuoteDialog } from '@/components/product-detail/product-rental-quote-dialog';
 import { ProductDetailResources } from '@/components/product-detail/product-detail-resources';
-import { ProductDetailSpecsTable } from '@/components/product-detail/product-detail-specs-table';
 import { buildProductDetail, isColorPrinterEquipment } from '@/lib/build-product-detail';
 import { copyProductTextToClipboard } from '@/lib/copy-product-to-clipboard';
 import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
@@ -123,7 +125,6 @@ import type { Product } from '@/types/product';
 type DetailTab =
   | 'combo'
   | 'description'
-  | 'specifications'
   | 'configuration'
   | 'consumables'
   | 'shipping'
@@ -352,7 +353,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     if (!mockupLayout) {
       return [
         { id: 'description', label: 'Descripción' },
-        { id: 'specifications', label: 'Especificaciones' },
         { id: 'consumables', label: 'Consumibles' },
         { id: 'shipping', label: 'Envíos' },
         { id: 'warranty', label: 'Garantía' },
@@ -365,10 +365,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
       mockupTabs.push({ id: 'combo', label: 'Compra en combo' });
     }
 
-    mockupTabs.push(
-      { id: 'description', label: 'Descripción' },
-      { id: 'specifications', label: 'Especificaciones' },
-    );
+    mockupTabs.push({ id: 'description', label: 'Descripción' });
 
     if (
       detail.isPrinterEquipment ||
@@ -545,8 +542,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
       return;
     }
 
-    setActiveTab('specifications');
+    setActiveTab('description');
     requestAnimationFrame(() => {
+      const specsAnchor = document.getElementById('product-detail-specs');
+      if (specsAnchor) {
+        specsAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
       productInfoSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }, [detail.resourceLinks]);
@@ -941,45 +943,52 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
               {activeTab === 'description' ? (
                 <div className="w-full space-y-4 sm:space-y-5">
-                  {!mockupLayout ? (
-                    <h2 className="text-base font-bold text-neutral-900 sm:text-lg">Descripción</h2>
-                  ) : null}
-                  {detail.descriptionContent?.storyBlocks &&
-                  detail.descriptionContent.storyBlocks.length > 0 ? (
-                    <ProductDetailDescriptionStory
-                      blocks={detail.descriptionContent.storyBlocks}
-                      {...(detail.descriptionContent.storyCta != null
-                        ? { cta: detail.descriptionContent.storyCta }
-                        : {})}
-                    />
-                  ) : useRicohTabs && detail.descriptionContent ? (
-                    <div className="space-y-4">
-                      <ProductDetailDescriptionPanel
-                        content={detail.descriptionContent}
-                        specs={detail.specs}
-                        sku={detail.sku}
-                        showSpecs={false}
-                        compact
-                      />
-                      <ProductDetailDescription
-                        content={detail.descriptionContent}
-                        omitPanelSummary
-                      />
-                    </div>
-                  ) : (
-                    <div className="space-y-2 text-xs leading-relaxed text-neutral-700 sm:text-sm">
-                      <p className={cn(!descriptionExpanded && 'line-clamp-6')}>{descriptionText}</p>
-                      {descriptionText.length > 280 ? (
-                        <button
-                          type="button"
-                          onClick={() => setDescriptionExpanded((value) => !value)}
-                          className="text-xs font-bold text-blue-600 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 sm:text-sm"
-                        >
-                          {descriptionExpanded ? 'Ver menos' : 'Ver más'}
-                        </button>
+                  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,400px)] lg:items-start">
+                    <div className="min-w-0 space-y-4 sm:space-y-5">
+                      {!mockupLayout ? (
+                        <h2 className="text-base font-bold text-neutral-900 sm:text-lg">Descripción</h2>
                       ) : null}
+                      {detail.descriptionContent?.storyBlocks &&
+                      detail.descriptionContent.storyBlocks.length > 0 ? (
+                        <ProductDetailDescriptionStory
+                          blocks={detail.descriptionContent.storyBlocks}
+                          {...(detail.descriptionContent.storyCta != null
+                            ? { cta: detail.descriptionContent.storyCta }
+                            : {})}
+                        />
+                      ) : useRicohTabs && detail.descriptionContent ? (
+                        <div className="space-y-4">
+                          <ProductDetailDescriptionPanel
+                            content={detail.descriptionContent}
+                            specs={detail.specs}
+                            sku={detail.sku}
+                            showSpecs={false}
+                            compact
+                          />
+                          <ProductDetailDescription
+                            content={detail.descriptionContent}
+                            omitPanelSummary
+                          />
+                        </div>
+                      ) : (
+                        <div className="space-y-2 text-xs leading-relaxed text-neutral-700 sm:text-sm">
+                          <p className={cn(!descriptionExpanded && 'line-clamp-6')}>{descriptionText}</p>
+                          {descriptionText.length > 280 ? (
+                            <button
+                              type="button"
+                              onClick={() => setDescriptionExpanded((value) => !value)}
+                              className="text-xs font-bold text-blue-600 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 sm:text-sm"
+                            >
+                              {descriptionExpanded ? 'Ver menos' : 'Ver más'}
+                            </button>
+                          ) : null}
+                        </div>
+                      )}
                     </div>
-                  )}
+
+                    <ProductDetailSpecsAside specs={detail.specs} />
+                  </div>
+
                   {mockupLayout ? (
                     <ProductDetailDescriptionValueProps
                       variant={
@@ -993,22 +1002,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                     />
                   ) : null}
                   {!mockupLayout ? <ProductDetailAdvisorBanner /> : null}
-                </div>
-              ) : null}
-
-              {activeTab === 'specifications' ? (
-                <div className="w-full space-y-4 sm:space-y-5">
-                  <h2 className="text-base font-bold text-neutral-900 sm:text-lg">
-                    Especificaciones Técnicas
-                  </h2>
-                  {detail.specs.length > 0 ? (
-                    <ProductDetailSpecsTable specs={detail.specs} variant="ficha" />
-                  ) : (
-                    <p className="text-xs text-neutral-600 sm:text-sm">
-                      No hay especificaciones técnicas registradas para este producto.
-                    </p>
-                  )}
-                  <ProductDetailAdvisorBanner />
                 </div>
               ) : null}
 

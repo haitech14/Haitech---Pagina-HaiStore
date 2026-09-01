@@ -11,10 +11,7 @@ import {
   PenTool,
   RefreshCw,
   ShieldCheck,
-  ShoppingCart,
 } from 'lucide-react';
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -65,16 +62,27 @@ import {
   resolveHaitechShopStockLocations,
   type HaitechShopProduct,
 } from '@/data/haitech-home-shop';
-import { useCart } from '@/context/cart-context';
+import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
+import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { DEFAULT_USD_TO_PEN } from '@/lib/exchange-rate';
 import { buildShowcaseProductsFromCatalog } from '@/lib/showcase-catalog-consumables';
+import { resolveShowcaseProductHref } from '@/lib/showcase-product-href';
+import {
+  resolveShowcaseActivePriceRole,
+  resolveShowcaseProductPricesUsd,
+  resolveShowcaseRolePriceLines,
+  showcaseDisplayUsd,
+  showcaseUsdToPen,
+} from '@/lib/showcase-product-pricing';
 import { useCompanySettings } from '@/hooks/use-company-settings';
-import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
-import { CONSULTAR_PRECIO_LABEL, getDisplayPriceVisibility, isPriceOnRequest } from '@/lib/display-price';
-import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
+import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
+import { splitProductCardTitleAtBrand } from '@/lib/product-card-title';
+import { CONSULTAR_PRECIO_LABEL, getDisplayPriceVisibility, isPriceOnRequest, PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/display-price';
+import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
   parseStoreShowcaseLocation,
@@ -95,10 +103,89 @@ const categoryCarouselArrowClass =
   'absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#555] shadow-[0_4px_14px_rgba(15,23,42,0.12)] transition-colors hover:border-[#CFCFCF] hover:text-[#111] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-30 sm:size-10';
 
 function formatHaitechUsd(usd: number): string {
-  return `US$ ${usd.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+  const normalized = Math.round(usd * 100) / 100;
+  const isWhole = Math.abs(normalized % 1) < 0.001;
+  return `US$ ${normalized.toLocaleString('en-US', {
+    minimumFractionDigits: isWhole ? 0 : 2,
+    maximumFractionDigits: isWhole ? 0 : 2,
   })}`;
+}
+
+function EquipmentShowcaseCardTitle({
+  title,
+  brand,
+}: {
+  title: string;
+  brand?: string | null;
+}) {
+  const { firstLine, secondLine } = splitProductCardTitleAtBrand(title, brand);
+
+  return (
+    <>
+      <span className="block w-full leading-tight">{firstLine}</span>
+      {secondLine ? (
+        <span className="mt-0.5 block w-full leading-tight">{secondLine}</span>
+      ) : null}
+    </>
+  );
+}
+
+type EquipmentShowcaseGridItem =
+  | { type: 'header'; id: string; label: string }
+  | { type: 'product'; product: HaitechShopProduct };
+
+function shouldShowEquipmentPrintModeSections(
+  isEquipmentCategory: boolean,
+  isFormatoAnchoCategory: boolean,
+  isLaptopCategory: boolean,
+  equipmentSpecFilters: HaitechEquipmentActiveSpecFilters,
+  formatoAnchoSpecFilters: HaitechFormatoAnchoActiveFilters,
+): boolean {
+  if (isLaptopCategory) return false;
+  if (isFormatoAnchoCategory) return formatoAnchoSpecFilters.printMode == null;
+  if (isEquipmentCategory) return equipmentSpecFilters.printMode == null;
+  return false;
+}
+
+function buildEquipmentShowcaseGridItems(
+  products: HaitechShopProduct[],
+  showPrintModeSections: boolean,
+): EquipmentShowcaseGridItem[] {
+  if (!showPrintModeSections) {
+    return products.map((product) => ({ type: 'product', product }));
+  }
+
+  const items: EquipmentShowcaseGridItem[] = [];
+  let lastGroup: 'bn' | 'color' | 'other' | null = null;
+
+  for (const product of products) {
+    const printMode = resolveEquipmentCardSpecs(product).printMode;
+    const group: 'bn' | 'color' | 'other' =
+      printMode === 'Color' ? 'color' : printMode === 'B/N' ? 'bn' : 'other';
+
+    if (group === 'bn' && lastGroup !== 'bn') {
+      items.push({ type: 'header', id: `header-bn-${product.id}`, label: 'Blanco y Negro' });
+    }
+    if (group === 'color' && lastGroup !== 'color') {
+      items.push({ type: 'header', id: `header-color-${product.id}`, label: 'Full Color' });
+    }
+
+    items.push({ type: 'product', product });
+    lastGroup = group;
+  }
+
+  return items;
+}
+
+function EquipmentShowcaseSectionHeader({ label }: { label: string }) {
+  return (
+    <div className="col-span-full flex items-center gap-3 pb-1 pt-3 first:pt-0 sm:pb-1.5 sm:pt-4">
+      <h3 className="shrink-0 text-[13px] font-bold uppercase tracking-[0.08em] text-[#111] sm:text-[14px]">
+        {label}
+      </h3>
+      <span className="h-px flex-1 bg-[#E5E7EB]" aria-hidden="true" />
+    </div>
+  );
 }
 
 function PrintModeIcon({ mode }: { mode: 'B/N' | 'Color' }) {
@@ -185,14 +272,55 @@ function toCartProduct(product: HaitechShopProduct, saleRate?: number): Product 
   };
 }
 
-function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
-  const { addItem } = useCart();
-  const { requestQuote } = useHaitechWhatsAppQuoteContext();
+function EquipmentShowcaseCard({
+  product,
+  catalogReady = false,
+}: {
+  product: HaitechShopProduct;
+  catalogReady?: boolean;
+}) {
+  const { viewAsRoles, effectiveRole } = useAuth();
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { data: companySettings } = useCompanySettings();
   const saleRate = companySettings?.usdToPenExchangeRate;
   const [imgError, setImgError] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const isConsumable = Boolean(product.toner) || /repuesto|unidad de imagen|t[oó]ner/i.test(product.name);
+  const pricingOptions = useMemo(
+    () => ({ saleRate, isConsumable }),
+    [saleRate, isConsumable],
+  );
+  const rolePricesUsd = useMemo(
+    () => resolveShowcaseProductPricesUsd(product, pricingOptions),
+    [product, pricingOptions, catalogReady],
+  );
+  const activePriceRole = resolveShowcaseActivePriceRole(viewAsRoles, effectiveRole);
+  const showMultiRolePrices = viewAsRoles.length > 1;
+  const viewAsRolePrices = useMemo(
+    () =>
+      showMultiRolePrices
+        ? resolveShowcaseRolePriceLines(product, viewAsRoles, pricingOptions)
+        : [],
+    [product, viewAsRoles, pricingOptions, catalogReady, showMultiRolePrices],
+  );
+  const activeUsdRaw = rolePricesUsd[activePriceRole] ?? rolePricesUsd.public;
+  const priceUsd = showcaseDisplayUsd(activeUsdRaw, { isConsumable });
+  const displayPen = showcaseUsdToPen(activeUsdRaw, pricingOptions);
+  const priceOnRequest = isPriceOnRequest(priceUsd);
+  const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
+  const penFirst = dualPriceOrder === 'pen-usd';
+  const showPublicCompare = activePriceRole === 'public' && !showMultiRolePrices;
+  const rawCompareUsd =
+    showPublicCompare && product.compareAt != null
+      ? penToUsd(product.compareAt, saleRate)
+      : null;
+  const compareUsd =
+    rawCompareUsd != null
+      ? isConsumable
+        ? rawCompareUsd
+        : roundEquipmentDisplayUsd(rawCompareUsd)
+      : null;
+
   const isSoftware = product.showcaseCategoryIds?.includes('software') ?? false;
   const specs = resolveEquipmentCardSpecs(product);
   const consumableOrigin = isConsumable ? resolveConsumableOrigin(product) : null;
@@ -204,13 +332,11 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
   const hasStock = product.stock != null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const outOfStock = hasStock && stockCount <= 0;
-  const cartButtonLabel = outOfStock ? 'Reservar' : 'Añadir al carrito';
-  const priceUsd = penToUsd(product.price, saleRate);
-  const priceOnRequest = isPriceOnRequest(priceUsd);
-  const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
-  const penFirst = dualPriceOrder === 'pen-usd';
-  const compareUsd =
-    product.compareAt != null ? penToUsd(product.compareAt, saleRate) : null;
+  const cartButtonLabel = outOfStock ? 'Reservar' : 'Comprar';
+  const cartProduct = useMemo(
+    () => toCartProduct({ ...product, price: displayPen }, saleRate),
+    [product, displayPen, saleRate],
+  );
 
   const originBadgeLabel =
     consumableOrigin === 'compatible'
@@ -222,6 +348,16 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
           : null;
 
   const priceLine = (() => {
+    if (showMultiRolePrices && viewAsRolePrices.length > 1) {
+      return (
+        <ViewAsRolePrices
+          rolePrices={viewAsRolePrices}
+          alwaysBoth
+          compact
+          className="w-full text-left"
+        />
+      );
+    }
     if (priceOnRequest) {
       return (
         <span
@@ -237,7 +373,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
           className="text-[14px] font-black tabular-nums sm:text-[17px]"
           style={{ color: HAITECH_SHOP.brand }}
         >
-          {formatHaitechPen(product.price)}
+          {formatHaitechPen(displayPen)}
         </span>
       );
     }
@@ -253,12 +389,12 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
     }
     if (penFirst) {
       return (
-        <span className="flex w-full flex-col items-center gap-0.5 sm:items-start">
+        <span className="flex w-full flex-col items-center gap-0.5 text-center">
           <span
             className="text-[14px] font-black tabular-nums sm:text-[17px]"
             style={{ color: HAITECH_SHOP.brand }}
           >
-            {formatHaitechPen(product.price)}
+            {formatHaitechPen(displayPen)}
           </span>
           <span className="text-[12px] font-semibold tabular-nums text-[#6B7280]">
             {formatHaitechUsd(priceUsd)}
@@ -267,7 +403,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
       );
     }
     return (
-      <span className="flex w-full flex-col items-center gap-0.5 sm:items-start">
+      <span className="flex w-full flex-col items-center gap-0.5 text-center">
         <span
           className="text-[14px] font-black tabular-nums sm:text-[17px]"
           style={{ color: HAITECH_SHOP.brand }}
@@ -275,16 +411,19 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
           {formatHaitechUsd(priceUsd)}
         </span>
         <span className="text-[12px] font-semibold tabular-nums text-[#6B7280]">
-          {formatHaitechPen(product.price)}
+          {formatHaitechPen(displayPen)}
         </span>
       </span>
     );
   })();
 
   const hasDiscount =
-    product.compareAt != null && product.compareAt > product.price && product.price > 0;
+    showPublicCompare &&
+    product.compareAt != null &&
+    product.compareAt > displayPen &&
+    displayPen > 0;
   const discountPercent = hasDiscount
-    ? Math.round((1 - product.price / (product.compareAt as number)) * 100)
+    ? Math.round((1 - displayPen / (product.compareAt as number)) * 100)
     : 0;
 
   const compareLabel = hasDiscount
@@ -295,13 +434,26 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
         : formatHaitechPen(product.compareAt as number)
     : null;
 
+  const productHref = useMemo(
+    () => resolveShowcaseProductHref(product),
+    [product, catalogReady],
+  );
+
   return (
     <article
       className={cn(
-        'group/card flex h-full flex-col overflow-hidden rounded-xl bg-white p-2.5',
+        'group group/card flex h-full flex-col overflow-hidden rounded-xl bg-white p-2.5',
         'shadow-[0_10px_30px_rgba(15,23,42,0.08)] sm:rounded-[1.25rem] sm:p-4',
       )}
     >
+      <Link
+        to={productHref}
+        className={cn(
+          'flex min-h-0 flex-1 flex-col text-inherit no-underline outline-none',
+          'rounded-lg focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
+        )}
+        aria-label={`Ver ficha de ${title}`}
+      >
       <div className="flex items-start justify-between gap-1.5 sm:gap-2">
         <span className="min-w-0 truncate text-[10px] font-black tracking-[0.04em] text-[#E30613] sm:text-[14px]">
           {(product.brand ?? 'RICOH').toUpperCase()}
@@ -325,18 +477,16 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
         )}
       </div>
 
-      <Link
-        to={product.href ?? '/tienda'}
-        className="mt-1 flex min-h-[96px] flex-1 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] sm:min-h-[150px]"
-        aria-label={title}
+      <div
+        className="mt-1 flex min-h-[124px] flex-1 items-center justify-center px-1 sm:min-h-[188px] sm:px-2"
       >
         {!imgError ? (
           <img
             src={product.image}
             alt=""
-            width={220}
-            height={180}
-            className="max-h-[108px] w-auto max-w-full object-contain sm:max-h-[150px]"
+            width={280}
+            height={228}
+            className="max-h-[136px] w-auto max-w-[96%] object-contain sm:max-h-[188px] sm:max-w-full"
             loading="lazy"
             decoding="async"
             onError={() => setImgError(true)}
@@ -346,14 +496,14 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
             {title.charAt(0)}
           </span>
         )}
-      </Link>
+      </div>
 
-      <div className="relative mt-2">
+      <div className="relative mt-2 w-full">
         <h3
-          className="line-clamp-3 text-pretty break-words text-center text-[11px] font-bold leading-snug text-[#111] sm:line-clamp-none sm:text-[14px]"
+          className="flex w-full flex-col items-center gap-0.5 text-center text-[11px] font-bold leading-snug text-[#111] sm:text-[14px]"
           title={title}
         >
-          {title}
+          <EquipmentShowcaseCardTitle title={title} brand={product.brand ?? null} />
         </h3>
 
         <div
@@ -365,7 +515,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
             'motion-reduce:mt-1.5 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100',
           )}
         >
-          <div className="min-h-0 overflow-hidden">
+          <div className="min-h-0 w-full overflow-hidden text-left">
             {isConsumable ? (
               <ul
                 className={cn(
@@ -436,7 +586,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
 
             {codeLabel || hasStock ? (
               <div
-                className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
+                className="mt-1.5 flex w-full min-w-0 items-center justify-center gap-1.5 text-center text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
                 aria-label={[
                   codeLabel ? `Código ${codeLabel}` : null,
                   hasStock
@@ -461,7 +611,7 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
                     outOfStock={outOfStock}
                     stockLocations={resolveHaitechShopStockLocations(product)}
                     prefix="Stock "
-                    className="ml-auto text-[10px] font-medium text-[#8a93a3] sm:text-[11px]"
+                    className="shrink-0 text-[10px] font-medium text-[#8a93a3] sm:text-[11px]"
                     iconClassName="size-3 shrink-0"
                   />
                 ) : null}
@@ -471,14 +621,14 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
         </div>
       </div>
 
-      <div className="mt-2 flex w-full flex-col items-center gap-0.5 sm:mt-2.5 sm:items-start">
+      <div className="mt-2 flex w-full flex-col items-center gap-0.5 text-center sm:mt-2.5">
         {product.hasVariants ? (
           <span className="text-[10px] font-semibold leading-none text-[#6B7280] sm:text-[12px]">
             Desde
           </span>
         ) : null}
         {compareLabel ? (
-          <div className="flex flex-wrap items-center justify-center gap-1 sm:justify-start">
+          <div className="flex flex-wrap items-center justify-center gap-1">
             <span className="text-[10px] font-medium tabular-nums text-[#9CA3AF] line-through decoration-[#9CA3AF] sm:text-[12px]">
               {compareLabel}
             </span>
@@ -490,64 +640,50 @@ function EquipmentShowcaseCard({ product }: { product: HaitechShopProduct }) {
           </div>
         ) : null}
         {priceLine}
+        {activePriceRole === 'tecnico' && !showMultiRolePrices && !priceOnRequest ? (
+          <span className="text-[10px] font-semibold leading-none text-[#6B7280] sm:text-[11px]">
+            Precio Técnico
+          </span>
+        ) : null}
       </div>
+      </Link>
 
-      <div className="mt-2 flex items-center gap-1.5 sm:mt-3 sm:gap-2">
-        <button
-          type="button"
-          onClick={() => addItem(toCartProduct(product, saleRate), { openDrawer: true })}
-          className={cn(
-            'inline-flex h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg px-1.5 sm:h-10 sm:gap-2 sm:px-2.5',
-            'text-[10px] font-bold text-white sm:text-[12px]',
-            'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+      <div className="mt-2 flex justify-center sm:mt-3">
+        <ProductQuantityAddFooter
+          product={cartProduct}
+          size="sm"
+          addLabel={cartButtonLabel}
+          revealQuantityOnHover
+          onQuantityChange={setQuantity}
+          quantityClassName="h-9 rounded-lg sm:h-10"
+          addButtonClassName={cn(
+            'h-9 min-h-9 max-h-9 flex-none rounded-lg px-4 text-[10px] font-bold shadow-none sm:h-10 sm:min-h-10 sm:max-h-10 sm:px-5 sm:text-[12px]',
             outOfStock
-              ? 'bg-[#111111] hover:bg-[#222222] focus-visible:ring-[#111111]/40'
-              : 'bg-[#E30613] hover:bg-[#c90511] focus-visible:ring-[#E30613]/40',
+              ? 'bg-[#111111] hover:bg-[#222222]'
+              : 'bg-[#E30613] hover:bg-[#c90511]',
           )}
-          aria-label={
-            outOfStock
-              ? `Reservar ${title} a pedido`
-              : `Añadir ${title} al carrito`
+          centeredActions
+          belowAlways
+          belowOnHover={
+            <ProductWhatsAppButton
+              stopPropagation
+              skipDialogIfComplete
+              accent="outline"
+              compact
+              label="Comprar por WhatsApp"
+              quantity={quantity}
+              product={{
+                id: cartProduct.id,
+                name: title,
+                priceUsd,
+                category: cartProduct.category,
+                brand: cartProduct.brand ?? null,
+                ...(product.code ? { code: product.code } : {}),
+              }}
+              className="w-full rounded-lg"
+            />
           }
-        >
-          {!outOfStock ? (
-            <ShoppingCart className="size-3.5 shrink-0 sm:size-4" strokeWidth={2} aria-hidden="true" />
-          ) : null}
-          <span className="truncate sm:hidden">{outOfStock ? 'Reservar' : 'Añadir'}</span>
-          <span className="hidden truncate sm:inline">{cartButtonLabel}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() =>
-            requestQuote({
-              campaign: `equipos-showcase-${product.id}`,
-              extraLines: [
-                `Producto: *${title}*`,
-                codeLabel ? `Código: ${codeLabel}` : null,
-                priceOnRequest
-                  ? 'Precio: Consultar'
-                  : `Precio: ${formatHaitechPen(product.price)} · ${formatHaitechUsd(priceUsd)}`,
-                isConsumable
-                  ? `Tipo: ${originBadgeLabel ?? 'Suministro'}${product.toner ? ` · ${product.toner.colorLabel} · ${product.toner.yieldLabel}` : ''}`
-                  : `Specs: ${specs.printMode} · ${specs.speedPpm} · ${specs.paperSize}${specs.monthlyYield !== '—' ? ` · ${specs.monthlyYield}` : ''}`,
-              ].filter(Boolean) as string[],
-              requireDialog: true,
-              title: 'Comprar por WhatsApp',
-              description:
-                'Completa tus datos para enviar el mensaje con el producto y el precio a nuestro equipo de ventas.',
-              submitLabel: 'Enviar por WhatsApp',
-            })
-          }
-          aria-label="Comprar por WhatsApp"
-          className={cn(
-            'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.65rem] sm:h-10 sm:w-10',
-            'bg-[#25D366] text-white shadow-sm',
-            'transition-colors hover:bg-[#20BD5A]',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/50 focus-visible:ring-offset-2',
-          )}
-        >
-          <Icon path={mdiWhatsapp} size={0.95} color="white" aria-hidden="true" />
-        </button>
+        />
       </div>
     </article>
   );
@@ -853,6 +989,14 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
   );
   const products = allProducts.slice(0, visibleCount);
   const hasMoreProducts = allProducts.length > visibleCount;
+  const showPrintModeSections = shouldShowEquipmentPrintModeSections(
+    isEquipmentCategory,
+    isFormatoAnchoCategory,
+    isLaptopCategory,
+    equipmentSpecFilters,
+    formatoAnchoSpecFilters,
+  );
+  const productGridItems = buildEquipmentShowcaseGridItems(products, showPrintModeSections);
 
   const renderFilterButton = (filter: { id: HaitechShowcaseFilterId; label: string }) => {
     const equipmentFilterId = filter.id as HaitechEquipmentSpecFilterId;
@@ -1115,12 +1259,18 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
 
         {products.length > 0 ? (
           <>
-            <ul className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-4 md:grid-cols-3 lg:grid-cols-5 lg:gap-4">
-              {products.map((product) => (
-                <li key={product.id}>
-                  <EquipmentShowcaseCard product={product} />
-                </li>
-              ))}
+            <ul className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">
+              {productGridItems.map((item) =>
+                item.type === 'header' ? (
+                  <li key={item.id} className="col-span-full list-none">
+                    <EquipmentShowcaseSectionHeader label={item.label} />
+                  </li>
+                ) : (
+                  <li key={item.product.id}>
+                    <EquipmentShowcaseCard product={item.product} catalogReady={catalogReady} />
+                  </li>
+                ),
+              )}
             </ul>
             {hasMoreProducts ? (
               <div className="mt-8 flex justify-center sm:mt-10">

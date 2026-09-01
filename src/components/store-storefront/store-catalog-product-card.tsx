@@ -26,6 +26,7 @@ import {
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
+import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { productPath } from '@/lib/product-path';
@@ -65,6 +66,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
   const displayPrice = useCatalogDisplayPrice(product);
   const pricing = resolveProductCardPricing(product.id, displayPrice.priceUsd, {
+    category: product.category,
     ...(catalogFeatured?.oldPrice != null ? { oldPrice: catalogFeatured.oldPrice } : {}),
     ...(catalogFeatured?.discount != null ? { discount: catalogFeatured.discount } : {}),
   });
@@ -186,7 +188,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           )}
         >
           <h3 className="text-pretty break-words text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm">
-            {title}
+            <ProductCardSplitBrandTitle title={title} brand={brand} />
           </h3>
         </Link>
 
@@ -249,6 +251,23 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
                   brand: product.brand ?? catalogProduct?.brand ?? null,
                 }}
                 className="h-9 w-9 min-h-9 max-h-9 min-w-9 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366] md:h-10 md:w-10 md:min-h-10 md:max-h-10 md:min-w-10"
+              />
+            }
+            belowOnHover={
+              <ProductWhatsAppButton
+                stopPropagation
+                skipDialogIfComplete
+                accent="outline"
+                label="Comprar por WhatsApp"
+                quantity={quantity}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  priceUsd: displayPrice.priceUsd,
+                  category: product.category,
+                  brand: product.brand ?? catalogProduct?.brand ?? null,
+                }}
+                className="h-11 min-h-11 w-full rounded-lg px-2 text-xs font-semibold normal-case tracking-normal sm:text-sm"
               />
             }
           />

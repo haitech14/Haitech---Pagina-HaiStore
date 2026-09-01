@@ -29,7 +29,7 @@ import {
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
-import { ProductCardBrandLine } from '@/components/product/product-card-title';
+import { ProductCardBrandLine, ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { inferColor } from '@/lib/category-catalog-filters';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import {
@@ -55,6 +55,7 @@ export function HomeLandingProductCard({
 }) {
   const { addItem } = useCart();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const catalogProduct = useCatalogProductRow(product.id);
   const displayPrice = useCatalogDisplayPrice({
     price: product.price,
@@ -62,6 +63,7 @@ export function HomeLandingProductCard({
     ...(product.price_role ? { price_role: product.price_role } : {}),
   });
   const pricing = resolveProductCardPricing(product.id, displayPrice.priceUsd, {
+    category: product.category,
     ...(product.oldPrice != null ? { oldPrice: product.oldPrice } : {}),
     ...(product.discount != null ? { discount: product.discount } : {}),
   });
@@ -266,7 +268,7 @@ export function HomeLandingProductCard({
           )}
         >
           <h3 className="text-pretty break-words text-left text-sm font-normal leading-snug text-[#111111] sm:text-[0.9375rem]">
-            {productTitle}
+            <ProductCardSplitBrandTitle title={productTitle} brand={brand} />
           </h3>
         </Link>
 
@@ -298,6 +300,7 @@ export function HomeLandingProductCard({
             product={cartProduct}
             size="sm"
             addLabel={buyNowLabel}
+            onQuantityChange={setQuantity}
             revealQuantityOnHover
             quantityPlacement="inline"
             quantityClassName="h-10 rounded-lg"
@@ -311,6 +314,7 @@ export function HomeLandingProductCard({
               <ProductWhatsAppButton
                 stopPropagation
                 skipDialogIfComplete
+                quantity={quantity}
                 product={{
                   id: cartProduct.id,
                   name: cartProduct.name,
@@ -319,6 +323,23 @@ export function HomeLandingProductCard({
                   brand: cartProduct.brand ?? null,
                 }}
                 className="h-10 w-10 min-h-10 max-h-10 min-w-10 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366]"
+              />
+            }
+            belowOnHover={
+              <ProductWhatsAppButton
+                stopPropagation
+                skipDialogIfComplete
+                accent="outline"
+                label="Comprar por WhatsApp"
+                quantity={quantity}
+                product={{
+                  id: cartProduct.id,
+                  name: cartProduct.name,
+                  priceUsd: pricing.currentUsd,
+                  category: cartProduct.category,
+                  brand: cartProduct.brand ?? null,
+                }}
+                className="h-11 min-h-11 w-full rounded-lg px-2 text-xs font-semibold normal-case tracking-normal sm:text-sm"
               />
             }
           />

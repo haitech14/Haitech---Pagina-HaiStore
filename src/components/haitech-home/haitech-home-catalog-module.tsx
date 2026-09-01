@@ -9,21 +9,12 @@ const FooterBrandsSection = lazy(() =>
   })),
 );
 
-const HomeStorefrontFeaturedSection = lazy(() =>
-  import('@/components/home/home-storefront-featured-section').then((m) => ({
-    default: m.HomeStorefrontFeaturedSection,
-  })),
-);
-
 function prefetchCatalogModule() {
   void import('@/components/layout/footer-brands-section');
-  void import('@/components/home/home-storefront-featured-section');
 }
 
 /**
- * Módulo home (debajo de productos más vendidos):
- * banner equipos (encima de Marcas) → marcas líderes →
- * rails (multifuncionales, impresoras, escáneres).
+ * Módulo home: banner equipos → marcas líderes.
  */
 export function HaitechHomeCatalogModule() {
   useEffect(() => {
@@ -48,17 +39,12 @@ export function HaitechHomeCatalogModule() {
 
   return (
     <div className="home-landing-sans w-full bg-white">
-      {/* Explora equipos — justo encima de Marcas Líderes */}
       <div className="py-2 sm:py-2.5">
         <HomeEquiposHeroBanner />
       </div>
 
       <LazyHomeSection mountOnIdle idleTimeoutMs={800} minHeight="160px">
         <FooterBrandsSection />
-      </LazyHomeSection>
-
-      <LazyHomeSection minHeight="560px">
-        <HomeStorefrontFeaturedSection />
       </LazyHomeSection>
     </div>
   );

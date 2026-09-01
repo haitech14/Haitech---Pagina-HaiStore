@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
+import { HaitechHomeCategoryChipsSection } from '@/components/haitech-home/haitech-home-category-chips-carousel';
 import { HaitechHomeBrandIntro } from '@/components/haitech-home/haitech-home-brand-intro';
-import { HaitechHomeCategoryCarousel } from '@/components/haitech-home/haitech-home-category-carousel';
 import { HaitechHomeFavoritesSection } from '@/components/haitech-home/haitech-home-favorites-section';
 import { HaitechHomeHeroCarousel } from '@/components/haitech-home/haitech-home-hero-carousel';
 import { HaitechHomeWhatsAppButton } from '@/components/haitech-home/haitech-home-whatsapp-button';
@@ -24,11 +24,6 @@ const HaitechHomeCatalogModule = lazy(() =>
 const HaitechHomePostServicesBanners = lazy(() =>
   import('@/components/haitech-home/haitech-home-mid-banner').then((m) => ({
     default: m.HaitechHomePostServicesBanners,
-  })),
-);
-const HaitechHomeMidBanner = lazy(() =>
-  import('@/components/haitech-home/haitech-home-mid-banner').then((m) => ({
-    default: m.HaitechHomeMidBanner,
   })),
 );
 const HaitechHomeLandingSection = lazy(() =>
@@ -70,23 +65,20 @@ export function HomePage() {
   return (
     <div className="min-h-screen bg-white font-sans antialiased [font-family:Inter,Roboto,Arial,Helvetica,sans-serif]">
       <HaitechHomeHeroCarousel />
-      <HaitechHomeBrandIntro />
-      <HaitechHomeCategoryCarousel />
+      <HaitechHomeCategoryChipsSection />
       <HaitechHomeFavoritesSection />
 
+      <HaitechHomeBrandIntro />
       <LazyHomeSection mountOnIdle idleTimeoutMs={800} minHeight="220px">
         <div className="bg-white py-2 sm:py-3">
           <HomeTechnicalServiceHeroBanner />
         </div>
       </LazyHomeSection>
-      <LazyHomeSection minHeight="720px">
+      <LazyHomeSection mountOnIdle idleTimeoutMs={800} minHeight="280px">
         <HaitechHomeCatalogModule />
       </LazyHomeSection>
-      <LazyHomeSection minHeight="280px">
+      <LazyHomeSection minHeight="320px">
         <HaitechHomePostServicesBanners />
-      </LazyHomeSection>
-      <LazyHomeSection minHeight="240px">
-        <HaitechHomeMidBanner />
       </LazyHomeSection>
       <LazyHomeSection minHeight="360px">
         <HaitechHomeLandingSection />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
 import {
@@ -18,6 +18,8 @@ interface ProductCardImageProps {
   loading?: 'lazy' | 'eager';
   fetchPriority?: 'high' | 'low' | 'auto';
   imageVersion?: string | null;
+  /** Evita overlay duplicado cuando la marca va en el contenedor padre. */
+  disableWatermark?: boolean;
   onError?: () => void;
 }
 
@@ -42,6 +44,7 @@ export function ProductCardImage({
   loading = 'lazy',
   fetchPriority,
   imageVersion = null,
+  disableWatermark = false,
   onError,
 }: ProductCardImageProps) {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -73,6 +76,22 @@ export function ProductCardImage({
 
   const handleLoad = () => setLoaded(true);
 
+  const wrapWithWatermark = (content: ReactNode) => {
+    if (disableWatermark) {
+      return <div className={overlayWrapperClass}>{content}</div>;
+    }
+
+    return (
+      <ProductImageWatermarkOverlay
+        src={withImageVersion(responsive?.fallbackSrc ?? src, imageVersion)}
+        className={overlayWrapperClass}
+        {...(watermarkClassName ? { watermarkClassName } : {})}
+      >
+        {content}
+      </ProductImageWatermarkOverlay>
+    );
+  };
+
   if (responsive) {
     const webpSrcSet = responsive.webpSrcSet
       .split(', ')
@@ -82,47 +101,35 @@ export function ProductCardImage({
       })
       .join(', ');
 
-    return (
-      <ProductImageWatermarkOverlay
-        src={withImageVersion(responsive.fallbackSrc, imageVersion)}
-        className={overlayWrapperClass}
-        {...(watermarkClassName ? { watermarkClassName } : {})}
-      >
-        <picture>
-          <source type="image/webp" srcSet={webpSrcSet} sizes={responsive.sizes} />
-          <img
-            ref={imgRef}
-            src={withImageVersion(responsive.fallbackSrc, imageVersion)}
-            alt={alt}
-            className={imageClass}
-            loading={loading}
-            decoding="async"
-            {...(fetchPriority ? { fetchPriority } : {})}
-            onLoad={handleLoad}
-            onError={onError}
-          />
-        </picture>
-      </ProductImageWatermarkOverlay>
+    return wrapWithWatermark(
+      <picture>
+        <source type="image/webp" srcSet={webpSrcSet} sizes={responsive.sizes} />
+        <img
+          ref={imgRef}
+          src={withImageVersion(responsive.fallbackSrc, imageVersion)}
+          alt={alt}
+          className={imageClass}
+          loading={loading}
+          decoding="async"
+          {...(fetchPriority ? { fetchPriority } : {})}
+          onLoad={handleLoad}
+          onError={onError}
+        />
+      </picture>,
     );
   }
 
-  return (
-    <ProductImageWatermarkOverlay
+  return wrapWithWatermark(
+    <img
+      ref={imgRef}
       src={withImageVersion(src, imageVersion)}
-      className={overlayWrapperClass}
-      {...(watermarkClassName ? { watermarkClassName } : {})}
-    >
-      <img
-        ref={imgRef}
-        src={withImageVersion(src, imageVersion)}
-        alt={alt}
-        className={imageClass}
-        loading={loading}
-        decoding="async"
-        {...(fetchPriority ? { fetchPriority } : {})}
-        onLoad={handleLoad}
-        onError={onError}
-      />
-    </ProductImageWatermarkOverlay>
+      alt={alt}
+      className={imageClass}
+      loading={loading}
+      decoding="async"
+      {...(fetchPriority ? { fetchPriority } : {})}
+      onLoad={handleLoad}
+      onError={onError}
+    />,
   );
 }

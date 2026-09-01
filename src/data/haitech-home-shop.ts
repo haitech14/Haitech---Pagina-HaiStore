@@ -129,11 +129,20 @@ export type HaitechShopProduct = {
     | 'accesorios'
     | 'software'
     | 'escaneres'
+    | 'pantallas-interactivas'
+    | 'videoconferencia'
   )[];
   /** Precio mínimo de un grupo con variantes (muestra «Desde» en vitrina). */
   hasVariants?: boolean;
   /** Variante usada para el precio en vitrina (p. ej. cilindro nuevo). */
   showcaseVariantLabel?: string;
+  /** Subtítulo en card destacada del home, p. ej. Impresora Multifuncional. */
+  productTypeLabel?: string;
+  /** Título completo en card destacada (incluye marca y modelo). */
+  featuredTitle?: string;
+  /** Valoración para card destacada. */
+  rating?: number;
+  reviewCount?: number;
   /** Tipo dispositivo vitrina PC / Laptops. */
   showcaseLaptopDevice?: 'pc' | 'laptop';
   /** Procesador vitrina PC / Laptops. */
@@ -185,8 +194,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     stock: 12,
     image: '/products/ricoh-im-430f.webp',
     colorSwatch: '#1a1a1a',
-    price: 3399,
-    compareAt: 3799,
+    price: 3899,
+    compareAt: 4379,
     discountLabel: '11% DSCT',
     badge: 'MÁS VENDIDO',
     condition: 'nuevo',
@@ -199,6 +208,10 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     },
     tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales'],
     href: productPath('ricoh-im-430f'),
+    productTypeLabel: 'Impresora Multifuncional',
+    featuredTitle: 'RICOH IM 430F (SPDF)',
+    rating: 5,
+    reviewCount: 12,
   },
   {
     id: 'im-550f',
@@ -208,8 +221,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     stock: 8,
     image: '/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp',
     colorSwatch: '#222',
-    price: 5499,
-    compareAt: 6199,
+    price: 6149,
+    compareAt: 6909,
     discountLabel: '11% DSCT',
     promoTag: '+ REGALO',
     badge: 'MÁS VENDIDO',
@@ -232,20 +245,50 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     stock: 15,
     image: '/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp',
     colorSwatch: '#111',
-    price: 1499,
-    compareAt: 1799,
-    discountLabel: '17% DSCT',
+    price: 1709,
+    compareAt: 1919,
+    discountLabel: '11% DSCT',
     badge: 'MÁS VENDIDO',
     condition: 'nuevo',
     features: EQUIPMENT_FEATURES,
     equipment: {
       speedPpm: '32 ppm',
       paperSize: 'A4',
-      scannerType: 'SPDF',
+      scannerType: 'ARDF',
       monthlyYield: '3.500 pág/mes',
     },
     tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales'],
     href: productPath('impresora-multifuncional-b-n-nueva-ricoh-m-320f-2df02df8c75e'),
+    productTypeLabel: 'Impresora Multifuncional',
+    featuredTitle: 'RICOH M 320F (SPDF)',
+    rating: 5,
+    reviewCount: 12,
+  },
+  {
+    id: 'mp-305-plus',
+    name: 'Multifuncional RICOH MP 305+',
+    brand: 'RICOH',
+    code: 'MP-305+',
+    stock: 5,
+    image: '/products/ab878d89-61e0-4e51-a941-03455e1da407.webp',
+    colorSwatch: '#1a1a1a',
+    price: 3588,
+    compareAt: 4029,
+    discountLabel: '11% DSCT',
+    condition: 'nuevo',
+    features: EQUIPMENT_FEATURES,
+    equipment: {
+      speedPpm: '30 ppm',
+      paperSize: 'A4 / A3',
+      scannerType: 'SPDF',
+      monthlyYield: '8.000 pág/mes',
+    },
+    tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales'],
+    href: productPath('impresora-multifuncional-b-n-nueva-ricoh-mp-305-03455e1da407'),
+    productTypeLabel: 'Impresora Multifuncional',
+    featuredTitle: 'RICOH MP 305+ (SPDF)',
+    rating: 5,
+    reviewCount: 9,
   },
   {
     id: 'im-460f',
@@ -268,6 +311,10 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     },
     tabIds: ['mas-vendidos', 'multifuncionales'],
     href: productPath('impresora-multifuncional-nueva-ricoh-im-460f-eb3d259fadb5'),
+    productTypeLabel: 'Impresora Multifuncional',
+    featuredTitle: 'RICOH IM 460F (SPDF)',
+    rating: 5,
+    reviewCount: 8,
   },
   {
     id: 'toner-im430',
@@ -443,9 +490,9 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '419346',
     image: '/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp',
     colorSwatch: '#333',
-    price: 8999,
-    compareAt: 9999,
-    discountLabel: '10% DSCT',
+    price: 17269,
+    compareAt: 19399,
+    discountLabel: '11% DSCT',
     badge: 'MÁS VENDIDO',
     condition: 'nuevo',
     features: EQUIPMENT_FEATURES,
@@ -467,11 +514,12 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
     name: 'Multifuncional RICOH IM 600F',
     brand: 'RICOH',
     code: '418464',
+    stock: 1,
     image: '/products/b32a43a1-09e4-49f6-8950-3639c9534700.webp',
     colorSwatch: '#111',
-    price: 6899,
-    compareAt: 7499,
-    discountLabel: '8% DSCT',
+    price: 7179,
+    compareAt: 8069,
+    discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: EQUIPMENT_FEATURES,
     equipment: {
@@ -479,8 +527,8 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
       scannerType: 'SPDF',
       monthlyYield: '40.000 pág/mes',
     },
-    tabIds: ['ofertas'],
-    href: categoryLandingPath('multifuncionales'),
+    tabIds: ['ofertas', 'multifuncionales'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-600f-3639c9534700'),
   },
   {
     id: 'unidad-imagen-430',
@@ -500,15 +548,15 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '418843',
     image: '/products/196857c6-738b-4162-90aa-50dee575bcd8.webp',
     colorSwatch: '#222',
-    price: 12499,
-    compareAt: 13499,
-    discountLabel: '7% DSCT',
+    price: 13749,
+    compareAt: 15449,
+    discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: EQUIPMENT_FEATURES,
     equipment: {
       speedPpm: '25 ppm',
       paperSize: 'A3',
-      scannerType: 'SPDF',
+      scannerType: 'ARDF',
       monthlyYield: '10.000 pág/mes',
     },
     tabIds: ['ofertas', 'multifuncionales'],

@@ -42,12 +42,14 @@ function MegaMenuTriggerShell({
         type="button"
         aria-label={label}
         className={cn(
-          'inline-flex h-[38px] items-center gap-1.5 bg-[#E30613] px-3.5 text-[13px] font-semibold text-white',
-          'transition-colors hover:bg-[#c90511]',
+          'inline-flex h-full min-h-[42px] items-center gap-2 bg-[#E30613] px-4 text-[13px] font-semibold text-white',
+          'transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-offset-2',
           className,
         )}
       >
+        <Menu className="size-4 shrink-0" aria-hidden="true" />
         {label}
+        <ChevronDown className="size-3.5 shrink-0 opacity-90" aria-hidden="true" />
       </button>
     );
   }

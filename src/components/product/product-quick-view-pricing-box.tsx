@@ -17,6 +17,7 @@ interface ProductQuickViewPricingBoxProps {
   priceUsd: number;
   oldPriceUsd?: number;
   discountPercent?: number;
+  category?: string | null;
   className?: string;
 }
 
@@ -25,9 +26,11 @@ export function ProductQuickViewPricingBox({
   priceUsd,
   oldPriceUsd,
   discountPercent,
+  category,
   className,
 }: ProductQuickViewPricingBoxProps) {
   const pricing = resolveProductCardPricing(productId, priceUsd, {
+    ...(category !== undefined ? { category } : {}),
     ...(oldPriceUsd != null ? { oldPrice: oldPriceUsd } : {}),
     ...(discountPercent != null ? { discount: discountPercent } : {}),
   });

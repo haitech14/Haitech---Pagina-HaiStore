@@ -7,7 +7,7 @@ import {
   getDisplayPriceVisibility,
   isPriceOnRequest,
 } from '@/lib/display-price';
-import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
+import { cn, formatPenFromUsd, formatUsd, formatEquipmentUsd } from '@/lib/utils';
 
 const AdminRolePricesTooltip = lazy(() =>
   import('@/components/admin/admin-role-prices-tooltip').then((m) => ({
@@ -25,7 +25,11 @@ const FEATURED_PRICE_CURRENT_ACCENT_CLASS =
   'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]';
 
 function formatFeaturedUsdLabel(usd: number): string {
-  return `US$ ${usd.toLocaleString('en-US', {
+  const normalized = Math.round(usd * 100) / 100;
+  if (Math.abs(normalized % 1) < 0.001) {
+    return formatEquipmentUsd(normalized).replace('$', 'US$ ');
+  }
+  return `US$ ${normalized.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;

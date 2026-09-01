@@ -55,7 +55,7 @@ export function shouldWatermarkProductImage(url) {
 }
 
 /**
- * Overlay CSS en vitrina e inventario (todas las fotos de producto visibles).
+ * Overlay CSS en vitrina (solo previews data:). Imágenes en /products/ y /album/ ya llevan marca en servidor.
  * @param {unknown} url
  * @returns {boolean}
  */
@@ -64,8 +64,9 @@ export function shouldShowProductImageWatermarkOverlay(url) {
   if (!isProductImageWatermarkEnabled()) return false;
   if (isDecorativeNonProductImageUrl(url)) return false;
   if (url.startsWith('data:image/')) return true;
-  if (url.startsWith('http://') || url.startsWith('https://')) return true;
-  if (url.startsWith('/')) return true;
+  const path = productImageUrlPathname(url);
+  if (path.startsWith('/products/') || path.startsWith('/album/')) return false;
+  if (path.includes('/products/') || path.includes('/album/')) return false;
   return false;
 }
 

@@ -3,11 +3,49 @@ import { Check, ChevronRight } from 'lucide-react';
 
 import { productPath } from '@/lib/product-path';
 import type { ProductComparisonColumn, ProductComparisonData } from '@/lib/product-equipment-comparison';
+import { splitComparisonModelLabel } from '@/lib/product-equipment-comparison';
 import { cn } from '@/lib/utils';
 
 interface ProductDetailComparisonProps {
   data: ProductComparisonData;
   className?: string;
+}
+
+function ComparisonModelLabel({
+  label,
+  className,
+  productId,
+}: {
+  label: string;
+  className: string;
+  productId?: string;
+}) {
+  const { prefix, model } = splitComparisonModelLabel(label);
+
+  const content =
+    prefix != null ? (
+      <span className="flex w-full flex-col items-center gap-0.5">
+        <span className="text-[0.625rem] font-semibold leading-tight text-inherit opacity-90 sm:text-[0.6875rem]">
+          {prefix}
+        </span>
+        <span className={cn(className, 'text-balance leading-tight')}>{model}</span>
+      </span>
+    ) : (
+      <span className={cn(className, 'text-balance leading-tight')}>{label}</span>
+    );
+
+  if (productId) {
+    return (
+      <Link
+        to={productPath(productId)}
+        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }
 
 function ComparisonColumnHeader({
@@ -44,16 +82,11 @@ function ComparisonColumnHeader({
       </div>
 
       <div className="flex w-full flex-col items-center gap-0.5 text-center">
-        {column.productId ? (
-          <Link
-            to={productPath(column.productId)}
-            className={cn(labelClass, 'text-balance leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600')}
-          >
-            {column.modelLabel}
-          </Link>
-        ) : (
-          <span className={cn(labelClass, 'text-balance leading-tight')}>{column.modelLabel}</span>
-        )}
+        <ComparisonModelLabel
+          label={column.modelLabel}
+          className={labelClass}
+          {...(column.productId ? { productId: column.productId } : {})}
+        />
         {highlighted ? (
           <span className="text-[0.6875rem] font-medium leading-none text-red-600 sm:text-xs">
             (este equipo)

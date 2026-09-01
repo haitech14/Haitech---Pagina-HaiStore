@@ -14,6 +14,7 @@ import {
   HAITECH_SHOWCASE_SOFTWARE,
   HAITECH_SHOWCASE_SOFTWARE_CATEGORY_IMAGE,
 } from '@/data/haitech-showcase-software';
+import { HAITECH_SHOWCASE_COLABORACION } from '@/data/haitech-showcase-colaboracion';
 
 export type HaitechEquipmentShowcaseCategoryId =
   | 'multifuncionales'
@@ -124,7 +125,7 @@ export const HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES: readonly HaitechEquipmentSho
     id: 'pantallas-interactivas',
     label: 'Pantallas Interactivas',
     image: `${CHIP}/pantallas-interactivas.webp`,
-    to: categoryLandingPath('monitores'),
+    to: categoryLandingPath('soluciones-colaboracion'),
     filterMode: 'none',
     shopTabId: null,
   },
@@ -590,15 +591,48 @@ function showcasePricesFromPublicUsd(publicUsd: number): {
   };
 }
 
-/** Nuevo: precio técnico USD + recargo público → soles en vitrina. */
-function showcasePricesFromTecnicoUsd(
-  tecnicoUsd: number,
-  publicSurchargeUsd: number,
-): {
-  price: number;
-  compareAt: number;
-} {
-  return showcasePricesFromPublicUsd(tecnicoUsd + publicSurchargeUsd);
+/** Precio fijo en soles para vitrina (con compareAt comercial). */
+function showcaseFixedPenPrice(pricePen: number): { price: number; compareAt: number } {
+  return {
+    price: pricePen,
+    compareAt: showcaseCompareAtFromPen(pricePen),
+  };
+}
+
+/** Precio técnico USD por id de producto en vitrina (para vista previa admin). */
+const SHOWCASE_TECNICO_PRICE_USD: Readonly<Record<string, number>> = {
+  'im-430f': 899,
+  'mp-305-plus': 889,
+  'm-320f': 399,
+  'im-460f': 1049,
+  'im-550f': 1499,
+  'im-600f': 1869,
+  'im-2500': 3549,
+  'ricoh-im-2510': 3549,
+  '0aea108a-acd2-4ddd-af29-b2265097813c': 3999,
+  '40c36a2a-794e-41aa-b075-d855c218bf6f': 6399,
+  'c0ad567a-6ad7-4857-a087-fd574a903a04': 6899,
+  '7459b432-72a0-420a-8bff-015a0072f5ac': 8499,
+  'c44519d7-f600-43e5-8c08-b51f56d88b03': 11990,
+  '97079efe-de43-4619-b3f2-950d323fa773': 18800,
+  'ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2': 24700,
+  'im-c2010': 4579,
+  'im-c2510': 5889,
+  'im-c3010': 8949,
+  'im-c320f': 2490,
+  'im-c401f': 2690,
+  'im-c4510': 11850,
+  'im-c6010': 13619,
+  'pro-c5300': 38508,
+  'p-c600': 1999,
+  'p-801': 1199,
+  'im-c400f-reman': 1299,
+};
+
+export function resolveShowcaseEquipmentTecnicoUsd(product: HaitechShopProduct): number | null {
+  const byId = SHOWCASE_TECNICO_PRICE_USD[product.id];
+  if (byId != null && byId > 0) return byId;
+  return null;
 }
 
 /** Amplía el pool de la vitrina para poder cargar varias páginas con «Ver más». */
@@ -821,7 +855,7 @@ const HAITECH_SHOWCASE_REMANUFACTURADAS: readonly HaitechShopProduct[] = [
     code: 'IMC400F-RM',
     stock: 2,
     image: '/products/color-ricoh-im-c400f-120v.webp',
-    ...showcaseRemanPricesFromTecnicoUsd(1299),
+    ...showcaseRemanPricesFromTecnicoUsd(1519),
     discountLabel: '11% DSCT',
     features: SHOWCASE_EQUIPMENT_FEATURES,
     equipment: {
@@ -905,16 +939,18 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: 'MP-305+',
     stock: 5,
     image: '/products/ab878d89-61e0-4e51-a941-03455e1da407.webp',
-    ...showcasePricesFromPublicUsd(1069),
+    ...showcaseFixedPenPrice(3899),
+    discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: ['copia', 'escanea', 'imprime', 'rendimiento'],
     equipment: {
       speedPpm: '30 ppm',
       paperSize: 'A4 / A3',
-      scannerType: 'SPDF',
+      scannerType: 'ARDF',
       monthlyYield: '8.000 pág/mes',
     },
     tabIds: ['multifuncionales', 'ofertas'],
+    href: productPath('impresora-multifuncional-b-n-nueva-ricoh-mp-305-03455e1da407'),
   },
   {
     id: 'ricoh-im-2510',
@@ -923,7 +959,7 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: 'IM-2510',
     stock: 5,
     image: '/products/196857c6-738b-4162-90aa-50dee575bcd8.webp',
-    ...showcasePricesFromTecnicoUsd(3549, 250),
+    ...showcasePricesFromPublicUsd(4019),
     condition: 'nuevo',
     features: SHOWCASE_EQUIPMENT_FEATURES,
     equipment: {
@@ -933,6 +969,102 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
       monthlyYield: '15.000 pág/mes',
     },
     tabIds: ['multifuncionales', 'ofertas'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-2510-ricoh-im-2510'),
+  },
+  {
+    id: '0aea108a-acd2-4ddd-af29-b2265097813c',
+    name: 'Multifuncional RICOH IM 3000',
+    brand: 'RICOH',
+    code: '418844',
+    stock: 2,
+    image: '/products/0aea108a-acd2-4ddd-af29-b2265097813c.webp',
+    ...showcasePricesFromPublicUsd(4249),
+    condition: 'nuevo',
+    features: SHOWCASE_EQUIPMENT_FEATURES,
+    equipment: {
+      speedPpm: '30 ppm',
+      paperSize: 'A3',
+      scannerType: 'Estándar',
+      monthlyYield: '30.000 pág/mes',
+    },
+    tabIds: ['multifuncionales', 'ofertas'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-3000-b2265097813c'),
+  },
+  {
+    id: '40c36a2a-794e-41aa-b075-d855c218bf6f',
+    name: 'Multifuncional RICOH IM 4000 (SPDF)',
+    brand: 'RICOH',
+    code: '418846',
+    stock: 1,
+    image: '/products/40c36a2a-794e-41aa-b075-d855c218bf6f.webp',
+    ...showcasePricesFromPublicUsd(6999),
+    condition: 'nuevo',
+    features: SHOWCASE_EQUIPMENT_FEATURES,
+    equipment: {
+      speedPpm: '40 ppm',
+      paperSize: 'A3',
+      scannerType: 'SPDF',
+      monthlyYield: '50.000 pág/mes',
+    },
+    tabIds: ['multifuncionales', 'ofertas'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-4000-d855c218bf6f'),
+  },
+  {
+    id: 'c0ad567a-6ad7-4857-a087-fd574a903a04',
+    name: 'Multifuncional RICOH IM 5000 (SPDF)',
+    brand: 'RICOH',
+    code: '418847',
+    stock: 1,
+    image: '/products/c0ad567a-6ad7-4857-a087-fd574a903a04.webp',
+    ...showcasePricesFromPublicUsd(7149),
+    condition: 'nuevo',
+    features: SHOWCASE_EQUIPMENT_FEATURES,
+    equipment: {
+      speedPpm: '50 ppm',
+      paperSize: 'A3',
+      scannerType: 'SPDF',
+      monthlyYield: '50.000 pág/mes',
+    },
+    tabIds: ['multifuncionales', 'ofertas'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-5000-fd574a903a04'),
+  },
+  {
+    id: '7459b432-72a0-420a-8bff-015a0072f5ac',
+    name: 'Multifuncional RICOH IM 6010 (SPDF)',
+    brand: 'RICOH',
+    code: '423796',
+    stock: 1,
+    image: '/products/ricoh-im-6010-spdf.webp',
+    ...showcasePricesFromPublicUsd(8749),
+    condition: 'nuevo',
+    features: SHOWCASE_EQUIPMENT_FEATURES,
+    equipment: {
+      speedPpm: '60 ppm',
+      paperSize: 'A3',
+      scannerType: 'SPDF',
+      monthlyYield: '80.000 pág/mes',
+    },
+    tabIds: ['multifuncionales', 'ofertas'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-6010-7459b432-72a'),
+  },
+  {
+    id: 'c44519d7-f600-43e5-8c08-b51f56d88b03',
+    name: 'Multifuncional RICOH IM 7000',
+    brand: 'RICOH',
+    code: '418779',
+    stock: 1,
+    image: '/products/c44519d7-f600-43e5-8c08-b51f56d88b03.webp',
+    ...showcasePricesFromPublicUsd(12240),
+    condition: 'nuevo',
+    features: SHOWCASE_EQUIPMENT_FEATURES,
+    equipment: {
+      speedPpm: '70 ppm',
+      paperSize: 'A3',
+      scannerType: 'Estándar',
+      monthlyYield: '200.000 pág/mes',
+    },
+    tabIds: ['multifuncionales', 'ofertas'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-7000-b51f56d88b03'),
   },
   {
     id: 'ricoh-im-3010',
@@ -995,7 +1127,7 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '418782',
     stock: 0,
     image: '/products/97079efe-de43-4619-b3f2-950d323fa773.webp',
-    ...showcasePricesFromTecnicoUsd(18800, 300),
+    ...showcasePricesFromPublicUsd(19320),
     condition: 'nuevo',
     features: SHOWCASE_EQUIPMENT_FEATURES,
     equipment: {
@@ -1013,7 +1145,7 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '418787',
     stock: 0,
     image: '/products/ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2.webp',
-    ...showcasePricesFromTecnicoUsd(24700, 300),
+    ...showcasePricesFromPublicUsd(25220),
     condition: 'nuevo',
     features: SHOWCASE_EQUIPMENT_FEATURES,
     equipment: {
@@ -1031,9 +1163,8 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: 'IMC3010',
     stock: 7,
     image: '/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp',
-    price: 10999,
-    compareAt: 12499,
-    discountLabel: '12% DSCT',
+    ...showcasePricesFromPublicUsd(9419),
+    discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: ['copia', 'escanea', 'imprime', 'rendimiento'],
     equipment: {
@@ -1051,9 +1182,8 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: 'IMC2510',
     stock: 9,
     image: '/products/e1bffdf0-3515-468e-859a-990d1cb12561.webp',
-    price: 9499,
-    compareAt: 10499,
-    discountLabel: '10% DSCT',
+    ...showcasePricesFromPublicUsd(6359),
+    discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: ['copia', 'escanea', 'imprime', 'rendimiento'],
     equipment: {
@@ -1071,7 +1201,7 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '418843',
     stock: 2,
     image: '/products/a9c74a93-3a15-42da-a9cf-33d59e2b1019.webp',
-    ...showcasePricesFromPublicUsd(12100),
+    ...showcasePricesFromPublicUsd(12320),
     condition: 'nuevo',
     features: ['copia', 'escanea', 'imprime', 'rendimiento'],
     equipment: {
@@ -1089,7 +1219,7 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '418843',
     stock: 0,
     image: '/products/e1bffdf0-3515-468e-859a-990d1cb12561.webp',
-    ...showcasePricesFromPublicUsd(13869),
+    ...showcasePricesFromPublicUsd(14089),
     condition: 'nuevo',
     features: ['copia', 'escanea', 'imprime', 'rendimiento'],
     equipment: {
@@ -1107,7 +1237,7 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '409392',
     stock: 1,
     image: '/products/de-producci-n-laser-color-ricoh-pro-c5300s.webp',
-    ...showcasePricesFromPublicUsd(38728),
+    ...showcasePricesFromPublicUsd(38948),
     condition: 'nuevo',
     features: ['copia', 'escanea', 'imprime', 'rendimiento'],
     equipment: {
@@ -1125,9 +1255,8 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '423693',
     stock: 0,
     image: '/products/5a142c47-521c-47af-92ec-dda8808907c9.webp',
-    price: 6799,
-    compareAt: 7499,
-    discountLabel: '9% DSCT',
+    ...showcasePricesFromPublicUsd(3219),
+    discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: ['copia', 'escanea', 'imprime', 'rendimiento'],
     equipment: {
@@ -1145,9 +1274,8 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '418787',
     stock: 0,
     image: '/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp',
-    price: 4299,
-    compareAt: 4799,
-    discountLabel: '10% DSCT',
+    ...showcasePricesFromPublicUsd(1477),
+    discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: ['copia', 'escanea', 'imprime', 'rendimiento'],
     equipment: {
@@ -1184,7 +1312,7 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     code: '408535-CPXSYU',
     stock: 9,
     image: '/products/d53b0f11-e996-4f06-8857-13fc8a6d9eb8.webp',
-    ...showcasePricesFromPublicUsd(2299),
+    ...showcasePricesFromPublicUsd(2519),
     discountLabel: '11% DSCT',
     condition: 'nuevo',
     features: ['imprime', 'rendimiento'],
@@ -1297,6 +1425,13 @@ export function formatEquipmentShowcaseFullTitle(product: HaitechShopProduct): s
   }
 
   if (product.showcaseCategoryIds?.includes('escaneres')) {
+    return product.name.replace(/\s+/g, ' ').trim();
+  }
+
+  if (
+    product.showcaseCategoryIds?.includes('pantallas-interactivas') ||
+    product.showcaseCategoryIds?.includes('videoconferencia')
+  ) {
     return product.name.replace(/\s+/g, ' ').trim();
   }
 
@@ -1497,6 +1632,7 @@ function showcaseProductPool(): HaitechShopProduct[] {
     ...HAITECH_SHOWCASE_REMANUFACTURADAS,
     ...HAITECH_SHOWCASE_SOFTWARE,
     ...HAITECH_SHOWCASE_ESCANERES,
+    ...HAITECH_SHOWCASE_COLABORACION,
   ]) {
     if (seenIds.has(product.id)) continue;
     const key = showcaseProductDedupeKey(product);
@@ -1534,6 +1670,28 @@ function isAccesorioProduct(product: HaitechShopProduct): boolean {
     return false;
   }
   return product.tabIds.includes('accesorios');
+}
+
+function isPantallasInteractivasShowcaseProduct(product: HaitechShopProduct): boolean {
+  const haystack = product.name.toLowerCase();
+  return (
+    haystack.includes('pizarra interactiva') ||
+    haystack.includes('pantalla interactiva') ||
+    haystack.includes('ifpd')
+  );
+}
+
+function isVideoconferenciaShowcaseProduct(product: HaitechShopProduct): boolean {
+  const haystack = product.name.toLowerCase();
+  return (
+    haystack.includes('videoconferencia') ||
+    haystack.includes('sala de reunion') ||
+    haystack.includes('conferencia nearity') ||
+    haystack.includes('jabra speak') ||
+    haystack.includes('panacast') ||
+    /\b(camara|c[aá]mara).*(conferencia|web)\b/i.test(product.name) ||
+    /\baltavoz para conferencias\b/i.test(product.name)
+  );
 }
 
 function matchesShowcaseCategory(
@@ -1575,6 +1733,12 @@ function matchesShowcaseCategory(
   }
   if (category.id === 'escaneres') {
     return product.showcaseCategoryIds?.includes('escaneres') ?? false;
+  }
+  if (category.id === 'pantallas-interactivas') {
+    return isPantallasInteractivasShowcaseProduct(product);
+  }
+  if (category.id === 'videoconferencia') {
+    return isVideoconferenciaShowcaseProduct(product);
   }
   if (!category.shopTabId) return false;
   if (product.tabIds.includes(category.shopTabId)) return true;
@@ -1647,6 +1811,8 @@ export function filterEquipmentShowcaseProducts(options: {
     'accesorios',
     'software',
     'escaneres',
+    'pantallas-interactivas',
+    'videoconferencia',
   ]);
 
   if (category.filterMode === 'none' && !category.shopTabId) {
@@ -1691,7 +1857,7 @@ export function filterEquipmentShowcaseProducts(options: {
       if (
         !isSpecialShowcase &&
         !product.equipment &&
-        !/multifuncional|impresora|plotter|laptop|monitor|mueble|cassetera|optiplex|esc[aá]ner|scanner|scansnap/i.test(
+        !/multifuncional|impresora|plotter|laptop|monitor|mueble|cassetera|optiplex|esc[aá]ner|scanner|scansnap|pizarra|pantalla interactiva|ifpd|videoconferencia|jabra|nearity|panacast/i.test(
           product.name,
         )
       ) {
@@ -1701,6 +1867,8 @@ export function filterEquipmentShowcaseProducts(options: {
       const skipConditionFilter =
         category.id === 'monitores' ||
         category.id === 'software' ||
+        category.id === 'pantallas-interactivas' ||
+        category.id === 'videoconferencia' ||
         (category.id === 'accesorios' &&
           Boolean(product.showcaseCategoryIds?.includes('accesorios')));
       if (!skipConditionFilter && !matchesCondition(product, options.condition)) return false;
@@ -1735,6 +1903,13 @@ export function filterEquipmentShowcaseProducts(options: {
       const aOnRequest = a.price <= 0;
       const bOnRequest = b.price <= 0;
       if (aOnRequest !== bOnRequest) return aOnRequest ? 1 : -1;
+
+      if (category.filterMode === 'equipment') {
+        const aIsColor = resolveEquipmentCardSpecs(a).printMode === 'Color' ? 1 : 0;
+        const bIsColor = resolveEquipmentCardSpecs(b).printMode === 'Color' ? 1 : 0;
+        if (aIsColor !== bIsColor) return aIsColor - bIsColor;
+      }
+
       return a.price - b.price;
     });
 

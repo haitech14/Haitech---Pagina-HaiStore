@@ -235,16 +235,21 @@ export function getCatalogUrgencyLabel(product: Product): CatalogUrgencyLabel | 
   return null;
 }
 
-export function getCatalogCardPricing(product: Pick<Product, 'id' | 'price'>): ProductCardPricing {
+export function getCatalogCardPricing(
+  product: Pick<Product, 'id' | 'price'> & { category?: string | null },
+): ProductCardPricing {
   const catalogRow = getCatalogProductById(product.id);
   const compareAt = catalogRow?.compare_at_price_usd;
 
   if (compareAt != null && compareAt > product.price) {
     return resolveProductCardPricing(product.id, product.price, {
+      ...(product.category !== undefined ? { category: product.category } : {}),
       oldPrice: compareAt,
       discount: Math.round((1 - product.price / compareAt) * 100),
     });
   }
 
-  return resolveProductCardPricing(product.id, product.price);
+  return resolveProductCardPricing(product.id, product.price, {
+    ...(product.category !== undefined ? { category: product.category } : {}),
+  });
 }

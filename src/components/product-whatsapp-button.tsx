@@ -33,6 +33,8 @@ interface ProductWhatsAppButtonProps {
   quantity?: number;
   /** Estilo del botón cuando hay etiqueta. */
   accent?: 'solid' | 'outline';
+  /** Texto compacto alineado al botón «Comprar» de tarjetas de vitrina. */
+  compact?: boolean;
   /** Contexto para generar cotización PDF (ficha de producto). */
   quoteContext?: ProductQuoteContext;
   /** Callback al generar cotización (p. ej. abrir visor PDF en la ficha). */
@@ -53,6 +55,7 @@ export function ProductWhatsAppButton({
   label,
   quantity,
   accent = 'solid',
+  compact = false,
   quoteContext,
   onQuoteGenerated,
   skipDialogIfComplete = false,
@@ -203,8 +206,12 @@ export function ProductWhatsAppButton({
         className={cn(
           label
             ? accent === 'outline'
-              ? 'min-h-11 gap-2 border border-[#25D366] bg-white px-3 text-sm font-bold uppercase tracking-wide text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
-              : 'min-h-9 gap-1.5 bg-[#25D366] px-2 text-xs font-semibold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
+              ? compact
+                ? 'h-9 min-h-9 gap-1.5 border border-[#25D366] bg-white px-2.5 text-[10px] font-bold normal-case tracking-normal text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:h-10 sm:min-h-10 sm:px-3 sm:text-[12px]'
+                : 'min-h-11 gap-2 border border-[#25D366] bg-white px-3 text-sm font-bold uppercase tracking-wide text-[#25D366] hover:border-[#25D366] hover:bg-[#25D366] hover:text-white focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
+              : compact
+                ? 'h-9 min-h-9 gap-1.5 bg-[#25D366] px-2 text-[10px] font-bold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:h-10 sm:min-h-10'
+                : 'min-h-9 gap-1.5 bg-[#25D366] px-2 text-xs font-semibold text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-2'
             : 'h-10 w-10 min-h-10 min-w-10 shrink-0 rounded-[0.65rem] border-0 bg-[#25D366] text-white hover:bg-[#20bd5a] focus-visible:ring-[#25D366] focus-visible:ring-offset-2',
           className,
         )}
@@ -216,7 +223,12 @@ export function ProductWhatsAppButton({
         onClick={handleClick}
         disabled={isProcessing}
       >
-        <Icon path={mdiWhatsapp} size={0.95} color="currentColor" aria-hidden="true" />
+        <Icon
+          path={mdiWhatsapp}
+          size={compact ? 0.82 : 0.95}
+          color="currentColor"
+          aria-hidden="true"
+        />
         {label ? <span className="truncate">{label}</span> : null}
       </Button>
 

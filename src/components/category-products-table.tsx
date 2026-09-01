@@ -963,7 +963,10 @@ function CategoryProductTableRow({
               });
             }}
           >
-            <CategoryTableRolePricing priceUsd={rolePrices[priceRole]} />
+            <CategoryTableRolePricing
+              priceUsd={rolePrices[priceRole]}
+              category={product.category}
+            />
           </InlineEditableNumberCell>
         </TableCell>
       ))}

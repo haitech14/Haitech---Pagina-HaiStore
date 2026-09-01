@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from 'react';
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { Headphones, ChevronDown, Heart, Menu, ShoppingCart, User } from 'lucide-react';
+import { Headphones, ChevronDown, Heart, Menu, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+import { AccountDropdown } from '@/components/layout/account-dropdown';
 
 import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
 import { HeaderCurrencySymbolToggle, resolveHeaderCurrencyLabel } from '@/components/layout/header-currency-control';
@@ -208,23 +210,14 @@ export function HaitechHomeMainHeader({ className }: { className?: string }) {
           <HeaderSalesSupportContacts />
 
           <div className="ml-auto flex shrink-0 items-center gap-1 sm:ml-0 sm:gap-2.5">
-            <HeaderAction
-              bare
-              to="/login"
-              icon={<User className="size-[20px]" strokeWidth={1.75} aria-hidden="true" />}
-              label="Iniciar sesión"
+            <AccountDropdown
+              triggerVariant="icon"
+              tone="light"
+              triggerClassName="size-9 text-[#222] hover:text-[#222] hover:opacity-70"
             />
-            <HeaderAction
-              bare
-              onClick={openCart}
-              icon={
-                <span className="relative">
-                  <ShoppingCart className="size-[20px]" strokeWidth={1.75} aria-hidden="true" />
-                  <HeaderIconBadge count={totalItems} />
-                </span>
-              }
-              label="Mi carrito"
-            />
+            <div className="hidden sm:block">
+              <HeaderCurrencyAction />
+            </div>
             <HeaderAction
               bare
               className="hidden sm:inline-flex"
@@ -237,9 +230,17 @@ export function HaitechHomeMainHeader({ className }: { className?: string }) {
               }
               label="Mis favoritos"
             />
-            <div className="hidden sm:block">
-              <HeaderCurrencyAction />
-            </div>
+            <HeaderAction
+              bare
+              onClick={openCart}
+              icon={
+                <span className="relative">
+                  <ShoppingCart className="size-[20px]" strokeWidth={1.75} aria-hidden="true" />
+                  <HeaderIconBadge count={totalItems} />
+                </span>
+              }
+              label="Mi carrito"
+            />
           </div>
         </div>
 

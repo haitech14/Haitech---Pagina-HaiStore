@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { ProductCardImage } from '@/components/product/product-card-image';
+import { ProductImageWatermarkOverlay } from '@/components/product/product-image-watermark-overlay';
 import { ProductNoImagePlaceholder } from '@/components/product/product-no-image-placeholder';
 import { cn } from '@/lib/utils';
 
@@ -96,6 +97,61 @@ export function ProductCardHoverImage({
   const hasHoverSwap = Boolean(resolvedHoverSrc);
   const hasHoverZoom = hoverCapable && !canHoverSwap;
 
+  const imageLayers = (
+    <>
+      <div
+        className={cn(
+          'absolute inset-0 flex items-center justify-center',
+          hasHoverSwap &&
+            'group-hover/image:invisible group-focus-within/image:invisible motion-reduce:group-hover/image:visible motion-reduce:group-focus-within/image:visible',
+        )}
+      >
+        <ProductCardImage
+          src={primarySrc}
+          alt={alt}
+          loading={loading}
+          {...(fetchPriority ? { fetchPriority } : {})}
+          disableWatermark
+          className={cn(
+            imageClassName,
+            hasHoverZoom &&
+              'transition-transform duration-300 ease-out group-hover/image:scale-105 motion-reduce:transition-none motion-reduce:transform-none',
+          )}
+          {...(overlayClassName ? { overlayClassName } : {})}
+          {...(watermarkClassName ? { watermarkClassName } : {})}
+          onError={() => markFailed(displayIndex)}
+        />
+      </div>
+      {resolvedHoverSrc ? (
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-0 flex items-center justify-center',
+            'invisible group-hover/image:visible group-focus-within/image:visible',
+          )}
+        >
+          <ProductCardImage
+            src={resolvedHoverSrc}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            disableWatermark
+            className={imageClassName}
+            {...(overlayClassName ? { overlayClassName } : {})}
+            {...(watermarkClassName ? { watermarkClassName } : {})}
+            onError={() => {
+              if (hoverSrc && resolvedHoverSrc === hoverSrc) {
+                setHoverFailed(true);
+                return;
+              }
+              const failedIndex = candidates.indexOf(resolvedHoverSrc ?? '');
+              if (failedIndex >= 0) markFailed(failedIndex);
+            }}
+          />
+        </div>
+      ) : null}
+    </>
+  );
+
   return (
     <div
       className={cn(
@@ -114,53 +170,13 @@ export function ProductCardHoverImage({
         }
       }}
     >
-      <div
-        className={cn(
-          'absolute inset-0 flex items-center justify-center',
-          hasHoverSwap &&
-            'transition-opacity duration-300 ease-out group-hover/image:opacity-0 motion-reduce:transition-none motion-reduce:group-hover/image:opacity-100',
-        )}
+      <ProductImageWatermarkOverlay
+        src={primarySrc}
+        className="size-full"
+        {...(watermarkClassName ? { watermarkClassName } : {})}
       >
-        <ProductCardImage
-          src={primarySrc}
-          alt={alt}
-          loading={loading}
-          {...(fetchPriority ? { fetchPriority } : {})}
-          className={cn(
-            imageClassName,
-            hasHoverZoom &&
-              'transition-transform duration-300 ease-out group-hover/image:scale-105 motion-reduce:transition-none motion-reduce:transform-none',
-          )}
-          {...(overlayClassName ? { overlayClassName } : {})}
-          {...(watermarkClassName ? { watermarkClassName } : {})}
-          onError={() => markFailed(displayIndex)}
-        />
-      </div>
-      {resolvedHoverSrc ? (
-        <div
-          className={cn(
-            'pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 ease-out group-hover/image:opacity-100 motion-reduce:transition-none motion-reduce:group-hover/image:opacity-100',
-          )}
-        >
-          <ProductCardImage
-            src={resolvedHoverSrc}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            className={imageClassName}
-            {...(overlayClassName ? { overlayClassName } : {})}
-            {...(watermarkClassName ? { watermarkClassName } : {})}
-            onError={() => {
-              if (hoverSrc && resolvedHoverSrc === hoverSrc) {
-                setHoverFailed(true);
-                return;
-              }
-              const failedIndex = candidates.indexOf(resolvedHoverSrc ?? '');
-              if (failedIndex >= 0) markFailed(failedIndex);
-            }}
-          />
-        </div>
-      ) : null}
+        {imageLayers}
+      </ProductImageWatermarkOverlay>
     </div>
   );
 }

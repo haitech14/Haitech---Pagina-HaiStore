@@ -41,6 +41,9 @@ export function HeaderDesktopActions({
       <AccountDropdown
         triggerVariant={labeled ? 'labeled' : 'strip'}
         tone={variant}
+        {...(labeled
+          ? { triggerClassName: cn(headerDarkUtilityButtonClass(), 'size-auto min-h-9 rounded-lg') }
+          : {})}
       />
 
       <button

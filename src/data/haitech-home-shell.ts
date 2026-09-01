@@ -89,6 +89,41 @@ export const HAITECH_NAV_QUOTE_HREF = buildHaitechWhatsAppUrl(
   'Hola HAITECH, quiero comprar por WhatsApp.',
 );
 
+/** Barra secundaria bajo el header — enlaces planos y con mega menú. */
+export const HAITECH_HOME_SECONDARY_NAV_LINKS = [
+  {
+    id: 'tienda',
+    label: 'Tienda',
+    href: '/tienda',
+  },
+  {
+    id: 'equipos',
+    label: 'Equipos',
+    href: storeShowcasePath({ categoryId: 'multifuncionales' }),
+    menu: 'equipos',
+  },
+  {
+    id: 'consumibles',
+    label: 'Consumibles',
+    href: storeShowcasePath({ categoryId: 'toner' }),
+    menu: 'consumibles',
+  },
+  {
+    id: 'servicio-tecnico',
+    label: 'Servicio Técnico',
+    href: serviceHubPath('servicio-tecnico'),
+    menu: 'servicio-tecnico',
+  },
+  {
+    id: 'alquiler',
+    label: 'Alquiler',
+    href: serviceHubPath('alquiler'),
+    menu: 'alquiler',
+  },
+] as const;
+
+export type HaitechHomeSecondaryNavLink = (typeof HAITECH_HOME_SECONDARY_NAV_LINKS)[number];
+
 /** @deprecated Preferir LEFT/RIGHT; se mantiene por compatibilidad. */
 export const HAITECH_PRIMARY_CATEGORIES = [
   ...HAITECH_PRIMARY_CATEGORIES_LEFT,
@@ -190,18 +225,18 @@ export const HAITECH_HOME_WHATSAPP_URL = buildHaitechWhatsAppUrl(
   'Hola HAITECH, quiero comprar / cotizar por WhatsApp.',
 );
 
-/** Banner intermedio home — repuestos originales Ricoh. */
-export const HAITECH_HOME_MID_BANNER = {
-  png: '/hero/haitech-home-mid-banner-cropped.png',
-  webp: '/hero/haitech-home-mid-banner-cropped.webp',
-  width: 1779,
-  height: 445,
-  alt: 'Repuestos originales para fotocopiadoras Ricoh — calidad garantizada y disponibilidad inmediata',
-  href: storeShowcasePath({ categoryId: 'repuestos' }),
-} as const;
-
 /** Banners intermedios de servicio técnico y alquiler. */
 export const HAITECH_HOME_POST_SERVICES_BANNERS = [
+  {
+    id: 'mid-alquiler',
+    png: '/hero/haitech-home-mid-banner-alquiler.png',
+    width: 1774,
+    height: 375,
+    alt: 'Alquiler de equipos Ricoh — planes flexibles para empresas',
+    href: serviceHubPath('alquiler'),
+    mobileWidthPercent: 228,
+    desktopScale: 0.93,
+  },
   {
     id: 'mid-servicio',
     png: '/hero/haitech-home-mid-banner-servicio.png',
@@ -210,14 +245,23 @@ export const HAITECH_HOME_POST_SERVICES_BANNERS = [
     alt: 'Servicio técnico especializado HAITECH — diagnóstico, mantenimiento y reparaciones',
     href: serviceHubPath('servicio-tecnico'),
   },
-  {
-    id: 'mid-alquiler',
-    png: '/hero/haitech-home-mid-banner-alquiler.png',
-    width: 1774,
-    height: 375,
-    alt: 'Alquiler de equipos Ricoh — planes flexibles para empresas',
-    href: serviceHubPath('alquiler'),
-  },
+] as const;
+
+/** Banner intermedio home — repuestos originales Ricoh. */
+export const HAITECH_HOME_MID_BANNER = {
+  id: 'mid-repuestos',
+  png: '/hero/haitech-home-mid-banner-cropped.png',
+  webp: '/hero/haitech-home-mid-banner-cropped.webp',
+  width: 1779,
+  height: 445,
+  alt: 'Repuestos originales para fotocopiadoras Ricoh — calidad garantizada y disponibilidad inmediata',
+  href: storeShowcasePath({ categoryId: 'repuestos' }),
+} as const;
+
+/** Carrusel «Nuestros Servicios»: alquiler → servicio técnico → repuestos (1 slide visible). */
+export const HAITECH_HOME_SERVICES_CAROUSEL_BANNERS = [
+  ...HAITECH_HOME_POST_SERVICES_BANNERS,
+  HAITECH_HOME_MID_BANNER,
 ] as const;
 
 /** Encabezado de la sección Nuestros Servicios (encima del banner de alquiler). */
@@ -241,8 +285,8 @@ export const HAITECH_HOME_HERO_SLIDES = [
     srcPng: '/hero/haitech-home-hero-slide-3.png',
     alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
     href: HAITECH_HOME_WHATSAPP_URL,
-    /** Móvil: zoom al lockup RICOH + titular. */
-    mobileObjectPosition: 'left 18%',
+    /** Móvil: centra lockup RICOH + titular entre las flechas del carrusel. */
+    mobileObjectPosition: '58% center',
     objectPosition: 'center 50%',
   },
   {
@@ -250,7 +294,7 @@ export const HAITECH_HOME_HERO_SLIDES = [
     src: '/hero/haitech-home-hero.png',
     alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
     href: HAITECH_HOME_WHATSAPP_URL,
-    mobileObjectPosition: 'left 16%',
+    mobileObjectPosition: 'center center',
     /** Recorta margen superior y centra el contenido principal. */
     objectPosition: 'center 62%',
   },
@@ -259,7 +303,7 @@ export const HAITECH_HOME_HERO_SLIDES = [
     src: '/hero/haitech-home-hero-slide-2.png',
     alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
     href: HAITECH_HOME_WHATSAPP_URL,
-    mobileObjectPosition: 'left 20%',
+    mobileObjectPosition: 'center center',
     objectPosition: 'center 70%',
   },
 ] as const;

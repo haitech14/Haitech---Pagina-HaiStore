@@ -123,7 +123,7 @@ export function createEmptyInventoryProduct(): InventoryProduct {
     attributes: [],
     created_at: new Date().toISOString(),
     sort_order: 0,
-    status: 'borrador',
+    status: 'activa',
     prices: ensureFullPrices({}),
     volume_role_prices: [],
   };

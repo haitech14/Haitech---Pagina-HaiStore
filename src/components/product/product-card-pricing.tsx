@@ -25,6 +25,7 @@ interface ProductCardPricingProps {
   priceUsd: number;
   oldPriceUsd?: number;
   discountPercent?: number;
+  category?: string | null;
   /** Solo soles (ofertas relámpago). */
   penOnly?: boolean;
   /** Vitrina de productos destacados (tipografía de precio más grande). */
@@ -38,11 +39,13 @@ export function ProductCardPricing({
   priceUsd,
   oldPriceUsd,
   discountPercent,
+  category,
   penOnly = false,
   featured = false,
   variant = 'card',
 }: ProductCardPricingProps) {
   const pricing = resolveProductCardPricing(productId, priceUsd, {
+    ...(category !== undefined ? { category } : {}),
     ...(oldPriceUsd != null ? { oldPrice: oldPriceUsd } : {}),
     ...(discountPercent != null ? { discount: discountPercent } : {}),
   });

@@ -8,12 +8,13 @@ import {
   ScanLine,
   ShoppingCart,
 } from 'lucide-react';
-import { mdiWhatsapp } from '@mdi/js';
-import { Icon } from '@mdi/react';
 import { Link } from 'react-router-dom';
 
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
+import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
+import { ProductRating } from '@/components/product/product-rating';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
+import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
@@ -26,9 +27,9 @@ import {
   type HaitechShopFeatureId,
   type HaitechShopProduct,
 } from '@/data/haitech-home-shop';
-import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { getDisplayPriceVisibility } from '@/lib/display-price';
+import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
 import { penToUsd, cn } from '@/lib/utils';
 import type { WishlistItem } from '@/lib/wishlist-product';
 import type { Product } from '@/types/product';
@@ -87,9 +88,11 @@ function toCartProduct(product: HaitechShopProduct, saleRate?: number): Product 
 }
 
 function formatHaitechUsd(usd: number): string {
-  return `US$ ${usd.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+  const normalized = Math.round(usd * 100) / 100;
+  const isWhole = Math.abs(normalized % 1) < 0.001;
+  return `US$ ${normalized.toLocaleString('en-US', {
+    minimumFractionDigits: isWhole ? 0 : 2,
+    maximumFractionDigits: isWhole ? 0 : 2,
   })}`;
 }
 
@@ -104,32 +107,6 @@ function formatHaitechProductDisplayTitle(product: HaitechShopProduct): string {
     .trim();
 
   return baseName;
-}
-
-function buildProductQuoteExtraLines(product: HaitechShopProduct, priceUsd: number): string[] {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://haitech.pe';
-  const productUrl = product.href ? `${origin}${product.href}` : origin;
-  const lines = [
-    'Quiero *comprar* este producto:',
-    '',
-    `*${formatHaitechProductDisplayTitle(product)}*`,
-    `Precio: *${formatHaitechPen(product.price)}* · *${formatHaitechUsd(priceUsd)}*`,
-  ];
-
-  if (product.discountLabel) {
-    lines.push(`Descuento: ${product.discountLabel}`);
-  }
-
-  if (product.toner) {
-    lines.push(
-      `Tipo: *${product.toner.original ? 'Original' : 'Compatible'}*`,
-      `Rendimiento: *${product.toner.yieldLabel}*`,
-      `Color: *${product.toner.colorLabel}*`,
-    );
-  }
-
-  lines.push('', `Link: ${productUrl}`);
-  return lines;
 }
 
 function haitechShopProductToWishlistItem(
@@ -157,21 +134,35 @@ function resolveClipboardCondition(product: HaitechShopProduct): string | undefi
 export function HaitechHomeProductCard({
   product,
   className,
+  variant = 'default',
 }: {
   product: HaitechShopProduct;
   className?: string;
+  /** Destacados del home: subtítulo, valoración y título completo. */
+  variant?: 'default' | 'featured';
 }) {
   const { addItem } = useCart();
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
-  const { requestQuote } = useHaitechWhatsAppQuoteContext();
   const { data: companySettings } = useCompanySettings();
   const saleRate = companySettings?.usdToPenExchangeRate;
   const [imgError, setImgError] = useState(false);
-  const priceUsd = penToUsd(product.price, saleRate);
+  const [quantity, setQuantity] = useState(1);
+  const isConsumableProduct = Boolean(product.toner);
+  const rawPriceUsd = penToUsd(product.price, saleRate);
+  const priceUsd = isConsumableProduct
+    ? rawPriceUsd
+    : roundEquipmentDisplayUsd(rawPriceUsd);
   const displayTitle = formatHaitechProductDisplayTitle(product);
+  const featuredTitle = product.featuredTitle ?? displayTitle;
+  const isFeaturedVariant = variant === 'featured';
   const features = product.features?.length
     ? HAITECH_SHOP_EQUIPMENT_FEATURES.filter((f) => product.features?.includes(f.id))
     : [];
+  const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const hasStock = product.stock != null;
+  const outOfStock = hasStock && stockCount <= 0;
+  const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
+  const cartProduct = toCartProduct(product, saleRate);
   const mediaBlock = (
     <div className="relative">
       <CardMedia product={product} imgError={imgError} onImgError={() => setImgError(true)} />
@@ -191,7 +182,7 @@ export function HaitechHomeProductCard({
   return (
     <article
       className={cn(
-        'group/card relative flex w-full flex-col overflow-hidden rounded-xl border bg-white p-2.5',
+        'group group/card relative flex w-full flex-col overflow-hidden rounded-xl border bg-white p-2.5',
         'shadow-[0_4px_18px_rgba(15,31,61,0.07)] transition-shadow duration-300 hover:shadow-[0_8px_24px_rgba(15,31,61,0.1)]',
         'sm:p-4',
         className,
@@ -207,6 +198,8 @@ export function HaitechHomeProductCard({
           <CardInfo
             product={product}
             priceUsd={priceUsd}
+            displayTitle={isFeaturedVariant ? featuredTitle : displayTitle}
+            variant={variant}
             {...(saleRate != null ? { saleRate } : {})}
           />
         </Link>
@@ -216,60 +209,49 @@ export function HaitechHomeProductCard({
           <CardInfo
             product={product}
             priceUsd={priceUsd}
+            displayTitle={isFeaturedVariant ? featuredTitle : displayTitle}
+            variant={variant}
             {...(saleRate != null ? { saleRate } : {})}
           />
         </div>
       )}
 
-      <div className="mt-2 flex items-center gap-1.5 sm:mt-3 sm:gap-2">
-        <button
-          type="button"
-          onClick={() => addItem(toCartProduct(product, saleRate), { openDrawer: true })}
-          className={cn(
-            'inline-flex h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg border px-1.5 sm:h-10 sm:gap-2 sm:px-3',
-            'border-[#E30613] bg-[#E30613] text-[10px] font-bold text-white sm:text-[13px]',
-            'transition-colors hover:border-[#c90511] hover:bg-[#c90511]',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-offset-2',
+      <div className="mt-2 flex justify-center sm:mt-3">
+        <ProductQuantityAddFooter
+          product={cartProduct}
+          size="sm"
+          addLabel={buyNowLabel}
+          revealQuantityOnHover
+          onQuantityChange={setQuantity}
+          quantityClassName="h-9 rounded-lg sm:h-10"
+          addButtonClassName={cn(
+            'h-9 min-h-9 max-h-9 flex-none rounded-lg px-4 text-[10px] font-bold shadow-none sm:h-10 sm:min-h-10 sm:max-h-10 sm:px-5 sm:text-[13px]',
+            outOfStock
+              ? 'bg-[#111111] hover:bg-[#222222]'
+              : 'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
           )}
-        >
-          <ShoppingCart className="size-3.5 shrink-0 sm:size-4" strokeWidth={2} aria-hidden="true" />
-          <span className="truncate sm:hidden">Añadir</span>
-          <span className="hidden truncate sm:inline">Añadir al carrito</span>
-        </button>
-        <button
-          type="button"
-          onClick={() =>
-            requestQuote({
-              campaign: 'product-card',
-              extraLines: buildProductQuoteExtraLines(product, priceUsd),
-              requireDialog: true,
-              title: 'Comprar por WhatsApp',
-              description:
-                'Completa tus datos para enviar el mensaje con el producto y el precio a nuestro equipo de ventas.',
-              submitLabel: 'Enviar por WhatsApp',
-            })
+          centeredActions
+          belowAlways
+          belowOnHover={
+            <ProductWhatsAppButton
+              stopPropagation
+              skipDialogIfComplete
+              accent="outline"
+              compact
+              label="Comprar por WhatsApp"
+              quantity={quantity}
+              product={{
+                id: cartProduct.id,
+                name: isFeaturedVariant ? featuredTitle : displayTitle,
+                priceUsd,
+                category: cartProduct.category,
+                brand: cartProduct.brand ?? null,
+                ...(product.code ? { code: product.code } : {}),
+              }}
+              className="w-full rounded-lg"
+            />
           }
-          aria-label="Comprar por WhatsApp"
-          className={cn(
-            'group/wa inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-[0.65rem] sm:h-10 sm:w-10',
-            'bg-[#25D366] text-white shadow-sm',
-            'transition-[max-width,padding,background-color] duration-300 ease-out',
-            'hover:max-w-[11.5rem] hover:bg-[#20BD5A] hover:px-3',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/50 focus-visible:ring-offset-2',
-          )}
-        >
-          <Icon path={mdiWhatsapp} size={0.95} color="white" className="shrink-0" aria-hidden="true" />
-          <span
-            className={cn(
-              'ml-0 max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-semibold text-white opacity-0',
-              'transition-[max-width,margin,opacity] duration-300 ease-out',
-              'group-hover/wa:ml-2 group-hover/wa:max-w-[9rem] group-hover/wa:opacity-100',
-              'group-focus-visible/wa:ml-2 group-focus-visible/wa:max-w-[9rem] group-focus-visible/wa:opacity-100',
-            )}
-          >
-            Comprar por WhatsApp
-          </span>
-        </button>
+        />
       </div>
 
       <CardProductSpecs product={product} features={features} />
@@ -483,9 +465,14 @@ function CardPriceBlock({
 }) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
+  const isConsumableProduct = Boolean(product.toner);
   const penFirst = dualPriceOrder === 'pen-usd';
   const compareUsd =
-    product.compareAt != null ? penToUsd(product.compareAt, saleRate) : null;
+    product.compareAt != null
+      ? isConsumableProduct
+        ? penToUsd(product.compareAt, saleRate)
+        : roundEquipmentDisplayUsd(penToUsd(product.compareAt, saleRate))
+      : null;
 
   const compareLabel =
     product.compareAt == null
@@ -573,16 +560,22 @@ function CardInfo({
   product,
   priceUsd,
   saleRate,
+  displayTitle,
+  variant = 'default',
 }: {
   product: HaitechShopProduct;
   priceUsd: number;
   saleRate?: number;
+  displayTitle: string;
+  variant?: 'default' | 'featured';
 }) {
-  const displayTitle = formatHaitechProductDisplayTitle(product);
+  const isFeaturedVariant = variant === 'featured';
   const codeLabel = product.code?.trim() || null;
   const hasStock = product.stock != null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const outOfStock = hasStock && stockCount <= 0;
+  const rating = product.rating ?? 5;
+  const reviewCount = product.reviewCount ?? 0;
 
   return (
     <div className="mt-2 flex flex-col">
@@ -593,12 +586,30 @@ function CardInfo({
           <CardProductBadges product={product} />
         </div>
       </div>
+
+      {isFeaturedVariant && product.productTypeLabel ? (
+        <p className="text-[11px] font-medium leading-snug text-[#444444] sm:text-[12px]">
+          {product.productTypeLabel}
+        </p>
+      ) : null}
+
       <h3
-        className="text-pretty break-words text-[13px] font-bold leading-snug text-[#111] sm:text-[14px]"
+        className={cn(
+          'text-pretty break-words leading-snug text-[#111]',
+          isFeaturedVariant
+            ? 'text-[13px] font-bold sm:text-[14px]'
+            : 'text-[13px] font-bold sm:text-[14px]',
+        )}
         title={displayTitle}
       >
         {displayTitle}
       </h3>
+
+      {isFeaturedVariant && reviewCount > 0 ? (
+        <div className="mt-1.5">
+          <ProductRating rating={rating} reviews={reviewCount} className="[&_span]:text-[11px] [&_span]:text-[#9CA3AF]" />
+        </div>
+      ) : null}
 
       {codeLabel || hasStock ? (
         <div
@@ -642,7 +653,7 @@ function CardInfo({
         </div>
       ) : null}
 
-      <div className="mt-4">
+      <div className={cn(isFeaturedVariant ? 'mt-3' : 'mt-4')}>
         <CardPriceBlock
           product={product}
           priceUsd={priceUsd}

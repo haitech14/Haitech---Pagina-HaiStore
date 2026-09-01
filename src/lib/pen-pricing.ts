@@ -22,6 +22,65 @@ export function isImpresoraOrMultifuncionalCategory(
   );
 }
 
+/** Equipos de vitrina (no tóner/repuestos): USD al 49/99 más cercano, centavos .00. */
+export function isEquipmentDisplayPriceCategory(
+  category: string | null | undefined,
+): boolean {
+  if (isTonerOrRepuestosCategory(category)) return false;
+  const normalized = (category ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  return (
+    isImpresoraOrMultifuncionalCategory(category) ||
+    /escan|scanner|plotter|formato\s*ancho|laptop|monitor|equipo|fotocop|impresor|multifunc/i.test(
+      normalized,
+    )
+  );
+}
+
+/**
+ * Redondeo comercial en USD enteros al 49 o 99 más cercano (centavos .00).
+ * Ej.: 438.30 → 449; 964.62 → 949; 993.86 → 999.
+ */
+export function roundUsdToNearestFortyNineOrNinetyNine(usd: number): number {
+  if (!Number.isFinite(usd) || usd <= 0) return 0;
+
+  const n = Math.round(usd);
+  const base = Math.floor(n / 100);
+  const candidates = new Set<number>();
+
+  for (const block of [base - 1, base, base + 1]) {
+    if (block < 0) continue;
+    const c49 = block * 100 + 49;
+    const c99 = block * 100 + 99;
+    if (c49 > 0) candidates.add(c49);
+    if (c99 > 0) candidates.add(c99);
+  }
+
+  if (n < 100) {
+    candidates.add(49);
+    candidates.add(99);
+  }
+
+  let best = [...candidates][0] ?? 99;
+  let bestDistance = Math.abs(n - best);
+
+  for (const candidate of candidates) {
+    const distance = Math.abs(n - candidate);
+    if (distance < bestDistance || (distance === bestDistance && candidate > best)) {
+      best = candidate;
+      bestDistance = distance;
+    }
+  }
+
+  return best;
+}
+
+export function roundEquipmentDisplayUsd(usd: number): number {
+  return roundUsdToNearestFortyNineOrNinetyNine(usd);
+}
+
 /**
  * Redondeo comercial en soles enteros al dígito 9 más cercano.
  * Ej.: 2287 → 2289; 2190 → 2189; 2429 (ya termina en 9) se mantiene.

@@ -87,7 +87,9 @@ function BenefitsHeader() {
 }
 
 function BenefitsBlock() {
-  const benefitById = new Map(HAITECH_SHOWCASE_BENEFITS.map((item) => [item.id, item]));
+  const benefitById = new Map<string, (typeof HAITECH_SHOWCASE_BENEFITS)[number]>(
+    HAITECH_SHOWCASE_BENEFITS.map((item) => [item.id, item]),
+  );
 
   return (
     <section

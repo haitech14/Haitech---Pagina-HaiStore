@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import { Heart, Search, ShoppingCart, User } from 'lucide-react';
+import { Heart, Search, ShoppingCart } from 'lucide-react';
 
+import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { QTC } from '@/data/qtc-replica';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +37,7 @@ function HeaderAction({
         'inline-flex h-[45px] items-center gap-2 rounded-[10px] bg-[#F3F3F3] px-3.5',
         'text-[12px] font-medium text-[#222] transition-colors duration-200 hover:bg-[#EAEAEA]',
       )}
+      aria-label={label}
     >
       {icon}
       <span className="hidden whitespace-nowrap xl:inline">{label}</span>
@@ -67,10 +69,7 @@ export function QtcMainHeader({ className }: { className?: string }) {
         </form>
 
         <div className="flex shrink-0 items-center gap-2">
-          <HeaderAction
-            icon={<User className="size-[18px]" strokeWidth={1.75} aria-hidden="true" />}
-            label="Iniciar sesión"
-          />
+          <AccountDropdown triggerVariant="pill" tone="light" />
           <HeaderAction
             icon={<Heart className="size-[18px]" strokeWidth={1.75} aria-hidden="true" />}
             label="Mis favoritos"

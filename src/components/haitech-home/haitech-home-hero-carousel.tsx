@@ -11,7 +11,8 @@ type HeroSlide = (typeof HAITECH_HOME_HERO_SLIDES)[number];
 
 const HERO_IMAGE_CLASS = cn(
   'absolute inset-0 h-full object-cover',
-  'w-[290%] max-w-none',
+  // Menos zoom en móvil: el titular queda centrado y no choca con la flecha derecha.
+  'w-[235%] max-w-none',
   'sm:w-full sm:max-w-full',
 );
 
@@ -19,7 +20,7 @@ function heroSlideImageStyle(slide: HeroSlide): CSSProperties {
   const mobilePos =
     'mobileObjectPosition' in slide && slide.mobileObjectPosition
       ? slide.mobileObjectPosition
-      : 'left 20%';
+      : 'center center';
 
   return {
     ['--hero-desktop-pos' as string]: slide.objectPosition,

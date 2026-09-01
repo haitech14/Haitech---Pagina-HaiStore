@@ -41,17 +41,6 @@ const COMPARISON_ROWS: ProductComparisonRow[] = [
 
 const RICOH_IM_MONO_MODELS: ComparisonModelSpec[] = [
   {
-    match: /\bIM\s*350F\b/i,
-    label: 'IM 350F',
-    values: {
-      speed: '35 ppm',
-      tray: '250 hojas',
-      duplex: true,
-      screen: '4.3" color',
-      volume: '3,000 – 10,000 pág.',
-    },
-  },
-  {
     match: /\bIM\s*430F\b/i,
     label: 'IM 430F',
     productId: 'ricoh-im-430f',
@@ -127,6 +116,30 @@ function resolveComparisonImage(
   return spec.image ?? null;
 }
 
+function formatComparisonFallbackModelLabel(name: string): string {
+  const withoutBrand = name.replace(/\bRICOH\b/gi, '').replace(/\s+/g, ' ').trim();
+  const modelMatch = withoutBrand.match(/\b(IM\s*\d{3,4}[A-Z]?)\b/i);
+  if (!modelMatch || modelMatch.index == null) {
+    return withoutBrand || 'Este equipo';
+  }
+
+  const prefix = withoutBrand.slice(0, modelMatch.index).trim();
+  const model = modelMatch[1].replace(/\s+/g, ' ').toUpperCase();
+  return prefix ? `${prefix} ${model}` : model;
+}
+
+export function splitComparisonModelLabel(label: string): { prefix: string | null; model: string } {
+  const match = label.match(/^(Impresora\s+Multifuncional|Multifuncional|Impresora|Plotter)\s+(.*)$/i);
+  if (!match?.[1] || !match[2]?.trim()) {
+    return { prefix: null, model: label };
+  }
+
+  return {
+    prefix: match[1],
+    model: match[2].trim(),
+  };
+}
+
 function specsToComparisonValues(specs: ProductSpecRow[]): Record<string, string | boolean> {
   const speed = specs.find((row) => row.label === 'Velocidad')?.value ?? '';
   const tray =
@@ -193,7 +206,7 @@ export function resolveEquipmentComparison(
   } else if (currentIndex === -1) {
     columns.unshift({
       productId: equipment.id,
-      modelLabel: equipment.name.replace(/ricoh\s*/i, 'IM ').trim() || 'Este equipo',
+      modelLabel: formatComparisonFallbackModelLabel(equipment.name),
       image: resolveProductImageUrl(equipment),
       isCurrent: true,
       values: specsToComparisonValues(specs),

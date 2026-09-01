@@ -24,7 +24,11 @@ export function HeaderStoreDesktopActions({
     <div className={cn('hidden shrink-0 items-center gap-1 lg:flex xl:gap-1.5', className)}>
       <HeaderCustomerServiceAction />
       <HeaderSupportButton />
-      <AccountDropdown triggerVariant="labeled" tone="dark" />
+      <AccountDropdown
+        triggerVariant="labeled"
+        tone="dark"
+        triggerClassName={cn(headerDarkUtilityButtonClass(), 'size-auto min-h-9 rounded-lg')}
+      />
 
       <button
         type="button"

@@ -33,6 +33,7 @@ import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { productHasSpdf } from '@/lib/product-card-pill-badges';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
+import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { productPath } from '@/lib/product-path';
@@ -161,6 +162,7 @@ export function HomeStorefrontProductCard({
     ...(product.price_role ? { price_role: product.price_role } : {}),
   });
   const pricing = resolveProductCardPricing(product.id, displayPrice.priceUsd, {
+    category: product.category,
     ...(product.oldPrice != null ? { oldPrice: product.oldPrice } : {}),
     ...(product.discount != null ? { discount: product.discount } : {}),
   });
@@ -402,7 +404,7 @@ export function HomeStorefrontProductCard({
           )}
         >
           <h3 className="line-clamp-2 text-pretty break-words text-[0.6875rem] font-bold leading-snug text-[#111111] sm:line-clamp-none sm:text-[0.8125rem]">
-            {productTitle}
+            <ProductCardSplitBrandTitle title={productTitle} brand={brand} />
           </h3>
         </Link>
 

@@ -9,6 +9,7 @@ import {
   PRODUCT_CARD_TITLE_CLAMP_CLASS,
   PRODUCT_CARD_TITLE_FEATURED_CLASS,
   PRODUCT_CARD_TITLE_MAIN_CLASS,
+  splitProductCardTitleAtBrand,
 } from '@/lib/product-card-title';
 import { ProductCardEstadoBadge } from '@/components/product/product-card-estado-badge';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
@@ -62,6 +63,25 @@ export function ProductCardBrandLine({
   );
 }
 
+export function ProductCardSplitBrandTitle({
+  title,
+  brand,
+  className,
+}: {
+  title: string;
+  brand?: string | null;
+  className?: string;
+}) {
+  const { firstLine, secondLine } = splitProductCardTitleAtBrand(title, brand);
+
+  return (
+    <span className={className} title={title}>
+      <span className="block whitespace-normal">{firstLine}</span>
+      {secondLine ? <span className="block whitespace-normal">{secondLine}</span> : null}
+    </span>
+  );
+}
+
 export function ProductCardTitle({
   product,
   className,
@@ -97,7 +117,9 @@ export function ProductCardTitle({
         conditionLabel={conditionLabel}
         brandClassName={brandClass}
       />
-      <h3 className={titleClass}>{title}</h3>
+      <h3 className={titleClass}>
+        <ProductCardSplitBrandTitle title={title} brand={brand} />
+      </h3>
       {showCodeStockRow ? (
         <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
           {code ? <span className={PRODUCT_CARD_CODE_CLASS}>{code}</span> : null}

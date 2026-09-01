@@ -49,11 +49,14 @@ export function isProductImageWatermarkEnabled(): boolean {
   return import.meta.env.VITE_HAISTORE_DISABLE_WATERMARK !== '1';
 }
 
-/** Overlay en vitrina solo para previews locales (data:). Imágenes en /products/ ya llevan marca en servidor. */
+/** Overlay en vitrina: solo previews locales (data:). Rutas /products/ y /album/ ya llevan marca en servidor. */
 export function shouldShowProductImageWatermarkOverlay(url: string | null | undefined): boolean {
   if (!url?.trim()) return false;
   if (!isProductImageWatermarkEnabled()) return false;
   if (isDecorativeNonProductImageUrl(url)) return false;
   if (url.startsWith('data:image/')) return true;
+  const path = productImageUrlPathname(url);
+  if (path.startsWith('/products/') || path.startsWith('/album/')) return false;
+  if (path.includes('/products/') || path.includes('/album/')) return false;
   return false;
 }

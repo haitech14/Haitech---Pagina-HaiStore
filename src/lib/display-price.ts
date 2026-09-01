@@ -3,7 +3,9 @@ import {
   type DisplayCurrency,
   type DualPriceOrder,
 } from '@/types/display-currency';
-import { formatPenFromUsd, formatUsd, penToUsd, usdToPen } from '@/lib/utils';
+import { formatPenFromUsd, formatUsd, formatUsdForCategory, penToUsd, usdToPen } from '@/lib/utils';
+
+export { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 
 /** Copy for public storefront when list price is missing or zero. */
 export const CONSULTAR_PRECIO_LABEL = 'Consultar Precio';
@@ -25,18 +27,20 @@ export function formatDisplayPriceFromUsd(
   usd: number,
   displayCurrency: DisplayCurrency,
   dualPriceOrder: DualPriceOrder = DEFAULT_DUAL_PRICE_ORDER,
+  category?: string | null,
 ): string {
   if (isPriceOnRequest(usd)) return CONSULTAR_PRECIO_LABEL;
 
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const parts: string[] = [];
   const penFirst = dualPriceOrder === 'pen-usd';
+  const usdLabel = formatUsdForCategory(usd, category);
 
   if (penFirst) {
     if (showPen) parts.push(formatPenFromUsd(usd));
-    if (showUsd) parts.push(formatUsd(usd));
+    if (showUsd) parts.push(usdLabel);
   } else {
-    if (showUsd) parts.push(formatUsd(usd));
+    if (showUsd) parts.push(usdLabel);
     if (showPen) parts.push(formatPenFromUsd(usd));
   }
 

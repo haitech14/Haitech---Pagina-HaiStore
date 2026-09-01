@@ -4,7 +4,7 @@
       "id": "bfb264b8-70dc-4ad4-9686-2df02df8c75e",
       "code": "M-320F",
       "name": "Impresora Multifuncional B/N Nueva RICOH M 320F",
-      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
+      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nARDF — Alimentador de documentos reversible\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
       "stock": 19,
       "category": "Multifuncionales Nuevas",
@@ -44,8 +44,8 @@
         },
         {
           "icon": "ScanLine",
-          "title": "SPDF",
-          "subtitle": "Alimentador de originales doble scan"
+          "title": "ARDF",
+          "subtitle": "Alimentador de documentos reversible"
         },
         {
           "icon": "Cloud",
@@ -68,7 +68,7 @@
         },
         {
           "icon": "ScanLine",
-          "text": "SPDF — Alimentador de originales doble scan"
+          "text": "ARDF — Alimentador de documentos reversible"
         },
         {
           "icon": "FileText",
@@ -118,6 +118,11 @@
           "id": "2e625395-f5ec-4cca-9d2d-140b2fe808f9",
           "name": "A4",
           "value": "Sí"
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "name": "Alimentador (ADF)",
+          "value": "ARDF"
         }
       ],
       "stock_by_warehouse": [
@@ -320,6 +325,11 @@
           "id": "24f8f6f6-c6e7-4199-b0f7-7681c398de0e",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "f8e2c1a0-9b3d-4e5f-a6c7-8d9e0f1a2b3c",
+          "name": "Alimentador (ADF)",
+          "value": "ARDF"
         }
       ],
       "stock_by_warehouse": [
@@ -2084,7 +2094,7 @@
       ],
       "prices": {
         "public": 1249,
-        "tecnico": 999,
+        "tecnico": 1049,
         "mayorista": 1089,
         "distribuidor": 1149
       },
@@ -3631,7 +3641,7 @@
         {
           "id": "6aa189b2-67f2-49a3-a853-ff25ded7d38a",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "ARDF"
         },
         {
           "id": "a3bb492b-5459-482c-9b75-0a8343b3b69d",

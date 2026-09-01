@@ -4,7 +4,9 @@ import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
 import {
   formatPenInteger,
   formatPenWhole,
+  isEquipmentDisplayPriceCategory,
   isImpresoraOrMultifuncionalCategory,
+  roundEquipmentDisplayUsd,
   usdToPenCharm,
   usdToPenPrecise,
 } from '@/lib/pen-pricing';
@@ -32,10 +34,13 @@ export function InventoryDualPrice({
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const rate = exchangeRate ?? getUsdToPenSaleRate();
+  const equipmentDisplay = isEquipmentDisplayPriceCategory(category);
+  const displayUsd = equipmentDisplay ? roundEquipmentDisplayUsd(usd) : usd;
   const pen = useCharm ? usdToPenCharm(usd, rate) : usdToPenPrecise(usd, rate);
-  const integerDisplay = isImpresoraOrMultifuncionalCategory(category);
+  const integerDisplay =
+    equipmentDisplay || isImpresoraOrMultifuncionalCategory(category);
   const penLabel = pen > 0 ? (integerDisplay ? formatPenWhole(pen) : formatPenInteger(pen)) : 'S/ —';
-  const usdLabel = integerDisplay ? formatUsdInteger(usd) : formatUsd(usd);
+  const usdLabel = integerDisplay ? formatUsdInteger(displayUsd) : formatUsd(displayUsd);
   const penFirst = dualPriceOrder === 'pen-usd';
 
   const priceClass = compact ? 'text-xs leading-none' : 'leading-tight';

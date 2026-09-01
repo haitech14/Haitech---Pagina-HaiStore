@@ -1,26 +1,25 @@
+import { useCallback, useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import useEmblaCarousel from 'embla-carousel-react';
 import { Link } from 'react-router-dom';
 
 import {
   HAITECH_HOME,
   HAITECH_HOME_MID_BANNER,
-  HAITECH_HOME_POST_SERVICES_BANNERS,
+  HAITECH_HOME_SERVICES_CAROUSEL_BANNERS,
   HAITECH_HOME_SERVICES_SECTION_HEADER,
 } from '@/data/haitech-home-shell';
 import { ResponsivePromoBannerImage } from '@/components/home/responsive-promo-banner-image';
+import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn } from '@/lib/utils';
 
-type MidBannerItem = {
-  png: string;
-  webp?: string;
-  width: number;
-  height: number;
-  alt: string;
-  href: string;
-  id?: string;
-  mobileFocus?: 'left' | 'center';
-};
+const AUTOPLAY_MS = 6000;
 
-function MidBannerLink({ banner }: { banner: MidBannerItem }) {
+type ServicesBannerItem = (typeof HAITECH_HOME_SERVICES_CAROUSEL_BANNERS)[number];
+
+function MidBannerLink({ banner }: { banner: ServicesBannerItem }) {
+  const webp = 'webp' in banner ? banner.webp : undefined;
+
   return (
     <Link
       to={banner.href}
@@ -31,11 +30,17 @@ function MidBannerLink({ banner }: { banner: MidBannerItem }) {
     >
       <ResponsivePromoBannerImage
         src={banner.png}
-        webp={banner.webp}
+        {...(webp ? { webp } : {})}
         alt={banner.alt}
         width={banner.width}
         height={banner.height}
-        mobileFocus={banner.mobileFocus ?? 'left'}
+        mobileFocus="left"
+        {...('mobileWidthPercent' in banner && banner.mobileWidthPercent
+          ? { mobileWidthPercent: banner.mobileWidthPercent }
+          : {})}
+        {...('desktopScale' in banner && banner.desktopScale
+          ? { desktopScale: banner.desktopScale }
+          : {})}
       />
     </Link>
   );
@@ -92,7 +97,125 @@ function SectionTitleHeader({
   );
 }
 
-/** Banner promocional intermedio (imagen completa). */
+function ServicesBannerCarousel() {
+  const banners = HAITECH_HOME_SERVICES_CAROUSEL_BANNERS;
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+  const [autoplayPaused, setAutoplayPaused] = useState(false);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: 'start',
+    loop: true,
+    dragFree: false,
+    watchDrag: emblaShouldWatchDrag,
+  });
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const onSelect = () => {
+      setSelectedIndex(emblaApi.selectedScrollSnap());
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi || autoplayPaused || banners.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const timer = window.setInterval(() => {
+      if (emblaApi.canScrollNext()) {
+        emblaApi.scrollNext();
+      } else {
+        emblaApi.scrollTo(0);
+      }
+    }, AUTOPLAY_MS);
+
+    return () => window.clearInterval(timer);
+  }, [autoplayPaused, emblaApi, banners.length]);
+
+  const showControls = banners.length > 1;
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setAutoplayPaused(true)}
+      onMouseLeave={() => setAutoplayPaused(false)}
+      aria-roledescription="carrusel"
+      aria-label="Banners de servicios HAITECH"
+    >
+      <div className="overflow-hidden rounded-xl" ref={emblaRef}>
+        <ul className="flex touch-pan-y" role="list">
+          {banners.map((banner) => (
+            <li key={banner.id} className="min-w-0 shrink-0 grow-0 basis-full">
+              <MidBannerLink banner={banner} />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {showControls ? (
+        <>
+          <button
+            type="button"
+            aria-label="Banner anterior"
+            disabled={!canScrollPrev}
+            onClick={scrollPrev}
+            className="absolute left-2 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white text-[#333] shadow-[0_2px_10px_rgba(0,0,0,0.14)] transition-all duration-200 hover:scale-105 hover:text-[#E30613] disabled:pointer-events-none disabled:opacity-40 sm:left-3 sm:size-9"
+          >
+            <ChevronLeft className="size-4 sm:size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Banner siguiente"
+            disabled={!canScrollNext}
+            onClick={scrollNext}
+            className="absolute right-2 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white text-[#333] shadow-[0_2px_10px_rgba(0,0,0,0.14)] transition-all duration-200 hover:scale-105 hover:text-[#E30613] disabled:pointer-events-none disabled:opacity-40 sm:right-3 sm:size-9"
+          >
+            <ChevronRight className="size-4 sm:size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+
+          <div
+            className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5"
+            role="tablist"
+            aria-label="Indicadores del carrusel"
+          >
+            {banners.map((banner, index) => (
+              <button
+                key={banner.id}
+                type="button"
+                role="tab"
+                aria-selected={selectedIndex === index}
+                aria-label={`Ir al banner ${index + 1}`}
+                onClick={() => emblaApi?.scrollTo(index)}
+                className={cn(
+                  'size-2 rounded-full transition-colors',
+                  selectedIndex === index ? 'bg-[#E30613]' : 'bg-white/80 hover:bg-white',
+                )}
+              />
+            ))}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/** Banner promocional intermedio (repuestos) — uso puntual fuera del carrusel. */
 export function HaitechHomeMidBanner({ className }: { className?: string }) {
   const banner = HAITECH_HOME_MID_BANNER;
 
@@ -108,11 +231,9 @@ export function HaitechHomeMidBanner({ className }: { className?: string }) {
   );
 }
 
-/** Sección Nuestros Servicios + banners de servicio técnico y alquiler. */
+/** Sección Nuestros Servicios + carrusel (alquiler, servicio técnico, repuestos). */
 export function HaitechHomePostServicesBanners({ className }: { className?: string }) {
   const header = HAITECH_HOME_SERVICES_SECTION_HEADER;
-  const servicioBanner = HAITECH_HOME_POST_SERVICES_BANNERS.find((b) => b.id === 'mid-servicio');
-  const alquilerBanner = HAITECH_HOME_POST_SERVICES_BANNERS.find((b) => b.id === 'mid-alquiler');
 
   return (
     <section
@@ -132,8 +253,7 @@ export function HaitechHomePostServicesBanners({ className }: { className?: stri
           titleId="haitech-servicios-section-title"
         />
 
-        {alquilerBanner ? <MidBannerLink banner={alquilerBanner} /> : null}
-        {servicioBanner ? <MidBannerLink banner={servicioBanner} /> : null}
+        <ServicesBannerCarousel />
       </div>
     </section>
   );

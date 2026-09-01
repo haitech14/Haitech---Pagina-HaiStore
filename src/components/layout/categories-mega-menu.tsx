@@ -291,7 +291,7 @@ export function CategoriesMegaMenu({
             onMouseLeave={scheduleClose}
             onFocus={openMenu}
             className={cn(
-              'inline-flex h-[38px] items-center gap-1.5 bg-[#E30613] px-3.5 text-[13px] font-semibold text-white',
+              'inline-flex h-full min-h-[42px] items-center gap-2 bg-[#E30613] px-4 text-[13px] font-semibold text-white',
               'transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
               (open || isCatalogRoute) && 'bg-[#c90511]',
             )}

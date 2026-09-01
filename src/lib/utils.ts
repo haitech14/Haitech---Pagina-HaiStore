@@ -13,7 +13,12 @@ export function formatCurrency(value: number, currency = 'EUR', locale = 'es-ES'
 }
 
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
-import { isTonerOrRepuestosCategory, roundPenToNearestNine } from '@/lib/pen-pricing';
+import {
+  isEquipmentDisplayPriceCategory,
+  isTonerOrRepuestosCategory,
+  roundEquipmentDisplayUsd,
+  roundPenToNearestNine,
+} from '@/lib/pen-pricing';
 
 export { DEFAULT_USD_TO_PEN, USD_TO_PEN } from '@/lib/exchange-rate';
 
@@ -36,6 +41,19 @@ export function formatUsdInteger(usd: number): string {
     currency: 'USD',
     maximumFractionDigits: 0,
   }).format(usd);
+}
+
+/** USD de equipos: al 49/99 más cercano, sin centavos. */
+export function formatEquipmentUsd(usd: number): string {
+  return formatUsdInteger(roundEquipmentDisplayUsd(usd));
+}
+
+/** USD según categoría (equipos al 49/99; resto con centavos). */
+export function formatUsdForCategory(usd: number, category?: string | null): string {
+  if (isEquipmentDisplayPriceCategory(category)) {
+    return formatEquipmentUsd(usd);
+  }
+  return formatUsd(usd);
 }
 
 export function formatPenFromUsd(usd: number, rate = getUsdToPenSaleRate()): string {

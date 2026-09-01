@@ -68,6 +68,46 @@ export interface ProductCardTitleContent {
   title: string;
 }
 
+export interface ProductCardTitleLines {
+  firstLine: string;
+  secondLine: string | null;
+}
+
+/** Línea 1: texto previo a la marca; línea 2: marca + modelo (p. ej. «Impresora Nueva» / «RICOH M C320FW»). */
+export function splitProductCardTitleAtBrand(
+  title: string,
+  brand?: string | null,
+): ProductCardTitleLines {
+  const normalized = title.replace(/\s+/g, ' ').trim();
+  if (!normalized) return { firstLine: '', secondLine: null };
+
+  const equipmentPrefix = normalized.match(
+    /^(Impresora|Multifuncional|Plotter)(?:\s+de\s+Planos)?\s+(Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo)\s+/i,
+  );
+  if (equipmentPrefix) {
+    const firstLine = equipmentPrefix[0].trim();
+    const secondLine = normalized.slice(equipmentPrefix[0].length).trim();
+    if (firstLine && secondLine) {
+      return { firstLine, secondLine };
+    }
+  }
+
+  const brandWord = (brand?.trim() || inferBrandFromProductName(normalized) || 'RICOH').toUpperCase();
+  const pattern = new RegExp(`\\b${escapeBrandPattern(brandWord)}\\b`, 'i');
+  const match = pattern.exec(normalized);
+  if (!match || match.index <= 0) {
+    return { firstLine: normalized, secondLine: null };
+  }
+
+  const firstLine = normalized.slice(0, match.index).trim();
+  const secondLine = normalized.slice(match.index).trim();
+  if (!firstLine || !secondLine) {
+    return { firstLine: normalized, secondLine: null };
+  }
+
+  return { firstLine, secondLine };
+}
+
 /** Marcas conocidas (más largas primero) para inferir desde el nombre si falta `brand`. */
 const INFERABLE_BRANDS = [
   'Konica Minolta',

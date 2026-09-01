@@ -26,6 +26,10 @@ interface ProductQuantityAddFooterProps {
   quantityPlacement?: 'inline' | 'above';
   /** Contenido a la derecha del botón Comprar (p. ej. WhatsApp icon-only). */
   endAdornment?: ReactNode;
+  /** Fila extra bajo Comprar al hover de la tarjeta (`group`), p. ej. «Comprar por WhatsApp». */
+  belowOnHover?: ReactNode;
+  /** Muestra `belowOnHover` siempre visible (sin esperar hover en desktop). */
+  belowAlways?: boolean;
   /** No muestra el selector de cantidad (siempre agrega 1 unidad). */
   hideQuantity?: boolean;
   /** Etiqueta del botón de carrito (p. ej. «Comprar»). */
@@ -35,6 +39,8 @@ interface ProductQuantityAddFooterProps {
   addButtonClassName?: string;
   /** Clases extra del stepper de cantidad (p. ej. `h-10 rounded-lg`). */
   quantityClassName?: string;
+  /** Botón Comprar compacto y centrado (sin ancho completo ni WhatsApp lateral). */
+  centeredActions?: boolean;
 }
 
 export function ProductQuantityAddFooter({
@@ -45,11 +51,14 @@ export function ProductQuantityAddFooter({
   revealQuantityOnHover = true,
   quantityPlacement = 'inline',
   endAdornment,
+  belowOnHover,
+  belowAlways = false,
   hideQuantity = false,
   addLabel,
   addLabelHover,
   addButtonClassName,
   quantityClassName,
+  centeredActions = false,
 }: ProductQuantityAddFooterProps) {
   const [quantity, setQuantity] = useState(1);
   const includesOnRequest = hasOnRequestQuantity(product, quantity);
@@ -57,6 +66,10 @@ export function ProductQuantityAddFooter({
   const cartLabel = addLabel ?? getAddToCartLabel(product, 'short', quantity);
   const cartLabelHover = addLabelHover ?? null;
   const swapLabelOnHover = Boolean(cartLabelHover && revealQuantityOnHover && !hideQuantity);
+  const hideEndAdornmentOnHover = Boolean(belowOnHover && endAdornment);
+  const hoverRevealClass = belowAlways
+    ? ''
+    : 'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 max-md:grid-rows-[1fr] max-md:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
   const tallQuantity = quantityClassName?.includes('h-10') ?? false;
   const quantityAbove = quantityPlacement === 'above' && !hideQuantity;
 
@@ -148,6 +161,8 @@ export function ProductQuantityAddFooter({
     </div>
   );
 
+  const stackBuyWithBelow = Boolean(belowOnHover && centeredActions);
+
   const addButton = (
     <AddToCartButton
       product={product}
@@ -163,6 +178,11 @@ export function ProductQuantityAddFooter({
           : cn(
               'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
               addButtonClassName,
+              centeredActions && 'w-full flex-none',
+              stackBuyWithBelow &&
+                revealQuantityOnHover &&
+                !hideQuantity &&
+                'transition-[padding] duration-200 ease-out sm:group-hover:px-3 sm:group-focus-within:px-3 motion-reduce:transition-none',
             ),
       )}
     >
@@ -171,11 +191,6 @@ export function ProductQuantityAddFooter({
           className={cn(
             'size-4 shrink-0',
             swapLabelOnHover && 'max-md:hidden group-hover:hidden group-focus-within:hidden',
-            // Con cantidad inline, al hover prioriza el texto «Comprar» sobre el icono.
-            !swapLabelOnHover &&
-              revealQuantityOnHover &&
-              !quantityAbove &&
-              'group-hover:hidden group-focus-within:hidden max-md:hidden',
           )}
           aria-hidden="true"
         />
@@ -195,10 +210,62 @@ export function ProductQuantityAddFooter({
     </AddToCartButton>
   );
 
-  const actionRow = (
-    <div className="flex min-w-0 flex-1 items-stretch gap-1.5 sm:gap-2">
-      {addButton}
+  const endAdornmentNode = endAdornment ? (
+    <div
+      className={cn(
+        hideEndAdornmentOnHover &&
+          'group-hover:hidden group-focus-within:hidden max-md:hidden motion-reduce:hidden',
+      )}
+    >
       {endAdornment}
+    </div>
+  ) : null;
+
+  const hoverFooter =
+    belowOnHover != null ? (
+      belowAlways ? (
+        <div className="w-full pt-1.5">{belowOnHover}</div>
+      ) : (
+        <div className={hoverRevealClass}>
+          <div className="min-h-0 w-full overflow-hidden pt-1.5">{belowOnHover}</div>
+        </div>
+      )
+    ) : null;
+
+  const buyActionStack = stackBuyWithBelow ? (
+    <div
+      className={cn(
+        'inline-flex min-w-0 flex-col items-stretch transition-[width] duration-200 ease-out motion-reduce:transition-none',
+        'w-[9.5rem] sm:w-[14.5rem]',
+        revealQuantityOnHover &&
+          !hideQuantity &&
+          'sm:group-hover:w-[9.5rem] sm:group-focus-within:w-[9.5rem]',
+      )}
+    >
+      {addButton}
+      {hoverFooter}
+    </div>
+  ) : null;
+
+  const actionRow = buyActionStack ? (
+    <div
+      className={cn(
+        'flex min-w-0 items-stretch gap-1.5 sm:gap-2',
+        centeredActions ? 'shrink-0 justify-center' : 'flex-1',
+      )}
+    >
+      {buyActionStack}
+      {endAdornmentNode}
+    </div>
+  ) : (
+    <div
+      className={cn(
+        'flex min-w-0 items-stretch gap-1.5 sm:gap-2',
+        centeredActions ? 'shrink-0 justify-center' : 'flex-1',
+      )}
+    >
+      {addButton}
+      {endAdornmentNode}
     </div>
   );
 
@@ -207,6 +274,7 @@ export function ProductQuantityAddFooter({
       <div className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}>
         {quantityControl}
         {actionRow}
+        {!stackBuyWithBelow ? hoverFooter : null}
       </div>
     );
   }
@@ -214,17 +282,26 @@ export function ProductQuantityAddFooter({
   return (
     <div
       className={cn(
-        'flex w-full shrink-0 items-stretch',
-        hideQuantity
-          ? 'gap-0'
-          : revealQuantityOnHover
-            ? 'gap-0 transition-[gap] duration-200 ease-out group-hover:gap-1.5 group-focus-within:gap-1.5 sm:group-hover:gap-2 max-md:gap-1.5 motion-reduce:transition-none'
-            : 'gap-1.5 sm:gap-2',
+        'flex w-full min-w-0 flex-col',
+        centeredActions && 'w-auto items-center',
         className,
       )}
     >
-      {quantityControl}
-      {actionRow}
+      <div
+        className={cn(
+          'flex shrink-0 items-stretch',
+          centeredActions ? 'w-auto justify-center' : 'w-full',
+          hideQuantity
+            ? 'gap-0'
+            : revealQuantityOnHover
+              ? 'gap-0 transition-[gap] duration-200 ease-out group-hover:gap-1.5 group-focus-within:gap-1.5 sm:group-hover:gap-2 max-md:gap-1.5 motion-reduce:transition-none'
+              : 'gap-1.5 sm:gap-2',
+        )}
+      >
+        {quantityControl}
+        {actionRow}
+      </div>
+      {!stackBuyWithBelow ? hoverFooter : null}
     </div>
   );
 }

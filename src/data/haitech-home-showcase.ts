@@ -1,5 +1,5 @@
-/** Accent estilo vitrina (rojo marca HAITECH). */
-export const HAITECH_SHOWCASE_ACCENT = '#E30613';
+/** Accent estilo vitrina (negro marca HAITECH). */
+export const HAITECH_SHOWCASE_ACCENT = '#111111';
 
 export const HAITECH_SHOWCASE_MAX_WIDTH = '1500px';
 

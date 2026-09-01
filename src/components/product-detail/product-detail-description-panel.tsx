@@ -2,6 +2,38 @@ import { ProductDetailSpecsTable } from '@/components/product-detail/product-det
 import { cn } from '@/lib/utils';
 import type { ProductDescriptionContent, ProductSpecRow } from '@/types/product-detail';
 
+interface ProductDetailSpecsAsideProps {
+  specs: ProductSpecRow[];
+  className?: string;
+  titleClassName?: string;
+}
+
+export function ProductDetailSpecsAside({
+  specs,
+  className,
+  titleClassName,
+}: ProductDetailSpecsAsideProps) {
+  return (
+    <aside id="product-detail-specs" className={cn('min-w-0 lg:sticky lg:top-24', className)}>
+      <h3
+        className={cn(
+          'mb-3 text-base font-bold text-neutral-900 sm:text-lg',
+          titleClassName,
+        )}
+      >
+        Especificaciones Técnicas
+      </h3>
+      {specs.length > 0 ? (
+        <ProductDetailSpecsTable specs={specs} variant="ficha" />
+      ) : (
+        <p className="text-xs text-neutral-600 sm:text-sm">
+          No hay especificaciones técnicas registradas para este producto.
+        </p>
+      )}
+    </aside>
+  );
+}
+
 interface ProductDetailDescriptionPanelProps {
   content: ProductDescriptionContent;
   specs: ProductSpecRow[];
@@ -113,18 +145,7 @@ export function ProductDetailDescriptionPanel({
       </div>
 
       {showSpecs ? (
-        <aside className="lg:sticky lg:top-24">
-          <h3 className="mb-3 text-base font-bold text-[#0f1f3d] sm:text-lg">
-            Especificaciones Técnicas
-          </h3>
-          {specs.length > 0 ? (
-            <ProductDetailSpecsTable specs={specs} variant="ficha" />
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No hay especificaciones técnicas registradas para este producto.
-            </p>
-          )}
-        </aside>
+        <ProductDetailSpecsAside specs={specs} titleClassName="text-[#0f1f3d]" />
       ) : null}
     </div>
   );

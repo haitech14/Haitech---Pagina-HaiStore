@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Check,
+  ChevronDown,
   ChevronRight,
   ClipboardList,
+  ExternalLink,
   Eye,
   Headphones,
   LayoutGrid,
@@ -17,6 +19,8 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react';
+
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 import {
   type HeaderActionTone,
@@ -47,6 +51,15 @@ function getDisplayName(user: AuthUser | null): string {
   if (trimmed) return trimmed.split(/\s+/)[0] ?? trimmed;
   const local = user.email.split('@')[0] ?? 'Usuario';
   return local.charAt(0).toUpperCase() + local.slice(1);
+}
+
+function getInitials(name: string | undefined, email: string | undefined): string {
+  const source = name?.trim() || email?.trim() || 'A';
+  const parts = source.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
+  }
+  return source.slice(0, 2).toUpperCase();
 }
 
 function roleBadgeClass(role: UserRole | 'public'): string {
@@ -85,13 +98,33 @@ function AccountMenuRow({ icon: Icon, label, variant = 'default' }: AccountMenuR
   );
 }
 
+type AccountDropdownTriggerVariant =
+  | 'icon'
+  | 'strip'
+  | 'labeled'
+  | 'pill'
+  | 'profile'
+  | 'sidebar';
+
 interface AccountDropdownProps {
-  triggerVariant?: 'icon' | 'strip' | 'labeled';
+  triggerVariant?: AccountDropdownTriggerVariant;
   tone?: HeaderActionTone;
+  triggerClassName?: string;
+  className?: string;
+  menuSide?: 'top' | 'bottom' | 'left' | 'right';
+  menuAlign?: 'start' | 'center' | 'end';
 }
 
-export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: AccountDropdownProps) {
+export function AccountDropdown({
+  triggerVariant = 'icon',
+  tone = 'light',
+  triggerClassName,
+  className,
+  menuSide = 'bottom',
+  menuAlign = 'end',
+}: AccountDropdownProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     user,
     logout,
@@ -111,6 +144,7 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
       ? USER_ROLE_LABELS[user.role]
       : USER_ROLE_LABELS.public;
   const haiPoints = user ? getHaiPointsBalance(user) : 0;
+  const showReturnToWebsite = showAdminPanel && location.pathname.startsWith('/admin');
 
   const [open, setOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
@@ -130,8 +164,23 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
 
   const scheduleClose = useCallback(() => {
     clearCloseTimer();
-    closeTimerRef.current = setTimeout(() => setOpen(false), HOVER_CLOSE_DELAY_MS);
+    closeTimerRef.current = setTimeout(() => {
+      setOpen(false);
+      setViewAsSubOpen(false);
+    }, HOVER_CLOSE_DELAY_MS);
   }, [clearCloseTimer]);
+
+  const [viewAsSubOpen, setViewAsSubOpen] = useState(false);
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen) {
+        clearCloseTimer();
+        setOpen(true);
+      }
+    },
+    [clearCloseTimer],
+  );
 
   useEffect(() => () => clearCloseTimer(), [clearCloseTimer]);
 
@@ -140,19 +189,100 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
     navigate(path);
   };
 
+  const fullDisplayName = user?.name?.trim() || user?.email?.split('@')[0] || 'Administrador';
+  const initials = getInitials(user?.name, user?.email);
+  const isCompactIcon =
+    triggerVariant === 'strip' || triggerVariant === 'labeled' || triggerVariant === 'icon';
+  const triggerButtonClass = cn(
+    'relative inline-flex shrink-0 items-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset',
+    triggerVariant === 'pill' &&
+      'h-[45px] gap-2 rounded-[10px] bg-[#F3F3F3] px-3.5 text-[12px] font-medium text-[#222] hover:bg-[#EAEAEA] focus-visible:ring-[#222]/20',
+    triggerVariant === 'profile' &&
+      'gap-2.5 rounded-md px-1 py-1 hover:bg-muted/50 focus-visible:ring-ring',
+    triggerVariant === 'sidebar' &&
+      'w-full gap-2 rounded-md px-1 py-1 text-left hover:bg-[hsl(var(--admin-sidebar-hover))]/60 focus-visible:ring-[hsl(var(--admin-accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-sidebar-bg))]',
+    (triggerVariant === 'icon' ||
+      triggerVariant === 'strip' ||
+      triggerVariant === 'labeled') &&
+      cn(
+        'items-center justify-center rounded-full bg-transparent',
+        triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'size-9' : 'size-11',
+        tone === 'dark'
+          ? 'text-white hover:text-white/80 focus-visible:ring-white/40'
+          : 'text-foreground hover:text-foreground/70 focus-visible:ring-ring',
+      ),
+    triggerClassName,
+  );
+
+  const triggerContent =
+    triggerVariant === 'profile' ? (
+      <>
+        <span
+          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--admin-accent-soft))] text-xs font-bold text-[hsl(var(--admin-accent))]"
+          aria-hidden="true"
+        >
+          {initials}
+        </span>
+        <span className="hidden min-w-0 sm:block">
+          <span className="block truncate text-sm font-semibold leading-tight text-foreground">
+            {fullDisplayName}
+          </span>
+          <span className="block truncate text-xs text-muted-foreground">{roleLabel}</span>
+        </span>
+      </>
+    ) : triggerVariant === 'sidebar' ? (
+      <>
+        <span className="relative shrink-0">
+          <Avatar className="size-8 ring-1 ring-[hsl(var(--admin-sidebar-border))]">
+            <AvatarFallback className="bg-[hsl(var(--admin-sidebar-hover))] text-xs font-semibold text-[hsl(var(--admin-sidebar-fg))]">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <span
+            className="absolute bottom-0 right-0 size-2 rounded-full border border-[hsl(var(--admin-sidebar-bg))] bg-emerald-400"
+            aria-hidden="true"
+          />
+        </span>
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block truncate text-[0.8125rem] font-medium text-[hsl(var(--admin-sidebar-fg))]">
+            {fullDisplayName}
+          </span>
+          <span className="block truncate text-[0.6875rem] text-[hsl(var(--admin-sidebar-fg-muted))]">
+            {roleLabel}
+          </span>
+        </span>
+        <ChevronDown
+          className="size-3.5 shrink-0 text-[hsl(var(--admin-sidebar-fg-muted))]/70"
+          aria-hidden="true"
+        />
+      </>
+    ) : (
+      <>
+        <User
+          className={cn(
+            'shrink-0',
+            isCompactIcon ? 'size-4' : 'size-5',
+            triggerVariant === 'pill' && 'size-[18px]',
+          )}
+          strokeWidth={1.75}
+          aria-hidden="true"
+        />
+        {triggerVariant === 'pill' ? (
+          <span className="hidden whitespace-nowrap xl:inline">
+            {user ? fullDisplayName : 'Iniciar sesión'}
+          </span>
+        ) : null}
+        {triggerVariant === 'labeled' ? <span className="hidden sm:inline">Mi Cuenta</span> : null}
+      </>
+    );
+
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+    <div className={className}>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange} modal={false}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className={cn(
-            'relative inline-flex shrink-0 items-center justify-center rounded-full bg-transparent transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset',
-            triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'size-9' : 'size-11',
-            tone === 'dark'
-              ? 'text-white hover:text-white/80 focus-visible:ring-white/40'
-              : 'text-foreground hover:text-foreground/70 focus-visible:ring-ring',
-          )}
+          className={triggerButtonClass}
           aria-label={user ? `Menú de cuenta de ${displayName}` : 'Iniciar sesión o crear cuenta'}
           aria-haspopup="true"
           aria-expanded={open}
@@ -160,19 +290,13 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
           onMouseLeave={scheduleClose}
           onFocus={openMenu}
         >
-          <User
-            className={cn(
-              'shrink-0',
-              triggerVariant === 'strip' || triggerVariant === 'labeled' ? 'size-4' : 'size-5',
-            )}
-            strokeWidth={1.75}
-            aria-hidden="true"
-          />
+          {triggerContent}
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        align="end"
+        align={menuAlign}
+        side={menuSide}
         sideOffset={8}
         onMouseEnter={openMenu}
         onMouseLeave={scheduleClose}
@@ -246,11 +370,21 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
               )}
 
               {showAdminPanel && (
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="cursor-pointer rounded-none px-0 py-0 focus:bg-muted/50 data-[state=open]:bg-muted/50">
-                    <AccountMenuRow icon={Eye} label="Ver como (Rol)" />
+                <DropdownMenuSub open={viewAsSubOpen} onOpenChange={setViewAsSubOpen}>
+                  <DropdownMenuSubTrigger
+                    className="cursor-pointer rounded-none px-0 py-0 focus:bg-muted/50 data-[state=open]:bg-muted/50"
+                    onPointerEnter={() => {
+                      clearCloseTimer();
+                      setViewAsSubOpen(true);
+                    }}
+                  >
+                    <AccountMenuRow icon={Eye} label="Ver como" />
                   </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="rounded-lg border-border/80 p-1 shadow-lg">
+                  <DropdownMenuSubContent
+                    className="rounded-lg border-border/80 p-1 shadow-lg"
+                    onMouseEnter={openMenu}
+                    onMouseLeave={scheduleClose}
+                  >
                     <DropdownMenuItem
                       className="min-h-8 cursor-pointer justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium focus:bg-muted/60"
                       onSelect={(event) => {
@@ -284,6 +418,15 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
               )}
+
+              {showReturnToWebsite ? (
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-none p-0 focus:bg-muted/50"
+                  onSelect={() => goTo('/')}
+                >
+                  <AccountMenuRow icon={ExternalLink} label="Volver a la página web" />
+                </DropdownMenuItem>
+              ) : null}
 
               <div>
                 <DropdownMenuItem
@@ -364,5 +507,6 @@ export function AccountDropdown({ triggerVariant = 'icon', tone = 'light' }: Acc
 
       <TechnicalServiceRequestDialog open={supportOpen} onOpenChange={setSupportOpen} />
     </DropdownMenu>
+    </div>
   );
 }

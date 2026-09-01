@@ -493,7 +493,7 @@ export function InventoryProductFormDialog({
                       <div className="space-y-2">
                         <Label htmlFor="inv-visibility">Visibilidad</Label>
                         <Select
-                          value={form.status ?? 'borrador'}
+                          value={form.status ?? 'activa'}
                           onValueChange={(value) =>
                             updateField(
                               'status',
@@ -512,6 +512,9 @@ export function InventoryProductFormDialog({
                             ))}
                           </SelectContent>
                         </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Solo los productos con visibilidad «Activa» aparecen en la tienda pública.
+                        </p>
                       </div>
                     </div>
 
