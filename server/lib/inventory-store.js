@@ -35,7 +35,7 @@ import { normalizeProductCatalogStatus } from '../../shared/product-catalog-stat
 import { formatNuevaProductName, resolveXrefProductFields } from '../../shared/inventory-product-name.js';
 import { normalizeMerchandisingOptionalProducts } from '../../shared/merchandising-optional-product.js';
 import { isBundleProduct, normalizeBundleComponents, syncInventoryBundleProducts } from './product-bundle.js';
-import { ensureFullPrices, resolvePriceRole } from './roles.js';
+import { ensureFullPrices, resolvePriceRole, resolveUserRolePriceUsd } from './roles.js';
 import { shouldPreferSupabaseCatalog } from './catalog-source.js';
 import { getInventoryPath } from './server-paths.js';
 
@@ -829,14 +829,15 @@ async function writeInventoryUnlocked(data, options = {}) {
 export { resolvePriceRole };
 
 export function getEffectivePrice(product, role) {
-  const priceRole = resolvePriceRole(role);
   const prices = ensureFullPrices(product.prices ?? { public: product.price ?? 0 });
-  return prices[priceRole] ?? prices.public ?? 0;
+  return resolveUserRolePriceUsd(prices, role, {
+    productKeys: [product.id, product.code, product.slug],
+  });
 }
 
 export function toPublicProduct(product, role, warehouses) {
-  const priceRole = resolvePriceRole(role);
   const prices = ensureFullPrices(product.prices ?? { public: product.price ?? 0 });
+  const priceRole = role === 'corporativo2' ? 'public' : resolvePriceRole(role);
   const image_url = resolveProductImageUrl(product);
   const gallery = resolveProductGallery(product);
   const warehouseList = normalizeWarehouses(warehouses);
@@ -849,7 +850,9 @@ export function toPublicProduct(product, role, warehouses) {
     code: product.code ?? null,
     name: product.name,
     description: product.description ?? null,
-    price: prices[priceRole] ?? prices.public ?? 0,
+    price: resolveUserRolePriceUsd(prices, role, {
+      productKeys: [product.id, product.code, product.slug],
+    }),
     prices,
     currency: product.currency ?? 'USD',
     image_url,
@@ -922,13 +925,14 @@ export function toPublicProductCard(product, role, warehouses) {
   };
 }
 
-/** DTO ligero para listados (sin description ni attachments; sí gallery para hover en cards). */
+/** DTO ligero para listados (sin attachments; sí gallery para hover en cards). */
 export function toPublicProductList(product, role, warehouses) {
   const full = toPublicProduct(product, role, warehouses);
   return {
     id: full.id,
     code: full.code,
     name: full.name,
+    description: full.description,
     price: full.price,
     prices: full.prices,
     currency: full.currency,

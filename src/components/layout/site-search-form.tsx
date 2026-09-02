@@ -515,7 +515,9 @@ export function SiteSearchForm({
   );
   const totalMatches = searchResult?.total ?? 0;
   const isProductsLoading =
-    searchEnabled && (searchLoading || isSearchDebouncing) && productSuggestions.length === 0;
+    searchEnabled &&
+    productSuggestions.length === 0 &&
+    (searchLoading || isSearchDebouncing || searchFetching);
   const isSearchRefreshing =
     searchEnabled && searchFetching && !searchLoading && !isSearchDebouncing;
   const canLoadMoreProducts =

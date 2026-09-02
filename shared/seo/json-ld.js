@@ -13,12 +13,20 @@ const ORGANIZATION_CORE = {
   '@type': ['Organization', 'LocalBusiness'],
   name: 'HaiStore',
   legalName: 'NBN TECNOLOGIA TOTAL S.A.C.',
-  alternateName: ['HaiTech', 'HAITECH'],
+  alternateName: ['HaiTech', 'HAITECH', 'Distribuidor Autorizado Ricoh Perú'],
   url: 'https://www.haitech.pe',
   logo: 'https://www.haitech.pe/logo.png',
   description:
     'Distribuidor Autorizado Ricoh en Perú. Venta y alquiler de fotocopiadoras, multifuncionales, impresoras, tóner, tintas y repuestos con soporte técnico especializado.',
   brand: { '@type': 'Brand', name: 'Ricoh' },
+  knowsAbout: [
+    'Fotocopiadoras Ricoh',
+    'Impresoras láser Ricoh',
+    'Tóner Ricoh',
+    'Repuestos Ricoh',
+    'Alquiler de fotocopiadoras',
+    'Distribuidor Autorizado Ricoh',
+  ],
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Av. Petit Thouars 1935',
@@ -170,8 +178,11 @@ export function buildWebsiteJsonLd(siteOrigin) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'HaiStore',
+    name: 'HaiStore — Distribuidor Autorizado Ricoh',
+    alternateName: ['HaiTech', 'RICOH Perú', 'Fotocopiadoras Ricoh Perú'],
     url: buildAbsoluteUrl('/', siteOrigin),
+    description:
+      'Tienda online de fotocopiadoras, impresoras, tóner y repuestos Ricoh en Perú. Distribuidor Autorizado con envío nacional.',
     potentialAction: {
       '@type': 'SearchAction',
       target: `${buildAbsoluteUrl('/tienda', siteOrigin)}?buscar={search_term_string}`,

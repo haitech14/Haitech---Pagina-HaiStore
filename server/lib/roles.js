@@ -1,7 +1,11 @@
+import { resolveCorporativo2FixedPen } from '../../shared/corporativo2-fixed-prices.js';
+
 export const PRICE_ROLES = ['public', 'tecnico', 'mayorista', 'distribuidor'];
 
+/** Roles de usuario legacy sin columna propia; se resuelven al tier indicado. */
 export const LEGACY_USER_PRICE_ROLE_MAP = {
   corporativo: 'tecnico',
+  corporativo2: 'public',
   vip: 'distribuidor',
 };
 
@@ -41,4 +45,23 @@ export function ensureFullPrices(prices = {}) {
     mayorista: Number(prices.mayorista ?? Math.round(pub * 0.85)),
     distribuidor: Number(prices.distribuidor ?? prices.vip ?? Math.round(pub * 0.78)),
   };
+}
+
+function penToUsd(pen, rate) {
+  if (!Number.isFinite(pen) || pen <= 0 || !Number.isFinite(rate) || rate <= 0) return 0;
+  return Math.round((pen / rate) * 100) / 100;
+}
+
+/** Precio USD según rol de usuario (corporativo 2 puede tener PEN fijo por producto). */
+export function resolveUserRolePriceUsd(prices = {}, userRole, options = {}) {
+  const full = ensureFullPrices(prices);
+  if (userRole === 'corporativo2') {
+    const fixedPen = resolveCorporativo2FixedPen(...(options.productKeys ?? []));
+    if (fixedPen != null && fixedPen > 0 && options.saleRate > 0) {
+      return penToUsd(fixedPen, options.saleRate);
+    }
+    return full.public;
+  }
+  const priceRole = resolvePriceRole(userRole);
+  return full[priceRole] ?? full.public;
 }

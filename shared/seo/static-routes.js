@@ -2,18 +2,34 @@
 export const STATIC_SEO_ROUTES = [
   {
     pathname: '/preguntas-frecuentes',
-    title: 'Preguntas frecuentes | Fotocopiadoras Ricoh | HaiStore',
+    title: 'Preguntas frecuentes RICOH | Fotocopiadora, Tóner y Repuestos | HaiStore',
     description:
-      'Respuestas sobre venta y alquiler de fotocopiadoras Ricoh, garantía, delivery, tóner, repuestos y soporte técnico. Distribuidor Autorizado en Perú.',
+      'Respuestas sobre venta y alquiler de fotocopiadoras Ricoh, impresoras, tóner, repuestos, garantía, delivery e instalación. Distribuidor Autorizado en Perú.',
     pageName: 'Preguntas frecuentes',
     jsonLdKind: 'faq',
   },
   {
     pathname: '/por-que-comprar-con-nosotros',
-    title: 'Por qué comprar con nosotros | Distribuidor Autorizado Ricoh | HaiStore',
+    title: 'Distribuidor Autorizado Ricoh Perú | Fotocopiadora e Impresora | HaiStore',
     description:
-      'Distribuidor Autorizado Ricoh en Perú: venta y alquiler de fotocopiadoras, tóner, repuestos, cobertura nacional y soporte técnico especializado.',
-    pageName: 'Por qué comprar con nosotros',
+      'Somos Distribuidor Autorizado Ricoh en Perú: fotocopiadoras, impresoras, tóner original, repuestos, alquiler de equipos, envío nacional y soporte técnico especializado.',
+    pageName: 'Distribuidor Autorizado Ricoh',
+    jsonLdKind: 'webpage',
+  },
+  {
+    pathname: '/descargas',
+    title: 'Descargas de soporte Ricoh | Utilidades técnicas | HaiStore',
+    description:
+      'Descarga utilidades de soporte técnico para impresoras y fotocopiadoras Ricoh: acceso remoto, diagnóstico de red y herramientas recomendadas por HaiTech, Distribuidor Autorizado.',
+    pageName: 'Descargas de soporte',
+    jsonLdKind: 'webpage',
+  },
+  {
+    pathname: '/contacto',
+    title: 'Contacto | Cotizar Fotocopiadora, Impresora o Tóner Ricoh | HaiStore',
+    description:
+      'Cotiza fotocopiadoras, impresoras, tóner y repuestos Ricoh con Distribuidor Autorizado en Lima y Perú. Ventas, soporte técnico y asesoría comercial por WhatsApp, teléfono o formulario.',
+    pageName: 'Contacto',
     jsonLdKind: 'webpage',
   },
 ];

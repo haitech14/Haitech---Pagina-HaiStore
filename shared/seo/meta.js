@@ -9,10 +9,10 @@ import {
 export const SITE_BRAND_NAME = 'HaiStore';
 
 export const DEFAULT_SITE_TITLE =
-  'HaiStore - Fotocopiadoras e Impresoras Ricoh | Distribuidor Autorizado';
+  'RICOH Perú | Fotocopiadora, Impresora, Tóner y Repuestos | Distribuidor Autorizado HaiStore';
 
 export const DEFAULT_SITE_DESCRIPTION =
-  'Distribuidor Autorizado Ricoh en Perú. Venta y alquiler de fotocopiadoras, multifuncionales, impresoras, tóner, tintas y repuestos. Envío a todo el país y soporte técnico.';
+  'Distribuidor Autorizado Ricoh en Perú: venta y alquiler de fotocopiadoras, impresoras multifuncionales, tóner original y compatible, repuestos y soporte técnico. Envío nacional, garantía y cotización online.';
 
 export const DEFAULT_OG_IMAGE = '/categories/promonuevas-1.png';
 
@@ -45,10 +45,10 @@ const ROOT_CATEGORY_DESCRIPTIONS = {
 };
 
 export const STORE_SITE_TITLE =
-  'Tienda online | Fotocopiadoras, Impresoras y Tóner Ricoh | HaiStore';
+  'Tienda RICOH | Fotocopiadora, Impresora, Tóner y Repuestos | HaiStore Perú';
 
 export const STORE_SITE_DESCRIPTION =
-  'Catálogo HaiStore: fotocopiadoras y multifuncionales Ricoh, impresoras, tóner, tintas, repuestos y accesorios. Venta y alquiler con precios en USD, asesoría y envío a todo el Perú.';
+  'Compra online fotocopiadoras Ricoh, impresoras láser, tóner original y compatible, repuestos y accesorios. Distribuidor Autorizado con precios en USD, stock real y envío a todo el Perú.';
 
 const SUBCATEGORY_TITLE_OVERRIDES = {
   'unidades-compatibles': 'Unidades Compatibles Ricoh | Repuestos | HaiStore',

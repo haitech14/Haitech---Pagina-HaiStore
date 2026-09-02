@@ -278,7 +278,7 @@
       "purchase_price_usd": 610,
       "created_at": "2026-06-25T00:00:00.000Z",
       "prices": {
-        "public": 1069,
+        "public": 1140,
         "tecnico": 889,
         "mayorista": 809,
         "distribuidor": 939
@@ -1506,7 +1506,7 @@
       "purchase_price_usd": 1127.18,
       "created_at": "2026-05-15T00:00:00.000Z",
       "prices": {
-        "public": 1079,
+        "public": 1140,
         "tecnico": 899,
         "mayorista": 899,
         "distribuidor": 969
@@ -2093,7 +2093,7 @@
         "/products/71289ec2-dbca-4780-b319-eb3d259fadb5-3.webp"
       ],
       "prices": {
-        "public": 1249,
+        "public": 1227,
         "tecnico": 1049,
         "mayorista": 1089,
         "distribuidor": 1149
@@ -63566,6 +63566,2305 @@
         "mayorista": 614,
         "distribuidor": 564
       }
+    },
+    {
+      "id": "a9faf545-1763-40e5-acd7-7b2fb30ec5df",
+      "code": "AMS-KM-367",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub 367 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub 367.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.369Z",
+      "updated_at": "2026-09-02T21:10:54.370Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-367-220v-a9faf545",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "8a5b00f2-a77c-45e2-b192-9260357d200a",
+          "name": "Modelo de equipo",
+          "value": "bizhub 367"
+        },
+        {
+          "id": "5c0187e9-b9a1-4160-9162-4c949941e71a",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "ebfb05c7-2dde-4797-af50-f2fe4fbebab5",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "2f8f5a67-90cb-480c-b5b1-960b747d210b",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 10
+        }
+      ],
+      "stock": 10
+    },
+    {
+      "id": "123d5549-eb91-4670-8047-7ba7d371c83b",
+      "code": "AMS-KM-368",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub 368 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub 368.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.371Z",
+      "updated_at": "2026-09-02T21:10:54.371Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-368-220v-123d5549",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "27ba68ab-9848-41fd-8629-146f30f57689",
+          "name": "Modelo de equipo",
+          "value": "bizhub 368"
+        },
+        {
+          "id": "21e29de3-070b-49bb-b22f-15534ffd7f21",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "fbd3bcea-c918-4045-aac7-3b7e24674989",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "de64bf8e-d95a-46e4-b8af-7caffda15ffe",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 2
+        }
+      ],
+      "stock": 2
+    },
+    {
+      "id": "ae7cca1c-b450-4091-9861-f448c78b2206",
+      "code": "AMS-KM-458",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub 458 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub 458.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.371Z",
+      "updated_at": "2026-09-02T21:10:54.371Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-458-220v-ae7cca1c",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "c1836deb-2594-4345-bde9-d54964160c9f",
+          "name": "Modelo de equipo",
+          "value": "bizhub 458"
+        },
+        {
+          "id": "c0001c65-75f9-4d89-b52f-760e1c466d37",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "c0368a6e-689b-4240-9dde-d7faa437d7ce",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "7ebe1080-a6c6-48fd-b095-6c4c528f9308",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 1
+        }
+      ],
+      "stock": 1
+    },
+    {
+      "id": "8d78fc3a-ff6b-43e0-bec4-0a1124239643",
+      "code": "AMS-KM-558",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub 558 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub 558.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.371Z",
+      "updated_at": "2026-09-02T21:10:54.371Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-558-220v-8d78fc3a",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "db4d1620-3954-42c5-a810-c0f750b6e8a4",
+          "name": "Modelo de equipo",
+          "value": "bizhub 558"
+        },
+        {
+          "id": "4088b6e6-9f3f-40eb-b50d-6dfeb64064d0",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "53746ccb-f413-4230-ae2c-e6d825e5b149",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "8d1eabd4-b339-44a7-af2a-2ecdad33c5d5",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 1
+        }
+      ],
+      "stock": 1
+    },
+    {
+      "id": "a9d13265-933a-4584-a372-0c8bd07774e4",
+      "code": "AMS-KM-550I",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub 550i 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub 550i.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.372Z",
+      "updated_at": "2026-09-02T21:10:54.372Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-550i-220v-a9d13265",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "8f34d3c7-5fdb-41cb-a129-03230fd25ee7",
+          "name": "Modelo de equipo",
+          "value": "bizhub 550i"
+        },
+        {
+          "id": "70e26c87-8b83-4f63-87bd-597c5a676fe3",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "901c46a0-0aa9-40dd-a5ab-faa0b134301b",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "a72ab6ec-6449-4f0f-95b4-6e3ad03f0e13",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 2
+        }
+      ],
+      "stock": 2
+    },
+    {
+      "id": "d3fc4fee-7228-4575-b0db-71cef9aa34a6",
+      "code": "AMS-KM-508",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub 508 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub 508.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.372Z",
+      "updated_at": "2026-09-02T21:10:54.372Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-508-220v-d3fc4fee",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "714690c6-e20a-4c1a-924a-ace815636089",
+          "name": "Modelo de equipo",
+          "value": "bizhub 508"
+        },
+        {
+          "id": "6898d84e-810e-492a-bc0a-127a651ee3aa",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "d538db77-5956-4bfd-9092-78f97e72edab",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "d382edfd-a4f6-492f-859f-ae152b6727f4",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 4
+        }
+      ],
+      "stock": 4
+    },
+    {
+      "id": "27e34682-296f-4ec7-9fcc-0019814eb9ba",
+      "code": "AMS-KM-808",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub 808 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub 808.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.373Z",
+      "updated_at": "2026-09-02T21:10:54.373Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-808-220v-27e34682",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "726794fe-ad42-4bd5-9268-05ae48eaf9b1",
+          "name": "Modelo de equipo",
+          "value": "bizhub 808"
+        },
+        {
+          "id": "8a115371-ab95-45dd-955f-99fcf2710cb9",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "fb6e2f8a-ad51-451b-923a-bd6e3d99124c",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "3a0a73a9-5258-4396-a609-30b890373f06",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 4
+        }
+      ],
+      "stock": 4
+    },
+    {
+      "id": "9683bdb9-031d-43b9-a490-f465fc704a30",
+      "code": "AMS-KM-958",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub 958 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub 958.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.374Z",
+      "updated_at": "2026-09-02T21:10:54.374Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-958-220v-9683bdb9",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "a2604650-47d4-4516-b364-960987a0a117",
+          "name": "Modelo de equipo",
+          "value": "bizhub 958"
+        },
+        {
+          "id": "35686027-87c5-492a-be59-3772b8a163fe",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "e68ea19f-b7ff-45e9-9243-a7d1259601ff",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "5a439bd4-a860-4db9-b82f-cc41dbb72218",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 2
+        }
+      ],
+      "stock": 2
+    },
+    {
+      "id": "8716bd24-0f76-4d41-a5a7-aded8519bafe",
+      "code": "AMS-KM-C368",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub C368 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub C368.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.374Z",
+      "updated_at": "2026-09-02T21:10:54.375Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-c368-220v-8716bd24",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "01bb1c8f-1170-4db5-ad1c-44e5e64329a4",
+          "name": "Modelo de equipo",
+          "value": "bizhub C368"
+        },
+        {
+          "id": "43112885-560c-4c50-a1eb-a7fd8e506927",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "f87bd8d1-021e-4941-aee4-aa8aef569a7b",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "d3087554-d012-4f5a-822d-06b4e2dd368b",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 10
+        }
+      ],
+      "stock": 10
+    },
+    {
+      "id": "2e06a5cb-8b00-4e15-8c69-b12c95262f56",
+      "code": "AMS-KM-C454I",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub C454i 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub C454i.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.375Z",
+      "updated_at": "2026-09-02T21:10:54.375Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-c454i-220-2e06a5cb",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "72bb87cd-97f7-414e-813e-cbf8e88c4ab2",
+          "name": "Modelo de equipo",
+          "value": "bizhub C454i"
+        },
+        {
+          "id": "80ea150c-8635-4985-9e27-8d783e56e0d5",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "71b0a0a7-fed6-4b79-acc9-a722af692890",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "f749ab01-938e-4380-97a7-d35c6820fa90",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 10
+        }
+      ],
+      "stock": 10
+    },
+    {
+      "id": "1276d1c8-2754-4563-a8aa-efa4dd38b2cc",
+      "code": "AMS-KM-C454",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub C454 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub C454.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.375Z",
+      "updated_at": "2026-09-02T21:10:54.375Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-c454-220v-1276d1c8",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "a2285810-05c3-4522-afd6-9b19fa7b979b",
+          "name": "Modelo de equipo",
+          "value": "bizhub C454"
+        },
+        {
+          "id": "7bd42240-f42c-4551-b37c-f2014339abbf",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "1316f7e9-bb14-416c-ab61-e5f4f08ef6c4",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "1052e58b-5291-4b25-8b17-3fe6d8078005",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 1
+        }
+      ],
+      "stock": 1
+    },
+    {
+      "id": "00477a9f-8e5c-4513-b1e0-2d5b1e3bb791",
+      "code": "AMS-KM-C458",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub C458 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub C458.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.376Z",
+      "updated_at": "2026-09-02T21:10:54.376Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-c458-220v-00477a9f",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "1923d3b3-753b-4ef3-b443-9efda37accad",
+          "name": "Modelo de equipo",
+          "value": "bizhub C458"
+        },
+        {
+          "id": "8b73700a-1c6f-450f-8a34-5457d2ee039f",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "85a07cd4-2e8f-4ea8-8a6f-100d9c83d374",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "06c330ab-39f4-4843-936b-f40476fe720c",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 7
+        }
+      ],
+      "stock": 7
+    },
+    {
+      "id": "9a131920-5d1e-4edd-b958-53922825be4f",
+      "code": "AMS-KM-C558",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub C558 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub C558.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.376Z",
+      "updated_at": "2026-09-02T21:10:54.376Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-c558-220v-9a131920",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "bc48c08d-a5a3-4294-88cb-061ca0a49145",
+          "name": "Modelo de equipo",
+          "value": "bizhub C558"
+        },
+        {
+          "id": "495cc7f7-829f-4fa4-803c-c5028fc77357",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "02ede128-0e74-4fd9-a833-321a885aaef2",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "086b3f6c-09a0-483c-8bbd-e56df5e858bf",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 5
+        }
+      ],
+      "stock": 5
+    },
+    {
+      "id": "41e29002-cda5-45f9-b83c-155576f536e9",
+      "code": "AMS-KM-C759",
+      "name": "Impresora Multifuncional Remanufacturada KONICA MINOLTA bizhub C759 220V",
+      "description": "Equipo remanufacturado KONICA MINOLTA bizhub C759.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Konica Minolta",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.376Z",
+      "updated_at": "2026-09-02T21:10:54.376Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-konica-minolta-bizhub-c759-220v-41e29002",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "eb3bdbde-b4c0-45f6-8d65-77fac6108760",
+          "name": "Modelo de equipo",
+          "value": "bizhub C759"
+        },
+        {
+          "id": "70b33b95-007b-4801-a7c6-a0103732b4c9",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "a3f16c2c-62dd-4fe9-b89a-ab98bf8ae57b",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "4fef3417-4a63-4484-9ba9-4282ca71f792",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 12
+        }
+      ],
+      "stock": 12
+    },
+    {
+      "id": "aaeeb0e6-a460-4ea5-8dc5-6a44dc5f63e8",
+      "code": "AMS-RICOH-MPC3404EX",
+      "name": "Impresora Multifuncional Remanufacturada RICOH MP C3404ex 220V",
+      "description": "Equipo remanufacturado RICOH MP C3404ex.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Ricoh",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.377Z",
+      "updated_at": "2026-09-02T21:10:54.377Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-ricoh-mp-c3404ex-220v-aaeeb0e6",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "0fa692d7-36fc-47a6-9f6c-53c5cf1e690d",
+          "name": "Modelo de equipo",
+          "value": "MP C3404ex"
+        },
+        {
+          "id": "0964ca8f-6fb3-4e43-821f-e4d6a218d317",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "50cf8a7d-daa6-43f4-a173-e21af78d56b6",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "ff8f2456-8f82-47a0-888f-0c21cf9b805d",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 5
+        }
+      ],
+      "stock": 5
+    },
+    {
+      "id": "01e8e775-8815-4075-8794-9eb986065cc7",
+      "code": "AMS-RICOH-MPC5503",
+      "name": "Impresora Multifuncional Remanufacturada RICOH MP C5503 220V",
+      "description": "Equipo remanufacturado RICOH MP C5503.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Ricoh",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.377Z",
+      "updated_at": "2026-09-02T21:10:54.377Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-ricoh-mp-c5503-220v-01e8e775",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "d3aa7c22-aaea-4693-8d2f-734fdd7724c6",
+          "name": "Modelo de equipo",
+          "value": "MP C5503"
+        },
+        {
+          "id": "6bf34391-9386-4ca4-8577-8ddcbb1d8eb6",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "f9701c78-b978-4946-aa3c-a1fa04286039",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "6eb44d08-383f-46a3-a7b9-650ac5a47b45",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 1
+        }
+      ],
+      "stock": 1
+    },
+    {
+      "id": "7a0fd730-2627-4931-a3a9-d0da35b94b45",
+      "code": "AMS-RICOH-MPC6503",
+      "name": "Impresora Multifuncional Remanufacturada RICOH MP C6503 220V",
+      "description": "Equipo remanufacturado RICOH MP C6503.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Ricoh",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.377Z",
+      "updated_at": "2026-09-02T21:10:54.377Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-ricoh-mp-c6503-220v-7a0fd730",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "35094c26-e9e4-48a8-ad64-824dc7b14238",
+          "name": "Modelo de equipo",
+          "value": "MP C6503"
+        },
+        {
+          "id": "d469d9cc-9505-4e0a-aa8c-fb7122d51578",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "10509489-164e-46a0-990f-473e60d60a01",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "e0093ccc-1c55-4a27-89bb-061f91b5b114",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 2
+        }
+      ],
+      "stock": 2
+    },
+    {
+      "id": "3ed07777-2054-4d06-b473-e679ef424e9a",
+      "code": "AMS-RICOH-MPC8003",
+      "name": "Impresora Multifuncional Remanufacturada RICOH MP C8003 220V",
+      "description": "Equipo remanufacturado RICOH MP C8003.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Ricoh",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.378Z",
+      "updated_at": "2026-09-02T21:10:54.378Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-ricoh-mp-c8003-220v-3ed07777",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "0fb6b23f-5f5a-4a67-8508-28a8d6994d9f",
+          "name": "Modelo de equipo",
+          "value": "MP C8003"
+        },
+        {
+          "id": "8fa499e0-b7a2-4bac-9cc7-25a2bb0cef8b",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "4d0589f8-5d1b-488e-985c-d4f0d1c29609",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "87caf1bb-a66c-4e44-bdeb-aa678ec82bf3",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 1
+        }
+      ],
+      "stock": 1
+    },
+    {
+      "id": "a9d54881-12c6-4212-8ceb-612e95c6cf47",
+      "code": "AMS-RICOH-MP3555",
+      "name": "Impresora Multifuncional Remanufacturada RICOH MP 3555 220V",
+      "description": "Equipo remanufacturado RICOH MP 3555.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Ricoh",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.378Z",
+      "updated_at": "2026-09-02T21:10:54.378Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-ricoh-mp-3555-220v-a9d54881",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "514d6fe8-fb1e-46da-a7cf-697960da859e",
+          "name": "Modelo de equipo",
+          "value": "MP 3555"
+        },
+        {
+          "id": "d7ae8f1d-dffe-4ca6-9d0c-90d8d84618f9",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "72cee5a1-2928-468c-86bc-b6546f2acb15",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "d7aea472-8b36-4847-80ce-a2b8cbfc8255",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 5
+        }
+      ],
+      "stock": 5
+    },
+    {
+      "id": "500471ce-25d3-41be-ab64-f2d65da0962b",
+      "code": "AMS-RICOH-MP6055",
+      "name": "Impresora Multifuncional Remanufacturada RICOH MP 6055 220V",
+      "description": "Equipo remanufacturado RICOH MP 6055.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Ricoh",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.378Z",
+      "updated_at": "2026-09-02T21:10:54.378Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-ricoh-mp-6055-220v-500471ce",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "bcf940e4-0755-4c06-a407-c5208c439e42",
+          "name": "Modelo de equipo",
+          "value": "MP 6055"
+        },
+        {
+          "id": "a90dfbd3-90f2-4496-9219-7e538ae71f43",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "83627695-54cc-4aee-831d-da05532824fc",
+          "name": "Color",
+          "value": "B/N"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "96fdddb3-42ae-4b13-b926-819d596761e5",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 15
+        }
+      ],
+      "stock": 15
+    },
+    {
+      "id": "e41c7669-4676-48c7-a3ee-8da21ddadef5",
+      "code": "AMS-RICOH-IMC6000",
+      "name": "Impresora Multifuncional Remanufacturada RICOH IM C6000 220V",
+      "description": "Equipo remanufacturado RICOH IM C6000.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Ricoh",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.378Z",
+      "updated_at": "2026-09-02T21:10:54.378Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-ricoh-im-c6000-220v-e41c7669",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "275399c6-9087-4bc4-b0e9-005df3596e73",
+          "name": "Modelo de equipo",
+          "value": "IM C6000"
+        },
+        {
+          "id": "047d96d4-1709-403e-9b9e-e626a956e11d",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "a8dc95f7-e659-4637-82bf-e09763ae0558",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "56fef383-3951-4898-a3db-21d6543eb498",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 5
+        }
+      ],
+      "stock": 5
+    },
+    {
+      "id": "f430c76b-435e-45f0-98ba-203e9a9c4370",
+      "code": "AMS-CANON-DXC3730",
+      "name": "Impresora Multifuncional Remanufacturada CANON imageRUNNER DX C3730 220V",
+      "description": "Equipo remanufacturado CANON imageRUNNER DX C3730.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Canon",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.379Z",
+      "updated_at": "2026-09-02T21:10:54.379Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-canon-imagerunner-dx-c3730-220v-f430c76b",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "95a69d74-66ef-4a84-b001-12031ad504aa",
+          "name": "Modelo de equipo",
+          "value": "imageRUNNER DX C3730"
+        },
+        {
+          "id": "51d958bd-3074-44b2-ba48-25dc4f8e76da",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "5e989887-ccfa-4bd4-87ed-e9f1d6428673",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "c56b4bc7-4751-4ce0-ac79-1c4bdbbf484e",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 10
+        }
+      ],
+      "stock": 10
+    },
+    {
+      "id": "9280ae6d-4abe-4a64-8cd6-e5e852aa8acf",
+      "code": "AMS-CANON-ADV-C5255",
+      "name": "Impresora Multifuncional Remanufacturada CANON imageRUNNER ADVANCE C5255 220V",
+      "description": "Equipo remanufacturado CANON imageRUNNER ADVANCE C5255.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Canon",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.379Z",
+      "updated_at": "2026-09-02T21:10:54.379Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-canon-imagerunner-advance-c5255-9280ae6d",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "8d6b450b-c839-460c-acbe-c03c7973b91d",
+          "name": "Modelo de equipo",
+          "value": "imageRUNNER ADVANCE C5255"
+        },
+        {
+          "id": "fdde8561-9113-48ae-8c6a-5fbd3976af73",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "bedcf250-f494-4720-8d76-60d2bd3e81f7",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "02318faf-b0bd-49b9-bd9c-e8af43988171",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 1
+        }
+      ],
+      "stock": 1
+    },
+    {
+      "id": "87f44524-a532-4410-88ad-73c631337daa",
+      "code": "AMS-CANON-ADV-C5560",
+      "name": "Impresora Multifuncional Remanufacturada CANON imageRUNNER ADVANCE C5560 220V",
+      "description": "Equipo remanufacturado CANON imageRUNNER ADVANCE C5560.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Canon",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.379Z",
+      "updated_at": "2026-09-02T21:10:54.379Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-canon-imagerunner-advance-c5560-87f44524",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "14732fd6-dc1e-4c21-b184-53a81d42c9da",
+          "name": "Modelo de equipo",
+          "value": "imageRUNNER ADVANCE C5560"
+        },
+        {
+          "id": "fd8c48b1-35b2-4784-a02d-93995ca180b4",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "3e705400-f4dc-43cd-a97d-fd4bcdd8d49d",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "1bbd022a-b0e5-4bbe-9fed-ad5bdcfeca74",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 10
+        }
+      ],
+      "stock": 10
+    },
+    {
+      "id": "11d92f40-bd0d-4fab-9e41-a897be20280b",
+      "code": "AMS-CANON-DXC5760",
+      "name": "Impresora Multifuncional Remanufacturada CANON imageRUNNER DX C5760 220V",
+      "description": "Equipo remanufacturado CANON imageRUNNER DX C5760.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Canon",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.380Z",
+      "updated_at": "2026-09-02T21:10:54.380Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-canon-imagerunner-dx-c5760-220v-11d92f40",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "1b9e8b99-810d-483a-94de-c2abbc35be0d",
+          "name": "Modelo de equipo",
+          "value": "imageRUNNER DX C5760"
+        },
+        {
+          "id": "093b4ec1-3aa8-4f45-9114-dde8ab44937c",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "264b4719-8c9f-4342-97bd-8eb45df9b3c0",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "89caeb1a-1758-4475-8a32-a764035deccf",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 5
+        }
+      ],
+      "stock": 5
+    },
+    {
+      "id": "cb545635-e376-418f-9c91-8e13bb3ae653",
+      "code": "AMS-CANON-ADV-C7570",
+      "name": "Impresora Multifuncional Remanufacturada CANON imageRUNNER ADVANCE C7570 220V",
+      "description": "Equipo remanufacturado CANON imageRUNNER ADVANCE C7570.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Canon",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.380Z",
+      "updated_at": "2026-09-02T21:10:54.380Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-canon-imagerunner-advance-c7570-cb545635",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "e8f768e2-7271-4580-8fd5-fb96dbdedb20",
+          "name": "Modelo de equipo",
+          "value": "imageRUNNER ADVANCE C7570"
+        },
+        {
+          "id": "a35b6b6f-54ca-496c-89e7-ff21ec10445a",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "1daeec28-7307-4b10-9454-5bb626c9946c",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "efabc82b-8f87-42fb-af3e-62217a601794",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 3
+        }
+      ],
+      "stock": 3
+    },
+    {
+      "id": "98464d57-b873-430d-839c-77cafebb0046",
+      "code": "AMS-CANON-ADV-C7780",
+      "name": "Impresora Multifuncional Remanufacturada CANON imageRUNNER ADVANCE C7780 220V",
+      "description": "Equipo remanufacturado CANON imageRUNNER ADVANCE C7780.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Multifuncionales, Multifuncionales Remanufacturadas",
+      "brand": "Canon",
+      "image_url": "/categories/multifuncionales.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.380Z",
+      "updated_at": "2026-09-02T21:10:54.380Z",
+      "sort_order": 3100,
+      "slug": "impresora-multifuncional-remanufacturada-canon-imagerunner-advance-c7780-98464d57",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "4da2187e-2ce6-4163-af0c-159ae9e7c39e",
+          "name": "Modelo de equipo",
+          "value": "imageRUNNER ADVANCE C7780"
+        },
+        {
+          "id": "89e4c2f3-9458-4133-9033-65db5593fbd7",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "0c790b38-fe47-48e0-9460-44a9691fa72e",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "309ac57d-1bc3-41f1-81f2-828dcb2e6eaa",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 3
+        }
+      ],
+      "stock": 3
+    },
+    {
+      "id": "4c090a02-1669-44a2-af27-cb7ce583e04e",
+      "code": "AMS-HP-T2530",
+      "name": "Plotter Remanufacturado HP DesignJet T2530 220V",
+      "description": "Equipo remanufacturado HP DesignJet T2530.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Formato Ancho",
+      "brand": "HP",
+      "image_url": "/categories/formato-ancho.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.381Z",
+      "updated_at": "2026-09-02T21:10:54.381Z",
+      "sort_order": 3100,
+      "slug": "plotter-remanufacturado-hp-designjet-t2530-220v-4c090a02",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "208276f0-fc0c-43cb-8c89-0e4ac7448457",
+          "name": "Modelo de equipo",
+          "value": "DesignJet T2530"
+        },
+        {
+          "id": "688437f9-65c3-4e3a-9d44-640354faa42d",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "06e4ab89-7864-4966-8707-c9e61d810c4f",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "4245d117-fde7-46d6-b7da-db8fdf932aa3",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 6
+        }
+      ],
+      "stock": 6
+    },
+    {
+      "id": "3d933f0e-a24c-44b5-a5b4-1284bd92f41d",
+      "code": "AMS-HP-2600",
+      "name": "Plotter Remanufacturado HP DesignJet 2600 220V",
+      "description": "Equipo remanufacturado HP DesignJet 2600.\nVoltaje: 220V.\nProveedor: AMS.\nAlmacén: Almacén San Juan de Lurigancho.",
+      "currency": "USD",
+      "category": "Formato Ancho",
+      "brand": "HP",
+      "image_url": "/categories/formato-ancho.png",
+      "gallery": [],
+      "created_at": "2026-09-02T21:10:54.381Z",
+      "updated_at": "2026-09-02T21:10:54.381Z",
+      "sort_order": 3100,
+      "slug": "plotter-remanufacturado-hp-designjet-2600-220v-3d933f0e",
+      "status": "active",
+      "prices": {
+        "public": 0,
+        "tecnico": 0,
+        "mayorista": 0,
+        "distribuidor": 0
+      },
+      "attributes": [
+        {
+          "id": "8e710228-9d6b-441e-96e5-4556120bf4eb",
+          "name": "Modelo de equipo",
+          "value": "DesignJet 2600"
+        },
+        {
+          "id": "11e5e766-7dbc-4e05-b23a-af09b3671fc5",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "611af573-0247-439e-98c6-f70afd3cdf46",
+          "name": "Color",
+          "value": "Color"
+        }
+      ],
+      "suppliers": [
+        {
+          "id": "19e76ada-b7bf-4835-90e8-d224ae56c372",
+          "name": "AMS",
+          "purchase_price_usd": 0
+        }
+      ],
+      "purchase_price_usd": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 4
+        }
+      ],
+      "stock": 4
+    }
+  ],
+  "warehouses": [
+    {
+      "id": "operativo",
+      "name": "Operativo",
+      "delivery_time": "Inmediata"
+    },
+    {
+      "id": "santa-catalina",
+      "name": "Santa Catalina",
+      "delivery_time": "Inmediata"
+    },
+    {
+      "id": "partes-scrap",
+      "name": "Partes / Scrap",
+      "delivery_time": "Consultar"
+    },
+    {
+      "id": "otros-estados",
+      "name": "Otros estados",
+      "delivery_time": "Consultar"
+    },
+    {
+      "id": "1931",
+      "name": "Almacén 1931",
+      "delivery_time": "Inmediata"
+    },
+    {
+      "id": "principal",
+      "name": "Almacén principal",
+      "delivery_time": "Inmediata"
+    },
+    {
+      "id": "san-juan-lurigancho",
+      "name": "Almacén San Juan de Lurigancho",
+      "delivery_time": "Consultar"
     }
   ]
 }

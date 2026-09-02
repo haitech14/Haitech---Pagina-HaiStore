@@ -5,6 +5,8 @@ import { DEFAULT_USD_TO_PEN } from '@/lib/exchange-rate';
 import {
   ensureFullPrices,
   resolvePriceRole,
+  resolveUserRoleDisplayPen,
+  resolveUserRolePriceUsd,
   USER_ROLE_LABELS,
   type PriceRole,
   type ProductRolePrices,
@@ -69,14 +71,26 @@ export function resolveShowcaseRolePriceLines(
   },
 ): CatalogRolePriceLine[] {
   const pricesUsd = resolveShowcaseProductPricesUsd(product, options);
+  const productKeys = [product.id, product.code];
+  const pricingContext = {
+    isEquipment: !options.isConsumable,
+    saleRate: options.saleRate,
+    productKeys,
+  };
 
   return viewAsRoles.map((userRole) => {
-    const priceRole = resolvePriceRole(userRole);
-    const rawUsd = pricesUsd[priceRole] ?? pricesUsd.public;
+    const priceRole = userRole === 'corporativo2' ? 'public' : resolvePriceRole(userRole);
+    const rawUsd = resolveUserRolePriceUsd(pricesUsd, userRole, pricingContext);
+    const priceUsd = options.isConsumable ? rawUsd : showcaseDisplayUsd(rawUsd, options);
+    const pricePen = resolveUserRoleDisplayPen(pricesUsd, userRole, {
+      ...pricingContext,
+      penFromUsd: (usd) => showcaseUsdToPen(usd, options),
+    });
     return {
       role: userRole,
       label: USER_ROLE_LABELS[userRole],
-      priceUsd: showcaseDisplayUsd(rawUsd, options),
+      priceUsd,
+      pricePen,
       priceRole,
     };
   });

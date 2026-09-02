@@ -32,6 +32,7 @@ import type { UserProfile } from '@/types/product';
 function profileRoleGroup(role: string): CustomerRoleGroupKey {
   if (role === 'admin') return 'admin';
   if (role === 'tecnico' || role === 'corporativo') return 'tecnico';
+  if (role === 'corporativo2') return 'public';
   if (role === 'distribuidor' || role === 'vip') return 'distribuidor';
   if (role === 'mayorista') return 'mayorista';
   return 'public';

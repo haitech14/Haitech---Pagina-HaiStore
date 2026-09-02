@@ -30,16 +30,6 @@ const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
       pathname.startsWith('/producto/'),
   },
   {
-    id: 'consumibles',
-    to: storeShowcasePath({ categoryId: 'toner' }),
-    label: 'Consumibles',
-    prefetch: true,
-    matchActive: ({ pathname }) =>
-      pathname.includes('toner') ||
-      pathname.includes('repuestos') ||
-      pathname.includes('consumible'),
-  },
-  {
     id: 'servicio-tecnico',
     to: serviceHubPath('servicio-tecnico'),
     label: 'Servicio Técnico',

@@ -76,7 +76,6 @@ export const HAITECH_BLACK_NAV_LINKS = [
 export const HAITECH_PRIMARY_CATEGORIES_LEFT = [
   { label: 'Multifuncionales', to: categoryLandingPath('multifuncionales') },
   { label: 'Impresión', to: categoryLandingPath('impresoras') },
-  { label: 'Tóner y consumibles', to: categoryLandingPath('toner-suministros') },
 ] as const;
 
 /** Nav negra: servicios (derecha del separador). */
@@ -101,12 +100,6 @@ export const HAITECH_HOME_SECONDARY_NAV_LINKS = [
     label: 'Equipos',
     href: storeShowcasePath({ categoryId: 'multifuncionales' }),
     menu: 'equipos',
-  },
-  {
-    id: 'consumibles',
-    label: 'Consumibles',
-    href: storeShowcasePath({ categoryId: 'toner' }),
-    menu: 'consumibles',
   },
   {
     id: 'servicio-tecnico',
@@ -134,7 +127,6 @@ export const HAITECH_SECONDARY_NAV = [
   { id: 'marcas', label: 'Nuestras marcas', icon: '🏷️', hasMenu: true, to: '/tienda' },
   { id: 'alquiler', label: 'Alquiler de equipos', icon: '🖨️', hasMenu: false, to: serviceHubPath('alquiler') },
   { id: 'servicio', label: 'Servicio técnico', icon: '🛠️', hasMenu: false, to: serviceHubPath('servicio-tecnico') },
-  { id: 'toner', label: 'Tóner y suministros', icon: '📦', hasMenu: false, to: categoryLandingPath('toner-suministros') },
   { id: 'corporativo', label: 'Soluciones empresas', icon: '🏢', hasMenu: false, to: '/contacto' },
   { id: 'soporte', label: 'Soporte HAITECH', icon: '🛡️', hasMenu: false, to: serviceHubPath('servicio-tecnico') },
 ] as const;
@@ -143,8 +135,6 @@ export const HAITECH_PRODUCT_TABS = [
   { id: 'ofertas', label: 'Ofertas top', to: '/tienda' },
   { id: 'multi', label: 'Multifuncionales', to: categoryLandingPath('multifuncionales') },
   { id: 'impresoras', label: 'Impresoras', to: categoryLandingPath('impresoras') },
-  { id: 'toner', label: 'Tóner', to: categoryLandingPath('toner-suministros') },
-  { id: 'repuestos', label: 'Repuestos', to: categoryLandingPath('repuestos') },
 ] as const;
 
 /** Carrusel de categorías debajo de los catálogos Nuevos / Seminuevos / Remanufacturado. */
@@ -162,20 +152,6 @@ export const HAITECH_HOME_CATEGORY_CAROUSEL = [
     description: 'Láser mono y color',
     image: homeCategoryImage('impresoras'),
     to: storeShowcasePath({ categoryId: 'impresoras' }),
-  },
-  {
-    id: 'toner',
-    name: 'Tóner',
-    description: 'Originales y compatibles',
-    image: homeCategoryImage('toner-suministros'),
-    to: storeShowcasePath({ categoryId: 'toner' }),
-  },
-  {
-    id: 'repuestos',
-    name: 'Repuestos',
-    description: 'Unidades, fusores y más',
-    image: homeCategoryImage('repuestos'),
-    to: storeShowcasePath({ categoryId: 'repuestos' }),
   },
   {
     id: 'formato-ancho',
@@ -247,21 +223,9 @@ export const HAITECH_HOME_POST_SERVICES_BANNERS = [
   },
 ] as const;
 
-/** Banner intermedio home — repuestos originales Ricoh. */
-export const HAITECH_HOME_MID_BANNER = {
-  id: 'mid-repuestos',
-  png: '/hero/haitech-home-mid-banner-cropped.png',
-  webp: '/hero/haitech-home-mid-banner-cropped.webp',
-  width: 1779,
-  height: 445,
-  alt: 'Repuestos originales para fotocopiadoras Ricoh — calidad garantizada y disponibilidad inmediata',
-  href: storeShowcasePath({ categoryId: 'repuestos' }),
-} as const;
-
-/** Carrusel «Nuestros Servicios»: alquiler → servicio técnico → repuestos (1 slide visible). */
+/** Carrusel «Nuestros Servicios»: alquiler → servicio técnico (1 slide visible). */
 export const HAITECH_HOME_SERVICES_CAROUSEL_BANNERS = [
   ...HAITECH_HOME_POST_SERVICES_BANNERS,
-  HAITECH_HOME_MID_BANNER,
 ] as const;
 
 /** Encabezado de la sección Nuestros Servicios (encima del banner de alquiler). */

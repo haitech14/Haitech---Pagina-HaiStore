@@ -16,6 +16,7 @@ import { normalizePreparationPrices } from '@/lib/seminueva-preparation';
 import {
   ensureFullPrices,
   resolvePriceRole,
+  resolveUserRolePriceUsd,
   type InventoryProduct,
   type InventoryWarehouse,
   type PriceRole,
@@ -25,9 +26,10 @@ import {
 export { ensureFullPrices, resolvePriceRole };
 
 export function getEffectivePrice(product: InventoryProduct, role: string): number {
-  const priceRole = resolvePriceRole(role);
   const prices = ensureFullPrices(product.prices);
-  return prices[priceRole] ?? prices.public;
+  return resolveUserRolePriceUsd(prices, role, {
+    productKeys: [product.id, product.code, product.slug],
+  });
 }
 
 /** Mirrors server `toPublicProduct` so optimistic cache patches keep storefront fields. */
@@ -36,8 +38,8 @@ export function toPublicProduct(
   role: string,
   warehouses: InventoryWarehouse[] = DEFAULT_WAREHOUSES,
 ): Product {
-  const priceRole = resolvePriceRole(role);
   const prices = ensureFullPrices(product.prices);
+  const priceRole = role === 'corporativo2' ? 'public' : resolvePriceRole(role);
   const imageUrl = product.image_url ?? null;
   const galleryUrls = Array.isArray(product.gallery)
     ? product.gallery.filter((url) => typeof url === 'string' && url.trim().length > 0)

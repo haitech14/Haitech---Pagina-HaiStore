@@ -20,6 +20,8 @@ interface StoreCatalogHeaderProps {
   onSearchQueryChange: (value: string) => void;
   eyebrow?: string;
   title?: string;
+  /** Usar h1 en landings de categoría para SEO semántico. */
+  titleAsH1?: boolean;
   searchPlaceholder?: string;
   viewControls?: ReactNode;
   /** Categorías raíz seleccionables en la misma página (p. ej. /tienda). */
@@ -39,6 +41,7 @@ export function StoreCatalogHeader({
   onSearchQueryChange,
   eyebrow,
   title = storeCatalogCopy.title,
+  titleAsH1 = false,
   searchPlaceholder = storeCatalogCopy.searchPlaceholder,
   viewControls,
   categories,
@@ -57,6 +60,8 @@ export function StoreCatalogHeader({
     Boolean(categories?.length) && typeof onSelectCategory === 'function';
   const showAttributeFilters =
     Boolean(attributeFilters?.length) && typeof onToggleAttribute === 'function';
+  const TitleTag = titleAsH1 ? 'h1' : 'h2';
+  const titleId = titleAsH1 ? 'tienda-catalogo-titulo' : 'tienda-catalogo-titulo';
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
@@ -65,9 +70,9 @@ export function StoreCatalogHeader({
           {eyebrow ? (
             <p className="text-xs font-semibold uppercase tracking-wide text-red-600">{eyebrow}</p>
           ) : null}
-          <h2 id="tienda-catalogo-titulo" className="text-xl font-bold text-foreground sm:text-2xl">
+          <TitleTag id={titleId} className="text-xl font-bold text-foreground sm:text-2xl">
             {title}
-          </h2>
+          </TitleTag>
           <p className="mt-0.5 text-sm text-muted-foreground">
             {productCount} resultado{productCount === 1 ? '' : 's'}
           </p>

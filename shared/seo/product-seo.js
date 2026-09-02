@@ -288,10 +288,57 @@ function explicitIntro(product) {
 }
 
 /**
- * Párrafo SEO automático en el hero (desactivado en vitrina).
+ * Párrafo SEO automático en fichas sin descripción de inventario (tóner, repuestos, accesorios).
  */
-export function buildProductSeoBodyParagraph(_product) {
-  return null;
+export function buildProductSeoBodyParagraph(product) {
+  if (hasProductInventoryDescription(product)) return null;
+
+  const name = String(product?.name ?? 'Producto').trim();
+  const brand = resolveProductHeroBrandSeo(product) ?? 'Ricoh';
+  const model = extractProductModel(product);
+  const code = resolveProductHeroCodeSeo(product);
+  const categoryLower = String(product?.category ?? '').toLowerCase();
+  const nameLower = name.toLowerCase();
+
+  const isTonerOrInk =
+    /toner|tóner|cartucho|tinta|ink|suministro|consumible/i.test(categoryLower) ||
+    /toner|tóner|cartucho|tinta/i.test(nameLower);
+  const isSparePart =
+    /repuesto|partes|unidad de imagen|cilindro|fusor|rodillo|faja|drum|fuser/i.test(categoryLower);
+
+  if (isPrinterProductSeo(product)) {
+    const condition = resolveProductEquipmentConditionLabelSeo(product);
+    const modelPart = model ? ` modelo ${model}` : '';
+    return [
+      `${name} — ${condition ?? 'Nueva'} fotocopiadora o impresora ${brand}${modelPart}.`,
+      'Distribuidor Autorizado Ricoh en Perú: venta con garantía, instalación en Lima, envío nacional y soporte técnico especializado.',
+      'Cotiza online o por WhatsApp con asesoría para elegir el equipo según tu volumen de impresión.',
+    ].join(' ');
+  }
+
+  if (isTonerOrInk) {
+    const supplyKind = /tinta|ink/i.test(categoryLower + nameLower) ? 'tinta' : 'tóner';
+    const codePart = code ? ` (código ${code})` : '';
+    return [
+      `${name}${codePart} — ${supplyKind} ${brand} para fotocopiadoras e impresoras Ricoh.`,
+      'Compra con Distribuidor Autorizado HaiTech: stock real, precio en USD, asesoría para elegir el consumible correcto y envío a Lima y provincias.',
+      'Evita paradas de impresión con repuestos y suministros compatibles con tu modelo.',
+    ].join(' ');
+  }
+
+  if (isSparePart) {
+    const codePart = code ? ` Ref. ${code}.` : '';
+    return [
+      `${name} — repuesto ${brand} para impresoras y fotocopiadoras.${codePart}`,
+      'Repuesto original o compatible con stock permanente, asesoría técnica y envío a todo el Perú desde Distribuidor Autorizado Ricoh.',
+      'Consulta compatibilidad por modelo antes de comprar; nuestro equipo te ayuda a identificar la pieza correcta.',
+    ].join(' ');
+  }
+
+  return [
+    `${name} — producto ${brand} disponible en HaiStore, Distribuidor Autorizado Ricoh en Perú.`,
+    'Compra online con cotización, envío nacional y soporte técnico especializado en fotocopiadoras, impresoras, tóner y repuestos.',
+  ].join(' ');
 }
 
 export function buildProductOgProductMeta(product) {

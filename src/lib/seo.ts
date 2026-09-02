@@ -41,6 +41,7 @@ export {
   buildProductSeoBodyParagraph,
   extractProductModel,
   formatProductPageTitleSeo,
+  hasProductInventoryDescription,
   suggestProductSlug,
 } from '../../shared/seo/product-seo.js';
 

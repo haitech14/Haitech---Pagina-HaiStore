@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 
 import {
   HAITECH_HOME,
-  HAITECH_HOME_MID_BANNER,
   HAITECH_HOME_SERVICES_CAROUSEL_BANNERS,
   HAITECH_HOME_SERVICES_SECTION_HEADER,
 } from '@/data/haitech-home-shell';
@@ -215,23 +214,7 @@ function ServicesBannerCarousel() {
   );
 }
 
-/** Banner promocional intermedio (repuestos) — uso puntual fuera del carrusel. */
-export function HaitechHomeMidBanner({ className }: { className?: string }) {
-  const banner = HAITECH_HOME_MID_BANNER;
-
-  return (
-    <section
-      className={cn('w-full bg-white px-3 py-1 sm:px-4 sm:py-2 lg:px-5', className)}
-      aria-label={banner.alt}
-    >
-      <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}>
-        <MidBannerLink banner={banner} />
-      </div>
-    </section>
-  );
-}
-
-/** Sección Nuestros Servicios + carrusel (alquiler, servicio técnico, repuestos). */
+/** Sección Nuestros Servicios + carrusel (alquiler, servicio técnico). */
 export function HaitechHomePostServicesBanners({ className }: { className?: string }) {
   const header = HAITECH_HOME_SERVICES_SECTION_HEADER;
 

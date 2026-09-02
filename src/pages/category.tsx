@@ -23,6 +23,7 @@ import { CatalogFilterGroup } from '@/components/catalog-filter-group';
 import { CatalogFilterSection } from '@/components/catalog-filter-section';
 import { CatalogSidebarNav } from '@/components/catalog-sidebar-nav';
 import { CategoryCatalogFormatSections } from '@/components/category/category-catalog-format-sections';
+import { CategorySeoIntro } from '@/components/category/category-seo-intro';
 import {
   CategoryCatalogToolbar,
   type CatalogViewMode,
@@ -1723,14 +1724,17 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
             storefrontMode ? 'gap-6 px-4 sm:px-6' : 'gap-6 sm:gap-8',
           )}
         >
-          <h1 id={CATEGORY_HERO_ID} className="sr-only">
-            {pageTitle}
-          </h1>
+          {!(storefrontMode && showProductCatalog && !isStoreAll && !isInventorySearch) ? (
+            <h1 id={CATEGORY_HERO_ID} className="sr-only">
+              {pageTitle}
+            </h1>
+          ) : null}
 
-          {categorySeoIntro ? (
-            <section aria-label={`Información sobre ${pageTitle}`} className="sr-only">
-              <p>{categorySeoIntro}</p>
-            </section>
+          {categorySeoIntro && !isStoreAll && !isInventorySearch ? (
+            <CategorySeoIntro
+              title={`${pageTitle} Ricoh en Perú — Distribuidor Autorizado`}
+              intro={categorySeoIntro}
+            />
           ) : null}
 
           {storefrontMode && showProductCatalog ? (
@@ -1773,6 +1777,7 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
                 onSearchQueryChange={setCatalogSearch}
                 {...(isStoreAll ? {} : { eyebrow: storeCategory?.name ?? category?.name ?? 'Catálogo' })}
                 title={isStoreAll ? storeCatalogCopy.title : pageTitle}
+                titleAsH1={!isStoreAll && !isInventorySearch}
                 searchPlaceholder={
                   isStoreAll ? storeCatalogCopy.searchPlaceholder : `Buscar en ${pageTitle}…`
                 }

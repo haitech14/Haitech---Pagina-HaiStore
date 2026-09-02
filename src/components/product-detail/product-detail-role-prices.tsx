@@ -113,17 +113,19 @@ function useProductDetailRoleTotals({
 
   const viewAsTotals = useMemo<CatalogRolePriceLine[]>(() => {
     if (displayPrice.viewAsRolePrices.length <= 1) return [];
-    return displayPrice.viewAsRolePrices.map((line) => ({
-      ...line,
-      priceUsd: computeRoleTotalUsd(
-        line.priceRole,
-        quantity,
-        fullPrices,
-        bulkDiscountTiers,
-        equipmentExtrasUsd,
-        line.priceRole === 'public' ? preparationSurchargeUsd : 0,
-      ),
-    }));
+    return displayPrice.viewAsRolePrices.map((line) => {
+      const unitBase =
+        line.role === 'corporativo2'
+          ? line.priceUsd
+          : fullPrices[line.priceRole] + (line.priceRole === 'public' ? preparationSurchargeUsd : 0);
+      const volume = resolveBulkDiscountPricing(quantity, unitBase, bulkDiscountTiers, {
+        floorPriceUsd: fullPrices.tecnico,
+      });
+      return {
+        ...line,
+        priceUsd: volume.totalUsd + equipmentExtrasUsd * quantity,
+      };
+    });
   }, [
     displayPrice.viewAsRolePrices,
     quantity,

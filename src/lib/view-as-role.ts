@@ -1,24 +1,25 @@
-import { ensureFullPrices, resolvePriceRole, USER_ROLE_LABELS, type UserRole } from '@/lib/roles';
+import { ensureFullPrices, resolvePriceRole, resolveUserRolePriceUsd, USER_ROLE_LABELS, type UserRole } from '@/lib/roles';
 import type { Product } from '@/types/product';
 
 /** Roles disponibles para vista previa de precios (admin). */
 export const VIEW_AS_ROLE_OPTIONS: readonly { value: UserRole; label: string }[] = [
+  { value: 'corporativo2', label: USER_ROLE_LABELS.corporativo2 },
   { value: 'public', label: USER_ROLE_LABELS.public },
-  { value: 'mayorista', label: USER_ROLE_LABELS.mayorista },
-  { value: 'tecnico', label: USER_ROLE_LABELS.tecnico },
-  { value: 'corporativo', label: USER_ROLE_LABELS.corporativo },
   { value: 'distribuidor', label: USER_ROLE_LABELS.distribuidor },
-  { value: 'vip', label: USER_ROLE_LABELS.vip },
+  { value: 'tecnico', label: USER_ROLE_LABELS.tecnico },
+  { value: 'mayorista', label: USER_ROLE_LABELS.mayorista },
 ];
 
 export function applyViewAsPriceToProduct(product: Product, viewRole: string): Product {
   const prices = ensureFullPrices(product.prices ?? { public: product.price });
-  const priceRole = resolvePriceRole(viewRole);
+  const priceUsd = resolveUserRolePriceUsd(prices, viewRole, {
+    productKeys: [product.id, product.code],
+  });
   return {
     ...product,
     prices,
-    price: prices[priceRole] ?? product.price,
-    price_role: priceRole,
+    price: priceUsd,
+    price_role: viewRole === 'corporativo2' ? 'public' : resolvePriceRole(viewRole),
   };
 }
 

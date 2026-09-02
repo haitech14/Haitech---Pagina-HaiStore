@@ -23,10 +23,11 @@ export function FooterSeoText({ className }: FooterSeoTextProps) {
           id="footer-seo-heading"
           className="text-pretty text-xs font-semibold text-white/85 sm:text-sm"
         >
-          Fotocopiadoras Ricoh — venta y alquiler en Perú
+          Distribuidor Autorizado Ricoh — fotocopiadoras, impresoras, tóner y repuestos en Perú
         </h2>
         <p className="mt-1.5 text-pretty text-[0.6875rem] leading-relaxed text-white/50 sm:text-xs">
-          En Haitech, Distribuidor Autorizado Ricoh, encontrarás{' '}
+          En HaiTech, <strong className="font-medium text-white/65">Distribuidor Autorizado Ricoh</strong>,
+          encontrarás{' '}
           <Link to={categoryLandingPath('multifuncionales')} className={linkClass}>
             fotocopiadoras y multifuncionales
           </Link>

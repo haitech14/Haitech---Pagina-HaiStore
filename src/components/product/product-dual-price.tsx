@@ -61,6 +61,8 @@ export interface DualPriceProps {
   usd: number;
   className?: string;
   strikethrough?: boolean;
+  /** PEN exacto (p. ej. corporativo 2 fijo); si no se indica, se calcula desde USD. */
+  penOverride?: number;
   /** Vitrina destacada: siempre PEN y USD con guion, como el diseño de referencia. */
   alwaysBoth?: boolean;
   /** Apila PEN y USD en líneas separadas (sidebar checkout). */
@@ -77,6 +79,7 @@ export function DualPrice({
   usd,
   className,
   strikethrough = false,
+  penOverride,
   alwaysBoth = false,
   stacked = false,
   allowZero = false,
@@ -96,20 +99,29 @@ export function DualPrice({
     );
   }
 
+  const penLabel =
+    penOverride != null && penOverride > 0
+      ? new Intl.NumberFormat('es-PE', {
+          style: 'currency',
+          currency: 'PEN',
+          maximumFractionDigits: 0,
+        }).format(penOverride)
+      : formatPenFromUsd(usd);
+
   const usdSpan = showUsd ? (
     <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>
   ) : null;
   const penSpan = showPen ? (
-    <span className={cn(strike, 'text-foreground')}>{formatPenFromUsd(usd)}</span>
+    <span className={cn(strike, 'text-foreground')}>{penLabel}</span>
   ) : null;
 
   if (stacked && showUsd && showPen) {
     const primary = penFirst
-      ? { label: formatPenFromUsd(usd), className: 'text-foreground' }
+      ? { label: penLabel, className: 'text-foreground' }
       : { label: formatUsd(usd), className: 'text-foreground' };
     const secondary = penFirst
       ? { label: formatUsd(usd), className: 'text-foreground' }
-      : { label: formatPenFromUsd(usd), className: 'text-foreground' };
+      : { label: penLabel, className: 'text-foreground' };
 
     return (
       <span

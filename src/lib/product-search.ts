@@ -1,5 +1,6 @@
 import { categories } from '@/data/categories';
 import { megaMenuServiceLinks } from '@/data/mega-menu';
+import { CATALOG_NAV_HIDDEN_SLUGS } from '@/lib/catalog-category-tree';
 import { productMatchesCategoryFilterTree } from '@/lib/inventory-categories';
 import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
 import type { Product } from '@/types/product';
@@ -98,8 +99,9 @@ export function filterCategoriesBySearch(
   return categories
     .filter(
       (category) =>
-        textMatchesSearchQuery(`${category.name} ${category.tagline}`, query) ||
-        category.inventoryCategories?.some((label) => textMatchesSearchQuery(label, query)),
+        !CATALOG_NAV_HIDDEN_SLUGS.has(category.slug) &&
+        (textMatchesSearchQuery(`${category.name} ${category.tagline}`, query) ||
+          category.inventoryCategories?.some((label) => textMatchesSearchQuery(label, query))),
     )
     .slice(0, limit)
     .map((category) => ({

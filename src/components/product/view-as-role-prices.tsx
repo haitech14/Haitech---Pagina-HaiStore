@@ -35,6 +35,7 @@ export function ViewAsRolePrices({
           </span>
           <DualPrice
             usd={line.priceUsd}
+            penOverride={line.pricePen}
             alwaysBoth={alwaysBoth}
             className="min-w-0 shrink-0 font-bold tabular-nums text-right"
           />

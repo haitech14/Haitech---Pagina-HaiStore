@@ -12,6 +12,8 @@ export {
   isPriceRole,
   isUserRole,
   resolvePriceRole,
+  resolveUserRolePriceUsd,
+  resolveUserRoleDisplayPen,
   createEmptyPrices,
   ensureFullPrices,
 } from '@/lib/roles';

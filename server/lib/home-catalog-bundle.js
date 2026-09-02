@@ -9,8 +9,6 @@ export const HOME_BUNDLE_SECTION_IDS = [
   'multifuncionales',
   'impresoras',
   'escaneres',
-  'toner-suministros',
-  'repuestos',
 ];
 
 const DEFAULT_FEATURED_LIMIT = HOME_HIGHLIGHTED_ROW_SIZE;

@@ -83,6 +83,7 @@ import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { splitProductCardTitleAtBrand } from '@/lib/product-card-title';
 import { CONSULTAR_PRECIO_LABEL, getDisplayPriceVisibility, isPriceOnRequest, PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/display-price';
 import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
+import { resolveUserRoleDisplayPen, resolveUserRolePriceUsd } from '@/lib/roles';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
   parseStoreShowcaseLocation,
@@ -303,9 +304,24 @@ function EquipmentShowcaseCard({
         : [],
     [product, viewAsRoles, pricingOptions, catalogReady, showMultiRolePrices],
   );
-  const activeUsdRaw = rolePricesUsd[activePriceRole] ?? rolePricesUsd.public;
+  const activeUsdRaw =
+    viewAsRoles.length === 1
+      ? resolveUserRolePriceUsd(rolePricesUsd, viewAsRoles[0]!, {
+          isEquipment: !isConsumable,
+          saleRate,
+          productKeys: [product.id, product.code],
+        })
+      : rolePricesUsd[activePriceRole] ?? rolePricesUsd.public;
   const priceUsd = showcaseDisplayUsd(activeUsdRaw, { isConsumable });
-  const displayPen = showcaseUsdToPen(activeUsdRaw, pricingOptions);
+  const displayPen =
+    viewAsRoles.length === 1
+      ? resolveUserRoleDisplayPen(rolePricesUsd, viewAsRoles[0]!, {
+          isEquipment: !isConsumable,
+          saleRate,
+          productKeys: [product.id, product.code],
+          penFromUsd: (usd) => showcaseUsdToPen(usd, pricingOptions),
+        })
+      : showcaseUsdToPen(activeUsdRaw, pricingOptions);
   const priceOnRequest = isPriceOnRequest(priceUsd);
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const penFirst = dualPriceOrder === 'pen-usd';

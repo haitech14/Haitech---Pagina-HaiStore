@@ -1,19 +1,10 @@
-import { lazy, Suspense, type ReactNode } from 'react';
-
 import { useDisplayCurrency } from '@/context/display-currency-context';
-import { useAuth } from '@/context/auth-context';
 import {
   CONSULTAR_PRECIO_LABEL,
   getDisplayPriceVisibility,
   isPriceOnRequest,
 } from '@/lib/display-price';
 import { cn, formatPenFromUsd, formatUsd, formatEquipmentUsd } from '@/lib/utils';
-
-const AdminRolePricesTooltip = lazy(() =>
-  import('@/components/admin/admin-role-prices-tooltip').then((m) => ({
-    default: m.AdminRolePricesTooltip,
-  })),
-);
 
 const FEATURED_PRICE_COMPARE_CLASS =
   'text-[0.75rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] decoration-solid sm:text-[0.8125rem]';
@@ -106,27 +97,6 @@ function FeaturedSingleCurrencyLine({
   );
 }
 
-function MaybeAdminRolePrices({
-  productId,
-  displayUsd,
-  children,
-}: {
-  productId: string;
-  displayUsd: number;
-  children: ReactNode;
-}) {
-  const { isAdmin, viewAsRoles } = useAuth();
-  if (!isAdmin || viewAsRoles.length > 0) return children;
-
-  return (
-    <Suspense fallback={children}>
-      <AdminRolePricesTooltip productId={productId} displayUsd={displayUsd}>
-        {children}
-      </AdminRolePricesTooltip>
-    </Suspense>
-  );
-}
-
 export interface ProductCardFeaturedPricingProps {
   currentUsd: number;
   compareUsd: number;
@@ -183,15 +153,7 @@ export function ProductCardFeaturedPricing({
             ) : null}
           </div>
         ) : null}
-        <p className={FEATURED_PRICE_CURRENT_ACCENT_CLASS}>
-          {productId ? (
-            <MaybeAdminRolePrices productId={productId} displayUsd={currentUsd}>
-              {currentPrice}
-            </MaybeAdminRolePrices>
-          ) : (
-            currentPrice
-          )}
-        </p>
+        <p className={FEATURED_PRICE_CURRENT_ACCENT_CLASS}>{currentPrice}</p>
         {hasDiscount && showAccentBar ? (
           <span
             className="mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]"
@@ -220,15 +182,7 @@ export function ProductCardFeaturedPricing({
 
   return (
     <div className={cn('space-y-0.5', className)}>
-      <p className={FEATURED_PRICE_CURRENT_CLASS}>
-        {productId ? (
-          <MaybeAdminRolePrices productId={productId} displayUsd={currentUsd}>
-            {currentPrice}
-          </MaybeAdminRolePrices>
-        ) : (
-          currentPrice
-        )}
-      </p>
+      <p className={FEATURED_PRICE_CURRENT_CLASS}>{currentPrice}</p>
       {hasDiscount ? (
         <p className={FEATURED_PRICE_COMPARE_CLASS}>
           {showBoth ? (

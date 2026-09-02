@@ -61,6 +61,30 @@ export const HOME_FAQ_SEO_ITEMS = [
       'Sí. Los planes de alquiler pueden incluir mantenimiento preventivo, repuestos y tóner según el contrato. Te asesoramos para elegir la modalidad que mejor se adapte al volumen de impresión de tu empresa.',
   },
   {
+    id: 'distribuidor-autorizado',
+    question: '¿HaiStore es Distribuidor Autorizado Ricoh en Perú?',
+    answer:
+      'Sí. HaiStore (HaiTech) es Distribuidor Autorizado Ricoh en Perú. Vendemos y alquilamos fotocopiadoras, impresoras multifuncionales, tóner original y compatible, repuestos y accesorios con garantía, asesoría técnica y envío a Lima y provincias.',
+  },
+  {
+    id: 'toner-ricoh',
+    question: '¿Dónde comprar tóner Ricoh original en Perú?',
+    answer:
+      'En HaiStore puedes comprar tóner Ricoh original y compatible para fotocopiadoras e impresoras. Somos Distribuidor Autorizado: asesoramos el cartucho correcto por modelo, con stock, precio en USD y envío a todo el Perú.',
+  },
+  {
+    id: 'repuestos-ricoh',
+    question: '¿Venden repuestos para fotocopiadoras Ricoh?',
+    answer:
+      'Sí. Ofrecemos repuestos originales y compatibles Ricoh: unidades de imagen, cilindros, fusores, rodillos y más. Consulta compatibilidad por modelo y cotiza con envío nacional desde nuestro catálogo o por WhatsApp.',
+  },
+  {
+    id: 'fotocopiadora-venta',
+    question: '¿Dónde comprar fotocopiadora Ricoh en Lima y Perú?',
+    answer:
+      'En HaiStore encuentras fotocopiadoras y multifuncionales Ricoh nuevas, seminuevas y remanufacturadas. Distribuidor Autorizado con instalación en Lima, envío a provincia, alquiler de equipos y soporte técnico especializado.',
+  },
+  {
     id: 'delivery-provincia',
     question: '¿Hacen delivery a provincia?',
     answer:

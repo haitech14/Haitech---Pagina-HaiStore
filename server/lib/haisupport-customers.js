@@ -11,6 +11,7 @@ export function mapHaiSupportTipoClienteToRole(tipo) {
   if (norm === 'tecnico') return 'tecnico';
   if (norm === 'distribuidor_no_tecnico' || norm === 'distribuidor') return 'distribuidor';
   if (norm === 'mayorista') return 'mayorista';
+  if (norm === 'corporativo2') return 'corporativo2';
   if (norm === 'corporativo') return 'corporativo';
   if (norm === 'vip') return 'vip';
   return 'public';

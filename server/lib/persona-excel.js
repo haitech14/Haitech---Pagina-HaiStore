@@ -122,6 +122,7 @@ export function mapTipoPrecioExcelToRole(tipoPrecio) {
   if (norm.includes('TECNICO')) return 'tecnico';
   if (norm.includes('DISTRIBUIDOR')) return 'distribuidor';
   if (norm.includes('MAYORISTA')) return 'mayorista';
+  if (norm.includes('CORPORATIVO 2')) return 'corporativo2';
   if (norm.includes('CORPORATIVO')) return 'corporativo';
   if (norm.includes('VIP')) return 'vip';
   if (norm.includes('PUBLICO') || norm === 'PUBLIC') return 'public';

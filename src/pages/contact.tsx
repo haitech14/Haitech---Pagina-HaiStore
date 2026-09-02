@@ -24,6 +24,9 @@ import {
   FOOTER_SUPPORT_PHONE_DISPLAY,
   FOOTER_SUPPORT_PHONE_TEL,
 } from '@/data/site-footer';
+import { useSeo } from '@/hooks/use-seo';
+import { buildOrganizationJsonLd, buildWebPageJsonLd } from '@/lib/seo';
+import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import { submitSupportTicket, SupportTicketError } from '@/lib/support-ticket';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 
@@ -50,6 +53,28 @@ export function ContactPage() {
   const [sent, setSent] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useSeo({
+    title: 'Contacto | Cotizar Fotocopiadora, Impresora o Tóner Ricoh | HaiStore',
+    description:
+      'Cotiza fotocopiadoras, impresoras, tóner y repuestos Ricoh con Distribuidor Autorizado en Lima y Perú. Ventas, soporte técnico y asesoría por WhatsApp, teléfono o formulario.',
+    canonical: buildAbsoluteUrl('/contacto'),
+    robots: 'index,follow',
+    ogType: 'website',
+    jsonLd: [
+      buildWebPageJsonLd(
+        {
+          pathname: '/contacto',
+          pageName: 'Contacto HaiStore',
+          description:
+            'Contacto comercial y soporte técnico Ricoh — Distribuidor Autorizado en Perú.',
+        },
+        SITE_ORIGIN,
+      ),
+      buildOrganizationJsonLd(SITE_ORIGIN),
+    ],
+  });
+
   const {
     register,
     handleSubmit,

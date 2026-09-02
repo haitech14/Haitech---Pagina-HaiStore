@@ -3,6 +3,7 @@ import { mapHaiSupportTipoClienteToRole } from './haisupport-customers.js';
 const VALID_ROLES = new Set([
   'public',
   'corporativo',
+  'corporativo2',
   'tecnico',
   'mayorista',
   'distribuidor',

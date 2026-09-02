@@ -5,18 +5,24 @@ import {
   ensureFullPrices,
   PRICE_ROLE_LABELS,
   resolvePriceRole,
+  resolveUserRoleDisplayPen,
+  resolveUserRolePriceUsd,
   USER_ROLE_LABELS,
   type PriceRole,
   type UserRole,
 } from '@/lib/roles';
+import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
+import { isEquipmentDisplayPriceCategory, roundPenToNearestNine } from '@/lib/pen-pricing';
 import type { Product } from '@/types/product';
 
-type CatalogPriceSource = Pick<Product, 'price' | 'prices' | 'price_role'>;
+type CatalogPriceSource = Pick<Product, 'id' | 'code' | 'price' | 'prices' | 'price_role' | 'category'>;
 
 export interface CatalogRolePriceLine {
   role: UserRole;
   label: string;
   priceUsd: number;
+  /** PEN exacto cuando el rol tiene precio fijo en soles (p. ej. corporativo 2). */
+  pricePen?: number;
   priceRole: PriceRole;
 }
 
@@ -39,14 +45,27 @@ export function resolveCatalogDisplayPrice(
 ): CatalogDisplayPrice {
   const previewAsRole = options.viewAsRoles.length > 0;
   const prices = ensureFullPrices(product.prices ?? { public: product.price });
+  const isEquipment = isEquipmentDisplayPriceCategory(product.category);
 
   if (previewAsRole) {
+    const saleRate = getUsdToPenSaleRate();
+    const productKeys = [product.id, product.code];
     const viewAsRolePrices: CatalogRolePriceLine[] = options.viewAsRoles.map((userRole) => {
-      const priceRole = resolvePriceRole(userRole);
+      const priceRole = userRole === 'corporativo2' ? 'public' : resolvePriceRole(userRole);
+      const roleOptions = { isEquipment, saleRate, productKeys };
+      const priceUsd = resolveUserRolePriceUsd(prices, userRole, roleOptions);
+      const pricePen = resolveUserRoleDisplayPen(prices, userRole, {
+        isEquipment,
+        saleRate,
+        productKeys,
+        penFromUsd: (usd) =>
+          isEquipment ? roundPenToNearestNine(usd * saleRate) : Math.round(usd * saleRate * 100) / 100,
+      });
       return {
         role: userRole,
         label: USER_ROLE_LABELS[userRole],
-        priceUsd: prices[priceRole] ?? product.price,
+        priceUsd,
+        pricePen,
         priceRole,
       };
     });
@@ -74,7 +93,7 @@ export function resolveCatalogDisplayPrice(
     previewAsRole: false,
     viewAsLabel: null,
     viewAsRolePrices: [],
-    showAdminPriceTooltip: options.isAdmin,
+    showAdminPriceTooltip: false,
   };
 }
 
@@ -117,6 +136,6 @@ export function useCatalogDisplayPrice(product: CatalogPriceSource): CatalogDisp
         effectiveRole,
         isAdmin,
       }),
-    [product.price, product.prices, product.price_role, viewAsRoles, effectiveRole, isAdmin],
+    [product.id, product.code, product.price, product.prices, product.price_role, product.category, viewAsRoles, effectiveRole, isAdmin],
   );
 }

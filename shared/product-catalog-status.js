@@ -1,3 +1,5 @@
+import { isPrinterEquipmentProduct, productMatchesCatalogFamily } from './home-catalog-filter.js';
+
 /** @typedef {'activa' | 'borrador' | 'inactiva'} ProductCatalogStatus */
 
 export const PRODUCT_CATALOG_STATUSES = /** @type {const} */ (['activa', 'borrador', 'inactiva']);
@@ -43,11 +45,26 @@ export function isStorefrontHiddenBrand(brand) {
 }
 
 /**
- * @param {{ status?: unknown; brand?: unknown } | null | undefined} product
+ * Tóner, cartuchos y repuestos ocultos en tienda pública (siguen en admin).
+ * @param {{ name?: unknown; category?: unknown; description?: unknown } | null | undefined} product
+ * @returns {boolean}
+ */
+export function isStorefrontHiddenConsumableProduct(product) {
+  if (!product) return false;
+  // Equipos (multifuncionales, impresoras…) no se ocultan aunque la descripción mencione tóner de regalo.
+  if (isPrinterEquipmentProduct(product)) return false;
+  if (productMatchesCatalogFamily(product, 'toner-suministros')) return true;
+  if (productMatchesCatalogFamily(product, 'repuestos')) return true;
+  return false;
+}
+
+/**
+ * @param {{ status?: unknown; brand?: unknown; name?: unknown; category?: unknown; description?: unknown } | null | undefined} product
  * @returns {boolean}
  */
 export function isProductVisibleOnStorefront(product) {
   if (normalizeProductCatalogStatus(product?.status) !== 'activa') return false;
   if (isStorefrontHiddenBrand(product?.brand)) return false;
+  if (isStorefrontHiddenConsumableProduct(product)) return false;
   return true;
 }

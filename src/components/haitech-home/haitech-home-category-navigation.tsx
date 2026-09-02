@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { FileText } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-import { ConsumiblesNavMegaMenu } from '@/components/layout/consumibles-nav-mega-menu';
 import { DeferredCategoriesMegaMenu } from '@/components/layout/deferred-categories-mega-menu';
 import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
 import { haitechWhiteNavLinkClass } from '@/components/layout/main-nav-styles';
@@ -107,15 +106,6 @@ export function HaitechHomeCategoryNavigation({ className }: { className?: strin
                 showIcon={false}
                 eager
                 triggerHref={storeShowcasePath({ categoryId: 'multifuncionales' })}
-              />
-            </li>
-
-            <li className="flex shrink-0 items-stretch">
-              <ConsumiblesNavMegaMenu
-                navRow="haitech-white"
-                showIcon={false}
-                label="Consumibles"
-                triggerHref={storeShowcasePath({ categoryId: 'toner' })}
               />
             </li>
 

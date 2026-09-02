@@ -20,6 +20,7 @@ import { isIndexableCatalogProduct } from '../shared/seo/indexable-product.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = path.join(__dirname, '../public/sitemap.xml');
 const CATEGORY_TREE_PATH = path.join(__dirname, '../public/catalog/store-categories-tree.json');
+const SEO_MANIFEST_PATH = path.join(__dirname, '../public/catalog/seo-snapshot/manifest.json');
 
 const LANDING_SLUGS = new Set(LANDING_CATEGORY_SEO.map((category) => category.slug));
 
@@ -67,6 +68,27 @@ function loadCategoryTreeUrls() {
   }
 }
 
+/** Rutas de producto desde snapshot SEO cuando no hay inventario local (CI / deploy parcial). */
+function loadProductPathsFromSeoSnapshot() {
+  if (!existsSync(SEO_MANIFEST_PATH)) return [];
+
+  try {
+    const manifest = JSON.parse(readFileSync(SEO_MANIFEST_PATH, 'utf8'));
+    const routes = manifest.routes ?? {};
+    const paths = [];
+
+    for (const [pathname, ref] of Object.entries(routes)) {
+      if (ref?.type !== 'product' || ref.redirectTo) continue;
+      if (!pathname.startsWith('/tienda/') || pathname === '/tienda') continue;
+      paths.push(pathname);
+    }
+
+    return paths;
+  } catch {
+    return [];
+  }
+}
+
 async function main() {
   const siteOrigin = resolveSiteOrigin(process.env);
   const inventoryPath = getInventoryPath();
@@ -108,7 +130,12 @@ async function main() {
       urls.push(urlEntry(siteOrigin, productPath, lastmod, resolveProductPriority(product)));
     }
   } else {
-    console.warn(`[generate:sitemap] Sin inventario en ${inventoryPath}; sitemap solo con categorías.`);
+    console.warn(`[generate:sitemap] Sin inventario en ${inventoryPath}; usando snapshot SEO.`);
+    for (const productPath of loadProductPathsFromSeoSnapshot()) {
+      if (seenProductPaths.has(productPath)) continue;
+      seenProductPaths.add(productPath);
+      urls.push(urlEntry(siteOrigin, productPath, today, '0.8'));
+    }
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -11,9 +11,9 @@ import { serviceHubPath } from '@/lib/service-hub';
 import { cn } from '@/lib/utils';
 import { HAITECH_WHATSAPP_URL } from '@/lib/whatsapp-sales';
 
-const PAGE_TITLE = 'Por qué comprar con nosotros | Distribuidor Autorizado Ricoh | HaiStore';
+const PAGE_TITLE = 'Distribuidor Autorizado Ricoh Perú | Fotocopiadora e Impresora | HaiStore';
 const PAGE_DESCRIPTION =
-  'Distribuidor Autorizado Ricoh en Perú: venta y alquiler de fotocopiadoras, tóner, repuestos, cobertura nacional y soporte técnico especializado.';
+  'Somos Distribuidor Autorizado Ricoh en Perú: fotocopiadoras, impresoras, tóner original, repuestos, alquiler de equipos, envío nacional y soporte técnico especializado.';
 
 const REASONS = [
   {
@@ -70,13 +70,14 @@ export function PorQueComprarConNosotrosPage() {
       <article className="container max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         <p className="text-sm font-medium text-red-600">HaiStore · Confianza</p>
         <h1 className="mt-2 text-balance text-3xl font-bold tracking-tight text-[#0f1f3d] sm:text-4xl">
-          Por qué comprar o alquilar con nosotros
+          Distribuidor Autorizado Ricoh en Perú
         </h1>
         <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground">
-          En HaiStore (HaiTech) ayudamos a empresas a comprar y alquilar fotocopiadoras Ricoh con
-          stock real, precios claros y soporte postventa. Somos Distribuidor Autorizado: no solo
-          vendemos equipos; acompañamos tóner, repuestos y servicio técnico para que tu impresión no
-          se detenga.
+          En HaiStore (HaiTech) somos <strong>Distribuidor Autorizado Ricoh</strong>: ayudamos a
+          empresas a comprar y alquilar <strong>fotocopiadoras</strong> e{' '}
+          <strong>impresoras</strong> con stock real, precios claros y soporte postventa. No solo
+          vendemos equipos; acompañamos <strong>tóner</strong>, <strong>repuestos</strong> y servicio
+          técnico para que tu impresión no se detenga.
         </p>
 
         <div className="mt-10 space-y-8">

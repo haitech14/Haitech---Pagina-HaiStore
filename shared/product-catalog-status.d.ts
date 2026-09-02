@@ -10,6 +10,16 @@ export function normalizeProductCatalogStatus(value: unknown): ProductCatalogSta
 
 export function isStorefrontHiddenBrand(brand: unknown): boolean;
 
+export function isStorefrontHiddenConsumableProduct(
+  product:
+    | { name?: unknown; category?: unknown; description?: unknown }
+    | null
+    | undefined,
+): boolean;
+
 export function isProductVisibleOnStorefront(
-  product: { status?: unknown; brand?: unknown } | null | undefined,
+  product:
+    | { status?: unknown; brand?: unknown; name?: unknown; category?: unknown; description?: unknown }
+    | null
+    | undefined,
 ): boolean;

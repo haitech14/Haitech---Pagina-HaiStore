@@ -835,19 +835,15 @@ export function productMatchesSearchQuery(product, query) {
     if (codeCompact && codeCompact === compactQuery) return true;
     const idCompact = compactSearchText(String(product?.id ?? ''));
     if (idCompact && idCompact === compactQuery) return true;
-    return false;
   }
 
   const hasNumericOnlyTerms = terms.length > 0 && terms.every((term) => /^\d+$/.test(term));
-  // Cuando el usuario busca un código numérico largo (p. ej. SKU 842093),
-  // evitamos coincidencias por prefijo/subtoken (p. ej. "842093" -> "8420").
-  // En ese caso, la intención suele ser coincidencia exacta por código.
+  // Prioriza coincidencia por código; si no hay match exacto, sigue con búsqueda por nombre.
   if (hasNumericOnlyTerms && compactQuery.length >= 5) {
     const codeCompact = compactSearchText(String(product?.code ?? ''));
     if (codeCompact && codeCompact.includes(compactQuery)) return true;
     const idCompact = compactSearchText(String(product?.id ?? ''));
     if (idCompact && idCompact === compactQuery) return true;
-    return false;
   }
 
   if (

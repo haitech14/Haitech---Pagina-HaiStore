@@ -61,6 +61,7 @@ export function getCustomerRoleGroupKey(customer: StoreCustomerWithRole): Custom
   const role = customer.profile_role ?? 'public';
   if (role === 'admin') return 'admin';
   if (role === 'tecnico' || role === 'corporativo') return 'tecnico';
+  if (role === 'corporativo2') return 'public';
   if (role === 'distribuidor' || role === 'vip') return 'distribuidor';
   if (role === 'mayorista') return 'mayorista';
   return 'public';
@@ -68,12 +69,11 @@ export function getCustomerRoleGroupKey(customer: StoreCustomerWithRole): Custom
 
 /** Roles asignables al editar un cliente con cuenta. */
 export const CUSTOMER_EDIT_ROLES: { value: UserRole; label: string }[] = [
+  { value: 'corporativo2', label: USER_ROLE_LABELS.corporativo2 },
   { value: 'public', label: USER_ROLE_LABELS.public },
-  { value: 'mayorista', label: USER_ROLE_LABELS.mayorista },
-  { value: 'tecnico', label: USER_ROLE_LABELS.tecnico },
-  { value: 'corporativo', label: USER_ROLE_LABELS.corporativo },
   { value: 'distribuidor', label: USER_ROLE_LABELS.distribuidor },
-  { value: 'vip', label: USER_ROLE_LABELS.vip },
+  { value: 'tecnico', label: USER_ROLE_LABELS.tecnico },
+  { value: 'mayorista', label: USER_ROLE_LABELS.mayorista },
   { value: 'admin', label: USER_ROLE_LABELS.admin },
 ];
 

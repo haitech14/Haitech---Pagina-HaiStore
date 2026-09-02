@@ -138,22 +138,6 @@ export const HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES: readonly HaitechEquipmentSho
     shopTabId: null,
   },
   {
-    id: 'toner',
-    label: 'Tóner',
-    image: '/categories/toner-suministros.png',
-    to: categoryLandingPath('toner-suministros'),
-    filterMode: 'consumable',
-    shopTabId: 'toner',
-  },
-  {
-    id: 'repuestos',
-    label: 'Repuestos',
-    image: '/categories/repuestos.png',
-    to: categoryLandingPath('repuestos'),
-    filterMode: 'consumable',
-    shopTabId: null,
-  },
-  {
     id: 'escaneres',
     label: 'Escáneres',
     image: `${CHIP}/escaneres.webp`,
@@ -1641,7 +1625,7 @@ function showcaseProductPool(): HaitechShopProduct[] {
     seenKeys.add(key);
     pool.push(product);
   }
-  return pool;
+  return pool.filter((product) => !isTonerOrRepuestoProduct(product));
 }
 
 function isRepuestoProduct(product: HaitechShopProduct): boolean {
@@ -1803,6 +1787,8 @@ export function filterEquipmentShowcaseProducts(options: {
   catalogConsumables?: readonly HaitechShopProduct[];
   limit?: number;
 }): HaitechShopProduct[] {
+  if (isShowcaseConsumableCategory(options.categoryId)) return [];
+
   const category = HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES.find((c) => c.id === options.categoryId);
   if (!category) return [];
 

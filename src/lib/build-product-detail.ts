@@ -37,6 +37,7 @@ import {
   shouldPreferTitleSyncedHeroBullets,
 } from '@/lib/product-title-spec-sync';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
+import { buildProductSeoBodyParagraph, hasProductInventoryDescription } from '@/lib/seo';
 import { resolveProductCardSpecRows } from '@/lib/product-card-short-description';
 import { buildResolvedSupplySpecs } from '@/lib/supply-product-specs';
 import {
@@ -1010,6 +1011,18 @@ function buildDescriptionContent(product: Product, isPrinter: boolean): ProductD
       ],
       highlights,
     };
+  }
+
+  if (!hasProductInventoryDescription(product)) {
+    const seoParagraph = buildProductSeoBodyParagraph(product);
+    if (seoParagraph) {
+      return {
+        overviewTitle: 'Descripción del producto',
+        overviewParagraphs: [seoParagraph],
+        paragraphs: [seoParagraph],
+        highlights: [],
+      };
+    }
   }
 
   return null;

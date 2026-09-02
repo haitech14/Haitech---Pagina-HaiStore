@@ -503,6 +503,7 @@ customersRouter.get('/admin/all', requireAdmin, async (_req, res, next) => {
 const PROFILE_ROLES = new Set([
   'public',
   'corporativo',
+  'corporativo2',
   'tecnico',
   'mayorista',
   'distribuidor',

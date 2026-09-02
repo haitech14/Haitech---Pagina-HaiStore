@@ -1,5 +1,4 @@
 import { categoryLandingPath } from '@/lib/category-path';
-import { storeMostViewedOffersPath } from '@/lib/category-path';
 import { storeShowcasePath } from '@/lib/store-showcase-path';
 import type { HaitechShopProductTabId } from '@/data/haitech-home-shop';
 
@@ -7,14 +6,10 @@ const CHIP = '/home/category-chips/equipment';
 
 export type HaitechHomeFeaturedCategoryChipId =
   | 'multifuncionales'
-  | 'laptops'
-  | 'computadoras'
-  | 'monitores'
-  | 'accesorios'
-  | 'almacenamiento'
-  | 'redes'
-  | 'software'
-  | 'ofertas';
+  | 'impresoras'
+  | 'toner'
+  | 'repuestos'
+  | 'formato-ancho';
 
 export type HaitechHomeFeaturedCategoryChip = {
   id: HaitechHomeFeaturedCategoryChipId;
@@ -37,60 +32,29 @@ export const HAITECH_HOME_FEATURED_CATEGORY_CHIPS: readonly HaitechHomeFeaturedC
     fixedProductIds: ['m-320f', 'im-430f', 'mp-305-plus', 'im-460f'],
   },
   {
-    id: 'laptops',
-    label: 'Laptops',
-    image: `${CHIP}/laptops.webp`,
-    href: storeShowcasePath({
-      categoryId: 'laptops',
-      laptopSpecFilters: { device: 'laptop', cpu: null },
-    }),
+    id: 'impresoras',
+    label: 'Impresoras',
+    image: '/categories/impresoras.png',
+    href: storeShowcasePath({ categoryId: 'impresoras' }),
   },
   {
-    id: 'computadoras',
-    label: 'Computadoras',
-    image: `${CHIP}/laptops.webp`,
-    href: storeShowcasePath({
-      categoryId: 'laptops',
-      laptopSpecFilters: { device: 'pc', cpu: null },
-    }),
+    id: 'toner',
+    label: 'Toner',
+    image: '/categories/toner-suministros.png',
+    href: storeShowcasePath({ categoryId: 'toner' }),
+    tabId: 'toner',
   },
   {
-    id: 'monitores',
-    label: 'Monitores',
-    image: '/categories/monitores.png',
-    href: storeShowcasePath({ categoryId: 'monitores' }),
+    id: 'repuestos',
+    label: 'Repuestos',
+    image: '/categories/repuestos.png',
+    href: storeShowcasePath({ categoryId: 'repuestos' }),
   },
   {
-    id: 'accesorios',
-    label: 'Accesorios',
-    image: `${CHIP}/accesorios.webp`,
-    href: storeShowcasePath({ categoryId: 'accesorios' }),
-    tabId: 'accesorios',
-  },
-  {
-    id: 'almacenamiento',
-    label: 'Almacenamiento',
-    image: `${CHIP}/accesorios.webp`,
-    href: categoryLandingPath('accesorios'),
-  },
-  {
-    id: 'redes',
-    label: 'Redes',
-    image: `${CHIP}/accesorios.webp`,
-    href: categoryLandingPath('tecnologia'),
-  },
-  {
-    id: 'software',
-    label: 'Software',
-    image: '/categories/software.png',
-    href: categoryLandingPath('software'),
-  },
-  {
-    id: 'ofertas',
-    label: 'Ofertas',
-    image: `${CHIP}/multifuncionales.webp`,
-    href: storeMostViewedOffersPath(),
-    tabId: 'ofertas',
+    id: 'formato-ancho',
+    label: 'Formato Ancho',
+    image: '/categories/formato-ancho.png',
+    href: storeShowcasePath({ categoryId: 'formato-ancho' }),
   },
 ] as const;
 
