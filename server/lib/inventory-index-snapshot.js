@@ -19,6 +19,7 @@ const SLIM_FIELDS = [
   'image_url',
   'gallery',
   'stock',
+  'stock_by_warehouse',
   'category',
   'brand',
   'attributes',

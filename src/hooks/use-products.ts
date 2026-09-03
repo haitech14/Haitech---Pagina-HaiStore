@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/context/auth-context';
 import { apiFetch } from '@/lib/api';
-import { getCatalogRows, loadCatalogIndex, patchCatalogIndexProductMedia } from '@/lib/catalog-featured';
+import { getCatalogRows, loadCatalogIndex, patchCatalogIndexProduct } from '@/lib/catalog-featured';
 import { getCachedHomeBundleProvisionalProducts } from '@/lib/home-catalog-bundle';
 import { normalizeInventoryProductForAdminList, mergeInventoryProductPatch } from '@/lib/inventory-product';
 import { DEFAULT_WAREHOUSES, normalizeWarehouses } from '@/lib/inventory-stock';
@@ -202,7 +202,7 @@ export function useInventoryMutations() {
     onSuccess: (updated, { id }) => {
       // Upsert inmediato — el badge de stock debe verse sin Sync/F5.
       upsertAdminInventoryProducts(queryClient, [updated], { prepend: false });
-      patchCatalogIndexProductMedia(updated);
+      patchCatalogIndexProduct(updated);
       notifyCatalogChange({ productId: id, inventoryProduct: updated });
       // Re-merge tras notify (listeners / broadcast pueden disparar otro refetch).
       upsertAdminInventoryProducts(queryClient, [updated], { prepend: false });
@@ -315,7 +315,7 @@ export function useInventoryMutations() {
           }),
         );
         for (const product of saved) {
-          patchCatalogIndexProductMedia(product);
+          patchCatalogIndexProduct(product);
         }
       } else if (patchImageUrl) {
         const idSet = new Set(ids);

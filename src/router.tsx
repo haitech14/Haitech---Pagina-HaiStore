@@ -87,6 +87,13 @@ const PorQueComprarConNosotrosPage = lazyWithRetry(
     })),
   'por-que-comprar',
 );
+const DistribuidorAutorizadoRicohPage = lazyWithRetry(
+  () =>
+    import('@/pages/distribuidor-autorizado-ricoh').then((m) => ({
+      default: m.DistribuidorAutorizadoRicohPage,
+    })),
+  'distribuidor-autorizado-ricoh',
+);
 const SoftwarePage = lazyWithRetry(
   () => import('@/pages/software').then((m) => ({ default: m.SoftwarePage })),
   'software',
@@ -479,6 +486,10 @@ export const router = createBrowserRouter([
       {
         path: 'por-que-comprar-con-nosotros',
         element: withSuspense(<PorQueComprarConNosotrosPage />),
+      },
+      {
+        path: 'distribuidor-autorizado-ricoh',
+        element: withSuspense(<DistribuidorAutorizadoRicohPage />),
       },
       { path: 'software', element: withSuspense(<SoftwarePage />) },
       { path: 'software/:slug', element: withSuspense(<SoftwareDetallePage />) },

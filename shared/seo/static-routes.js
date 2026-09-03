@@ -10,9 +10,17 @@ export const STATIC_SEO_ROUTES = [
   },
   {
     pathname: '/por-que-comprar-con-nosotros',
-    title: 'Distribuidor Autorizado Ricoh Perú | Fotocopiadora e Impresora | HaiStore',
+    title: 'Por qué comprar con HaiStore | Distribuidor Autorizado Ricoh | Perú',
     description:
-      'Somos Distribuidor Autorizado Ricoh en Perú: fotocopiadoras, impresoras, tóner original, repuestos, alquiler de equipos, envío nacional y soporte técnico especializado.',
+      'Garantía, envío nacional, tóner, repuestos y soporte técnico. Somos Distribuidor Autorizado Ricoh en Perú para fotocopiadoras e impresoras.',
+    pageName: 'Por qué comprar con nosotros',
+    jsonLdKind: 'webpage',
+  },
+  {
+    pathname: '/distribuidor-autorizado-ricoh',
+    title: 'Distribuidor Autorizado Ricoh Perú | Fotocopiadora, Impresora y Tóner | HaiStore',
+    description:
+      'HaiStore es Distribuidor Autorizado Ricoh en Perú. Compra o alquila fotocopiadoras, impresoras, tóner original y repuestos con garantía, instalación en Lima y envío nacional.',
     pageName: 'Distribuidor Autorizado Ricoh',
     jsonLdKind: 'webpage',
   },

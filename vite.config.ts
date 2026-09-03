@@ -36,10 +36,37 @@ function devCompressionPlugin(): Plugin {
   };
 }
 
+function googleSiteVerificationPlugin(): Plugin {
+  return {
+    name: 'haistore-gsc-verification',
+    transformIndexHtml(html) {
+      const token = (
+        process.env.VITE_GOOGLE_SITE_VERIFICATION ??
+        process.env.GOOGLE_SITE_VERIFICATION ??
+        ''
+      ).trim();
+      const escaped = token
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;');
+      const tag = token
+        ? `    <meta name="google-site-verification" content="${escaped}" />\n`
+        : '';
+      const withoutExisting = html.replace(
+        /\s*<meta\s+name=["']google-site-verification["'][^>]*>\s*/gi,
+        '\n',
+      );
+      if (!tag) return withoutExisting;
+      return withoutExisting.replace('</head>', `${tag}  </head>`);
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    googleSiteVerificationPlugin(),
     devCompressionPlugin(),
     // Optimización de imágenes en build con Sharp.
     ViteImageOptimizer({

@@ -6,7 +6,7 @@ import {
   formatProductPageTitleSeo,
 } from './product-seo.js';
 
-export const SITE_BRAND_NAME = 'HaiStore';
+export const SITE_BRAND_NAME = 'Haitech';
 
 export const DEFAULT_SITE_TITLE =
   'RICOH Perú | Fotocopiadora, Impresora, Tóner y Repuestos | Distribuidor Autorizado HaiStore';

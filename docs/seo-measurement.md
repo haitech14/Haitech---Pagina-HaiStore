@@ -5,8 +5,9 @@ Guía operativa para Search Console y benchmark de queries. No promete posicione
 ## Setup (manual, una vez)
 
 1. **Verificar propiedad** en [Google Search Console](https://search.google.com/search-console) para `haitech.pe` (preferible dominio) o `https://www.haitech.pe`.
-2. Enviar sitemap: `https://www.haitech.pe/sitemap.xml`.
-3. Revisar **Cobertura / Páginas**: descartar soft-404, duplicados y URLs legacy `/tienda/producto/...` si siguen indexadas (inspección de URL + solicitud de indexación de canónicas).
+   - Método HTML: copia el código de verificación a `.env` como `VITE_GOOGLE_SITE_VERIFICATION=...` y vuelve a desplegar (`npm run build`). El meta se inyecta en `index.html`.
+2. Enviar sitemap índice: `https://www.haitech.pe/sitemap.xml` (apunta a `sitemap-core.xml` y `sitemap-products-N.xml`).
+3. Revisar **Cobertura / Páginas**: descartar soft-404, duplicados y URLs legacy `/tienda/producto/...` o IDs numéricos si siguen indexadas (inspección de URL + solicitud de indexación de canónicas `/tienda/{slug-semantico}`).
 4. Vincular **GA4** (si aplica) y comprobar eventos de cotización / WhatsApp.
 
 ## Queries benchmark (mensual)
@@ -20,6 +21,7 @@ Comparar impresiones/clics propios en GSC vs presencia del competidor en SERP (h
 | Consumibles | toner ricoh original, repuestos fotocopiadoras ricoh | `/categoria/toner-suministros`, `/categoria/repuestos` |
 | Modelos | ricoh im c320f, mp 305+, im 460f (y top SKUs del inventario) | `/tienda/{slug}` |
 | Servicio | mantenimiento fotocopiadoras ricoh, soporte técnico ricoh lima | `/servicios?seccion=servicio-tecnico` |
+| Confianza | distribuidor autorizado ricoh, distribuidor autorizado ricoh peru | `/distribuidor-autorizado-ricoh` |
 | Confianza | por qué comprar fotocopiadoras, faq fotocopiadoras | `/por-que-comprar-con-nosotros`, `/preguntas-frecuentes` |
 
 ## Ritmo mensual

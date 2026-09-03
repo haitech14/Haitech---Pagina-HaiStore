@@ -49,7 +49,7 @@ export function ProductDetailPage() {
   useLayoutEffect(() => {
     if (!product || !id) return;
     const canonicalSlug = productCanonicalSlug(product);
-    if (id !== canonicalSlug && id === product.id) {
+    if (id.toLowerCase() !== canonicalSlug.toLowerCase()) {
       navigate(productPath(product), { replace: true });
     }
   }, [product, id, navigate]);

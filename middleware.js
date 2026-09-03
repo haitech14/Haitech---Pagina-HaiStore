@@ -12,6 +12,7 @@ export const config = {
     '/soluciones/:path*',
     '/preguntas-frecuentes',
     '/por-que-comprar-con-nosotros',
+    '/distribuidor-autorizado-ricoh',
     '/descargas',
     '/contacto',
   ],

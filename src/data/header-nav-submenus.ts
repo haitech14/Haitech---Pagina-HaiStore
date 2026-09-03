@@ -216,8 +216,10 @@ export const EMPRESAS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
     pathname === '/contacto' ||
     pathname === '/preguntas-frecuentes' ||
     pathname === '/por-que-comprar-con-nosotros' ||
+    pathname === '/distribuidor-autorizado-ricoh' ||
     (pathname === '/' && (hash === '#clientes' || hash === '#testimonios')),
   items: [
+    { label: 'Distribuidor Autorizado Ricoh', href: '/distribuidor-autorizado-ricoh' },
     { label: 'Nosotros', href: '/contacto' },
     { label: 'Por qué comprar con nosotros', href: '/por-que-comprar-con-nosotros' },
     { label: 'Clientes', href: '/#clientes' },

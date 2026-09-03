@@ -70,6 +70,13 @@ export function PreguntasFrecuentesPage() {
             </Link>
             , estas respuestas te ayudan a decidir con información clara. También puedes revisar{' '}
             <Link
+              to="/distribuidor-autorizado-ricoh"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Distribuidor Autorizado Ricoh
+            </Link>
+            ,{' '}
+            <Link
               to="/por-que-comprar-con-nosotros"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >

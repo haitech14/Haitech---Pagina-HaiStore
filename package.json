@@ -20,7 +20,7 @@
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
     "server": "node --watch server/index.js",
-    "dev:all": "node scripts/print-dev-urls.mjs && concurrently -n web,api -c cyan,magenta \"vite\" \"npm run server\"",
+    "dev:all": "node scripts/print-dev-urls.mjs && concurrently -n web,api,fix -c cyan,magenta,yellow \"vite\" \"npm run server\" \"node scripts/watch-restore-empty-src.mjs\"",
     "dev:mobile-preview": "node scripts/mobile-preview-server.mjs",
     "sync:supabase": "node scripts/sync-supabase.mjs",
     "sync:inventory-catalog": "node scripts/sync-inventory-from-catalog.mjs",

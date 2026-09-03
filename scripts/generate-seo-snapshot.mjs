@@ -54,12 +54,6 @@ const LANDING_BY_SLUG = Object.fromEntries(
   LANDING_CATEGORY_SEO.map((category) => [category.slug, category]),
 );
 
-function isUuidSlug(value) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-    String(value ?? '').trim(),
-  );
-}
-
 function productMatchesCategory(product, categorySlug) {
   const category = String(product.category ?? '').toLowerCase();
   const name = String(product.name ?? '').toLowerCase();
@@ -188,21 +182,29 @@ async function main() {
       redirectTo: canonicalPath,
     };
 
-    const legacyId = String(product.id ?? '').trim();
-    if (legacyId && legacyId.toLowerCase() !== slug.toLowerCase()) {
-      const encodedId = encodeURIComponent(legacyId);
-      routes[`/tienda/producto/${encodedId}`] = {
+    const aliasTargets = new Set();
+    const addAlias = (value) => {
+      const raw = String(value ?? '').trim();
+      if (!raw) return;
+      if (raw.toLowerCase() === slug.toLowerCase()) return;
+      aliasTargets.add(raw);
+    };
+
+    addAlias(product.id);
+    addAlias(product.slug);
+
+    for (const alias of aliasTargets) {
+      const encodedAlias = encodeURIComponent(alias);
+      routes[`/tienda/${encodedAlias}`] = {
         type: 'product',
         file: fileSlug,
         redirectTo: canonicalPath,
       };
-      if (isUuidSlug(legacyId)) {
-        routes[`/tienda/${encodedId}`] = {
-          type: 'product',
-          file: fileSlug,
-          redirectTo: canonicalPath,
-        };
-      }
+      routes[`/tienda/producto/${encodedAlias}`] = {
+        type: 'product',
+        file: fileSlug,
+        redirectTo: canonicalPath,
+      };
     }
   }
 

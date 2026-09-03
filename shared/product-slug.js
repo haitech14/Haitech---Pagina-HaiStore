@@ -28,22 +28,96 @@ function isUuidLikeId(id) {
 }
 
 /**
+ * Slugs que no ayudan a Google (id numérico, UUID o igual al SKU crudo).
+ * @param {string} slug
+ * @param {{ id?: string }} [product]
+ */
+export function isWeakCatalogSlug(slug, product) {
+  const normalized = String(slug ?? '').trim().toLowerCase();
+  if (!normalized) return true;
+  if (isUuidLikeId(normalized)) return true;
+  if (/^[0-9]+$/.test(normalized)) return true;
+  const id = String(product?.id ?? '').trim().toLowerCase();
+  if (id && normalized === id) return true;
+  return false;
+}
+
+function resolveKindToken(product) {
+  const haystack = `${product?.category ?? ''} ${product?.name ?? ''}`.toLowerCase();
+  if (/toner|tóner|cartucho/.test(haystack)) return 'toner';
+  if (/\btinta/.test(haystack)) return 'tinta';
+  if (/repuesto|unidad de imagen|cilindro|fusor|drum|fuser|rodillo/.test(haystack)) {
+    return 'repuesto';
+  }
+  if (/fotocopi|multifunc/.test(haystack)) return 'fotocopiadora';
+  if (/impresora|plotter/.test(haystack)) return 'impresora';
+  return null;
+}
+
+function resolveBrandToken(product) {
+  const brand = slugifyProductText(product?.brand);
+  if (brand && brand !== 'generico' && brand !== 'generic') return brand;
+  if (/\bricoh\b/i.test(`${product?.name ?? ''} ${product?.brand ?? ''} ${product?.category ?? ''}`)) {
+    return 'ricoh';
+  }
+  return null;
+}
+
+function resolveCodeToken(product) {
+  const fromCode = slugifyProductText(product?.code);
+  if (fromCode) return fromCode.slice(0, 24);
+
+  const id = String(product?.id ?? '').trim();
+  if (id && !isUuidLikeId(id) && looksLikeSlug(id) && id.length <= 24) {
+    return slugifyProductText(id);
+  }
+  return null;
+}
+
+function buildSemanticSlug(product) {
+  const fromName = slugifyProductText(product?.name);
+  const kind = resolveKindToken(product);
+  const brand = resolveBrandToken(product);
+  const code = resolveCodeToken(product);
+  const id = String(product?.id ?? '').trim();
+
+  const nameHasKeywords =
+    Boolean(fromName) &&
+    ((kind && fromName.includes(kind)) || (brand && fromName.includes(brand)));
+
+  if (nameHasKeywords && fromName.length >= 8) {
+    if (code && !fromName.includes(code)) {
+      return `${fromName}-${code}`.slice(0, SLUG_MAX_LENGTH);
+    }
+    return fromName.slice(0, SLUG_MAX_LENGTH);
+  }
+
+  const tokens = [kind, brand, code].filter(Boolean);
+  if (tokens.length >= 2) {
+    return slugifyProductText(tokens.join('-')).slice(0, SLUG_MAX_LENGTH);
+  }
+
+  if (fromName) {
+    const idSuffix = slugifyProductText(id).slice(-12);
+    if (!idSuffix || fromName.endsWith(idSuffix)) return fromName;
+    return `${fromName}-${idSuffix}`.slice(0, SLUG_MAX_LENGTH);
+  }
+
+  return slugifyProductText(id || 'producto') || 'producto';
+}
+
+/**
  * Genera un slug candidato sin comprobar colisiones en el catálogo.
- * @param {{ id?: string, name?: string, slug?: string | null }} product
+ * Ignora slugs débiles (solo números / UUID / igual al id) para URLs tipo toner-ricoh-408213.
+ * @param {{ id?: string, name?: string, slug?: string | null, brand?: string, category?: string, code?: string }} product
  */
 export function proposeProductSlug(product) {
   const explicit = String(product?.slug ?? '').trim();
-  if (explicit) return explicit.toLowerCase();
+  if (explicit && !isWeakCatalogSlug(explicit, product)) {
+    return explicit.toLowerCase();
+  }
 
-  const id = String(product?.id ?? '').trim();
-  if (looksLikeSlug(id) && !isUuidLikeId(id)) return id.toLowerCase();
-
-  const fromName = slugifyProductText(product?.name);
-  if (!fromName) return id.toLowerCase();
-
-  const idSuffix = slugifyProductText(id).slice(-12);
-  if (!idSuffix || fromName.endsWith(idSuffix)) return fromName;
-  return `${fromName}-${idSuffix}`.slice(0, SLUG_MAX_LENGTH);
+  return buildSemanticSlug(product);
 }
 
 /**
@@ -86,7 +160,8 @@ export function assignUniqueProductSlugs(products) {
 
   for (const product of byId.values()) {
     const slug = String(product.slug ?? '').trim().toLowerCase();
-    const key = slug || `__missing__:${product.id}`;
+    const key =
+      slug && !isWeakCatalogSlug(slug, product) ? slug : `__missing__:${product.id}`;
     const list = groups.get(key) ?? [];
     list.push(product);
     groups.set(key, list);

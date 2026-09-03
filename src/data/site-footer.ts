@@ -36,6 +36,7 @@ export const FOOTER_NAV_LINKS: FooterLink[] = [
   { label: 'Alquiler de equipos', href: serviceHubPath('alquiler') },
   { label: 'Servicio técnico', href: serviceHubPath('servicio-tecnico') },
   { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
+  { label: 'Distribuidor Autorizado Ricoh', href: '/distribuidor-autorizado-ricoh' },
   { label: 'Por qué comprar con nosotros', href: '/por-que-comprar-con-nosotros' },
   { label: 'Descargas', href: '/descargas' },
   { label: 'Contacto', href: '/contacto' },

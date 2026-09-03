@@ -60,9 +60,11 @@ const STORE_HEADER_LINKS: HeaderMainNavLink[] = [
   },
   {
     id: 'nosotros',
-    to: '/por-que-comprar-con-nosotros',
+    to: '/distribuidor-autorizado-ricoh',
     label: 'Nosotros',
-    matchActive: ({ pathname }) => pathname.startsWith('/por-que-comprar-con-nosotros'),
+    matchActive: ({ pathname }) =>
+      pathname.startsWith('/distribuidor-autorizado-ricoh') ||
+      pathname.startsWith('/por-que-comprar-con-nosotros'),
   },
 ];
 

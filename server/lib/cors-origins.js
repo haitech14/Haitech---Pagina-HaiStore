@@ -8,6 +8,9 @@ export function getCorsOrigins() {
   );
 
   origins.add('http://localhost:5173');
+  origins.add('http://localhost:5180');
+  origins.add('http://127.0.0.1:5173');
+  origins.add('http://127.0.0.1:5180');
   origins.add('https://haistore.vercel.app');
   origins.add('https://haitech.pe');
   origins.add('https://www.haitech.pe');
@@ -23,9 +26,9 @@ export function getCorsOrigins() {
   return [...origins];
 }
 
-/** localhost y redes privadas (puertos Vite 517x). */
+/** localhost, link-local y redes privadas (Vite u otro puerto local). */
 export const lanOriginPattern =
-  /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):517\d+$/;
+  /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\]|169\.254\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$/;
 
 export function isCorsOriginAllowed(origin, allowedOrigins) {
   if (!origin) return true;

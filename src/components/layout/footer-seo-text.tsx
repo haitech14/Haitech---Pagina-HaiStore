@@ -47,7 +47,11 @@ export function FooterSeoText({ className }: FooterSeoTextProps) {
           <Link to={serviceHubPath('alquiler')} className={linkClass}>
             alquiler de equipos
           </Link>{' '}
-          con envío a todo el Perú y soporte técnico especializado. Conoce{' '}
+          con envío a todo el Perú y soporte técnico especializado. Conoce nuestro{' '}
+          <Link to="/distribuidor-autorizado-ricoh" className={linkClass}>
+            Distribuidor Autorizado Ricoh
+          </Link>
+          ,{' '}
           <Link to="/por-que-comprar-con-nosotros" className={linkClass}>
             por qué comprar con nosotros
           </Link>{' '}

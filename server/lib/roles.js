@@ -1,4 +1,4 @@
-import { resolveCorporativo2FixedPen } from '../../shared/corporativo2-fixed-prices.js';
+import { resolveCorporativo2FixedPen, resolveCorporativo2FixedUsd } from '../../shared/corporativo2-fixed-prices.js';
 
 export const PRICE_ROLES = ['public', 'tecnico', 'mayorista', 'distribuidor'];
 
@@ -52,11 +52,16 @@ function penToUsd(pen, rate) {
   return Math.round((pen / rate) * 100) / 100;
 }
 
-/** Precio USD según rol de usuario (corporativo 2 puede tener PEN fijo por producto). */
+/** Precio USD según rol de usuario (corporativo 2: USD fijo, PEN fijo o Corporativo). */
 export function resolveUserRolePriceUsd(prices = {}, userRole, options = {}) {
   const full = ensureFullPrices(prices);
   if (userRole === 'corporativo2') {
-    const fixedPen = resolveCorporativo2FixedPen(...(options.productKeys ?? []));
+    const keys = options.productKeys ?? [];
+    const fixedUsd = resolveCorporativo2FixedUsd(...keys);
+    if (fixedUsd != null && fixedUsd > 0) {
+      return fixedUsd;
+    }
+    const fixedPen = resolveCorporativo2FixedPen(...keys);
     if (fixedPen != null && fixedPen > 0 && options.saleRate > 0) {
       return penToUsd(fixedPen, options.saleRate);
     }

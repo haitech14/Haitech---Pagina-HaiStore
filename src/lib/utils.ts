@@ -43,12 +43,12 @@ export function formatUsdInteger(usd: number): string {
   }).format(usd);
 }
 
-/** USD de equipos: al 49/99 más cercano, sin centavos. */
+/** USD de equipos: último dígito al 9 más cercano, sin centavos. */
 export function formatEquipmentUsd(usd: number): string {
   return formatUsdInteger(roundEquipmentDisplayUsd(usd));
 }
 
-/** USD según categoría (equipos al 49/99; resto con centavos). */
+/** USD según categoría (equipos al 9; resto con centavos). */
 export function formatUsdForCategory(usd: number, category?: string | null): string {
   if (isEquipmentDisplayPriceCategory(category)) {
     return formatEquipmentUsd(usd);
