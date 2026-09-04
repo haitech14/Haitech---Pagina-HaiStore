@@ -51,10 +51,88 @@
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     }
   ],
+  "trailingSlash": false,
   "redirects": [
     {
       "source": "/tienda/producto/:slug",
       "destination": "/tienda/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/categoria/software",
+      "destination": "/software",
+      "permanent": true
+    },
+    {
+      "source": "/categoria/toner-compatibles",
+      "destination": "/categoria/toner-suministros",
+      "permanent": true
+    },
+    {
+      "source": "/qtc",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/qtc/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/404",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/soluciones",
+      "destination": "/servicios",
+      "permanent": true
+    },
+    {
+      "source": "/soluciones/:path*",
+      "destination": "/servicios",
+      "permanent": true
+    },
+    {
+      "source": "/product/:path*",
+      "destination": "/tienda",
+      "permanent": true
+    },
+    {
+      "source": "/productos/:path*",
+      "destination": "/tienda",
+      "permanent": true
+    },
+    {
+      "source": "/shop/:path*",
+      "destination": "/tienda",
+      "permanent": true
+    },
+    {
+      "source": "/wp-admin/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/wp-content/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/index.php",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/categoria/multifuncionales",
+      "has": [{ "type": "query", "key": "sub", "value": "all" }],
+      "destination": "/categoria/multifuncionales?sub=todas",
+      "permanent": true
+    },
+    {
+      "source": "/categoria/multifuncionales",
+      "missing": [{ "type": "query", "key": "sub" }],
+      "destination": "/categoria/multifuncionales?sub=todas",
       "permanent": true
     }
   ],

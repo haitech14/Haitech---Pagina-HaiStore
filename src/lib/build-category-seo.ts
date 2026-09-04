@@ -1,4 +1,4 @@
-import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
+import { categoryCanonicalPath, isAllSubcategoriesParam } from '../../shared/seo/category-query.js';
 import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import {
   buildBreadcrumbJsonLd,
@@ -22,14 +22,19 @@ export interface CategorySeoInput {
   topProducts?: Array<{ name: string; url: string }>;
 }
 
-function buildCategoryCanonicalPath(category: Category, catalogSlug?: string): string {
-  if (catalogSlug === 'multifuncionales') {
-    return `/categoria/multifuncionales?sub=${ALL_SUBCATEGORIES_QUERY}`;
+function buildCategoryCanonicalPath(
+  category: Category,
+  catalogSlug?: string,
+  subSlug?: string | null,
+): string {
+  if (subSlug && !isAllSubcategoriesParam(subSlug)) {
+    return `/categoria/${category.slug}?sub=${encodeURIComponent(subSlug)}`;
   }
-  if (category.slug === 'multifuncionales') {
-    return `/categoria/${category.slug}?sub=${ALL_SUBCATEGORIES_QUERY}`;
+  if (catalogSlug === 'multifuncionales' || category.slug === 'multifuncionales') {
+    return categoryCanonicalPath('multifuncionales');
   }
-  return `/categoria/${category.slug}`;
+  if (catalogSlug) return `/tienda/${catalogSlug}`;
+  return categoryCanonicalPath(category.slug);
 }
 
 export function buildCategorySeoConfig(input: CategorySeoInput) {
@@ -41,26 +46,27 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
     catalogSlug,
     isInventorySearch,
     searchQuery,
-    hasFilterParams,
     topProducts = [],
   } = input;
 
-  const canonicalPath = buildCategoryCanonicalPath(category, catalogSlug);
+  const canonicalPath = buildCategoryCanonicalPath(category, catalogSlug, subSlug);
   const canonical = buildAbsoluteUrl(canonicalPath);
 
   if (isInventorySearch && searchQuery) {
+    const categoryCanonical = buildAbsoluteUrl(
+      buildCategoryCanonicalPath(category, catalogSlug, null),
+    );
     return {
       title: `Resultados para «${searchQuery}» | Haitech`,
       description: `Productos que coinciden con «${searchQuery}» en el catálogo Haitech.`,
-      canonical,
+      canonical: categoryCanonical,
       image: resolveAbsoluteImageUrl(category.image ?? null, SITE_ORIGIN),
       imageAlt: category.name,
       ogType: 'website' as const,
-      robots: 'noindex,follow' as const,
+      robots: 'index,follow' as const,
     };
   }
 
-  const shouldNoIndex = Boolean(hasFilterParams && !catalogSlug);
   const collectionLd = buildCategoryCollectionJsonLd(
     {
       slug: category.slug,
@@ -73,9 +79,9 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
 
   const breadcrumbs: Array<{ label: string; href?: string }> = [
     { label: 'Inicio', href: '/' },
-    { label: category.name, href: `/categoria/${category.slug}` },
+    { label: category.name, href: categoryCanonicalPath(category.slug) },
   ];
-  if (subcategoryName?.trim() && subSlug && subSlug !== 'all' && subSlug !== ALL_SUBCATEGORIES_QUERY) {
+  if (subcategoryName?.trim() && subSlug && !isAllSubcategoriesParam(subSlug)) {
     breadcrumbs.push({ label: subcategoryName.trim(), href: canonicalPath });
   }
   const breadcrumbLd = buildBreadcrumbJsonLd(breadcrumbs, SITE_ORIGIN);
@@ -93,7 +99,7 @@ export function buildCategorySeoConfig(input: CategorySeoInput) {
     image: resolveAbsoluteImageUrl(category.image ?? null, SITE_ORIGIN),
     imageAlt: subcategoryName ?? category.name,
     ogType: 'website' as const,
-    robots: shouldNoIndex ? ('noindex,follow' as const) : ('index,follow' as const),
+    robots: 'index,follow' as const,
     jsonLd,
   };
 }

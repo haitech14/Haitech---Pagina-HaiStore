@@ -1,6 +1,14 @@
 User-agent: *
 Allow: /
 
+Allow: /tienda
+Allow: /categoria
+Allow: /servicios
+Allow: /software
+Allow: /sitemap.xml
+Allow: /sitemap-core.xml
+Allow: /sitemap-products-1.xml
+
 Disallow: /admin
 Disallow: /panel
 Disallow: /login

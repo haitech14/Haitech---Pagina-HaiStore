@@ -1,7 +1,10 @@
 import type { StoreCategory, StoreCategoryTreeNode } from '@/types/store-category';
+import {
+  ALL_SUBCATEGORIES_QUERY,
+  isAllSubcategoriesParam,
+} from '../../shared/seo/category-query.js';
 
-/** Valor de `?sub=` para ver todas las subcategorías sin filtro activo. */
-export const ALL_SUBCATEGORIES_QUERY = 'todas';
+export { ALL_SUBCATEGORIES_QUERY, isAllSubcategoriesParam };
 
 export function parseCategorySubSearchParam(raw: string | null): {
   subSlug: string | null;
@@ -10,7 +13,7 @@ export function parseCategorySubSearchParam(raw: string | null): {
   if (!raw) {
     return { subSlug: null, isAllSubcategoriesView: false };
   }
-  if (raw === ALL_SUBCATEGORIES_QUERY) {
+  if (isAllSubcategoriesParam(raw)) {
     return { subSlug: null, isAllSubcategoriesView: true };
   }
   return { subSlug: raw, isAllSubcategoriesView: false };

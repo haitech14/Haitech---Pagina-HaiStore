@@ -13,6 +13,7 @@ import {
   isStoreShowcaseCategorySlug,
   STORE_SHOWCASE_HASH,
 } from '@/lib/store-showcase-path';
+import { vitrinaCanonicalPath } from '../../shared/seo/public-paths.js';
 import { cn } from '@/lib/utils';
 
 /** Vista principal de tienda: banner + vitrina de equipos. */
@@ -21,16 +22,20 @@ export function StorePage() {
   const { slug: vitrinaSlug } = useParams<{ slug?: string }>();
   const isVitrinaCategory = isStoreShowcaseCategorySlug(vitrinaSlug);
 
+  const canonicalPath = isVitrinaCategory
+    ? vitrinaCanonicalPath(vitrinaSlug)
+    : '/tienda';
+
   const storeSeo = useMemo(
     () => ({
       title: STORE_SITE_TITLE,
       description: STORE_SITE_DESCRIPTION,
-      canonical: buildAbsoluteUrl(isVitrinaCategory ? `/tienda/${vitrinaSlug}` : '/tienda'),
+      canonical: buildAbsoluteUrl(canonicalPath),
       robots: 'index,follow' as const,
       ogType: 'website' as const,
       jsonLd: buildStoreJsonLd(SITE_ORIGIN),
     }),
-    [isVitrinaCategory, vitrinaSlug],
+    [canonicalPath],
   );
 
   useSeo(storeSeo);

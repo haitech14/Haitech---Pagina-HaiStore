@@ -1,8 +1,7 @@
 import { useLayoutEffect, useMemo } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { ProductDetailView } from '@/components/product-detail/product-detail-view';
-import { Button } from '@/components/ui/button';
 import { useSeo } from '@/hooks/use-seo';
 import { useProduct } from '@/hooks/use-product';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
@@ -25,15 +24,8 @@ export function ProductDetailPage() {
 
   const seoConfig = useMemo(() => {
     if (product) return buildProductSeoConfig(product, breadcrumbs, { featuredMeta });
-    if (notFound) {
-      return {
-        title: 'Producto no encontrado | Haitech',
-        description: 'El producto solicitado no está disponible en Haitech.',
-        robots: 'noindex,follow' as const,
-      };
-    }
     return null;
-  }, [product, breadcrumbs, notFound, featuredMeta]);
+  }, [product, breadcrumbs, featuredMeta]);
 
   useSeo(seoConfig);
 
@@ -72,17 +64,7 @@ export function ProductDetailPage() {
   }
 
   if (notFound || !product) {
-    return (
-      <div className="container flex min-h-[50vh] flex-col items-center justify-center gap-4 py-8 text-center">
-        <h1 className="text-2xl font-semibold">Producto no encontrado</h1>
-        <p className="text-muted-foreground">
-          El artículo que buscas no está disponible o el enlace no es válido.
-        </p>
-        <Button asChild className="bg-red-600 hover:bg-red-500">
-          <Link to="/tienda">Volver a Tienda</Link>
-        </Button>
-      </div>
-    );
+    return <Navigate to="/tienda" replace />;
   }
 
   return <ProductDetailView product={product} featuredMeta={featuredMeta} />;

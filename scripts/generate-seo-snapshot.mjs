@@ -44,6 +44,8 @@ import {
   buildStaticSeoRecord,
 } from '../shared/seo/static-routes.js';
 import { buildAbsoluteUrl } from '../shared/site-origin.js';
+import { ALL_SUBCATEGORIES_QUERY, multifuncionalesCanonicalPath } from '../shared/seo/category-query.js';
+import { indexableRobots } from '../shared/seo/public-paths.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = path.join(__dirname, '../public/catalog/seo-snapshot');
@@ -155,7 +157,7 @@ async function main() {
     const payload = {
       ...seo,
       jsonLd,
-      robots: 'index,follow',
+      robots: indexableRobots(),
     };
 
     const fileSlug = safeProductFileSlug(slug);
@@ -219,14 +221,14 @@ async function main() {
     const categoryPayload = {
       ...record,
       jsonLd,
-      robots: 'index,follow',
+      robots: indexableRobots(),
     };
     categoriesBySlug[category.slug] = categoryPayload;
   }
 
   for (const entry of loadCategoryTreeUrls()) {
     const category = LANDING_BY_SLUG[entry.rootSlug];
-    if (!category) continue;
+    if (!category || category.slug === 'software') continue;
 
     const record = buildCategorySeoRecord(category, siteOrigin, {
       subcategoryName: entry.subName,
@@ -239,7 +241,7 @@ async function main() {
       { label: 'Inicio', href: '/' },
       { label: category.name, href: `/categoria/${category.slug}` },
     ];
-    if (entry.subSlug && entry.subSlug !== 'all') {
+    if (entry.subSlug && entry.subSlug !== 'all' && entry.subSlug !== ALL_SUBCATEGORIES_QUERY) {
       breadcrumbs.push({ label: entry.subName, href: entry.pathname });
     }
     const breadcrumbLd = buildBreadcrumbJsonLd(breadcrumbs, siteOrigin);
@@ -249,13 +251,26 @@ async function main() {
       slug: category.slug,
       title: record.title,
       description: record.description,
+      canonical: record.canonical,
       jsonLd: breadcrumbLd ? [breadcrumbLd] : undefined,
     };
   }
 
   for (const category of LANDING_CATEGORY_SEO) {
+    if (category.slug === 'software') continue;
+    if (category.slug === 'multifuncionales') {
+      routes[`/categoria/${category.slug}`] = {
+        redirectTo: multifuncionalesCanonicalPath(),
+      };
+      continue;
+    }
     routes[`/categoria/${category.slug}`] = { type: 'category', slug: category.slug };
   }
+
+  routes['/categoria/multifuncionales?sub=all'] = {
+    redirectTo: multifuncionalesCanonicalPath(),
+  };
+  routes['/categoria/software'] = { redirectTo: '/software' };
 
   const servicesByPath = {};
   for (const route of SERVICE_SEO_ROUTES) {
@@ -264,7 +279,7 @@ async function main() {
     servicesByPath[route.pathname] = {
       ...record,
       jsonLd,
-      robots: 'index,follow',
+      robots: indexableRobots(),
     };
     routes[route.pathname] = { type: 'service', pathname: route.pathname };
   }
@@ -273,7 +288,7 @@ async function main() {
   const home = {
     ...homeRecord,
     jsonLd: buildHomeJsonLd(siteOrigin),
-    robots: 'index,follow',
+    robots: indexableRobots(),
   };
   routes['/'] = { type: 'home' };
 
@@ -281,7 +296,7 @@ async function main() {
   const store = {
     ...storeRecord,
     jsonLd: buildStoreJsonLd(siteOrigin),
-    robots: 'index,follow',
+    robots: indexableRobots(),
   };
   routes['/tienda'] = { type: 'store' };
 
@@ -306,7 +321,7 @@ async function main() {
       ...buildStaticPageSeoRecord(route.pathname, route.title, route.description, siteOrigin),
       ...record,
       jsonLd,
-      robots: 'index,follow',
+      robots: indexableRobots(),
     };
     routes[route.pathname] = { type: 'page', pathname: route.pathname };
   }

@@ -10,7 +10,7 @@ export function NotFoundPage() {
     title: 'Página no encontrada | HaiStore — Distribuidor Autorizado Ricoh',
     description:
       'La página que buscas no existe. Explora fotocopiadoras, impresoras, tóner y repuestos Ricoh en HaiStore, Distribuidor Autorizado en Perú.',
-    canonical: buildAbsoluteUrl('/404'),
+    canonical: buildAbsoluteUrl('/'),
     robots: 'noindex,nofollow',
   });
 

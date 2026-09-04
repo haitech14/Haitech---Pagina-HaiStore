@@ -71,11 +71,7 @@ export function ServiceDetailPage() {
             SITE_ORIGIN,
           ),
         }
-      : {
-          title: 'Servicio no encontrado',
-          description: 'Servicio corporativo HaiStore',
-          robots: 'noindex,nofollow',
-        },
+      : null,
   );
 
   const cartInput = useMemo<ServiceCartInput | null>(() => {

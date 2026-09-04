@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, ShieldCheck } from 'lucide-react';
 
@@ -7,7 +7,8 @@ import {
   HaiProtectPlanCards,
 } from '@/components/haiprotect/haiprotect-plan-cards';
 import { Button } from '@/components/ui/button';
-import { formatPageTitle } from '@/data/site-meta';
+import { useSeo } from '@/hooks/use-seo';
+import { buildAbsoluteUrl } from '@/lib/site-url';
 import {
   HAIPROTECT_BENEFITS,
   formatHaiProtectPrice,
@@ -20,9 +21,13 @@ import {
 export function HaiProtectPage() {
   const [offeringId, setOfferingId] = useState<HaiProtectOfferingId>('mono-12m');
 
-  useEffect(() => {
-    document.title = formatPageTitle('HaiProtect — Garantía extendida');
-  }, []);
+  useSeo({
+    title: 'HaiProtect | Garantía extendida para equipos Ricoh | HaiStore',
+    description:
+      'Extiende la garantía de tu fotocopiadora o impresora Ricoh con HaiProtect. Planes de cobertura, soporte técnico y respaldo oficial en Perú.',
+    canonical: buildAbsoluteUrl('/haiprotect'),
+    robots: 'index,follow',
+  });
 
   const activeOffering = getHaiProtectOffering(offeringId);
   const activePrice = activeOffering ? getHaiProtectOfferingPrice(activeOffering) : 0;

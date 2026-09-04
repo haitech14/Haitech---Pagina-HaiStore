@@ -80,11 +80,7 @@ export function SoftwareDetailPage() {
           canonical: buildAbsoluteUrl(`/software/${item.slug}`),
           robots: 'index,follow',
         }
-      : {
-          title: 'Software no encontrado',
-          description: 'Software empresarial HaiStore',
-          robots: 'noindex,nofollow',
-        },
+      : null,
   );
 
   const isSelected = item ? isSoftwareSelected(item.slug) : false;

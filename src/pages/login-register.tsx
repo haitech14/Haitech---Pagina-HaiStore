@@ -5,8 +5,14 @@ import { ArrowRight, Mail, Shield, User } from 'lucide-react';
 
 import { FooterLogoImage } from '@/components/layout/site-logo';
 import { useAuth } from '@/context/auth-context';
+import { useSeo } from '@/hooks/use-seo';
 
 export function LoginRegisterPage() {
+  useSeo({
+    title: 'Crear cuenta | Haitech',
+    robots: 'noindex,nofollow',
+  });
+
   const { signUp } = useAuth();
   const navigate = useNavigate();
 

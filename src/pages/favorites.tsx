@@ -6,6 +6,8 @@ import { ProductShowcaseCard } from '@/components/product-showcase-card';
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/context/wishlist-context';
 import { useProductsByIds } from '@/hooks/use-products-by-ids';
+import { useSeo } from '@/hooks/use-seo';
+import { buildAbsoluteUrl } from '@/lib/site-url';
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { WishlistItem } from '@/lib/wishlist-product';
 
@@ -23,6 +25,13 @@ function wishlistToFeatured(item: WishlistItem, livePrice?: number): FeaturedPro
 }
 
 export function FavoritesPage() {
+  useSeo({
+    title: 'Favoritos | HaiStore',
+    description: 'Tus productos Ricoh guardados en HaiStore.',
+    canonical: buildAbsoluteUrl('/favoritos'),
+    robots: 'noindex,nofollow',
+  });
+
   const { items, clear, totalItems } = useWishlist();
   const ids = useMemo(() => items.map((item) => item.id), [items]);
   const { data: storeProducts = [] } = useProductsByIds(ids, items.length > 0);
