@@ -209,6 +209,45 @@ export function patchCatalogIndexProductMedia(
   bumpCatalogMediaEpoch();
 }
 
+/**
+ * Upsert de un producto completo en la caché del índice (stock, precios, nombre, etc.).
+ * Requerido por `use-products` tras mutaciones admin.
+ */
+export function patchCatalogIndexProduct(product: InventoryProduct): void {
+  if (!catalogCache || !product?.id) return;
+
+  const nextRow: CatalogRow = {
+    ...normalizeInventoryProduct(product),
+  };
+  const compareAt = (product as CatalogRow).compare_at_price_usd;
+  if (compareAt != null) nextRow.compare_at_price_usd = compareAt;
+  const isNew = (product as CatalogRow).is_new;
+  if (isNew != null) nextRow.is_new = isNew;
+
+  const index = catalogCache.findIndex((row) => row.id === product.id);
+  if (index < 0) {
+    catalogCache = [nextRow, ...catalogCache];
+  } else {
+    const current = catalogCache[index];
+    const merged: CatalogRow = current ? { ...current, ...nextRow } : nextRow;
+    catalogCache = [
+      ...catalogCache.slice(0, index),
+      merged,
+      ...catalogCache.slice(index + 1),
+    ];
+  }
+
+  catalogVisibleRows = null;
+  if (!catalogById) rebuildCatalogLookupMaps(catalogCache);
+  else {
+    const row = catalogCache.find((item) => item.id === product.id) ?? nextRow;
+    catalogById.set(row.id, row);
+    const slug = typeof row.slug === 'string' ? row.slug.trim().toLowerCase() : '';
+    if (slug) catalogBySlug?.set(slug, row);
+  }
+  bumpCatalogMediaEpoch();
+}
+
 /** Filas del índice en caché (vacío hasta que termine la precarga). */
 export function getCatalogRows(): CatalogRow[] {
   if (!catalogCache) return [];
