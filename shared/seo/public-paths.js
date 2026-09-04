@@ -74,6 +74,28 @@ export function indexableRobots() {
   return INDEXABLE_ROBOTS;
 }
 
+export const NOINDEX_ROBOTS = 'noindex,nofollow';
+
+/** Rutas privadas: no deben heredar el canónico del home. */
+export const NOINDEX_HTML_PREFIXES = [
+  '/login',
+  '/checkout',
+  '/mi-cuenta',
+  '/favoritos',
+  '/admin',
+  '/panel',
+];
+
+export function noindexRobots() {
+  return NOINDEX_ROBOTS;
+}
+
+export function isNoindexHtmlPath(pathname) {
+  return NOINDEX_HTML_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
 export function isValidHtmlPath(pathname) {
   if (pathname === '/') return true;
   return VALID_HTML_PREFIXES.some(

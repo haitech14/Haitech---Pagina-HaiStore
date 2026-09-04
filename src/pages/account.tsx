@@ -29,6 +29,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
+import { useSeo } from '@/hooks/use-seo';
+import { buildAbsoluteUrl } from '@/lib/site-url';
 import { useMyOrders } from '@/hooks/use-my-orders';
 import {
   formatOrderDate,
@@ -42,6 +44,13 @@ import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { StoreOrder } from '@/types/store';
 
 export function AccountPage() {
+  useSeo({
+    title: 'Mi cuenta | HaiStore',
+    description: 'Pedidos, perfil y documentos de tu cuenta HaiStore.',
+    canonical: buildAbsoluteUrl('/mi-cuenta'),
+    robots: 'noindex,nofollow',
+  });
+
   const { user, isLoading, role } = useAuth();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();

@@ -7,51 +7,15 @@ import {
 import {
   STORE_SHOWCASE_SLUGS,
   indexableRobots,
+  isNoindexHtmlPath,
   isValidHtmlPath,
   looksLikeLegacyCmsPath,
+  noindexRobots,
   vitrinaCanonicalPath,
 } from './shared/seo/public-paths.js';
 
 export const config = {
-  matcher: [
-    '/',
-    '/tienda',
-    '/tienda/:path*',
-    '/categoria/:path*',
-    '/servicios',
-    '/servicios/:path*',
-    '/software',
-    '/software/:path*',
-    '/soluciones/:path*',
-    '/foro',
-    '/foro/:path*',
-    '/preguntas-frecuentes',
-    '/por-que-comprar-con-nosotros',
-    '/distribuidor-autorizado-ricoh',
-    '/fotocopiadoras-peru',
-    '/fotocopiadoras-ricoh',
-    '/alquiler-fotocopiadoras-lima',
-    '/toner-ricoh',
-    '/guias',
-    '/guias/:path*',
-    '/modelos',
-    '/modelos/:path*',
-    '/descargas',
-    '/contacto',
-    '/haiprotect',
-    '/terminos',
-    '/privacidad',
-    '/alquiler',
-    '/servicio-tecnico',
-    '/outsourcing',
-    '/servicios-corporativos',
-    '/qtc',
-    '/qtc/:path*',
-    '/404',
-    '/product/:path*',
-    '/productos/:path*',
-    '/shop/:path*',
-  ],
+  matcher: ['/', '/:path*'],
 };
 
 /** @type {Map<string, { payload: unknown; loadedAt: number }>} */
@@ -62,6 +26,37 @@ const FRAGMENT_TTL_MS = 5 * 60 * 1000;
 let manifestState = { manifest: null, loadedAt: 0 };
 
 const INDEXABLE = indexableRobots();
+const NOINDEX = noindexRobots();
+
+const NOINDEX_TITLES = {
+  '/login': 'Iniciar sesión | HaiStore',
+  '/login/registro': 'Crear cuenta | HaiStore',
+  '/favoritos': 'Favoritos | HaiStore',
+  '/checkout': 'Checkout | HaiStore',
+  '/mi-cuenta': 'Mi cuenta | HaiStore',
+};
+
+function wantsHtml(request) {
+  const accept = request.headers.get('accept') ?? '';
+  if (!accept || accept === '*/*') return true;
+  return accept.includes('text/html') || accept.includes('application/xhtml');
+}
+
+function noindexSeo(pathname, request) {
+  const title =
+    NOINDEX_TITLES[pathname] ??
+    (pathname.startsWith('/checkout')
+      ? 'Checkout | HaiStore'
+      : pathname.startsWith('/admin') || pathname.startsWith('/panel')
+        ? 'Administración | HaiStore'
+        : 'HaiStore');
+  return {
+    title,
+    description: 'Página privada de HaiStore.',
+    canonical: new URL(pathname, request.url).href.replace(/\/$/, '') || request.url,
+    robots: NOINDEX,
+  };
+}
 
 async function fetchJson(request, pathname) {
   const now = Date.now();
@@ -134,6 +129,7 @@ function preliminaryRedirect(url) {
     return '/';
   }
 
+  if (pathname === '/registro') return '/login/registro';
   if (pathname === '/categoria/software') return '/software';
   if (pathname === '/categoria/toner-compatibles') return '/categoria/toner-suministros';
   if (pathname === '/alquiler') return '/servicios?seccion=alquiler';
@@ -302,18 +298,18 @@ async function resolveSeo(pathname, search, request) {
 }
 
 export default async function middleware(request) {
-  const accept = request.headers.get('accept') ?? '';
-  if (!accept.includes('text/html')) {
-    return;
-  }
-
   const url = new URL(request.url);
+  if (url.pathname.startsWith('/api/')) return;
+  if (/\.[a-zA-Z0-9]{1,8}$/.test(url.pathname)) return;
+  if (!wantsHtml(request)) return;
   const early = preliminaryRedirect(url);
   if (early) {
     return Response.redirect(new URL(early, request.url), 301);
   }
 
-  const seo = await resolveSeo(url.pathname, url.searchParams.toString(), request);
+  const seo =
+    (await resolveSeo(url.pathname, url.searchParams.toString(), request)) ??
+    (isNoindexHtmlPath(url.pathname) ? noindexSeo(url.pathname, request) : null);
 
   if (seo?.redirectTo) {
     return Response.redirect(new URL(seo.redirectTo, request.url), 301);

@@ -69,6 +69,11 @@
       "permanent": true
     },
     {
+      "source": "/registro",
+      "destination": "/login/registro",
+      "permanent": true
+    },
+    {
       "source": "/qtc",
       "destination": "/",
       "permanent": true
