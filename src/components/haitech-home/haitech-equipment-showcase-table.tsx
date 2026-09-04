@@ -542,7 +542,7 @@ function EquipmentShowcaseTableRow({
       <td className={cn(CELL, 'whitespace-nowrap font-semibold tabular-nums text-[#4B5563]')}>
         <InlineEditableTextCell
           canEdit={canManage}
-          value={catalogRow?.code ?? codeLabel}
+          value={catalogRow?.code ?? codeLabel ?? ''}
           ariaLabel="Modificar código"
           align="left"
           onCommit={async (next) => {

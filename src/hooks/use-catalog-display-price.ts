@@ -15,14 +15,21 @@ import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
 import { isEquipmentDisplayPriceCategory, roundPenToNearestNine } from '@/lib/pen-pricing';
 import type { Product } from '@/types/product';
 
-type CatalogPriceSource = Pick<Product, 'id' | 'code' | 'price' | 'prices' | 'price_role' | 'category'>;
+type CatalogPriceSource = {
+  price: number;
+  id?: string | undefined;
+  code?: string | null | undefined;
+  prices?: Product['prices'] | undefined;
+  price_role?: Product['price_role'] | undefined;
+  category?: string | null | undefined;
+};
 
 export interface CatalogRolePriceLine {
   role: UserRole;
   label: string;
   priceUsd: number;
   /** PEN exacto cuando el rol tiene precio fijo en soles (p. ej. corporativo 2). */
-  pricePen?: number;
+  pricePen?: number | undefined;
   priceRole: PriceRole;
 }
 

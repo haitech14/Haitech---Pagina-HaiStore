@@ -105,7 +105,7 @@ export type HaitechShopProduct = {
     /** Formato de papel principal, o dual A4+A3. */
     paperSize?: 'A4' | 'A3' | 'A4 / A3' | 'A0' | 'A1';
     /** Alimentador de documentos. */
-    scannerType?: 'ARDF' | 'SPDF';
+    scannerType?: 'ARDF' | 'SPDF' | 'Estándar';
     /** Volumen mensual recomendado, p. ej. `20.000 pág/mes`. */
     monthlyYield?: string;
   };

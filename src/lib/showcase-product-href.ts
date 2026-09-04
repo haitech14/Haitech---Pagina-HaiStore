@@ -28,7 +28,8 @@ function slugFromProductHref(href: string | null | undefined): string | null {
     .trim()
     .split(/[?#]/, 1)[0]
     ?.replace(/\/+$/, '');
-  const slug = path?.split('/').filter(Boolean).at(-1);
+  const segments = path?.split('/').filter(Boolean) ?? [];
+  const slug = segments.length > 0 ? segments[segments.length - 1] : undefined;
   return slug ? decodeURIComponent(slug) : null;
 }
 

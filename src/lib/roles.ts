@@ -96,8 +96,8 @@ export function resolveUserRolePriceUsd(
   userRole: string,
   options?: {
     isEquipment?: boolean;
-    saleRate?: number;
-    productKeys?: readonly (string | null | undefined)[];
+    saleRate?: number | undefined;
+    productKeys?: readonly (string | null | undefined)[] | undefined;
   },
 ): number {
   const full = ensureFullPrices(prices);
@@ -123,8 +123,8 @@ export function resolveUserRoleDisplayPen(
   userRole: string,
   options: {
     isEquipment: boolean;
-    saleRate?: number;
-    productKeys?: readonly (string | null | undefined)[];
+    saleRate?: number | undefined;
+    productKeys?: readonly (string | null | undefined)[] | undefined;
     penFromUsd: (usd: number) => number;
   },
 ): number {

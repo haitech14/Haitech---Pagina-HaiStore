@@ -59,19 +59,19 @@ export function RentalEstimateDualPrice({
 
 export interface DualPriceProps {
   usd: number;
-  className?: string;
-  strikethrough?: boolean;
+  className?: string | undefined;
+  strikethrough?: boolean | undefined;
   /** PEN exacto (p. ej. corporativo 2 fijo); si no se indica, se calcula desde USD. */
-  penOverride?: number;
+  penOverride?: number | undefined;
   /** Vitrina destacada: siempre PEN y USD con guion, como el diseño de referencia. */
-  alwaysBoth?: boolean;
+  alwaysBoth?: boolean | undefined;
   /** Apila PEN y USD en líneas separadas (sidebar checkout). */
-  stacked?: boolean;
+  stacked?: boolean | undefined;
   /**
    * When true, keep rendering $0 / S/ 0 (checkout totals, discounts, IGV).
    * Default: storefront product prices show «Consultar Precio» instead.
    */
-  allowZero?: boolean;
+  allowZero?: boolean | undefined;
 }
 
 /** Precio en USD, PEN o ambos según la moneda activa del header. */

@@ -17,7 +17,10 @@ const AUTOPLAY_MS = 6000;
 type ServicesBannerItem = (typeof HAITECH_HOME_SERVICES_CAROUSEL_BANNERS)[number];
 
 function MidBannerLink({ banner }: { banner: ServicesBannerItem }) {
-  const webp = 'webp' in banner ? banner.webp : undefined;
+  const webp =
+    'webp' in banner && typeof (banner as { webp?: unknown }).webp === 'string'
+      ? (banner as { webp: string }).webp
+      : undefined;
 
   return (
     <Link
@@ -29,17 +32,15 @@ function MidBannerLink({ banner }: { banner: ServicesBannerItem }) {
     >
       <ResponsivePromoBannerImage
         src={banner.png}
-        {...(webp ? { webp } : {})}
+        webp={webp}
         alt={banner.alt}
         width={banner.width}
         height={banner.height}
         mobileFocus="left"
-        {...('mobileWidthPercent' in banner && banner.mobileWidthPercent
-          ? { mobileWidthPercent: banner.mobileWidthPercent }
-          : {})}
-        {...('desktopScale' in banner && banner.desktopScale
-          ? { desktopScale: banner.desktopScale }
-          : {})}
+        mobileWidthPercent={
+          'mobileWidthPercent' in banner ? banner.mobileWidthPercent : undefined
+        }
+        desktopScale={'desktopScale' in banner ? banner.desktopScale : undefined}
       />
     </Link>
   );

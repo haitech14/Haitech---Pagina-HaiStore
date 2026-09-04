@@ -112,7 +112,6 @@ export interface ProductCardFeaturedPricingProps {
 export function ProductCardFeaturedPricing({
   currentUsd,
   compareUsd,
-  productId,
   showAccentBar = true,
   accentUsd = false,
   className,

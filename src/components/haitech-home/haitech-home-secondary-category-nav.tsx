@@ -30,6 +30,10 @@ function SecondaryNavPlainLink({ item }: { item: HaitechHomeSecondaryNavLink }) 
 }
 
 function SecondaryNavDropdown({ item }: { item: HaitechHomeSecondaryNavLink }) {
+  if (!('menu' in item) || !item.menu) {
+    return <SecondaryNavPlainLink item={item} />;
+  }
+
   const shared = {
     navRow: SECONDARY_NAV_ROW,
     showIcon: false,
@@ -77,7 +81,7 @@ export function HaitechHomeSecondaryCategoryNav({ className }: { className?: str
         <ul className="flex min-w-0 flex-1 items-stretch overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {HAITECH_HOME_SECONDARY_NAV_LINKS.map((item) => (
             <li key={item.id} className="flex shrink-0 items-stretch">
-              {item.menu ? (
+              {'menu' in item && item.menu ? (
                 <SecondaryNavDropdown item={item} />
               ) : (
                 <SecondaryNavPlainLink item={item} />

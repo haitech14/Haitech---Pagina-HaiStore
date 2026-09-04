@@ -6,17 +6,17 @@ type MobileFocus = 'left' | 'center';
 
 type ResponsivePromoBannerImageProps = {
   src: string;
-  webp?: string;
+  webp?: string | undefined;
   alt: string;
   width: number;
   height: number;
   /** En móvil recorta/zoom hacia la zona del título. */
-  mobileFocus?: MobileFocus;
+  mobileFocus?: MobileFocus | undefined;
   /** Ancho relativo en móvil (mayor = más zoom). Por defecto 255. */
-  mobileWidthPercent?: number;
+  mobileWidthPercent?: number | undefined;
   /** Escala en desktop/tablet (1 = tamaño natural). */
-  desktopScale?: number;
-  className?: string;
+  desktopScale?: number | undefined;
+  className?: string | undefined;
 };
 
 /**

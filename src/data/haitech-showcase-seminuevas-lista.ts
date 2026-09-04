@@ -31,7 +31,7 @@ type SeminuevaProductMeta = {
   isColor: boolean;
   kind: 'equipment' | 'printer' | 'plotter' | 'accessory' | 'laptop' | 'pc' | 'monitor';
   paperSize?: 'A4' | 'A3' | 'A4 / A3' | 'A0' | 'A1';
-  scannerType?: 'ARDF' | 'SPDF';
+  scannerType?: 'ARDF' | 'SPDF' | 'Estándar';
   speedPpm?: string;
   monthlyYield?: string;
   tabIds: HaitechShopProduct['tabIds'];

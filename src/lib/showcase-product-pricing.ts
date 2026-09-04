@@ -19,7 +19,7 @@ import { penToUsd } from '@/lib/utils';
 export function resolveShowcaseProductPricesUsd(
   product: HaitechShopProduct,
   options: {
-    saleRate?: number;
+    saleRate?: number | undefined;
     isConsumable: boolean;
   },
 ): ProductRolePrices {
@@ -44,7 +44,7 @@ export function resolveShowcaseProductPricesUsd(
 
 export function showcaseUsdToPen(
   usd: number,
-  options: { saleRate?: number; isConsumable: boolean },
+  options: { saleRate?: number | undefined; isConsumable: boolean },
 ): number {
   if (!Number.isFinite(usd) || usd <= 0) return 0;
   const rate = options.saleRate ?? DEFAULT_USD_TO_PEN;
@@ -66,7 +66,7 @@ export function resolveShowcaseRolePriceLines(
   product: HaitechShopProduct,
   viewAsRoles: readonly UserRole[],
   options: {
-    saleRate?: number;
+    saleRate?: number | undefined;
     isConsumable: boolean;
   },
 ): CatalogRolePriceLine[] {
