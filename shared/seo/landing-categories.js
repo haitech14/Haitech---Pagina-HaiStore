@@ -53,10 +53,10 @@ export const LANDING_CATEGORY_SEO = [
 function resolveCategoryLandingHref(categoryLabel) {
   const normalized = String(categoryLabel ?? '').toLowerCase();
   if (normalized.includes('multifuncional')) {
-    return '/categoria/multifuncionales?sub=all';
+    return '/categoria/multifuncionales?sub=todas';
   }
   if (normalized.includes('impresora')) {
-    return '/categoria/impresoras?sub=all';
+    return '/categoria/impresoras';
   }
   if (/toner|tóner|suministro|cartucho/i.test(normalized)) {
     return '/categoria/toner-suministros';

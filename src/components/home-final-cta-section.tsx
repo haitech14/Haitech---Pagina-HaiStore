@@ -1,5 +1,6 @@
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
+import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
@@ -8,6 +9,15 @@ const ADVISOR_WHATSAPP_MESSAGE =
   'Hola, vengo desde HaiStore. Necesito asesoría para elegir el equipo de impresión adecuado para mi negocio.';
 
 const advisorWhatsAppUrl = buildHaitechWhatsAppUrl(ADVISOR_WHATSAPP_MESSAGE);
+
+const SEO_QUICK_LINKS = [
+  { label: 'Fotocopiadoras Perú', to: '/fotocopiadoras-peru' },
+  { label: 'Fotocopiadoras Ricoh', to: '/fotocopiadoras-ricoh' },
+  { label: 'Alquiler Lima', to: '/alquiler-fotocopiadoras-lima' },
+  { label: 'Tóner Ricoh', to: '/toner-ricoh' },
+  { label: 'Guías', to: '/guias' },
+  { label: 'Modelos', to: '/modelos' },
+] as const;
 
 export function HomeFinalCtaSection() {
   return (
@@ -32,6 +42,21 @@ export function HomeFinalCtaSection() {
             Hablar con un asesor
           </a>
         </Button>
+
+        <nav aria-label="Recursos para elegir equipo" className="max-w-3xl">
+          <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1.5 text-xs sm:text-sm">
+            {SEO_QUICK_LINKS.map((link) => (
+              <li key={link.to}>
+                <Link
+                  to={link.to}
+                  className="font-medium text-white/85 underline-offset-2 hover:text-white hover:underline"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </section>
   );

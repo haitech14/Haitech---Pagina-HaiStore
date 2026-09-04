@@ -94,6 +94,29 @@ const DistribuidorAutorizadoRicohPage = lazyWithRetry(
     })),
   'distribuidor-autorizado-ricoh',
 );
+const CommercialSeoLandingPage = lazyWithRetry(
+  () =>
+    import('@/pages/commercial-seo-landing').then((m) => ({
+      default: m.CommercialSeoLandingPage,
+    })),
+  'commercial-seo-landing',
+);
+const GuiasIndexPage = lazyWithRetry(
+  () => import('@/pages/guias-seo').then((m) => ({ default: m.GuiasIndexPage })),
+  'guias-index',
+);
+const GuiaSeoPage = lazyWithRetry(
+  () => import('@/pages/guias-seo').then((m) => ({ default: m.GuiaSeoPage })),
+  'guia-seo',
+);
+const ModelosIndexPage = lazyWithRetry(
+  () => import('@/pages/modelo-seo').then((m) => ({ default: m.ModelosIndexPage })),
+  'modelos-index',
+);
+const ModeloSeoPage = lazyWithRetry(
+  () => import('@/pages/modelo-seo').then((m) => ({ default: m.ModeloSeoPage })),
+  'modelo-seo',
+);
 const SoftwarePage = lazyWithRetry(
   () => import('@/pages/software').then((m) => ({ default: m.SoftwarePage })),
   'software',
@@ -109,10 +132,6 @@ const ServicioDetallePage = lazyWithRetry(
 const HaiProtectPage = lazyWithRetry(
   () => import('@/pages/haiprotect').then((m) => ({ default: m.HaiProtectPage })),
   'haiprotect',
-);
-const QtcReplicaPage = lazyWithRetry(
-  () => import('@/pages/qtc-replica').then((m) => ({ default: m.QtcReplicaPage })),
-  'qtc-replica',
 );
 const ForumLayout = lazyWithRetry(
   () => import('@/components/forum/forum-layout').then((m) => ({ default: m.ForumLayout })),
@@ -375,10 +394,7 @@ export const router = createBrowserRouter([
     path: '/login/registro',
     element: withSuspense(<LoginRegisterPage />),
   },
-  {
-    path: '/qtc',
-    element: withSuspense(<QtcReplicaPage />),
-  },
+  { path: '/qtc', element: <Navigate to="/" replace /> },
   {
     path: '/admin',
     element: withSuspense(<AdminLayout />),
@@ -491,6 +507,26 @@ export const router = createBrowserRouter([
         path: 'distribuidor-autorizado-ricoh',
         element: withSuspense(<DistribuidorAutorizadoRicohPage />),
       },
+      {
+        path: 'fotocopiadoras-peru',
+        element: withSuspense(<CommercialSeoLandingPage landingSlug="fotocopiadoras-peru" />),
+      },
+      {
+        path: 'fotocopiadoras-ricoh',
+        element: withSuspense(<CommercialSeoLandingPage landingSlug="fotocopiadoras-ricoh" />),
+      },
+      {
+        path: 'alquiler-fotocopiadoras-lima',
+        element: withSuspense(<CommercialSeoLandingPage landingSlug="alquiler-fotocopiadoras-lima" />),
+      },
+      {
+        path: 'toner-ricoh',
+        element: withSuspense(<CommercialSeoLandingPage landingSlug="toner-ricoh" />),
+      },
+      { path: 'guias', element: withSuspense(<GuiasIndexPage />) },
+      { path: 'guias/:slug', element: withSuspense(<GuiaSeoPage />) },
+      { path: 'modelos', element: withSuspense(<ModelosIndexPage />) },
+      { path: 'modelos/:slug', element: withSuspense(<ModeloSeoPage />) },
       { path: 'software', element: withSuspense(<SoftwarePage />) },
       { path: 'software/:slug', element: withSuspense(<SoftwareDetallePage />) },
       { path: 'haiprotect', element: withSuspense(<HaiProtectPage />) },
@@ -518,13 +554,17 @@ export const router = createBrowserRouter([
           const slug = params.slug ?? '';
           let subSlug = url.searchParams.get('sub');
 
-          // Multifuncionales siempre entra con ?sub=todas (evita miss de prefetch + Navigate).
-          if (slug === 'multifuncionales' && !subSlug) {
+          if (slug === 'multifuncionales' && (!subSlug || subSlug === 'all')) {
             url.searchParams.set('sub', ALL_SUBCATEGORIES_QUERY);
             prefetchCategoryPage(queryClient, {
               slug,
               subSlug: ALL_SUBCATEGORIES_QUERY,
             });
+            return redirect(`${url.pathname}?${url.searchParams.toString()}${url.hash}`);
+          }
+
+          if (subSlug === 'all') {
+            url.searchParams.set('sub', ALL_SUBCATEGORIES_QUERY);
             return redirect(`${url.pathname}?${url.searchParams.toString()}${url.hash}`);
           }
 

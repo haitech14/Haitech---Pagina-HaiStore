@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Star } from 'lucide-react';
 
@@ -33,6 +34,11 @@ import {
 import type { ProductDetailViewModel } from '@/types/product-detail';
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { ProductInventoryVariantOption } from '@/lib/product-inventory-variants';
+import {
+  findSeoModelHubByProductName,
+  findSeoModelHubByProductSlug,
+  modelHubPath,
+} from '@/data/seo-model-hubs';
 import { cn } from '@/lib/utils';
 
 interface ProductDetailHeroInfoProps {
@@ -116,6 +122,9 @@ export function ProductDetailHeroInfo({
   const isMockupLayout = layout === 'mockup';
   const isLaptopMockup = isMockupLayout && detail.isLaptopProduct;
   const brandLabel = resolveProductHeroBrand(product) ?? detail.brandLabel;
+  const modelHub =
+    findSeoModelHubByProductSlug(product.slug ?? '') ??
+    findSeoModelHubByProductName(product.name ?? '');
   const displayRating = Number(detail.rating.toFixed(1));
   const fullStars = Math.min(5, Math.max(0, Math.round(displayRating)));
   const reviewCount = featuredMeta?.reviews ?? detail.reviews;
@@ -280,6 +289,16 @@ export function ProductDetailHeroInfo({
           <div className={cn(showBestSeller && 'mt-2.5')}>{titleBlock}</div>
           {ratingBlock ? <div className="mt-2">{ratingBlock}</div> : null}
           {metaBlock ? <div className="mt-1">{metaBlock}</div> : null}
+          {modelHub ? (
+            <p className="mt-2 text-sm">
+              <Link
+                to={modelHubPath(modelHub.slug)}
+                className="font-medium text-red-600 underline-offset-4 hover:underline"
+              >
+                Ver guía del modelo {modelHub.modelName}
+              </Link>
+            </p>
+          ) : null}
           {laptopTrustBlock}
           {leadBlock ? <div className="mt-2.5">{leadBlock}</div> : null}
           {specsBlock ? <div className="mt-3">{specsBlock}</div> : null}
@@ -293,6 +312,16 @@ export function ProductDetailHeroInfo({
           ) : null}
           <div className={cn((showBestSeller || reviewCount > 0) && 'mt-2.5')}>{titleBlock}</div>
           {metaBlock ? <div className="mt-1">{metaBlock}</div> : null}
+          {modelHub ? (
+            <p className="mt-2 text-sm">
+              <Link
+                to={modelHubPath(modelHub.slug)}
+                className="font-medium text-red-600 underline-offset-4 hover:underline"
+              >
+                Ver guía del modelo {modelHub.modelName}
+              </Link>
+            </p>
+          ) : null}
           {specsBlock ? <div className="mt-3">{specsBlock}</div> : null}
         </>
       )}

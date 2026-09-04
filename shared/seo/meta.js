@@ -1,4 +1,5 @@
 import { buildAbsoluteUrl } from '../site-origin.js';
+import { categoryCanonicalPath } from './category-query.js';
 import { buildProductPath } from '../product-slug.js';
 import {
   buildProductMetaDescriptionSeo,
@@ -165,11 +166,7 @@ export function buildProductSeoRecord(product, siteOrigin, breadcrumbs = []) {
 
 export function buildCategorySeoRecord(category, siteOrigin, options = {}) {
   const { subcategoryName, heroSubtitle, canonicalPath, subSlug } = options;
-  const pathname =
-    canonicalPath ??
-    (category.slug === 'multifuncionales'
-      ? `/categoria/${category.slug}?sub=all`
-      : `/categoria/${category.slug}`);
+  const pathname = canonicalPath ?? categoryCanonicalPath(category.slug);
 
   return {
     slug: category.slug,

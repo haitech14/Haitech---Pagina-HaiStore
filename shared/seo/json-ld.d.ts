@@ -10,6 +10,12 @@ export function buildProductJsonLd(
 ): Array<Record<string, unknown>>;
 export function buildWebsiteJsonLd(siteOrigin: string): Record<string, unknown>;
 export function buildOrganizationJsonLd(siteOrigin: string): Record<string, unknown>;
+export function buildItemListJsonLd(list: {
+  name: string;
+  description?: string;
+  url: string;
+  items: Array<{ name: string; url: string }>;
+}): Record<string, unknown> | null;
 export function buildCategoryCollectionJsonLd(
   category: { slug: string; name: string; tagline?: string },
   siteOrigin: string,

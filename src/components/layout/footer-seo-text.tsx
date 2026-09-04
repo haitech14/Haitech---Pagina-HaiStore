@@ -52,6 +52,30 @@ export function FooterSeoText({ className }: FooterSeoTextProps) {
             Distribuidor Autorizado Ricoh
           </Link>
           ,{' '}
+          <Link to="/fotocopiadoras-peru" className={linkClass}>
+            fotocopiadoras en Perú
+          </Link>
+          ,{' '}
+          <Link to="/fotocopiadoras-ricoh" className={linkClass}>
+            fotocopiadoras Ricoh
+          </Link>
+          ,{' '}
+          <Link to="/alquiler-fotocopiadoras-lima" className={linkClass}>
+            alquiler en Lima
+          </Link>
+          ,{' '}
+          <Link to="/toner-ricoh" className={linkClass}>
+            tóner Ricoh
+          </Link>
+          ,{' '}
+          <Link to="/guias" className={linkClass}>
+            guías de compra
+          </Link>
+          ,{' '}
+          <Link to="/modelos" className={linkClass}>
+            modelos destacados
+          </Link>
+          ,{' '}
           <Link to="/por-que-comprar-con-nosotros" className={linkClass}>
             por qué comprar con nosotros
           </Link>{' '}

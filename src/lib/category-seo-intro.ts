@@ -1,4 +1,4 @@
-/** Párrafos SEO en landings de categoría (crawlables; ocultos visualmente con `sr-only` en la UI). */
+/** Párrafos SEO visibles en landings de categoría (expandibles en la UI). */
 
 const ROOT_INTRO: Record<string, string> = {
   multifuncionales:
@@ -13,6 +13,12 @@ const ROOT_INTRO: Record<string, string> = {
     'Alquiler de fotocopiadoras e impresoras multifuncionales Ricoh para empresas en Perú. Planes mensuales con mantenimiento, tóner y soporte técnico incluido según contrato, pensados para Lima y provincias. Ideal si prefieres no inmovilizar capital en compra y necesitas un costo por página predecible. Cotiza según volumen de impresión, color, formato A4/A3 y plazo; te proponemos el equipo adecuado (oficina pequeña, mediana o alto volumen) con condiciones claras. Combina alquiler con suministro de tóner y repuestos, o evalúa compra si tu volumen justifica la inversión. Solicita una cotización desde servicios de alquiler o WhatsApp con páginas mensuales estimadas y ciudad de instalación.',
   'formato-ancho':
     'Plotters y equipos de formato ancho Ricoh para producción gráfica, planos de arquitectura e ingeniería y gran formato. Cotiza con asesoría especializada de Distribuidor Autorizado Ricoh en Perú: venta, consumibles y soporte. Envío y puesta en marcha según modelo y ciudad. Habla con un asesor para dimensionar volumen de trabajo, tipo de soporte (papel, vinilo, etc.) y si conviene compra o alquiler. Accede al catálogo o solicita cotización por WhatsApp.',
+  accesorios:
+    'Accesorios Ricoh para fotocopiadoras e impresoras: gabinetes, bandejas adicionales, finishers, teclados, bases y complementos de oficina. En HaiStore, Distribuidor Autorizado Ricoh en Perú, cotizas el accesorio compatible con tu modelo (IM, MP, SP) y lo combinas con tóner o repuestos en el mismo pedido. Ideal para ampliar capacidad de papel, mejorar acabados o completar una instalación nueva. Stock con envío a Lima y provincias; si no encuentras la referencia, consulta por WhatsApp con el código del equipo.',
+  escaneres:
+    'Escáneres Ricoh para digitalización de documentos, archivos y producción: desde estaciones de oficina hasta equipos de alto volumen. Compra con asesoría de Distribuidor Autorizado en Perú, garantía y orientación sobre ADF/SPDF, resolución y software de captura. Complementa tu multifuncional o sustituye escaneo dedicado cuando el flujo documental lo exige. Cotiza online o por WhatsApp con el volumen diario estimado y el tipo de documento; también evaluamos integración con soluciones de gestión documental.',
+  software:
+    'Software Ricoh y soluciones de gestión documental para empresas en Perú: automatización de flujos, captura, impresión controlada y colaboración. HaiStore (HaiTech), Distribuidor Autorizado, te orienta en licencias, implementación y compatibilidad con tu flota de multifuncionales e impresoras. Reduce costos de papel, mejora seguridad de impresión y acelera procesos administrativos. Solicita una demo o cotización desde el catálogo de software o por WhatsApp con el tamaño de tu organización y los equipos Ricoh que ya tienes.',
 };
 
 const SUB_INTRO: Record<string, string> = {

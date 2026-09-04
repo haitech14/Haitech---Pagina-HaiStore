@@ -1725,14 +1725,17 @@ export function CategoryPage({ catalogSlug, storefrontMode = false }: CategoryPa
           )}
         >
           {!(storefrontMode && showProductCatalog && !isStoreAll && !isInventorySearch) ? (
-            <h1 id={CATEGORY_HERO_ID} className="sr-only">
+            <h1
+              id={CATEGORY_HERO_ID}
+              className="text-balance text-2xl font-bold tracking-tight text-[#0f1f3d] sm:text-3xl"
+            >
               {pageTitle}
             </h1>
           ) : null}
 
           {categorySeoIntro && !isStoreAll && !isInventorySearch ? (
             <CategorySeoIntro
-              title={`${pageTitle} Ricoh en Perú — Distribuidor Autorizado`}
+              title="Distribuidor Autorizado Ricoh en Perú"
               intro={categorySeoIntro}
             />
           ) : null}

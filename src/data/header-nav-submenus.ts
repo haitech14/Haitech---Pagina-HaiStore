@@ -217,9 +217,23 @@ export const EMPRESAS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
     pathname === '/preguntas-frecuentes' ||
     pathname === '/por-que-comprar-con-nosotros' ||
     pathname === '/distribuidor-autorizado-ricoh' ||
+    pathname === '/fotocopiadoras-peru' ||
+    pathname === '/fotocopiadoras-ricoh' ||
+    pathname === '/alquiler-fotocopiadoras-lima' ||
+    pathname === '/toner-ricoh' ||
+    pathname === '/guias' ||
+    pathname.startsWith('/guias/') ||
+    pathname === '/modelos' ||
+    pathname.startsWith('/modelos/') ||
     (pathname === '/' && (hash === '#clientes' || hash === '#testimonios')),
   items: [
     { label: 'Distribuidor Autorizado Ricoh', href: '/distribuidor-autorizado-ricoh' },
+    { label: 'Fotocopiadoras Perú', href: '/fotocopiadoras-peru' },
+    { label: 'Fotocopiadoras Ricoh', href: '/fotocopiadoras-ricoh' },
+    { label: 'Alquiler en Lima', href: '/alquiler-fotocopiadoras-lima' },
+    { label: 'Tóner Ricoh', href: '/toner-ricoh' },
+    { label: 'Guías de compra', href: '/guias' },
+    { label: 'Modelos destacados', href: '/modelos' },
     { label: 'Nosotros', href: '/contacto' },
     { label: 'Por qué comprar con nosotros', href: '/por-que-comprar-con-nosotros' },
     { label: 'Clientes', href: '/#clientes' },

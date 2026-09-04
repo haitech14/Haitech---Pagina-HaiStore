@@ -162,6 +162,7 @@ async function main() {
 
   for (const entry of loadCategoryTreeUrls()) {
     if (!LANDING_SLUGS.has(entry.rootSlug)) continue;
+    if (entry.rootSlug === 'software') continue;
     addCoreUrl(entry.pathname, resolveCategoryPriority(entry.rootSlug, entry.subSlug));
   }
 
@@ -170,7 +171,16 @@ async function main() {
   }
 
   for (const route of STATIC_SEO_ROUTES) {
-    addCoreUrl(route.pathname, route.pathname === '/distribuidor-autorizado-ricoh' ? '0.95' : '0.85');
+    const path = route.pathname;
+    let priority = '0.85';
+    if (path === '/distribuidor-autorizado-ricoh' || path === '/fotocopiadoras-peru' || path === '/fotocopiadoras-ricoh') {
+      priority = '0.95';
+    } else if (path.startsWith('/guias') || path.startsWith('/modelos')) {
+      priority = '0.7';
+    } else if (path === '/alquiler-fotocopiadoras-lima' || path === '/toner-ricoh') {
+      priority = '0.9';
+    }
+    addCoreUrl(path, priority);
   }
 
   if (existsSync(inventoryPath)) {

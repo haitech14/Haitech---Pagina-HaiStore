@@ -32,16 +32,35 @@ const ORGANIZATION_CORE = {
     streetAddress: 'Av. Petit Thouars 1935',
     addressLocality: 'Lince',
     addressRegion: 'Lima',
+    postalCode: '15046',
     addressCountry: 'PE',
   },
-  telephone: ['+51-926-224-243', '+51-965-805-873'],
-  email: 'ventas@nbntecnologia.com',
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: -12.0866,
+    longitude: -77.0344,
+  },
+  telephone: ['+51-915-149-290', '+51-965-805-873'],
+  email: 'ventas@haitech.pe',
   taxID: '20612146561',
-  areaServed: { '@type': 'Country', name: 'Perú' },
+  sameAs: ['https://wa.me/51915149290'],
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '09:00',
+      closes: '18:00',
+    },
+  ],
+  areaServed: [
+    { '@type': 'Country', name: 'Perú' },
+    { '@type': 'City', name: 'Lima' },
+    { '@type': 'AdministrativeArea', name: 'Lima Metropolitana' },
+  ],
   contactPoint: [
     {
       '@type': 'ContactPoint',
-      telephone: '+51-926-224-243',
+      telephone: '+51-915-149-290',
       contactType: 'sales',
       areaServed: 'PE',
       availableLanguage: ['Spanish'],
@@ -201,6 +220,28 @@ export function buildOrganizationJsonLd(siteOrigin) {
 }
 
 /**
+ * @param {{ name: string, description?: string, url: string, items: Array<{ name: string, url: string }> }} list
+ */
+export function buildItemListJsonLd(list) {
+  const items = (list.items ?? []).filter((item) => item.name?.trim() && item.url?.trim());
+  if (items.length === 0) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: list.name,
+    description: list.description,
+    url: list.url,
+    numberOfItems: items.length,
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name.trim(),
+      url: item.url.trim(),
+    })),
+  };
+}
+
+/**
  * @param {Array<{ question: string, answer: string }>} [items]
  */
 export function buildFaqPageJsonLd(items = HOME_FAQ_SEO_ITEMS) {
@@ -251,7 +292,7 @@ export function buildServiceJsonLd(service, siteOrigin) {
 export function buildCategoryCollectionJsonLd(category, siteOrigin, topProducts = []) {
   const pathname =
     category.slug === 'multifuncionales'
-      ? `/categoria/${category.slug}?sub=all`
+      ? `/categoria/${category.slug}?sub=todas`
       : `/categoria/${category.slug}`;
   const url = buildAbsoluteUrl(pathname, siteOrigin);
 

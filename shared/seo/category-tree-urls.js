@@ -1,3 +1,5 @@
+import { ALL_SUBCATEGORIES_QUERY } from './category-query.js';
+
 /**
  * Recorre el árbol de categorías y genera URLs indexables con metadatos.
  * @param {Array<object>} tree
@@ -31,7 +33,7 @@ export function collectCategoryTreeUrls(tree, parentRootSlug = null) {
 
     const basePath =
       rootSlug === 'multifuncionales'
-        ? `/categoria/${rootSlug}?sub=all`
+        ? `/categoria/${rootSlug}?sub=${encodeURIComponent(ALL_SUBCATEGORIES_QUERY)}`
         : `/categoria/${rootSlug}`;
     entries.push({
       rootSlug,

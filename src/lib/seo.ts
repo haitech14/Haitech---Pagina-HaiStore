@@ -27,6 +27,7 @@ export {
   buildProductJsonLd,
   buildWebsiteJsonLd,
   buildOrganizationJsonLd,
+  buildItemListJsonLd,
   buildCategoryCollectionJsonLd,
   buildHomeJsonLd,
   buildFaqPageJsonLd,

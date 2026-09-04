@@ -1,10 +1,12 @@
-import { SITE_PREFOOTER_ITEMS } from '@/data/site-prefooter';
+import { Link } from 'react-router-dom';
+
+import { SITE_PREFOOTER_ITEMS, SITE_PREFOOTER_SEO_LINKS } from '@/data/site-prefooter';
 import { HAITECH_HOME } from '@/data/haitech-home-shell';
 import { cn } from '@/lib/utils';
 
 const BRAND = '#E30613';
 
-/** Prefooter de confianza — fondo negro, acentos rojos. */
+/** Prefooter de confianza — fondo negro, acentos rojos + enlaces SEO. */
 export function SitePrefooter({ className }: { className?: string }) {
   return (
     <section
@@ -21,8 +23,8 @@ export function SitePrefooter({ className }: { className?: string }) {
         >
           {SITE_PREFOOTER_ITEMS.map((item) => {
             const Icon = item.icon;
-            return (
-              <li key={item.id} className="flex items-center gap-3.5 sm:gap-4">
+            const body = (
+              <>
                 <span
                   className="flex size-12 shrink-0 items-center justify-center rounded-full sm:size-[3.25rem]"
                   style={{ backgroundColor: BRAND }}
@@ -38,10 +40,43 @@ export function SitePrefooter({ className }: { className?: string }) {
                     {item.description}
                   </p>
                 </div>
+              </>
+            );
+
+            return (
+              <li key={item.id}>
+                {item.href ? (
+                  <Link
+                    to={item.href}
+                    className="flex items-center gap-3.5 rounded-md outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/40 sm:gap-4"
+                  >
+                    {body}
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-3.5 sm:gap-4">{body}</div>
+                )}
               </li>
             );
           })}
         </ul>
+
+        <nav
+          aria-label="Recursos SEO HaiStore"
+          className="mt-5 border-t border-white/10 pt-4 sm:mt-6 sm:pt-5"
+        >
+          <ul className="flex flex-wrap gap-x-4 gap-y-2 text-[12px] sm:text-[13px]">
+            {SITE_PREFOOTER_SEO_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  to={link.href}
+                  className="font-medium text-white/70 underline-offset-2 transition-colors hover:text-white hover:underline focus-visible:outline-none focus-visible:text-white"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </section>
   );
