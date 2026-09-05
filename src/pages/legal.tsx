@@ -7,17 +7,19 @@ import { buildAbsoluteUrl } from '@/lib/site-url';
 
 function LegalShell({
   title,
+  seoTitle,
   canonicalPath,
   description,
   children,
 }: {
   title: string;
+  seoTitle?: string;
   canonicalPath: string;
   description: string;
   children: ReactNode;
 }) {
   useSeo({
-    title,
+    title: seoTitle ?? title,
     description,
     canonical: buildAbsoluteUrl(canonicalPath),
     robots: 'index,follow',
@@ -39,9 +41,10 @@ function LegalShell({
 export function TermsPage() {
   return (
     <LegalShell
-      title="Términos y condiciones"
+      title="Términos"
+      seoTitle="Términos | Haitech"
       canonicalPath="/terminos"
-      description="Condiciones de venta, alquiler, garantías y envíos de HaiStore, Distribuidor Autorizado Ricoh en Perú."
+      description="Condiciones de venta, alquiler, garantías y envíos de Haitech, Distribuidor Autorizado Ricoh en Perú."
     >
       <p>
         HaiStore (HaiTech) comercializa fotocopiadoras, impresoras, tóner, repuestos y servicios
@@ -71,9 +74,10 @@ export function TermsPage() {
 export function PrivacyPage() {
   return (
     <LegalShell
-      title="Política de privacidad"
+      title="Políticas"
+      seoTitle="Políticas | Haitech"
       canonicalPath="/privacidad"
-      description="Cómo HaiStore trata datos personales de clientes y visitantes según la normativa peruana de protección de datos."
+      description="Cómo Haitech trata datos personales de clientes y visitantes según la normativa peruana de protección de datos."
     >
       <p>
         HaiStore trata datos de identificación, contacto y facturación para atender pedidos,

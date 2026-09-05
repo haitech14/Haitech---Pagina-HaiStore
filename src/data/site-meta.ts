@@ -1,9 +1,9 @@
 /** Título por defecto del sitio (pestaña del navegador). */
 export const SITE_TITLE =
-  'HaiStore | Distribuidor Autorizado Ricoh — Fotocopiadoras e Impresoras Perú';
+  'Haitech | Distribuidor Autorizado Ricoh | Fotocopiadoras e Impresoras';
 
 /** Nombre corto para sufijos de sección (foro, etc.). */
-export const SITE_SHORT_NAME = 'HaiStore';
+export const SITE_SHORT_NAME = 'Haitech';
 
 export const FORUM_TITLE_SUFFIX = `Foro ${SITE_SHORT_NAME}`;
 

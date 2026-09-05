@@ -13,7 +13,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,7 +54,7 @@ export function ContactPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   useSeo({
-    title: 'Contacto | Cotizar Fotocopiadora, Impresora o Tóner Ricoh | HaiStore',
+    title: 'Contacto | Haitech',
     description:
       'Cotiza fotocopiadoras, impresoras, tóner y repuestos Ricoh con Distribuidor Autorizado en Lima y Perú. Ventas, soporte técnico y asesoría por WhatsApp, teléfono o formulario.',
     canonical: buildAbsoluteUrl('/contacto'),
@@ -65,7 +64,7 @@ export function ContactPage() {
       buildWebPageJsonLd(
         {
           pathname: '/contacto',
-          pageName: 'Contacto HaiStore',
+          pageName: 'Contacto',
           description:
             'Contacto comercial y soporte técnico Ricoh — Distribuidor Autorizado en Perú.',
         },
@@ -130,7 +129,7 @@ export function ContactPage() {
     <div className="mx-auto max-w-lg px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Contacto</CardTitle>
+          <h1 className="text-lg font-semibold leading-none tracking-tight">Contacto</h1>
           <CardDescription>
             ¿Tienes una pregunta? Habla con un asesor o déjanos un mensaje.
           </CardDescription>

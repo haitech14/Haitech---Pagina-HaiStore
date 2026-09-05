@@ -56,7 +56,7 @@ const COMPANIES_SIDEBAR_SECTIONS = [
     label: 'Nosotros',
     description: 'Conoce a HaiStore y nuestro equipo.',
     icon: Building2,
-    viewAllHref: '/contacto',
+    viewAllHref: '/sobre-nosotros',
   },
   {
     slug: 'clientes',

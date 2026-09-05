@@ -1,6 +1,7 @@
 import { buildAbsoluteUrl } from '../site-origin.js';
 import { buildProductPath } from '../product-slug.js';
 import { HOME_FAQ_SEO_ITEMS } from './home-faq-data.js';
+import { DEFAULT_SITE_DESCRIPTION, SITE_BRAND_NAME } from './meta.js';
 import {
   extractProductModel,
   priceValidUntilSeo,
@@ -11,9 +12,9 @@ import {
 
 const ORGANIZATION_CORE = {
   '@type': ['Organization', 'LocalBusiness'],
-  name: 'HaiStore',
+  name: SITE_BRAND_NAME,
   legalName: 'NBN TECNOLOGIA TOTAL S.A.C.',
-  alternateName: ['HaiTech', 'HAITECH', 'Distribuidor Autorizado Ricoh Perú'],
+  alternateName: ['HaiStore', 'HaiTech', 'HAITECH', 'Distribuidor Autorizado Ricoh'],
   url: 'https://www.haitech.pe',
   logo: 'https://www.haitech.pe/logo.png',
   description:
@@ -90,7 +91,7 @@ function buildOffer(product, siteOrigin, url) {
     '@type': 'Offer',
     url,
     availability: availabilityUrl(stock),
-    seller: { '@type': 'Organization', name: 'HaiStore' },
+    seller: { '@type': 'Organization', name: SITE_BRAND_NAME },
     itemCondition: resolveSchemaItemCondition(product),
     priceValidUntil: validUntil,
   };
@@ -193,15 +194,43 @@ export function buildProductJsonLd(product, siteOrigin, breadcrumbs = [], option
   return breadcrumbLd ? [payload, breadcrumbLd] : [payload];
 }
 
+const SITELINK_HUBS = [
+  { name: 'Sobre Nosotros', pathname: '/sobre-nosotros' },
+  { name: 'Nuestros Productos', pathname: '/tienda' },
+  { name: 'Distribuidor Autorizado Ricoh', pathname: '/distribuidor-autorizado-ricoh' },
+  { name: 'Fotocopiadoras', pathname: '/fotocopiadoras-ricoh' },
+  { name: 'Impresoras', pathname: '/categoria/impresoras' },
+  { name: 'Multifuncionales', pathname: '/categoria/multifuncionales?sub=todas' },
+  { name: 'Tóner', pathname: '/toner-ricoh' },
+  { name: 'Repuestos', pathname: '/categoria/repuestos' },
+  { name: 'Alquiler', pathname: '/alquiler-fotocopiadoras-lima' },
+  { name: 'Servicio técnico', pathname: '/servicios?seccion=servicio-tecnico' },
+  { name: 'Preguntas frecuentes', pathname: '/preguntas-frecuentes' },
+  { name: 'Contacto', pathname: '/contacto' },
+  { name: 'Guías', pathname: '/guias' },
+  { name: 'Modelos', pathname: '/modelos' },
+  { name: 'Políticas', pathname: '/privacidad' },
+  { name: 'Descargas', pathname: '/descargas' },
+  { name: 'Software', pathname: '/software' },
+  { name: 'HaiProtect', pathname: '/haiprotect' },
+  { name: 'Foro', pathname: '/foro' },
+  { name: 'Términos', pathname: '/terminos' },
+  { name: 'Por qué comprar', pathname: '/por-que-comprar-con-nosotros' },
+  { name: 'Fotocopiadoras Perú', pathname: '/fotocopiadoras-peru' },
+  { name: 'Outsourcing', pathname: '/servicios?seccion=outsourcing' },
+  { name: 'Accesorios', pathname: '/categoria/accesorios' },
+  { name: 'Formato ancho', pathname: '/categoria/formato-ancho' },
+  { name: 'Escáneres', pathname: '/categoria/escaneres' },
+];
+
 export function buildWebsiteJsonLd(siteOrigin) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'HaiStore — Distribuidor Autorizado Ricoh',
-    alternateName: ['HaiTech', 'RICOH Perú', 'Fotocopiadoras Ricoh Perú'],
+    name: SITE_BRAND_NAME,
+    alternateName: ['HaiStore', 'HaiTech', 'Distribuidor Autorizado Ricoh', 'Fotocopiadoras Ricoh Perú'],
     url: buildAbsoluteUrl('/', siteOrigin),
-    description:
-      'Tienda online de fotocopiadoras, impresoras, tóner y repuestos Ricoh en Perú. Distribuidor Autorizado con envío nacional.',
+    description: DEFAULT_SITE_DESCRIPTION,
     potentialAction: {
       '@type': 'SearchAction',
       target: `${buildAbsoluteUrl('/tienda', siteOrigin)}?buscar={search_term_string}`,
@@ -277,7 +306,7 @@ export function buildServiceJsonLd(service, siteOrigin) {
     description: service.description,
     provider: {
       '@type': 'Organization',
-      name: 'HaiStore',
+      name: SITE_BRAND_NAME,
       url: buildAbsoluteUrl('/', siteOrigin),
     },
     areaServed: { '@type': 'Country', name: 'Perú' },
@@ -310,7 +339,7 @@ export function buildCategoryCollectionJsonLd(category, siteOrigin, topProducts 
     blocks.push({
       '@context': 'https://schema.org',
       '@type': 'ItemList',
-      name: `${category.name} — HaiStore`,
+      name: `${category.name} — ${SITE_BRAND_NAME}`,
       itemListElement: topProducts.slice(0, 10).map((item, index) => ({
         '@type': 'ListItem',
         position: index + 1,
@@ -328,13 +357,13 @@ export function buildStoreJsonLd(siteOrigin) {
     {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: 'Tienda online — fotocopiadoras, impresoras y suministros Ricoh',
+      name: 'Nuestros Productos — fotocopiadoras, impresoras y suministros Ricoh',
       description:
-        'Catálogo completo HaiStore: fotocopiadoras y multifuncionales Ricoh, impresoras, tóner, tintas, repuestos y accesorios. Venta y alquiler con envío a todo el Perú.',
+        'Catálogo Haitech: fotocopiadoras y multifuncionales Ricoh, impresoras, tóner, tintas, repuestos y accesorios. Venta y alquiler con envío a todo el Perú.',
       url: buildAbsoluteUrl('/tienda', siteOrigin),
       isPartOf: {
         '@type': 'WebSite',
-        name: 'HaiStore',
+        name: SITE_BRAND_NAME,
         url: buildAbsoluteUrl('/', siteOrigin),
       },
     },
@@ -354,15 +383,33 @@ export function buildWebPageJsonLd(page, siteOrigin) {
     url: buildAbsoluteUrl(page.pathname, siteOrigin),
     isPartOf: {
       '@type': 'WebSite',
-      name: 'HaiStore',
+      name: SITE_BRAND_NAME,
       url: buildAbsoluteUrl('/', siteOrigin),
     },
     about: buildOrganizationJsonLd(siteOrigin),
   };
 }
 
+export function buildSiteNavigationJsonLd(siteOrigin) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Navegación principal Haitech',
+    itemListElement: SITELINK_HUBS.map((item, index) => ({
+      '@type': 'SiteNavigationElement',
+      position: index + 1,
+      name: item.name,
+      url: buildAbsoluteUrl(item.pathname, siteOrigin),
+    })),
+  };
+}
+
 export function buildHomeJsonLd(siteOrigin) {
-  const blocks = [buildWebsiteJsonLd(siteOrigin), buildOrganizationJsonLd(siteOrigin)];
+  const blocks = [
+    buildWebsiteJsonLd(siteOrigin),
+    buildOrganizationJsonLd(siteOrigin),
+    buildSiteNavigationJsonLd(siteOrigin),
+  ];
   const faq = buildFaqPageJsonLd();
   if (faq) blocks.push(faq);
   return blocks;

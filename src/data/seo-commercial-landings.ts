@@ -30,12 +30,12 @@ export type SeoCommercialLanding = {
 export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
   'fotocopiadoras-peru': {
     pathname: '/fotocopiadoras-peru',
-    title: 'Fotocopiadoras Perú | Venta y Alquiler Ricoh | HaiStore',
+    title: 'Fotocopiadoras Perú | Haitech',
     description:
       'Compra o alquila fotocopiadoras en Perú con Distribuidor Autorizado Ricoh. Multifuncionales nuevas y seminuevas, tóner, instalación en Lima y envío nacional.',
     pageName: 'Fotocopiadoras Perú',
     eyebrow: 'Venta y alquiler · Perú',
-    h1: 'Fotocopiadoras en Perú: venta y alquiler con Distribuidor Autorizado Ricoh',
+    h1: 'Fotocopiadoras Perú',
     lead:
       'HaiStore (HaiTech) concentra la oferta de fotocopiadoras y multifuncionales Ricoh para empresas en Lima y provincias: compra, alquiler, tóner y soporte técnico en un solo canal autorizado.',
     paragraphs: [
@@ -84,12 +84,12 @@ export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
   },
   'fotocopiadoras-ricoh': {
     pathname: '/fotocopiadoras-ricoh',
-    title: 'Fotocopiadoras Ricoh | Multifuncionales | Distribuidor Autorizado HaiStore',
+    title: 'Fotocopiadoras | Haitech',
     description:
-      'Fotocopiadoras y multifuncionales Ricoh en Perú: venta, alquiler, tóner y repuestos. HaiStore es Distribuidor Autorizado con stock, garantía y soporte técnico.',
-    pageName: 'Fotocopiadoras Ricoh',
+      'Fotocopiadoras y multifuncionales Ricoh en Perú: venta, alquiler, tóner y repuestos. Haitech es Distribuidor Autorizado con stock, garantía y soporte técnico.',
+    pageName: 'Fotocopiadoras',
     eyebrow: 'Ricoh · Canal autorizado',
-    h1: 'Fotocopiadoras Ricoh para empresas en Perú',
+    h1: 'Fotocopiadoras',
     lead:
       'Elige multifuncionales Ricoh con asesoría de Distribuidor Autorizado: modelos de oficina y alto volumen, nuevos o seminuevos, con tóner y servicio técnico especializados.',
     paragraphs: [
@@ -138,12 +138,12 @@ export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
   },
   'alquiler-fotocopiadoras-lima': {
     pathname: '/alquiler-fotocopiadoras-lima',
-    title: 'Alquiler de Fotocopiadoras Lima | Ricoh | HaiStore',
+    title: 'Alquiler | Haitech',
     description:
-      'Alquila fotocopiadoras e impresoras Ricoh en Lima con mantenimiento y tóner según plan. Cotiza con Distribuidor Autorizado HaiStore para empresas.',
-    pageName: 'Alquiler de fotocopiadoras Lima',
+      'Alquila fotocopiadoras e impresoras Ricoh en Lima con mantenimiento y tóner según plan. Cotiza con Distribuidor Autorizado Haitech para empresas.',
+    pageName: 'Alquiler',
     eyebrow: 'Alquiler · Lima Metropolitana',
-    h1: 'Alquiler de fotocopiadoras en Lima',
+    h1: 'Alquiler',
     lead:
       'Planes mensuales de alquiler de multifuncionales e impresoras Ricoh para empresas en Lima: costo predecible, instalación y soporte técnico de Distribuidor Autorizado.',
     paragraphs: [
@@ -191,12 +191,12 @@ export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
   },
   'toner-ricoh': {
     pathname: '/toner-ricoh',
-    title: 'Tóner Ricoh Original y Compatible | HaiStore Perú',
+    title: 'Tóner | Haitech',
     description:
       'Compra tóner Ricoh original y compatible en Perú. Cartuchos para fotocopiadoras e impresoras con asesoría de Distribuidor Autorizado y envío nacional.',
-    pageName: 'Tóner Ricoh',
+    pageName: 'Tóner',
     eyebrow: 'Consumibles · Stock permanente',
-    h1: 'Tóner Ricoh original y compatible',
+    h1: 'Tóner',
     lead:
       'Reposición de tóner Ricoh para fotocopiadoras, multifuncionales e impresoras: originales certificados y compatibles de buen rendimiento, con envío a Lima y provincias.',
     paragraphs: [

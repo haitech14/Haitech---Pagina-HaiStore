@@ -94,6 +94,13 @@ const DistribuidorAutorizadoRicohPage = lazyWithRetry(
     })),
   'distribuidor-autorizado-ricoh',
 );
+const SobreNosotrosPage = lazyWithRetry(
+  () =>
+    import('@/pages/sobre-nosotros').then((m) => ({
+      default: m.SobreNosotrosPage,
+    })),
+  'sobre-nosotros',
+);
 const CommercialSeoLandingPage = lazyWithRetry(
   () =>
     import('@/pages/commercial-seo-landing').then((m) => ({
@@ -502,6 +509,10 @@ export const router = createBrowserRouter([
       {
         path: 'por-que-comprar-con-nosotros',
         element: withSuspense(<PorQueComprarConNosotrosPage />),
+      },
+      {
+        path: 'sobre-nosotros',
+        element: withSuspense(<SobreNosotrosPage />),
       },
       {
         path: 'distribuidor-autorizado-ricoh',

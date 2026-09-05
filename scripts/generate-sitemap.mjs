@@ -13,6 +13,7 @@ import { getInventoryPath } from '../server/lib/server-paths.js';
 import { readInventory } from '../server/lib/inventory-store.js';
 import { resolveSiteOrigin } from '../shared/site-origin.js';
 import { buildProductPath } from '../shared/product-slug.js';
+import { categoryCanonicalPath } from '../shared/seo/category-query.js';
 import { collectCategoryTreeUrls } from '../shared/seo/category-tree-urls.js';
 import { LANDING_CATEGORY_SEO } from '../shared/seo/landing-categories.js';
 import { SERVICE_SEO_ROUTES } from '../shared/seo/service-routes.js';
@@ -78,7 +79,24 @@ function resolveProductPriority(product) {
 }
 
 function resolveCategoryPriority(rootSlug, subSlug) {
-  if (!subSlug || subSlug === 'all') return '0.9';
+  if (
+    !subSlug ||
+    subSlug === 'all' ||
+    subSlug === 'todas'
+  ) {
+    if (
+      rootSlug === 'multifuncionales' ||
+      rootSlug === 'impresoras' ||
+      rootSlug === 'repuestos' ||
+      rootSlug === 'toner-suministros' ||
+      rootSlug === 'accesorios' ||
+      rootSlug === 'formato-ancho' ||
+      rootSlug === 'escaneres'
+    ) {
+      return '0.95';
+    }
+    return '0.9';
+  }
   if (rootSlug === 'repuestos') return '0.85';
   return '0.85';
 }
@@ -166,19 +184,53 @@ async function main() {
     addCoreUrl(entry.pathname, resolveCategoryPriority(entry.rootSlug, entry.subSlug));
   }
 
+  for (const category of LANDING_CATEGORY_SEO) {
+    if (category.slug === 'software') continue;
+    addCoreUrl(
+      categoryCanonicalPath(category.slug),
+      resolveCategoryPriority(category.slug, category.slug === 'multifuncionales' ? 'all' : ''),
+    );
+  }
+
   for (const route of SERVICE_SEO_ROUTES) {
-    addCoreUrl(route.pathname, route.pathname === '/servicios' ? '0.9' : '0.85');
+    let priority = '0.85';
+    if (
+      route.pathname === '/servicios?seccion=alquiler' ||
+      route.pathname === '/servicios?seccion=servicio-tecnico' ||
+      route.pathname === '/servicios?seccion=outsourcing'
+    ) {
+      priority = '0.95';
+    } else if (route.pathname === '/servicios') {
+      priority = '0.9';
+    }
+    addCoreUrl(route.pathname, priority);
   }
 
   for (const route of STATIC_SEO_ROUTES) {
     const path = route.pathname;
     let priority = '0.85';
-    if (path === '/distribuidor-autorizado-ricoh' || path === '/fotocopiadoras-peru' || path === '/fotocopiadoras-ricoh') {
+    if (
+      path === '/sobre-nosotros' ||
+      path === '/distribuidor-autorizado-ricoh' ||
+      path === '/fotocopiadoras-peru' ||
+      path === '/fotocopiadoras-ricoh' ||
+      path === '/preguntas-frecuentes' ||
+      path === '/contacto' ||
+      path === '/guias' ||
+      path === '/modelos' ||
+      path === '/privacidad' ||
+      path === '/descargas' ||
+      path === '/software' ||
+      path === '/haiprotect' ||
+      path === '/foro' ||
+      path === '/terminos' ||
+      path === '/por-que-comprar-con-nosotros'
+    ) {
       priority = '0.95';
     } else if (path.startsWith('/guias') || path.startsWith('/modelos')) {
       priority = '0.7';
     } else if (path === '/alquiler-fotocopiadoras-lima' || path === '/toner-ricoh') {
-      priority = '0.9';
+      priority = '0.95';
     }
     addCoreUrl(path, priority);
   }

@@ -11,7 +11,7 @@ import {
 
 import { SOFTWARE_CATALOG_CATEGORIES } from '@/data/software-catalog';
 import { rentalCategories } from '@/data/rental-categories';
-import { categoryPath } from '@/lib/category-path';
+import { categoryLandingPath, categoryPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
 import { storeShowcaseCategoryFromPathname, storeShowcasePath } from '@/lib/store-showcase-path';
 
@@ -216,29 +216,50 @@ export const EMPRESAS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
     pathname === '/contacto' ||
     pathname === '/preguntas-frecuentes' ||
     pathname === '/por-que-comprar-con-nosotros' ||
+    pathname === '/sobre-nosotros' ||
     pathname === '/distribuidor-autorizado-ricoh' ||
     pathname === '/fotocopiadoras-peru' ||
     pathname === '/fotocopiadoras-ricoh' ||
     pathname === '/alquiler-fotocopiadoras-lima' ||
     pathname === '/toner-ricoh' ||
+    pathname === '/privacidad' ||
+    pathname === '/descargas' ||
+    pathname === '/software' ||
+    pathname === '/haiprotect' ||
+    pathname === '/foro' ||
+    pathname === '/terminos' ||
     pathname === '/guias' ||
     pathname.startsWith('/guias/') ||
     pathname === '/modelos' ||
     pathname.startsWith('/modelos/') ||
     (pathname === '/' && (hash === '#clientes' || hash === '#testimonios')),
   items: [
+    { label: 'Sobre Nosotros', href: '/sobre-nosotros' },
     { label: 'Distribuidor Autorizado Ricoh', href: '/distribuidor-autorizado-ricoh' },
     { label: 'Fotocopiadoras Perú', href: '/fotocopiadoras-peru' },
     { label: 'Fotocopiadoras Ricoh', href: '/fotocopiadoras-ricoh' },
-    { label: 'Alquiler en Lima', href: '/alquiler-fotocopiadoras-lima' },
-    { label: 'Tóner Ricoh', href: '/toner-ricoh' },
-    { label: 'Guías de compra', href: '/guias' },
-    { label: 'Modelos destacados', href: '/modelos' },
-    { label: 'Nosotros', href: '/contacto' },
-    { label: 'Por qué comprar con nosotros', href: '/por-que-comprar-con-nosotros' },
+    { label: 'Multifuncionales', href: categoryLandingPath('multifuncionales') },
+    { label: 'Tóner', href: '/toner-ricoh' },
+    { label: 'Repuestos', href: categoryLandingPath('repuestos') },
+    { label: 'Alquiler', href: '/alquiler-fotocopiadoras-lima' },
+    { label: 'Servicio técnico', href: serviceHubPath('servicio-tecnico') },
+    { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
+    { label: 'Contacto', href: '/contacto' },
+    { label: 'Guías', href: '/guias' },
+    { label: 'Modelos', href: '/modelos' },
+    { label: 'Políticas', href: '/privacidad' },
+    { label: 'Descargas', href: '/descargas' },
+    { label: 'Software', href: '/software' },
+    { label: 'HaiProtect', href: '/haiprotect' },
+    { label: 'Foro', href: '/foro' },
+    { label: 'Términos', href: '/terminos' },
+    { label: 'Por qué comprar', href: '/por-que-comprar-con-nosotros' },
+    { label: 'Outsourcing', href: serviceHubPath('outsourcing') },
+    { label: 'Accesorios', href: categoryLandingPath('accesorios') },
+    { label: 'Formato ancho', href: categoryLandingPath('formato-ancho') },
+    { label: 'Escáneres', href: categoryLandingPath('escaneres') },
     { label: 'Clientes', href: '/#clientes' },
     { label: 'Testimonios', href: '/#testimonios' },
-    { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
   ],
 };
 
@@ -249,7 +270,7 @@ export const SOFTWARE_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   matchActive: ({ pathname }) =>
     pathname === '/software' || pathname.startsWith('/software/'),
   items: [
-    { label: 'Ver catálogo de software', href: '/software' },
+    { label: 'Software', href: '/software' },
     ...SOFTWARE_CATALOG_CATEGORIES.map((category) => ({
       label: category.label,
       href: `/software?seccion=${category.id}`,

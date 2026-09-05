@@ -10,24 +10,23 @@ import {
 export const SITE_BRAND_NAME = 'Haitech';
 
 export const DEFAULT_SITE_TITLE =
-  'RICOH Perú | Fotocopiadora, Impresora, Tóner y Repuestos | Distribuidor Autorizado HaiStore';
+  'Haitech | Distribuidor Autorizado Ricoh | Fotocopiadoras e Impresoras';
 
 export const DEFAULT_SITE_DESCRIPTION =
-  'Distribuidor Autorizado Ricoh en Perú: venta y alquiler de fotocopiadoras, impresoras multifuncionales, tóner original y compatible, repuestos y soporte técnico. Envío nacional, garantía y cotización online.';
+  'Distribuidor Autorizado Ricoh en Perú. Venta y alquiler de fotocopiadoras e impresoras, tóner y soporte técnico. Garantía y cotización online.';
 
 export const DEFAULT_OG_IMAGE = '/categories/promonuevas-1.png';
 
 const ROOT_CATEGORY_TITLES = {
-  multifuncionales:
-    'Fotocopiadoras Ricoh | Venta y Alquiler | Multifuncionales | HaiStore',
-  impresoras: 'Impresoras Láser Ricoh | Venta en Perú | HaiStore',
-  'toner-suministros': 'Tóner Ricoh Original y Compatible | Tintas | HaiStore Perú',
-  repuestos: 'Repuestos Ricoh | Unidades de Imagen y Fusores | HaiStore',
-  alquiler: 'Alquiler de Fotocopiadoras e Impresoras Ricoh | Perú | HaiStore',
-  'formato-ancho': 'Plotters y Formato Ancho Ricoh | HaiStore',
-  accesorios: 'Accesorios para Impresoras Ricoh | HaiStore',
-  escaneres: 'Escáneres Ricoh | Digitalización | HaiStore',
-  software: 'Software de Gestión Documental | HaiStore',
+  multifuncionales: 'Multifuncionales | Haitech',
+  impresoras: 'Impresoras | Haitech',
+  'toner-suministros': 'Tóner | Haitech',
+  repuestos: 'Repuestos | Haitech',
+  alquiler: 'Alquiler | Haitech',
+  'formato-ancho': 'Formato ancho | Haitech',
+  accesorios: 'Accesorios | Haitech',
+  escaneres: 'Escáneres | Haitech',
+  software: 'Software | Haitech',
 };
 
 const ROOT_CATEGORY_DESCRIPTIONS = {
@@ -43,24 +42,27 @@ const ROOT_CATEGORY_DESCRIPTIONS = {
     'Alquiler de fotocopiadoras e impresoras multifuncionales Ricoh para empresas. Planes mensuales con mantenimiento, tóner, repuestos y soporte técnico en Lima y Perú.',
   'formato-ancho':
     'Plotters y equipos de formato ancho Ricoh para producción gráfica y planos. Cotiza con Distribuidor Autorizado Ricoh en Perú.',
+  accesorios:
+    'Accesorios Ricoh para fotocopiadoras e impresoras: gabinetes, bandejas, finishers y complementos. Cotiza con Distribuidor Autorizado Haitech en Perú.',
+  escaneres:
+    'Escáneres Ricoh para digitalización de documentos y archivos. Compra con Distribuidor Autorizado Haitech en Perú: oficina y alto volumen.',
 };
 
-export const STORE_SITE_TITLE =
-  'Tienda RICOH | Fotocopiadora, Impresora, Tóner y Repuestos | HaiStore Perú';
+export const STORE_SITE_TITLE = 'Nuestros Productos | Haitech';
 
 export const STORE_SITE_DESCRIPTION =
-  'Compra online fotocopiadoras Ricoh, impresoras láser, tóner original y compatible, repuestos y accesorios. Distribuidor Autorizado con precios en USD, stock real y envío a todo el Perú.';
+  'Catálogo Haitech: fotocopiadoras Ricoh, impresoras láser, tóner original y compatible, repuestos y accesorios. Distribuidor Autorizado con precios en USD, stock real y envío a todo el Perú.';
 
 const SUBCATEGORY_TITLE_OVERRIDES = {
-  'unidades-compatibles': 'Unidades Compatibles Ricoh | Repuestos | HaiStore',
-  'repuestos-compatibles': 'Repuestos Compatibles Ricoh | HaiStore',
-  'repuestos-originales': 'Repuestos Originales Ricoh | HaiStore',
-  'toner-originales': 'Tóner Original Ricoh | Suministros | HaiStore',
-  'toner-compatibles': 'Tóner Compatible Ricoh | HaiStore',
-  'tintas-originales': 'Tintas Originales Ricoh | HaiStore',
-  'tintas-compatibles': 'Tintas Compatibles | HaiStore',
-  'multifuncionales-nuevas': 'Multifuncionales Ricoh Nuevas | Venta | HaiStore',
-  'multifuncionales-seminuevas': 'Multifuncionales Ricoh Seminuevas | HaiStore',
+  'unidades-compatibles': 'Unidades compatibles | Haitech',
+  'repuestos-compatibles': 'Repuestos compatibles | Haitech',
+  'repuestos-originales': 'Repuestos originales | Haitech',
+  'toner-originales': 'Tóner originales | Haitech',
+  'toner-compatibles': 'Tóner compatibles | Haitech',
+  'tintas-originales': 'Tintas originales | Haitech',
+  'tintas-compatibles': 'Tintas compatibles | Haitech',
+  'multifuncionales-nuevas': 'Multifuncionales nuevas | Haitech',
+  'multifuncionales-seminuevas': 'Multifuncionales seminuevas | Haitech',
 };
 
 export function truncateMetaDescription(text, maxLength = 160) {
@@ -103,14 +105,14 @@ export function buildCategoryMetaTitle(category, subcategoryName, subSlug) {
   }
 
   if (sub && section) {
-    return `${section} Ricoh | ${category.name} | HaiStore`;
+    return `${section} | Haitech`;
   }
 
   if (ROOT_CATEGORY_TITLES[slug]) {
     return ROOT_CATEGORY_TITLES[slug];
   }
 
-  return `${section} | Comprar en Perú | HaiStore`;
+  return `${section} | Haitech`;
 }
 
 export function buildCategoryMetaDescription(category, subcategoryName, heroSubtitle, subSlug) {
@@ -192,7 +194,7 @@ export function buildHomeSeoRecord(siteOrigin) {
     title: DEFAULT_SITE_TITLE,
     description: DEFAULT_SITE_DESCRIPTION,
     image: resolveAbsoluteImageUrl(DEFAULT_OG_IMAGE, siteOrigin),
-    imageAlt: 'HaiStore — Distribuidor Autorizado Ricoh en Perú',
+    imageAlt: 'Haitech — Distribuidor Autorizado Ricoh en Perú',
     ogType: 'website',
   };
 }
@@ -204,7 +206,7 @@ export function buildStoreSeoRecord(siteOrigin) {
     title: STORE_SITE_TITLE,
     description: truncateMetaDescription(STORE_SITE_DESCRIPTION),
     image: resolveAbsoluteImageUrl(DEFAULT_OG_IMAGE, siteOrigin),
-    imageAlt: 'Tienda online HaiStore — catálogo Ricoh en Perú',
+    imageAlt: 'Nuestros Productos — catálogo Haitech Ricoh en Perú',
     ogType: 'website',
   };
 }

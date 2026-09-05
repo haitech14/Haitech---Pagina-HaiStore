@@ -29,59 +29,107 @@ export function FooterSeoText({ className }: FooterSeoTextProps) {
           En HaiTech, <strong className="font-medium text-white/65">Distribuidor Autorizado Ricoh</strong>,
           encontrarás{' '}
           <Link to={categoryLandingPath('multifuncionales')} className={linkClass}>
-            fotocopiadoras y multifuncionales
+            Multifuncionales
           </Link>
           ,{' '}
           <Link to={categoryLandingPath('impresoras')} className={linkClass}>
-            impresoras láser
+            Impresoras
           </Link>
           ,{' '}
-          <Link to={categoryLandingPath('toner-suministros')} className={linkClass}>
-            tóner, tintas y suministros
+          <Link to="/toner-ricoh" className={linkClass}>
+            Tóner
           </Link>{' '}
           y{' '}
           <Link to={categoryLandingPath('repuestos')} className={linkClass}>
-            repuestos originales y compatibles
+            Repuestos
           </Link>
           . Cotiza venta o{' '}
-          <Link to={serviceHubPath('alquiler')} className={linkClass}>
-            alquiler de equipos
+          <Link to="/alquiler-fotocopiadoras-lima" className={linkClass}>
+            Alquiler
           </Link>{' '}
-          con envío a todo el Perú y soporte técnico especializado. Conoce nuestro{' '}
+          y{' '}
+          <Link to={serviceHubPath('servicio-tecnico')} className={linkClass}>
+            Servicio técnico
+          </Link>
+          . Conoce{' '}
+          <Link to="/sobre-nosotros" className={linkClass}>
+            Sobre Nosotros
+          </Link>
+          ,{' '}
+          <Link to="/tienda" className={linkClass}>
+            Nuestros Productos
+          </Link>
+          , nuestro{' '}
           <Link to="/distribuidor-autorizado-ricoh" className={linkClass}>
             Distribuidor Autorizado Ricoh
           </Link>
           ,{' '}
           <Link to="/fotocopiadoras-peru" className={linkClass}>
-            fotocopiadoras en Perú
+            Fotocopiadoras Perú
           </Link>
           ,{' '}
           <Link to="/fotocopiadoras-ricoh" className={linkClass}>
-            fotocopiadoras Ricoh
+            Fotocopiadoras
           </Link>
           ,{' '}
-          <Link to="/alquiler-fotocopiadoras-lima" className={linkClass}>
-            alquiler en Lima
+          <Link to="/preguntas-frecuentes" className={linkClass}>
+            Preguntas frecuentes
           </Link>
           ,{' '}
-          <Link to="/toner-ricoh" className={linkClass}>
-            tóner Ricoh
+          <Link to="/contacto" className={linkClass}>
+            Contacto
           </Link>
           ,{' '}
           <Link to="/guias" className={linkClass}>
-            guías de compra
+            Guías
           </Link>
           ,{' '}
           <Link to="/modelos" className={linkClass}>
-            modelos destacados
+            Modelos
+          </Link>
+          ,{' '}
+          <Link to="/privacidad" className={linkClass}>
+            Políticas
+          </Link>
+          ,{' '}
+          <Link to="/descargas" className={linkClass}>
+            Descargas
+          </Link>
+          ,{' '}
+          <Link to="/software" className={linkClass}>
+            Software
+          </Link>
+          ,{' '}
+          <Link to="/haiprotect" className={linkClass}>
+            HaiProtect
+          </Link>
+          ,{' '}
+          <Link to="/foro" className={linkClass}>
+            Foro
+          </Link>
+          ,{' '}
+          <Link to="/terminos" className={linkClass}>
+            Términos
           </Link>
           ,{' '}
           <Link to="/por-que-comprar-con-nosotros" className={linkClass}>
-            por qué comprar con nosotros
+            Por qué comprar
+          </Link>
+          ,{' '}
+          <Link to={serviceHubPath('outsourcing')} className={linkClass}>
+            Outsourcing
+          </Link>
+          ,{' '}
+          <Link to={categoryLandingPath('accesorios')} className={linkClass}>
+            Accesorios
+          </Link>
+          ,{' '}
+          <Link to={categoryLandingPath('formato-ancho')} className={linkClass}>
+            Formato ancho
           </Link>{' '}
-          o lee las{' '}
-          <Link to="/preguntas-frecuentes" className={linkClass}>
-            preguntas frecuentes
+          y{' '}
+          <Link to={categoryLandingPath('escaneres')} className={linkClass}>
+            Escáneres
           </Link>
           .
         </p>

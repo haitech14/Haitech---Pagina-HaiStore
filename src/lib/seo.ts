@@ -30,6 +30,7 @@ export {
   buildItemListJsonLd,
   buildCategoryCollectionJsonLd,
   buildHomeJsonLd,
+  buildSiteNavigationJsonLd,
   buildFaqPageJsonLd,
   buildServiceJsonLd,
   buildStoreJsonLd,

@@ -37,6 +37,12 @@ export const LANDING_CATEGORY_SEO = [
     image: '/categories/accesorios.png',
   },
   {
+    slug: 'escaneres',
+    name: 'Escáneres',
+    tagline: 'Digitalización de documentos y archivos',
+    image: '/categories/escaneres.png',
+  },
+  {
     slug: 'software',
     name: 'Software',
     tagline: 'Soluciones de gestión documental',

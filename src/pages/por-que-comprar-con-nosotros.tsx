@@ -11,7 +11,7 @@ import { serviceHubPath } from '@/lib/service-hub';
 import { cn } from '@/lib/utils';
 import { HAITECH_WHATSAPP_URL } from '@/lib/whatsapp-sales';
 
-const PAGE_TITLE = 'Por qué comprar con HaiStore | Distribuidor Autorizado Ricoh | Perú';
+const PAGE_TITLE = 'Por qué comprar | Haitech';
 const PAGE_DESCRIPTION =
   'Garantía, envío nacional, tóner, repuestos y soporte técnico. Somos Distribuidor Autorizado Ricoh en Perú para fotocopiadoras e impresoras.';
 
@@ -48,7 +48,7 @@ export function PorQueComprarConNosotrosPage() {
     buildWebPageJsonLd(
       {
         pathname: '/por-que-comprar-con-nosotros',
-        pageName: 'Por qué comprar con nosotros',
+        pageName: 'Por qué comprar',
         description: PAGE_DESCRIPTION,
       },
       SITE_ORIGIN,
@@ -70,7 +70,7 @@ export function PorQueComprarConNosotrosPage() {
       <article className="container max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         <p className="text-sm font-medium text-red-600">HaiStore · Confianza</p>
         <h1 className="mt-2 text-balance text-3xl font-bold tracking-tight text-[#0f1f3d] sm:text-4xl">
-          Distribuidor Autorizado Ricoh en Perú
+          Por qué comprar
         </h1>
         <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground">
           En HaiStore (HaiTech) somos <strong>Distribuidor Autorizado Ricoh</strong>: ayudamos a

@@ -12,7 +12,7 @@ import { serviceHubPath } from '@/lib/service-hub';
 import { cn } from '@/lib/utils';
 import { HAITECH_WHATSAPP_URL } from '@/lib/whatsapp-sales';
 
-const PAGE_TITLE = 'Preguntas frecuentes RICOH | Fotocopiadora, Tóner y Repuestos | HaiStore';
+const PAGE_TITLE = 'Preguntas frecuentes | Haitech';
 const PAGE_DESCRIPTION =
   'Respuestas sobre venta y alquiler de fotocopiadoras Ricoh, impresoras, tóner, repuestos, garantía, delivery e instalación. Distribuidor Autorizado en Perú.';
 
@@ -37,7 +37,7 @@ export function PreguntasFrecuentesPage() {
       <article className="container max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         <p className="text-sm font-medium text-red-600">HaiStore · Ayuda</p>
         <h1 className="mt-2 text-balance text-3xl font-bold tracking-tight text-[#0f1f3d] sm:text-4xl">
-          Preguntas frecuentes sobre fotocopiadoras Ricoh
+          Preguntas frecuentes
         </h1>
         <div className="mt-4 space-y-4 text-pretty text-base leading-relaxed text-muted-foreground">
           <p>

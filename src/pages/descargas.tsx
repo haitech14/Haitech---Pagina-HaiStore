@@ -10,7 +10,7 @@ import { buildAbsoluteUrl } from '@/lib/site-url';
 import { buildOrganizationJsonLd, buildWebPageJsonLd } from '@/lib/seo';
 import { SITE_ORIGIN } from '@/lib/site-url';
 
-const PAGE_TITLE = 'Descargas de soporte Ricoh | Utilidades técnicas | HaiStore';
+const PAGE_TITLE = 'Descargas | Haitech';
 const PAGE_DESCRIPTION =
   'Descarga utilidades de soporte técnico para impresoras y fotocopiadoras Ricoh: acceso remoto, diagnóstico de red y herramientas recomendadas por HaiTech, Distribuidor Autorizado.';
 
@@ -25,7 +25,7 @@ export function DescargasPage() {
       buildWebPageJsonLd(
         {
           pathname: '/descargas',
-          pageName: 'Descargas de soporte Ricoh',
+          pageName: 'Descargas',
           description: PAGE_DESCRIPTION,
         },
         SITE_ORIGIN,

@@ -61,7 +61,7 @@ export const categories: Category[] = [
   },
   {
     slug: 'formato-ancho',
-    name: 'Formato Ancho',
+    name: 'Formato ancho',
     tagline: 'Plotters y equipos para gran formato',
     icon: Ruler,
     inventoryCategories: [

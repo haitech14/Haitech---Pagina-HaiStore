@@ -14,9 +14,9 @@ import { buildAbsoluteUrl } from '@/lib/site-url';
 import { cn } from '@/lib/utils';
 
 const LANDING_SEO = {
-  title: 'Software Ricoh | Gestión documental y automatización | HaiStore Perú',
-  description:
-    'Software de gestión documental, automatización de procesos e integración Ricoh para empresas en Perú. Cotiza licencias y planes con Distribuidor Autorizado HaiTech.',
+  title: 'Software | Haitech',
+    description:
+    'Software de gestión documental, automatización de procesos e integración Ricoh para empresas en Perú. Cotiza licencias y planes con Distribuidor Autorizado Haitech.',
 };
 
 export function SoftwareHubPage() {

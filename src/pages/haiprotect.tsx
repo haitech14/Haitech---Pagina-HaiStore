@@ -22,7 +22,7 @@ export function HaiProtectPage() {
   const [offeringId, setOfferingId] = useState<HaiProtectOfferingId>('mono-12m');
 
   useSeo({
-    title: 'HaiProtect | Garantía extendida para equipos Ricoh | HaiStore',
+    title: 'HaiProtect | Haitech',
     description:
       'Extiende la garantía de tu fotocopiadora o impresora Ricoh con HaiProtect. Planes de cobertura, soporte técnico y respaldo oficial en Perú.',
     canonical: buildAbsoluteUrl('/haiprotect'),
@@ -37,7 +37,7 @@ export function HaiProtectPage() {
       <section aria-labelledby="haiprotect-intro-titulo" className="border-b border-border/60 bg-muted/20">
         <div className="container py-8 sm:py-10">
           <h1 id="haiprotect-intro-titulo" className="sr-only">
-            HaiProtect — Garantía extendida
+            HaiProtect
           </h1>
           <HaiProtectHeroBanner />
         </div>

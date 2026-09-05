@@ -27,6 +27,7 @@ export function buildWebPageJsonLd(
   siteOrigin: string,
 ): Record<string, unknown>;
 export function buildHomeJsonLd(siteOrigin: string): Array<Record<string, unknown>>;
+export function buildSiteNavigationJsonLd(siteOrigin: string): Record<string, unknown>;
 export function buildFaqPageJsonLd(
   items?: Array<{ question: string; answer: string }>,
 ): Record<string, unknown> | null;

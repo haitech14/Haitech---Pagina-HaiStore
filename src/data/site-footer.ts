@@ -27,25 +27,34 @@ export const FOOTER_VALUE_PROPS: FooterValueProp[] = [
   { icon: Headphones, label: 'Soporte técnico especializado' },
 ];
 
-/** Enlaces esenciales alineados con Productos, Servicios y Empresa del menú principal. */
+/** Enlaces esenciales: primero los 5 hubs de sitelinks, luego el resto. */
 export const FOOTER_NAV_LINKS: FooterLink[] = [
-  { label: 'Multifuncionales', href: categoryLandingPath('multifuncionales') },
+  { label: 'Sobre Nosotros', href: '/sobre-nosotros' },
+  { label: 'Nuestros Productos', href: '/tienda' },
+  { label: 'Distribuidor Autorizado Ricoh', href: '/distribuidor-autorizado-ricoh' },
+  { label: 'Fotocopiadoras', href: '/fotocopiadoras-ricoh' },
   { label: 'Impresoras', href: categoryLandingPath('impresoras') },
-  { label: 'Tóner y tintas', href: categoryLandingPath('toner-suministros') },
+  { label: 'Multifuncionales', href: categoryLandingPath('multifuncionales') },
+  { label: 'Tóner', href: '/toner-ricoh' },
   { label: 'Repuestos', href: categoryLandingPath('repuestos') },
-  { label: 'Alquiler de equipos', href: serviceHubPath('alquiler') },
+  { label: 'Alquiler', href: '/alquiler-fotocopiadoras-lima' },
   { label: 'Servicio técnico', href: serviceHubPath('servicio-tecnico') },
   { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
-  { label: 'Distribuidor Autorizado Ricoh', href: '/distribuidor-autorizado-ricoh' },
-  { label: 'Fotocopiadoras Perú', href: '/fotocopiadoras-peru' },
-  { label: 'Fotocopiadoras Ricoh', href: '/fotocopiadoras-ricoh' },
-  { label: 'Alquiler Lima', href: '/alquiler-fotocopiadoras-lima' },
-  { label: 'Tóner Ricoh', href: '/toner-ricoh' },
+  { label: 'Contacto', href: '/contacto' },
   { label: 'Guías', href: '/guias' },
   { label: 'Modelos', href: '/modelos' },
-  { label: 'Por qué comprar con nosotros', href: '/por-que-comprar-con-nosotros' },
+  { label: 'Políticas', href: '/privacidad' },
   { label: 'Descargas', href: '/descargas' },
-  { label: 'Contacto', href: '/contacto' },
+  { label: 'Software', href: '/software' },
+  { label: 'HaiProtect', href: '/haiprotect' },
+  { label: 'Foro', href: '/foro' },
+  { label: 'Términos', href: '/terminos' },
+  { label: 'Por qué comprar', href: '/por-que-comprar-con-nosotros' },
+  { label: 'Fotocopiadoras Perú', href: '/fotocopiadoras-peru' },
+  { label: 'Outsourcing', href: serviceHubPath('outsourcing') },
+  { label: 'Accesorios', href: categoryLandingPath('accesorios') },
+  { label: 'Formato ancho', href: categoryLandingPath('formato-ancho') },
+  { label: 'Escáneres', href: categoryLandingPath('escaneres') },
 ];
 
 /** Dirección principal (Lima) — misma que barra superior del sitio. */

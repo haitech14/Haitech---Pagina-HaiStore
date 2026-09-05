@@ -18,9 +18,9 @@ import { HAITECH_WHATSAPP_URL } from '@/lib/whatsapp-sales';
 
 const PATHNAME = '/distribuidor-autorizado-ricoh';
 
-const PAGE_TITLE = 'Distribuidor Autorizado Ricoh Perú | Fotocopiadora, Impresora y Tóner | HaiStore';
+const PAGE_TITLE = 'Distribuidor Autorizado Ricoh | Haitech';
 const PAGE_DESCRIPTION =
-  'HaiStore es Distribuidor Autorizado Ricoh en Perú. Compra o alquila fotocopiadoras, impresoras, tóner original y repuestos con garantía, instalación en Lima y envío nacional.';
+  'Haitech es Distribuidor Autorizado Ricoh en Perú. Compra o alquila fotocopiadoras, impresoras, tóner original y repuestos con garantía, instalación en Lima y envío nacional.';
 
 const CLUSTERS = [
   {
@@ -114,7 +114,7 @@ export function DistribuidorAutorizadoRicohPage() {
           Canal autorizado · Perú
         </p>
         <h1 className="mt-2 text-balance text-3xl font-bold tracking-tight text-[#0f1f3d] sm:text-4xl">
-          Distribuidor Autorizado Ricoh en Perú
+          Distribuidor Autorizado Ricoh
         </h1>
         <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground">
           HaiStore es el canal de <strong>HaiTech</strong> para empresas que buscan{' '}

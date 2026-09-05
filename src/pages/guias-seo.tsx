@@ -17,7 +17,7 @@ export function GuiaSeoPage() {
   const guide = getSeoGuide(slug);
 
   const pathname = guide?.pathname ?? '/guias';
-  const title = guide?.title ?? 'Guías HaiStore';
+  const title = guide?.title ?? 'Guías | Haitech';
   const description = guide?.description ?? '';
   const pageName = guide?.pageName ?? 'Guías';
 
@@ -64,9 +64,9 @@ export function GuiaSeoPage() {
 
 export function GuiasIndexPage() {
   useSeo({
-    title: 'Guías Ricoh | Fotocopiadoras, Tóner y Alquiler | HaiStore',
+    title: 'Guías | Haitech',
     description:
-      'Guías prácticas HaiStore: cómo elegir multifuncional Ricoh, tóner original vs compatible, alquiler vs compra y mantenimiento.',
+      'Guías prácticas Haitech: cómo elegir multifuncional Ricoh, tóner original vs compatible, alquiler vs compra y mantenimiento.',
     canonical: buildAbsoluteUrl('/guias'),
     robots: 'index,follow',
     ogType: 'website',
@@ -74,7 +74,7 @@ export function GuiasIndexPage() {
       buildWebPageJsonLd(
         {
           pathname: '/guias',
-          pageName: 'Guías HaiStore',
+          pageName: 'Guías',
           description: 'Contenido editorial sobre fotocopiadoras y consumibles Ricoh.',
         },
         SITE_ORIGIN,
@@ -87,7 +87,7 @@ export function GuiasIndexPage() {
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <article className="container max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         <h1 className="text-balance text-3xl font-bold tracking-tight text-[#0f1f3d] sm:text-4xl">
-          Guías Ricoh para empresas
+          Guías
         </h1>
         <p className="mt-4 text-pretty text-muted-foreground">
           Contenido práctico de HaiStore, Distribuidor Autorizado Ricoh en Perú, para decidir con

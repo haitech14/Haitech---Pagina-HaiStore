@@ -59,9 +59,10 @@ export const HAITECH_BLACK_NAV_LINKS = [
   },
   {
     id: 'nosotros',
-    to: '/distribuidor-autorizado-ricoh',
+    to: '/sobre-nosotros',
     label: 'Nosotros',
     matchActive: ({ pathname }: { pathname: string }) =>
+      pathname.startsWith('/sobre-nosotros') ||
       pathname.startsWith('/distribuidor-autorizado-ricoh') ||
       pathname.startsWith('/por-que-comprar-con-nosotros'),
   },

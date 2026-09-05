@@ -7,6 +7,7 @@ export const VALID_HTML_PREFIXES = [
   '/foro',
   '/preguntas-frecuentes',
   '/por-que-comprar-con-nosotros',
+  '/sobre-nosotros',
   '/distribuidor-autorizado-ricoh',
   '/fotocopiadoras-peru',
   '/fotocopiadoras-ricoh',
@@ -59,6 +60,7 @@ export const VITRINA_CANONICAL_PATH = {
   'toner-repuestos': '/categoria/toner-suministros',
   repuestos: '/categoria/repuestos',
   accesorios: '/categoria/accesorios',
+  escaneres: '/categoria/escaneres',
   software: '/software',
 };
 

@@ -24,7 +24,7 @@ export function ModeloSeoPage() {
   const hub = getSeoModelHub(slug);
 
   const pathname = hub ? modelHubPath(hub.slug) : '/modelos';
-  const title = hub?.title ?? 'Modelos Ricoh | HaiStore';
+  const title = hub?.title ?? 'Modelos | Haitech';
   const description = hub?.description ?? '';
   const pageName = hub?.pageName ?? 'Modelos';
   const listItems =
@@ -156,9 +156,9 @@ export function ModeloSeoPage() {
 
 export function ModelosIndexPage() {
   useSeo({
-    title: 'Modelos Ricoh | Multifuncionales destacados | HaiStore Perú',
+    title: 'Modelos | Haitech',
     description:
-      'Hubs por modelo Ricoh: IM 550F, IM 430F, IM C300F, IM C320F y más. Compra con Distribuidor Autorizado HaiStore.',
+      'Hubs por modelo Ricoh: IM 550F, IM 430F, IM C300F, IM C320F y más. Compra con Distribuidor Autorizado Haitech.',
     canonical: buildAbsoluteUrl('/modelos'),
     robots: 'index,follow',
     ogType: 'website',
@@ -166,7 +166,7 @@ export function ModelosIndexPage() {
       buildWebPageJsonLd(
         {
           pathname: '/modelos',
-          pageName: 'Modelos Ricoh',
+          pageName: 'Modelos',
           description: 'Guías por modelo de multifuncionales Ricoh en HaiStore.',
         },
         SITE_ORIGIN,
@@ -179,7 +179,7 @@ export function ModelosIndexPage() {
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <article className="container max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         <h1 className="text-balance text-3xl font-bold tracking-tight text-[#0f1f3d] sm:text-4xl">
-          Modelos Ricoh destacados
+          Modelos
         </h1>
         <p className="mt-4 text-muted-foreground">
           Fichas resumen con enlaces a productos en stock. Distribuidor Autorizado Ricoh en Perú.

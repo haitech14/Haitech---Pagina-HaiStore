@@ -4,7 +4,6 @@ import { useSearchParams } from 'react-router-dom';
 import { ForumCategorySidebar } from '@/components/forum/forum-category-sidebar';
 import { ForumDiscussionsPanel } from '@/components/forum/forum-discussions-panel';
 import { ForumSidebar } from '@/components/forum/forum-sidebar';
-import { FORUM_TITLE_SUFFIX } from '@/data/site-meta';
 import { useSeo } from '@/hooks/use-seo';
 import { buildAbsoluteUrl } from '@/lib/site-url';
 import {
@@ -23,9 +22,9 @@ export function ForumHomePage() {
   const [categoryFilter, setCategoryFilter] = useState(categoryParam);
 
   useSeo({
-    title: `${FORUM_TITLE_SUFFIX} | Comunidad técnica`,
+    title: 'Foro | Haitech',
     description:
-      'Comunidad técnica HaiStore: consultas de firmware, mantenimiento, tóner y multifuncionales Ricoh en Perú.',
+      'Comunidad técnica Haitech: consultas de firmware, mantenimiento, tóner y multifuncionales Ricoh en Perú.',
     canonical: buildAbsoluteUrl('/foro'),
     robots: 'index,follow',
   });

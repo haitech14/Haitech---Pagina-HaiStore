@@ -14,11 +14,11 @@ export const SEO_GUIDES: SeoGuide[] = [
   {
     slug: 'como-elegir-multifuncional-ricoh',
     pathname: '/guias/como-elegir-multifuncional-ricoh',
-    title: 'Cómo elegir multifuncional Ricoh | Guía HaiStore Perú',
+    title: 'Cómo elegir multifuncional Ricoh | Haitech',
     description:
       'Guía para elegir multifuncional Ricoh: A4 vs A3, ppm, color, SPDF y alquiler vs compra. Consejos de Distribuidor Autorizado en Perú.',
     pageName: 'Cómo elegir multifuncional Ricoh',
-    h1: 'Cómo elegir un multifuncional Ricoh',
+    h1: 'Cómo elegir multifuncional Ricoh',
     lead:
       'Antes de comprar o alquilar, define volumen mensual, formato, color y tipo de alimentador. Esta guía resume los criterios que usamos en HaiStore con clientes empresariales.',
     paragraphs: [
@@ -37,11 +37,11 @@ export const SEO_GUIDES: SeoGuide[] = [
   {
     slug: 'toner-original-vs-compatible',
     pathname: '/guias/toner-original-vs-compatible',
-    title: 'Tóner Ricoh original vs compatible | Guía HaiStore',
+    title: 'Tóner original vs compatible | Haitech',
     description:
       'Diferencias entre tóner Ricoh original y compatible: calidad, costo por página y cuándo conviene cada uno. Asesoría de Distribuidor Autorizado.',
     pageName: 'Tóner original vs compatible',
-    h1: 'Tóner Ricoh: original vs compatible',
+    h1: 'Tóner original vs compatible',
     lead:
       'Ambas opciones existen en el mercado peruano. La decisión depende de política de calidad, costo por página y criticidad del equipo.',
     paragraphs: [
@@ -59,11 +59,11 @@ export const SEO_GUIDES: SeoGuide[] = [
   {
     slug: 'alquiler-vs-compra-fotocopiadora',
     pathname: '/guias/alquiler-vs-compra-fotocopiadora',
-    title: 'Alquiler vs compra de fotocopiadora | Guía HaiStore',
+    title: 'Alquiler vs compra | Haitech',
     description:
       'Compara alquilar o comprar fotocopiadora Ricoh en Perú: inversión, mantenimiento, tóner y flexibilidad. Orientación HaiStore Lima.',
     pageName: 'Alquiler vs compra',
-    h1: '¿Alquilar o comprar una fotocopiadora?',
+    h1: 'Alquiler vs compra',
     lead:
       'No hay una respuesta única: depende del flujo de caja, del volumen y de si quieres internalizar el mantenimiento.',
     paragraphs: [
@@ -81,11 +81,11 @@ export const SEO_GUIDES: SeoGuide[] = [
   {
     slug: 'mantenimiento-fotocopiadoras',
     pathname: '/guias/mantenimiento-fotocopiadoras',
-    title: 'Mantenimiento de fotocopiadoras Ricoh | Señales y soporte | HaiStore',
+    title: 'Mantenimiento de fotocopiadoras | Haitech',
     description:
       'Señales de que tu fotocopiadora Ricoh necesita mantenimiento: calidad, ruidos, atascos y contadores. Soporte técnico HaiStore en Perú.',
     pageName: 'Mantenimiento de fotocopiadoras',
-    h1: 'Mantenimiento de fotocopiadoras: señales clave',
+    h1: 'Mantenimiento de fotocopiadoras',
     lead:
       'Actuar a tiempo evita paradas costosas. Estas señales indican que conviene agendar servicio técnico o revisar consumibles.',
     paragraphs: [
