@@ -38,7 +38,7 @@ import type { CartItem } from '@/types/product';
 
 export function CheckoutPage() {
   useSeo({
-    title: 'Checkout | HaiStore',
+    title: 'Checkout | Haitech',
     description: 'Finaliza tu pedido en Haitech.',
     robots: 'noindex,nofollow',
   });

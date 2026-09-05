@@ -7,7 +7,7 @@ import { buildAbsoluteUrl } from '@/lib/site-url';
 
 export function NotFoundPage() {
   useSeo({
-    title: 'Página no encontrada | HaiStore — Distribuidor Autorizado Ricoh',
+    title: 'Página no encontrada | Haitech',
     description:
       'La página que buscas no existe. Explora fotocopiadoras, impresoras, tóner y repuestos Ricoh en HaiStore, Distribuidor Autorizado en Perú.',
     canonical: buildAbsoluteUrl('/'),

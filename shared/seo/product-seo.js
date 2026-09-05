@@ -20,7 +20,7 @@ const MODEL_PATTERNS = [
   /\b(M\s*\d{3,4}[A-Z]?)\b/i,
 ];
 
-const SITE_SUFFIX = ' | HaiStore';
+const SITE_SUFFIX = ' | Haitech';
 
 export function usdToPenSeo(usd, rate = DEFAULT_USD_TO_PEN_SEO) {
   return Math.round(Number(usd) * rate);
@@ -336,7 +336,7 @@ export function buildProductSeoBodyParagraph(product) {
   }
 
   return [
-    `${name} — producto ${brand} disponible en HaiStore, Distribuidor Autorizado Ricoh en Perú.`,
+    `${name} — producto ${brand} disponible en Haitech, Distribuidor Autorizado Ricoh en Perú.`,
     'Compra online con cotización, envío nacional y soporte técnico especializado en fotocopiadoras, impresoras, tóner y repuestos.',
   ].join(' ');
 }

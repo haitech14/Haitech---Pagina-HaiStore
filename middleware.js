@@ -29,11 +29,11 @@ const INDEXABLE = indexableRobots();
 const NOINDEX = noindexRobots();
 
 const NOINDEX_TITLES = {
-  '/login': 'Iniciar sesión | HaiStore',
-  '/login/registro': 'Crear cuenta | HaiStore',
-  '/favoritos': 'Favoritos | HaiStore',
-  '/checkout': 'Checkout | HaiStore',
-  '/mi-cuenta': 'Mi cuenta | HaiStore',
+  '/login': 'Iniciar sesión | Haitech',
+  '/login/registro': 'Crear cuenta | Haitech',
+  '/favoritos': 'Favoritos | Haitech',
+  '/checkout': 'Checkout | Haitech',
+  '/mi-cuenta': 'Mi cuenta | Haitech',
 };
 
 function wantsHtml(request) {
@@ -46,13 +46,13 @@ function noindexSeo(pathname, request) {
   const title =
     NOINDEX_TITLES[pathname] ??
     (pathname.startsWith('/checkout')
-      ? 'Checkout | HaiStore'
+      ? 'Checkout | Haitech'
       : pathname.startsWith('/admin') || pathname.startsWith('/panel')
-        ? 'Administración | HaiStore'
-        : 'HaiStore');
+        ? 'Administración | Haitech'
+        : 'Haitech');
   return {
     title,
-    description: 'Página privada de HaiStore.',
+    description: 'Página privada de Haitech.',
     canonical: new URL(pathname, request.url).href.replace(/\/$/, '') || request.url,
     robots: NOINDEX,
   };

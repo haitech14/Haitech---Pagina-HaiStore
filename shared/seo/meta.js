@@ -218,7 +218,7 @@ export function buildStaticPageSeoRecord(pathname, title, description, siteOrigi
     title,
     description: truncateMetaDescription(description),
     image: resolveAbsoluteImageUrl(DEFAULT_OG_IMAGE, siteOrigin),
-    imageAlt: 'HaiStore — equipos Ricoh y suministros',
+    imageAlt: 'Haitech — equipos Ricoh y suministros',
     ogType: 'website',
   };
 }

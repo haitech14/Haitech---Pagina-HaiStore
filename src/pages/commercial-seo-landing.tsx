@@ -21,9 +21,9 @@ export function CommercialSeoLandingPage({ landingSlug }: CommercialSeoLandingPa
   const landing = getSeoCommercialLanding(slug);
 
   const pathname = landing?.pathname ?? '/fotocopiadoras-peru';
-  const title = landing?.title ?? 'HaiStore';
+  const title = landing?.title ?? 'Haitech';
   const description = landing?.description ?? '';
-  const pageName = landing?.pageName ?? 'HaiStore';
+  const pageName = landing?.pageName ?? 'Haitech';
   const faqItems = landing?.faq ?? [];
 
   const faq = buildFaqPageJsonLd(faqItems);
