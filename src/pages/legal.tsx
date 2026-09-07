@@ -47,7 +47,7 @@ export function TermsPage() {
       description="Condiciones de venta, alquiler, garantías y envíos de Haitech, Distribuidor Autorizado Ricoh en Perú."
     >
       <p>
-        HaiStore (HaiTech) comercializa fotocopiadoras, impresoras, tóner, repuestos y servicios
+        Haitech comercializa fotocopiadoras, impresoras, tóner, repuestos y servicios
         técnicos como Distribuidor Autorizado Ricoh en Perú. Al comprar o solicitar una cotización
         en haitech.pe aceptas estas condiciones.
       </p>
@@ -80,7 +80,7 @@ export function PrivacyPage() {
       description="Cómo Haitech trata datos personales de clientes y visitantes según la normativa peruana de protección de datos."
     >
       <p>
-        HaiStore trata datos de identificación, contacto y facturación para atender pedidos,
+        Haitech trata datos de identificación, contacto y facturación para atender pedidos,
         cotizaciones, soporte técnico y comunicaciones comerciales relacionadas con equipos Ricoh.
         No vendemos bases de datos a terceros ajenos a la operación logística o de pago.
       </p>
@@ -95,7 +95,7 @@ export function PrivacyPage() {
         externas (Culqi o Mercado Pago) que aplican sus propias políticas.
       </p>
       <p>
-        Esta política aplica a haitech.pe y a los formularios de HaiStore. Si actualizamos el
+        Esta política aplica a haitech.pe y a los formularios de Haitech. Si actualizamos el
         tratamiento, publicaremos la versión vigente en esta misma URL.
       </p>
     </LegalShell>

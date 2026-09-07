@@ -20,12 +20,12 @@ export const SEO_GUIDES: SeoGuide[] = [
     pageName: 'Cómo elegir multifuncional Ricoh',
     h1: 'Cómo elegir multifuncional Ricoh',
     lead:
-      'Antes de comprar o alquilar, define volumen mensual, formato, color y tipo de alimentador. Esta guía resume los criterios que usamos en HaiStore con clientes empresariales.',
+      'Antes de comprar o alquilar, define volumen mensual, formato, color y tipo de alimentador. Esta guía resume los criterios que usamos en Haitech con clientes empresariales.',
     paragraphs: [
       'A4 vs A3: si solo imprimes documentos estándar, un A4 (serie IM F / CxxxF) suele bastar. Si manejas planos o dos páginas por hoja con frecuencia, evalúa A3.',
       'Velocidad (ppm) y volumen: estima páginas al mes. Equipos como IM 430F cubren oficinas medianas; IM 550F / IM 600F apuntan a mayor ritmo. El color (IM C300F, IM C320F, IM C2000) suma costo de tóner: úsalo solo si el flujo lo exige.',
       'SPDF vs ARDF: el SPDF (doble scan) acelera digitalización dúplex. Si escaneas mucho, priorízalo en la ficha del modelo.',
-      'Nuevo, seminuevo o alquiler: el seminuevo reduce inversión con garantía HaiStore; el alquiler fija un costo mensual con mantenimiento. Revisa hubs de modelo y la landing de alquiler en Lima.',
+      'Nuevo, seminuevo o alquiler: el seminuevo reduce inversión con garantía Haitech; el alquiler fija un costo mensual con mantenimiento. Revisa hubs de modelo y la landing de alquiler en Lima.',
     ],
     relatedLinks: [
       { label: 'Fotocopiadoras Ricoh', to: '/fotocopiadoras-ricoh' },
@@ -47,7 +47,7 @@ export const SEO_GUIDES: SeoGuide[] = [
     paragraphs: [
       'Tóner original: máxima compatibilidad y respaldo de fabricante. Recomendado en equipos nuevos en garantía estricta o cuando la calidad de color/texto es crítica.',
       'Tóner compatible: reduce el costo por página en flotas de alto volumen. Elige proveedores probados y el código exacto del cartucho; un compatible incorrecto genera fallas y paradas.',
-      'En HaiStore, Distribuidor Autorizado Ricoh, te ayudamos a no mezclar referencias. Cotiza desde el hub de tóner o la categoría de suministros con el modelo de tu fotocopiadora.',
+      'En Haitech, Distribuidor Autorizado Ricoh, te ayudamos a no mezclar referencias. Cotiza desde el hub de tóner o la categoría de suministros con el modelo de tu fotocopiadora.',
     ],
     relatedLinks: [
       { label: 'Tóner Ricoh', to: '/toner-ricoh' },
@@ -61,7 +61,7 @@ export const SEO_GUIDES: SeoGuide[] = [
     pathname: '/guias/alquiler-vs-compra-fotocopiadora',
     title: 'Alquiler vs compra | Haitech',
     description:
-      'Compara alquilar o comprar fotocopiadora Ricoh en Perú: inversión, mantenimiento, tóner y flexibilidad. Orientación HaiStore Lima.',
+      'Compara alquilar o comprar fotocopiadora Ricoh en Perú: inversión, mantenimiento, tóner y flexibilidad. Orientación Haitech Lima.',
     pageName: 'Alquiler vs compra',
     h1: 'Alquiler vs compra',
     lead:
@@ -83,7 +83,7 @@ export const SEO_GUIDES: SeoGuide[] = [
     pathname: '/guias/mantenimiento-fotocopiadoras',
     title: 'Mantenimiento de fotocopiadoras | Haitech',
     description:
-      'Señales de que tu fotocopiadora Ricoh necesita mantenimiento: calidad, ruidos, atascos y contadores. Soporte técnico HaiStore en Perú.',
+      'Señales de que tu fotocopiadora Ricoh necesita mantenimiento: calidad, ruidos, atascos y contadores. Soporte técnico Haitech en Perú.',
     pageName: 'Mantenimiento de fotocopiadoras',
     h1: 'Mantenimiento de fotocopiadoras',
     lead:
@@ -91,7 +91,7 @@ export const SEO_GUIDES: SeoGuide[] = [
     paragraphs: [
       'Calidad irregular (manchas, líneas, fondo sucio) suele apuntar a unidad de imagen, cilindro o fusor. No ignores mensajes de reemplazo de piezas.',
       'Atascos frecuentes, ruidos nuevos o sobrecalentamiento piden revisión mecánica. También vigila el contador de páginas frente al ciclo de vida recomendado del modelo.',
-      'Mantén stock de tóner correcto y programa preventivos si tu volumen es alto. En HaiStore ofrecemos servicio técnico Ricoh, repuestos y tóner con Distribuidor Autorizado.',
+      'Mantén stock de tóner correcto y programa preventivos si tu volumen es alto. En Haitech ofrecemos servicio técnico Ricoh, repuestos y tóner con Distribuidor Autorizado.',
     ],
     relatedLinks: [
       { label: 'Servicio técnico', to: '/servicios?seccion=servicio-tecnico' },

@@ -610,7 +610,7 @@ function CatalogMegaMenuSidebar({
                 <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" />
               </span>
               <span className="min-w-0 flex-1 text-pretty leading-snug">{item.label}</span>
-              {!isMobile ? (
+              {!isMobile && !asLinks ? (
                 <ChevronRight
                   className={cn(
                     'size-3.5 shrink-0 transition-opacity',

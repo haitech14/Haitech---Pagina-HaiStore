@@ -80,7 +80,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
     attributes: product.attributes ?? [],
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
-  const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
+  const buyNowLabel = outOfStock ? 'Reservar' : 'Agregar al carrito';
   const clipboardCondition = resolveProductCardBadgeLabel(titleProduct);
   const clipboardIsColor = inferColor(titleProduct) === 'Color';
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(titleProduct);

@@ -63,12 +63,14 @@ export const PRODUCTOS_NAV_SUBMENU: HeaderNavSubmenuConfig = {
   matchActive: ({ pathname, search }) => {
     const vitrinaSlug = storeShowcaseCategoryFromPathname(pathname);
     if (vitrinaSlug && vitrinaSlug !== 'toner' && vitrinaSlug !== 'repuestos') return true;
-    if (
-      pathname === '/tienda' &&
-      search.includes('vitrina=') &&
-      !search.includes('vitrina=toner') &&
-      !search.includes('vitrina=repuestos')
-    ) {
+    if (pathname === '/tienda') {
+      if (
+        search.includes('vitrina=toner') ||
+        search.includes('vitrina=repuestos') ||
+        search.includes('vitrina=toner-repuestos')
+      ) {
+        return false;
+      }
       return true;
     }
     if (pathname.startsWith('/producto')) return true;

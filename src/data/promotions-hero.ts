@@ -23,7 +23,7 @@ export const promotionSlides: PromotionSlide[] = [
   {
     id: 'multifuncionales',
     title: 'Multifuncionales Ricoh',
-    subtitle: 'Ofertas en equipos nuevos y seminuevos con instalación y soporte HaiTech.',
+    subtitle: 'Ofertas en equipos nuevos y seminuevos con instalación y soporte Haitech.',
     badge: 'Hasta 16% dto.',
     ctaLabel: 'Ver equipos',
     ctaHref: '/tienda',
@@ -38,6 +38,6 @@ export const promotionSlides: PromotionSlide[] = [
     ctaLabel: 'Ver ofertas',
     ctaHref: '/tienda',
     image: '/promotions/promo-hero-ofertas.png',
-    imageAlt: 'Fondo promocional de ofertas HaiStore',
+    imageAlt: 'Fondo promocional de ofertas Haitech',
   },
 ];

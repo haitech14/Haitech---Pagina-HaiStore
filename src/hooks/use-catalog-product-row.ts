@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import {
+  CATALOG_INDEX_UPDATED_EVENT,
   getCatalogMediaEpoch,
   getCatalogProductById,
   loadCatalogIndex,
@@ -36,9 +37,16 @@ export function useCatalogProductRow(
   }, [loadIfMissing, productId]);
 
   useEffect(() => {
-    return subscribeCatalogMediaUpdates(() => {
+    const bump = () => setCatalogVersion((version) => version + 1);
+    const unsubscribeMedia = subscribeCatalogMediaUpdates(() => {
       setCatalogVersion(getCatalogMediaEpoch());
     });
+    if (typeof window === 'undefined') return unsubscribeMedia;
+    window.addEventListener(CATALOG_INDEX_UPDATED_EVENT, bump);
+    return () => {
+      unsubscribeMedia();
+      window.removeEventListener(CATALOG_INDEX_UPDATED_EVENT, bump);
+    };
   }, []);
 
   void catalogVersion;

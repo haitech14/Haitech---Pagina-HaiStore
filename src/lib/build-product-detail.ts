@@ -592,7 +592,7 @@ function resolveHeroLead(product: Product, isPrinter: boolean, isSupply: boolean
     if (description.includes('\n')) return '';
     return description;
   }
-  return product.category ?? 'Producto HaiStore';
+  return product.category ?? 'Producto Haitech';
 }
 
 function resolveHeroDescription(product: Product, isPrinter: boolean, isSupply: boolean): string {
@@ -1244,7 +1244,7 @@ function resolveDisplaySubtitle(product: Product, isPrinter: boolean, isSupply: 
     );
   }
   if (isSupply) return 'Consumible compatible de alta calidad';
-  return product.category ?? 'Producto HaiStore';
+  return product.category ?? 'Producto Haitech';
 }
 
 function buildTagPills(

@@ -18,7 +18,7 @@ const RESOURCES = [
     icon: Download,
   },
   {
-    title: 'Blog HaiTech',
+    title: 'Blog Haitech',
     description: 'Artículos, casos de éxito y novedades del sector.',
     href: '/',
     icon: ExternalLink,

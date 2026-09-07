@@ -87,7 +87,7 @@ const DEFAULT_VALUE_PROPS = [
   {
     id: 'soporte',
     title: 'Soporte especializado',
-    description: 'Implementación, capacitación y acompañamiento por expertos HaiStore.',
+    description: 'Implementación, capacitación y acompañamiento por expertos Haitech.',
   },
 ] as const;
 
@@ -184,7 +184,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Integración con carpetas y aplicaciones',
       ],
       whatsappMessage:
-        'Hola, me interesa Ricoh Smart Flow Connector en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa Ricoh Smart Flow Connector en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     0,
   ),
@@ -203,7 +203,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Búsqueda full-text y metadatos',
       ],
       whatsappMessage:
-        'Hola, me interesa DocuWare Cloud en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa DocuWare Cloud en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     1,
   ),
@@ -222,7 +222,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Perfiles de escaneo preconfigurados',
       ],
       whatsappMessage:
-        'Hola, me interesa Ricoh Streamline NX en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa Ricoh Streamline NX en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     2,
   ),
@@ -241,7 +241,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Reportes de uso y rendimiento',
       ],
       whatsappMessage:
-        'Hola, me interesa Ricoh @Remote Enterprise en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa Ricoh @Remote Enterprise en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     3,
   ),
@@ -260,7 +260,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Conectores para ERP y gestión documental',
       ],
       whatsappMessage:
-        'Hola, me interesa Ricoh GlobalScan NX en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa Ricoh GlobalScan NX en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     4,
   ),
@@ -279,7 +279,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Integración con sistemas existentes',
       ],
       whatsappMessage:
-        'Hola, me interesa Ricoh Intelligent Process Automation en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa Ricoh Intelligent Process Automation en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     5,
   ),
@@ -297,7 +297,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Reportes de SLA y productividad del equipo',
       ],
       whatsappMessage:
-        'Hola, me interesa HaiSupport en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa HaiSupport en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     6,
   ),
@@ -315,7 +315,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Dashboards de desempeño del equipo',
       ],
       whatsappMessage:
-        'Hola, me interesa HaiSales en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa HaiSales en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     7,
   ),
@@ -333,7 +333,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Reportes fiscales y control de caja',
       ],
       whatsappMessage:
-        'Hola, me interesa Rapifac en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa Rapifac en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     8,
   ),
@@ -351,7 +351,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Interfaz simple y soporte de implementación',
       ],
       whatsappMessage:
-        'Hola, me interesa Keyfacil en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa Keyfacil en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     9,
   ),
@@ -369,7 +369,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
         'Seguimiento de leads y clientes',
       ],
       whatsappMessage:
-        'Hola, me interesa Kommo CRM en HaiStore. ¿Podrían brindarme más información y cotización?',
+        'Hola, me interesa Kommo CRM en Haitech. ¿Podrían brindarme más información y cotización?',
     },
     10,
   ),
@@ -377,7 +377,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
     slug: 'eset-nod32-licencia-12-meses',
     title: 'Licencia Original ESET NOD32 12 Meses',
     description:
-      'Licencia original ESET NOD32 por 12 meses. Protección antivirus y antiespía para 1 dispositivo en Windows y Mac, con administración y soporte HaiStore.',
+      'Licencia original ESET NOD32 por 12 meses. Protección antivirus y antiespía para 1 dispositivo en Windows y Mac, con administración y soporte Haitech.',
     shortDescription:
       'Antivirus y antiespía ESET NOD32 por 12 meses. 1 dispositivo · Windows y Mac · facturación legal.',
     categoryId: 'antivirus',
@@ -410,7 +410,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
       {
         id: 'basico',
         label: 'Licencia 12 meses',
-        description: '1 dispositivo · Windows y Mac · administración HaiStore',
+        description: '1 dispositivo · Windows y Mac · administración Haitech',
         priceMultiplier: 1,
         highlighted: true,
         features: [
@@ -427,14 +427,14 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
     planComparison: [
       { id: 'dispositivos', label: 'Dispositivos incluidos', basico: '1', empresarial: '—', premium: '—' },
       { id: 'duracion', label: 'Duración', basico: '12 meses', empresarial: '—', premium: '—' },
-      { id: 'soporte', label: 'Administración HaiStore', basico: true, empresarial: false, premium: false },
-      { id: 'garantia', label: 'Garantía HaiStore', basico: '90 días', empresarial: '—', premium: '—' },
+      { id: 'soporte', label: 'Administración Haitech', basico: true, empresarial: false, premium: false },
+      { id: 'garantia', label: 'Garantía Haitech', basico: '90 días', empresarial: '—', premium: '—' },
       { id: 'plataformas', label: 'Plataformas', basico: 'Windows y Mac', empresarial: '—', premium: '—' },
       { id: 'facturacion', label: 'Facturación legal', basico: true, empresarial: false, premium: false },
     ],
     inclusions: [
       'Licencia original ESET NOD32 por 12 meses',
-      'Administración de la licencia por HaiStore',
+      'Administración de la licencia por Haitech',
       'Soporte para activación e instalación',
       'Facturación legal',
     ],
@@ -455,12 +455,12 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
       {
         question: '¿Puedo reinstalar el antivirus en otro equipo?',
         answer:
-          'Sí, es reinstalable previa coordinación con HaiStore dentro del plazo de 90 días mientras la licencia esté activa en plataforma.',
+          'Sí, es reinstalable previa coordinación con Haitech dentro del plazo de 90 días mientras la licencia esté activa en plataforma.',
       },
       {
         question: '¿Quién administra la licencia?',
         answer:
-          'HaiStore administra la licencia por ti: activación, seguimiento y soporte durante los 12 meses de vigencia.',
+          'Haitech administra la licencia por ti: activación, seguimiento y soporte durante los 12 meses de vigencia.',
       },
     ],
     valueProps: [
@@ -477,7 +477,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
       {
         id: 'garantia',
         title: 'Garantía 90 días',
-        description: 'Respaldo HaiStore durante los primeros 90 días de tu licencia.',
+        description: 'Respaldo Haitech durante los primeros 90 días de tu licencia.',
       },
       {
         id: 'ligero',
@@ -486,7 +486,7 @@ export const SOFTWARE_CATALOG_ITEMS: readonly SoftwareCatalogItem[] = [
       },
     ],
     whatsappMessage:
-      'Hola, me interesa la Licencia Original ESET NOD32 12 Meses en HaiStore. ¿Podrían brindarme más información?',
+      'Hola, me interesa la Licencia Original ESET NOD32 12 Meses en Haitech. ¿Podrían brindarme más información?',
   },
   ...SOFTWARE_IA_CATALOG_ITEMS,
 ];

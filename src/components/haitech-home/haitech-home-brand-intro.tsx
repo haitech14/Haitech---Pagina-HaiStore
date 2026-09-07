@@ -28,14 +28,14 @@ const CATALOG_BOXES = [
   },
 ] as const;
 
-/** Tres banners de catálogo — mismo ancho y altura visual que el hero principal. */
+/** Tres banners de catálogo, un poco más estrechos que el hero. */
 export function HaitechHomeBrandIntro({ className }: { className?: string }) {
   return (
     <section
-      className={cn('w-full bg-white px-3 pb-2 pt-2 sm:px-4 sm:pb-2.5 sm:pt-3 lg:px-5', className)}
+      className={cn('w-full bg-white px-4 pb-2 pt-2 sm:px-6 sm:pb-2.5 sm:pt-3 lg:px-10', className)}
       aria-labelledby="haitech-brand-intro-title"
     >
-      <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}>
+      <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.maxWidth }}>
         <header className="mb-3 sm:mb-4">
           <h2
             id="haitech-brand-intro-title"

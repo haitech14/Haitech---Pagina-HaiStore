@@ -24,7 +24,7 @@ export class RootErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       return (
         <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-white p-6 text-center text-slate-900">
-          <h1 className="text-xl font-semibold">No se pudo cargar HaiStore</h1>
+          <h1 className="text-xl font-semibold">No se pudo cargar Haitech</h1>
           <p className="max-w-md text-sm text-slate-600">{this.state.error.message}</p>
           <button
             type="button"

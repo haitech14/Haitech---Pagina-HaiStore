@@ -54,7 +54,7 @@ const COMPANIES_SIDEBAR_SECTIONS = [
   {
     slug: 'nosotros',
     label: 'Nosotros',
-    description: 'Conoce a HaiStore y nuestro equipo.',
+    description: 'Conoce a Haitech y nuestro equipo.',
     icon: Building2,
     viewAllHref: '/sobre-nosotros',
   },
@@ -225,7 +225,7 @@ const COMPANIES_FEATURED: Record<
 > = {
   nosotros: {
     image: '/logos/haistore-logo.png',
-    title: 'Somos HaiStore',
+    title: 'Somos Haitech',
     description:
       'Partner Ricoh en Perú con más de una década asesorando empresas en impresión y tecnología.',
     href: '/contacto',
@@ -241,7 +241,7 @@ const COMPANIES_FEATURED: Record<
     image: '/services/servicios-corporativos/saas.png',
     title: 'Experiencias reales',
     description:
-      'Conoce cómo nuestros clientes mejoraron productividad y redujeron costos con HaiStore.',
+      'Conoce cómo nuestros clientes mejoraron productividad y redujeron costos con Haitech.',
     href: '/#testimonios',
   },
   faq: {
@@ -407,7 +407,7 @@ function companiesColumnGroups(slug: (typeof COMPANIES_SIDEBAR_SECTIONS)[number]
         image: '/logos/haistore-logo.png',
         href: '/contacto',
         links: [
-          { name: 'Sobre HaiStore', href: '/contacto' },
+          { name: 'Sobre Haitech', href: '/contacto' },
           { name: 'Solicitar cotización', href: '/contacto' },
         ],
       },
@@ -644,7 +644,7 @@ export function buildLegacyServicesNavMegaMenu(): NavMegaMenuModel {
       const firstCard = landing?.cards[0];
       return {
         image: firstCard?.image ?? '/Soporte Tecnico v2.png',
-        title: landing?.title ?? 'Servicios HaiStore',
+        title: landing?.title ?? 'Servicios Haitech',
         description: landing?.subtitle ?? 'Soluciones profesionales para tu empresa.',
         href: landing ? serviceHubPath(landing.slug as ServiceLandingSlug) : '/servicios',
       };

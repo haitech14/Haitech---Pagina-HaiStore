@@ -28,7 +28,7 @@ export const HEADER_BUSINESS_HOURS = 'Lun - Vie: 9:00 a.m. - 6:00 p.m.';
 export const HEADER_ADVISOR_WHATSAPP_LINK = FOOTER_WHATSAPP_LINK;
 
 export const HEADER_QUOTE_WHATSAPP_MESSAGE =
-  'Hola, vengo desde HaiStore. Me gustaría cotizar un equipo o insumo.';
+  'Hola, vengo desde Haitech. Me gustaría cotizar un equipo o insumo.';
 export const HEADER_QUOTE_WHATSAPP_LINK = buildHaitechWhatsAppUrl(HEADER_QUOTE_WHATSAPP_MESSAGE);
 export const HEADER_QUOTE_WHATSAPP_LABEL = 'Cotizar por WhatsApp';
 
@@ -38,7 +38,7 @@ export const HEADER_CUSTOMER_SERVICE_LABEL = 'Atención al cliente';
 /** CTA header: ventas y alquiler por WhatsApp. */
 export const HEADER_BUY_RENT_WHATSAPP_LABEL = 'Ventas/Alquiler';
 export const HEADER_BUY_RENT_WHATSAPP_MESSAGE =
-  'Hola, vengo desde HaiStore. Quiero cotizar un equipo.';
+  'Hola, vengo desde Haitech. Quiero cotizar un equipo.';
 export const HEADER_BUY_RENT_WHATSAPP_LINK = buildHaitechWhatsAppUrl(
   HEADER_BUY_RENT_WHATSAPP_MESSAGE,
 );
@@ -46,7 +46,7 @@ export const HEADER_BUY_RENT_WHATSAPP_LINK = buildHaitechWhatsAppUrl(
 /** CTA header: soporte por WhatsApp. */
 export const HEADER_SERVICE_WHATSAPP_LABEL = 'Soporte';
 export const HEADER_SERVICE_WHATSAPP_MESSAGE =
-  'Hola, vengo desde HaiStore. Necesito soporte técnico.';
+  'Hola, vengo desde Haitech. Necesito soporte técnico.';
 export const HEADER_SERVICE_WHATSAPP_LINK = `${HEADER_SUPPORT_WHATSAPP_URL}?text=${encodeWhatsAppText(HEADER_SERVICE_WHATSAPP_MESSAGE)}`;
 
 export const HEADER_FORUM_LABEL = 'Foro';

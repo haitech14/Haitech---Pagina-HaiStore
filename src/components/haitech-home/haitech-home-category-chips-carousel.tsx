@@ -11,13 +11,13 @@ import { HAITECH_HOME } from '@/data/haitech-home-shell';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn } from '@/lib/utils';
 
-const COLUMN_GAP = 'gap-2.5 sm:gap-3 md:gap-3.5 lg:gap-4';
-/** Una fila: ~2 móvil · 3 sm · 4 md · 5 lg+. */
+const COLUMN_GAP = 'gap-3 sm:gap-4 md:gap-5 lg:gap-4';
+/** Una fila: 2 móvil · 4 md · 8 lg+ */
 const SLIDE =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.625rem)/2)] sm:flex-[0_0_calc((100%-1.5rem)/3)] md:flex-[0_0_calc((100%-2.625rem)/4)] lg:flex-[0_0_calc((100%-4rem)/5)]';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] sm:flex-[0_0_calc((100%-2.25rem)/4)] lg:flex-[0_0_calc((100%-7rem)/8)]';
 
-const arrowClass =
-  'absolute top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#EAEAEA] bg-white text-[#333] shadow-[0_2px_10px_rgba(15,31,61,0.10)] transition-all duration-200 hover:scale-105 hover:border-[#E30613]/30 hover:text-[#E30613] hover:shadow-[0_4px_14px_rgba(15,31,61,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35 disabled:pointer-events-none disabled:opacity-30 sm:size-9';
+const ARROW_CLASS =
+  'absolute top-[42%] z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#16325C] text-white shadow-[0_4px_14px_rgba(15,31,61,0.22)] transition hover:bg-[#0F2444] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16325C]/50 disabled:pointer-events-none disabled:opacity-35 sm:size-11';
 
 function CategoryChipCard({
   chip,
@@ -33,38 +33,35 @@ function CategoryChipCard({
   return (
     <Link
       to={chip.href}
-      className={cn(
-        'group/chip flex min-h-[132px] w-full flex-col items-center justify-center gap-1.5 rounded-xl bg-white px-1 py-2 transition-colors sm:min-h-[152px] sm:gap-2 sm:py-2.5 lg:min-h-[168px] xl:min-h-[180px]',
-        'hover:bg-[#FAFAFA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35 focus-visible:ring-offset-2',
-      )}
+      className="group/chip flex w-full flex-col items-center gap-2.5 px-1 py-1 outline-none focus-visible:rounded-2xl focus-visible:ring-2 focus-visible:ring-[#16325C]/35"
       aria-label={chip.label}
     >
-      <span className="flex size-[6.25rem] items-center justify-center overflow-hidden rounded-xl bg-[#F7F7F7] sm:size-[7.25rem] md:size-[7.75rem] lg:size-[8.5rem] xl:size-[9.25rem]">
+      <span className="flex aspect-square w-[min(92%,8.25rem)] items-center justify-center overflow-hidden rounded-full bg-[#F3F3F3] ring-1 ring-black/5 sm:w-[min(90%,8.75rem)]">
         {showImage ? (
           <img
             src={chip.image}
             alt=""
-            width={148}
-            height={148}
-            className="size-full object-contain transition-transform duration-300 group-hover/chip:scale-105"
+            width={176}
+            height={176}
+            className="size-full object-cover transition-transform duration-300 group-hover/chip:scale-105"
             loading="lazy"
             decoding="async"
             onError={() => onImgError(chip.id)}
           />
         ) : (
-          <span className="text-3xl font-bold text-[#B0B0B0] sm:text-4xl" aria-hidden="true">
+          <span className="text-3xl font-bold text-[#B0B0B0]" aria-hidden="true">
             {chip.label.charAt(0)}
           </span>
         )}
       </span>
-      <span className="line-clamp-2 px-0.5 text-center text-[11px] font-semibold leading-tight text-[#333333] sm:text-[12px] lg:text-[13px]">
+      <span className="line-clamp-2 min-h-[2.4em] px-0.5 text-center text-[13px] font-semibold leading-tight text-[#222222] sm:text-[14px]">
         {chip.label}
       </span>
     </Link>
   );
 }
 
-/** Carrusel de categorías — una fila con flechas. */
+/** Carrusel de categorías circulares — 8 por fila en desktop. */
 export function HaitechHomeCategoryChipsCarousel({ className }: { className?: string }) {
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -74,6 +71,7 @@ export function HaitechHomeCategoryChipsCarousel({ className }: { className?: st
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
+    slidesToScroll: 'auto',
     watchDrag: emblaShouldWatchDrag,
   });
 
@@ -105,9 +103,13 @@ export function HaitechHomeCategoryChipsCarousel({ className }: { className?: st
   const showControls = canScrollPrev || canScrollNext;
 
   return (
-    <div className={cn('relative w-full px-0 sm:px-8 lg:px-10', className)}>
+    <div className={cn('relative w-full px-10 sm:px-12', className)}>
       <div className="overflow-hidden" ref={emblaRef}>
-        <ul className={cn('flex touch-pan-y', COLUMN_GAP)} role="list" aria-label="Categorías de productos">
+        <ul
+          className={cn('flex touch-pan-y', COLUMN_GAP)}
+          role="list"
+          aria-label="Categorías de productos"
+        >
           {HAITECH_HOME_FEATURED_CATEGORY_CHIPS.map((chip) => (
             <li key={chip.id} className={SLIDE}>
               <CategoryChipCard chip={chip} imgErrors={imgErrors} onImgError={handleImgError} />
@@ -120,21 +122,21 @@ export function HaitechHomeCategoryChipsCarousel({ className }: { className?: st
         <>
           <button
             type="button"
-            className={cn(arrowClass, '-left-1 sm:-left-2 lg:-left-3')}
+            className={cn(ARROW_CLASS, 'left-0')}
             aria-label="Categorías anteriores"
             disabled={!canScrollPrev}
             onClick={scrollPrev}
           >
-            <ChevronLeft className="size-4 sm:size-5" aria-hidden="true" />
+            <ChevronLeft className="size-5" strokeWidth={1.75} aria-hidden="true" />
           </button>
           <button
             type="button"
-            className={cn(arrowClass, '-right-1 sm:-right-2 lg:-right-3')}
+            className={cn(ARROW_CLASS, 'right-0')}
             aria-label="Categorías siguientes"
             disabled={!canScrollNext}
             onClick={scrollNext}
           >
-            <ChevronRight className="size-4 sm:size-5" aria-hidden="true" />
+            <ChevronRight className="size-5" strokeWidth={1.75} aria-hidden="true" />
           </button>
         </>
       ) : null}
@@ -146,10 +148,16 @@ export function HaitechHomeCategoryChipsCarousel({ className }: { className?: st
 export function HaitechHomeCategoryChipsSection({ className }: { className?: string }) {
   return (
     <section
-      className={cn('w-full bg-white px-3 pb-1 pt-2 sm:px-4 sm:pb-2 sm:pt-3 lg:px-5', className)}
-      aria-label="Explorar categorías"
+      className={cn('w-full bg-white px-3 pb-6 pt-6 sm:px-4 sm:pb-8 sm:pt-8 lg:px-5', className)}
+      aria-labelledby="haitech-home-categories-title"
     >
       <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}>
+        <h2
+          id="haitech-home-categories-title"
+          className="mb-6 text-center text-[22px] font-bold leading-tight text-[#222222] sm:mb-8 sm:text-[26px] lg:text-[28px]"
+        >
+          Expertos en Equipamiento de Oficina
+        </h2>
         <HaitechHomeCategoryChipsCarousel />
       </div>
     </section>

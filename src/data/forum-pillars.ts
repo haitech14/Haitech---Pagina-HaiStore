@@ -25,7 +25,7 @@ export const FORUM_PILLARS: ForumPillar[] = [
   {
     id: 'tutorial',
     title: 'Tutoriales',
-    description: 'Guías paso a paso compartidas por la comunidad y el equipo HaiStore.',
+    description: 'Guías paso a paso compartidas por la comunidad y el equipo Haitech.',
     href: '/foro/tutoriales',
     cta: 'Explorar tutoriales',
     icon: Cpu,

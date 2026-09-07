@@ -37,13 +37,13 @@ export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
     eyebrow: 'Venta y alquiler · Perú',
     h1: 'Fotocopiadoras Perú',
     lead:
-      'HaiStore (HaiTech) concentra la oferta de fotocopiadoras y multifuncionales Ricoh para empresas en Lima y provincias: compra, alquiler, tóner y soporte técnico en un solo canal autorizado.',
+      'Haitech concentra la oferta de fotocopiadoras y multifuncionales Ricoh para empresas en Lima y provincias: compra, alquiler, tóner y soporte técnico en un solo canal autorizado.',
     paragraphs: [
       'Si buscas fotocopiadoras en Perú para oficina, estudio o producción ligera, el primer paso es dimensionar páginas mensuales, color o blanco y negro, formato A4/A3 y si prefieres invertir en compra o un plan de alquiler con mantenimiento. En nuestro catálogo encontrarás multifuncionales nuevas, seminuevas y remanufacturadas con ficha técnica, stock y precio en USD, pensadas para flujos reales de empresas peruanas.',
       'Como Distribuidor Autorizado Ricoh te orientamos en el modelo correcto (serie IM, MP u otras) y en el suministro de tóner original o compatible para no detener la operación. Coordinamos delivery e instalación en Lima Metropolitana y envíos a provincia según el equipo, con asesoría comercial por WhatsApp cuando necesitas una cotización rápida con tu ciudad y volumen estimado.',
       'Compara también impresoras láser, plotters de formato ancho y repuestos. Muchas empresas combinan la compra del multifuncional con un stock inicial de tóner y un plan de servicio técnico; otras prefieren alquiler para fijar un costo mensual. En ambos casos el objetivo es el mismo: imprimir sin interrupciones y con respaldo de canal autorizado.',
       'Antes de decidir, revisa nuestras guías (cómo elegir multifuncional, alquiler vs compra) y los hubs por modelo (IM 550F, IM 430F, IM C300F, etc.). Si ya tienes un parque Ricoh, te ayudamos a estandarizar consumibles y a planificar reposición. Cotiza desde la categoría de multifuncionales, la landing de Distribuidor Autorizado Ricoh o directamente por WhatsApp con el modelo y tu ubicación.',
-      'HaiStore opera desde Av. Petit Thouars 1935, Lince, Lima, con cobertura a nivel nacional. Trabajamos con empresas, estudios, colegios y talleres de servicio que buscan fotocopiadoras confiables, precios claros y postventa especializada. El catálogo se actualiza con stock real: verifica disponibilidad online o consulta si el equipo que necesitas está en tránsito o en proceso de acondicionamiento seminuevo.',
+      'Haitech opera desde Av. Petit Thouars 1935, Lince, Lima, con cobertura a nivel nacional. Trabajamos con empresas, estudios, colegios y talleres de servicio que buscan fotocopiadoras confiables, precios claros y postventa especializada. El catálogo se actualiza con stock real: verifica disponibilidad online o consulta si el equipo que necesitas está en tránsito o en proceso de acondicionamiento seminuevo.',
     ],
     ctas: [
       { label: 'Ver fotocopiadoras', to: categoryLandingPath('multifuncionales') },
@@ -60,7 +60,7 @@ export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
         id: 'donde-comprar',
         question: '¿Dónde comprar fotocopiadoras en Perú?',
         answer:
-          'En HaiStore puedes comprar fotocopiadoras y multifuncionales Ricoh online o por WhatsApp, con envío a Lima y provincias. Atendemos empresas desde Av. Petit Thouars 1935, Lince.',
+          'En Haitech puedes comprar fotocopiadoras y multifuncionales Ricoh online o por WhatsApp, con envío a Lima y provincias. Atendemos empresas desde Av. Petit Thouars 1935, Lince.',
       },
       {
         id: 'alquiler-o-compra',
@@ -93,10 +93,10 @@ export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
     lead:
       'Elige multifuncionales Ricoh con asesoría de Distribuidor Autorizado: modelos de oficina y alto volumen, nuevos o seminuevos, con tóner y servicio técnico especializados.',
     paragraphs: [
-      'Las fotocopiadoras Ricoh destacan por productividad, conectividad de red y ecosistema de tóner y repuestos. En HaiStore filtramos el catálogo por condición (nuevo/seminuevo), color, formato y velocidad para que compares sin perder tiempo y llegues a una cotización alineada a tu volumen real de páginas.',
+      'Las fotocopiadoras Ricoh destacan por productividad, conectividad de red y ecosistema de tóner y repuestos. En Haitech filtramos el catálogo por condición (nuevo/seminuevo), color, formato y velocidad para que compares sin perder tiempo y llegues a una cotización alineada a tu volumen real de páginas.',
       'A diferencia de un intermediario genérico, el canal autorizado te da respaldo de garantía, orientación de modelo (IM 430F, IM 550F, IM C320F, IM C300F, IM 460F y más) y postventa con técnicos que conocen la marca. Si también necesitas consumibles, enlazamos al hub de tóner Ricoh y a la categoría de repuestos para evitar códigos incorrectos.',
       '¿Prefieres no inmovilizar capital? Revisa alquiler de fotocopiadoras en Lima y planes mensuales con mantenimiento según contrato. ¿Quieres entender A4 vs A3, ppm o SPDF? Consulta nuestras guías antes de cotizar; ahí resumimos los criterios que usamos con clientes empresariales en Perú.',
-      'La tienda oficial Ricoh cubre el catálogo de fábrica; HaiStore complementa con stock local, seminuevos certificados, atención ágil por WhatsApp y soluciones de alquiler. Puedes empezar por la categoría de multifuncionales, por un hub de modelo concreto o por una conversación de asesoría indicando tu ciudad, páginas mensuales y si necesitas color.',
+      'La tienda oficial Ricoh cubre el catálogo de fábrica; Haitech complementa con stock local, seminuevos certificados, atención ágil por WhatsApp y soluciones de alquiler. Puedes empezar por la categoría de multifuncionales, por un hub de modelo concreto o por una conversación de asesoría indicando tu ciudad, páginas mensuales y si necesitas color.',
       'Para flotas mixtas (oficina + sucursales) ayudamos a estandarizar modelos y consumibles, reduciendo paradas y costos ocultos. Cotiza con Distribuidor Autorizado Ricoh en Perú y recibe una propuesta clara de equipo, tóner de arranque e instalación cuando aplique.',
     ],
     ctas: [
@@ -112,7 +112,7 @@ export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
     faq: [
       {
         id: 'autorizado',
-        question: '¿HaiStore es Distribuidor Autorizado Ricoh?',
+        question: '¿Haitech es Distribuidor Autorizado Ricoh?',
         answer:
           'Sí. Comercializamos equipos, tóner y repuestos Ricoh con respaldo de canal autorizado en Perú, garantía y soporte técnico especializado.',
       },
@@ -200,7 +200,7 @@ export const SEO_COMMERCIAL_LANDINGS: Record<string, SeoCommercialLanding> = {
     lead:
       'Reposición de tóner Ricoh para fotocopiadoras, multifuncionales e impresoras: originales certificados y compatibles de buen rendimiento, con envío a Lima y provincias.',
     paragraphs: [
-      'Elegir el tóner correcto evita paradas y fallas de calidad. En HaiStore te ayudamos con el código de cartucho según tu modelo (IM, MP, SP y más) y te ofrecemos línea original o compatible según tu política de costo por página, sin mezclar referencias que dañen el equipo o la garantía.',
+      'Elegir el tóner correcto evita paradas y fallas de calidad. En Haitech te ayudamos con el código de cartucho según tu modelo (IM, MP, SP y más) y te ofrecemos línea original o compatible según tu política de costo por página, sin mezclar referencias que dañen el equipo o la garantía.',
       'Como Distribuidor Autorizado Ricoh priorizamos compatibilidad y stock. Si gestionas varias sedes, cotizamos volumen y programas de reposición. Combina el pedido con tintas, unidades de imagen, fusores u otros repuestos para reducir envíos y tiempos muertos.',
       '¿Dudas entre original y compatible? Lee la guía dedicada: resume cuándo conviene cada opción en flotas de oficina. ¿Necesitas el equipo también? Enlaza a fotocopiadoras Ricoh, hubs por modelo o al catálogo de suministros para armar una cotización completa.',
       'Despachamos a Lima y provincias. Indica el modelo exacto (o foto de la etiqueta del cartucho) por WhatsApp y te confirmamos disponibilidad, plazos y alternativas. El objetivo es mantener tu parque Ricoh imprimiendo con insumos correctos y precios claros en USD.',

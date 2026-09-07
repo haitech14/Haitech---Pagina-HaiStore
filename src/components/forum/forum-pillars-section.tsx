@@ -11,7 +11,7 @@ export function ForumPillarsSection() {
     >
       <div className="mb-5">
         <h2 id="forum-pillars-title" className="text-balance text-lg font-bold sm:text-xl">
-          Soporte técnico HaiStore
+          Soporte técnico Haitech
         </h2>
         <p className="mt-1 text-sm text-[hsl(var(--forum-muted))]">
           Preguntas, guías y firmware en un solo lugar.

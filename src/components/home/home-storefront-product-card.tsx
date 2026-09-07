@@ -155,7 +155,7 @@ export function HomeStorefrontProductCard({
   const { addItem } = useCart();
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [chromeReady, setChromeReady] = useState(false);
-  const catalogProduct = useCatalogProductRow(product.id, { loadIfMissing: false });
+  const catalogProduct = useCatalogProductRow(product.id, { loadIfMissing: true });
   const displayPrice = useCatalogDisplayPrice({
     price: product.price,
     ...(product.prices ? { prices: product.prices } : {}),
@@ -192,10 +192,13 @@ export function HomeStorefrontProductCard({
   }, []);
 
   const code = product.code ?? catalogProduct?.code ?? null;
-  const stock = catalogProduct?.stock ?? product.stock ?? 0;
-  const stockCount = Math.max(0, Math.floor(Number(stock) || 0));
+  const stock = Math.max(
+    Math.floor(Number(catalogProduct?.stock) || 0),
+    Math.floor(Number(product.stock) || 0),
+  );
+  const stockCount = Math.max(0, stock);
   const outOfStock = stockCount <= 0;
-  const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
+  const buyNowLabel = outOfStock ? 'Reservar' : 'Agregar al carrito';
   const productSource = {
     id: product.id,
     name: product.name,

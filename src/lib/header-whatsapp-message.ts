@@ -9,8 +9,8 @@ function buildHeaderWhatsAppMessage(
 ): string {
   const intro =
     topic === 'ventas'
-      ? 'Contacto desde HaiStore — Ventas / Alquiler.'
-      : 'Contacto desde HaiStore — Soporte técnico.';
+      ? 'Contacto desde Haitech — Ventas / Alquiler.'
+      : 'Contacto desde Haitech — Soporte técnico.';
   const closing =
     topic === 'ventas'
       ? 'Me interesa cotizar equipos o alquiler. ¿Podrían asesorarme?'

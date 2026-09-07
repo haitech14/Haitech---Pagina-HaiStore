@@ -12,7 +12,7 @@ import { SITE_ORIGIN } from '@/lib/site-url';
 
 const PAGE_TITLE = 'Descargas | Haitech';
 const PAGE_DESCRIPTION =
-  'Descarga utilidades de soporte técnico para impresoras y fotocopiadoras Ricoh: acceso remoto, diagnóstico de red y herramientas recomendadas por HaiTech, Distribuidor Autorizado.';
+  'Descarga utilidades de soporte técnico para impresoras y fotocopiadoras Ricoh: acceso remoto, diagnóstico de red y herramientas recomendadas por Haitech, Distribuidor Autorizado.';
 
 export function DescargasPage() {
   useSeo({

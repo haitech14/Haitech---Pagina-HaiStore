@@ -50,7 +50,7 @@ export function RentalCategoryGrid({ activeSubSlug }: RentalCategoryGridProps) {
     <div>
       <p className="mb-6 max-w-2xl text-sm text-muted-foreground sm:text-base">
         Selecciona el tipo de equipo que necesitas alquilar. Todos los planes incluyen asesoría,
-        instalación y soporte HaiStore.
+        instalación y soporte Haitech.
       </p>
       <RentalCategoriesCarousel />
     </div>

@@ -55,7 +55,7 @@ export const HOME_LANDING_SERVICE_HIGHLIGHTS: HomeLandingServiceHighlight[] = [
 ];
 
 export const HOME_LANDING_SERVICE_WHATSAPP_MESSAGE =
-  'Hola, vengo desde HaiStore. Necesito solicitar un diagnóstico técnico para mi equipo de impresión.';
+  'Hola, vengo desde Haitech. Necesito solicitar un diagnóstico técnico para mi equipo de impresión.';
 
 export const HOME_LANDING_RENTAL_EYEBROW = 'Alquiler de fotocopiadoras';
 

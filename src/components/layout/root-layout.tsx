@@ -3,7 +3,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 
 import { HaitechStorefrontHeader } from '@/components/haitech-home/haitech-storefront-header';
 import { HaitechMobileMenuSheet } from '@/components/haitech-home/haitech-mobile-menu-sheet';
-import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { SitePrefooter } from '@/components/layout/site-prefooter';
@@ -12,8 +11,6 @@ import { CartProvider } from '@/context/cart-context';
 import { useProductCompare } from '@/context/product-compare-context';
 import { MobileBottomInsetProvider } from '@/context/mobile-bottom-inset-context';
 import { HaitechWhatsAppQuoteProvider } from '@/hooks/use-haitech-whatsapp-quote';
-import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
-import { cn } from '@/lib/utils';
 
 const WhatsAppFloatingButton = lazy(() =>
   import('@/components/layout/whatsapp-floating-button').then((m) => ({
@@ -136,7 +133,6 @@ function DeferredProductCompareTray() {
 export function RootLayout() {
   const { pathname } = useLocation();
   const widgetsReady = useDeferredWidgetMount();
-  const showMobileBottomNav = shouldShowMobileBottomNav(pathname);
   const isHomeShell = pathname === '/';
 
   return (
@@ -150,23 +146,13 @@ export function RootLayout() {
       </a>
       <HaitechStorefrontHeader />
       <HaitechMobileMenuSheet />
-      <main
-        id="contenido"
-        className={cn(
-          'flex-1',
-          showMobileBottomNav &&
-            'pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0',
-        )}
-      >
+      <main id="contenido" className="flex-1">
         <Outlet />
       </main>
-      {isHomeShell ? (
-        <MobileBottomNav />
-      ) : (
+      {isHomeShell ? null : (
         <>
           <SitePrefooter />
           <SiteFooter />
-          <MobileBottomNav />
           {widgetsReady ? (
             <Suspense fallback={null}>
               <WhatsAppFloatingButton />

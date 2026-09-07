@@ -50,7 +50,7 @@ export function ForumFirmwarePage() {
         <div>
           <h1 className="text-2xl font-bold">Firmware</h1>
           <p className="mt-2 text-sm text-[hsl(var(--forum-muted))]">
-            Descargas del catálogo HaiStore y notas de versión de la comunidad.
+            Descargas del catálogo Haitech y notas de versión de la comunidad.
           </p>
         </div>
         <Button

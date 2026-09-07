@@ -23,6 +23,7 @@ type DeferredCategoriesMegaMenuProps = {
   /** Precarga el mega menú (p. ej. nav HAITECH donde el clic debe abrir al primer intento). */
   eager?: boolean;
   triggerHref?: string;
+  showChevron?: boolean;
 };
 
 function MegaMenuTriggerShell({
@@ -30,11 +31,13 @@ function MegaMenuTriggerShell({
   triggerVariant = 'button',
   navRow,
   className,
+  showChevron = true,
 }: {
   label?: string;
   triggerVariant?: DeferredCategoriesMegaMenuProps['triggerVariant'];
   navRow?: DeferredCategoriesMegaMenuProps['navRow'];
   className?: string;
+  showChevron?: boolean;
 }) {
   if (triggerVariant === 'brand-red') {
     return (
@@ -42,7 +45,7 @@ function MegaMenuTriggerShell({
         type="button"
         aria-label={label}
         className={cn(
-          'inline-flex h-full min-h-[42px] items-center gap-2 bg-[#E30613] px-4 text-[13px] font-semibold text-white',
+          'inline-flex h-9 items-center gap-1.5 rounded-md bg-[#E30613] px-3 text-[13px] font-semibold text-white',
           'transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-offset-2',
           className,
         )}
@@ -77,7 +80,9 @@ function MegaMenuTriggerShell({
       return (
         <button type="button" aria-label={label} className={cn(triggerClass, className)}>
           {label}
-          <ChevronDown className="size-3.5 shrink-0 opacity-80" aria-hidden="true" />
+          {showChevron ? (
+            <ChevronDown className="size-3.5 shrink-0 opacity-80" aria-hidden="true" />
+          ) : null}
         </button>
       );
     }
@@ -128,6 +133,7 @@ export function DeferredCategoriesMegaMenu({
     ...(props.label ? { label: props.label } : {}),
     ...(props.triggerVariant ? { triggerVariant: props.triggerVariant } : {}),
     ...(props.navRow ? { navRow: props.navRow } : {}),
+    ...(props.showChevron === false ? { showChevron: false } : {}),
   };
 
   if (!ready) {
@@ -135,9 +141,7 @@ export function DeferredCategoriesMegaMenu({
       <span
         className={cn(
           'inline-flex items-stretch',
-          (props.triggerVariant === 'categories-button' ||
-            props.triggerVariant === 'brand-red') &&
-            'flex self-stretch',
+          props.triggerVariant === 'categories-button' && 'flex self-stretch',
         )}
         onFocusCapture={warm}
         onPointerEnter={warm}

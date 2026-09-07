@@ -68,12 +68,12 @@ export function PorQueComprarConNosotrosPage() {
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <article className="container max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-        <p className="text-sm font-medium text-red-600">HaiStore · Confianza</p>
+        <p className="text-sm font-medium text-red-600">Haitech · Confianza</p>
         <h1 className="mt-2 text-balance text-3xl font-bold tracking-tight text-[#0f1f3d] sm:text-4xl">
           Por qué comprar
         </h1>
         <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground">
-          En HaiStore (HaiTech) somos <strong>Distribuidor Autorizado Ricoh</strong>: ayudamos a
+          En Haitech somos <strong>Distribuidor Autorizado Ricoh</strong>: ayudamos a
           empresas a comprar y alquilar <strong>fotocopiadoras</strong> e{' '}
           <strong>impresoras</strong> con stock real, precios claros y soporte postventa. No solo
           vendemos equipos; acompañamos <strong>tóner</strong>, <strong>repuestos</strong> y servicio

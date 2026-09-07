@@ -1,6 +1,7 @@
 import { FEATURED_PRODUCT_IDS } from '@/data/featured-products';
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { CatalogRow } from '@/lib/catalog-featured';
+import { productHasOfferAttribute } from '@/lib/product-detail-badges';
 import { usdToPen } from '@/lib/utils';
 import type { ProductAttribute } from '@/types/product';
 
@@ -13,11 +14,12 @@ const BEST_SELLER_MIN_REVIEWS = 20;
 /** Visitas mínimas en catálogo para «más vendido» cuando hay datos reales. */
 const BEST_SELLER_MIN_VIEW_COUNT = 5;
 
-export type HomeLandingPromoBadgeId = 'free-shipping' | 'best-seller';
+export type HomeLandingPromoBadgeId = 'free-shipping' | 'best-seller' | 'offer';
 
 export const HOME_LANDING_PROMO_BADGE_LABELS: Record<HomeLandingPromoBadgeId, string> = {
   'free-shipping': 'ENVÍO GRATIS',
   'best-seller': 'MÁS VENDIDO',
+  offer: 'OFERTA',
 };
 
 function normalizeAttributeHaystack(attributes: ProductAttribute[] | undefined): string {
@@ -78,6 +80,10 @@ export function resolveHomeLandingProductBadges(input: {
   catalogProduct?: CatalogRow | null;
 }): HomeLandingPromoBadgeId[] {
   const badges: HomeLandingPromoBadgeId[] = [];
+
+  if (productHasOfferAttribute(input.catalogProduct ?? input.product)) {
+    badges.push('offer');
+  }
 
   if (productQualifiesForFreeShipping(input.priceUsd, input.catalogProduct)) {
     badges.push('free-shipping');

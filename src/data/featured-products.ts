@@ -1,4 +1,5 @@
 import { catalogRowToFeatured, getCatalogProductById, getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
+import { resolveCatalogRowForProduct, resolveCatalogStock } from '@/lib/catalog-row-lookup';
 import type { Product, ProductAttribute, PriceRole, ProductRolePrices } from '@/types/product';
 
 export interface FeaturedProduct {
@@ -110,21 +111,22 @@ export function getFeaturedDisplayMeta(
 }
 
 export function featuredToProduct(featured: FeaturedProduct): Product {
-  const catalogRow = getCatalogProductById(featured.id);
-  const prices = featured.prices ?? catalogRow?.prices;
+  const catalogRow = resolveCatalogRowForProduct(featured);
+  const prices = catalogRow?.prices ?? featured.prices;
   const attributes = featured.attributes ?? catalogRow?.attributes;
+  const publicPrice = Number(catalogRow?.prices?.public ?? featured.price);
 
   return {
-    id: featured.id,
+    id: catalogRow?.id ?? featured.id,
     code: featured.code ?? catalogRow?.code ?? null,
     name: featured.name,
     description: catalogRow?.description ?? null,
-    price: featured.price,
+    price: Number.isFinite(publicPrice) ? publicPrice : featured.price,
     ...(prices ? { prices } : {}),
     currency: catalogRow?.currency ?? 'USD',
     image_url: featured.image ?? catalogRow?.image_url ?? null,
     gallery: catalogRow?.gallery ?? [],
-    stock: catalogRow?.stock ?? 0,
+    stock: resolveCatalogStock(catalogRow, featured.stock),
     category: featured.category ?? catalogRow?.category ?? null,
     brand: featured.brand ?? catalogRow?.brand ?? null,
     created_at: catalogRow?.created_at ?? new Date().toISOString(),

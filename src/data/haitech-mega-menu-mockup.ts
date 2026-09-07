@@ -719,7 +719,7 @@ export function buildServiciosMockupMegaMenu(): HaitechMockupMegaMenuData {
       headline: 'Servicios para',
       headlineAccent: 'tu operación',
       image: '/categories/alquiler-512.webp',
-      imageAlt: 'Alquiler, leasing y outsourcing HaiStore',
+      imageAlt: 'Alquiler, leasing y outsourcing Haitech',
       bullets: ['Alquiler flexible', 'Leasing con opción de compra', 'Outsourcing especializado'],
       ctaLabel: 'Ver servicios',
       ctaHref: serviceHubPath('alquiler'),

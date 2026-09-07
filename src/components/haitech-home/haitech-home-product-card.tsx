@@ -11,8 +11,8 @@ import {
 import { Link } from 'react-router-dom';
 
 import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
+import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
-import { ProductRating } from '@/components/product/product-rating';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Badge } from '@/components/ui/badge';
@@ -109,6 +109,21 @@ function formatHaitechProductDisplayTitle(product: HaitechShopProduct): string {
   return baseName;
 }
 
+function resolveFeaturedTypeLabel(product: HaitechShopProduct): string | undefined {
+  if (product.productTypeLabel) return product.productTypeLabel;
+  if (product.condition === 'nuevo') return 'Impresora Nueva';
+  if (product.condition === 'seminuevo') return 'Impresora Seminueva';
+  return undefined;
+}
+
+function resolveFeaturedTitle(product: HaitechShopProduct, fallback: string): string {
+  if (product.featuredTitle) return product.featuredTitle;
+  const scanner = product.equipment?.scannerType;
+  if (!scanner) return fallback;
+  const brand = product.brand ? `${product.brand} ` : '';
+  return `${brand}${fallback} (${scanner})`.replace(/\s+/g, ' ').trim();
+}
+
 function haitechShopProductToWishlistItem(
   product: HaitechShopProduct,
   displayTitle: string,
@@ -138,7 +153,7 @@ export function HaitechHomeProductCard({
 }: {
   product: HaitechShopProduct;
   className?: string;
-  /** Destacados del home: subtítulo, valoración y título completo. */
+  /** Destacados del home: layout centrado del mockup (sin extras de hover). */
   variant?: 'default' | 'featured';
 }) {
   const { addItem } = useCart();
@@ -153,7 +168,7 @@ export function HaitechHomeProductCard({
     ? rawPriceUsd
     : roundEquipmentDisplayUsd(rawPriceUsd);
   const displayTitle = formatHaitechProductDisplayTitle(product);
-  const featuredTitle = product.featuredTitle ?? displayTitle;
+  const featuredTitle = resolveFeaturedTitle(product, displayTitle);
   const isFeaturedVariant = variant === 'featured';
   const features = product.features?.length
     ? HAITECH_SHOP_EQUIPMENT_FEATURES.filter((f) => product.features?.includes(f.id))
@@ -161,30 +176,58 @@ export function HaitechHomeProductCard({
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const hasStock = product.stock != null;
   const outOfStock = hasStock && stockCount <= 0;
-  const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
+  const buyNowLabel = outOfStock
+    ? 'Reservar'
+    : isFeaturedVariant
+      ? 'Agregar al carrito'
+      : 'Comprar';
+  const buyNowLabelHover =
+    isFeaturedVariant && !outOfStock ? 'Comprar' : null;
   const cartProduct = toCartProduct(product, saleRate);
+  const cardInfo = (
+    <CardInfo
+      product={product}
+      priceUsd={priceUsd}
+      displayTitle={isFeaturedVariant ? featuredTitle : displayTitle}
+      variant={variant}
+      {...(saleRate != null ? { saleRate } : {})}
+    />
+  );
+  const featuredHeader = isFeaturedVariant ? (
+    <div className="mb-1 flex items-center justify-between gap-2">
+      <CardBrand brand={product.brand ?? 'RICOH'} />
+      <ConditionPillBadge condition={product.condition} isOffer={product.isOffer === true} />
+    </div>
+  ) : null;
   const mediaBlock = (
     <div className="relative">
-      <CardMedia product={product} imgError={imgError} onImgError={() => setImgError(true)} />
-      <CardImageOverlayActions
+      <CardMedia
         product={product}
-        displayTitle={displayTitle}
-        priceUsd={priceUsd}
-        isWishlisted={isWishlisted(product.id)}
-        onWishlist={() =>
-          toggleWishlist(haitechShopProductToWishlistItem(product, displayTitle, saleRate))
-        }
-        onBuy={() => addItem(toCartProduct(product, saleRate), { openDrawer: true })}
+        imgError={imgError}
+        onImgError={() => setImgError(true)}
+        featured={isFeaturedVariant}
       />
+      {isFeaturedVariant ? null : (
+        <CardImageOverlayActions
+          product={product}
+          displayTitle={displayTitle}
+          priceUsd={priceUsd}
+          isWishlisted={isWishlisted(product.id)}
+          onWishlist={() =>
+            toggleWishlist(haitechShopProductToWishlistItem(product, displayTitle, saleRate))
+          }
+          onBuy={() => addItem(toCartProduct(product, saleRate), { openDrawer: true })}
+        />
+      )}
     </div>
   );
 
   return (
     <article
       className={cn(
-        'group group/card relative flex w-full flex-col overflow-hidden rounded-xl border bg-white p-2.5',
+        'group group/card relative flex w-full flex-col overflow-hidden rounded-xl border bg-white',
         'shadow-[0_4px_18px_rgba(15,31,61,0.07)] transition-shadow duration-300 hover:shadow-[0_8px_24px_rgba(15,31,61,0.1)]',
-        'sm:p-4',
+        isFeaturedVariant ? 'p-3.5 sm:p-5' : 'p-2.5 sm:p-4',
         className,
       )}
       style={{ borderColor: HAITECH_SHOP.cardBorder }}
@@ -194,38 +237,31 @@ export function HaitechHomeProductCard({
           to={product.href}
           className="flex flex-col outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/30"
         >
+          {featuredHeader}
           {mediaBlock}
-          <CardInfo
-            product={product}
-            priceUsd={priceUsd}
-            displayTitle={isFeaturedVariant ? featuredTitle : displayTitle}
-            variant={variant}
-            {...(saleRate != null ? { saleRate } : {})}
-          />
+          {cardInfo}
         </Link>
       ) : (
         <div className="flex flex-col">
+          {featuredHeader}
           {mediaBlock}
-          <CardInfo
-            product={product}
-            priceUsd={priceUsd}
-            displayTitle={isFeaturedVariant ? featuredTitle : displayTitle}
-            variant={variant}
-            {...(saleRate != null ? { saleRate } : {})}
-          />
+          {cardInfo}
         </div>
       )}
 
-      <div className="mt-2 flex justify-center sm:mt-3">
+      <div className={cn(isFeaturedVariant ? 'mt-4 flex justify-center' : 'mt-2 flex justify-center sm:mt-3')}>
         <ProductQuantityAddFooter
           product={cartProduct}
           size="sm"
           addLabel={buyNowLabel}
+          {...(buyNowLabelHover ? { addLabelHover: buyNowLabelHover } : {})}
           revealQuantityOnHover
           onQuantityChange={setQuantity}
           quantityClassName="h-9 rounded-lg sm:h-10"
           addButtonClassName={cn(
-            'h-9 min-h-9 max-h-9 flex-none rounded-lg px-4 text-[10px] font-bold shadow-none sm:h-10 sm:min-h-10 sm:max-h-10 sm:px-5 sm:text-[13px]',
+            isFeaturedVariant
+              ? 'h-10 min-h-10 max-h-10 flex-none justify-center rounded-lg px-3 text-[0.6875rem] font-semibold shadow-none sm:h-11 sm:min-h-11 sm:max-h-11 sm:px-4 md:text-sm'
+              : 'h-9 min-h-9 max-h-9 flex-none rounded-lg px-4 text-[0.6875rem] font-semibold shadow-none sm:h-10 sm:min-h-10 sm:max-h-10 sm:px-5 md:text-sm',
             outOfStock
               ? 'bg-[#111111] hover:bg-[#222222]'
               : 'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
@@ -248,13 +284,16 @@ export function HaitechHomeProductCard({
                 brand: cartProduct.brand ?? null,
                 ...(product.code ? { code: product.code } : {}),
               }}
-              className="w-full rounded-lg"
+              className={cn(
+                'min-w-0 w-full overflow-hidden rounded-lg text-xs font-semibold normal-case tracking-normal sm:text-sm',
+                isFeaturedVariant && 'h-10 min-h-10 sm:h-11 sm:min-h-11',
+              )}
             />
           }
         />
       </div>
 
-      <CardProductSpecs product={product} features={features} />
+      {isFeaturedVariant ? null : <CardProductSpecs product={product} features={features} />}
     </article>
   );
 }
@@ -363,11 +402,21 @@ function CardBrand({ brand }: { brand?: string }) {
   if (!brand) return null;
 
   return (
-    <span
-      className="min-w-0 truncate font-[family-name:var(--font-infobox)] text-[12px] font-black uppercase leading-none tracking-[0.02em] text-[#E30613] sm:text-[13px]"
-      style={{ WebkitTextStroke: '0.35px currentColor' }}
-    >
+    <p className="min-w-0 truncate text-[0.6875rem] font-bold uppercase tracking-wide text-[#E30613] sm:text-xs">
       {brand}
+    </p>
+  );
+}
+
+function OfferPillBadge() {
+  return (
+    <span
+      className={cn(
+        'inline-flex h-[18px] w-fit shrink-0 items-center justify-center rounded-full px-2.5',
+        'bg-[#E30613] text-[9px] font-bold uppercase leading-none tracking-[0.08em] text-white',
+      )}
+    >
+      Oferta
     </span>
   );
 }
@@ -375,23 +424,31 @@ function CardBrand({ brand }: { brand?: string }) {
 /** Badge NUEVO / SEMINUEVO — píldora negra del mockup. */
 function ConditionPillBadge({
   condition,
+  isOffer,
 }: {
   condition?: HaitechShopProduct['condition'];
+  isOffer?: boolean;
 }) {
-  if (condition !== 'nuevo' && condition !== 'seminuevo') return null;
+  const showCondition = condition === 'nuevo' || condition === 'seminuevo';
+  if (!showCondition && !isOffer) return null;
   const isNuevo = condition === 'nuevo';
 
   return (
-    <span
-      className={cn(
-        'inline-flex h-[18px] w-fit shrink-0 items-center justify-center rounded-full px-2.5',
-        'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
-        isNuevo
-          ? 'bg-[#111111] text-white'
-          : 'border border-[#555] bg-white text-[#555]',
-      )}
-    >
-      {isNuevo ? 'NUEVO' : 'SEMINUEVO'}
+    <span className="inline-flex shrink-0 items-center gap-1">
+      {isOffer ? <OfferPillBadge /> : null}
+      {showCondition ? (
+        <span
+          className={cn(
+            'inline-flex h-[18px] w-fit shrink-0 items-center justify-center rounded-full px-2.5',
+            'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
+            isNuevo
+              ? 'bg-[#111111] text-white'
+              : 'border border-[#555] bg-white text-[#555]',
+          )}
+        >
+          {isNuevo ? 'NUEVO' : 'SEMINUEVO'}
+        </span>
+      ) : null}
     </span>
   );
 }
@@ -424,13 +481,20 @@ function CardMedia({
   product,
   imgError,
   onImgError,
+  featured = false,
 }: {
   product: HaitechShopProduct;
   imgError: boolean;
   onImgError: () => void;
+  featured?: boolean;
 }) {
   return (
-    <div className="relative flex h-[120px] w-full shrink-0 items-center justify-center overflow-hidden sm:h-[184px]">
+    <div
+      className={cn(
+        'relative flex w-full shrink-0 items-center justify-center overflow-hidden',
+        featured ? 'h-[140px] sm:h-[196px]' : 'h-[120px] sm:h-[184px]',
+      )}
+    >
       {!imgError ? (
         <img
           src={product.image}
@@ -458,14 +522,17 @@ function CardPriceBlock({
   product,
   priceUsd,
   saleRate,
+  variant = 'default',
 }: {
   product: HaitechShopProduct;
   priceUsd: number;
   saleRate?: number;
+  variant?: 'default' | 'featured';
 }) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const isConsumableProduct = Boolean(product.toner);
+  const isFeaturedVariant = variant === 'featured';
   const penFirst = dualPriceOrder === 'pen-usd';
   const compareUsd =
     product.compareAt != null
@@ -483,49 +550,55 @@ function CardPriceBlock({
           ? formatHaitechUsd(compareUsd)
           : formatHaitechPen(product.compareAt);
 
-  const penPrimary = (
-    <p
-      className={cn(
-        'font-price text-[17px] font-semibold leading-none tracking-tight tabular-nums text-[#111] sm:text-[18px]',
-        (product.compareAt != null || product.discountLabel) && 'mt-1.5',
-      )}
-    >
-      {formatHaitechPen(product.price)}
-    </p>
+  const primaryClass = cn(
+    'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]',
+    (product.compareAt != null || product.discountLabel) && (isFeaturedVariant ? 'mt-1' : 'mt-1.5'),
   );
+  const usdPrimaryClass = cn(
+    'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]',
+    (product.compareAt != null || product.discountLabel) && (isFeaturedVariant ? 'mt-1' : 'mt-1.5'),
+  );
+
+  const penPrimary = <p className={primaryClass}>{formatHaitechPen(product.price)}</p>;
   const usdPrimary = (
-    <p
-      className={cn(
-        'font-price text-[17px] font-semibold leading-none tracking-tight tabular-nums text-[#E30613] sm:text-[18px]',
-        (product.compareAt != null || product.discountLabel) && 'mt-1.5',
-      )}
-    >
-      {formatHaitechUsd(priceUsd)}
-    </p>
+    <p className={usdPrimaryClass}>{formatHaitechUsd(priceUsd)}</p>
   );
   const penSecondary = (
-    <p className="mt-1 font-price text-[12px] font-semibold tabular-nums text-[#6B7280]">
+    <p
+      className={cn(
+        'mt-1 text-xs font-medium tabular-nums text-[#6B7280] sm:text-sm',
+      )}
+    >
       {formatHaitechPen(product.price)}
     </p>
   );
   const usdSecondary = (
-    <p className="mt-1 font-price text-[12px] font-semibold tabular-nums text-[#6B7280]">
+    <p
+      className={cn(
+        'mt-1 text-xs font-medium tabular-nums text-[#6B7280] sm:text-sm',
+      )}
+    >
       {formatHaitechUsd(priceUsd)}
     </p>
   );
 
   return (
-    <>
+    <div className={cn(isFeaturedVariant && 'flex flex-col items-center')}>
       {product.compareAt != null || product.discountLabel ? (
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div
+          className={cn(
+            'flex flex-wrap items-center gap-1.5',
+            isFeaturedVariant && 'justify-center',
+          )}
+        >
           {compareLabel ? (
-            <span className="font-price text-[10px] tabular-nums tracking-wide text-[#A0A0A0] line-through sm:text-[11px]">
+            <span className="text-[0.75rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] sm:text-[0.8125rem]">
               {compareLabel}
             </span>
           ) : null}
           {product.discountLabel ? (
             <span
-              className="inline-flex rounded-full px-1.5 py-0.5 text-[8px] font-semibold tracking-wide text-white sm:text-[9px]"
+              className="inline-flex rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white"
               style={{ backgroundColor: HAITECH_SHOP.brand }}
             >
               {product.discountLabel}
@@ -552,7 +625,7 @@ function CardPriceBlock({
         </>
       )}
       {displayCurrency === 'BOTH' && priceUsd <= 0 && penPrimary}
-    </>
+    </div>
   );
 }
 
@@ -570,48 +643,41 @@ function CardInfo({
   variant?: 'default' | 'featured';
 }) {
   const isFeaturedVariant = variant === 'featured';
+  const featuredTypeLabel = isFeaturedVariant ? resolveFeaturedTypeLabel(product) : undefined;
   const codeLabel = product.code?.trim() || null;
   const hasStock = product.stock != null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const outOfStock = hasStock && stockCount <= 0;
-  const rating = product.rating ?? 5;
-  const reviewCount = product.reviewCount ?? 0;
 
   return (
-    <div className="mt-2 flex flex-col">
-      <div className="mb-1.5 flex min-w-0 items-center justify-between gap-2">
-        <CardBrand brand={product.brand ?? 'RICOH'} />
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
-          <ConditionPillBadge condition={product.condition} />
-          <CardProductBadges product={product} />
+    <div className={cn('mt-2 flex flex-col', isFeaturedVariant && 'items-center text-center')}>
+      {isFeaturedVariant ? null : (
+        <div className="mb-1.5 flex min-w-0 items-center justify-between gap-2">
+          <CardBrand brand={product.brand ?? 'RICOH'} />
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+            <ConditionPillBadge condition={product.condition} isOffer={product.isOffer === true} />
+            <CardProductBadges product={product} />
+          </div>
         </div>
-      </div>
+      )}
 
-      {isFeaturedVariant && product.productTypeLabel ? (
-        <p className="text-[11px] font-medium leading-snug text-[#444444] sm:text-[12px]">
-          {product.productTypeLabel}
+      {featuredTypeLabel ? (
+        <p className="text-pretty break-words text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm">
+          {featuredTypeLabel}
         </p>
       ) : null}
 
       <h3
         className={cn(
-          'text-pretty break-words leading-snug text-[#111]',
-          isFeaturedVariant
-            ? 'text-[13px] font-bold sm:text-[14px]'
-            : 'text-[13px] font-bold sm:text-[14px]',
+          'text-pretty break-words text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm',
+          featuredTypeLabel ? 'mt-0.5' : null,
         )}
         title={displayTitle}
       >
-        {displayTitle}
+        <ProductCardSplitBrandTitle title={displayTitle} brand={product.brand ?? 'RICOH'} />
       </h3>
 
-      {isFeaturedVariant && reviewCount > 0 ? (
-        <div className="mt-1.5">
-          <ProductRating rating={rating} reviews={reviewCount} className="[&_span]:text-[11px] [&_span]:text-[#9CA3AF]" />
-        </div>
-      ) : null}
-
-      {codeLabel || hasStock ? (
+      {isFeaturedVariant ? null : codeLabel || hasStock ? (
         <div
           className={cn(
             'grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,margin,opacity] duration-200 ease-out',
@@ -653,10 +719,11 @@ function CardInfo({
         </div>
       ) : null}
 
-      <div className={cn(isFeaturedVariant ? 'mt-3' : 'mt-4')}>
+      <div className={cn(isFeaturedVariant ? 'mt-3 w-full' : 'mt-4')}>
         <CardPriceBlock
           product={product}
           priceUsd={priceUsd}
+          variant={variant}
           {...(saleRate != null ? { saleRate } : {})}
         />
       </div>

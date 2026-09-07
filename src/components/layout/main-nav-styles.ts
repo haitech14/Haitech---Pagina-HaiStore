@@ -97,9 +97,11 @@ export function haitechWhiteNavLinkClass(isActive: boolean) {
 /** Triggers con mega menú en la barra blanca HAITECH. */
 export function haitechWhiteSubmenuTriggerClass(isRouteActive: boolean, isOpen: boolean) {
   return cn(
-    'inline-flex h-[38px] shrink-0 items-center gap-1 whitespace-nowrap px-3 text-[13px] font-semibold text-[#111111] transition-colors',
+    'relative inline-flex h-full shrink-0 items-center gap-0.5 whitespace-nowrap px-2.5 text-[14px] font-medium text-[#111] transition-colors',
     'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/30',
-    (isRouteActive || isOpen) && 'text-[#E30613]',
+    'after:absolute after:inset-x-2.5 after:bottom-0 after:h-0.5 after:bg-[#E30613] after:opacity-0 after:transition-opacity',
+    'hover:after:opacity-100',
+    (isRouteActive || isOpen) && 'text-[#E30613] after:opacity-100',
   );
 }
 
@@ -143,7 +145,7 @@ export const MEGA_MENU_MIN_WIDTH = 420;
 export const MEGA_MENU_MAX_HEIGHT = 'min(56rem, calc(100dvh - 3.25rem))';
 
 export const MEGA_MENU_DROPDOWN_CLASS = cn(
-  'z-50 w-max overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-black/[0.06] bg-white p-0',
+  'z-[55] w-max overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-black/[0.06] bg-white p-0',
   'shadow-[0_20px_50px_-12px_rgba(15,23,42,0.22),0_8px_16px_-8px_rgba(15,23,42,0.12)]',
   '[scrollbar-width:thin] [scrollbar-color:#D1D5DB_transparent]',
   SUBMENU_PANEL_ANIMATION_CLASS,
@@ -157,6 +159,8 @@ export type MegaMenuDropdownLayout = {
   /** Tope del panel (viewport / container). El ancho real lo define el contenido. */
   maxWidth: number;
   marginLeft: number;
+  /** Desplaza el panel para centrarlo en el viewport (align="start"). */
+  alignOffset: number;
   /** @deprecated Preferir maxWidth + w-max; se conserva para callers legacy. */
   width?: number;
 };
@@ -164,20 +168,37 @@ export type MegaMenuDropdownLayout = {
 /** Tope de ancho y alineación; el panel crece con el contenido hasta maxWidth. */
 export function computeMegaMenuDropdownLayout(
   trigger: HTMLElement,
-  options?: { minWidth?: number; maxWidth?: number },
+  options?: { minWidth?: number; maxWidth?: number; measuredWidth?: number; center?: boolean },
 ): MegaMenuDropdownLayout {
-  const container = trigger.closest('.container');
-  const containerRect = container?.getBoundingClientRect();
-  const triggerRect = trigger.getBoundingClientRect();
-  const left = Math.max(12, containerRect?.left ?? triggerRect.left);
-  const rightMargin = containerRect
-    ? Math.max(12, window.innerWidth - containerRect.right)
-    : 12;
-  const available = Math.max(MEGA_MENU_MIN_WIDTH, window.innerWidth - left - rightMargin);
+  const gutter = 12;
+  const viewportCap = Math.max(MEGA_MENU_MIN_WIDTH, window.innerWidth - gutter * 2);
   const maxWidth =
-    options?.maxWidth !== undefined ? Math.min(available, options.maxWidth) : available;
+    options?.maxWidth !== undefined ? Math.min(viewportCap, options.maxWidth) : viewportCap;
 
-  return { maxWidth, marginLeft: 0 };
+  if (!options?.center) {
+    const container = trigger.closest('.container');
+    const containerRect = container?.getBoundingClientRect();
+    const triggerRect = trigger.getBoundingClientRect();
+    const left = Math.max(gutter, containerRect?.left ?? triggerRect.left);
+    const rightMargin = containerRect
+      ? Math.max(gutter, window.innerWidth - containerRect.right)
+      : gutter;
+    const available = Math.max(MEGA_MENU_MIN_WIDTH, window.innerWidth - left - rightMargin);
+    return {
+      maxWidth: options?.maxWidth !== undefined ? Math.min(available, options.maxWidth) : available,
+      marginLeft: 0,
+      alignOffset: 0,
+    };
+  }
+
+  const panelWidth = Math.min(
+    options.measuredWidth && options.measuredWidth > 0 ? options.measuredWidth : maxWidth,
+    maxWidth,
+  );
+  const desiredLeft = (window.innerWidth - panelWidth) / 2;
+  const alignOffset = Math.round(desiredLeft - trigger.getBoundingClientRect().left);
+
+  return { maxWidth, marginLeft: 0, alignOffset };
 }
 
 export function megaMenuDropdownStyle(

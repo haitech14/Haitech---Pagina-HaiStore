@@ -11,13 +11,14 @@ import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import {
   isPrinterProduct,
   isSupplyBadgeProduct,
+  productHasOfferAttribute,
   type ProductBadgeSource,
 } from '@/lib/product-detail-badges';
 import { resolveTonerColorLabel } from '@/lib/product-configure-toner';
 import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
 import type { Product } from '@/types/product';
 
-export type ProductCardPillVariant = 'primary' | 'secondary' | 'promo';
+export type ProductCardPillVariant = 'primary' | 'secondary' | 'promo' | 'offer';
 
 export interface ProductCardPillBadge {
   id: string;
@@ -101,6 +102,10 @@ export function buildProductCardPillBadges(
   product: ProductBadgeSource & { name: string; category?: string | null },
 ): ProductCardPillBadge[] {
   const badges: ProductCardPillBadge[] = [];
+
+  if (productHasOfferAttribute(product)) {
+    badges.push({ id: 'oferta', label: 'Oferta', variant: 'offer' });
+  }
 
   const primaryLabel = resolveProductCardBadgeLabel(product);
   if (primaryLabel) {

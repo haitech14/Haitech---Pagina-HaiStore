@@ -124,7 +124,7 @@ export const HAIPROTECT_OFFERINGS: readonly HaiProtectOffering[] = [
 
 export const HAIPROTECT_BENEFITS = [
   'Cobertura extendida más allá de la garantía de fábrica',
-  'Repuestos y mano de obra con estándares HaiTech',
+  'Repuestos y mano de obra con estándares Haitech',
   'Atención prioritaria ante fallas críticas',
   'Planificación de mantenimiento preventivo incluida',
   'Tranquilidad operativa para tu oficina o empresa',

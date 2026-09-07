@@ -11,9 +11,9 @@ import { useSeo } from '@/hooks/use-seo';
 import { buildHomeJsonLd, DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE } from '@/lib/seo';
 import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 
-const HomeTechnicalServiceHeroBanner = lazy(() =>
-  import('@/components/home/home-technical-service-hero-banner').then((m) => ({
-    default: m.HomeTechnicalServiceHeroBanner,
+const HomePromoBannersCarousel = lazy(() =>
+  import('@/components/home/home-promo-banners-carousel').then((m) => ({
+    default: m.HomePromoBannersCarousel,
   })),
 );
 const HaitechHomeCatalogModule = lazy(() =>
@@ -69,12 +69,12 @@ export function HomePage() {
       <HaitechHomeFavoritesSection />
 
       <HaitechHomeBrandIntro />
-      <LazyHomeSection mountOnIdle idleTimeoutMs={800} minHeight="220px">
-        <div className="bg-white py-2 sm:py-3">
-          <HomeTechnicalServiceHeroBanner />
+      <LazyHomeSection mountOnIdle idleTimeoutMs={400} minHeight="260px">
+        <div className="bg-white py-2 sm:py-2.5">
+          <HomePromoBannersCarousel />
         </div>
       </LazyHomeSection>
-      <LazyHomeSection mountOnIdle idleTimeoutMs={800} minHeight="280px">
+      <LazyHomeSection mountOnIdle idleTimeoutMs={800} minHeight="980px">
         <HaitechHomeCatalogModule />
       </LazyHomeSection>
       <LazyHomeSection minHeight="320px">

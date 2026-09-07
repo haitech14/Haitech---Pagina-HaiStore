@@ -235,7 +235,7 @@ function buildItemFromCard(
       },
     ],
     valueProps: [...DEFAULT_VALUE_PROPS],
-    whatsappMessage: `Hola, me interesa el servicio "${card.title}" en HaiStore. ¿Podrían brindarme más información?`,
+    whatsappMessage: `Hola, me interesa el servicio "${card.title}" en Haitech. ¿Podrían brindarme más información?`,
     ...overrides,
   };
 }

@@ -97,7 +97,7 @@ export function ForumNewThreadPage() {
       </nav>
       <h1 className="text-2xl font-bold">Nuevo tema</h1>
       <p className="mt-2 text-sm text-[hsl(var(--forum-muted))]">
-        Comparte una consulta, guía o nota de firmware con la comunidad HaiStore.
+        Comparte una consulta, guía o nota de firmware con la comunidad Haitech.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">

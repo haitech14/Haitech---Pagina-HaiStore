@@ -27,7 +27,7 @@ export function ForumHero({ stats, onMarkAllRead }: ForumHeroProps) {
       <div className="container relative grid gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:py-10">
         <div>
           <h1 id="forum-hero-title" className="text-balance text-2xl font-bold sm:text-3xl">
-            ¡Bienvenido al Foro HaiStore!
+            ¡Bienvenido al Foro Haitech!
           </h1>
           <p className="mt-2 max-w-2xl text-pretty text-sm text-[hsl(var(--forum-muted))] sm:text-base">
             Soporte técnico Ricoh: resuelve dudas, aprende con tutoriales y encuentra firmware para tus

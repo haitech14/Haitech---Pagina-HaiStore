@@ -284,7 +284,7 @@ export function HaibotChatPanel({ onClose }: HaibotChatPanelProps) {
   const statusLabel = (() => {
     if (activeWorkflow) return `modo ${WORKFLOW_MODE_LABELS[activeWorkflow]}`;
     if (searchFocus) return `modo ${SEARCH_MODE_LABELS[searchFocus]} · inventario`;
-    return 'en línea · asistente HaiStore';
+    return 'en línea · asistente Haitech';
   })();
 
   const inGuidedMode = Boolean(activeWorkflow || searchFocus);

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { HomeEquiposHeroBanner } from '@/components/home/home-equipos-hero-banner';
+import { HomeStorefrontFeaturedSection } from '@/components/home/home-storefront-featured-section';
 import { lazy, LazyHomeSection } from '@/components/home/lazy-home-section';
 
 const FooterBrandsSection = lazy(() =>
@@ -14,7 +14,7 @@ function prefetchCatalogModule() {
 }
 
 /**
- * Módulo home: banner equipos → marcas líderes.
+ * Módulo home: carruseles (multifuncionales, tóner, repuestos) → marcas.
  */
 export function HaitechHomeCatalogModule() {
   useEffect(() => {
@@ -39,9 +39,7 @@ export function HaitechHomeCatalogModule() {
 
   return (
     <div className="home-landing-sans w-full bg-white">
-      <div className="py-2 sm:py-2.5">
-        <HomeEquiposHeroBanner />
-      </div>
+      <HomeStorefrontFeaturedSection />
 
       <LazyHomeSection mountOnIdle idleTimeoutMs={800} minHeight="160px">
         <FooterBrandsSection />

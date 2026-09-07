@@ -29,11 +29,11 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
     modelName: 'RICOH IM 550F',
     title: 'Ricoh IM 550F | Haitech',
     description:
-      'Ricoh IM 550F: multifuncional B/N A4 de alto volumen. Compra nuevo o seminuevo con Distribuidor Autorizado HaiStore. Tóner, instalación y soporte en Perú.',
+      'Ricoh IM 550F: multifuncional B/N A4 de alto volumen. Compra nuevo o seminuevo con Distribuidor Autorizado Haitech. Tóner, instalación y soporte en Perú.',
     pageName: 'Ricoh IM 550F',
     h1: 'Ricoh IM 550F',
     lead:
-      'La IM 550F es una multifuncional monocromo A4 pensada para oficinas con alto flujo de impresión, copia y escaneo. En HaiStore la encuentras nueva o seminueva con asesoría de canal autorizado.',
+      'La IM 550F es una multifuncional monocromo A4 pensada para oficinas con alto flujo de impresión, copia y escaneo. En Haitech la encuentras nueva o seminueva con asesoría de canal autorizado.',
     bullets: [
       'Impresión / copia / escaneo en blanco y negro A4',
       'Ideal para volúmenes altos de oficina',
@@ -64,7 +64,7 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
     modelName: 'RICOH IM 430F',
     title: 'Ricoh IM 430F | Haitech',
     description:
-      'Ricoh IM 430F: multifuncional B/N compacta para oficina. Venta nueva y seminueva con Distribuidor Autorizado HaiStore en Perú.',
+      'Ricoh IM 430F: multifuncional B/N compacta para oficina. Venta nueva y seminueva con Distribuidor Autorizado Haitech en Perú.',
     pageName: 'Ricoh IM 430F',
     h1: 'Ricoh IM 430F',
     lead:
@@ -76,7 +76,7 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
       'Compatible con ecosistema de tóner Ricoh',
     ],
     paragraphs: [
-      'Compara la IM 430F con la IM 550F si tu volumen es más alto, o con equipos color si tu flujo lo requiere. Cotiza con HaiStore, Distribuidor Autorizado Ricoh.',
+      'Compara la IM 430F con la IM 550F si tu volumen es más alto, o con equipos color si tu flujo lo requiere. Cotiza con Haitech, Distribuidor Autorizado Ricoh.',
     ],
     categoryHref: categoryLandingPath('multifuncionales'),
     products: [
@@ -98,7 +98,7 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
     modelName: 'RICOH IM C300F',
     title: 'Ricoh IM C300F | Haitech',
     description:
-      'Ricoh IM C300F color A4 con SPDF. Compra nueva o seminueva en HaiStore, Distribuidor Autorizado Ricoh en Perú.',
+      'Ricoh IM C300F color A4 con SPDF. Compra nueva o seminueva en Haitech, Distribuidor Autorizado Ricoh en Perú.',
     pageName: 'Ricoh IM C300F',
     h1: 'Ricoh IM C300F',
     lead:
@@ -127,11 +127,11 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
     modelName: 'RICOH IM C320F',
     title: 'Ricoh IM C320F | Haitech',
     description:
-      'Ricoh IM C320F multifuncional a color. Venta con Distribuidor Autorizado HaiStore: stock, tóner e instalación en Perú.',
+      'Ricoh IM C320F multifuncional a color. Venta con Distribuidor Autorizado Haitech: stock, tóner e instalación en Perú.',
     pageName: 'Ricoh IM C320F',
     h1: 'Ricoh IM C320F',
     lead:
-      'La IM C320F es una opción color de oficina con productividad equilibrada. Consulta disponibilidad nueva en HaiStore.',
+      'La IM C320F es una opción color de oficina con productividad equilibrada. Consulta disponibilidad nueva en Haitech.',
     bullets: ['Color para oficina', 'Ecosistema Ricoh', 'Asesoría de canal autorizado'],
     paragraphs: [
       'Compara con IM C300F si buscas un equipo más compacto, o con series A3 si necesitas formato grande.',
@@ -151,11 +151,11 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
     modelName: 'RICOH IM 460F',
     title: 'Ricoh IM 460F | Haitech',
     description:
-      'Ricoh IM 460F multifuncional monocromo. Compra con Distribuidor Autorizado HaiStore en Perú.',
+      'Ricoh IM 460F multifuncional monocromo. Compra con Distribuidor Autorizado Haitech en Perú.',
     pageName: 'Ricoh IM 460F',
     h1: 'Ricoh IM 460F',
     lead:
-      'Equipo pensado para oficinas que priorizan velocidad y robustez en blanco y negro. Cotiza stock y tóner en HaiStore.',
+      'Equipo pensado para oficinas que priorizan velocidad y robustez en blanco y negro. Cotiza stock y tóner en Haitech.',
     bullets: ['B/N de oficina', 'Canal autorizado Ricoh', 'Soporte y consumibles'],
     paragraphs: ['Compara con IM 550F e IM 430F según tu volumen mensual estimado.'],
     categoryHref: categoryLandingPath('multifuncionales'),
@@ -173,7 +173,7 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
     modelName: 'RICOH MP 3055',
     title: 'Ricoh MP 3055 | Haitech',
     description:
-      'Ricoh MP 3055 seminueva B/N. Alternativa de productividad con garantía HaiStore, Distribuidor Autorizado Ricoh.',
+      'Ricoh MP 3055 seminueva B/N. Alternativa de productividad con garantía Haitech, Distribuidor Autorizado Ricoh.',
     pageName: 'Ricoh MP 3055',
     h1: 'Ricoh MP 3055',
     lead:
@@ -197,7 +197,7 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
     modelName: 'RICOH IM C2000',
     title: 'Ricoh IM C2000 | Haitech',
     description:
-      'Ricoh IM C2000 color A3 seminueva. Cotiza con HaiStore, Distribuidor Autorizado Ricoh en Perú.',
+      'Ricoh IM C2000 color A3 seminueva. Cotiza con Haitech, Distribuidor Autorizado Ricoh en Perú.',
     pageName: 'Ricoh IM C2000',
     h1: 'Ricoh IM C2000',
     lead:
@@ -219,7 +219,7 @@ export const SEO_MODEL_HUBS: SeoModelHub[] = [
     modelName: 'RICOH IM 600F',
     title: 'Ricoh IM 600F | Haitech',
     description:
-      'Ricoh IM 600F seminueva de alto volumen. Stock y soporte con Distribuidor Autorizado HaiStore.',
+      'Ricoh IM 600F seminueva de alto volumen. Stock y soporte con Distribuidor Autorizado Haitech.',
     pageName: 'Ricoh IM 600F',
     h1: 'Ricoh IM 600F',
     lead:

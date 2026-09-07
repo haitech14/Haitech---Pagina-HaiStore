@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 export const SITE_HEADER_LOGO_SRC = SITE_LOGO_ASSET_PATH;
 /** Logo claro (trazo blanco) para footer y fondos oscuros. */
 export const SITE_FOOTER_LOGO_SRC = SITE_STOREFRONT_HEADER_LOGO_PATH;
-export const SITE_LOGO_ALT = 'HaiStore - HAITECH Soluciones de impresión';
+export const SITE_LOGO_ALT = 'Haitech — Soluciones de impresión';
 export const SITE_RICOH_AUTHORIZED_LOGO_ALT = SITE_RICOH_PARTNER_BADGE_ARIA_LABEL;
 
 type LogoImageProps = {
@@ -279,7 +279,7 @@ export function HeaderBrandLogos({
     <Link
       to="/"
       className={cn('flex shrink-0 items-center gap-2.5 overflow-visible sm:gap-3', className)}
-      aria-label={`HaiStore, inicio. ${SITE_RICOH_PARTNER_BADGE_SUBTITLE}`}
+      aria-label={`Haitech, inicio. ${SITE_RICOH_PARTNER_BADGE_SUBTITLE}`}
     >
       <HeaderLogoImage
         logoSrc={logoSrc}
@@ -335,7 +335,7 @@ export function StorefrontHeaderBrandLogos(props: Omit<HeaderBrandLogosProps, 'l
 
 export function HeaderLogoLink({ className, ...props }: LogoImageProps) {
   return (
-    <Link to="/" className={cn('flex shrink-0 items-center', className)} aria-label="HaiStore, inicio">
+    <Link to="/" className={cn('flex shrink-0 items-center', className)} aria-label="Haitech, inicio">
       <HeaderLogoImage {...props} />
     </Link>
   );

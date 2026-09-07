@@ -11,7 +11,7 @@ export const softwareLandingHero = {
   quoteCtaLabel: 'Ver catálogo',
   whatsappCtaLabel: 'Cotizar por WhatsApp',
   whatsappMessage:
-    'Hola, vengo desde HaiStore. Me interesa conocer sus soluciones de software empresarial (gestión documental, automatización o integración Ricoh).',
+    'Hola, vengo desde Haitech. Me interesa conocer sus soluciones de software empresarial (gestión documental, automatización o integración Ricoh).',
 };
 
 export const softwareLandingFormBenefits = [
@@ -34,7 +34,7 @@ export const softwareLandingFormServiceOptions = [
 export const softwareLandingFormCopy = {
   panelTitle: 'Solicita tu cotización',
   panelDescription:
-    'Cuéntanos qué necesitas y un asesor HaiStore te contactará con una propuesta de licenciamiento a medida.',
+    'Cuéntanos qué necesitas y un asesor Haitech te contactará con una propuesta de licenciamiento a medida.',
   formTitle: 'Completa el formulario y te contactaremos',
   privacyNote: 'Tu información está protegida. No compartimos tus datos.',
   submitLabel: 'Enviar solicitud',

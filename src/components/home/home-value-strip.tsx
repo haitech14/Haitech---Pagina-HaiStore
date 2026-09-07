@@ -8,7 +8,7 @@ type HomeValueStripProps = {
 export function HomeValueStrip({ className }: HomeValueStripProps) {
   return (
     <section
-      aria-label="Ventajas HaiStore"
+      aria-label="Ventajas Haitech"
       className={cn('border-b border-border/40 bg-[#EEEEEE]', className)}
     >
       <div className="container py-3.5 sm:py-4">

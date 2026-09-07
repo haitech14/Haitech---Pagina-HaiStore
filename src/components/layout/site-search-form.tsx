@@ -5,8 +5,6 @@ import { ChevronDown, FolderOpen, Loader2, Plus, Search, ShoppingCart, Wrench, X
 
 import { isProductOutOfStock } from '@/components/cart/add-to-cart-button';
 import { useCart } from '@/context/cart-context';
-import { ProductCardCopyButton } from '@/components/product/product-card-copy-button';
-import { ProductCardCopyImageButton } from '@/components/product/product-card-copy-image-button';
 import { ProductCardImage } from '@/components/product/product-card-image';
 import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { DualPrice } from '@/components/product/product-dual-price';
@@ -14,10 +12,6 @@ import { ProductNoImagePlaceholder } from '@/components/product/product-no-image
 import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
-import {
-  clipboardPriceFieldsFromDisplay,
-  useCatalogDisplayPrice,
-} from '@/hooks/use-catalog-display-price';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useStoreCategoriesTree } from '@/hooks/use-store-categories';
 import { prefetchProductSearch, useProductSearch } from '@/hooks/use-product-search';
@@ -38,9 +32,6 @@ import {
   type SearchCategorySuggestion,
   type SearchServiceSuggestion,
 } from '@/lib/product-search';
-import { inferColor } from '@/lib/category-catalog-filters';
-import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
-import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
 import { getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
 import { PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS } from '@/lib/product-image-watermark';
@@ -84,6 +75,8 @@ type SiteSearchFormProps = {
   autoFocusInput?: boolean;
   /** Filtro de categoría: encima del campo (simple) o segmento a la derecha (segmented). */
   showCategoryFilter?: boolean;
+  /** Placeholder del campo de búsqueda. */
+  placeholder?: string;
 };
 
 type SearchSuggestionItem =
@@ -151,14 +144,8 @@ const SEARCH_SUGGESTION_THUMB_CLASS =
 const SEARCH_SUGGESTION_CELL_CLASS =
   'flex w-full items-start gap-1.5 px-2 py-1.5 text-left transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-inset sm:gap-2.5 sm:px-3 sm:py-2.5';
 
-const SEARCH_SUGGESTION_ICON_ACTION_CLASS =
-  'inline-flex size-7 shrink-0 items-center justify-center bg-transparent p-0 text-[#888] transition-colors hover:bg-transparent hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 sm:size-8 [&_svg]:size-3.5 sm:[&_svg]:size-4';
-
 const SEARCH_SUGGESTION_CART_BTN_CLASS =
-  'inline-flex h-7 min-w-0 flex-1 items-center justify-center gap-0.5 rounded-md bg-[#E30613] px-1.5 text-[0.625rem] font-semibold text-white transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-inset sm:h-8 sm:gap-1 sm:px-2 sm:text-[0.6875rem]';
-
-const SEARCH_SUGGESTION_BUY_BTN_CLASS =
-  'inline-flex h-7 min-w-0 flex-1 items-center justify-center rounded-md border border-[#E30613] bg-white px-1.5 text-[0.625rem] font-semibold text-[#E30613] transition-colors hover:bg-[#FFF5F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-inset sm:h-8 sm:px-2 sm:text-[0.6875rem]';
+  'inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-[#E30613] text-white transition-colors hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-inset';
 
 const SEARCH_DROPDOWN_PANEL_CLASS =
   'absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-[min(70vh,32rem)] overflow-hidden rounded-xl border border-border/70 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)] sm:left-1/2 sm:right-auto sm:w-[min(100vw-1rem,42rem)] sm:-translate-x-1/2 lg:w-[min(100vw-2rem,48rem)] xl:w-[min(100vw-2rem,52rem)]';
@@ -284,35 +271,19 @@ function SearchProductSuggestionCell({
   const priceAria = showPrice
     ? formatDisplayPriceFromUsd(pricing.currentUsd, displayCurrency, dualPriceOrder)
     : CONSULTAR_PRECIO_LABEL;
-  const clipboardCondition = resolveProductCardBadgeLabel(product);
-  const clipboardIsColor = inferColor(product) === 'Color';
   const clipboardCode = product.code?.trim() || null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const outOfStock = isProductOutOfStock(product);
   const stockAria = outOfStock
     ? PRODUCT_ON_REQUEST_STOCK_LABEL
     : `Stock ${stockCount}`;
-  const clipboardBasicFeatures = buildProductCardQuickSpecsLine(product);
-  const detailPath = productPath(product);
-  const displayPrice = useCatalogDisplayPrice(product);
-  const clipboardImageUrl = useMemo(
-    () => buildSearchSuggestionThumbCandidates(product)[0] ?? null,
-    [product],
-  );
   const { addItem } = useCart();
   const cartButtonLabel = outOfStock ? 'Reservar' : 'Añadir al carrito';
-  const cartButtonShortLabel = outOfStock ? 'Reservar' : 'Añadir';
 
   const handleAddToCart = (event: MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     addItem(product, { openDrawer: true });
-  };
-
-  const handleBuy = (event: MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    onNavigateProduct();
   };
 
   return (
@@ -330,7 +301,7 @@ function SearchProductSuggestionCell({
         .join(', ')}
       className={cn(
         SEARCH_SUGGESTION_CELL_CLASS,
-        'cursor-pointer',
+        'cursor-pointer items-center',
         isActive && 'bg-accent',
       )}
       onMouseEnter={onMouseEnter}
@@ -362,56 +333,16 @@ function SearchProductSuggestionCell({
           code={clipboardCode}
           className="min-w-0 text-[0.625rem] sm:text-[0.75rem]"
         />
-        <span
-          className="flex min-w-0 items-center gap-1 pt-0.5"
-          onClick={(event) => event.stopPropagation()}
-        >
-          {clipboardImageUrl ? (
-            <ProductCardCopyImageButton
-              productName={product.name}
-              imageUrl={clipboardImageUrl}
-              className={SEARCH_SUGGESTION_ICON_ACTION_CLASS}
-            />
-          ) : null}
-          <ProductCardCopyButton
-            productName={product.name}
-            title={product.name}
-            stock={stockCount}
-            {...clipboardPriceFieldsFromDisplay(displayPrice)}
-            productId={product.id}
-            productPath={detailPath}
-            isColorProduct={clipboardIsColor}
-            {...(clipboardCode != null ? { code: clipboardCode } : {})}
-            {...(clipboardCondition != null ? { condition: clipboardCondition } : {})}
-            {...(clipboardBasicFeatures != null ? { basicFeatures: clipboardBasicFeatures } : {})}
-            {...(product.category != null ? { category: product.category } : {})}
-            {...(product.volume_role_prices != null
-              ? { volumeRolePrices: product.volume_role_prices }
-              : {})}
-            className={SEARCH_SUGGESTION_ICON_ACTION_CLASS}
-          />
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className={SEARCH_SUGGESTION_CART_BTN_CLASS}
-            aria-label={`${cartButtonLabel}: ${title}`}
-          >
-            {!outOfStock ? (
-              <ShoppingCart className="size-3 shrink-0 sm:size-3.5" aria-hidden="true" />
-            ) : null}
-            <span className="truncate sm:hidden">{cartButtonShortLabel}</span>
-            <span className="hidden truncate sm:inline">{cartButtonLabel}</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleBuy}
-            className={SEARCH_SUGGESTION_BUY_BTN_CLASS}
-            aria-label={`Comprar: ${title}`}
-          >
-            Comprar
-          </button>
-        </span>
       </span>
+      <button
+        type="button"
+        onClick={handleAddToCart}
+        className={SEARCH_SUGGESTION_CART_BTN_CLASS}
+        aria-label={`${cartButtonLabel}: ${title}`}
+        title={cartButtonLabel}
+      >
+        <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
+      </button>
     </div>
   );
 }
@@ -439,6 +370,7 @@ export function SiteSearchForm({
   showSearchIcons = true,
   autoFocusInput = false,
   showCategoryFilter = false,
+  placeholder: placeholderProp,
 }: SiteSearchFormProps) {
   const isDense = variant === 'segmented' && size === 'dense';
   const isCompact = variant === 'segmented' && (size === 'compact' || size === 'dense');
@@ -704,9 +636,10 @@ export function SiteSearchForm({
   };
 
   const placeholder =
-    variant === 'header-dark' || isDense
+    placeholderProp ??
+    (variant === 'header-dark' || isDense
       ? 'Buscar productos...'
-      : 'Buscar productos, categorías o marcas...';
+      : 'Buscar productos, categorías o marcas...');
 
   const showSuggestionsList =
     !queryTooShort &&

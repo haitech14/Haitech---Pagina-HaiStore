@@ -14,7 +14,7 @@ export function buildHaitechSalesWhatsAppMessage(
   return [
     `¡Hola! Soy *${contact.name.trim()}*`,
     '',
-    'Contacto desde HaiStore — Ventas / Alquiler.',
+    'Contacto desde Haitech — Ventas / Alquiler.',
     context.campaign ? `Referencia: ${context.campaign}` : null,
     '',
     '*Mis datos:*',

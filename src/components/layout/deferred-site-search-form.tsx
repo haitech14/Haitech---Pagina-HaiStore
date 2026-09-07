@@ -16,6 +16,7 @@ type DeferredSiteSearchFormProps = {
   showSearchIcons?: boolean;
   autoFocusInput?: boolean;
   showCategoryFilter?: boolean;
+  placeholder?: string;
 };
 
 function SearchShell({

@@ -213,7 +213,7 @@ const CATALOG_FEATURED_BY_SLUG: Record<string, MegaMenuFeaturedContent> = {
     image: '/categories/computadoras-laptop-512.webp',
     title: 'Computadoras y laptops',
     description:
-      'Equipos de cómputo para productividad empresarial con soporte local HaiStore.',
+      'Equipos de cómputo para productividad empresarial con soporte local Haitech.',
     href: '/categoria/computadoras-laptop',
   },
   monitores: {

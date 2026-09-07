@@ -23,7 +23,7 @@ export const servicesHeroSlides: HomeHeroSlide[] = [
     imageWidth: 1536,
     imageHeight: 1024,
     imageAlt:
-      'Soporte técnico especializado para impresoras y equipos de oficina — HaiStore',
+      'Soporte técnico especializado para impresoras y equipos de oficina — Haitech',
     linkHref: serviceHubPath('servicio-tecnico'),
   },
   {
@@ -32,7 +32,7 @@ export const servicesHeroSlides: HomeHeroSlide[] = [
     backgroundImage: '/categories/alquiler.png',
     imageWidth: 1536,
     imageHeight: 1024,
-    imageAlt: 'Alquiler de impresoras, laptops y equipos para empresas — HaiStore',
+    imageAlt: 'Alquiler de impresoras, laptops y equipos para empresas — Haitech',
     linkHref: serviceHubPath('alquiler'),
   },
   {
@@ -41,7 +41,7 @@ export const servicesHeroSlides: HomeHeroSlide[] = [
     backgroundImage: '/services/outsourcing/impresion.png',
     imageWidth: 1536,
     imageHeight: 1024,
-    imageAlt: 'Outsourcing de impresión y gestión tecnológica para empresas — HaiStore',
+    imageAlt: 'Outsourcing de impresión y gestión tecnológica para empresas — Haitech',
     linkHref: serviceHubPath('outsourcing'),
   },
   {
@@ -50,7 +50,7 @@ export const servicesHeroSlides: HomeHeroSlide[] = [
     backgroundImage: '/services/servicios-corporativos/local-eventos.png',
     imageWidth: 1536,
     imageHeight: 1024,
-    imageAlt: 'Servicios corporativos, eventos y capacitación técnica — HaiStore',
+    imageAlt: 'Servicios corporativos, eventos y capacitación técnica — Haitech',
     linkHref: serviceHubPath('servicios-corporativos'),
   },
 ];

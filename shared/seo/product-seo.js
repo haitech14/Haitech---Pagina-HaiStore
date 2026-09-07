@@ -274,7 +274,7 @@ export function buildProductMetaDescriptionSeo(product, options = {}) {
 
   const pricePart = penLabel ? ` Desde ${penLabel}.` : '';
   return truncateMetaDescription(
-    `${intro}${pricePart} Compra con Distribuidor Autorizado Ricoh HaiTech. Envío a todo el Perú.`,
+    `${intro}${pricePart} Compra con Distribuidor Autorizado Ricoh Haitech. Envío a todo el Perú.`,
   );
 }
 
@@ -321,7 +321,7 @@ export function buildProductSeoBodyParagraph(product) {
     const codePart = code ? ` (código ${code})` : '';
     return [
       `${name}${codePart} — ${supplyKind} ${brand} para fotocopiadoras e impresoras Ricoh.`,
-      'Compra con Distribuidor Autorizado HaiTech: stock real, precio en USD, asesoría para elegir el consumible correcto y envío a Lima y provincias.',
+      'Compra con Distribuidor Autorizado Haitech: stock real, precio en USD, asesoría para elegir el consumible correcto y envío a Lima y provincias.',
       'Evita paradas de impresión con repuestos y suministros compatibles con tu modelo.',
     ].join(' ');
   }

@@ -35,14 +35,14 @@ export function PreguntasFrecuentesPage() {
   return (
     <div className={cn('flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
       <article className="container max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-        <p className="text-sm font-medium text-red-600">HaiStore · Ayuda</p>
+        <p className="text-sm font-medium text-red-600">Haitech · Ayuda</p>
         <h1 className="mt-2 text-balance text-3xl font-bold tracking-tight text-[#0f1f3d] sm:text-4xl">
           Preguntas frecuentes
         </h1>
         <div className="mt-4 space-y-4 text-pretty text-base leading-relaxed text-muted-foreground">
           <p>
             En esta página reunimos las dudas más frecuentes antes de comprar o alquilar
-            fotocopiadoras e impresoras Ricoh con HaiStore (HaiTech), Distribuidor Autorizado en
+            fotocopiadoras e impresoras Ricoh con Haitech, Distribuidor Autorizado en
             Perú. Aquí aclaramos garantía, delivery e instalación, factura electrónica, equipos
             seminuevos, tóner, repuestos y soporte técnico especializado.
           </p>

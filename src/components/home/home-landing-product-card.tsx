@@ -89,7 +89,7 @@ export function HomeLandingProductCard({
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(productSource);
   const clipboardCategory = product.category ?? catalogProduct?.category ?? null;
   const outOfStock = stockCount <= 0;
-  const buyNowLabel = outOfStock ? 'Reservar' : 'Comprar';
+  const buyNowLabel = outOfStock ? 'Reservar' : 'Agregar al carrito';
 
   const catalogGallery = catalogProduct?.gallery ?? null;
   const productGallery = product.gallery ?? null;

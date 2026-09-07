@@ -4,7 +4,7 @@ import {
 
 export function HomeStorefrontTrustBar() {
   return (
-    <section aria-label="Ventajas HaiStore" className="border-t border-[#E8E8E8] bg-white">
+    <section aria-label="Ventajas Haitech" className="border-t border-[#E8E8E8] bg-white">
       <div className="container py-5 sm:py-6">
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-5" role="list">
           {HOME_STOREFRONT_TRUST_ITEMS.map((item) => {

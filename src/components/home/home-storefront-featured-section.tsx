@@ -5,16 +5,26 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
-import {
-  HomeStorefrontProductCard,
-  type StorefrontCardTitleMode,
-} from '@/components/home/home-storefront-product-card';
+import { type StorefrontCardTitleMode } from '@/components/home/home-storefront-product-card';
+import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
 import { LazyHomeSection } from '@/components/home/lazy-home-section';
 import { Skeleton } from '@/components/ui/skeleton';
-import { type FeaturedProduct } from '@/data/featured-products';
+import { featuredToProduct, type FeaturedProduct } from '@/data/featured-products';
+import {
+  HAITECH_SHOP_FAVORITE_PRODUCTS,
+  HAITECH_SHOP_LATEST_PRODUCTS,
+  type HaitechShopProduct,
+} from '@/data/haitech-home-shop';
+import {
+  HOME_FEATURED_CONSUMABLES_CONDITION_FILTERS,
+  type HomeFeaturedConsumablesCategoryFilterId,
+  type HomeFeaturedConsumablesConditionFilterId,
+} from '@/data/home-featured-quick-filters-consumables';
+import type { HomeFeaturedEquipmentConditionFilterId } from '@/data/home-featured-quick-filters-equipment';
 import { useHomeCatalogBundle } from '@/hooks/use-home-catalog-bundle';
 import {
   HAITECH_PRODUCT_CAROUSEL_ARROW,
@@ -31,13 +41,18 @@ import {
 import { enrichFeaturedFromCatalog } from '@/lib/featured-catalog-enrich';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
+  compareHomeFeaturedConsumablesProducts,
   compareHomeFeaturedEquipmentProducts,
+  matchesHomeFeaturedConsumablesCategoryFilter,
+  matchesHomeFeaturedConsumablesFilters,
   matchesHomeFeaturedEquipmentCategoryFilter,
   matchesHomeFeaturedEquipmentConditionFilter,
 } from '@/lib/home-featured-product-filter';
+import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
+import { categoryLandingPath } from '@/lib/category-path';
 import { productToFeatured } from '@/lib/store-products';
+import { storeShowcasePath } from '@/lib/store-showcase-path';
 import { cn } from '@/lib/utils';
-import type { HomeFeaturedEquipmentConditionFilterId } from '@/data/home-featured-quick-filters-equipment';
 
 const STOREFRONT_FEATURED_DISPLAY_LIMIT = 15;
 /** Pool desde home-bundle + candidatos del índice (no bloquear UI por el JSON completo). */
@@ -52,14 +67,18 @@ function normalizeStorefrontHaystack(value: string): string {
 
 /** Evita meter ~todo el inventario en el pool: solo filas útiles para los rails. */
 function isStorefrontCatalogCandidate(row: CatalogRow): boolean {
+  if (isTonerOrRepuestosCategory(row.category)) return true;
   const haystack = normalizeStorefrontHaystack(`${row.category ?? ''} ${row.name}`);
   return (
-    haystack.includes('escan') ||
-    haystack.includes('scanner') ||
-    haystack.includes('scansnap') ||
-    haystack.includes('impresor') ||
     haystack.includes('multifunc') ||
-    haystack.includes('fotocop')
+    haystack.includes('fotocop') ||
+    haystack.includes('toner') ||
+    haystack.includes('cartucho') ||
+    haystack.includes('repuesto') ||
+    haystack.includes('cilindro') ||
+    haystack.includes('fusor') ||
+    haystack.includes('unidad de imagen') ||
+    haystack.includes('unidad fusora')
   );
 }
 
@@ -72,33 +91,76 @@ const STOREFRONT_EQUIPMENT_CONDITION_TABS: ReadonlyArray<{
   { id: 'remanufacturadas', label: 'Remanufacturada' },
 ];
 
-type StorefrontCatalogKind = 'multifuncionales' | 'impresoras' | 'escaneres';
+type StorefrontCatalogKind = 'multifuncionales' | 'toner' | 'repuestos';
 
 const STOREFRONT_CATALOG_RAILS: ReadonlyArray<{
   kind: StorefrontCatalogKind;
   titleId: string;
   title: string;
   paginationLabel: string;
+  viewAllHref: string;
+  viewAllLabel: string;
 }> = [
   {
     kind: 'multifuncionales',
     titleId: 'home-storefront-featured-title',
     title: 'Multifuncionales',
     paginationLabel: 'multifuncionales',
+    viewAllHref: storeShowcasePath({ categoryId: 'multifuncionales' }),
+    viewAllLabel: 'Ver todos los multifuncionales',
   },
   {
-    kind: 'impresoras',
-    titleId: 'home-storefront-impresoras-title',
-    title: 'Impresoras Láser',
-    paginationLabel: 'impresoras láser',
+    kind: 'toner',
+    titleId: 'home-storefront-toner-title',
+    title: 'Tóner',
+    paginationLabel: 'tóner',
+    viewAllHref: categoryLandingPath('toner-suministros'),
+    viewAllLabel: 'Ver todo el tóner',
   },
   {
-    kind: 'escaneres',
-    titleId: 'home-storefront-escaneres-title',
-    title: 'Escáneres',
-    paginationLabel: 'escáneres',
+    kind: 'repuestos',
+    titleId: 'home-storefront-repuestos-title',
+    title: 'Repuestos',
+    paginationLabel: 'repuestos',
+    viewAllHref: categoryLandingPath('repuestos'),
+    viewAllLabel: 'Ver todos los repuestos',
   },
 ];
+
+const STOREFRONT_CONSUMABLE_CONDITION_TABS = HOME_FEATURED_CONSUMABLES_CONDITION_FILTERS.filter(
+  (filter) => filter.id !== 'recargas',
+);
+
+function shopProductToFeatured(product: HaitechShopProduct): FeaturedProduct {
+  const category = product.toner
+    ? 'Toner y Suministros'
+    : /repuesto|unidad de imagen|cilindro|fusor|rodillo/i.test(product.name) ||
+        product.href?.includes('/categoria/repuestos')
+      ? 'Repuestos'
+      : 'Multifuncionales';
+
+  return {
+    id: product.id,
+    name: product.name,
+    category,
+    brand: product.brand,
+    ...(product.code ? { code: product.code } : {}),
+    price: product.price,
+    ...(product.compareAt != null && product.compareAt > product.price
+      ? { oldPrice: product.compareAt }
+      : {}),
+    image: product.image,
+    ...(product.stock != null ? { stock: product.stock } : {}),
+    rating: product.rating ?? 5,
+    reviews: product.reviewCount ?? 0,
+  };
+}
+
+function shopConsumableFallbackProducts(): FeaturedProduct[] {
+  return [...HAITECH_SHOP_FAVORITE_PRODUCTS, ...HAITECH_SHOP_LATEST_PRODUCTS]
+    .filter((product) => Boolean(product.toner) || product.tabIds.includes('toner') || product.tabIds.includes('accesorios'))
+    .map(shopProductToFeatured);
+}
 
 function matchesFotocopiadorasSection(product: FeaturedProduct): boolean {
   return matchesHomeFeaturedEquipmentCategoryFilter(product, 'multifuncionales');
@@ -115,30 +177,23 @@ function matchesFotocopiadorasCondition(
   );
 }
 
-function matchesImpresorasSection(product: FeaturedProduct): boolean {
-  return matchesHomeFeaturedEquipmentCategoryFilter(product, 'impresora-laser');
-}
+function pickConsumableRailProducts(
+  productPool: readonly FeaturedProduct[],
+  categoryFilter: HomeFeaturedConsumablesCategoryFilterId,
+  condition: HomeFeaturedConsumablesConditionFilterId,
+): FeaturedProduct[] {
+  const filtered = productPool
+    .filter((product) => matchesHomeFeaturedConsumablesFilters(product, condition, categoryFilter))
+    .sort(compareHomeFeaturedConsumablesProducts);
 
-function matchesImpresorasCondition(
-  product: FeaturedProduct,
-  equipmentCondition: HomeFeaturedEquipmentConditionFilterId,
-): boolean {
-  return matchesHomeFeaturedEquipmentConditionFilter(
-    product,
-    equipmentCondition,
-    'impresora-laser',
-  );
-}
+  if (filtered.length > 0) {
+    return filtered.slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
+  }
 
-function matchesEscaneresSection(product: FeaturedProduct): boolean {
-  return matchesHomeFeaturedEquipmentCategoryFilter(product, 'escaneres');
-}
-
-function matchesEscaneresCondition(
-  product: FeaturedProduct,
-  equipmentCondition: HomeFeaturedEquipmentConditionFilterId,
-): boolean {
-  return matchesHomeFeaturedEquipmentConditionFilter(product, equipmentCondition, 'escaneres');
+  return [...productPool]
+    .filter((product) => matchesHomeFeaturedConsumablesCategoryFilter(product, categoryFilter))
+    .sort(compareHomeFeaturedConsumablesProducts)
+    .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
 }
 
 function FeaturedSkeleton() {
@@ -209,7 +264,6 @@ function StorefrontFilterTabs<T extends string>({
 function FeaturedProductsCarousel({
   products,
   paginationLabel,
-  titleMode = 'equipment',
   eagerImageCount = 0,
 }: {
   products: FeaturedProduct[];
@@ -307,15 +361,18 @@ function FeaturedProductsCarousel({
 
       <div className="overflow-hidden" ref={emblaRef}>
         <ul className={cn('flex touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list">
-          {products.map((product, index) => (
-            <li key={product.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
-              <HomeStorefrontProductCard
-                product={product}
-                priority={index < eagerImageCount}
-                titleMode={titleMode}
-              />
-            </li>
-          ))}
+          {products.map((product, index) => {
+            const storeProduct = featuredToProduct(product);
+            return (
+              <li key={storeProduct.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
+                <StoreCatalogProductCard
+                  product={storeProduct}
+                  imageLoading={index < eagerImageCount ? 'eager' : 'lazy'}
+                  imagePriority={index < eagerImageCount}
+                />
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>
@@ -335,42 +392,31 @@ function StorefrontCatalogRail({
 }) {
   const [equipmentCondition, setEquipmentCondition] =
     useState<HomeFeaturedEquipmentConditionFilterId>('nuevas');
+  const [consumableCondition, setConsumableCondition] =
+    useState<HomeFeaturedConsumablesConditionFilterId>('originales');
+
+  const isConsumableRail = rail.kind === 'toner' || rail.kind === 'repuestos';
 
   const products = useMemo(() => {
-    if (rail.kind === 'multifuncionales') {
-      return [...productPool]
-        .filter(
-          (product) =>
-            matchesFotocopiadorasSection(product) &&
-            matchesFotocopiadorasCondition(product, equipmentCondition),
-        )
-        .sort(compareHomeFeaturedEquipmentProducts)
-        .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
+    if (rail.kind === 'toner') {
+      return pickConsumableRailProducts(productPool, 'toner', consumableCondition);
     }
 
-    if (rail.kind === 'impresoras') {
-      return [...productPool]
-        .filter(
-          (product) =>
-            matchesImpresorasSection(product) &&
-            matchesImpresorasCondition(product, equipmentCondition),
-        )
-        .sort(compareHomeFeaturedEquipmentProducts)
-        .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
+    if (rail.kind === 'repuestos') {
+      return pickConsumableRailProducts(productPool, 'repuestos-cat', consumableCondition);
     }
 
     return [...productPool]
       .filter(
         (product) =>
-          matchesEscaneresSection(product) &&
-          matchesEscaneresCondition(product, equipmentCondition),
+          matchesFotocopiadorasSection(product) &&
+          matchesFotocopiadorasCondition(product, equipmentCondition),
       )
       .sort(compareHomeFeaturedEquipmentProducts)
       .slice(0, STOREFRONT_FEATURED_DISPLAY_LIMIT);
-  }, [equipmentCondition, productPool, rail.kind]);
+  }, [consumableCondition, equipmentCondition, productPool, rail.kind]);
 
-  const titleMode: StorefrontCardTitleMode =
-    rail.kind === 'multifuncionales' ? 'equipment' : 'consumable';
+  const titleMode: StorefrontCardTitleMode = isConsumableRail ? 'consumable' : 'equipment';
 
   const showSkeleton = isLoading && products.length === 0;
 
@@ -378,19 +424,38 @@ function StorefrontCatalogRail({
     <section aria-labelledby={rail.titleId} className="pt-0">
       <div className="container pb-2 pt-2 sm:pb-3 sm:pt-3">
         <header className="mb-2 flex flex-col gap-2 sm:mb-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <h2
-            id={rail.titleId}
-            className="min-w-0 shrink text-left text-base font-bold tracking-tight text-[#111111] sm:text-xl lg:text-[1.375rem]"
-          >
-            {rail.title}
-          </h2>
-          <StorefrontFilterTabs
-            filters={STOREFRONT_EQUIPMENT_CONDITION_TABS}
-            activeFilter={equipmentCondition}
-            onFilterChange={setEquipmentCondition}
-            ariaLabel="Condición de equipos"
-            className="sm:ml-auto"
-          />
+          <div className="flex min-w-0 items-baseline gap-3">
+            <h2
+              id={rail.titleId}
+              className="min-w-0 shrink text-left text-base font-bold tracking-tight text-[#111111] sm:text-xl lg:text-[1.375rem]"
+            >
+              {rail.title}
+            </h2>
+            <Link
+              to={rail.viewAllHref}
+              className="shrink-0 text-xs font-semibold text-[#E30613] transition-colors hover:text-[#C10510] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2 sm:text-sm"
+            >
+              Ver todos
+              <span className="sr-only">: {rail.viewAllLabel}</span>
+            </Link>
+          </div>
+          {isConsumableRail ? (
+            <StorefrontFilterTabs
+              filters={STOREFRONT_CONSUMABLE_CONDITION_TABS}
+              activeFilter={consumableCondition}
+              onFilterChange={setConsumableCondition}
+              ariaLabel={`Origen de ${rail.paginationLabel}`}
+              className="sm:ml-auto"
+            />
+          ) : (
+            <StorefrontFilterTabs
+              filters={STOREFRONT_EQUIPMENT_CONDITION_TABS}
+              activeFilter={equipmentCondition}
+              onFilterChange={setEquipmentCondition}
+              ariaLabel="Condición de equipos"
+              className="sm:ml-auto"
+            />
+          )}
         </header>
 
         {showSkeleton ? (
@@ -435,9 +500,9 @@ export function HomeStorefrontFeaturedSection() {
     };
 
     if (typeof window.requestIdleCallback === 'function') {
-      idleId = window.requestIdleCallback(run, { timeout: 12_000 });
+      idleId = window.requestIdleCallback(run, { timeout: 1_500 });
     } else {
-      timeoutId = window.setTimeout(run, 5000);
+      timeoutId = window.setTimeout(run, 800);
     }
 
     return () => {
@@ -476,6 +541,10 @@ export function HomeStorefrontFeaturedSection() {
         if (!isStorefrontCatalogCandidate(row)) continue;
         pushUnique(catalogRowToFeatured(row));
       }
+    }
+
+    for (const product of shopConsumableFallbackProducts()) {
+      pushUnique(product);
     }
 
     return merged;

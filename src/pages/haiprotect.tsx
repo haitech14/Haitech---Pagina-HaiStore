@@ -131,7 +131,7 @@ export function HaiProtectPage() {
       <section className="border-t border-border/60 bg-[#0f172a] py-8 text-white sm:py-10">
         <div className="container flex flex-col items-center gap-4 text-center">
           <p className="max-w-xl text-pretty text-sm text-white/75 sm:text-base">
-            ¿Tienes dudas sobre la cobertura? Un especialista HaiTech puede ayudarte a elegir el
+            ¿Tienes dudas sobre la cobertura? Un especialista Haitech puede ayudarte a elegir el
             plan ideal para tu flota.
           </p>
           <Button

@@ -33,7 +33,7 @@ const ROOT_CATEGORY_DESCRIPTIONS = {
   multifuncionales:
     'Fotocopiadoras y multifuncionales Ricoh nuevas, seminuevas y remanufacturadas. Venta y alquiler con instalación, garantía, tóner y envío a todo el Perú. Distribuidor Autorizado.',
   impresoras:
-    'Impresoras láser Ricoh para oficina. Equipos nuevos y seminuevos con asesoría HaiTech, Distribuidor Autorizado Ricoh. Venta, alquiler y envío nacional.',
+    'Impresoras láser Ricoh para oficina. Equipos nuevos y seminuevos con asesoría Haitech, Distribuidor Autorizado Ricoh. Venta, alquiler y envío nacional.',
   'toner-suministros':
     'Tóner original y compatible Ricoh, tintas, cartuchos y suministros. Compra online con stock, asesoría técnica y envío a todo el Perú. Distribuidor Autorizado.',
   repuestos:
@@ -127,7 +127,7 @@ export function buildCategoryMetaDescription(category, subcategoryName, heroSubt
 
   if (sub === 'unidades-compatibles') {
     return truncateMetaDescription(
-      'Unidades de imagen compatibles Ricoh e Intercopy. Repuestos con stock, precio competitivo y envío a todo el Perú. Distribuidor Autorizado HaiTech.',
+      'Unidades de imagen compatibles Ricoh e Intercopy. Repuestos con stock, precio competitivo y envío a todo el Perú. Distribuidor Autorizado Haitech.',
     );
   }
 
@@ -139,7 +139,7 @@ export function buildCategoryMetaDescription(category, subcategoryName, heroSubt
 
   const base = subtitle
     ? `${section}: ${subtitle}`
-    : `Explora ${section} en HaiStore, Distribuidor Autorizado Ricoh. Equipos, tóner, tintas y repuestos con asesoría experta.`;
+    : `Explora ${section} en Haitech, Distribuidor Autorizado Ricoh. Equipos, tóner, tintas y repuestos con asesoría experta.`;
   return truncateMetaDescription(`${base} Cotiza online con envío a todo el Perú.`);
 }
 

@@ -1,42 +1,136 @@
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import useEmblaCarousel from 'embla-carousel-react';
 
-import { HaitechHomeProductCard } from '@/components/haitech-home/haitech-home-product-card';
+import { HaitechHomeHoursDealCard } from '@/components/haitech-home/haitech-home-hours-deal-card';
 import { HAITECH_HOME } from '@/data/haitech-home-shell';
+import { type HaitechShopProduct } from '@/data/haitech-home-shop';
 import {
-  HAITECH_HOME_FEATURED_CATEGORY_CHIPS,
-  HAITECH_HOME_FEATURED_DEFAULT_CHIP,
-} from '@/data/haitech-home-featured-section';
-import {
-  HAITECH_SHOP_FAVORITE_PRODUCTS,
-  type HaitechShopProduct,
-} from '@/data/haitech-home-shop';
+  CATALOG_INDEX_UPDATED_EVENT,
+  loadCatalogIndex,
+} from '@/lib/catalog-featured';
+import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
+import { getSecondsUntilLimaMidnight } from '@/lib/flash-deals';
+import { listHoursDealOfferProducts } from '@/lib/hours-deal-offer-products';
 import { cn } from '@/lib/utils';
 
-const FEATURED_DISPLAY_LIMIT = 4;
-
-const DEFAULT_CHIP =
-  HAITECH_HOME_FEATURED_CATEGORY_CHIPS.find(
-    (chip) => chip.id === HAITECH_HOME_FEATURED_DEFAULT_CHIP,
-  ) ?? HAITECH_HOME_FEATURED_CATEGORY_CHIPS[0]!;
-
-function resolveFeaturedProducts(catalog: readonly HaitechShopProduct[]): HaitechShopProduct[] {
-  const fixedIds = DEFAULT_CHIP.fixedProductIds ?? [];
-  const byId = new Map(catalog.map((product) => [product.id, product]));
-  return fixedIds
-    .map((id) => byId.get(id))
-    .filter((product): product is HaitechShopProduct => product != null)
-    .slice(0, FEATURED_DISPLAY_LIMIT);
+function padTwo(value: number): string {
+  return String(value).padStart(2, '0');
 }
 
-/**
- * Productos destacados — grid de 4 tarjetas (mockup home).
- */
-export function HaitechHomeFavoritesSection({ className }: { className?: string }) {
-  const products = useMemo(
-    () => resolveFeaturedProducts(HAITECH_SHOP_FAVORITE_PRODUCTS),
-    [],
+function HoursDealCountdown() {
+  const [remaining, setRemaining] = useState(() => getSecondsUntilLimaMidnight());
+
+  useEffect(() => {
+    const tick = () => setRemaining(getSecondsUntilLimaMidnight());
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const days = Math.floor(remaining / 86400);
+  const hours = Math.floor((remaining % 86400) / 3600);
+  const minutes = Math.floor((remaining % 3600) / 60);
+  const seconds = remaining % 60;
+
+  const units = [
+    { value: padTwo(days), label: 'Días' },
+    { value: padTwo(hours), label: 'Hrs' },
+    { value: padTwo(minutes), label: 'Min' },
+    { value: padTwo(seconds), label: 'Seg' },
+  ] as const;
+
+  return (
+    <div
+      className="flex items-start gap-1.5 sm:gap-2"
+      role="timer"
+      aria-live="polite"
+      aria-atomic="true"
+      aria-label={`Oferta disponible por ${days} días, ${hours} horas, ${minutes} minutos y ${seconds} segundos`}
+    >
+      {units.map((unit, index) => (
+        <div key={unit.label} className="flex items-start gap-1.5 sm:gap-2">
+          {index > 0 ? (
+            <span
+              className="pt-2 text-xl font-bold leading-none text-white sm:pt-2.5 sm:text-2xl"
+              aria-hidden="true"
+            >
+              :
+            </span>
+          ) : null}
+          <div className="flex flex-col items-center gap-1.5">
+            <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-[20px] font-bold tabular-nums text-[#111111] sm:h-12 sm:w-12 sm:text-[22px]">
+              {unit.value}
+            </span>
+            <span className="text-[11px] font-medium leading-none text-white sm:text-[12px]">
+              {unit.label}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
   );
+}
+
+const SLIDE_CLASS =
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] md:flex-[0_0_calc((100%-1.5rem)/3)] xl:flex-[0_0_calc((100%-2.25rem)/4)]';
+
+const ARROW_CLASS =
+  'absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center text-white transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:pointer-events-none disabled:opacity-40';
+
+export function HaitechHomeFavoritesSection({ className }: { className?: string }) {
+  const [products, setProducts] = useState<HaitechShopProduct[]>(() => listHoursDealOfferProducts());
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const refresh = () => {
+      if (!cancelled) setProducts(listHoursDealOfferProducts());
+    };
+
+    void loadCatalogIndex().then(refresh);
+    if (typeof window === 'undefined') return () => {
+      cancelled = true;
+    };
+
+    window.addEventListener(CATALOG_INDEX_UPDATED_EVENT, refresh);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(CATALOG_INDEX_UPDATED_EVENT, refresh);
+    };
+  }, []);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+  const showNav = products.length > 2;
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: 'start',
+    containScroll: 'trimSnaps',
+    dragFree: false,
+    slidesToScroll: 1,
+    watchDrag: emblaShouldWatchDrag,
+  });
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const onSelect = () => {
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi]);
 
   return (
     <section
@@ -45,46 +139,73 @@ export function HaitechHomeFavoritesSection({ className }: { className?: string 
       aria-labelledby="haitech-favorites-title"
     >
       <div
-        className="mx-auto px-3 pb-6 pt-2 sm:px-4 sm:pb-8 sm:pt-3 lg:px-5 xl:px-6"
+        className="mx-auto px-3 py-4 sm:px-4 sm:py-6 lg:px-5 xl:px-6"
         style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}
       >
-        <header className="mb-4 flex items-center justify-between gap-4 sm:mb-5">
-          <h2
-            id="haitech-favorites-title"
-            className="flex min-w-0 items-center gap-2.5 font-[family-name:var(--font-infobox)] text-[20px] font-bold text-[#111111] sm:text-[24px] lg:text-[26px]"
-          >
-            <span
-              className="inline-block h-6 w-1 shrink-0 rounded-full bg-[#E30613]"
-              aria-hidden="true"
-            />
-            Productos Destacados
-          </h2>
-
-          <Link
-            to={DEFAULT_CHIP.href}
-            className="shrink-0 text-[13px] font-semibold text-[#E30613] transition-colors hover:text-[#c90511] sm:text-[14px]"
-          >
-            Ver todos →
-          </Link>
-        </header>
-
-        {products.length > 0 ? (
-          <ul
-            className="grid grid-cols-2 gap-2.5 sm:gap-3.5 md:grid-cols-4 md:gap-4"
-            role="list"
-            aria-label="Productos destacados"
-          >
-            {products.map((product) => (
-              <li key={product.id} className="min-w-0">
-                <HaitechHomeProductCard product={product} variant="featured" />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="rounded-xl border border-dashed border-[#D9DEE7] bg-[#FAFBFC] px-4 py-10 text-center">
-            <p className="text-sm text-[#666666]">No hay productos destacados por el momento.</p>
+        <div className="flex flex-col gap-4 rounded-[28px] bg-[#E30613] px-3 py-4 sm:px-5 sm:py-5 lg:flex-row lg:items-center lg:gap-6 lg:px-6 lg:py-5">
+          <div className="shrink-0 lg:w-[230px] xl:w-[250px]">
+            <h2
+              id="haitech-favorites-title"
+              className="font-[family-name:var(--font-infobox)] text-[28px] font-semibold leading-[0.95] text-white sm:text-[32px] lg:text-[36px]"
+            >
+              Solo
+              <span className="mt-0.5 block text-[30px] font-extrabold uppercase tracking-wide sm:text-[34px] lg:text-[38px]">
+                POR HORAS
+              </span>
+            </h2>
+            <p className="mt-4 text-[13px] font-medium text-white sm:text-[14px]">
+              Oferta disponible hasta:
+            </p>
+            <div className="mt-3">
+              <HoursDealCountdown />
+            </div>
           </div>
-        )}
+
+          {products.length > 0 ? (
+            <div className="relative min-w-0 flex-1 px-7 sm:px-9">
+              {showNav ? (
+                <>
+                  <button
+                    type="button"
+                    className={cn(ARROW_CLASS, 'left-0')}
+                    aria-label="Productos anteriores"
+                    disabled={!canScrollPrev}
+                    onClick={scrollPrev}
+                  >
+                    <ChevronLeft className="size-8" strokeWidth={1.6} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    className={cn(ARROW_CLASS, 'right-0')}
+                    aria-label="Productos siguientes"
+                    disabled={!canScrollNext}
+                    onClick={scrollNext}
+                  >
+                    <ChevronRight className="size-8" strokeWidth={1.6} aria-hidden="true" />
+                  </button>
+                </>
+              ) : null}
+
+              <div className="overflow-hidden" ref={emblaRef}>
+                <ul
+                  className="flex touch-pan-y gap-3"
+                  role="list"
+                  aria-label="Ofertas solo por horas"
+                >
+                  {products.map((product) => (
+                    <li key={product.id} className={SLIDE_CLASS}>
+                      <HaitechHomeHoursDealCard product={product} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <div className="min-w-0 flex-1 rounded-2xl bg-white/10 px-4 py-10 text-center">
+              <p className="text-sm text-white/80">No hay ofertas por horas por el momento.</p>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

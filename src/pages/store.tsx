@@ -13,6 +13,15 @@ import {
   isStoreShowcaseCategorySlug,
   STORE_SHOWCASE_HASH,
 } from '@/lib/store-showcase-path';
+
+function isStayInShowcaseState(state: unknown): boolean {
+  return (
+    typeof state === 'object' &&
+    state !== null &&
+    'stayInShowcase' in state &&
+    state.stayInShowcase === true
+  );
+}
 import { vitrinaCanonicalPath } from '../../shared/seo/public-paths.js';
 import { cn } from '@/lib/utils';
 
@@ -41,6 +50,7 @@ export function StorePage() {
   useSeo(storeSeo);
 
   useLayoutEffect(() => {
+    if (isStayInShowcaseState(location.state)) return;
     const hash = location.hash.replace(/^#/, '');
     if (hash === STORE_SHOWCASE_HASH) return;
     if (isVitrinaCategory) {
@@ -51,7 +61,7 @@ export function StorePage() {
       return;
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [location.pathname, location.hash, isVitrinaCategory]);
+  }, [location.hash, location.pathname, location.state, isVitrinaCategory]);
 
   return (
     <div className={cn('store-storefront home-landing-sans flex flex-col', HOME_LANDING_SURFACE_CLASS)}>

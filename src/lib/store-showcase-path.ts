@@ -87,6 +87,9 @@ const FILTER_IDS: readonly HaitechShowcaseFilterId[] = [
 
 const SHOWCASE_HASH = 'equipos-vitrina';
 
+/** Evita salto de scroll al aplicar filtros en la misma vitrina. */
+export const STAY_IN_SHOWCASE_STATE = { stayInShowcase: true } as const;
+
 function isCategoryId(value: string): value is HaitechEquipmentShowcaseCategoryId {
   return (CATEGORY_IDS as readonly string[]).includes(value);
 }
@@ -321,6 +324,8 @@ export function parseStoreShowcaseLocation(
   const filtro = searchParams.get('filtro');
   if (origen && isFilterId(origen)) result.filter = origen;
 
+  const isBareTienda = pathname === '/tienda' || pathname === '/tienda/';
+
   if (categoryId === 'laptops') {
     result.laptopSpecFilters = parseLaptopSpecFilters(searchParams);
   } else if (categoryId === 'formato-ancho') {
@@ -332,6 +337,10 @@ export function parseStoreShowcaseLocation(
     categoryId !== 'repuestos'
   ) {
     result.equipmentSpecFilters = parseEquipmentSpecFilters(searchParams);
+  } else if (isBareTienda) {
+    result.equipmentSpecFilters = parseEquipmentSpecFilters(searchParams);
+    result.formatoAnchoSpecFilters = parseFormatoAnchoSpecFilters(searchParams);
+    result.laptopSpecFilters = parseLaptopSpecFilters(searchParams);
   } else if (filtro && isFilterId(filtro) && EQUIPMENT_SPEC_FILTERS.has(filtro)) {
     result.equipmentSpecFilters = parseEquipmentSpecFilters(searchParams);
   }

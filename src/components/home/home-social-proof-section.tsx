@@ -19,7 +19,7 @@ export function HomeSocialProofSection({ className }: { className?: string }) {
             className="home-section-title text-balance text-xl font-bold tracking-tight text-[#0f1f3d] sm:text-2xl"
           >
             Empresas que{' '}
-            <span className="text-red-600">confían</span> en HaiTech
+            <span className="text-red-600">confían</span> en Haitech
           </h2>
           <p className="mt-1.5 text-pretty text-sm text-muted-foreground">
             Clientes reales y entregas en todo el Perú.

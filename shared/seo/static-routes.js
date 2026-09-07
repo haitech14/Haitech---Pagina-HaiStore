@@ -92,7 +92,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/guias/alquiler-vs-compra-fotocopiadora',
     title: 'Alquiler vs compra | Haitech',
     description:
-      'Compara alquilar o comprar fotocopiadora Ricoh en Perú: inversión, mantenimiento, tóner y flexibilidad. Orientación HaiStore Lima.',
+      'Compara alquilar o comprar fotocopiadora Ricoh en Perú: inversión, mantenimiento, tóner y flexibilidad. Orientación Haitech Lima.',
     pageName: 'Alquiler vs compra',
     jsonLdKind: 'webpage',
   },
@@ -100,7 +100,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/guias/mantenimiento-fotocopiadoras',
     title: 'Mantenimiento de fotocopiadoras | Haitech',
     description:
-      'Señales de que tu fotocopiadora Ricoh necesita mantenimiento: calidad, ruidos, atascos y contadores. Soporte técnico HaiStore en Perú.',
+      'Señales de que tu fotocopiadora Ricoh necesita mantenimiento: calidad, ruidos, atascos y contadores. Soporte técnico Haitech en Perú.',
     pageName: 'Mantenimiento de fotocopiadoras',
     jsonLdKind: 'webpage',
   },
@@ -116,7 +116,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/modelos/im-550f',
     title: 'Ricoh IM 550F | Haitech',
     description:
-      'Ricoh IM 550F: multifuncional B/N A4 de alto volumen. Compra nuevo o seminuevo con Distribuidor Autorizado HaiStore. Tóner, instalación y soporte en Perú.',
+      'Ricoh IM 550F: multifuncional B/N A4 de alto volumen. Compra nuevo o seminuevo con Distribuidor Autorizado Haitech. Tóner, instalación y soporte en Perú.',
     pageName: 'Ricoh IM 550F',
     jsonLdKind: 'webpage',
   },
@@ -124,7 +124,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/modelos/im-430f',
     title: 'Ricoh IM 430F | Haitech',
     description:
-      'Ricoh IM 430F: multifuncional B/N compacta para oficina. Venta nueva y seminueva con Distribuidor Autorizado HaiStore en Perú.',
+      'Ricoh IM 430F: multifuncional B/N compacta para oficina. Venta nueva y seminueva con Distribuidor Autorizado Haitech en Perú.',
     pageName: 'Ricoh IM 430F',
     jsonLdKind: 'webpage',
   },
@@ -132,7 +132,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/modelos/im-c300f',
     title: 'Ricoh IM C300F | Haitech',
     description:
-      'Ricoh IM C300F color A4 con SPDF. Compra nueva o seminueva en HaiStore, Distribuidor Autorizado Ricoh en Perú.',
+      'Ricoh IM C300F color A4 con SPDF. Compra nueva o seminueva en Haitech, Distribuidor Autorizado Ricoh en Perú.',
     pageName: 'Ricoh IM C300F',
     jsonLdKind: 'webpage',
   },
@@ -140,7 +140,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/modelos/im-c320f',
     title: 'Ricoh IM C320F | Haitech',
     description:
-      'Ricoh IM C320F multifuncional a color. Venta con Distribuidor Autorizado HaiStore: stock, tóner e instalación en Perú.',
+      'Ricoh IM C320F multifuncional a color. Venta con Distribuidor Autorizado Haitech: stock, tóner e instalación en Perú.',
     pageName: 'Ricoh IM C320F',
     jsonLdKind: 'webpage',
   },
@@ -148,7 +148,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/modelos/im-460f',
     title: 'Ricoh IM 460F | Haitech',
     description:
-      'Ricoh IM 460F multifuncional monocromo. Compra con Distribuidor Autorizado HaiStore en Perú.',
+      'Ricoh IM 460F multifuncional monocromo. Compra con Distribuidor Autorizado Haitech en Perú.',
     pageName: 'Ricoh IM 460F',
     jsonLdKind: 'webpage',
   },
@@ -156,7 +156,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/modelos/mp-3055',
     title: 'Ricoh MP 3055 | Haitech',
     description:
-      'Ricoh MP 3055 seminueva B/N. Alternativa de productividad con garantía HaiStore, Distribuidor Autorizado Ricoh.',
+      'Ricoh MP 3055 seminueva B/N. Alternativa de productividad con garantía Haitech, Distribuidor Autorizado Ricoh.',
     pageName: 'Ricoh MP 3055',
     jsonLdKind: 'webpage',
   },
@@ -164,7 +164,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/modelos/im-c2000',
     title: 'Ricoh IM C2000 | Haitech',
     description:
-      'Ricoh IM C2000 color A3 seminueva. Cotiza con HaiStore, Distribuidor Autorizado Ricoh en Perú.',
+      'Ricoh IM C2000 color A3 seminueva. Cotiza con Haitech, Distribuidor Autorizado Ricoh en Perú.',
     pageName: 'Ricoh IM C2000',
     jsonLdKind: 'webpage',
   },
@@ -172,7 +172,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/modelos/im-600f',
     title: 'Ricoh IM 600F | Haitech',
     description:
-      'Ricoh IM 600F seminueva de alto volumen. Stock y soporte con Distribuidor Autorizado HaiStore.',
+      'Ricoh IM 600F seminueva de alto volumen. Stock y soporte con Distribuidor Autorizado Haitech.',
     pageName: 'Ricoh IM 600F',
     jsonLdKind: 'webpage',
   },
@@ -180,7 +180,7 @@ export const STATIC_SEO_ROUTES = [
     pathname: '/descargas',
     title: 'Descargas | Haitech',
     description:
-      'Descarga utilidades de soporte técnico para impresoras y fotocopiadoras Ricoh: acceso remoto, diagnóstico de red y herramientas recomendadas por HaiTech, Distribuidor Autorizado.',
+      'Descarga utilidades de soporte técnico para impresoras y fotocopiadoras Ricoh: acceso remoto, diagnóstico de red y herramientas recomendadas por Haitech, Distribuidor Autorizado.',
     pageName: 'Descargas',
     jsonLdKind: 'webpage',
   },

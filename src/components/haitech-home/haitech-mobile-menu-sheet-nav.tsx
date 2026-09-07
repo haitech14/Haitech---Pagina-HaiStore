@@ -4,7 +4,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { HAITECH_BLACK_NAV_LINKS } from '@/data/haitech-home-shell';
 import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
 import { serviceHubPath } from '@/lib/service-hub';
-import { storeShowcasePath } from '@/lib/store-showcase-path';
 import { cn } from '@/lib/utils';
 
 type NavItem = {
@@ -18,16 +17,25 @@ type NavItem = {
 
 const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
   { id: 'inicio', to: '/', label: 'Inicio', end: true },
-  { id: 'tienda', to: '/tienda', label: 'Tienda', prefetch: true },
   {
-    id: 'equipos',
-    to: storeShowcasePath({ categoryId: 'multifuncionales' }),
-    label: 'Equipos',
+    id: 'comprar',
+    to: '/tienda',
+    label: 'Comprar',
     prefetch: true,
     matchActive: ({ pathname }) =>
-      pathname.startsWith('/tienda') ||
+      pathname === '/tienda' ||
+      pathname.startsWith('/tienda/') ||
       pathname.startsWith('/categoria/') ||
       pathname.startsWith('/producto/'),
+  },
+  {
+    id: 'alquilar',
+    to: serviceHubPath('alquiler'),
+    label: 'Alquilar',
+    matchActive: ({ pathname }) =>
+      pathname.startsWith('/servicios/alquiler') ||
+      pathname === '/alquiler' ||
+      pathname.startsWith('/categoria/alquiler'),
   },
   {
     id: 'servicio-tecnico',
@@ -35,15 +43,6 @@ const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
     label: 'Servicio Técnico',
     matchActive: ({ pathname, search }) =>
       pathname.startsWith('/servicios') && search.includes('seccion=servicio-tecnico'),
-  },
-  {
-    id: 'alquiler',
-    to: serviceHubPath('alquiler'),
-    label: 'Alquiler',
-    matchActive: ({ pathname }) =>
-      pathname.startsWith('/servicios/alquiler') ||
-      pathname === '/alquiler' ||
-      pathname.startsWith('/categoria/alquiler'),
   },
   ...HAITECH_BLACK_NAV_LINKS.filter(
     (item) => item.id !== 'servicio-tecnico' && item.id !== 'alquiler',

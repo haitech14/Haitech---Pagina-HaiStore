@@ -15,11 +15,13 @@ const PILL_VARIANT_CLASS: Record<ProductCardPillVariant, string> = {
   primary: 'bg-[#0f1f3d] text-white',
   secondary: 'bg-[#e8eef7] text-[#1a3052]',
   promo: 'uppercase',
+  offer: 'bg-[#E30613] text-white uppercase',
 };
 
 const PROMO_PILL_CLASS: Record<HomeLandingPromoBadgeId, string> = {
   'free-shipping': 'bg-[#16A34A] text-white',
   'best-seller': 'bg-[#FF9500] text-white',
+  offer: 'bg-[#E30613] text-white',
 };
 
 interface ProductCardPillProps {

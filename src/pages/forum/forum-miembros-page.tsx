@@ -22,7 +22,7 @@ export function ForumMiembrosPage() {
       </nav>
       <h1 className="text-2xl font-bold">Miembros</h1>
       <p className="mt-2 text-sm text-[hsl(var(--forum-muted))]">
-        Colaboradores más activos de la comunidad HaiStore.
+        Colaboradores más activos de la comunidad Haitech.
       </p>
       <ul className="mt-6 space-y-3" role="list">
         {isLoading ? (

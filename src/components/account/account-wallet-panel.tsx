@@ -21,7 +21,7 @@ const WALLET_STEPS: ReadonlyArray<{
   {
     id: 'ganar',
     title: 'Gana puntos',
-    body: 'Cada compra en HaiStore suma HaiPoints según el monto y las promociones vigentes. También puedes recibir puntos en campañas especiales.',
+    body: 'Cada compra en Haitech suma HaiPoints según el monto y las promociones vigentes. También puedes recibir puntos en campañas especiales.',
     icon: ShoppingBag,
   },
   {
@@ -64,7 +64,7 @@ export function AccountWalletPanel({ balance, ordersCount }: AccountWalletPanelP
               Cómo funcionan los HaiPoints
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              Guía rápida de tu billetera: gana, acumula y canjea en HaiStore.
+              Guía rápida de tu billetera: gana, acumula y canjea en Haitech.
             </p>
           </div>
         </header>

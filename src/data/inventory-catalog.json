@@ -4,9 +4,9 @@
       "id": "bfb264b8-70dc-4ad4-9686-2df02df8c75e",
       "code": "M-320F",
       "name": "Impresora Multifuncional B/N Nueva RICOH M 320F",
-      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nARDF — Alimentador de documentos reversible\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nARDF — Alimentador de documentos reversible\nFormato A4\nAño de fabricación: 2024\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 19,
+      "stock": 16,
       "category": "Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp?v=1784106609282",
@@ -128,7 +128,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 19
+          "quantity": 16
         },
         {
           "warehouse_id": "santa-catalina",
@@ -307,9 +307,9 @@
       "id": "ab878d89-61e0-4e51-a941-03455e1da407",
       "code": "MP-305+",
       "name": "Impresora Multifuncional B/N Nueva RICOH MP 305+",
-      "description": "Multifuncional monocromática A4 Ricoh MP 305+.",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nMultifuncional monocromática Ricoh MP 305+\nFormato A4 / A3\nAño de fabricación: 2023\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 5,
+      "stock": 6,
       "category": "Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/ab878d89-61e0-4e51-a941-03455e1da407.webp?v=1784112813940",
@@ -318,7 +318,7 @@
       "created_at": "2026-06-25T00:00:00.000Z",
       "prices": {
         "public": 1069,
-        "tecnico": 889,
+        "tecnico": 859,
         "mayorista": 809,
         "distribuidor": 939
       },
@@ -333,7 +333,7 @@
         {
           "id": "58fd5324-eb07-4b2f-b45d-9b61f7763799",
           "name": "Formato",
-          "value": ""
+          "value": "A4 / A3"
         },
         {
           "id": "4e7adafb-8762-4b0b-ad84-ea55765aceee",
@@ -374,7 +374,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 5
+          "quantity": 6
         },
         {
           "warehouse_id": "santa-catalina",
@@ -1276,7 +1276,7 @@
       "name": "Impresora Multifuncional Nueva RICOH IM 6010 (SPDF)",
       "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador doble scan / Mueble\nFormato A3\nProducción mensual alta\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-6010-spdf.webp?v=1784229443726",
@@ -1342,7 +1342,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "santa-catalina",
@@ -1706,9 +1706,9 @@
       "id": "ricoh-im-430f",
       "code": "418491",
       "name": "Impresora Multifuncional Nueva RICOH IM 430F",
-      "description": "Multifuncional monocromática A4, 40 ppm, panel táctil 10.1\".",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nMultifuncional monocromática A4, panel táctil 10.1\"\nFormato A4\nAño de fabricación: 2024\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 45,
+      "stock": 50,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-430f.webp?v=1784112813935",
@@ -1749,6 +1749,11 @@
           "id": "21fc1814-29d9-4f11-8bbe-904b0cfb2511",
           "name": "A4",
           "value": "Sí"
+        },
+        {
+          "id": "c1c34aad-abac-47a4-ae51-1500e7551017",
+          "name": "Formato",
+          "value": "A4"
         }
       ],
       "sort_order": 16,
@@ -1759,7 +1764,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 45
+          "quantity": 50
         },
         {
           "warehouse_id": "santa-catalina",
@@ -2080,9 +2085,9 @@
     {
       "id": "328f41ef-d935-4807-85d0-e1db5bdf73fb",
       "name": "Impresora Multifuncional Nueva RICOH IM 550F",
-      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 55 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4 / OF\nAño de fabricación: 2024\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 37,
+      "stock": 39,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp?v=1784112813934",
@@ -2107,7 +2112,7 @@
         {
           "id": "79695416-f61c-40c0-95ca-a90b608c98d9",
           "name": "Formato papel",
-          "value": "A4"
+          "value": "A4 / OF"
         },
         {
           "id": "2d2183cf-bbde-4fcd-98ff-8fe24c75aba5",
@@ -2142,6 +2147,16 @@
         {
           "id": "ad2c94e8-e19f-4a37-a7ca-7f7d8e0fe2ed",
           "name": "A4",
+          "value": "Sí"
+        },
+        {
+          "id": "18a07d69-8d30-43de-a71d-5dd8309e2352",
+          "name": "Formato",
+          "value": "A4 / OF"
+        },
+        {
+          "id": "a7db7975-9fdc-43fb-9c66-689c7a3aa02d",
+          "name": "Oferta",
           "value": "Sí"
         }
       ],
@@ -2212,7 +2227,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 37
+          "quantity": 39
         },
         {
           "warehouse_id": "santa-catalina",
@@ -2255,7 +2270,8 @@
           "name": "",
           "purchase_price_usd": 1295.28
         }
-      ]
+      ],
+      "is_featured": true
     },
     {
       "id": "189620fe-a5e5-4526-a399-8aa6a308bd1d",
@@ -2360,7 +2376,7 @@
     {
       "id": "71289ec2-dbca-4780-b319-eb3d259fadb5",
       "name": "Impresora Multifuncional Nueva RICOH IM 460F",
-      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4 (también A3)\nProducción mensual 50,000 páginas al mes\nRegalo: 01 Toner de Inicio 5,000 páginas y Envio Gratis",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4 / A3\nAño de fabricación: 2026\nRegalo: Envío Gratis",
       "currency": "USD",
       "stock": 5,
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -2387,7 +2403,7 @@
         {
           "id": "070453e4-0753-461e-a90d-f3b35fb93726",
           "name": "Formato",
-          "value": "A4"
+          "value": "A4 / A3"
         },
         {
           "id": "c9b435d8-3827-44c1-bbcd-d2b98c94c1f7",
@@ -2417,7 +2433,7 @@
         {
           "id": "b647b7ec-b132-4e2c-b975-14059efce03b",
           "name": "Año",
-          "value": "2024"
+          "value": "2026"
         },
         {
           "id": "d4fd8b63-65e0-4c25-bb16-97cfb04f3871",
@@ -3845,9 +3861,9 @@
       "id": "ricoh-im-2510",
       "code": "IM-2510",
       "name": "Impresora Multifuncional Nueva RICOH IM 2510",
-      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nARDF / Mueble\nFormato A3\nProducción mensual media\nRegalo: Envío Gratis",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 25 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A3\nAño de fabricación: 2026\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 0,
+      "stock": 8,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-2510.webp?v=1788079312478",
@@ -3905,13 +3921,18 @@
         {
           "id": "4bcc9fb2-9585-4b0e-bc24-56cd122eddd1",
           "name": "Año",
-          "value": "2025"
+          "value": "2026"
+        },
+        {
+          "id": "7bc36473-1eb5-4061-b25d-55f35d1fd9e9",
+          "name": "Formato",
+          "value": "A3"
         }
       ],
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 8
         },
         {
           "warehouse_id": "santa-catalina",
@@ -3959,14 +3980,14 @@
       "id": "b32a43a1-09e4-49f6-8950-3639c9534700",
       "name": "Impresora Multifuncional Nueva RICOH IM 600F",
       "currency": "USD",
-      "stock": 0,
+      "stock": 1,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/b32a43a1-09e4-49f6-8950-3639c9534700.webp?v=1784112813935",
       "gallery": [],
       "prices": {
         "public": 2119,
-        "tecnico": 1869,
+        "tecnico": 1819,
         "mayorista": 1829,
         "distribuidor": 1919
       },
@@ -3981,7 +4002,7 @@
         {
           "id": "12e58189-576d-4607-a2aa-d557bd0dc4ca",
           "name": "Formato papel",
-          "value": "A4"
+          "value": "A4 / OF"
         },
         {
           "id": "d8735f09-77e8-46ef-9dbb-85cbc96c8b9e",
@@ -4017,6 +4038,11 @@
           "id": "d30974d9-34df-42c3-bad2-18d4c0ccd619",
           "name": "A4",
           "value": "Sí"
+        },
+        {
+          "id": "5a9d14b1-8287-4470-bb17-43370942a05a",
+          "name": "Formato",
+          "value": "A4 / OF"
         }
       ],
       "sort_order": 36,
@@ -4024,7 +4050,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 1
         },
         {
           "warehouse_id": "santa-catalina",
@@ -4066,15 +4092,16 @@
           "name": "",
           "purchase_price_usd": 1511.28
         }
-      ]
+      ],
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 60 ppm\nConectividad: Wi-Fi, Ethernet, USB\nAlimentador estándar\nFormato A4 / OF\nAño de fabricación: 2024\nRegalo: Envío Gratis"
     },
     {
       "id": "2177d10d-b23c-4383-aa33-2eb3393de4e0",
       "code": "IM-6010",
-      "name": "Impresora Multifuncional NUEVA RICOH IM 6010 (ARDF)",
-      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nARDF / Mueble\nFormato A3\nProducción mensual alta\nRegalo: Envío Gratis",
+      "name": "Impresora Multifuncional Nueva RICOH IM 6010 (ARDF)",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 60 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A3\nAño de fabricación: 2026\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 1,
+      "stock": 2,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-6010-spdf.webp?v=1788079312481",
@@ -4106,7 +4133,7 @@
         {
           "id": "91694b5f-dd03-41fa-aed8-dea8d33bb1e1",
           "name": "Año",
-          "value": "2023"
+          "value": "2026"
         },
         {
           "id": "f7be6da9-13b8-4e4d-801e-26fa55c8cd39",
@@ -4127,12 +4154,22 @@
           "id": "646301f8-bcd2-444d-8c88-93b0f37206ae",
           "name": "Alimentador (ADF)",
           "value": "ARDF"
+        },
+        {
+          "id": "3404b1f5-93a1-4eac-8a0c-a3ad6914dd16",
+          "name": "Formato",
+          "value": "A3"
+        },
+        {
+          "id": "531827e3-9b5d-4e2e-85ad-d9b45b0ce440",
+          "name": "Oferta",
+          "value": "Sí"
         }
       ],
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 2
         },
         {
           "warehouse_id": "santa-catalina",
@@ -4152,7 +4189,7 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "san-juan-lurigancho",
@@ -4177,13 +4214,14 @@
           "purchase_price_usd": 6299.28
         }
       ],
-      "purchase_price_usd": 6299.28
+      "purchase_price_usd": 6299.28,
+      "is_featured": true
     },
     {
       "id": "196857c6-738b-4162-90aa-50dee575bcd8",
       "name": "Impresora Multifuncional Nueva RICOH IM 2500",
       "currency": "USD",
-      "stock": 6,
+      "stock": 10,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/196857c6-738b-4162-90aa-50dee575bcd8.webp?v=1784092875242",
@@ -4241,6 +4279,11 @@
           "id": "1bd17d6a-e42c-42b8-8d17-3d6e4d490081",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "89128a47-944e-471b-a8ff-809547f5ab82",
+          "name": "Formato",
+          "value": "A3"
         }
       ],
       "sort_order": 38,
@@ -4248,7 +4291,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 6
+          "quantity": 10
         },
         {
           "warehouse_id": "santa-catalina",
@@ -4291,20 +4334,21 @@
           "name": "",
           "purchase_price_usd": 3023.28
         }
-      ]
+      ],
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 25 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A3\nAño de fabricación: 2022\nRegalo: Envío Gratis"
     },
     {
       "id": "9c65bcbd-3a13-41dd-81b1-95cb3256a7c1",
       "name": "Impresora Multifuncional Nueva RICOH IM C2010",
       "currency": "USD",
-      "stock": 3,
+      "stock": 4,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp?v=1784095816079",
       "gallery": [],
       "prices": {
         "public": 4829,
-        "tecnico": 4579,
+        "tecnico": 4575,
         "mayorista": 4400,
         "distribuidor": 4679
       },
@@ -4329,7 +4373,7 @@
         {
           "id": "44623182-7312-424a-9b5f-1f9dd0d9dfe0",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "ARDF"
         },
         {
           "id": "c3811824-7d6c-4764-a632-23b52212f09a",
@@ -4355,6 +4399,11 @@
           "id": "60691de2-9d8b-43a8-b07d-c9ff16504cf5",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "70c4d1eb-abe1-4517-b530-a982a291493e",
+          "name": "Formato",
+          "value": "A4 / A3"
         }
       ],
       "sort_order": 39,
@@ -4362,7 +4411,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 3
+          "quantity": 4
         },
         {
           "warehouse_id": "santa-catalina",
@@ -4405,7 +4454,8 @@
           "name": "",
           "purchase_price_usd": 3592.8
         }
-      ]
+      ],
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 20 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A4 / A3\nAño de fabricación: 2024\nRegalo: Envío Gratis"
     },
     {
       "id": "21e2cbd5-f6e7-4b44-93db-ca736ea8727b",
@@ -4443,7 +4493,7 @@
         {
           "id": "29d41260-f796-4e3c-9aef-9e39c77c86c2",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "ARDF"
         },
         {
           "id": "4d43549e-dbf3-4763-b084-3d236357bc88",
@@ -4469,6 +4519,11 @@
           "id": "946a2645-9701-4e95-abfe-090290516946",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "b408d431-2110-4d83-a0d2-34622ea77749",
+          "name": "Formato",
+          "value": "A4 / A3"
         }
       ],
       "sort_order": 40,
@@ -4518,7 +4573,8 @@
           "purchase_price_usd": 4535.28
         }
       ],
-      "purchase_price_usd": 4535.28
+      "purchase_price_usd": 4535.28,
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 25 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A4 / A3\nAño de fabricación: 2024\nRegalo: Envío Gratis"
     },
     {
       "id": "15ee65ab-6565-44c4-974e-ff5ba68b0c26",
@@ -4556,7 +4612,7 @@
         {
           "id": "2dfa7ac6-af1f-4191-a953-c98bbb387d5f",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "ARDF"
         },
         {
           "id": "6d53ef3a-aed1-4217-9fbb-025425d5761c",
@@ -4582,6 +4638,11 @@
           "id": "e8d3394e-d770-47ec-8fdc-5916d54335e6",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "ba610757-f90a-4c21-89fb-c660532385f2",
+          "name": "Formato",
+          "value": "A4 / A3"
         }
       ],
       "sort_order": 41,
@@ -4631,7 +4692,8 @@
           "purchase_price_usd": 6839.28
         }
       ],
-      "purchase_price_usd": 6839.28
+      "purchase_price_usd": 6839.28,
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A4 / A3\nAño de fabricación: 2024\nRegalo: Envío Gratis"
     },
     {
       "id": "a9c74a93-3a15-42da-a9cf-33d59e2b1019",
@@ -4644,7 +4706,7 @@
       "gallery": [],
       "prices": {
         "public": 12100,
-        "tecnico": 11850,
+        "tecnico": 10989,
         "mayorista": 11700,
         "distribuidor": 11950
       },
@@ -4669,7 +4731,7 @@
         {
           "id": "172c62ca-686b-48e6-95b3-a1dbcba49031",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "Doble Scan"
         },
         {
           "id": "77310515-0486-4742-a33a-c4c12d212822",
@@ -4694,6 +4756,16 @@
         {
           "id": "33cd7c12-7cd6-4c6c-bb38-78a66ee70fc1",
           "name": "A3",
+          "value": "Sí"
+        },
+        {
+          "id": "aa28a805-5384-4549-8f25-7858735be807",
+          "name": "Formato",
+          "value": "A4 / A3"
+        },
+        {
+          "id": "42eb3741-b027-4e16-bd84-fc6209916f99",
+          "name": "Oferta",
           "value": "Sí"
         }
       ],
@@ -4745,7 +4817,9 @@
           "purchase_price_usd": 8992.8
         }
       ],
-      "purchase_price_usd": 8992.8
+      "purchase_price_usd": 8992.8,
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 45 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/SPDF / Mueble\nFormato A4 / A3\nAño de fabricación: 2024\nRegalo: Envío Gratis",
+      "is_featured": true
     },
     {
       "id": "4165ef6d-8d7f-4718-978a-a27d8006e1d6",
@@ -5311,7 +5385,7 @@
         {
           "id": "ea313866-b8ea-404c-a70f-cf5e5f41f9a8",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "Doble Scan"
         },
         {
           "id": "cda98e43-f584-4400-a951-86fbf69dce2e",
@@ -5337,6 +5411,11 @@
           "id": "2f63ff16-e76e-4cd2-a8f3-8a7154da6666",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "00349ee9-874f-4355-bf0f-392aa61f3e29",
+          "name": "Formato",
+          "value": "A4 / A3"
         }
       ],
       "sort_order": 49,
@@ -5386,14 +5465,15 @@
           "purchase_price_usd": 10432.8
         }
       ],
-      "purchase_price_usd": 10432.8
+      "purchase_price_usd": 10432.8,
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 60 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/SPDF / Mueble\nFormato A4 / A3\nAño de fabricación: 2024\nRegalo: Envío Gratis"
     },
     {
       "id": "0aea108a-acd2-4ddd-af29-b2265097813c",
       "name": "Impresora Multifuncional Nueva RICOH IM 3000",
-      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 30,000 páginas al mes\nRegalo: 01 Toner de Inicio y Envío Gratis",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A3\nAño de fabricación: 2023\nRegalo: Envío Gratis",
       "currency": "USD",
-      "stock": 2,
+      "stock": 5,
       "category": "Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/0aea108a-acd2-4ddd-af29-b2265097813c.webp?v=1784112813940",
@@ -5425,7 +5505,7 @@
         {
           "id": "2394d92b-0086-4762-9b15-b409ddd3837d",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "ARDF"
         },
         {
           "id": "870e8013-c4e2-42af-a8df-73846fa59686",
@@ -5451,6 +5531,11 @@
           "id": "8fd38c57-edf7-4db3-92ac-5824b2790d8b",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "64ca5d75-733e-4f19-ad67-1826db269930",
+          "name": "Formato",
+          "value": "A3"
         }
       ],
       "sort_order": 50,
@@ -5523,7 +5608,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 2
+          "quantity": 5
         },
         {
           "warehouse_id": "santa-catalina",
@@ -5776,16 +5861,16 @@
     },
     {
       "id": "c0ad567a-6ad7-4857-a087-fd574a903a04",
-      "name": "Impresora Multifuncional Nueva RICOH IM 5000 (SPDF)",
+      "name": "Impresora Multifuncional Nueva RICOH IM 5000",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/c0ad567a-6ad7-4857-a087-fd574a903a04.webp?v=1784093077030",
       "gallery": [],
       "prices": {
         "public": 7149,
-        "tecnico": 6899,
+        "tecnico": 6999,
         "mayorista": 6699,
         "distribuidor": 6999
       },
@@ -5810,12 +5895,12 @@
         {
           "id": "46d86429-8d63-4133-a825-e1435d0d72c8",
           "name": "Alimentador (ADF)",
-          "value": "Doble Scan"
+          "value": "ARDF"
         },
         {
           "id": "3b9aaaa9-0833-4e85-a530-66fcced12d84",
           "name": "Modelo de equipo",
-          "value": "IM 5000 (SPDF)"
+          "value": "IM 5000"
         },
         {
           "id": "addfc2e6-2a96-4b37-8ab8-2a8bcd94a118",
@@ -5836,6 +5921,11 @@
           "id": "f4f4c580-822e-4ba7-a51e-a138eb521a19",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "44414c97-797c-4602-8c6a-887a2a1d91c7",
+          "name": "Formato",
+          "value": "A3"
         }
       ],
       "sort_order": 53,
@@ -5843,7 +5933,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "santa-catalina",
@@ -5886,7 +5976,8 @@
           "name": "",
           "purchase_price_usd": 5327.28
         }
-      ]
+      ],
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 50 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A3\nAño de fabricación: 2023\nRegalo: Envío Gratis"
     },
     {
       "id": "ricoh-im-4010",
@@ -6125,7 +6216,7 @@
         {
           "id": "04a6b283-d92d-4f25-96c5-537e8a233c5b",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "ARDF"
         },
         {
           "id": "e66631e7-c72e-4e83-a3f2-573ca0c4ef19",
@@ -6145,12 +6236,17 @@
         {
           "id": "95a217a7-e5e3-4c11-a4ee-bfc5eb6c3de3",
           "name": "Año",
-          "value": "2023"
+          "value": "2026"
         },
         {
           "id": "43c6fb7e-6f10-4e41-80c0-d8626cf80be2",
           "name": "A3",
           "value": "Sí"
+        },
+        {
+          "id": "9a094a58-0525-4c5e-b91d-fa91872f8fa8",
+          "name": "Formato",
+          "value": "A3"
         }
       ],
       "sort_order": 56,
@@ -6201,7 +6297,8 @@
           "purchase_price_usd": 9280.8
         }
       ],
-      "purchase_price_usd": 9280.8
+      "purchase_price_usd": 9280.8,
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 70 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A3\nAño de fabricación: 2026\nRegalo: Envío Gratis"
     },
     {
       "id": "63c1beb6-9263-4680-87e2-141c72b44fd1",
@@ -6498,7 +6595,7 @@
       "gallery": [],
       "prices": {
         "public": 19100,
-        "tecnico": 18800,
+        "tecnico": 15999,
         "mayorista": 18500,
         "distribuidor": 12299
       },
@@ -6523,12 +6620,12 @@
         {
           "id": "fbfb4287-3eb6-494c-a0af-6a78a801878c",
           "name": "Alimentador (ADF)",
-          "value": "Doble Scan"
+          "value": "ARDF"
         },
         {
           "id": "5c3ca343-7984-409a-ae15-7b4d28dbf4ed",
           "name": "Modelo de equipo",
-          "value": "IM 8000 (SPDF)"
+          "value": "IM 8000"
         },
         {
           "id": "fe9302f7-b05f-4914-860e-fd2ad7cb3cfe",
@@ -6538,12 +6635,22 @@
         {
           "id": "b6a71d6c-597f-48e2-906c-5a8607f75d0a",
           "name": "Velocidad",
-          "value": "70 ppm"
+          "value": "80 ppm"
         },
         {
           "id": "0dbd0d2a-3217-4f56-a01a-583adb25651a",
           "name": "Año",
-          "value": "2025"
+          "value": "2026"
+        },
+        {
+          "id": "79564098-2103-4cf1-bfc4-6c997204a047",
+          "name": "Formato",
+          "value": "A3"
+        },
+        {
+          "id": "cb7f7a34-0244-4b85-a9f4-7b99def8bc75",
+          "name": "A3",
+          "value": "Sí"
         }
       ],
       "sort_order": 60,
@@ -6593,7 +6700,8 @@
           "purchase_price_usd": 14328
         }
       ],
-      "purchase_price_usd": 14328
+      "purchase_price_usd": 14328,
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 80 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A3\nAño de fabricación: 2026\nRegalo: Envío Gratis"
     },
     {
       "id": "9dc389e0-c7a0-47f4-8551-e536ffb0a80e",
@@ -6972,14 +7080,14 @@
       "id": "5a142c47-521c-47af-92ec-dda8808907c9",
       "name": "Impresora Multifuncional Nueva RICOH IM C401F",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/5a142c47-521c-47af-92ec-dda8808907c9.webp?v=1784112813942",
       "gallery": [],
       "prices": {
         "public": 2799,
-        "tecnico": 2599,
+        "tecnico": 2240,
         "mayorista": 2650,
         "distribuidor": 2750
       },
@@ -6994,7 +7102,7 @@
         {
           "id": "4059c889-6327-44a0-a1d2-db4fb9c8138b",
           "name": "Formato papel",
-          "value": "A4"
+          "value": "A4 / OF"
         },
         {
           "id": "770d971c-557a-4506-8de9-fdbf715c5382",
@@ -7004,7 +7112,32 @@
         {
           "id": "253562e8-2808-4086-990d-263bb8ad7141",
           "name": "Alimentador (ADF)",
-          "value": "Estándar"
+          "value": "Doble Scan"
+        },
+        {
+          "id": "1a26eb52-9fd0-4c4f-bdc2-104fac06ea9a",
+          "name": "Formato",
+          "value": "A4 / OF"
+        },
+        {
+          "id": "19f023d9-6db7-4df1-af49-2b26128e8158",
+          "name": "Velocidad",
+          "value": "40 ppm"
+        },
+        {
+          "id": "fdacfce8-f06d-408c-a7cc-700c9558f9ef",
+          "name": "Año",
+          "value": "2025"
+        },
+        {
+          "id": "982369b5-1624-48a3-a901-9fc66d45bcc0",
+          "name": "Modelo de equipo",
+          "value": "IM C401F"
+        },
+        {
+          "id": "09825c79-6140-4d6a-9ba6-08ee1c5d52bc",
+          "name": "A4",
+          "value": "Sí"
         }
       ],
       "sort_order": 65,
@@ -7044,7 +7177,7 @@
         },
         {
           "warehouse_id": "chiclayo",
-          "quantity": 1
+          "quantity": 0
         }
       ],
       "purchase_price_usd": 2159.28,
@@ -7055,7 +7188,8 @@
           "purchase_price_usd": 2159.28
         }
       ],
-      "updated_at": "2026-09-03T18:29:02.909Z"
+      "updated_at": "2026-09-03T18:29:02.909Z",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/SPDF\nFormato A4 / OF\nAño de fabricación: 2025\nRegalo: Envío Gratis"
     },
     {
       "id": "bc83df1c-b980-428c-9e41-33c862c411be",
@@ -73515,7 +73649,7 @@
       "id": "481dbc77-436b-464d-b76f-930f7d79f4ff",
       "name": "Impresora Multifuncional Nueva RICOH IM C320F",
       "currency": "USD",
-      "stock": 15,
+      "stock": 20,
       "category": "Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/481dbc77-436b-464d-b76f-930f7d79f4ff.webp?v=1784112813941",
@@ -73524,7 +73658,7 @@
       ],
       "prices": {
         "public": 2199,
-        "tecnico": 1929,
+        "tecnico": 1959,
         "mayorista": 0,
         "distribuidor": 1979
       },
@@ -73539,7 +73673,7 @@
         {
           "id": "30dba258-918f-4945-8d2d-a8c9334e4301",
           "name": "Formato papel",
-          "value": "A4"
+          "value": "A4 / OF"
         },
         {
           "id": "88629afc-2123-47bd-91b6-6ebb7aefbd77",
@@ -73570,10 +73704,15 @@
           "id": "9ac2cd5f-267f-4ddf-bc4b-f0dbfafe9366",
           "name": "A4",
           "value": "Sí"
+        },
+        {
+          "id": "fc608be1-932f-4e0a-941d-1f1db5efad83",
+          "name": "Formato",
+          "value": "A4 / OF"
         }
       ],
       "sort_order": 76,
-      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4 / OF\nAño de fabricación: 2025\nRegalo: Envío Gratis",
       "slug": "impresora-multifuncional-nueva-ricoh-im-c320f-930f7d79f4ff",
       "storefront_feature_bar": [
         {
@@ -73640,7 +73779,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 20
         },
         {
           "warehouse_id": "santa-catalina",
@@ -73668,7 +73807,7 @@
         },
         {
           "warehouse_id": "lince",
-          "quantity": 15
+          "quantity": 0
         },
         {
           "warehouse_id": "chiclayo",
@@ -73687,7 +73826,399 @@
       "purchase_price_usd": 1576.8,
       "status": "activa",
       "bundle_components": [],
-      "volume_role_prices": []
+      "volume_role_prices": [],
+      "variant_product_ids": [
+        "ricoh-im-c320f-a4"
+      ]
+    },
+    {
+      "id": "ricoh-im-c320f-a4",
+      "code": "IM-C320F-A4",
+      "name": "Impresora Multifuncional Nueva RICOH IM C320F",
+      "slug": "impresora-multifuncional-nueva-ricoh-im-c320f-a4",
+      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 30 ppm\nConectividad: Wi-Fi, Ethernet, USB\nMultifuncional color A4\nFormato A4\nAño de fabricación: 2025\nRegalo: Envío Gratis",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales Nuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/481dbc77-436b-464d-b76f-930f7d79f4ff.webp?v=1784112813941",
+      "gallery": [
+        "/products/481dbc77-436b-464d-b76f-930f7d79f4ff-2.webp"
+      ],
+      "prices": {
+        "public": 999,
+        "tecnico": 859,
+        "mayorista": 889,
+        "distribuidor": 929
+      },
+      "created_at": "2026-09-07T18:37:40.449Z",
+      "sort_order": 77,
+      "status": "activa",
+      "is_featured": true,
+      "purchase_price_usd": 0,
+      "suppliers": [],
+      "attachments": [],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "variant_product_ids": [
+        "481dbc77-436b-464d-b76f-930f7d79f4ff"
+      ],
+      "attributes": [
+        {
+          "id": "5297a08c-8f74-4923-b5bd-a35a7a6c858a",
+          "name": "Formato",
+          "value": "A4"
+        },
+        {
+          "id": "22aca812-89c5-4a4b-976f-81ef846c8ecc",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "6c382db0-2e89-494d-977c-6d77f12d7c38",
+          "name": "Velocidad",
+          "value": "30 ppm"
+        },
+        {
+          "id": "f10261a1-c1de-4ca6-bbc1-c5728f3ff77f",
+          "name": "Año",
+          "value": "2025"
+        },
+        {
+          "id": "a7cf9117-8459-4785-9d21-4abd6843eb8b",
+          "name": "Modelo de equipo",
+          "value": "IM C320F"
+        },
+        {
+          "id": "bc013c16-c4b5-4911-b52e-fa192eef0823",
+          "name": "Color",
+          "value": "Color"
+        },
+        {
+          "id": "fbab3e24-cce0-4c9c-9fab-f9239b516600",
+          "name": "A4",
+          "value": "Sí"
+        },
+        {
+          "id": "2735ef7f-7666-44e4-b681-e043a66a461a",
+          "name": "Oferta",
+          "value": "Sí"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 1
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ]
+    },
+    {
+      "id": "lenovo-thinkcentre-m70q-i5-13",
+      "code": "M70Q-I5-13",
+      "name": "Mini PC Lenovo ThinkCentre M70q Core i5 13ª gen 8GB RAM 512GB SSD",
+      "slug": "mini-pc-lenovo-thinkcentre-m70q-i5-13va-8gb-512ssd",
+      "description": "Mini PC Lenovo ThinkCentre M70q\nProcesador Core i5 13ª generación\n8GB RAM · 512GB SSD\nAño de fabricación: 2025",
+      "currency": "USD",
+      "stock": 14,
+      "category": "Computadoras y Laptop",
+      "brand": "Lenovo",
+      "image_url": null,
+      "gallery": [],
+      "prices": {
+        "public": 279,
+        "tecnico": 229,
+        "mayorista": 239,
+        "distribuidor": 249
+      },
+      "created_at": "2026-09-07T18:37:40.453Z",
+      "sort_order": 78,
+      "status": "activa",
+      "purchase_price_usd": 0,
+      "suppliers": [],
+      "attachments": [],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "attributes": [
+        {
+          "id": "3047af71-e1e5-4c90-98dc-4a7e968634f3",
+          "name": "Formato",
+          "value": "MINI PC"
+        },
+        {
+          "id": "2aca88d8-3ca6-4f57-900d-9579adb79659",
+          "name": "Formato papel",
+          "value": "MINI PC"
+        },
+        {
+          "id": "05df04cf-621d-41a8-a3f3-5aac31836e88",
+          "name": "Velocidad",
+          "value": "i5-13ª gen"
+        },
+        {
+          "id": "bc3213b7-221d-4b90-a0d4-f09ebdb048c2",
+          "name": "Año",
+          "value": "2025"
+        },
+        {
+          "id": "a257b3c0-a4b5-4b8d-8f7d-bc96c6dad452",
+          "name": "Modelo de equipo",
+          "value": "ThinkCentre M70q"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 14
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ]
+    },
+    {
+      "id": "dell-optiplex-7010-i5-13",
+      "code": "OPTIPLEX-7010-I5",
+      "name": "Mini PC Dell OptiPlex 7010 Core i5 13ª gen 8GB RAM 512GB SSD",
+      "slug": "mini-pc-dell-optiplex-7010-i5-13va-8gb-512ssd",
+      "description": "Mini PC Dell OptiPlex 7010\nProcesador Core i5 13ª generación\n8GB RAM · 512GB SSD\nAño de fabricación: 2025",
+      "currency": "USD",
+      "stock": 4,
+      "category": "Computadoras y Laptop",
+      "brand": "Dell",
+      "image_url": null,
+      "gallery": [],
+      "prices": {
+        "public": 359,
+        "tecnico": 299,
+        "mayorista": 309,
+        "distribuidor": 329
+      },
+      "created_at": "2026-09-07T18:37:40.453Z",
+      "sort_order": 79,
+      "status": "activa",
+      "purchase_price_usd": 0,
+      "suppliers": [],
+      "attachments": [],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "attributes": [
+        {
+          "id": "169babbe-9f11-47e3-afa7-b64a521bf495",
+          "name": "Formato",
+          "value": "MINI PC"
+        },
+        {
+          "id": "3a6076f5-09e7-4418-b335-7f6a8b8a9fdc",
+          "name": "Formato papel",
+          "value": "MINI PC"
+        },
+        {
+          "id": "121a715e-ed40-48d1-aa04-7e9a6b421dba",
+          "name": "Velocidad",
+          "value": "i5-13ª gen"
+        },
+        {
+          "id": "e894ef60-3616-4f9e-907f-438f97d8f478",
+          "name": "Año",
+          "value": "2025"
+        },
+        {
+          "id": "46cf15a4-2676-46bf-b492-aeda568fae23",
+          "name": "Modelo de equipo",
+          "value": "OptiPlex 7010"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 4
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ]
+    },
+    {
+      "id": "lg-monitor-49uh5n-e",
+      "code": "49UH5N-E",
+      "name": "Monitor publicitario LG 49\" 49UH5N-E UHD",
+      "slug": "monitor-publicitario-lg-49-49uh5n-e",
+      "description": "Monitor publicitario LG 49 pulgadas\nModelo 49UH5N-E\nUHD Digital\nAño de fabricación: 2024",
+      "currency": "USD",
+      "stock": 10,
+      "category": "Monitores",
+      "brand": "LG",
+      "image_url": null,
+      "gallery": [],
+      "prices": {
+        "public": 649,
+        "tecnico": 559,
+        "mayorista": 579,
+        "distribuidor": 599
+      },
+      "created_at": "2026-09-07T18:37:40.453Z",
+      "sort_order": 80,
+      "status": "activa",
+      "purchase_price_usd": 0,
+      "suppliers": [],
+      "attachments": [],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "attributes": [
+        {
+          "id": "238a327b-7a7c-47dc-ad78-e166835ab868",
+          "name": "Formato",
+          "value": "LG"
+        },
+        {
+          "id": "09339e49-d024-4b50-87e3-bd43eafc295a",
+          "name": "Formato papel",
+          "value": "LG"
+        },
+        {
+          "id": "8a8a8435-80a1-4fb4-a6de-cea5c9c8c352",
+          "name": "Velocidad",
+          "value": "UHD Digital"
+        },
+        {
+          "id": "be4990f5-a5e1-4da4-8a80-f0097a62ce47",
+          "name": "Año",
+          "value": "2024"
+        },
+        {
+          "id": "dba129a2-9ebc-42a3-8c73-a10b179c83b2",
+          "name": "Modelo de equipo",
+          "value": "49UH5N-E"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 10
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ]
     }
   ],
   "warehouses": [

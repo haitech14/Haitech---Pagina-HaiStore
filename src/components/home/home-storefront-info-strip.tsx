@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 /** Barra de confianza bajo el hero (flujo normal, no flotante). */
 export function HomeStorefrontInfoStrip({ className }: { className?: string }) {
   return (
-    <section aria-label="Ventajas HaiTech" className={cn('bg-white pt-0 pb-3 sm:pb-4', className)}>
+    <section aria-label="Ventajas Haitech" className={cn('bg-white pt-0 pb-3 sm:pb-4', className)}>
       <div className="container">
         <div
           className={cn(

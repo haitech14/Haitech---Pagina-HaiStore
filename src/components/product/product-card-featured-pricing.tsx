@@ -108,7 +108,13 @@ export interface ProductCardFeaturedPricingProps {
   className?: string;
 }
 
-/** Precio dual USD · PEN para vitrinas del home (línea tachada arriba + precio actual abajo). */
+function formatFeaturedCompareLabel(usd: number, showPen: boolean, showUsd: boolean): string {
+  if (showPen && !showUsd) return formatPenFromUsd(usd);
+  if (showUsd && !showPen) return formatFeaturedUsdLabel(usd);
+  return formatPenFromUsd(usd);
+}
+
+/** Precio dual: S/ arriba y US$ debajo por defecto en vitrinas. */
 export function ProductCardFeaturedPricing({
   currentUsd,
   compareUsd,
@@ -116,8 +122,9 @@ export function ProductCardFeaturedPricing({
   accentUsd = false,
   className,
 }: ProductCardFeaturedPricingProps) {
-  const { displayCurrency } = useDisplayCurrency();
+  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
+  const penFirst = dualPriceOrder === 'pen-usd';
 
   if (isPriceOnRequest(currentUsd)) {
     return (
@@ -135,15 +142,17 @@ export function ProductCardFeaturedPricing({
     const discountPct = hasDiscount
       ? Math.round((1 - currentUsd / compareUsd) * 100)
       : 0;
-    const currentPrice = (
-      <span className="text-[#E30613]">{formatFeaturedUsdLabel(currentUsd)}</span>
-    );
+    const penLabel = formatPenFromUsd(currentUsd);
+    const usdLabel = formatFeaturedUsdLabel(currentUsd);
+    const primaryLabel = showUsd && showPen ? (penFirst ? penLabel : usdLabel) : showPen ? penLabel : usdLabel;
+    const secondaryLabel = showUsd && showPen ? (penFirst ? usdLabel : penLabel) : null;
+
     return (
       <div className={cn('space-y-0.5', className)}>
         {hasDiscount ? (
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[0.75rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] sm:text-[0.8125rem]">
-              {formatFeaturedUsdLabel(compareUsd)}
+              {formatFeaturedCompareLabel(compareUsd, showPen, showUsd)}
             </span>
             {discountPct > 0 ? (
               <span className="inline-flex rounded-full bg-[#E30613] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white">
@@ -152,7 +161,12 @@ export function ProductCardFeaturedPricing({
             ) : null}
           </div>
         ) : null}
-        <p className={FEATURED_PRICE_CURRENT_ACCENT_CLASS}>{currentPrice}</p>
+        <p className={FEATURED_PRICE_CURRENT_ACCENT_CLASS}>{primaryLabel}</p>
+        {secondaryLabel ? (
+          <p className="text-xs font-medium tabular-nums leading-tight text-[#6B7280] sm:text-sm">
+            {secondaryLabel}
+          </p>
+        ) : null}
         {hasDiscount && showAccentBar ? (
           <span
             className="mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]"

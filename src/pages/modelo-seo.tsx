@@ -33,7 +33,7 @@ export function ModeloSeoPage() {
       url: buildAbsoluteUrl(modelHubProductHref(item.productSlug)),
     })) ?? [];
   const itemList = buildItemListJsonLd({
-    name: hub ? `${hub.modelName} — opciones en HaiStore` : 'Modelos',
+    name: hub ? `${hub.modelName} — opciones en Haitech` : 'Modelos',
     description,
     url: buildAbsoluteUrl(pathname),
     items: listItems,
@@ -167,7 +167,7 @@ export function ModelosIndexPage() {
         {
           pathname: '/modelos',
           pageName: 'Modelos',
-          description: 'Guías por modelo de multifuncionales Ricoh en HaiStore.',
+          description: 'Guías por modelo de multifuncionales Ricoh en Haitech.',
         },
         SITE_ORIGIN,
       ),

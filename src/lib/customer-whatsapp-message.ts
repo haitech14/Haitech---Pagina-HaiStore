@@ -15,7 +15,7 @@ export function buildCustomerWhatsAppMessage(
     customer.full_name?.trim() ||
     'estimado cliente';
 
-  const lines = [`¡Hola ${name}! ${WA_EMOJI.wave}`, '', 'Te escribimos desde HaiStore.'];
+  const lines = [`¡Hola ${name}! ${WA_EMOJI.wave}`, '', 'Te escribimos desde Haitech.'];
 
   if (productNames.length > 0) {
     lines.push('', 'Productos de tu interés:', ...productNames.map((p) => `  • ${p}`));

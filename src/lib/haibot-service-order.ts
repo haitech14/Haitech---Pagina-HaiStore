@@ -58,7 +58,7 @@ export function buildHaibotServiceOrderMessage(
     '⚠️ *Problema reportado:*',
     problem,
     '',
-    '— Registrado vía Haibot · HaiStore',
+    '— Registrado vía Haibot · Haitech',
   ]
     .filter((line): line is string => line != null && line.length > 0)
     .join('\n');

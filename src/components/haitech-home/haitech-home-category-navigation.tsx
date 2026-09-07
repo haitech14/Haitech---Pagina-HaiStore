@@ -151,9 +151,9 @@ export function HaitechHomeCategoryNavigation({ className }: { className?: strin
                   '[&_form]:h-8 [&_form]:rounded-lg [&_form]:border-[#D9D9D9] [&_form]:shadow-none',
                   '[&_form]:focus-within:border-[#D9D9D9] [&_form]:focus-within:ring-1 [&_form]:focus-within:ring-black/10',
                   '[&_input]:h-8 [&_input]:pl-8 [&_input]:pr-2 [&_input]:text-[12px] [&_input]:placeholder:text-[#9A9A9A]',
-                  '[&_button]:!size-8 [&_form>svg]:left-2 [&_form>svg]:size-3.5 [&_form>svg]:text-[#888]',
-                  '[&_button_svg]:!size-3.5 [&_button_svg]:!text-white',
-                  '[&_button]:!rounded-r-lg [&_button]:!bg-[#E30613]',
+                  '[&_form>button[type=submit]]:!size-8 [&_form>svg]:left-2 [&_form>svg]:size-3.5 [&_form>svg]:text-[#888]',
+                  '[&_form>button[type=submit]_svg]:!size-3.5 [&_form>button[type=submit]_svg]:!text-white',
+                  '[&_form>button[type=submit]]:!rounded-r-lg [&_form>button[type=submit]]:!bg-[#E30613]',
                 )}
                 variant="segmented"
                 size="dense"

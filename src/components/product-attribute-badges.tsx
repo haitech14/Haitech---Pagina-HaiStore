@@ -25,7 +25,8 @@ function badgeDisplayText(badge: ProductDetailBadge, compact: boolean): string {
   return badge.value.trim();
 }
 
-function badgeVariant(badge: ProductDetailBadge): 'primary' | 'secondary' {
+function badgeVariant(badge: ProductDetailBadge): 'primary' | 'secondary' | 'offer' {
+  if (badge.id === 'oferta') return 'offer';
   if (badge.id === 'condicion') return 'primary';
   return 'secondary';
 }

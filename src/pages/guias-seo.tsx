@@ -49,7 +49,7 @@ export function GuiaSeoPage() {
 
   return (
     <SeoContentLanding
-      eyebrow="Guía HaiStore · Ricoh"
+      eyebrow="Guía Haitech · Ricoh"
       h1={guide.h1}
       lead={guide.lead}
       paragraphs={guide.paragraphs}
@@ -90,7 +90,7 @@ export function GuiasIndexPage() {
           Guías
         </h1>
         <p className="mt-4 text-pretty text-muted-foreground">
-          Contenido práctico de HaiStore, Distribuidor Autorizado Ricoh en Perú, para decidir con
+          Contenido práctico de Haitech, Distribuidor Autorizado Ricoh en Perú, para decidir con
           información clara antes de comprar o alquilar.
         </p>
         <ul className="mt-8 space-y-5">

@@ -30,6 +30,8 @@ interface ProductQuantityAddFooterProps {
   belowOnHover?: ReactNode;
   /** Muestra `belowOnHover` siempre visible (sin esperar hover en desktop). */
   belowAlways?: boolean;
+  /** Clases del contenedor bajo el botón (p. ej. menos padding entre CTAs). */
+  belowClassName?: string;
   /** No muestra el selector de cantidad (siempre agrega 1 unidad). */
   hideQuantity?: boolean;
   /** Etiqueta del botón de carrito (p. ej. «Comprar»). */
@@ -53,6 +55,7 @@ export function ProductQuantityAddFooter({
   endAdornment,
   belowOnHover,
   belowAlways = false,
+  belowClassName,
   hideQuantity = false,
   addLabel,
   addLabelHover,
@@ -94,8 +97,24 @@ export function ProductQuantityAddFooter({
 
   const addButtonClass =
     size === 'sm'
-      ? 'h-7 min-h-7 min-w-0 flex-1 gap-1 rounded-md px-1.5 text-[0.625rem] font-semibold sm:h-8 sm:min-h-8 sm:px-2 sm:text-xs'
-      : 'h-8 min-h-8 min-w-0 flex-1 gap-1.5 rounded-md px-2 text-xs font-semibold sm:h-9 sm:min-h-9 sm:text-sm';
+      ? hideQuantity
+        ? 'h-7 min-h-7 w-full min-w-0 flex-1 gap-1 rounded-md px-1.5 text-[0.625rem] font-semibold sm:h-8 sm:min-h-8 sm:px-2 sm:text-xs'
+        : 'h-7 min-h-7 min-w-0 flex-1 gap-1 rounded-md px-1.5 text-[0.625rem] font-semibold sm:h-8 sm:min-h-8 sm:px-2 sm:text-xs'
+      : hideQuantity
+        ? 'h-8 min-h-8 w-full min-w-0 flex-1 gap-1.5 rounded-md px-2 text-xs font-semibold sm:h-9 sm:min-h-9 sm:text-sm'
+        : 'h-8 min-h-8 min-w-0 flex-1 gap-1.5 rounded-md px-2 text-xs font-semibold sm:h-9 sm:min-h-9 sm:text-sm';
+  const longBuyLabel = (cartLabel?.replace(/\s/g, '').length ?? 0) >= 12;
+  const compactBuyWidth =
+    centeredActions &&
+    !hideQuantity &&
+    (longBuyLabel
+      ? 'w-[13.5rem] min-w-[13.5rem] flex-none sm:w-[15.75rem] sm:min-w-[15.75rem]'
+      : 'w-[9.5rem] min-w-[9.5rem] flex-none sm:w-[14.5rem] sm:min-w-[14.5rem]');
+  const compactBuyWidthOnHover =
+    centeredActions &&
+    revealQuantityOnHover &&
+    !hideQuantity &&
+    'sm:group-hover:w-[9.5rem] sm:group-hover:min-w-[9.5rem] sm:group-focus-within:w-[9.5rem] sm:group-focus-within:min-w-[9.5rem]';
 
   const quantityControl = hideQuantity ? null : (
     <div
@@ -161,8 +180,6 @@ export function ProductQuantityAddFooter({
     </div>
   );
 
-  const stackBuyWithBelow = Boolean(belowOnHover && centeredActions);
-
   const addButton = (
     <AddToCartButton
       product={product}
@@ -174,16 +191,19 @@ export function ProductQuantityAddFooter({
               addButtonClassName,
               // Reserva / a pedido: negro (pisa fondos rojos de las cards).
               'border border-foreground !bg-foreground !text-background shadow-none hover:!bg-foreground/90 hover:!text-background focus-visible:ring-ring',
+              compactBuyWidth,
+              compactBuyWidthOnHover,
             )
           : cn(
               'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
               addButtonClassName,
-              centeredActions && 'w-full flex-none',
-              stackBuyWithBelow &&
-                revealQuantityOnHover &&
-                !hideQuantity &&
-                'transition-[padding] duration-200 ease-out sm:group-hover:px-3 sm:group-focus-within:px-3 motion-reduce:transition-none',
+              compactBuyWidth,
+              compactBuyWidthOnHover,
             ),
+        centeredActions &&
+          revealQuantityOnHover &&
+          !hideQuantity &&
+          'transition-[width,min-width,padding] duration-200 ease-out sm:group-hover:px-3 sm:group-focus-within:px-3 motion-reduce:transition-none',
       )}
     >
       {!includesOnRequest ? (
@@ -224,44 +244,23 @@ export function ProductQuantityAddFooter({
   const hoverFooter =
     belowOnHover != null ? (
       belowAlways ? (
-        <div className="w-full pt-1.5">{belowOnHover}</div>
+        <div className={cn('w-full min-w-0 overflow-hidden', belowClassName ?? 'pt-1.5')}>
+          {belowOnHover}
+        </div>
       ) : (
         <div className={hoverRevealClass}>
-          <div className="min-h-0 w-full overflow-hidden pt-1.5">{belowOnHover}</div>
+          <div className={cn('min-h-0 w-full min-w-0 overflow-hidden', belowClassName ?? 'pt-1.5')}>
+            {belowOnHover}
+          </div>
         </div>
       )
     ) : null;
 
-  const buyActionStack = stackBuyWithBelow ? (
-    <div
-      className={cn(
-        'inline-flex min-w-0 flex-col items-stretch transition-[width] duration-200 ease-out motion-reduce:transition-none',
-        'w-[9.5rem] sm:w-[14.5rem]',
-        revealQuantityOnHover &&
-          !hideQuantity &&
-          'sm:group-hover:w-[9.5rem] sm:group-focus-within:w-[9.5rem]',
-      )}
-    >
-      {addButton}
-      {hoverFooter}
-    </div>
-  ) : null;
-
-  const actionRow = buyActionStack ? (
+  const actionRow = (
     <div
       className={cn(
         'flex min-w-0 items-stretch gap-1.5 sm:gap-2',
-        centeredActions ? 'shrink-0 justify-center' : 'flex-1',
-      )}
-    >
-      {buyActionStack}
-      {endAdornmentNode}
-    </div>
-  ) : (
-    <div
-      className={cn(
-        'flex min-w-0 items-stretch gap-1.5 sm:gap-2',
-        centeredActions ? 'shrink-0 justify-center' : 'flex-1',
+        centeredActions ? 'shrink-0' : 'w-full flex-1',
       )}
     >
       {addButton}
@@ -274,7 +273,7 @@ export function ProductQuantityAddFooter({
       <div className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}>
         {quantityControl}
         {actionRow}
-        {!stackBuyWithBelow ? hoverFooter : null}
+        {hoverFooter}
       </div>
     );
   }
@@ -282,15 +281,14 @@ export function ProductQuantityAddFooter({
   return (
     <div
       className={cn(
-        'flex w-full min-w-0 flex-col',
-        centeredActions && 'w-auto items-center',
+        'flex min-w-0 flex-col items-stretch',
+        centeredActions ? 'w-max max-w-full' : 'w-full',
         className,
       )}
     >
       <div
         className={cn(
-          'flex shrink-0 items-stretch',
-          centeredActions ? 'w-auto justify-center' : 'w-full',
+          'flex w-full shrink-0 items-stretch',
           hideQuantity
             ? 'gap-0'
             : revealQuantityOnHover
@@ -301,7 +299,7 @@ export function ProductQuantityAddFooter({
         {quantityControl}
         {actionRow}
       </div>
-      {!stackBuyWithBelow ? hoverFooter : null}
+      {hoverFooter}
     </div>
   );
 }

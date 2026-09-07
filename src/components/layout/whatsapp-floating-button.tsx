@@ -3,7 +3,7 @@ import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 import { cn } from '@/lib/utils';
 
 const WHATSAPP_MESSAGE =
-  'Hola, consulto desde HaiStore. Necesito una cotización y asesoría para elegir el equipo adecuado. ¿Me pueden ayudar?';
+  'Hola, consulto desde Haitech. Necesito una cotización y asesoría para elegir el equipo adecuado. ¿Me pueden ayudar?';
 
 const WHATSAPP_FAB_BOTTOM_REM = 1.25;
 

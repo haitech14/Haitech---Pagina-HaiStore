@@ -97,7 +97,7 @@ export const HOME_FAQ_ITEMS: readonly HomeFaqItem[] = [
     id: 'garantia-seminuevos',
     question: '¿Tienen garantía los equipos seminuevos?',
     answer:
-      'Sí. Los equipos seminuevos y remanufacturados incluyen garantía por escrito según modelo y condición, respaldada por revisión técnica previa a la entrega y soporte postventa HaiTech.',
+      'Sí. Los equipos seminuevos y remanufacturados incluyen garantía por escrito según modelo y condición, respaldada por revisión técnica previa a la entrega y soporte postventa Haitech.',
     icon: Shield,
   },
   {

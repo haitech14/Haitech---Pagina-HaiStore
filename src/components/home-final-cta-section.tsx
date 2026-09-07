@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 
 const ADVISOR_WHATSAPP_MESSAGE =
-  'Hola, vengo desde HaiStore. Necesito asesoría para elegir el equipo de impresión adecuado para mi negocio.';
+  'Hola, vengo desde Haitech. Necesito asesoría para elegir el equipo de impresión adecuado para mi negocio.';
 
 const advisorWhatsAppUrl = buildHaitechWhatsAppUrl(ADVISOR_WHATSAPP_MESSAGE);
 

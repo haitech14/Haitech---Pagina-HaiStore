@@ -21,7 +21,7 @@ export interface SupportDownloadItem {
 export const SUPPORT_DOWNLOADS_INTRO = {
   title: 'Descargas',
   description:
-    'Utilidades recomendadas por HaiTech para asistencia remota, diagnóstico de red y transferencia de archivos.',
+    'Utilidades recomendadas por Haitech para asistencia remota, diagnóstico de red y transferencia de archivos.',
 };
 
 export const SUPPORT_DOWNLOAD_ITEMS: SupportDownloadItem[] = [

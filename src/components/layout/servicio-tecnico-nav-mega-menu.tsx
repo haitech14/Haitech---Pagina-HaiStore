@@ -8,11 +8,13 @@ import { buildServicioTecnicoNavMegaMenu } from '@/lib/nav-mega-menu-builders';
 export function ServicioTecnicoNavMegaMenu({
   navRow = 'default',
   showIcon = true,
+  showChevron = true,
   label = 'Servicio Técnico',
   triggerHref,
 }: {
   navRow?: 'default' | 'secondary' | 'light' | 'light-compact' | 'haitech-black' | 'haitech-white';
   showIcon?: boolean;
+  showChevron?: boolean;
   label?: string;
   triggerHref?: string;
 }) {
@@ -30,6 +32,7 @@ export function ServicioTecnicoNavMegaMenu({
       isRouteActive={isRouteActive}
       navRow={navRow}
       showIcon={showIcon}
+      showChevron={showChevron}
       {...(triggerHref ? { triggerHref } : {})}
       {...(navRow === 'haitech-black' || navRow === 'haitech-white'
         ? { mockupMenuKind: 'servicio-tecnico' as const }

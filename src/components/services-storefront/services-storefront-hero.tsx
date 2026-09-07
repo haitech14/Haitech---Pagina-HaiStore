@@ -36,7 +36,7 @@ function ServicesGenericSectionHero({
   const landing = getServiceLandingBySlug(section);
   const banner = getServiceHubHeroBanners().find((item) => item.slug === section);
   const whatsappHref = buildHaitechWhatsAppUrl(
-    `Hola, vengo desde HaiStore. Me interesa el servicio de ${landing?.metaTitle ?? section}.`,
+    `Hola, vengo desde Haitech. Me interesa el servicio de ${landing?.metaTitle ?? section}.`,
   );
 
   const scrollToCatalog = () => {
@@ -113,7 +113,7 @@ function ServicesGenericSectionHero({
 
 function ServicesRentalHero({ className }: { className?: string }) {
   const whatsappHref = buildHaitechWhatsAppUrl(
-    'Hola, vengo desde HaiStore. Me interesa cotizar alquiler de equipos.',
+    'Hola, vengo desde Haitech. Me interesa cotizar alquiler de equipos.',
   );
 
   const scrollToCatalog = () => {

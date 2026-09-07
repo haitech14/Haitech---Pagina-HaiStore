@@ -9,7 +9,7 @@ export function NotFoundPage() {
   useSeo({
     title: 'Página no encontrada | Haitech',
     description:
-      'La página que buscas no existe. Explora fotocopiadoras, impresoras, tóner y repuestos Ricoh en HaiStore, Distribuidor Autorizado en Perú.',
+      'La página que buscas no existe. Explora fotocopiadoras, impresoras, tóner y repuestos Ricoh en Haitech, Distribuidor Autorizado en Perú.',
     canonical: buildAbsoluteUrl('/'),
     robots: 'noindex,nofollow',
   });

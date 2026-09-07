@@ -87,7 +87,9 @@ import { resolveUserRoleDisplayPen, resolveUserRolePriceUsd } from '@/lib/roles'
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
   parseStoreShowcaseLocation,
+  STAY_IN_SHOWCASE_STATE,
   STORE_SHOWCASE_HASH,
+  storeShowcaseCategoryFromPathname,
   storeShowcasePath,
 } from '@/lib/store-showcase-path';
 import { penToUsd, cn } from '@/lib/utils';
@@ -348,7 +350,6 @@ function EquipmentShowcaseCard({
   const hasStock = product.stock != null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const outOfStock = hasStock && stockCount <= 0;
-  const cartButtonLabel = outOfStock ? 'Reservar' : 'Comprar';
   const cartProduct = useMemo(
     () => toCartProduct({ ...product, price: displayPen }, saleRate),
     [product, displayPen, saleRate],
@@ -668,17 +669,18 @@ function EquipmentShowcaseCard({
         <ProductQuantityAddFooter
           product={cartProduct}
           size="sm"
-          addLabel={cartButtonLabel}
+          addLabel={outOfStock ? 'Reservar' : 'Agregar al carrito'}
+          {...(outOfStock ? {} : { addLabelHover: 'Comprar' })}
           revealQuantityOnHover
+          centeredActions
           onQuantityChange={setQuantity}
           quantityClassName="h-9 rounded-lg sm:h-10"
           addButtonClassName={cn(
-            'h-9 min-h-9 max-h-9 flex-none rounded-lg px-4 text-[10px] font-bold shadow-none sm:h-10 sm:min-h-10 sm:max-h-10 sm:px-5 sm:text-[12px]',
+            'h-10 min-h-10 max-h-10 flex-none justify-center rounded-lg px-3 text-[11px] font-bold shadow-none sm:h-11 sm:min-h-11 sm:max-h-11 sm:px-4 sm:text-[13px]',
             outOfStock
               ? 'bg-[#111111] hover:bg-[#222222]'
-              : 'bg-[#E30613] hover:bg-[#c90511]',
+              : 'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
           )}
-          centeredActions
           belowAlways
           belowOnHover={
             <ProductWhatsAppButton
@@ -696,7 +698,7 @@ function EquipmentShowcaseCard({
                 brand: cartProduct.brand ?? null,
                 ...(product.code ? { code: product.code } : {}),
               }}
-              className="w-full rounded-lg"
+              className="min-w-0 h-10 w-full overflow-hidden rounded-lg sm:h-11"
             />
           }
         />
@@ -954,9 +956,17 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
       consumableKind: next.consumableKind,
     });
     const url = new URL(path, window.location.origin);
+    const currentCategory = storeShowcaseCategoryFromPathname(location.pathname);
+    const keepCurrentPath =
+      next.categoryId === categoryId &&
+      (currentCategory == null || currentCategory === next.categoryId);
+
     navigate(
-      { pathname: url.pathname, search: url.search },
-      { replace: true, preventScrollReset: true },
+      {
+        pathname: keepCurrentPath ? location.pathname : url.pathname,
+        search: url.search,
+      },
+      { replace: true, preventScrollReset: true, state: STAY_IN_SHOWCASE_STATE },
     );
   };
 

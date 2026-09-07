@@ -12,7 +12,7 @@ export function buildCartQuoteWhatsAppMessage(items: CartItem[], totalUsd: numbe
   return [
     `¡Hola equipo Haitech! ${WA_EMOJI.wave}`,
     '',
-    `Quiero cotizar mi carrito desde HaiStore ${WA_EMOJI.cart}`,
+    `Quiero cotizar mi carrito desde Haitech ${WA_EMOJI.cart}`,
     '',
     `${WA_EMOJI.bags} *Productos:*`,
     ...itemLines,

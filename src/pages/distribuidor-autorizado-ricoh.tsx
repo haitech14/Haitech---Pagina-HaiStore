@@ -58,13 +58,13 @@ const LANDING_FAQ = [
     id: 'que-es-distribuidor',
     question: '¿Qué significa ser Distribuidor Autorizado Ricoh?',
     answer:
-      'Significa que HaiStore (HaiTech) comercializa equipos, tóner y repuestos Ricoh con respaldo de canal autorizado en Perú: garantía, asesoría de modelo y soporte técnico especializado, no un intermediario genérico.',
+      'Significa que Haitech comercializa equipos, tóner y repuestos Ricoh con respaldo de canal autorizado en Perú: garantía, asesoría de modelo y soporte técnico especializado, no un intermediario genérico.',
   },
   {
     id: 'donde-comprar',
     question: '¿Dónde comprar fotocopiadora, impresora o tóner Ricoh en Perú?',
     answer:
-      'En HaiStore puedes cotizar y comprar online fotocopiadoras, impresoras láser, tóner y repuestos Ricoh, con envío a Lima y provincias. También atendemos empresas por WhatsApp y en Av. Petit Thouars 1935, Lince.',
+      'En Haitech puedes cotizar y comprar online fotocopiadoras, impresoras láser, tóner y repuestos Ricoh, con envío a Lima y provincias. También atendemos empresas por WhatsApp y en Av. Petit Thouars 1935, Lince.',
   },
   {
     id: 'repuestos-y-toner',
@@ -117,7 +117,7 @@ export function DistribuidorAutorizadoRicohPage() {
           Distribuidor Autorizado Ricoh
         </h1>
         <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground">
-          HaiStore es el canal de <strong>HaiTech</strong> para empresas que buscan{' '}
+          Haitech es <strong>Distribuidor Autorizado Ricoh</strong> para empresas que buscan{' '}
           <strong>fotocopiadora</strong>, <strong>impresora</strong>, <strong>tóner</strong> y{' '}
           <strong>repuesto</strong> Ricoh con stock, precio claro y postventa. Como{' '}
           <strong>Distribuidor Autorizado Ricoh</strong> te ayudamos a comprar o alquilar el equipo

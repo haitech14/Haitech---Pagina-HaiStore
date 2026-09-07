@@ -449,7 +449,7 @@ export async function buildStoreOrderPdf(
   doc.setTextColor(51, 65, 85);
   const trackingLines = [
     `Código de seguimiento: ${input.orderNumber}`,
-    'Escanee el código QR para ver el estado de su pedido en HaiStore.',
+    'Escanee el código QR para ver el estado de su pedido en Haitech.',
     input.trackingMessage,
     `Portal: ${trackingUrl}`,
   ];

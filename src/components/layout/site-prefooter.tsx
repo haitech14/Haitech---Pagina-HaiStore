@@ -61,7 +61,7 @@ export function SitePrefooter({ className }: { className?: string }) {
         </ul>
 
         <nav
-          aria-label="Recursos SEO HaiStore"
+          aria-label="Recursos SEO Haitech"
           className="mt-5 border-t border-white/10 pt-4 sm:mt-6 sm:pt-5"
         >
           <ul className="flex flex-wrap gap-x-4 gap-y-2 text-[12px] sm:text-[13px]">

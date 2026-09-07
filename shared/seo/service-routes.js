@@ -20,7 +20,7 @@ export const SERVICE_HUB_SECTIONS = [
     pathname: '/servicios?seccion=outsourcing',
     title: 'Outsourcing | Haitech',
     description:
-      'Externaliza tu flota de impresión con outsourcing HaiTech: equipos, consumibles, repuestos y soporte con costo por página predecible.',
+      'Externaliza tu flota de impresión con outsourcing Haitech: equipos, consumibles, repuestos y soporte con costo por página predecible.',
     serviceName: 'Outsourcing de impresión',
     serviceType: 'Gestión documental empresarial',
   },
@@ -67,7 +67,7 @@ export const SERVICE_SEO_ROUTES = [
     title: 'Servicios | Haitech',
     description:
       'Alquiler de fotocopiadoras, soporte técnico, outsourcing de impresión y servicios corporativos. Distribuidor Autorizado Ricoh en Perú.',
-    serviceName: 'Servicios HaiTech',
+    serviceName: 'Servicios Haitech',
     serviceType: 'Servicios de impresión empresarial',
   },
   ...SERVICE_HUB_SECTIONS,

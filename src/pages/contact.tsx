@@ -30,7 +30,7 @@ import { submitSupportTicket, SupportTicketError } from '@/lib/support-ticket';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 
 const CONTACT_WHATSAPP_URL = buildHaitechWhatsAppUrl(
-  'Hola, vengo desde la página de Contacto de HaiStore. Necesito asesoría.',
+  'Hola, vengo desde la página de Contacto de Haitech. Necesito asesoría.',
 );
 
 const contactSchema = z.object({

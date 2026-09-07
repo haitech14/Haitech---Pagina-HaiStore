@@ -90,18 +90,19 @@ export const HAITECH_NAV_QUOTE_HREF = buildHaitechWhatsAppUrl(
   'Hola HAITECH, quiero comprar por WhatsApp.',
 );
 
-/** Barra secundaria bajo el header — enlaces planos y con mega menú. */
+/** Menú principal del header: Comprar · Alquilar · Servicio Técnico. */
 export const HAITECH_HOME_SECONDARY_NAV_LINKS = [
   {
-    id: 'tienda',
-    label: 'Tienda',
+    id: 'comprar',
+    label: 'Comprar',
     href: '/tienda',
+    menu: 'equipos',
   },
   {
-    id: 'equipos',
-    label: 'Equipos',
-    href: storeShowcasePath({ categoryId: 'multifuncionales' }),
-    menu: 'equipos',
+    id: 'alquilar',
+    label: 'Alquilar',
+    href: serviceHubPath('alquiler'),
+    menu: 'alquiler',
   },
   {
     id: 'servicio-tecnico',
@@ -110,11 +111,19 @@ export const HAITECH_HOME_SECONDARY_NAV_LINKS = [
     menu: 'servicio-tecnico',
   },
   {
-    id: 'alquiler',
-    label: 'Alquiler',
-    href: serviceHubPath('alquiler'),
-    menu: 'alquiler',
+    id: 'mas',
+    label: 'Más',
+    href: '/sobre-nosotros',
+    menu: 'mas',
   },
+] as const;
+
+export const HAITECH_HOME_MORE_NAV_LINKS = [
+  { label: 'Nosotros', href: '/sobre-nosotros' },
+  { label: 'Por qué comprar con nosotros', href: '/por-que-comprar-con-nosotros' },
+  { label: 'Distribuidor Autorizado Ricoh', href: '/distribuidor-autorizado-ricoh' },
+  { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
+  { label: 'Contacto', href: '/contacto' },
 ] as const;
 
 export type HaitechHomeSecondaryNavLink = (typeof HAITECH_HOME_SECONDARY_NAV_LINKS)[number];

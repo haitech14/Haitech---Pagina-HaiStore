@@ -95,6 +95,8 @@ export type HaitechShopProduct = {
   promoTag?: string;
   /** Badge superior, p.ej. MÁS VENDIDO */
   badge?: string;
+  /** Destaca el producto con badge Oferta (sin cambiar el título). */
+  isOffer?: boolean;
   /** Condición del equipo (multifuncionales / impresoras). */
   condition?: 'nuevo' | 'seminuevo';
   features?: readonly HaitechShopFeatureId[];
@@ -191,7 +193,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     name: 'Multifuncional RICOH IM 430F',
     brand: 'RICOH',
     code: '418491',
-    stock: 12,
+    stock: 50,
     image: '/products/ricoh-im-430f.webp',
     colorSwatch: '#1a1a1a',
     price: 3899,
@@ -201,7 +203,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     condition: 'nuevo',
     features: EQUIPMENT_FEATURES,
     equipment: {
-      speedPpm: '43 ppm',
+      speedPpm: '40 ppm',
       paperSize: 'A4',
       scannerType: 'SPDF',
       monthlyYield: '20.000 pág/mes',
@@ -218,7 +220,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     name: 'Multifuncional RICOH IM 550F',
     brand: 'RICOH',
     code: '418460',
-    stock: 8,
+    stock: 39,
+    isOffer: true,
     image: '/products/328f41ef-d935-4807-85d0-e1db5bdf73fb.webp',
     colorSwatch: '#222',
     price: 6149,
@@ -242,7 +245,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     name: 'Multifuncional RICOH M 320F',
     brand: 'RICOH',
     code: 'M320F',
-    stock: 15,
+    stock: 16,
     image: '/products/bfb264b8-70dc-4ad4-9686-2df02df8c75e.webp',
     colorSwatch: '#111',
     price: 1709,
@@ -260,7 +263,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     tabIds: ['ofertas', 'mas-vendidos', 'multifuncionales'],
     href: productPath('impresora-multifuncional-b-n-nueva-ricoh-m-320f-2df02df8c75e'),
     productTypeLabel: 'Impresora Multifuncional',
-    featuredTitle: 'RICOH M 320F (SPDF)',
+    featuredTitle: 'RICOH M 320F (ARDF)',
     rating: 5,
     reviewCount: 12,
   },
@@ -269,7 +272,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     name: 'Multifuncional RICOH MP 305+',
     brand: 'RICOH',
     code: 'MP-305+',
-    stock: 5,
+    stock: 6,
     image: '/products/ab878d89-61e0-4e51-a941-03455e1da407.webp',
     colorSwatch: '#1a1a1a',
     price: 3899,
@@ -544,6 +547,7 @@ export const HAITECH_SHOP_LATEST_PRODUCTS: readonly HaitechShopProduct[] = [
     name: 'Multifuncional RICOH IM 2500',
     brand: 'RICOH',
     code: '418843',
+    stock: 8,
     image: '/products/196857c6-738b-4162-90aa-50dee575bcd8.webp',
     colorSwatch: '#222',
     price: 13749,

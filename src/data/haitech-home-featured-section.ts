@@ -1,7 +1,7 @@
 import { storeShowcasePath } from '@/lib/store-showcase-path';
 import type { HaitechShopProductTabId } from '@/data/haitech-home-shop';
 
-const CHIP = '/home/category-chips/equipment';
+const CHIP = '/home/category-circles';
 
 export type HaitechHomeFeaturedCategoryChipId =
   | 'multifuncionales'
@@ -33,75 +33,75 @@ export const HAITECH_HOME_FEATURED_CATEGORY_CHIPS: readonly HaitechHomeFeaturedC
   {
     id: 'multifuncionales',
     label: 'Multifuncionales',
-    image: `${CHIP}/multifuncionales.webp`,
+    image: `${CHIP}/cat-multifuncionales.png`,
     href: storeShowcasePath({ categoryId: 'multifuncionales' }),
     fixedProductIds: ['m-320f', 'im-430f', 'mp-305-plus', 'im-460f'],
   },
   {
     id: 'impresoras',
     label: 'Impresoras',
-    image: '/categories/impresoras.png',
+    image: `${CHIP}/cat-impresoras.png`,
     href: storeShowcasePath({ categoryId: 'impresoras' }),
   },
   {
     id: 'toner',
     label: 'Toner',
-    image: '/categories/toner-suministros.png',
+    image: `${CHIP}/cat-toner.png`,
     href: storeShowcasePath({ categoryId: 'toner' }),
     tabId: 'toner',
   },
   {
     id: 'repuestos',
     label: 'Repuestos',
-    image: '/categories/repuestos.png',
+    image: `${CHIP}/cat-repuestos.png`,
     href: storeShowcasePath({ categoryId: 'repuestos' }),
   },
   {
     id: 'formato-ancho',
     label: 'Formato Ancho',
-    image: '/categories/formato-ancho.png',
+    image: `${CHIP}/cat-formato-ancho.png`,
     href: storeShowcasePath({ categoryId: 'formato-ancho' }),
   },
   {
     id: 'laptops',
     label: 'PC / Laptops',
-    image: `${CHIP}/laptops.webp`,
+    image: `${CHIP}/cat-laptops.png`,
     href: storeShowcasePath({ categoryId: 'laptops' }),
   },
   {
     id: 'escaneres',
     label: 'Escáneres',
-    image: `${CHIP}/escaneres.webp`,
+    image: `${CHIP}/cat-escaneres.png`,
     href: storeShowcasePath({ categoryId: 'escaneres' }),
   },
   {
     id: 'accesorios',
     label: 'Accesorios',
-    image: `${CHIP}/accesorios.webp`,
+    image: `${CHIP}/cat-accesorios.png`,
     href: storeShowcasePath({ categoryId: 'accesorios' }),
   },
   {
     id: 'software',
     label: 'Software',
-    image: '/categories/software.png',
+    image: `${CHIP}/cat-software.png`,
     href: storeShowcasePath({ categoryId: 'software' }),
   },
   {
     id: 'monitores',
     label: 'Monitores',
-    image: '/categories/monitores.png',
+    image: `${CHIP}/cat-monitores.png`,
     href: storeShowcasePath({ categoryId: 'monitores' }),
   },
   {
     id: 'pantallas-interactivas',
     label: 'Pantallas Interactivas',
-    image: `${CHIP}/pantallas-interactivas.webp`,
+    image: `${CHIP}/cat-pantallas-interactivas.png`,
     href: storeShowcasePath({ categoryId: 'pantallas-interactivas' }),
   },
   {
     id: 'videoconferencia',
     label: 'Videoconferencia',
-    image: `${CHIP}/videoconferencia.webp`,
+    image: `${CHIP}/cat-videoconferencia.png`,
     href: storeShowcasePath({ categoryId: 'videoconferencia' }),
   },
 ] as const;

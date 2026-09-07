@@ -46,7 +46,7 @@ import type { StoreOrder } from '@/types/store';
 export function AccountPage() {
   useSeo({
     title: 'Mi cuenta | Haitech',
-    description: 'Pedidos, perfil y documentos de tu cuenta HaiStore.',
+    description: 'Pedidos, perfil y documentos de tu cuenta Haitech.',
     canonical: buildAbsoluteUrl('/mi-cuenta'),
     robots: 'noindex,nofollow',
   });
@@ -193,7 +193,7 @@ export function AccountPage() {
                       </dt>
                       <dd className="flex items-center gap-2 text-sm font-semibold text-foreground">
                         <User className="size-4 text-red-600" aria-hidden="true" />
-                        {user.name || 'Usuario HaiStore'}
+                        {user.name || 'Usuario Haitech'}
                       </dd>
                     </div>
                     <div className="rounded-lg border bg-background p-4">

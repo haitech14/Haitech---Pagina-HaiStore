@@ -40,6 +40,18 @@ function normalizeAttrName(name: string): string {
     .trim();
 }
 
+const OFFER_TRUE_RE = /^(si|sí|yes|true|1)$/i;
+
+/** Producto marcado como oferta (atributo `Oferta`, no el título). */
+export function productHasOfferAttribute(product: ProductBadgeSource): boolean {
+  for (const row of product.attributes ?? []) {
+    if (normalizeAttrName(row.name) !== 'oferta') continue;
+    const value = row.value?.trim() ?? '';
+    if (OFFER_TRUE_RE.test(value) || /^oferta$/i.test(value)) return true;
+  }
+  return false;
+}
+
 function attributeValue(attributes: ProductAttribute[], match: readonly string[]): string | null {
   for (const row of attributes) {
     const key = normalizeAttrName(row.name);
@@ -108,6 +120,9 @@ export function formatBadgeDisplayValue(
   }
   if (badge.id === 'condicion' && /^nuevo$/i.test(value)) {
     return 'Nuevo';
+  }
+  if (badge.id === 'oferta') {
+    return 'Oferta';
   }
   return value;
 }
@@ -186,9 +201,14 @@ export function buildProductDetailBadges(
     }
   }
 
+  if (productHasOfferAttribute(product) && !badges.some((row) => row.id === 'oferta')) {
+    badges.unshift({ id: 'oferta', label: 'Oferta', value: 'Oferta' });
+  }
+
   if (!options?.primaryOnly) {
     for (const row of attributes) {
       if (!row.name?.trim() || !row.value?.trim()) continue;
+      if (normalizeAttrName(row.name) === 'oferta') continue;
       const covered = BADGE_SPECS.some((spec) => attributeValue([row], spec.match));
       if (!covered) {
         badges.push({ id: row.id, label: row.name.trim(), value: row.value.trim() });

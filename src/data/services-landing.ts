@@ -85,7 +85,7 @@ export const servicesLandingHero: ServicesLandingHeroContent = {
   quoteCtaLabel: 'Ver catálogo',
   whatsappCtaLabel: 'Cotizar por WhatsApp',
   whatsappMessage:
-    'Hola, vengo desde HaiStore. Me interesa conocer sus servicios corporativos (alquiler, soporte u outsourcing).',
+    'Hola, vengo desde Haitech. Me interesa conocer sus servicios corporativos (alquiler, soporte u outsourcing).',
 };
 
 export const servicesLandingFeatures: ServicesLandingFeature[] = [
@@ -242,7 +242,7 @@ export const servicesLandingFormServiceOptions: ServicesLandingFormServiceOption
 export const servicesLandingFormCopy = {
   panelTitle: 'Solicita tu cotización',
   panelDescription:
-    'Cuéntanos qué necesitas y un asesor HaiStore te contactará con una propuesta a medida.',
+    'Cuéntanos qué necesitas y un asesor Haitech te contactará con una propuesta a medida.',
   formTitle: 'Completa el formulario y te contactaremos',
   privacyNote: 'Tu información está protegida. No compartimos tus datos.',
   submitLabel: 'Enviar solicitud',

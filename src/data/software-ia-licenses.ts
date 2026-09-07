@@ -26,7 +26,7 @@ function buildIaLicenseItem(input: IaLicenseProductInput): SoftwareCatalogItem {
   const providerLine = input.provider ? ` Proveedor: ${input.provider}.` : '';
   const description = [
     input.extraDescription ??
-      `${input.title}. ${input.profilesLabel} · ${input.durationLabel}. Activación y soporte HaiStore.${providerLine}`,
+      `${input.title}. ${input.profilesLabel} · ${input.durationLabel}. Activación y soporte Haitech.${providerLine}`,
   ].join('');
 
   return {
@@ -65,12 +65,12 @@ function buildIaLicenseItem(input: IaLicenseProductInput): SoftwareCatalogItem {
     planComparison: [
       { id: 'perfiles', label: 'Perfiles incluidos', basico: input.profilesLabel, empresarial: '—', premium: '—' },
       { id: 'duracion', label: 'Duración', basico: input.durationLabel, empresarial: '—', premium: '—' },
-      { id: 'soporte', label: 'Activación HaiStore', basico: true, empresarial: false, premium: false },
+      { id: 'soporte', label: 'Activación Haitech', basico: true, empresarial: false, premium: false },
       { id: 'facturacion', label: 'Facturación legal', basico: true, empresarial: false, premium: false },
     ],
     inclusions: [
       input.title,
-      'Activación y entrega coordinada por HaiStore',
+      'Activación y entrega coordinada por Haitech',
       'Soporte para configuración inicial',
       'Facturación legal',
     ],
@@ -86,7 +86,7 @@ function buildIaLicenseItem(input: IaLicenseProductInput): SoftwareCatalogItem {
       {
         question: '¿Cómo recibo la licencia?',
         answer:
-          'Tras confirmar tu pedido, HaiStore coordina la activación según el tipo de producto (perfil compartido o cuenta completa).',
+          'Tras confirmar tu pedido, Haitech coordina la activación según el tipo de producto (perfil compartido o cuenta completa).',
       },
       {
         question: '¿Cuál es la diferencia entre licencia por perfil y cuenta completa?',
@@ -102,7 +102,7 @@ function buildIaLicenseItem(input: IaLicenseProductInput): SoftwareCatalogItem {
       },
       {
         id: 'soporte',
-        title: 'Soporte HaiStore',
+        title: 'Soporte Haitech',
         description: 'Te acompañamos en la activación y resolución de incidencias.',
       },
       {
@@ -116,7 +116,7 @@ function buildIaLicenseItem(input: IaLicenseProductInput): SoftwareCatalogItem {
         description: 'Compra con respaldo y documentación en Perú.',
       },
     ],
-    whatsappMessage: `Hola, me interesa ${input.title} en HaiStore. ¿Podrían brindarme más información?`,
+    whatsappMessage: `Hola, me interesa ${input.title} en Haitech. ¿Podrían brindarme más información?`,
   };
 }
 
@@ -200,7 +200,7 @@ export const SOFTWARE_IA_LICENSE_INPUTS: readonly IaLicenseProductInput[] = [
     features: ['Gemini Pro', '5 TB almacenamiento', 'Invitación a tu correo'],
     purchaseCost: 'USD 1.20',
     extraDescription:
-      'Licencia Gemini Pro con 5 TB. Invitación a tu correo electrónico. 1 perfil · vigencia 1 año. Activación y soporte HaiStore.',
+      'Licencia Gemini Pro con 5 TB. Invitación a tu correo electrónico. 1 perfil · vigencia 1 año. Activación y soporte Haitech.',
   },
   {
     slug: 'gemini-pro-cuenta-completa-1-anio',

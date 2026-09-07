@@ -27,7 +27,7 @@ function wishlistToFeatured(item: WishlistItem, livePrice?: number): FeaturedPro
 export function FavoritesPage() {
   useSeo({
     title: 'Favoritos | Haitech',
-    description: 'Tus productos Ricoh guardados en HaiStore.',
+    description: 'Tus productos Ricoh guardados en Haitech.',
     canonical: buildAbsoluteUrl('/favoritos'),
     robots: 'noindex,nofollow',
   });

@@ -12,7 +12,7 @@ export function buildHeroQuoteWhatsAppMessage(
   return [
     `¡Hola! Soy *${contact.name.trim()}*`,
     '',
-    'Solicito cotización desde HaiStore.',
+    'Solicito cotización desde Haitech.',
     context.campaign ? `Referencia: ${context.campaign}` : null,
     '',
     '*Mis datos:*',
