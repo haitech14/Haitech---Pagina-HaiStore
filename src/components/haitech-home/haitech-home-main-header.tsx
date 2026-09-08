@@ -1,16 +1,22 @@
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { Menu, ShoppingCart } from 'lucide-react';
+import { Menu, ShoppingCart, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { HaitechHomePrimaryNavLinks } from '@/components/haitech-home/haitech-home-secondary-category-nav';
+import { AccountDropdown } from '@/components/layout/account-dropdown';
 import { DeferredSiteSearchForm } from '@/components/layout/deferred-site-search-form';
 import { StorefrontHeaderBrandLogos } from '@/components/layout/site-logo';
+import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
 import { HAITECH_HOME } from '@/data/haitech-home-shell';
 import { HEADER_SALES_PHONE_DISPLAY } from '@/data/site-header';
 import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
 import { openHaitechMobileCategories } from '@/lib/haitech-mobile-nav-events';
 import { cn } from '@/lib/utils';
+
+const HEADER_ICON_BUTTON_CLASS =
+  'relative inline-flex size-10 shrink-0 items-center justify-center text-[#111] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35';
 
 const SEARCH_CLASS = cn(
   'hidden w-full max-w-[340px] flex-1 sm:block xl:max-w-[400px]',
@@ -48,6 +54,33 @@ function HeaderAdvisorContact() {
   );
 }
 
+function HeaderLoginButton() {
+  const { user } = useAuth();
+
+  if (user) {
+    return (
+      <AccountDropdown
+        triggerVariant="icon"
+        tone="light"
+        className="shrink-0"
+        triggerClassName={HEADER_ICON_BUTTON_CLASS}
+        iconClassName="size-[22px]"
+      />
+    );
+  }
+
+  return (
+    <Link
+      to="/login"
+      className={HEADER_ICON_BUTTON_CLASS}
+      aria-label="Iniciar sesión"
+      title="Iniciar sesión"
+    >
+      <User className="size-[22px]" strokeWidth={1.75} aria-hidden="true" />
+    </Link>
+  );
+}
+
 function HeaderCartButton() {
   const { openCart, totalItems } = useCart();
 
@@ -55,7 +88,7 @@ function HeaderCartButton() {
     <button
       type="button"
       onClick={openCart}
-      className="relative inline-flex size-10 shrink-0 items-center justify-center text-[#111] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35"
+      className={HEADER_ICON_BUTTON_CLASS}
       aria-label={totalItems > 0 ? `Mi carrito, ${totalItems} productos` : 'Mi carrito'}
       title="Mi carrito"
     >
@@ -110,8 +143,9 @@ export function HaitechHomeMainHeader({ className }: { className?: string }) {
             placeholder="Buscar equipos RICOH..."
           />
 
-          <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-4">
+          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
             <HeaderAdvisorContact />
+            <HeaderLoginButton />
             <HeaderCartButton />
           </div>
         </div>

@@ -10,18 +10,10 @@ import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
 import { buildStoreJsonLd, STORE_SITE_DESCRIPTION, STORE_SITE_TITLE } from '@/lib/seo';
 import { buildAbsoluteUrl, SITE_ORIGIN } from '@/lib/site-url';
 import {
+  isStayInShowcaseState,
   isStoreShowcaseCategorySlug,
   STORE_SHOWCASE_HASH,
 } from '@/lib/store-showcase-path';
-
-function isStayInShowcaseState(state: unknown): boolean {
-  return (
-    typeof state === 'object' &&
-    state !== null &&
-    'stayInShowcase' in state &&
-    state.stayInShowcase === true
-  );
-}
 import { vitrinaCanonicalPath } from '../../shared/seo/public-paths.js';
 import { cn } from '@/lib/utils';
 
@@ -50,7 +42,12 @@ export function StorePage() {
   useSeo(storeSeo);
 
   useLayoutEffect(() => {
-    if (isStayInShowcaseState(location.state)) return;
+    if (isStayInShowcaseState(location.state)) {
+      if (typeof location.state.scrollY === 'number') {
+        window.scrollTo({ top: location.state.scrollY, left: 0, behavior: 'instant' });
+      }
+      return;
+    }
     const hash = location.hash.replace(/^#/, '');
     if (hash === STORE_SHOWCASE_HASH) return;
     if (isVitrinaCategory) {

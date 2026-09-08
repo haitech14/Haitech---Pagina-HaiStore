@@ -90,6 +90,27 @@ const SHOWCASE_HASH = 'equipos-vitrina';
 /** Evita salto de scroll al aplicar filtros en la misma vitrina. */
 export const STAY_IN_SHOWCASE_STATE = { stayInShowcase: true } as const;
 
+export type StayInShowcaseState = {
+  stayInShowcase: true;
+  scrollY?: number;
+};
+
+export function isStayInShowcaseState(state: unknown): state is StayInShowcaseState {
+  return (
+    typeof state === 'object' &&
+    state !== null &&
+    'stayInShowcase' in state &&
+    (state as { stayInShowcase: unknown }).stayInShowcase === true
+  );
+}
+
+export function stayInShowcaseNavigateState(): StayInShowcaseState {
+  return {
+    ...STAY_IN_SHOWCASE_STATE,
+    scrollY: typeof window === 'undefined' ? 0 : window.scrollY,
+  };
+}
+
 function isCategoryId(value: string): value is HaitechEquipmentShowcaseCategoryId {
   return (CATEGORY_IDS as readonly string[]).includes(value);
 }

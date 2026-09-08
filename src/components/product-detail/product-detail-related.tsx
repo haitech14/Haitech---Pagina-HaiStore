@@ -4,10 +4,14 @@ import {
   CatalogFormatMainHeader,
   CatalogFormatSubHeader,
 } from '@/components/category/catalog-format-section-header';
-import { ProductHighlightCard } from '@/components/product/product-highlight-card';
+import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
 import { useProductRelated } from '@/hooks/use-product-related';
 import { categoryPath } from '@/lib/category-path';
 import { isPrinterEquipment } from '@/lib/build-product-detail';
+import {
+  HAITECH_PRODUCT_CAROUSEL_GAP,
+  HAITECH_PRODUCT_CAROUSEL_SLIDE,
+} from '@/lib/haitech-product-carousel-layout';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -72,13 +76,10 @@ export function ProductDetailRelated({ product, className }: ProductDetailRelate
       />
 
       <div className="overflow-hidden" ref={emblaRef}>
-        <ul className="flex touch-pan-y gap-3 sm:gap-4">
+        <ul className={cn('flex touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)}>
           {related.map((item) => (
-            <li
-              key={item.id}
-              className="min-w-0 flex-[0_0_78%] sm:flex-[0_0_calc((100%-0.75rem)/2)] md:flex-[0_0_calc((100%-2rem)/3)] lg:flex-[0_0_calc((100%-4rem)/5)]"
-            >
-              <ProductHighlightCard product={item} />
+            <li key={item.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
+              <StoreCatalogProductCard product={item} variant="carousel" />
             </li>
           ))}
         </ul>

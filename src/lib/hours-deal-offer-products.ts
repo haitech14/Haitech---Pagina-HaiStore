@@ -1,11 +1,13 @@
+import { featuredToProduct } from '@/data/featured-products';
 import { type HaitechShopProduct } from '@/data/haitech-home-shop';
-import { getCatalogRows, type CatalogRow } from '@/lib/catalog-featured';
+import { catalogRowToFeatured, getCatalogRows, type CatalogRow } from '@/lib/catalog-featured';
 import { isPriceOnRequest } from '@/lib/display-price';
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
 import { usdToPenCharm } from '@/lib/pen-pricing';
 import { productHasOfferAttribute } from '@/lib/product-detail-badges';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { productPath } from '@/lib/product-path';
+import type { Product } from '@/types/product';
 
 const DEFAULT_LIMIT = 12;
 
@@ -67,10 +69,8 @@ export function catalogRowToHoursDealProduct(
   return product;
 }
 
-/** Productos visibles del inventario marcados con el atributo Oferta. */
-export function listHoursDealOfferProducts(limit = DEFAULT_LIMIT): HaitechShopProduct[] {
-  const rate = getUsdToPenSaleRate();
-  const ranked = getCatalogRows()
+function rankHoursDealRows(): CatalogRow[] {
+  return getCatalogRows()
     .filter((row) => productHasOfferAttribute(row))
     .sort((left, right) => {
       const leftOrder = Number(left.sort_order ?? Number.MAX_SAFE_INTEGER);
@@ -81,9 +81,20 @@ export function listHoursDealOfferProducts(limit = DEFAULT_LIMIT): HaitechShopPr
       if (leftDiscount !== rightDiscount) return leftDiscount ? -1 : 1;
       return (Number(right.stock) || 0) - (Number(left.stock) || 0);
     });
+}
 
+/** Productos de oferta con el mismo modelo de tarjeta que la tienda. */
+export function listHoursDealOfferStoreProducts(limit = DEFAULT_LIMIT): Product[] {
+  return rankHoursDealRows()
+    .slice(0, limit)
+    .map((row) => featuredToProduct(catalogRowToFeatured(row)));
+}
+
+/** Productos visibles del inventario marcados con el atributo Oferta. */
+export function listHoursDealOfferProducts(limit = DEFAULT_LIMIT): HaitechShopProduct[] {
+  const rate = getUsdToPenSaleRate();
   const products: HaitechShopProduct[] = [];
-  for (const row of ranked) {
+  for (const row of rankHoursDealRows()) {
     const product = catalogRowToHoursDealProduct(row, rate);
     if (!product) continue;
     products.push(product);

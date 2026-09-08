@@ -262,7 +262,7 @@ export const HAITECH_HOME_HERO_SLIDES = [
     href: HAITECH_HOME_WHATSAPP_URL,
     /** Móvil: centra lockup RICOH + titular entre las flechas del carrusel. */
     mobileObjectPosition: '58% center',
-    objectPosition: 'center 50%',
+    objectPosition: 'center center',
   },
   {
     id: 'hero-main',
@@ -270,8 +270,7 @@ export const HAITECH_HOME_HERO_SLIDES = [
     alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
     href: HAITECH_HOME_WHATSAPP_URL,
     mobileObjectPosition: 'center center',
-    /** Recorta margen superior y centra el contenido principal. */
-    objectPosition: 'center 62%',
+    objectPosition: 'center center',
   },
   {
     id: 'hero-slide-2',
@@ -279,7 +278,7 @@ export const HAITECH_HOME_HERO_SLIDES = [
     alt: 'HAITECH — Distribuidor Autorizado Ricoh. Equipos, tóner y soporte técnico en Perú',
     href: HAITECH_HOME_WHATSAPP_URL,
     mobileObjectPosition: 'center center',
-    objectPosition: 'center 70%',
+    objectPosition: 'center center',
   },
 ] as const;
 

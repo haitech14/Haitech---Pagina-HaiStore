@@ -3,9 +3,15 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
-import { ProductShowcaseCard } from '@/components/product-showcase-card';
-import type { FeaturedProduct } from '@/data/featured-products';
+import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
+import { featuredToProduct, type FeaturedProduct } from '@/data/featured-products';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
+import {
+  HAITECH_PRODUCT_CAROUSEL_ARROW,
+  HAITECH_PRODUCT_CAROUSEL_GAP,
+  HAITECH_PRODUCT_CAROUSEL_GUTTER,
+  HAITECH_PRODUCT_CAROUSEL_SLIDE,
+} from '@/lib/haitech-product-carousel-layout';
 import { cn } from '@/lib/utils';
 
 export interface ProductCarouselSectionProps {
@@ -20,9 +26,6 @@ export interface ProductCarouselSectionProps {
   /** Flechas laterales (secciones de inicio). */
   showNavArrows?: boolean;
 }
-
-const carouselArrowClass =
-  'absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-white text-foreground shadow-md transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-35 sm:size-10';
 
 export function ProductCarouselSection({
   sectionId,
@@ -113,39 +116,36 @@ export function ProductCarouselSection({
       ) : null}
 
       <div className="flex flex-col gap-4">
-        <div className={cn('relative', showArrows && 'px-10 sm:px-12')}>
+        <div className={cn('relative', showArrows && HAITECH_PRODUCT_CAROUSEL_GUTTER)}>
           {showArrows ? (
             <>
               <button
                 type="button"
-                className={cn(carouselArrowClass, 'left-0')}
+                className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'left-0')}
                 aria-label="Productos anteriores"
                 disabled={!canScrollPrev}
                 onClick={scrollPrev}
               >
-                <ChevronLeft className="size-5" aria-hidden="true" />
+                <ChevronLeft className="size-5" strokeWidth={2} aria-hidden="true" />
               </button>
               <button
                 type="button"
-                className={cn(carouselArrowClass, 'right-0')}
+                className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'right-0')}
                 aria-label="Productos siguientes"
                 disabled={!canScrollNext}
                 onClick={scrollNext}
               >
-                <ChevronRight className="size-5" aria-hidden="true" />
+                <ChevronRight className="size-5" strokeWidth={2} aria-hidden="true" />
               </button>
             </>
           ) : null}
 
           <div className="overflow-hidden" ref={emblaRef}>
             {products.length > 0 ? (
-              <ul className="flex flex-nowrap gap-3 sm:gap-4">
+              <ul className={cn('flex flex-nowrap touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)}>
                 {products.map((product) => (
-                  <li
-                    key={product.id}
-                    className="min-w-0 shrink-0 flex-[0_0_78%] sm:flex-[0_0_calc((100%-1rem)/2)] md:flex-[0_0_calc((100%-2rem)/3)] lg:flex-[0_0_calc((100%-3rem)/4)] xl:flex-[0_0_calc((100%-4rem)/5)]"
-                  >
-                    <ProductShowcaseCard product={product} variant="featured" brandTone="accent" />
+                  <li key={product.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
+                    <StoreCatalogProductCard product={featuredToProduct(product)} variant="carousel" />
                   </li>
                 ))}
               </ul>

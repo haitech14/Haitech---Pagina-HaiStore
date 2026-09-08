@@ -39,12 +39,61 @@ interface StoreCatalogProductCardProps {
   product: Product;
   imageLoading?: 'lazy' | 'eager';
   imagePriority?: boolean;
+  /** Carrusel home: marca/condición arriba, CTA Agregar al carrito + WhatsApp debajo. */
+  variant?: 'catalog' | 'carousel';
+}
+
+function formatCardConditionBadge(label: string): string {
+  if (/nuev/i.test(label) && !/semi/i.test(label)) return 'NUEVO';
+  return label.toUpperCase();
+}
+
+function isNewConditionBadge(label: string): boolean {
+  return /nuev/i.test(label) && !/semi/i.test(label);
+}
+
+function ProductCardBrandConditionRow({
+  brand,
+  condition,
+  className,
+}: {
+  brand?: string | null;
+  condition?: string | null;
+  className?: string;
+}) {
+  if (!brand && !condition) return null;
+
+  return (
+    <div className={cn('flex min-w-0 items-center justify-between gap-2', className)}>
+      {brand ? (
+        <p className="min-w-0 truncate text-[0.6875rem] font-bold uppercase tracking-wide text-[#E30613] sm:text-xs">
+          {brand}
+        </p>
+      ) : (
+        <span className="min-w-0" aria-hidden="true" />
+      )}
+      {condition ? (
+        <span
+          className={cn(
+            'inline-flex h-[18px] shrink-0 items-center justify-center rounded-full px-2.5',
+            'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
+            isNewConditionBadge(condition) || /original/i.test(condition)
+              ? 'bg-[#111111] text-white'
+              : 'border border-[#555] bg-white text-[#555]',
+          )}
+        >
+          {formatCardConditionBadge(condition)}
+        </span>
+      ) : null}
+    </div>
+  );
 }
 
 export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   product,
   imageLoading = 'lazy',
   imagePriority = false,
+  variant = 'catalog',
 }: StoreCatalogProductCardProps) {
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
@@ -80,13 +129,33 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
     attributes: product.attributes ?? [],
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
+  const isCarousel = variant === 'carousel';
   const buyNowLabel = outOfStock ? 'Reservar' : 'Agregar al carrito';
+  const buyNowLabelHover = outOfStock ? undefined : 'Agregar';
   const clipboardCondition = resolveProductCardBadgeLabel(titleProduct);
   const clipboardIsColor = inferColor(titleProduct) === 'Color';
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(titleProduct);
   const clipboardImageUrl = imageCandidates[0] ?? product.image_url ?? null;
   const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
   const isFeatured = product.is_featured === true || catalogProduct?.is_featured === true;
+  const whatsappProduct = {
+    id: product.id,
+    name: product.name,
+    priceUsd: displayPrice.priceUsd,
+    category: product.category,
+    brand: product.brand ?? catalogProduct?.brand ?? null,
+  };
+  const whatsappCta = (
+    <ProductWhatsAppButton
+      stopPropagation
+      skipDialogIfComplete
+      accent="outline"
+      label="Comprar por WhatsApp"
+      quantity={quantity}
+      product={whatsappProduct}
+      className="h-10 min-h-10 w-full rounded-lg px-2 text-xs font-semibold normal-case tracking-normal sm:h-11 sm:min-h-11 sm:text-sm"
+    />
+  );
 
   return (
     <article
@@ -97,10 +166,23 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           : 'border border-[#e6e8ee] shadow-[0_2px_14px_rgba(15,31,61,0.06)] hover:shadow-md',
       )}
     >
+      {isCarousel ? (
+        <ProductCardBrandConditionRow
+          brand={brand}
+          condition={clipboardCondition}
+          className="px-2.5 pt-2.5 md:px-3 md:pt-3"
+        />
+      ) : null}
+
       <div className="relative">
         <Link
           to={detailHref}
-          className="relative block aspect-[4/5] w-full overflow-hidden bg-white p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset md:aspect-square md:p-3"
+          className={cn(
+            'relative block w-full overflow-hidden bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset',
+            isCarousel
+              ? 'aspect-square p-4 md:p-6'
+              : 'aspect-[4/5] p-2 md:aspect-square md:p-3',
+          )}
           aria-label={`Ver ficha de ${product.name}`}
         >
           {isFeatured ? <ProductCardFeaturedStar /> : null}
@@ -111,7 +193,8 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             hoverSrc={hoverImageSrc}
             alt={product.name}
             className="size-full"
-            imageClassName="size-full object-contain"
+            imageClassName="size-full object-contain object-center"
+            overlayClassName="size-full bg-white"
             loading={imageLoading}
             {...(imagePriority ? { fetchPriority: 'high' as const } : {})}
           />
@@ -122,7 +205,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           isCompareSelected={false}
           isWishlisted={isWishlisted(product.id)}
           revealOnHover
-          withConditionBadge={isFeatured}
+          withConditionBadge={isFeatured && !isCarousel}
           secondaryAction="buy"
           clipboard={{
             title,
@@ -153,65 +236,55 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col px-2 pb-2 pt-1.5 md:px-3 md:pb-3 md:pt-2">
-        {(brand || clipboardCondition) ? (
-          <div className="flex min-w-0 items-center justify-between gap-2">
-            {brand ? (
-              <p className="min-w-0 truncate text-[0.6875rem] font-bold uppercase tracking-wide text-[#E30613] sm:text-xs">
-                {brand}
-              </p>
-            ) : (
-              <span className="min-w-0" aria-hidden="true" />
-            )}
-            {clipboardCondition ? (
-              <span
-                className={cn(
-                  'inline-flex h-[18px] shrink-0 items-center justify-center rounded-full px-2.5',
-                  'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
-                  /nuev/i.test(clipboardCondition) && !/semi/i.test(clipboardCondition)
-                    ? 'bg-[#111111] text-white'
-                    : 'border border-[#555] bg-white text-[#555]',
-                )}
-              >
-                {/nuev/i.test(clipboardCondition) && !/semi/i.test(clipboardCondition)
-                  ? 'NUEVO'
-                  : clipboardCondition.toUpperCase()}
-              </span>
-            ) : null}
-          </div>
-        ) : null}
+        {isCarousel ? null : (
+          <ProductCardBrandConditionRow brand={brand} condition={clipboardCondition} />
+        )}
 
         <Link
           to={detailHref}
           className={cn(
             'rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-            brand || clipboardCondition ? 'mt-1.5' : null,
+            !isCarousel && (brand || clipboardCondition) ? 'mt-1.5' : null,
           )}
         >
-          <h3 className="text-pretty break-words text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm">
-            <ProductCardSplitBrandTitle title={title} brand={brand} />
+          <h3
+            className={cn(
+              'text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm',
+              isCarousel ? 'text-center' : 'text-pretty break-words',
+            )}
+          >
+            <ProductCardSplitBrandTitle
+              title={title}
+              brand={brand}
+              align={isCarousel ? 'center' : 'left'}
+            />
           </h3>
         </Link>
 
-        <ProductCardPromoBadges product={titleProduct} className="mt-2 max-md:hidden" />
+        {isCarousel ? null : (
+          <>
+            <ProductCardPromoBadges product={titleProduct} className="mt-2 max-md:hidden" />
 
-        <div
-          className={cn(
-            'grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,margin,opacity] duration-200 ease-out',
-            'group-hover:mt-2.5 group-hover:grid-rows-[1fr] group-hover:opacity-100',
-            'group-focus-within:mt-2.5 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
-            'motion-reduce:mt-2.5 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100',
-            'max-md:hidden',
-          )}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <ProductCardStatsLine
-              product={titleProduct}
-              stock={stockCount}
-              outOfStock={outOfStock}
-              code={code}
-            />
-          </div>
-        </div>
+            <div
+              className={cn(
+                'grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,margin,opacity] duration-200 ease-out',
+                'group-hover:mt-2.5 group-hover:grid-rows-[1fr] group-hover:opacity-100',
+                'group-focus-within:mt-2.5 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
+                'motion-reduce:mt-2.5 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100',
+                'max-md:hidden',
+              )}
+            >
+              <div className="min-h-0 overflow-hidden">
+                <ProductCardStatsLine
+                  product={titleProduct}
+                  stock={stockCount}
+                  outOfStock={outOfStock}
+                  code={code}
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="mt-1.5 md:mt-2">
           <ProductCardFeaturedPricing
@@ -220,6 +293,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             compareUsd={pricing.compareUsd}
             showAccentBar={false}
             accentUsd
+            align={isCarousel ? 'center' : 'start'}
           />
         </div>
 
@@ -230,46 +304,33 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             revealQuantityOnHover
             quantityPlacement="inline"
             addLabel={buyNowLabel}
+            {...(buyNowLabelHover ? { addLabelHover: buyNowLabelHover } : {})}
             onQuantityChange={setQuantity}
             quantityClassName="h-9 rounded-lg md:h-10"
             addButtonClassName={cn(
-              'h-9 min-h-9 max-h-9 min-w-0 flex-1 rounded-lg px-2 text-[0.6875rem] font-semibold text-white shadow-none md:h-10 md:min-h-10 md:max-h-10 md:px-3 md:text-sm',
-              outOfStock
-                ? 'bg-[#111111] hover:bg-black'
-                : 'bg-[#E30613] hover:bg-[#c90511]',
+              'h-9 min-h-9 max-h-9 min-w-0 flex-1 justify-center whitespace-nowrap rounded-lg px-2 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem] md:h-10 md:min-h-10 md:max-h-10 md:px-3 md:text-xs',
+              'group-hover:flex-none group-hover:px-2.5 md:group-hover:px-3',
+              isCarousel || !outOfStock
+                ? 'bg-[#E30613] hover:bg-[#c90511]'
+                : 'bg-[#111111] hover:bg-black',
             )}
-            endAdornment={
-              <ProductWhatsAppButton
-                stopPropagation
-                skipDialogIfComplete
-                quantity={quantity}
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  priceUsd: displayPrice.priceUsd,
-                  category: product.category,
-                  brand: product.brand ?? catalogProduct?.brand ?? null,
-                }}
-                className="h-9 w-9 min-h-9 max-h-9 min-w-9 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366] md:h-10 md:w-10 md:min-h-10 md:max-h-10 md:min-w-10"
-              />
-            }
-            belowOnHover={
-              <ProductWhatsAppButton
-                stopPropagation
-                skipDialogIfComplete
-                accent="outline"
-                label="Comprar por WhatsApp"
-                quantity={quantity}
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  priceUsd: displayPrice.priceUsd,
-                  category: product.category,
-                  brand: product.brand ?? catalogProduct?.brand ?? null,
-                }}
-                className="h-11 min-h-11 w-full rounded-lg px-2 text-xs font-semibold normal-case tracking-normal sm:text-sm"
-              />
-            }
+            {...(isCarousel
+              ? {
+                  belowAlways: true,
+                  belowOnHover: whatsappCta,
+                }
+              : {
+                  endAdornment: (
+                    <ProductWhatsAppButton
+                      stopPropagation
+                      skipDialogIfComplete
+                      quantity={quantity}
+                      product={whatsappProduct}
+                      className="h-9 w-9 min-h-9 max-h-9 min-w-9 shrink-0 rounded-lg border-0 bg-[#25D366] p-0 text-white shadow-none hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366] md:h-10 md:w-10 md:min-h-10 md:max-h-10 md:min-w-10"
+                    />
+                  ),
+                  belowOnHover: whatsappCta,
+                })}
           />
         </div>
       </div>

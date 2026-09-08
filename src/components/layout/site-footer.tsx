@@ -53,10 +53,23 @@ function FooterHeading({ children, id }: { children: React.ReactNode; id?: strin
   );
 }
 
-function FooterNavLinks({ links, ariaLabel }: { links: FooterLink[]; ariaLabel: string }) {
+function FooterNavLinks({
+  links,
+  ariaLabel,
+  className,
+}: {
+  links: FooterLink[];
+  ariaLabel: string;
+  className?: string;
+}) {
   return (
     <nav aria-label={ariaLabel}>
-      <ul className="flex flex-col gap-1.5">
+      <ul
+        className={cn(
+          'grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 sm:gap-x-6',
+          className,
+        )}
+      >
         {links.map((link) => (
           <li key={link.label}>
             {link.external || link.href.startsWith('http') ? (
@@ -167,8 +180,8 @@ export function SiteFooter() {
   return (
     <footer className="relative mt-auto bg-[#111111] text-white/70">
       <div className="container py-8 sm:py-9">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-12 lg:gap-6">
-          <div className="sm:col-span-2 lg:col-span-4">
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
+          <div className="lg:col-span-5">
             <Link
               to="/"
               className="inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
@@ -194,84 +207,84 @@ export function SiteFooter() {
                 </li>
               ))}
             </ul>
+
+            <div className="mt-6">
+              <FooterHeading id="footer-contacto-titulo">Contáctanos</FooterHeading>
+              <a
+                href={FOOTER_SALES_WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mb-3 inline-flex min-h-10 w-full max-w-xs items-center justify-center gap-2 rounded-lg bg-[#25D366] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]"
+              >
+                <Icon path={mdiWhatsapp} size={0.8} aria-hidden="true" />
+                Cotizar por WhatsApp
+              </a>
+              <ul className="flex flex-col gap-2 text-xs sm:text-[0.8125rem]">
+                <li>
+                  <div className="flex items-start gap-2">
+                    <Icon
+                      path={mdiWhatsapp}
+                      size={0.65}
+                      className="mt-0.5 size-3.5 shrink-0 text-red-600"
+                      aria-hidden="true"
+                    />
+                    <span className="text-white/55">
+                      <a
+                        href={FOOTER_SALES_WHATSAPP_LINK}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white/80 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
+                      >
+                        Ventas {FOOTER_SALES_PHONE_DISPLAY}
+                      </a>
+                      <span className="text-white/35"> · </span>
+                      <a
+                        href={FOOTER_SUPPORT_PHONE_TEL}
+                        className="text-white/80 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
+                      >
+                        Soporte {FOOTER_SUPPORT_PHONE_DISPLAY}
+                      </a>
+                    </span>
+                  </div>
+                </li>
+                <li className="flex items-center gap-2 text-white/55">
+                  <Clock className="size-3.5 shrink-0 text-red-600" aria-hidden="true" />
+                  <span>{FOOTER_HOURS}</span>
+                </li>
+                <li>
+                  <div className="flex items-start gap-2">
+                    <Mail className="mt-0.5 size-3.5 shrink-0 text-red-600" aria-hidden="true" />
+                    <span className="text-white/55">
+                      <a
+                        href={`mailto:${FOOTER_SALES_EMAIL}`}
+                        className="transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
+                      >
+                        {FOOTER_SALES_EMAIL}
+                      </a>
+                      <span className="text-white/35"> · </span>
+                      <a
+                        href={`mailto:${FOOTER_SUPPORT_EMAIL}`}
+                        className="transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
+                      >
+                        {FOOTER_SUPPORT_EMAIL}
+                      </a>
+                    </span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2 text-white/55">
+                  <MapPin className="mt-0.5 size-3.5 shrink-0 text-red-600" aria-hidden="true" />
+                  <span>{FOOTER_ADDRESS}</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-5">
             <FooterHeading id="footer-nav-titulo">Enlaces</FooterHeading>
             <FooterNavLinks links={FOOTER_NAV_LINKS} ariaLabel="Enlaces del sitio" />
           </div>
 
-          <div className="lg:col-span-3">
-            <FooterHeading id="footer-contacto-titulo">Contáctanos</FooterHeading>
-            <a
-              href={FOOTER_SALES_WHATSAPP_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mb-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#20bd5a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] sm:w-auto"
-            >
-              <Icon path={mdiWhatsapp} size={0.8} aria-hidden="true" />
-              Cotizar por WhatsApp
-            </a>
-            <ul className="flex flex-col gap-2 text-xs sm:text-[0.8125rem]">
-              <li>
-                <div className="flex items-start gap-2">
-                  <Icon
-                    path={mdiWhatsapp}
-                    size={0.65}
-                    className="mt-0.5 size-3.5 shrink-0 text-red-600"
-                    aria-hidden="true"
-                  />
-                  <span className="text-white/55">
-                    <a
-                      href={FOOTER_SALES_WHATSAPP_LINK}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-white/80 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
-                    >
-                      Ventas {FOOTER_SALES_PHONE_DISPLAY}
-                    </a>
-                    <span className="text-white/35"> · </span>
-                    <a
-                      href={FOOTER_SUPPORT_PHONE_TEL}
-                      className="text-white/80 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
-                    >
-                      Soporte {FOOTER_SUPPORT_PHONE_DISPLAY}
-                    </a>
-                  </span>
-                </div>
-              </li>
-              <li className="flex items-center gap-2 text-white/55">
-                <Clock className="size-3.5 shrink-0 text-red-600" aria-hidden="true" />
-                <span>{FOOTER_HOURS}</span>
-              </li>
-              <li>
-                <div className="flex items-start gap-2">
-                  <Mail className="mt-0.5 size-3.5 shrink-0 text-red-600" aria-hidden="true" />
-                  <span className="text-white/55">
-                    <a
-                      href={`mailto:${FOOTER_SALES_EMAIL}`}
-                      className="transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
-                    >
-                      {FOOTER_SALES_EMAIL}
-                    </a>
-                    <span className="text-white/35"> · </span>
-                    <a
-                      href={`mailto:${FOOTER_SUPPORT_EMAIL}`}
-                      className="transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
-                    >
-                      {FOOTER_SUPPORT_EMAIL}
-                    </a>
-                  </span>
-                </div>
-              </li>
-              <li className="flex items-start gap-2 text-white/55">
-                <MapPin className="mt-0.5 size-3.5 shrink-0 text-red-600" aria-hidden="true" />
-                <span>{FOOTER_ADDRESS}</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="sm:col-span-2 lg:col-span-3">
+          <div className="lg:col-span-2">
             {FOOTER_SOCIAL_LINKS.length > 0 ? (
               <>
                 <FooterHeading id="footer-social-titulo">Síguenos</FooterHeading>

@@ -11,9 +11,10 @@ type HeroSlide = (typeof HAITECH_HOME_HERO_SLIDES)[number];
 
 const HERO_IMAGE_CLASS = cn(
   'absolute inset-0 h-full object-cover',
-  // Menos zoom en móvil: el titular queda centrado y no choca con la flecha derecha.
-  'w-[235%] max-w-none',
-  'sm:w-full sm:max-w-full',
+  // Móvil: un poco de recorte para encuadrar el titular, sin acercar tanto las impresoras.
+  'w-[165%] max-w-none',
+  // Desktop: muestra el arte completo (sin recortar impresoras ni textos).
+  'sm:w-full sm:max-w-full sm:object-contain',
 );
 
 function heroSlideImageStyle(slide: HeroSlide): CSSProperties {
@@ -45,7 +46,7 @@ function HeroSlidePicture({ slide, index }: { slide: HeroSlide; index: number })
           src={srcPng}
           alt={slide.alt}
           width={2094}
-          height={670}
+          height={751}
           className={imageClass}
           style={imageStyle}
           {...loadProps}
@@ -59,7 +60,7 @@ function HeroSlidePicture({ slide, index }: { slide: HeroSlide; index: number })
       src={slide.src}
       alt={slide.alt}
       width={2094}
-      height={670}
+      height={751}
       className={imageClass}
       style={imageStyle}
       {...loadProps}
@@ -103,7 +104,7 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
         className={cn(
           'relative w-full overflow-hidden bg-white',
           'aspect-[16/11] min-h-[248px] max-h-[min(420px,92vw)]',
-          'sm:aspect-[2094/670] sm:min-h-[130px] sm:max-h-[min(560px,32vw)]',
+          'sm:aspect-[2094/751] sm:min-h-[160px] sm:max-h-[min(720px,40vw)]',
         )}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}

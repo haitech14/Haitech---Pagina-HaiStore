@@ -105,6 +105,7 @@ export interface ProductCardFeaturedPricingProps {
   showAccentBar?: boolean;
   /** Precio vigente en US$ rojo (vitrina / mockup). */
   accentUsd?: boolean;
+  align?: 'start' | 'center';
   className?: string;
 }
 
@@ -120,15 +121,18 @@ export function ProductCardFeaturedPricing({
   compareUsd,
   showAccentBar = true,
   accentUsd = false,
+  align = 'start',
   className,
 }: ProductCardFeaturedPricingProps) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const penFirst = dualPriceOrder === 'pen-usd';
 
+  const centered = align === 'center';
+
   if (isPriceOnRequest(currentUsd)) {
     return (
-      <div className={cn('space-y-0.5', className)}>
+      <div className={cn('space-y-0.5', centered && 'text-center', className)}>
         <p className="text-xs font-semibold leading-tight text-[#6B7280] sm:text-sm">
           {CONSULTAR_PRECIO_LABEL}
         </p>
@@ -148,9 +152,9 @@ export function ProductCardFeaturedPricing({
     const secondaryLabel = showUsd && showPen ? (penFirst ? usdLabel : penLabel) : null;
 
     return (
-      <div className={cn('space-y-0.5', className)}>
+      <div className={cn('space-y-0.5', centered && 'text-center', className)}>
         {hasDiscount ? (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className={cn('flex flex-wrap items-center gap-1.5', centered && 'justify-center')}>
             <span className="text-[0.75rem] font-normal tabular-nums text-[#9aa3b2] line-through decoration-[#9aa3b2] sm:text-[0.8125rem]">
               {formatFeaturedCompareLabel(compareUsd, showPen, showUsd)}
             </span>
@@ -169,7 +173,7 @@ export function ProductCardFeaturedPricing({
         ) : null}
         {hasDiscount && showAccentBar ? (
           <span
-            className="mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]"
+            className={cn('mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]', centered && 'mx-auto')}
             aria-hidden="true"
           />
         ) : null}
@@ -194,7 +198,7 @@ export function ProductCardFeaturedPricing({
   );
 
   return (
-    <div className={cn('space-y-0.5', className)}>
+    <div className={cn('space-y-0.5', centered && 'text-center', className)}>
       <p className={FEATURED_PRICE_CURRENT_CLASS}>{currentPrice}</p>
       {hasDiscount ? (
         <p className={FEATURED_PRICE_COMPARE_CLASS}>
@@ -216,7 +220,7 @@ export function ProductCardFeaturedPricing({
       ) : null}
       {hasDiscount && showAccentBar ? (
         <span
-          className="mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]"
+          className={cn('mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]', centered && 'mx-auto')}
           aria-hidden="true"
         />
       ) : null}

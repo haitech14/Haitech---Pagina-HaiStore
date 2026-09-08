@@ -56,7 +56,7 @@ export function ProductCardImage({
       }
     : null;
   const overlayWrapperClass = cn(
-    'relative flex min-h-0 min-w-0 items-center justify-center bg-muted/60',
+    'relative flex min-h-0 min-w-0 items-center justify-center bg-white',
     overlayClassName ?? 'h-full w-full',
   );
 

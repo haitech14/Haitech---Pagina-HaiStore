@@ -2,17 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
-import { HaitechHomeHoursDealCard } from '@/components/haitech-home/haitech-home-hours-deal-card';
+import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
 import { HAITECH_HOME } from '@/data/haitech-home-shell';
-import { type HaitechShopProduct } from '@/data/haitech-home-shop';
 import {
   CATALOG_INDEX_UPDATED_EVENT,
   loadCatalogIndex,
 } from '@/lib/catalog-featured';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { getSecondsUntilLimaMidnight } from '@/lib/flash-deals';
-import { listHoursDealOfferProducts } from '@/lib/hours-deal-offer-products';
+import { listHoursDealOfferStoreProducts } from '@/lib/hours-deal-offer-products';
+import { HAITECH_PRODUCT_CAROUSEL_ARROW } from '@/lib/haitech-product-carousel-layout';
 import { cn } from '@/lib/utils';
+import type { Product } from '@/types/product';
 
 function padTwo(value: number): string {
   return String(value).padStart(2, '0');
@@ -73,19 +74,16 @@ function HoursDealCountdown() {
 }
 
 const SLIDE_CLASS =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] md:flex-[0_0_calc((100%-1.5rem)/3)] xl:flex-[0_0_calc((100%-2.25rem)/4)]';
-
-const ARROW_CLASS =
-  'absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center text-white transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:pointer-events-none disabled:opacity-40';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] md:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-2.25rem)/4)]';
 
 export function HaitechHomeFavoritesSection({ className }: { className?: string }) {
-  const [products, setProducts] = useState<HaitechShopProduct[]>(() => listHoursDealOfferProducts());
+  const [products, setProducts] = useState<Product[]>(() => listHoursDealOfferStoreProducts());
 
   useEffect(() => {
     let cancelled = false;
 
     const refresh = () => {
-      if (!cancelled) setProducts(listHoursDealOfferProducts());
+      if (!cancelled) setProducts(listHoursDealOfferStoreProducts());
     };
 
     void loadCatalogIndex().then(refresh);
@@ -167,21 +165,21 @@ export function HaitechHomeFavoritesSection({ className }: { className?: string 
                 <>
                   <button
                     type="button"
-                    className={cn(ARROW_CLASS, 'left-0')}
+                    className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'left-0')}
                     aria-label="Productos anteriores"
                     disabled={!canScrollPrev}
                     onClick={scrollPrev}
                   >
-                    <ChevronLeft className="size-8" strokeWidth={1.6} aria-hidden="true" />
+                    <ChevronLeft className="size-5" strokeWidth={2} aria-hidden="true" />
                   </button>
                   <button
                     type="button"
-                    className={cn(ARROW_CLASS, 'right-0')}
+                    className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'right-0')}
                     aria-label="Productos siguientes"
                     disabled={!canScrollNext}
                     onClick={scrollNext}
                   >
-                    <ChevronRight className="size-8" strokeWidth={1.6} aria-hidden="true" />
+                    <ChevronRight className="size-5" strokeWidth={2} aria-hidden="true" />
                   </button>
                 </>
               ) : null}
@@ -194,7 +192,7 @@ export function HaitechHomeFavoritesSection({ className }: { className?: string 
                 >
                   {products.map((product) => (
                     <li key={product.id} className={SLIDE_CLASS}>
-                      <HaitechHomeHoursDealCard product={product} />
+                      <StoreCatalogProductCard product={product} variant="carousel" />
                     </li>
                   ))}
                 </ul>

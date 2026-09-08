@@ -9,6 +9,7 @@ import {
   Gauge,
   LayoutGrid,
   PenTool,
+  Printer,
   RefreshCw,
   ShieldCheck,
 } from 'lucide-react';
@@ -25,6 +26,7 @@ import {
   HAITECH_EQUIPMENT_COLOR_MODE_FILTERS,
   HAITECH_EQUIPMENT_CONDITIONS,
   HAITECH_EQUIPMENT_FORMAT_FILTERS,
+  HAITECH_IMPRESORAS_SUBTYPE_FILTERS,
   HAITECH_FORMATO_ANCHO_COLOR_FILTERS,
   HAITECH_FORMATO_ANCHO_DEVICE_FILTERS,
   HAITECH_FORMATO_ANCHO_FORMAT_FILTERS,
@@ -80,6 +82,7 @@ import {
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
+import { ProductCardDescriptorLine } from '@/components/product/product-card-title';
 import { splitProductCardTitleAtBrand } from '@/lib/product-card-title';
 import { CONSULTAR_PRECIO_LABEL, getDisplayPriceVisibility, isPriceOnRequest, PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/display-price';
 import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
@@ -87,7 +90,7 @@ import { resolveUserRoleDisplayPen, resolveUserRolePriceUsd } from '@/lib/roles'
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
   parseStoreShowcaseLocation,
-  STAY_IN_SHOWCASE_STATE,
+  stayInShowcaseNavigateState,
   STORE_SHOWCASE_HASH,
   storeShowcaseCategoryFromPathname,
   storeShowcasePath,
@@ -125,9 +128,13 @@ function EquipmentShowcaseCardTitle({
 
   return (
     <>
-      <span className="block w-full leading-tight">{firstLine}</span>
+      <span className="block w-full leading-tight">
+        <ProductCardDescriptorLine text={firstLine} />
+      </span>
       {secondLine ? (
-        <span className="mt-0.5 block w-full leading-tight">{secondLine}</span>
+        <span className="mt-0.5 block w-full truncate whitespace-nowrap leading-tight">
+          {secondLine}
+        </span>
       ) : null}
     </>
   );
@@ -221,6 +228,22 @@ function SpecFilterIcon({
   active?: boolean;
 }) {
   if (id === 'todos') return <LayoutGrid className="size-3.5" aria-hidden="true" />;
+  if (id === 'laser') {
+    return (
+      <Printer
+        className={cn('size-3.5', active ? 'text-white' : 'text-[#3B82F6]')}
+        aria-hidden="true"
+      />
+    );
+  }
+  if (id === 'tinta' || id === 'termica') {
+    return (
+      <Droplets
+        className={cn('size-3.5', active ? 'text-white' : 'text-[#3B82F6]')}
+        aria-hidden="true"
+      />
+    );
+  }
   if (id === 'a4' || id === 'a3' || id === 'a0' || id === 'a1') {
     return (
       <FileText
@@ -670,7 +693,7 @@ function EquipmentShowcaseCard({
           product={cartProduct}
           size="sm"
           addLabel={outOfStock ? 'Reservar' : 'Agregar al carrito'}
-          {...(outOfStock ? {} : { addLabelHover: 'Comprar' })}
+          {...(outOfStock ? {} : { addLabelHover: 'Agregar' })}
           revealQuantityOnHover
           centeredActions
           onQuantityChange={setQuantity}
@@ -966,12 +989,13 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
         pathname: keepCurrentPath ? location.pathname : url.pathname,
         search: url.search,
       },
-      { replace: true, preventScrollReset: true, state: STAY_IN_SHOWCASE_STATE },
+      { replace: true, preventScrollReset: true, state: stayInShowcaseNavigateState() },
     );
   };
 
   const activeCategory = HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES.find((c) => c.id === categoryId);
   const isFormatoAnchoCategory = categoryId === 'formato-ancho';
+  const isImpresorasCategory = categoryId === 'impresoras';
   const isLaptopCategory = categoryId === 'laptops';
   const isScannerCategory = categoryId === 'escaneres';
   const isConsumableCategory = activeCategory?.filterMode === 'consumable';
@@ -1024,17 +1048,27 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
   );
   const productGridItems = buildEquipmentShowcaseGridItems(products, showPrintModeSections);
 
+  const isImpresoraSubtypeFilter = (filterId: HaitechShowcaseFilterId) =>
+    filterId === 'todos' ||
+    filterId === 'laser' ||
+    filterId === 'tinta' ||
+    filterId === 'termica' ||
+    filterId === 'matricial';
+
   const renderFilterButton = (filter: { id: HaitechShowcaseFilterId; label: string }) => {
     const equipmentFilterId = filter.id as HaitechEquipmentSpecFilterId;
     const laptopFilterId = filter.id as HaitechLaptopFilterId;
     const formatoAnchoFilterId = filter.id as HaitechFormatoAnchoFilterId;
+    const useImpresoraSubtype = isImpresorasCategory && isImpresoraSubtypeFilter(filter.id);
     const active = isLaptopCategory
       ? isLaptopSpecFilterActive(laptopSpecFilters, laptopFilterId)
       : isFormatoAnchoCategory
         ? isFormatoAnchoSpecFilterActive(formatoAnchoSpecFilters, formatoAnchoFilterId)
-        : isEquipmentCategory
-          ? isEquipmentSpecFilterActive(equipmentSpecFilters, equipmentFilterId)
-          : filter.id === specFilter;
+        : useImpresoraSubtype
+          ? filter.id === specFilter
+          : isEquipmentCategory
+            ? isEquipmentSpecFilterActive(equipmentSpecFilters, equipmentFilterId)
+            : filter.id === specFilter;
 
     const syncFilters = (next: {
       equipmentSpecFilters?: HaitechEquipmentActiveSpecFilters;
@@ -1074,6 +1108,12 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
             );
             setFormatoAnchoSpecFilters(nextFormatoAnchoFilters);
             syncFilters({ formatoAnchoSpecFilters: nextFormatoAnchoFilters });
+            return;
+          }
+
+          if (useImpresoraSubtype) {
+            setSpecFilter(filter.id);
+            syncFilters({ filter: filter.id });
             return;
           }
 
@@ -1167,7 +1207,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
 
         <div
           className={cn(
-            'mx-auto mt-7 flex max-w-[1100px] flex-col items-center justify-center gap-3 rounded-[1.75rem] bg-[#F3F4F6] px-4 py-3.5',
+            'mx-auto mt-7 flex max-w-[1280px] flex-col items-center justify-center gap-3 rounded-[1.75rem] bg-[#F3F4F6] px-4 py-3.5',
             'sm:mt-8 sm:flex-row sm:rounded-full sm:px-5 sm:py-3',
           )}
         >
@@ -1183,7 +1223,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
                   ? 'Filtros de repuestos'
                   : 'Filtros de tóner'
                 : categoryId === 'impresoras'
-                  ? 'Subcategorías de impresoras'
+                  ? 'Tipo de impresora y filtros de equipos'
                   : isLaptopCategory
                     ? 'Filtros de PC y laptops'
                     : isFormatoAnchoCategory
@@ -1212,6 +1252,22 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
                     aria-hidden="true"
                   />
                   {HAITECH_FORMATO_ANCHO_DEVICE_FILTERS.map(renderFilterButton)}
+                </>
+              ) : isImpresorasCategory ? (
+                <>
+                  {HAITECH_IMPRESORAS_SUBTYPE_FILTERS.map(renderFilterButton)}
+                  <span
+                    className="mx-0.5 inline-block h-8 w-px shrink-0 self-center bg-[#D1D5DB]"
+                    aria-hidden="true"
+                  />
+                  {HAITECH_EQUIPMENT_FORMAT_FILTERS.filter((filter) => filter.id !== 'todos').map(
+                    renderFilterButton,
+                  )}
+                  <span
+                    className="mx-0.5 inline-block h-8 w-px shrink-0 self-center bg-[#D1D5DB]"
+                    aria-hidden="true"
+                  />
+                  {HAITECH_EQUIPMENT_COLOR_MODE_FILTERS.map(renderFilterButton)}
                 </>
               ) : (
                 <>

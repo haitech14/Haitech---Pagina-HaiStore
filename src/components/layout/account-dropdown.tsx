@@ -110,6 +110,7 @@ interface AccountDropdownProps {
   triggerVariant?: AccountDropdownTriggerVariant;
   tone?: HeaderActionTone;
   triggerClassName?: string;
+  iconClassName?: string;
   className?: string;
   menuSide?: 'top' | 'bottom' | 'left' | 'right';
   menuAlign?: 'start' | 'center' | 'end';
@@ -119,6 +120,7 @@ export function AccountDropdown({
   triggerVariant = 'icon',
   tone = 'light',
   triggerClassName,
+  iconClassName,
   className,
   menuSide = 'bottom',
   menuAlign = 'end',
@@ -263,6 +265,7 @@ export function AccountDropdown({
             'shrink-0',
             isCompactIcon ? 'size-4' : 'size-5',
             triggerVariant === 'pill' && 'size-[18px]',
+            iconClassName,
           )}
           strokeWidth={1.75}
           aria-hidden="true"

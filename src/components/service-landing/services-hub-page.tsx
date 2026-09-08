@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { RentalConfigurePlanSection } from '@/components/rental/rental-configure-plan-section';
-import { RentalFeaturesBar } from '@/components/rental/rental-features-bar';
 import { ServicesCatalogSection } from '@/components/services-storefront/services-catalog-section';
+import { ServicesChannelCardsGrid } from '@/components/services-storefront/services-channel-cards-grid';
 import { ServicesCustomSolutionForm } from '@/components/services-storefront/services-custom-solution-form';
 import { ServicesStorefrontHero } from '@/components/services-storefront/services-storefront-hero';
+import { StorefrontChannelHeroBanner } from '@/components/store-storefront/storefront-channel-hero-banner';
 import { mapHubSectionToCategory } from '@/data/services-catalog';
 import type { ServiceLandingSlug } from '@/data/service-landings';
 import type { ServiceCatalogCategoryId } from '@/types/services-catalog';
@@ -85,20 +85,25 @@ export function ServicesHubPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const isComprarClone = section === 'alquiler' || section === 'servicio-tecnico';
+
   return (
     <div className={cn('services-storefront flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
-      <ServicesStorefrontHero section={section} />
-      {section === 'alquiler' ? (
+      {isComprarClone ? (
         <>
-          <RentalFeaturesBar />
-          <RentalConfigurePlanSection />
+          <StorefrontChannelHeroBanner channel={section} />
+          <ServicesChannelCardsGrid channel={section} />
         </>
-      ) : null}
-      <ServicesCatalogSection
-        activeCategory={activeCategory}
-        onCategoryChange={handleCategoryChange}
-        key={section}
-      />
+      ) : (
+        <>
+          <ServicesStorefrontHero section={section} />
+          <ServicesCatalogSection
+            activeCategory={activeCategory}
+            onCategoryChange={handleCategoryChange}
+            key={section}
+          />
+        </>
+      )}
       <ServicesCustomSolutionForm />
     </div>
   );

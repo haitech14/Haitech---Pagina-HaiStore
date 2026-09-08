@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
-import { HaitechHomeProductCard } from '@/components/haitech-home/haitech-home-product-card';
-import type { HaitechShopProduct } from '@/data/haitech-home-shop';
+import { StoreCatalogProductCard } from '@/components/store-storefront/store-catalog-product-card';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
   HAITECH_PRODUCT_CAROUSEL_ARROW,
@@ -12,13 +11,14 @@ import {
   HAITECH_PRODUCT_CAROUSEL_SLIDE,
 } from '@/lib/haitech-product-carousel-layout';
 import { cn } from '@/lib/utils';
+import type { Product } from '@/types/product';
 
 export function HaitechHomeProductCarousel({
   products,
   className,
   ariaLabel = 'Productos',
 }: {
-  products: readonly HaitechShopProduct[];
+  products: readonly Product[];
   className?: string;
   ariaLabel?: string;
 }) {
@@ -92,7 +92,7 @@ export function HaitechHomeProductCarousel({
         <ul className={cn('flex touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list" aria-label={ariaLabel}>
           {products.map((product) => (
             <li key={product.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
-              <HaitechHomeProductCard product={product} />
+              <StoreCatalogProductCard product={product} variant="carousel" />
             </li>
           ))}
         </ul>

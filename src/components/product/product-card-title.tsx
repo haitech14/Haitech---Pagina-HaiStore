@@ -63,21 +63,57 @@ export function ProductCardBrandLine({
   );
 }
 
+const DESCRIPTOR_CLUSTER_PATTERN =
+  /^(.*?)(\bMultifuncional(?:\s+(?:B\/N|Color))?(?:\s+(?:Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo))?)$/i;
+const COLOR_CONDITION_CLUSTER_PATTERN =
+  /^(.*?)(\b(?:B\/N|Color)\s+(?:Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo))$/i;
+
+/** Mantiene junto «Multifuncional B/N Nueva» (u homólogos) para no partirlo en dos líneas. */
+export function ProductCardDescriptorLine({ text }: { text: string }) {
+  const descriptorMatch = text.match(DESCRIPTOR_CLUSTER_PATTERN);
+  if (descriptorMatch?.[1]?.trim() && descriptorMatch[2]) {
+    return (
+      <>
+        {descriptorMatch[1]}
+        <span className="whitespace-nowrap">{descriptorMatch[2]}</span>
+      </>
+    );
+  }
+
+  const colorMatch = text.match(COLOR_CONDITION_CLUSTER_PATTERN);
+  if (colorMatch?.[1]?.trim() && colorMatch[2]) {
+    return (
+      <>
+        {colorMatch[1]}
+        <span className="whitespace-nowrap">{colorMatch[2]}</span>
+      </>
+    );
+  }
+
+  return text;
+}
+
 export function ProductCardSplitBrandTitle({
   title,
   brand,
   className,
+  align = 'left',
 }: {
   title: string;
   brand?: string | null;
   className?: string;
+  align?: 'left' | 'center';
 }) {
   const { firstLine, secondLine } = splitProductCardTitleAtBrand(title, brand);
 
   return (
-    <span className={className} title={title}>
-      <span className="block whitespace-normal">{firstLine}</span>
-      {secondLine ? <span className="block whitespace-normal">{secondLine}</span> : null}
+    <span className={cn(align === 'center' && 'block text-center', className)} title={title}>
+      <span className="block">
+        <ProductCardDescriptorLine text={firstLine} />
+      </span>
+      {secondLine ? (
+        <span className="mt-0.5 block truncate whitespace-nowrap">{secondLine}</span>
+      ) : null}
     </span>
   );
 }

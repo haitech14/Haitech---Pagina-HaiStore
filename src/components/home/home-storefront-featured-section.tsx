@@ -199,7 +199,7 @@ function pickConsumableRailProducts(
 function FeaturedSkeleton() {
   return (
     <ul className={cn('flex', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list">
-      {Array.from({ length: 5 }).map((_, index) => (
+      {Array.from({ length: 4 }).map((_, index) => (
         <li key={index} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
           <div className="rounded-lg bg-white p-2.5">
             <Skeleton className="aspect-square w-full rounded-md" />
@@ -367,6 +367,7 @@ function FeaturedProductsCarousel({
               <li key={storeProduct.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
                 <StoreCatalogProductCard
                   product={storeProduct}
+                  variant="carousel"
                   imageLoading={index < eagerImageCount ? 'eager' : 'lazy'}
                   imagePriority={index < eagerImageCount}
                 />
@@ -553,7 +554,7 @@ export function HomeStorefrontFeaturedSection() {
   const isLoading = bundleLoading && !catalogBundle;
 
   return (
-    <div className="bg-[#FAFBFC]">
+    <div className="bg-white">
       {STOREFRONT_CATALOG_RAILS.map((rail, index) => {
         const railBlock = (
           <StorefrontCatalogRail

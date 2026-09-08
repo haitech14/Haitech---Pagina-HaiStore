@@ -90,20 +90,20 @@ export const HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES: readonly HaitechEquipmentSho
     shopTabId: 'multifuncionales',
   },
   {
-    id: 'formato-ancho',
-    label: 'Formato Ancho',
-    image: `${CHIP}/formato-ancho.webp`,
-    to: categoryLandingPath('formato-ancho'),
-    filterMode: 'equipment',
-    shopTabId: null,
-  },
-  {
     id: 'impresoras',
     label: 'Impresoras',
     image: `${CHIP}/impresoras.webp`,
     to: categoryLandingPath('impresoras'),
     filterMode: 'equipment',
     shopTabId: 'impresoras',
+  },
+  {
+    id: 'formato-ancho',
+    label: 'Formato Ancho',
+    image: `${CHIP}/formato-ancho.webp`,
+    to: categoryLandingPath('formato-ancho'),
+    filterMode: 'equipment',
+    shopTabId: null,
   },
   {
     id: 'laptops',
@@ -497,8 +497,6 @@ export const HAITECH_IMPRESORAS_SUBTYPE_FILTERS: readonly {
   { id: 'todos', label: 'Todas' },
   { id: 'laser', label: 'Láser' },
   { id: 'tinta', label: 'Tinta' },
-  { id: 'termica', label: 'Térmica' },
-  { id: 'matricial', label: 'Matricial' },
 ] as const;
 
 export const HAITECH_CONSUMABLE_ORIGIN_FILTERS: readonly {
@@ -1957,6 +1955,14 @@ export function filterEquipmentShowcaseProducts(options: {
         if (
           options.formatoAnchoSpecFilters &&
           !matchesFormatoAnchoActiveSpecFilters(product, options.formatoAnchoSpecFilters)
+        ) {
+          return false;
+        }
+      } else if (category.id === 'impresoras') {
+        if (!matchesSpecFilter(product, options.specFilter)) return false;
+        if (
+          options.equipmentSpecFilters &&
+          !matchesEquipmentActiveSpecFilters(product, options.equipmentSpecFilters)
         ) {
           return false;
         }
