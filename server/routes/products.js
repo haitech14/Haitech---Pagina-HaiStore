@@ -41,6 +41,7 @@ import { listHomeFeaturedProducts } from '../lib/home-featured-products.js';
 import { listHomeCatalogSections } from '../lib/home-catalog-sections.js';
 import { listHomeCatalogBundleWithSnapshot } from '../lib/home-catalog-bundle-snapshot.js';
 import { shouldPreferSupabaseCatalog } from '../lib/catalog-source.js';
+import { linkListedTonersForEquipment } from '../lib/known-equipment-toners.js';
 
 export const productsRouter = Router();
 
@@ -469,6 +470,58 @@ productsRouter.get('/:id/consumables', async (req, res, next) => {
     res.set('Cache-Control', HOME_CACHE_CONTROL);
     res.json(result);
   } catch (error) {
+    next(error);
+  }
+});
+
+productsRouter.post('/:id/link-toners', requireAdmin, async (req, res, next) => {
+  try {
+    const productId = String(req.params.id ?? '').trim();
+    if (!productId) return res.status(400).json({ error: 'Id inválido' });
+
+    const inventory = await readInventory();
+    const result = linkListedTonersForEquipment(inventory.products, productId);
+    const normalized = await writeInventory(
+      {
+        products: result.products,
+        deletedProductIds: inventory.deletedProductIds ?? [],
+        warehouses: inventory.warehouses,
+      },
+      { syncProductIds: [productId, ...result.tonerIds] },
+    );
+
+    const equipment =
+      normalized.products.find((entry) => entry.id === productId) ?? result.equipment;
+    const toners = result.tonerIds
+      .map((id) => normalized.products.find((entry) => entry.id === id))
+      .filter(Boolean);
+
+    if (toners.length === 0) {
+      return res.status(404).json({
+        error: 'No hay tóners de lista ni similares en inventario para este equipo',
+      });
+    }
+
+    if (!shouldPreferSupabaseCatalog()) {
+      await syncProductsToSupabase([equipment, ...toners].filter(Boolean));
+    }
+
+    if (equipment) {
+      notifyHaiSupportChange('products', 'update', equipment);
+    }
+
+    res.json({
+      ok: true,
+      equipment,
+      toners,
+      created: result.created,
+      updated: result.updated,
+      wired: result.wired,
+    });
+  } catch (error) {
+    if (error?.status === 404 || error?.status === 400) {
+      return res.status(error.status).json({ error: error.message });
+    }
     next(error);
   }
 });

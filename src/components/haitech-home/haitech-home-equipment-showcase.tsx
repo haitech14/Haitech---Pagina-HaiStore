@@ -65,13 +65,14 @@ import {
   type HaitechShopProduct,
 } from '@/data/haitech-home-shop';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
-import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
+import { ProductTonerPricesHover } from '@/components/product/product-toner-prices-hover';
 import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { DEFAULT_USD_TO_PEN } from '@/lib/exchange-rate';
 import { buildShowcaseProductsFromCatalog } from '@/lib/showcase-catalog-consumables';
-import { resolveShowcaseProductHref } from '@/lib/showcase-product-href';
+import { findShowcaseCatalogRow, resolveShowcaseProductHref } from '@/lib/showcase-product-href';
+import { toPublicProduct } from '@/lib/pricing';
 import {
   resolveShowcaseActivePriceRole,
   resolveShowcaseProductPricesUsd,
@@ -310,7 +311,6 @@ function EquipmentShowcaseCard({
   const { data: companySettings } = useCompanySettings();
   const saleRate = companySettings?.usdToPenExchangeRate;
   const [imgError, setImgError] = useState(false);
-  const [quantity, setQuantity] = useState(1);
   const isConsumable = Boolean(product.toner) || /repuesto|unidad de imagen|t[oó]ner/i.test(product.name);
   const pricingOptions = useMemo(
     () => ({ saleRate, isConsumable }),
@@ -377,6 +377,16 @@ function EquipmentShowcaseCard({
     () => toCartProduct({ ...product, price: displayPen }, saleRate),
     [product, displayPen, saleRate],
   );
+  const catalogRow = catalogReady ? findShowcaseCatalogRow(product) : undefined;
+  const tonerEquipmentProduct = useMemo(
+    () => (catalogRow ? toPublicProduct(catalogRow, String(effectiveRole)) : cartProduct),
+    [cartProduct, catalogRow, effectiveRole],
+  );
+  const showTecnicoToner =
+    !isConsumable &&
+    activePriceRole === 'tecnico' &&
+    !showMultiRolePrices &&
+    !priceOnRequest;
 
   const originBadgeLabel =
     consumableOrigin === 'compatible'
@@ -680,50 +690,40 @@ function EquipmentShowcaseCard({
           </div>
         ) : null}
         {priceLine}
-        {activePriceRole === 'tecnico' && !showMultiRolePrices && !priceOnRequest ? (
-          <span className="text-[10px] font-semibold leading-none text-[#6B7280] sm:text-[11px]">
-            Precio Técnico
-          </span>
-        ) : null}
       </div>
       </Link>
+
+      {showTecnicoToner ? (
+        <ProductTonerPricesHover
+          product={tonerEquipmentProduct}
+          isColor={specs.printMode === 'Color'}
+          priceRole="tecnico"
+          saleRate={saleRate}
+          placement="below"
+          className="mt-1 flex flex-col items-center"
+        >
+          <span
+            tabIndex={0}
+            className="cursor-help text-[10px] font-semibold leading-none text-[#6B7280] underline decoration-dotted decoration-[#C4C9D2] underline-offset-2 sm:text-[11px]"
+          >
+            Precio Técnico
+          </span>
+        </ProductTonerPricesHover>
+      ) : null}
 
       <div className="mt-2 flex justify-center sm:mt-3">
         <ProductQuantityAddFooter
           product={cartProduct}
           size="sm"
-          addLabel={outOfStock ? 'Reservar' : 'Agregar al carrito'}
-          {...(outOfStock ? {} : { addLabelHover: 'Agregar' })}
+          addLabel="Agregar al carrito"
+          addLabelHover="Agregar"
           revealQuantityOnHover
           centeredActions
-          onQuantityChange={setQuantity}
           quantityClassName="h-9 rounded-lg sm:h-10"
           addButtonClassName={cn(
-            'h-10 min-h-10 max-h-10 flex-none justify-center rounded-lg px-3 text-[11px] font-bold shadow-none sm:h-11 sm:min-h-11 sm:max-h-11 sm:px-4 sm:text-[13px]',
-            outOfStock
-              ? 'bg-[#111111] hover:bg-[#222222]'
-              : 'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
+            'h-10 min-h-10 max-h-10 w-auto flex-none justify-center rounded-lg px-3.5 text-[11px] font-bold shadow-none sm:h-11 sm:min-h-11 sm:max-h-11 sm:px-4 sm:text-[13px]',
+            'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
           )}
-          belowAlways
-          belowOnHover={
-            <ProductWhatsAppButton
-              stopPropagation
-              skipDialogIfComplete
-              accent="outline"
-              compact
-              label="Comprar por WhatsApp"
-              quantity={quantity}
-              product={{
-                id: cartProduct.id,
-                name: title,
-                priceUsd,
-                category: cartProduct.category,
-                brand: cartProduct.brand ?? null,
-                ...(product.code ? { code: product.code } : {}),
-              }}
-              className="min-w-0 h-10 w-full overflow-hidden rounded-lg sm:h-11"
-            />
-          }
         />
       </div>
     </article>

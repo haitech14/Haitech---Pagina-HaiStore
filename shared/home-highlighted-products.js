@@ -4,7 +4,6 @@ import { isHomeCarouselExcludedProduct } from './home-excluded-products.js';
 export const HOME_HIGHLIGHTED_MODEL_PATTERNS = [
   /\bim\s*430\s*f\b/i,
   /\bm\s*320\s*f\b/i,
-  /\bim\s*c320\s*f\b/i,
   /\bm\s*c320\s*fw\b/i,
   /\bmp\s*305\s*\+?\b/i,
   /\bim\s*550\s*f\b/i,

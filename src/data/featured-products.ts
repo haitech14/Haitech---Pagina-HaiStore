@@ -30,7 +30,6 @@ export interface FeaturedProduct {
 export const FEATURED_PRODUCT_IDS: string[] = [
   'ricoh-im-430f',
   'bfb264b8-70dc-4ad4-9686-2df02df8c75e',
-  '481dbc77-436b-464d-b76f-930f7d79f4ff',
   'cb1e47b2-d784-4bef-ae18-d4dae08723e4',
   'ab878d89-61e0-4e51-a941-03455e1da407',
   '328f41ef-d935-4807-85d0-e1db5bdf73fb',
@@ -47,7 +46,6 @@ const FEATURED_META: Record<
 > = {
   'ricoh-im-430f': { rating: 5, reviews: 48 },
   'bfb264b8-70dc-4ad4-9686-2df02df8c75e': { rating: 5, reviews: 12, isNew: true },
-  '481dbc77-436b-464d-b76f-930f7d79f4ff': { rating: 5, reviews: 14, isNew: true },
   'cb1e47b2-d784-4bef-ae18-d4dae08723e4': { rating: 5, reviews: 11, isNew: true },
   'ab878d89-61e0-4e51-a941-03455e1da407': { rating: 5, reviews: 9, isNew: true },
   '328f41ef-d935-4807-85d0-e1db5bdf73fb': { rating: 5, reviews: 22, isNew: true },

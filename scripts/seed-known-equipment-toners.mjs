@@ -8,6 +8,7 @@ import {
 import {
   ensureImC300FCompatibleTonerProducts,
   ensureImC320FCompatibleTonerProducts,
+  ensureListedOriginalTonerProducts,
   ensureMpC407CompatibleTonerProducts,
   mergeKnownEquipmentTonerProducts,
   wireEquipmentTonerCrossSell,
@@ -21,7 +22,8 @@ async function main() {
   const inventory = await readInventory();
   const tonerMerge = mergeKnownEquipmentTonerProducts(inventory.products);
   const mpC407 = ensureMpC407CompatibleTonerProducts(tonerMerge.products);
-  const imC320f = ensureImC320FCompatibleTonerProducts(mpC407.products);
+  const listed = ensureListedOriginalTonerProducts(mpC407.products);
+  const imC320f = ensureImC320FCompatibleTonerProducts(listed.products);
   const imC300f = ensureImC300FCompatibleTonerProducts(imC320f.products);
   const wired = wireEquipmentTonerCrossSell(imC300f.products);
   const { products } = ensureProductSortOrders(wired.products);
@@ -33,7 +35,7 @@ async function main() {
   });
 
   console.log(
-    `Tóneres de equipo: ${tonerMerge.created} nuevos, ${tonerMerge.updated} actualizados; MP C407 CMYK: ${mpC407.updated}; IM C320F CMYK: ${imC320f.created} nuevos / ${imC320f.updated} actualizados; IM C300F CMYK: ${imC300f.created} nuevos / ${imC300f.updated} actualizados; ${wired.wired} equipos con venta cruzada.`,
+    `Tóneres de equipo: ${tonerMerge.created} nuevos, ${tonerMerge.updated} actualizados; lista original M C320/IM C320F/IM C401: ${listed.updated} actualizados / ${listed.missing} faltantes; MP C407 CMYK: ${mpC407.updated}; IM C320F CMYK: ${imC320f.created} nuevos / ${imC320f.updated} actualizados; IM C300F CMYK: ${imC300f.created} nuevos / ${imC300f.updated} actualizados; ${wired.wired} equipos con venta cruzada.`,
   );
   console.log(`Total en inventario: ${products.length} productos.`);
 }

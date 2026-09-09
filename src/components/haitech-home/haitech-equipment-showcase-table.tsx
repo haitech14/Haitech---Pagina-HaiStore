@@ -1,9 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, FileText, GitCompare, Pencil, ShoppingCart } from 'lucide-react';
+import { Calculator, FileText, GitCompare, Pencil, Plane, ShoppingCart } from 'lucide-react';
 
 import { type InventoryProductFormFocusSection } from '@/components/admin/inventory/inventory-product-form-dialog';
-import { AddToCartButton, getAddToCartLabel } from '@/components/cart/add-to-cart-button';
+import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
 import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
@@ -503,7 +503,7 @@ function EquipmentShowcaseTableRow({
   const hasStock = product.stock != null;
   const outOfStock = hasStock && stockCount <= 0;
   const cartProduct = useMemo(() => toCartProduct(product, saleRate), [product, saleRate]);
-  const buyLabel = outOfStock ? 'Reservar' : getAddToCartLabel(cartProduct, 'short');
+  const buyLabel = outOfStock ? 'Agregar a Pedido' : 'Agregar al carrito';
   const compareSelected = isSelected(product.id);
 
   const compareItem = useMemo<CompareProductItem>(
@@ -743,7 +743,11 @@ function EquipmentShowcaseTableRow({
               outOfStock ? 'bg-[#111111] hover:bg-[#222222]' : 'bg-[#E30613] hover:bg-[#c90511]',
             )}
           >
-            <ShoppingCart className="size-3.5" aria-hidden="true" />
+            {outOfStock ? (
+              <Plane className="size-3.5" aria-hidden="true" />
+            ) : (
+              <ShoppingCart className="size-3.5" aria-hidden="true" />
+            )}
             {buyLabel}
           </AddToCartButton>
           <button

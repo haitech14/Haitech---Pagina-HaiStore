@@ -82,6 +82,25 @@ export const MPC407_COMPATIBLE_TONER_IDS = [
 /** Equipo M C320FW (color A4) en inventario. */
 export const MC320FW_EQUIPMENT_PRODUCT_ID = 'cb1e47b2-d784-4bef-ae18-d4dae08723e4';
 
+/** Tóneres CMYK originales M C320 / M C320FW (Negro / Cyan / Magenta / Amarillo). */
+export const MC320FW_ORIGINAL_TONER_IDS = [
+  '842687',
+  '842688',
+  '842689',
+  '842690',
+] as const;
+
+/** Equipo IM C401F (color A4) en inventario. */
+export const IM_C401F_EQUIPMENT_PRODUCT_ID = '5a142c47-521c-47af-92ec-dda8808907c9';
+
+/** Tóneres CMYK originales IM C401 / IM C401F (Negro / Cyan / Magenta / Amarillo). */
+export const IM_C401F_ORIGINAL_TONER_IDS = [
+  '842394',
+  '842395',
+  '842396',
+  '842397',
+] as const;
+
 /** Tóner original M 320F / SP 3710 / P-311 en inventario (código 408284). */
 export const M320F_ORIGINAL_TONER_PRODUCT_ID = '408284';
 

@@ -11,6 +11,10 @@ import {
   IM_C320F_COMPATIBLE_TONER_IDS,
   IM_C320F_EQUIPMENT_PRODUCT_ID,
   IM_C320F_ORIGINAL_TONER_IDS,
+  IM_C401F_EQUIPMENT_PRODUCT_ID,
+  IM_C401F_ORIGINAL_TONER_IDS,
+  MC320FW_EQUIPMENT_PRODUCT_ID,
+  MC320FW_ORIGINAL_TONER_IDS,
   M320F_COMPATIBLE_TONER_PRODUCT_ID,
   M320F_EQUIPMENT_PRODUCT_ID,
   M320F_ORIGINAL_TONER_PRODUCT_ID,
@@ -84,6 +88,20 @@ function normalizeEquipmentName(value: string): string {
 
 /** Varios tóneres originales conocidos (p. ej. CMYK en equipos color). */
 export function resolveKnownOriginalTonerProductIds(equipment: Product): string[] {
+  if (
+    equipment.id === MC320FW_EQUIPMENT_PRODUCT_ID ||
+    /\bm\s*c\s*320/i.test(equipment.name)
+  ) {
+    return [...MC320FW_ORIGINAL_TONER_IDS];
+  }
+
+  if (
+    equipment.id === IM_C401F_EQUIPMENT_PRODUCT_ID ||
+    /\bim\s*c\s*401/i.test(equipment.name)
+  ) {
+    return [...IM_C401F_ORIGINAL_TONER_IDS];
+  }
+
   if (
     equipment.id === IM_C320F_EQUIPMENT_PRODUCT_ID ||
     /\bim\s*c\s*320\s*f\b/i.test(equipment.name)

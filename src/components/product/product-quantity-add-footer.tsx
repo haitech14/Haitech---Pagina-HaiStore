@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Minus, Plane, Plus, ShoppingCart } from 'lucide-react';
 
 import {
+  ADD_ON_REQUEST_LABEL,
   AddToCartButton,
   adjustProductQuantity,
   formatOrderQuantityHint,
   getAddToCartLabel,
-  hasOnRequestQuantity,
+  isAddOnRequestProduct,
 } from '@/components/cart/add-to-cart-button';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -64,10 +65,12 @@ export function ProductQuantityAddFooter({
   centeredActions = false,
 }: ProductQuantityAddFooterProps) {
   const [quantity, setQuantity] = useState(1);
-  const includesOnRequest = hasOnRequestQuantity(product, quantity);
   const orderHint = formatOrderQuantityHint(product, quantity);
-  const cartLabel = addLabel ?? getAddToCartLabel(product, 'short', quantity);
-  const cartLabelHover = addLabelHover ?? null;
+  const onRequestOnly = isAddOnRequestProduct(product, quantity);
+  const cartLabel = onRequestOnly
+    ? ADD_ON_REQUEST_LABEL
+    : (addLabel ?? getAddToCartLabel(product, 'short', quantity));
+  const cartLabelHover = onRequestOnly ? null : addLabelHover ?? null;
   const swapLabelOnHover = Boolean(cartLabelHover && revealQuantityOnHover && !hideQuantity);
   const hideEndAdornmentOnHover = Boolean(belowOnHover && endAdornment);
   const hoverRevealClass = belowAlways
@@ -103,18 +106,9 @@ export function ProductQuantityAddFooter({
       : hideQuantity
         ? 'h-8 min-h-8 w-full min-w-0 flex-1 gap-1.5 rounded-md px-2 text-xs font-semibold sm:h-9 sm:min-h-9 sm:text-sm'
         : 'h-8 min-h-8 min-w-0 flex-1 gap-1.5 rounded-md px-2 text-xs font-semibold sm:h-9 sm:min-h-9 sm:text-sm';
-  const longBuyLabel = (cartLabel?.replace(/\s/g, '').length ?? 0) >= 12;
-  const compactBuyWidth =
-    centeredActions &&
-    !hideQuantity &&
-    (longBuyLabel
-      ? 'w-[13.5rem] min-w-[13.5rem] flex-none sm:w-[15.75rem] sm:min-w-[15.75rem]'
-      : 'w-[9.5rem] min-w-[9.5rem] flex-none sm:w-[14.5rem] sm:min-w-[14.5rem]');
-  const compactBuyWidthOnHover =
-    centeredActions &&
-    revealQuantityOnHover &&
-    !hideQuantity &&
-    'sm:group-hover:w-[9.5rem] sm:group-hover:min-w-[9.5rem] sm:group-focus-within:w-[9.5rem] sm:group-focus-within:min-w-[9.5rem]';
+  const compactBuyWidth = centeredActions
+    ? 'w-auto min-w-0 flex-none whitespace-nowrap px-3.5 sm:px-4'
+    : null;
 
   const quantityControl = hideQuantity ? null : (
     <div
@@ -186,27 +180,17 @@ export function ProductQuantityAddFooter({
       addOptions={{ quantity }}
       className={cn(
         addButtonClass,
-        includesOnRequest
-          ? cn(
-              addButtonClassName,
-              // Reserva / a pedido: negro (pisa fondos rojos de las cards).
-              'border border-foreground !bg-foreground !text-background shadow-none hover:!bg-foreground/90 hover:!text-background focus-visible:ring-ring',
-              compactBuyWidth,
-              compactBuyWidthOnHover,
-            )
-          : cn(
-              'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
-              addButtonClassName,
-              compactBuyWidth,
-              compactBuyWidthOnHover,
-            ),
-        centeredActions &&
-          revealQuantityOnHover &&
-          !hideQuantity &&
-          'transition-[width,min-width,padding] duration-200 ease-out sm:group-hover:px-3 sm:group-focus-within:px-3 motion-reduce:transition-none',
+        'border-[#E30613] bg-[#E30613] text-white shadow-none hover:bg-[#c90511] hover:text-white focus-visible:ring-[#E30613]',
+        addButtonClassName,
+        onRequestOnly
+          ? 'border-foreground !bg-[#111111] hover:!bg-[#222222] !text-white focus-visible:ring-ring'
+          : '!bg-[#E30613] hover:!bg-[#c90511] !text-white',
+        compactBuyWidth,
       )}
     >
-      {!includesOnRequest ? (
+      {onRequestOnly ? (
+        <Plane className="size-4 shrink-0" aria-hidden="true" />
+      ) : (
         <ShoppingCart
           className={cn(
             'size-4 shrink-0',
@@ -214,7 +198,7 @@ export function ProductQuantityAddFooter({
           )}
           aria-hidden="true"
         />
-      ) : null}
+      )}
       {swapLabelOnHover ? (
         <>
           <span className="max-md:hidden group-hover:hidden group-focus-within:hidden">
@@ -241,15 +225,16 @@ export function ProductQuantityAddFooter({
     </div>
   ) : null;
 
+  const belowWidthClass = centeredActions ? 'w-auto min-w-0' : 'w-full min-w-0';
   const hoverFooter =
     belowOnHover != null ? (
       belowAlways ? (
-        <div className={cn('w-full min-w-0 overflow-hidden', belowClassName ?? 'pt-1.5')}>
+        <div className={cn(belowWidthClass, 'overflow-hidden', belowClassName ?? 'pt-1.5')}>
           {belowOnHover}
         </div>
       ) : (
         <div className={hoverRevealClass}>
-          <div className={cn('min-h-0 w-full min-w-0 overflow-hidden', belowClassName ?? 'pt-1.5')}>
+          <div className={cn('min-h-0 overflow-hidden', belowWidthClass, belowClassName ?? 'pt-1.5')}>
             {belowOnHover}
           </div>
         </div>
@@ -260,7 +245,7 @@ export function ProductQuantityAddFooter({
     <div
       className={cn(
         'flex min-w-0 items-stretch gap-1.5 sm:gap-2',
-        centeredActions ? 'shrink-0' : 'w-full flex-1',
+        centeredActions ? 'w-auto shrink-0' : 'w-full flex-1',
       )}
     >
       {addButton}
@@ -270,7 +255,13 @@ export function ProductQuantityAddFooter({
 
   if (quantityAbove) {
     return (
-      <div className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}>
+      <div
+        className={cn(
+          'flex min-w-0 flex-col gap-1.5',
+          centeredActions ? 'w-full items-center' : 'w-full',
+          className,
+        )}
+      >
         {quantityControl}
         {actionRow}
         {hoverFooter}
@@ -281,14 +272,15 @@ export function ProductQuantityAddFooter({
   return (
     <div
       className={cn(
-        'flex min-w-0 flex-col items-stretch',
-        centeredActions ? 'w-max max-w-full' : 'w-full',
+          'flex min-w-0 flex-col',
+          centeredActions ? 'w-full items-center' : 'w-full items-stretch',
         className,
       )}
     >
       <div
         className={cn(
-          'flex w-full shrink-0 items-stretch',
+          'flex shrink-0 items-stretch',
+          centeredActions ? 'w-auto max-w-full' : 'w-full',
           hideQuantity
             ? 'gap-0'
             : revealQuantityOnHover

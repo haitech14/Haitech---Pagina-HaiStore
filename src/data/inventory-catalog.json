@@ -6978,7 +6978,7 @@
       "gallery": [],
       "prices": {
         "public": 1199,
-        "tecnico": 899,
+        "tecnico": 849,
         "mayorista": 949,
         "distribuidor": 949
       },
@@ -73658,7 +73658,7 @@
       ],
       "prices": {
         "public": 2199,
-        "tecnico": 1959,
+        "tecnico": 1949,
         "mayorista": 0,
         "distribuidor": 1979
       },

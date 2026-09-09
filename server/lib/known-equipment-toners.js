@@ -8,6 +8,15 @@ export const MPC407_EQUIPMENT_PRODUCT_ID = '92070b52-ac0d-4bc1-94d3-d51e69091bb4
 /** Equipo IM C320F (color A4) en inventario. */
 export const IMC320F_EQUIPMENT_PRODUCT_ID = '481dbc77-436b-464d-b76f-930f7d79f4ff';
 
+/** Segunda ficha IM C320F (A4) en inventario. */
+export const IMC320F_RELATED_EQUIPMENT_PRODUCT_IDS = ['ricoh-im-c320f-a4'];
+
+/** Equipo M C320FW (color A4) en inventario. */
+export const MC320FW_EQUIPMENT_PRODUCT_ID = 'cb1e47b2-d784-4bef-ae18-d4dae08723e4';
+
+/** Equipo IM C401F (color A4) en inventario. */
+export const IMC401F_EQUIPMENT_PRODUCT_ID = '5a142c47-521c-47af-92ec-dda8808907c9';
+
 /** Equipo IM C300F (color A4, nueva) en inventario. */
 export const IMC300F_EQUIPMENT_PRODUCT_ID = '442fe09a-886e-47fc-8f8b-219be0febbab';
 
@@ -275,8 +284,394 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
   }),
 ];
 
+/** Tóneres originales de lista (código, rendimiento, descripción, público y dist/técnico). */
+export const ORIGINAL_TONER_LIST_PRICE_ROWS = [
+  {
+    id: '842687',
+    code: '842687',
+    color: 'Negro',
+    yieldPages: '10,500',
+    equipmentModels: 'M C320 / M C320FW',
+    description: 'PRINT CARTRIDGE BLACK M C320H',
+    name: 'Toner Original RICOH Negro M C320 (10,500 págs al 5%)',
+    public: 185,
+    dist: 168.18,
+    equipmentIds: [MC320FW_EQUIPMENT_PRODUCT_ID],
+  },
+  {
+    id: '842688',
+    code: '842688',
+    color: 'Cyan',
+    yieldPages: '7,500',
+    equipmentModels: 'M C320 / M C320FW',
+    description: 'PRINT CARTRIDGE CYAN M C320H',
+    name: 'Toner Original RICOH Cyan M C320 (7,500 págs al 5%)',
+    public: 210,
+    dist: 190.91,
+    equipmentIds: [MC320FW_EQUIPMENT_PRODUCT_ID],
+  },
+  {
+    id: '842689',
+    code: '842689',
+    color: 'Magenta',
+    yieldPages: '7,500',
+    equipmentModels: 'M C320 / M C320FW',
+    description: 'PRINT CARTRIDGE MAGENTA MC320H',
+    name: 'Toner Original RICOH Magenta M C320 (7,500 págs al 5%)',
+    public: 210,
+    dist: 190.91,
+    equipmentIds: [MC320FW_EQUIPMENT_PRODUCT_ID],
+  },
+  {
+    id: '842690',
+    code: '842690',
+    color: 'Amarillo',
+    yieldPages: '7,500',
+    equipmentModels: 'M C320 / M C320FW',
+    description: 'PRINT CARTRIDGE YELLOW MC320H',
+    name: 'Toner Original RICOH Amarillo M C320 (7,500 págs al 5%)',
+    public: 210,
+    dist: 190.91,
+    equipmentIds: [MC320FW_EQUIPMENT_PRODUCT_ID],
+  },
+  {
+    id: '842725',
+    code: '842725',
+    color: 'Negro',
+    yieldPages: '16,000',
+    equipmentModels: 'IM C320F / IM C320',
+    description: 'PRINT CARTRIDGE BLACK IMC320',
+    name: 'Toner Original RICOH Negro IM C320F (16,000 págs al 5%)',
+    public: 65,
+    dist: 59.09,
+    equipmentIds: [IMC320F_EQUIPMENT_PRODUCT_ID, ...IMC320F_RELATED_EQUIPMENT_PRODUCT_IDS],
+  },
+  {
+    id: '842718',
+    code: '842718',
+    color: 'Cyan',
+    yieldPages: '10,000',
+    equipmentModels: 'IM C320F / IM C320',
+    description: 'PRINT CARTRIDGE CYAN IM C320',
+    name: 'Toner Original RICOH Cyan IM C320F (10,000 págs al 5%)',
+    public: 175,
+    dist: 159.09,
+    equipmentIds: [IMC320F_EQUIPMENT_PRODUCT_ID, ...IMC320F_RELATED_EQUIPMENT_PRODUCT_IDS],
+  },
+  {
+    id: '842719',
+    code: '842719',
+    color: 'Magenta',
+    yieldPages: '10,000',
+    equipmentModels: 'IM C320F / IM C320',
+    description: 'PRINT CARTRIDGE MAGENTA',
+    name: 'Toner Original RICOH Magenta IM C320F (10,000 págs al 5%)',
+    public: 175,
+    dist: 159.09,
+    equipmentIds: [IMC320F_EQUIPMENT_PRODUCT_ID, ...IMC320F_RELATED_EQUIPMENT_PRODUCT_IDS],
+  },
+  {
+    id: '842720',
+    code: '842720',
+    color: 'Amarillo',
+    yieldPages: '10,000',
+    equipmentModels: 'IM C320F / IM C320',
+    description: 'PRINT CARTRIDGE YELLOW IMC320',
+    name: 'Toner Original RICOH Amarillo IM C320F (10,000 págs al 5%)',
+    public: 175,
+    dist: 159.09,
+    equipmentIds: [IMC320F_EQUIPMENT_PRODUCT_ID, ...IMC320F_RELATED_EQUIPMENT_PRODUCT_IDS],
+  },
+  {
+    id: '842394',
+    code: '842394',
+    color: 'Negro',
+    yieldPages: '17,500',
+    equipmentModels: 'IM C401 / IM C401F',
+    description: 'PRINT CARTRIDGE BLACK IM C401',
+    name: 'Toner Original RICOH Negro IM C401 (17,500 págs al 5%)',
+    public: 68,
+    dist: 61.82,
+    equipmentIds: [IMC401F_EQUIPMENT_PRODUCT_ID],
+  },
+  {
+    id: '842395',
+    code: '842395',
+    color: 'Cyan',
+    yieldPages: '8,000',
+    equipmentModels: 'IM C401 / IM C401F',
+    description: 'PRINT CARTRIDGE CYAN IM C401',
+    name: 'Toner Original RICOH Cyan IM C401 (8,000 págs al 5%)',
+    public: 155,
+    dist: 140.91,
+    equipmentIds: [IMC401F_EQUIPMENT_PRODUCT_ID],
+  },
+  {
+    id: '842396',
+    code: '842396',
+    color: 'Magenta',
+    yieldPages: '8,000',
+    equipmentModels: 'IM C401 / IM C401F',
+    description: 'PRINT CARTRIDGE MAGENTA IMC401',
+    name: 'Toner Original RICOH Magenta IM C401 (8,000 págs al 5%)',
+    public: 155,
+    dist: 140.91,
+    equipmentIds: [IMC401F_EQUIPMENT_PRODUCT_ID],
+  },
+  {
+    id: '842397',
+    code: '842397',
+    color: 'Amarillo',
+    yieldPages: '8,000',
+    equipmentModels: 'IM C401 / IM C401F',
+    description: 'PRINT CARTRIDGE YELLOW IM C401',
+    name: 'Toner Original RICOH Amarillo IM C401 (8,000 págs al 5%)',
+    public: 155,
+    dist: 140.91,
+    equipmentIds: [IMC401F_EQUIPMENT_PRODUCT_ID],
+  },
+];
+
+function moneyUsd(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.round(n * 100) / 100;
+}
+
+function upsertProductAttribute(attributes, name, value, tonerId) {
+  const found = attributes.find(
+    (attr) => String(attr?.name ?? '').trim().toLowerCase() === name.toLowerCase(),
+  );
+  if (found) {
+    found.value = value;
+    return;
+  }
+  attributes.push({
+    id: `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${tonerId}`,
+    name,
+    value,
+  });
+}
+
+function listedTonerInputFromRow(row, existing) {
+  const attributes = Array.isArray(existing?.attributes)
+    ? existing.attributes.map((attr) => ({ ...attr }))
+    : [];
+  upsertProductAttribute(attributes, 'Color', row.color, row.id);
+  upsertProductAttribute(attributes, 'Modelo de equipo', row.equipmentModels, row.id);
+  upsertProductAttribute(attributes, 'Rendimiento (5%)', row.yieldPages, row.id);
+
+  const tecnico = moneyUsd(row.dist);
+  const publicPrice = moneyUsd(row.public);
+  const currentPrices = existing?.prices && typeof existing.prices === 'object' ? existing.prices : {};
+
+  return {
+    ...(existing ?? {}),
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    description: `${row.name} — ${row.description} (${row.yieldPages} págs al 5%)`,
+    category: existing?.category || 'Toner Original',
+    brand: existing?.brand || 'Ricoh',
+    currency: existing?.currency || 'USD',
+    stock: existing?.stock ?? 0,
+    prices: {
+      ...currentPrices,
+      public: publicPrice,
+      tecnico,
+      distribuidor: tecnico,
+    },
+    attributes,
+  };
+}
+
+/**
+ * Crea o actualiza tóneres originales de la lista (código, rendimiento, descripción, precios).
+ * @param {Array<Record<string, unknown>>} products
+ * @param {typeof ORIGINAL_TONER_LIST_PRICE_ROWS} [rows]
+ */
+export function ensureListedOriginalTonerProducts(products, rows = ORIGINAL_TONER_LIST_PRICE_ROWS) {
+  const byId = new Map(products.map((product) => [product.id, { ...product }]));
+  let created = 0;
+  let updated = 0;
+
+  for (const row of rows) {
+    const existing = byId.get(row.id) ?? [...byId.values()].find((product) => product.code === row.code);
+    const next = normalizeProductInput(listedTonerInputFromRow(row, existing), existing);
+    byId.set(row.id, next);
+    if (existing && existing.id !== row.id) {
+      byId.delete(existing.id);
+    }
+    if (existing) updated += 1;
+    else created += 1;
+  }
+
+  return {
+    products: [...byId.values()],
+    created,
+    updated,
+    missing: 0,
+  };
+}
+
+function compactRicohModel(value) {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function extractRicohModels(text) {
+  const pattern =
+    /\b(?:IM|MP|P)\s*C?\s*\d{3,4}[A-Z]{0,3}\b|\bM\s*C?\s*\d{3,4}[A-Z]{0,3}\b/gi;
+  return [...String(text ?? '').matchAll(pattern)].map((match) =>
+    match[0].replace(/\s+/g, ' ').trim().toUpperCase(),
+  );
+}
+
+function ricohModelsAreCompatible(left, right) {
+  const a = compactRicohModel(left);
+  const b = compactRicohModel(right);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const [longer, shorter] = a.length >= b.length ? [a, b] : [b, a];
+  if (!longer.startsWith(shorter)) return false;
+  return /^[a-z]{1,4}$/.test(longer.slice(shorter.length));
+}
+
+function equipmentHaystack(equipment) {
+  const attrs = Array.isArray(equipment?.attributes)
+    ? equipment.attributes.map((attr) => `${attr.name} ${attr.value}`).join(' ')
+    : '';
+  return `${equipment?.name ?? ''} ${equipment?.code ?? ''} ${attrs}`;
+}
+
+export function resolveListedTonerRowsForEquipment(equipment) {
+  const byId = ORIGINAL_TONER_LIST_PRICE_ROWS.filter((row) =>
+    (row.equipmentIds ?? []).includes(equipment.id),
+  );
+  if (byId.length > 0) return byId;
+
+  const equipmentModels = extractRicohModels(equipmentHaystack(equipment));
+  if (equipmentModels.length === 0) return [];
+
+  const matched = ORIGINAL_TONER_LIST_PRICE_ROWS.filter((row) => {
+    const tonerModels = extractRicohModels(row.equipmentModels);
+    return equipmentModels.some((equipmentModel) =>
+      tonerModels.some((tonerModel) => ricohModelsAreCompatible(equipmentModel, tonerModel)),
+    );
+  });
+  if (matched.length === 0) return [];
+
+  const groups = new Map();
+  for (const row of matched) {
+    const key = row.equipmentModels;
+    const list = groups.get(key) ?? [];
+    list.push(row);
+    groups.set(key, list);
+  }
+
+  let best = matched;
+  let bestScore = 0;
+  for (const [key, rows] of groups) {
+    const score = Math.max(
+      0,
+      ...extractRicohModels(key).flatMap((tonerModel) =>
+        equipmentModels.map((equipmentModel) =>
+          ricohModelsAreCompatible(equipmentModel, tonerModel)
+            ? compactRicohModel(equipmentModel).length
+            : 0,
+        ),
+      ),
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      best = rows;
+    }
+  }
+  return best;
+}
+
+function looksLikeTonerProduct(product) {
+  const haystack = `${product?.category ?? ''} ${product?.name ?? ''}`.toLowerCase();
+  if (/impresora|multifuncional/.test(String(product?.name ?? '').toLowerCase())) return false;
+  return /toner|tóner|cartucho|cartridge/.test(haystack);
+}
+
+function findSimilarTonerIds(products, equipment) {
+  const equipmentModels = extractRicohModels(equipmentHaystack(equipment));
+  if (equipmentModels.length === 0) return [];
+  return products
+    .filter((product) => product.id !== equipment.id && looksLikeTonerProduct(product))
+    .filter((product) => {
+      const tonerModels = extractRicohModels(equipmentHaystack(product));
+      return equipmentModels.some((equipmentModel) =>
+        tonerModels.some((tonerModel) => ricohModelsAreCompatible(equipmentModel, tonerModel)),
+      );
+    })
+    .map((product) => product.id);
+}
+
+/**
+ * Crea/actualiza tóneres de la lista (o similares del inventario) y los enlaza al equipo.
+ * @param {Array<Record<string, unknown>>} products
+ * @param {string} equipmentId
+ */
+export function linkListedTonersForEquipment(products, equipmentId) {
+  const equipment = products.find((product) => product.id === equipmentId);
+  if (!equipment) {
+    const err = new Error('Producto no encontrado');
+    err.status = 404;
+    throw err;
+  }
+
+  const rows = resolveListedTonerRowsForEquipment(equipment);
+  const ensured =
+    rows.length > 0
+      ? ensureListedOriginalTonerProducts(products, rows)
+      : { products, created: 0, updated: 0 };
+
+  let tonerIds = rows.map((row) => row.id);
+  if (tonerIds.length === 0) {
+    tonerIds = findSimilarTonerIds(ensured.products, equipment);
+  }
+
+  const byId = new Map(ensured.products.map((product) => [product.id, { ...product }]));
+  const nextEquipment = { ...byId.get(equipmentId) };
+  const current = Array.isArray(nextEquipment.cross_sell_product_ids)
+    ? [...nextEquipment.cross_sell_product_ids]
+    : [];
+  let wired = 0;
+  for (const tonerId of tonerIds) {
+    if (!tonerId || current.includes(tonerId)) continue;
+    current.unshift(tonerId);
+    wired += 1;
+  }
+  nextEquipment.cross_sell_product_ids = current;
+  byId.set(equipmentId, nextEquipment);
+
+  const toners = tonerIds.map((id) => byId.get(id)).filter(Boolean);
+
+  return {
+    products: [...byId.values()],
+    equipment: nextEquipment,
+    toners,
+    tonerIds,
+    created: ensured.created ?? 0,
+    updated: ensured.updated ?? 0,
+    wired,
+  };
+}
+
 /** Vincula tóneres ya existentes en inventario con equipos (sin reescribir el producto). */
 export const KNOWN_EQUIPMENT_TONER_CROSS_SELL = [
+  {
+    equipmentId: MC320FW_EQUIPMENT_PRODUCT_ID,
+    tonerIds: ['842687', '842688', '842689', '842690'],
+  },
+  {
+    equipmentId: IMC401F_EQUIPMENT_PRODUCT_ID,
+    tonerIds: ['842394', '842395', '842396', '842397'],
+  },
   {
     equipmentId: 'bfb264b8-70dc-4ad4-9686-2df02df8c75e',
     tonerIds: ['408284', 'compat-tc-m-320f-haiprint'],
@@ -301,6 +696,10 @@ export const KNOWN_EQUIPMENT_TONER_CROSS_SELL = [
       ...IMC320F_COMPATIBLE_TONER_IDS,
     ],
   },
+  ...IMC320F_RELATED_EQUIPMENT_PRODUCT_IDS.map((equipmentId) => ({
+    equipmentId,
+    tonerIds: ['842718', '842719', '842720', '842725', ...IMC320F_COMPATIBLE_TONER_IDS],
+  })),
   {
     equipmentId: IMC300F_EQUIPMENT_PRODUCT_ID,
     tonerIds: [...IMC300F_ORIGINAL_TONER_IDS, ...IMC300F_COMPATIBLE_TONER_IDS],

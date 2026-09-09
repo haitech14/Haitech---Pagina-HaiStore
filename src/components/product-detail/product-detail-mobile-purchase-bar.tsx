@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calculator, ImageOff, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Calculator, ImageOff, Minus, Plane, Plus, ShoppingCart } from 'lucide-react';
 
 import { hasOnRequestQuantity } from '@/components/cart/add-to-cart-button';
 import {
@@ -304,7 +304,7 @@ export function ProductDetailMobilePurchaseBar({
   };
 
   const includesOnRequest = hasOnRequestQuantity(product, quantity);
-  const buyNowLabel = includesOnRequest ? 'Reservar' : 'Comprar Ahora';
+  const buyNowLabel = includesOnRequest ? 'Agregar a Pedido' : 'Comprar Ahora';
 
   if (!isMobileLayout) return null;
 
@@ -453,7 +453,11 @@ export function ProductDetailMobilePurchaseBar({
                     : 'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600',
                 )}
               >
-                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+                {includesOnRequest ? (
+                  <Plane className="size-4 shrink-0" aria-hidden="true" />
+                ) : (
+                  <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+                )}
                 <span className="truncate text-xs sm:text-sm">{buyNowLabel}</span>
               </Button>
               {isNarrowMobile ? null : (

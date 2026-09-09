@@ -15,6 +15,7 @@ import {
   HAITECH_SHOWCASE_SOFTWARE_CATEGORY_IMAGE,
 } from '@/data/haitech-showcase-software';
 import { HAITECH_SHOWCASE_COLABORACION } from '@/data/haitech-showcase-colaboracion';
+import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
 
 export type HaitechEquipmentShowcaseCategoryId =
   | 'multifuncionales'
@@ -602,8 +603,10 @@ const SHOWCASE_TECNICO_PRICE_USD: Readonly<Record<string, number>> = {
   'im-c2010': 4575,
   'im-c2510': 5889,
   'im-c3010': 8949,
-  'im-c320f': 1959,
-  'ricoh-im-c320f-a4': 859,
+  mc320fw: 849,
+  'cb1e47b2-d784-4bef-ae18-d4dae08723e4': 849,
+  'im-c320f': 1949,
+  '481dbc77-436b-464d-b76f-930f7d79f4ff': 1949,
   'im-c401f': 2240,
   'im-c4510': 10989,
   'im-c6010': 13619,
@@ -1234,6 +1237,25 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     tabIds: ['multifuncionales', 'mas-vendidos'],
   },
   {
+    id: '481dbc77-436b-464d-b76f-930f7d79f4ff',
+    name: 'Multifuncional color RICOH IM C320F',
+    brand: 'RICOH',
+    code: '418787',
+    stock: 20,
+    image: '/products/481dbc77-436b-464d-b76f-930f7d79f4ff.webp',
+    ...showcasePricesFromPublicUsd(2199),
+    condition: 'nuevo',
+    features: SHOWCASE_EQUIPMENT_FEATURES,
+    equipment: {
+      speedPpm: '30 ppm',
+      paperSize: 'A4',
+      scannerType: 'SPDF',
+      monthlyYield: '5.000 pág/mes',
+    },
+    tabIds: ['multifuncionales', 'ofertas'],
+    href: productPath('impresora-multifuncional-nueva-ricoh-im-c320f-930f7d79f4ff'),
+  },
+  {
     id: 'im-c401f',
     name: 'Multifuncional color RICOH IM C401F',
     brand: 'RICOH',
@@ -1251,25 +1273,6 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
       monthlyYield: '15.000 pág/mes',
     },
     tabIds: ['multifuncionales', 'ofertas'],
-  },
-  {
-    id: 'im-c320f',
-    name: 'Multifuncional color RICOH IM C320F',
-    brand: 'RICOH',
-    code: '418787',
-    stock: 20,
-    image: '/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp',
-    ...showcasePricesFromPublicUsd(1477),
-    discountLabel: '11% DSCT',
-    condition: 'nuevo',
-    features: ['copia', 'escanea', 'imprime', 'rendimiento'],
-    equipment: {
-      speedPpm: '30 ppm',
-      paperSize: 'A4',
-      scannerType: 'SPDF',
-      monthlyYield: '5.000 pág/mes',
-    },
-    tabIds: ['multifuncionales', 'mas-vendidos'],
   },
   {
     id: 'p-801',
@@ -1347,26 +1350,6 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     },
     tabIds: ['multifuncionales', 'ofertas'],
     href: productPath('impresora-multifuncional-nueva-ricoh-im-6010-2177d10d-b23'),
-  },
-  {
-    id: 'ricoh-im-c320f-a4',
-    name: 'Multifuncional color RICOH IM C320F',
-    brand: 'RICOH',
-    code: 'IM-C320F-A4',
-    stock: 1,
-    isOffer: true,
-    image: '/products/481dbc77-436b-464d-b76f-930f7d79f4ff.webp',
-    ...showcasePricesFromPublicUsd(999),
-    condition: 'nuevo',
-    features: SHOWCASE_EQUIPMENT_FEATURES,
-    equipment: {
-      speedPpm: '30 ppm',
-      paperSize: 'A4',
-      scannerType: 'SPDF',
-      monthlyYield: '5.000 pág/mes',
-    },
-    tabIds: ['multifuncionales', 'ofertas'],
-    href: productPath('impresora-multifuncional-nueva-ricoh-im-c320f-a4'),
   },
   {
     id: 'lenovo-thinkcentre-m70q-i5-13',
@@ -1680,6 +1663,14 @@ function matchesCondition(
   return product.condition === 'seminuevo';
 }
 
+/** Duplicado de IM C320F; la ficha principal (`481dbc77-…`) sí se muestra. */
+const SHOWCASE_HIDDEN_EQUIPMENT_IDS = new Set(['ricoh-im-c320f-a4']);
+
+function isHiddenShowcaseEquipment(product: HaitechShopProduct): boolean {
+  if (SHOWCASE_HIDDEN_EQUIPMENT_IDS.has(product.id)) return true;
+  return isHomeCarouselExcludedProduct(product);
+}
+
 function showcaseProductDedupeKey(product: HaitechShopProduct): string {
   const kind = /remanufactur/i.test(product.name)
     ? 'reman'
@@ -1705,6 +1696,7 @@ function showcaseProductPool(): HaitechShopProduct[] {
     ...HAITECH_SHOWCASE_COLABORACION,
   ]) {
     if (seenIds.has(product.id)) continue;
+    if (isHiddenShowcaseEquipment(product)) continue;
     const key = showcaseProductDedupeKey(product);
     if (seenKeys.has(key)) continue;
     seenIds.add(product.id);
@@ -1912,6 +1904,7 @@ export function filterEquipmentShowcaseProducts(options: {
 
   const filtered = pool
     .filter((product) => {
+      if (isHiddenShowcaseEquipment(product)) return false;
       if (!matchesShowcaseCategory(product, category)) return false;
 
       if (isConsumable) {

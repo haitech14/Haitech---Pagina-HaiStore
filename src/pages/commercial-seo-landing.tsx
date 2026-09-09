@@ -1,5 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
 
+import { RentalLandingPage } from '@/components/rental-landing/rental-landing-page';
 import { SeoCommercialLandingView } from '@/components/seo/seo-content-landing';
 import { getSeoCommercialLanding } from '@/data/seo-commercial-landings';
 import { useSeo } from '@/hooks/use-seo';
@@ -52,6 +53,16 @@ export function CommercialSeoLandingPage({ landingSlug }: CommercialSeoLandingPa
 
   if (!landing) {
     return <Navigate to="/fotocopiadoras-peru" replace />;
+  }
+
+  if (slug === 'alquiler-fotocopiadoras-lima') {
+    return (
+      <RentalLandingPage
+        seoTitle={landing.title}
+        seoDescription={landing.description}
+        canonicalPath={landing.pathname}
+      />
+    );
   }
 
   return <SeoCommercialLandingView landing={landing} />;

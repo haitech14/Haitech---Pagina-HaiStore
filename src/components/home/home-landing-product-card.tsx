@@ -89,7 +89,7 @@ export function HomeLandingProductCard({
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(productSource);
   const clipboardCategory = product.category ?? catalogProduct?.category ?? null;
   const outOfStock = stockCount <= 0;
-  const buyNowLabel = outOfStock ? 'Reservar' : 'Agregar al carrito';
+  const buyNowLabel = 'Agregar al carrito';
 
   const catalogGallery = catalogProduct?.gallery ?? null;
   const productGallery = product.gallery ?? null;
@@ -306,9 +306,7 @@ export function HomeLandingProductCard({
             quantityClassName="h-10 rounded-lg"
             addButtonClassName={cn(
               'h-10 min-h-10 max-h-10 min-w-0 flex-1 rounded-lg px-3 text-xs font-semibold text-white shadow-none sm:text-sm',
-              outOfStock
-                ? 'bg-[#111111] hover:bg-black'
-                : 'bg-[#E30613] hover:bg-[#c90511]',
+              'bg-[#E30613] hover:bg-[#c90511]',
             )}
             endAdornment={
               <ProductWhatsAppButton

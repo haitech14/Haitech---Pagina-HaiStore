@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { RentalLandingPage } from '@/components/rental-landing/rental-landing-page';
 import { ServicesCatalogSection } from '@/components/services-storefront/services-catalog-section';
 import { ServicesChannelCardsGrid } from '@/components/services-storefront/services-channel-cards-grid';
 import { ServicesCustomSolutionForm } from '@/components/services-storefront/services-custom-solution-form';
@@ -85,7 +86,11 @@ export function ServicesHubPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const isComprarClone = section === 'alquiler' || section === 'servicio-tecnico';
+  if (section === 'alquiler') {
+    return <RentalLandingPage />;
+  }
+
+  const isComprarClone = section === 'servicio-tecnico';
 
   return (
     <div className={cn('services-storefront flex flex-col', HOME_LANDING_SURFACE_CLASS)}>

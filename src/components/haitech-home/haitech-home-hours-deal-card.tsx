@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
-import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import {
@@ -95,10 +94,8 @@ export function HaitechHomeHoursDealCard({ product }: { product: HaitechShopProd
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const saleRate = companySettings?.usdToPenExchangeRate;
   const [imgError, setImgError] = useState(false);
-  const [quantity, setQuantity] = useState(1);
 
   const cartProduct = toCartProduct(product, saleRate);
-  const outOfStock = Math.max(0, Math.floor(Number(product.stock) || 0)) <= 0;
   const title = resolveCardTitle(product);
   const rawUsd = penToUsd(product.price, saleRate);
   const priceUsd = product.toner ? rawUsd : roundEquipmentDisplayUsd(rawUsd);
@@ -203,41 +200,18 @@ export function HaitechHomeHoursDealCard({ product }: { product: HaitechShopProd
         <div className="flex flex-col">{body}</div>
       )}
 
-      <div className="mt-2 w-full">
+      <div className="mt-2 flex w-full justify-center">
         <ProductQuantityAddFooter
           product={cartProduct}
           size="sm"
-          addLabel={outOfStock ? 'Reservar' : 'Agregar al carrito'}
+          addLabel="Agregar al carrito"
           revealQuantityOnHover
-          onQuantityChange={setQuantity}
+          centeredActions
           quantityClassName="h-8 rounded-lg sm:h-9"
           addButtonClassName={cn(
-            'h-8 min-h-8 w-full min-w-0 flex-1 justify-center rounded-lg px-3 text-[0.6875rem] font-semibold shadow-none sm:h-9 sm:min-h-9 md:text-sm',
-            outOfStock
-              ? 'bg-[#111111] hover:bg-[#222222]'
-              : 'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
+            'h-8 min-h-8 w-auto min-w-0 flex-none justify-center rounded-lg px-3.5 text-[0.6875rem] font-semibold shadow-none sm:h-9 sm:min-h-9 md:text-sm',
+            'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
           )}
-          belowAlways
-          belowClassName="pt-0.5"
-          belowOnHover={
-            <ProductWhatsAppButton
-              stopPropagation
-              skipDialogIfComplete
-              accent="outline"
-              compact
-              label="Comprar por WhatsApp"
-              quantity={quantity}
-              product={{
-                id: cartProduct.id,
-                name: title,
-                priceUsd,
-                category: cartProduct.category,
-                brand: cartProduct.brand ?? null,
-                ...(product.code ? { code: product.code } : {}),
-              }}
-              className="h-8 min-h-8 min-w-0 w-full overflow-hidden rounded-lg text-[11px] font-semibold normal-case tracking-normal sm:h-9 sm:min-h-9 sm:text-xs"
-            />
-          }
         />
       </div>
     </article>

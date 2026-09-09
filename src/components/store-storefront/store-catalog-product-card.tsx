@@ -130,8 +130,8 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
   const isCarousel = variant === 'carousel';
-  const buyNowLabel = outOfStock ? 'Reservar' : 'Agregar al carrito';
-  const buyNowLabelHover = outOfStock ? undefined : 'Agregar';
+  const buyNowLabel = 'Agregar al carrito';
+  const buyNowLabelHover = 'Agregar';
   const clipboardCondition = resolveProductCardBadgeLabel(titleProduct);
   const clipboardIsColor = inferColor(titleProduct) === 'Color';
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(titleProduct);
@@ -153,7 +153,12 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
       label="Comprar por WhatsApp"
       quantity={quantity}
       product={whatsappProduct}
-      className="h-10 min-h-10 w-full rounded-lg px-2 text-xs font-semibold normal-case tracking-normal sm:h-11 sm:min-h-11 sm:text-sm"
+      className={cn(
+        'w-full rounded-lg px-3 text-xs font-semibold normal-case tracking-normal sm:px-4 sm:text-sm',
+        isCarousel
+          ? 'h-9 min-h-9 max-h-9 md:h-10 md:min-h-10 md:max-h-10'
+          : 'h-10 min-h-10 max-h-10 sm:h-11 sm:min-h-11 sm:max-h-11',
+      )}
     />
   );
 
@@ -297,7 +302,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           />
         </div>
 
-        <div className="relative z-[2] mt-auto pt-2 md:pt-2.5">
+        <div className={cn('relative z-[2] mt-auto pt-2 md:pt-2.5', isCarousel && 'flex justify-center')}>
           <ProductQuantityAddFooter
             product={product}
             size="sm"
@@ -308,16 +313,14 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             onQuantityChange={setQuantity}
             quantityClassName="h-9 rounded-lg md:h-10"
             addButtonClassName={cn(
-              'h-9 min-h-9 max-h-9 min-w-0 flex-1 justify-center whitespace-nowrap rounded-lg px-2 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem] md:h-10 md:min-h-10 md:max-h-10 md:px-3 md:text-xs',
-              'group-hover:flex-none group-hover:px-2.5 md:group-hover:px-3',
-              isCarousel || !outOfStock
-                ? 'bg-[#E30613] hover:bg-[#c90511]'
-                : 'bg-[#111111] hover:bg-black',
+              isCarousel
+                ? 'h-9 min-h-9 max-h-9 w-auto min-w-0 flex-none justify-center whitespace-nowrap rounded-lg px-3.5 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem] md:h-10 md:min-h-10 md:max-h-10 md:px-4 md:text-xs'
+                : 'h-9 min-h-9 max-h-9 min-w-0 flex-1 justify-center whitespace-nowrap rounded-lg px-2 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem] md:h-10 md:min-h-10 md:max-h-10 md:px-3 md:text-xs group-hover:flex-none group-hover:px-2.5 md:group-hover:px-3',
+              'bg-[#E30613] hover:bg-[#c90511]',
             )}
             {...(isCarousel
               ? {
-                  belowAlways: true,
-                  belowOnHover: whatsappCta,
+                  centeredActions: true,
                 }
               : {
                   endAdornment: (

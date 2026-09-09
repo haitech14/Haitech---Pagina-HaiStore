@@ -14,7 +14,6 @@ import { ProductCardCopyButton } from '@/components/product/product-card-copy-bu
 import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
-import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
@@ -161,7 +160,6 @@ export function HaitechHomeProductCard({
   const { data: companySettings } = useCompanySettings();
   const saleRate = companySettings?.usdToPenExchangeRate;
   const [imgError, setImgError] = useState(false);
-  const [quantity, setQuantity] = useState(1);
   const isConsumableProduct = Boolean(product.toner);
   const rawPriceUsd = penToUsd(product.price, saleRate);
   const priceUsd = isConsumableProduct
@@ -173,16 +171,8 @@ export function HaitechHomeProductCard({
   const features = product.features?.length
     ? HAITECH_SHOP_EQUIPMENT_FEATURES.filter((f) => product.features?.includes(f.id))
     : [];
-  const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
-  const hasStock = product.stock != null;
-  const outOfStock = hasStock && stockCount <= 0;
-  const buyNowLabel = outOfStock
-    ? 'Reservar'
-    : isFeaturedVariant
-      ? 'Agregar al carrito'
-      : 'Comprar';
-  const buyNowLabelHover =
-    isFeaturedVariant && !outOfStock ? 'Comprar' : null;
+  const buyNowLabel = isFeaturedVariant ? 'Agregar al carrito' : 'Comprar';
+  const buyNowLabelHover = isFeaturedVariant ? 'Comprar' : null;
   const cartProduct = toCartProduct(product, saleRate);
   const cardInfo = (
     <CardInfo
@@ -256,40 +246,14 @@ export function HaitechHomeProductCard({
           addLabel={buyNowLabel}
           {...(buyNowLabelHover ? { addLabelHover: buyNowLabelHover } : {})}
           revealQuantityOnHover
-          onQuantityChange={setQuantity}
           quantityClassName="h-9 rounded-lg sm:h-10"
           addButtonClassName={cn(
             isFeaturedVariant
-              ? 'h-10 min-h-10 max-h-10 flex-none justify-center rounded-lg px-3 text-[0.6875rem] font-semibold shadow-none sm:h-11 sm:min-h-11 sm:max-h-11 sm:px-4 md:text-sm'
-              : 'h-9 min-h-9 max-h-9 flex-none rounded-lg px-4 text-[0.6875rem] font-semibold shadow-none sm:h-10 sm:min-h-10 sm:max-h-10 sm:px-5 md:text-sm',
-            outOfStock
-              ? 'bg-[#111111] hover:bg-[#222222]'
-              : 'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
+              ? 'h-10 min-h-10 max-h-10 w-auto flex-none justify-center rounded-lg px-3.5 text-[0.6875rem] font-semibold shadow-none sm:h-11 sm:min-h-11 sm:max-h-11 sm:px-4 md:text-sm'
+              : 'h-9 min-h-9 max-h-9 w-auto flex-none justify-center rounded-lg px-4 text-[0.6875rem] font-semibold shadow-none sm:h-10 sm:min-h-10 sm:max-h-10 sm:px-5 md:text-sm',
+            'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
           )}
           centeredActions
-          belowAlways
-          belowOnHover={
-            <ProductWhatsAppButton
-              stopPropagation
-              skipDialogIfComplete
-              accent="outline"
-              compact
-              label="Comprar por WhatsApp"
-              quantity={quantity}
-              product={{
-                id: cartProduct.id,
-                name: isFeaturedVariant ? featuredTitle : displayTitle,
-                priceUsd,
-                category: cartProduct.category,
-                brand: cartProduct.brand ?? null,
-                ...(product.code ? { code: product.code } : {}),
-              }}
-              className={cn(
-                'min-w-0 w-full overflow-hidden rounded-lg text-xs font-semibold normal-case tracking-normal sm:text-sm',
-                isFeaturedVariant && 'h-10 min-h-10 sm:h-11 sm:min-h-11',
-              )}
-            />
-          }
         />
       </div>
 

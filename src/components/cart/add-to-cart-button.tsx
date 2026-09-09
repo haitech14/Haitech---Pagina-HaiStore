@@ -1,5 +1,5 @@
 import { useState, type MouseEvent } from 'react';
-import { Check, ShoppingCart } from 'lucide-react';
+import { Check, Plane, ShoppingCart } from 'lucide-react';
 
 import { Button, type ButtonProps } from '@/components/ui/button';
 import { useCart } from '@/context/cart-context';
@@ -49,21 +49,31 @@ export function adjustProductQuantity(_product: Product, current: number, delta:
   return Math.max(1, Math.floor(current + delta));
 }
 
-/** Botón / badge de catálogo cuando el producto se compra a pedido (sin stock inmediato). */
-export const ON_REQUEST_PRODUCT_BUTTON_CLASS =
-  'border border-foreground bg-foreground text-background shadow-none hover:bg-foreground/90 hover:text-background focus-visible:ring-ring';
+/** CTA de añadir al carrito (rojo de marca, también a pedido). */
+export const ADD_TO_CART_BUTTON_CLASS =
+  'border-[#E30613] bg-[#E30613] text-white shadow-none hover:bg-[#c90511] hover:text-white focus-visible:ring-[#E30613]';
+
+/** Botón de catálogo cuando el producto se compra a pedido (sin stock inmediato). */
+export const ON_REQUEST_PRODUCT_BUTTON_CLASS = ADD_TO_CART_BUTTON_CLASS;
 
 export const ON_REQUEST_STOCK_BADGE_CLASS =
   'rounded-md border border-border bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground';
+
+/** CTA cuando el producto no tiene stock inmediato. */
+export const ADD_ON_REQUEST_LABEL = 'Agregar a Pedido';
+
+export function isAddOnRequestProduct(product: Product, quantity = 1): boolean {
+  const { fromStock, onRequest } = splitProductOrderQuantity(product, quantity);
+  return onRequest > 0 && fromStock === 0;
+}
 
 export function getAddToCartLabel(
   product: Product,
   variant: 'default' | 'short' | 'detail' = 'default',
   quantity = 1,
 ): string {
-  const { fromStock, onRequest } = splitProductOrderQuantity(product, quantity);
-  if (onRequest > 0 && fromStock === 0) {
-    return variant === 'short' ? 'A pedido' : 'Comprar a pedido';
+  if (isAddOnRequestProduct(product, quantity)) {
+    return ADD_ON_REQUEST_LABEL;
   }
   if (variant === 'short') return 'Comprar';
   if (variant === 'detail') return 'Comprar';
@@ -111,13 +121,14 @@ export function AddToCartButton({
           : orderHint
             ? `Añadir ${orderQuantity} unidades de ${product.name} (${orderHint})`
             : outOfStock
-              ? `Comprar ${product.name} a pedido`
+              ? `Agregar ${product.name} a pedido`
               : `Añadir ${product.name} al carrito`
       }
       onClick={handleClick}
       className={cn(
         'gap-2 transition-all duration-300 motion-reduce:transition-none',
-        justAdded && 'cart-add-success bg-emerald-600 hover:bg-emerald-600',
+        ADD_TO_CART_BUTTON_CLASS,
+        justAdded && 'cart-add-success !bg-emerald-600 hover:!bg-emerald-600',
         className,
       )}
       {...props}
@@ -130,7 +141,11 @@ export function AddToCartButton({
       ) : (
         children ?? (
           <>
-            <ShoppingCart className="size-4" aria-hidden="true" />
+            {outOfStock ? (
+              <Plane className="size-4" aria-hidden="true" />
+            ) : (
+              <ShoppingCart className="size-4" aria-hidden="true" />
+            )}
             {defaultLabel}
           </>
         )

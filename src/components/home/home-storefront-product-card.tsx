@@ -7,7 +7,7 @@ import {
   type MouseEvent,
 } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Package, ShoppingCart } from 'lucide-react';
+import { Heart, Package, Plane, ShoppingCart } from 'lucide-react';
 
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
@@ -198,7 +198,7 @@ export function HomeStorefrontProductCard({
   );
   const stockCount = Math.max(0, stock);
   const outOfStock = stockCount <= 0;
-  const buyNowLabel = outOfStock ? 'Reservar' : 'Agregar al carrito';
+  const buyNowLabel = outOfStock ? 'Agregar a Pedido' : 'Agregar al carrito';
   const productSource = {
     id: product.id,
     name: product.name,
@@ -471,9 +471,11 @@ export function HomeStorefrontProductCard({
             className="flex h-9 min-h-9 max-h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg text-[0.6875rem] font-semibold text-white transition-colors hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-1 sm:text-xs"
             style={{ backgroundColor: outOfStock ? '#111111' : STOREFRONT_ORANGE }}
           >
-            {!outOfStock ? (
+            {outOfStock ? (
+              <Plane className="size-3.5 shrink-0" aria-hidden="true" />
+            ) : (
               <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
-            ) : null}
+            )}
             <span className="truncate">{buyNowLabel}</span>
           </button>
           {chromeReady ? (

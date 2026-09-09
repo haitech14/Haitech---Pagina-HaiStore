@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ImageOff, Pencil, ShoppingCart, Trash2 } from 'lucide-react';
+import { ImageOff, Pencil, Plane, ShoppingCart, Trash2 } from 'lucide-react';
 
 import {
   InventoryProductFormDialog,
@@ -984,7 +984,9 @@ function CategoryProductTableRow({
           >
             {stockQty > 0 ? (
               <ShoppingCart className="size-3 shrink-0" aria-hidden="true" />
-            ) : null}
+            ) : (
+              <Plane className="size-3 shrink-0" aria-hidden="true" />
+            )}
             {getAddToCartLabel(displayProduct, 'short')}
           </AddToCartButton>
           <ProductWhatsAppButton

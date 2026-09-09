@@ -297,6 +297,65 @@ function productHaystack(product: Product): string {
   );
 }
 
+/**
+ * Modelos Ricoh (IM C320F, M C320FW, MP C407, P 801…).
+ * IM/MP/P van primero para no recortar «IM C401» como «M C401».
+ */
+const RICOH_EQUIPMENT_MODEL_PATTERN =
+  /\b(?:IM|MP|P)\s*C?\s*\d{3,4}[A-Z]{0,3}\b|\bM\s*C?\s*\d{3,4}[A-Z]{0,3}\b/gi;
+
+function compactEquipmentModel(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function extractRicohEquipmentModelTokens(text: string): string[] {
+  const tokens = new Set<string>();
+  const source = String(text ?? '');
+  for (const match of source.matchAll(RICOH_EQUIPMENT_MODEL_PATTERN)) {
+    const raw = match[0].replace(/\s+/g, ' ').trim().toUpperCase();
+    if (raw) tokens.add(raw);
+  }
+  return [...tokens];
+}
+
+function collectProductEquipmentModels(product: Product): string[] {
+  const chunks = [
+    product.name,
+    product.description ?? '',
+    product.code ?? '',
+    ...(product.attributes?.map((attr) => `${attr.name} ${attr.value}`) ?? []),
+  ];
+  return extractRicohEquipmentModelTokens(chunks.filter(Boolean).join(' '));
+}
+
+/**
+ * M C320FW ↔ M C320, IM C401F ↔ IM C401.
+ * No cruza familias distintas (IM C320 vs M C320).
+ */
+export function ricohEquipmentModelsAreCompatible(
+  equipmentModel: string,
+  tonerModel: string,
+): boolean {
+  const equipment = compactEquipmentModel(equipmentModel);
+  const toner = compactEquipmentModel(tonerModel);
+  if (!equipment || !toner) return false;
+  if (equipment === toner) return true;
+
+  const [longer, shorter] = equipment.length >= toner.length ? [equipment, toner] : [toner, equipment];
+  if (!longer.startsWith(shorter)) return false;
+  const suffix = longer.slice(shorter.length);
+  return /^[a-z]{1,4}$/.test(suffix);
+}
+
+function tonerMatchesEquipmentBySimilarModel(toner: Product, equipment: Product): boolean {
+  const equipmentModels = collectProductEquipmentModels(equipment);
+  const tonerModels = collectProductEquipmentModels(toner);
+  if (equipmentModels.length === 0 || tonerModels.length === 0) return false;
+  return equipmentModels.some((equipmentModel) =>
+    tonerModels.some((tonerModel) => ricohEquipmentModelsAreCompatible(equipmentModel, tonerModel)),
+  );
+}
+
 export function extractEquipmentConsumableSearchKeys(equipment: Product): string[] {
   const keys = new Set<string>();
   const name = equipment.name;
@@ -611,6 +670,7 @@ export function tonerProductMatchesEquipment(
   if (keys.length === 0) return false;
 
   if (consumableMatchesEquipment(toner, keys)) return true;
+  if (tonerMatchesEquipmentBySimilarModel(toner, equipment)) return true;
 
   if (tonerEquipmentAttr && equipmentModelAttr) {
     const tonerModels = normalizeText(tonerEquipmentAttr);

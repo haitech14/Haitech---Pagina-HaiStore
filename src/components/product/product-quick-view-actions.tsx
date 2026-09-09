@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowRight, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { ArrowRight, Minus, Plane, Plus, ShoppingCart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import {
@@ -91,7 +91,7 @@ export function ProductQuickViewActions({
   const buyNowLabel = rentalMode
     ? 'Solicitar alquiler'
     : includesOnRequest
-      ? 'Reservar'
+      ? 'Agregar a Pedido'
       : 'Comprar ahora';
   const addToCartLabel = rentalMode
     ? 'Ver ficha de alquiler'
@@ -176,16 +176,15 @@ export function ProductQuickViewActions({
             <Button
               type="button"
               className={cn(
-                'min-h-11 w-full gap-2 text-base font-semibold',
-                includesOnRequest
-                  ? 'bg-[#111111] text-white hover:bg-black'
-                  : 'bg-red-600 text-white hover:bg-red-500',
+                'min-h-11 w-full gap-2 text-base font-semibold bg-[#E30613] text-white hover:bg-[#c90511]',
               )}
               onClick={handleBuyNow}
             >
-              {!includesOnRequest ? (
+              {includesOnRequest ? (
+                <Plane className="size-4 shrink-0" aria-hidden="true" />
+              ) : (
                 <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-              ) : null}
+              )}
               {buyNowLabel}
             </Button>
 
@@ -200,9 +199,11 @@ export function ProductQuickViewActions({
               )}
               variant="outline"
             >
-              {!includesOnRequest ? (
+              {includesOnRequest ? (
+                <Plane className="size-4 shrink-0" aria-hidden="true" />
+              ) : (
                 <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-              ) : null}
+              )}
               {addToCartLabel}
             </AddToCartButton>
           </>

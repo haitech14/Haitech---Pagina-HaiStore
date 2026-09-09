@@ -423,6 +423,38 @@ export function useInventoryMutations() {
     onSuccess: () => notifyCatalogChange(),
   });
 
+  const linkEquipmentToners = useMutation({
+    mutationFn: (equipmentId: string) =>
+      apiFetch<{
+        ok: boolean;
+        equipment: InventoryProduct;
+        toners: InventoryProduct[];
+        created: number;
+        updated: number;
+        wired: number;
+      }>(`/api/products/${encodeURIComponent(equipmentId)}/link-toners`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      }),
+    onSuccess: (result) => {
+      if (result.equipment) {
+        upsertAdminInventoryProducts(queryClient, [result.equipment], { prepend: false });
+        patchCatalogIndexProduct(result.equipment);
+      }
+      if (result.toners.length > 0) {
+        upsertAdminInventoryProducts(queryClient, result.toners, { prepend: false });
+        for (const toner of result.toners) {
+          patchCatalogIndexProduct(toner);
+        }
+      }
+      notifyCatalogChange({
+        productId: result.equipment?.id,
+        inventoryProduct: result.equipment,
+      });
+      void queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+
   return {
     createProduct,
     updateProduct,
@@ -431,6 +463,7 @@ export function useInventoryMutations() {
     bulkUpdateProducts,
     bulkDuplicateProducts,
     reorderProducts,
+    linkEquipmentToners,
     syncCatalog,
   };
 }

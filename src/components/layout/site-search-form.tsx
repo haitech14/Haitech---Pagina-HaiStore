@@ -278,7 +278,7 @@ function SearchProductSuggestionCell({
     ? PRODUCT_ON_REQUEST_STOCK_LABEL
     : `Stock ${stockCount}`;
   const { addItem } = useCart();
-  const cartButtonLabel = outOfStock ? 'Reservar' : 'Añadir al carrito';
+  const cartButtonLabel = 'Agregar al carrito';
 
   const handleAddToCart = (event: MouseEvent) => {
     event.preventDefault();

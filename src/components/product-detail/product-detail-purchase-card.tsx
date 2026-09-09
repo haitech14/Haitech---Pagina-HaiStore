@@ -1,6 +1,6 @@
 import { useMemo, type Ref, type RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, FileText, ShoppingCart } from 'lucide-react';
+import { Calculator, FileText, Plane, ShoppingCart } from 'lucide-react';
 
 import {
   formatOrderQuantityHint,
@@ -186,8 +186,8 @@ export function ProductDetailPurchaseCard({
     navigate('/checkout');
   };
 
-  const buyNowLabel = includesOnRequest ? 'Reservar ahora' : 'Comprar ahora';
-  const addToCartLabel = includesOnRequest ? 'Solicitar disponibilidad' : 'Agregar al carrito';
+  const buyNowLabel = includesOnRequest ? 'Agregar a Pedido' : 'Comprar ahora';
+  const addToCartLabel = includesOnRequest ? 'Agregar a Pedido' : 'Agregar al carrito';
   const installmentPreview = useMemo(
     () => calculateInstallmentPreview(configuredUnitUsd * quantity),
     [configuredUnitUsd, quantity],
@@ -344,10 +344,13 @@ export function ProductDetailPurchaseCard({
               <Button
                 type="button"
                 onClick={isMockupLayout ? handleAddToCart : handleBuyNow}
-                disabled={outOfStock}
-                className="h-10 min-h-10 min-w-0 flex-1 gap-1.5 rounded-lg border-0 bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600 disabled:opacity-60"
+                className="h-10 min-h-10 min-w-0 flex-1 gap-1.5 rounded-lg border-0 bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
               >
-                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+                {includesOnRequest ? (
+                  <Plane className="size-4 shrink-0" aria-hidden="true" />
+                ) : (
+                  <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
+                )}
                 {isMockupLayout ? addToCartLabel : buyNowLabel}
               </Button>
             </div>

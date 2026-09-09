@@ -1,14 +1,7 @@
-/** Equipos que no deben mostrarse en vitrinas del inicio ni filas destacadas del catálogo. */
-export const HOME_CAROUSEL_EXCLUDED_PRODUCT_IDS = new Set([
-  // 'ab878d89-61e0-4e51-a941-03455e1da407', // MP 305+ (permitido en vitrina)
-]);
-
-const HOME_CAROUSEL_EXCLUDED_NAME_PATTERNS = [];
+/** Duplicado de IM C320F (ficha A4); la ficha principal sí va en vitrina. */
+export const HOME_CAROUSEL_EXCLUDED_PRODUCT_IDS = new Set(['ricoh-im-c320f-a4']);
 
 export function isHomeCarouselExcludedProduct(product) {
   const id = String(product?.id ?? '').trim();
-  if (id && HOME_CAROUSEL_EXCLUDED_PRODUCT_IDS.has(id)) return true;
-
-  const name = String(product?.name ?? '');
-  return HOME_CAROUSEL_EXCLUDED_NAME_PATTERNS.some((pattern) => pattern.test(name));
+  return Boolean(id && HOME_CAROUSEL_EXCLUDED_PRODUCT_IDS.has(id));
 }
