@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { apiFetch } from '@/lib/api';
+import { ApiConnectionError, apiFetch, isApiConnectionError } from '@/lib/api';
 import {
   clearStoredAuthSession,
   getAccessToken,
@@ -214,6 +214,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({ email: normalizedEmail, password }),
         });
       } catch (demoErr) {
+        if (isApiConnectionError(demoErr)) {
+          throw demoErr instanceof Error ? demoErr : new ApiConnectionError();
+        }
         const message = demoErr instanceof Error ? demoErr.message : '';
         const lower = message.toLowerCase();
         if (
@@ -225,9 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           message.includes('502') ||
           message.includes('504')
         ) {
-          throw new Error(
-            'No se pudo conectar con el servidor de autenticación. Ejecuta «npm run dev:all» o «npm run server» en otra terminal.',
-          );
+          throw new ApiConnectionError();
         }
         if (message.includes('401') || lower.includes('credencial') || lower.includes('incorrect')) {
           throw new Error('Correo o contraseña incorrectos.');
