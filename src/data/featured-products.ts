@@ -1,4 +1,4 @@
-import { catalogRowToFeatured, getCatalogProductById, getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
+import { catalogRowToFeatured, getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { resolveCatalogRowForProduct, resolveCatalogStock } from '@/lib/catalog-row-lookup';
 import type { Product, ProductAttribute, PriceRole, ProductRolePrices } from '@/types/product';
 

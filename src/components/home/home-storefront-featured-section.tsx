@@ -143,7 +143,7 @@ function shopProductToFeatured(product: HaitechShopProduct): FeaturedProduct {
     id: product.id,
     name: product.name,
     category,
-    brand: product.brand,
+    ...(product.brand ? { brand: product.brand } : {}),
     ...(product.code ? { code: product.code } : {}),
     price: product.price,
     ...(product.compareAt != null && product.compareAt > product.price

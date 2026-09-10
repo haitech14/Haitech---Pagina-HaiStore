@@ -42,10 +42,8 @@ function SecondaryNavDropdown({ item }: { item: HaitechHomeSecondaryNavLink }) {
       return <SolutionsMegaMenu {...shared} />;
     case 'mas':
       return <SecondaryNavPlainLink item={item} />;
-    default: {
-      const _exhaustive: never = item.menu;
-      return _exhaustive;
-    }
+    default:
+      return <SecondaryNavPlainLink item={item} />;
   }
 }
 

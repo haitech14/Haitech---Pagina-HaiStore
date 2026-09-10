@@ -9,7 +9,7 @@ import { toPublicProduct } from '@/lib/pricing';
 import { deriveProductSlug } from '@/lib/product-slug';
 import { ensureFullPrices } from '@/lib/roles';
 import { penToUsd } from '@/lib/utils';
-import type { InventoryProduct, Product } from '@/types/product';
+import type { InventoryProduct, Product, ProductAttribute } from '@/types/product';
 
 function normalizeLookup(key: string | null | undefined): string {
   return String(key ?? '')
@@ -32,19 +32,21 @@ export function findShowcaseShopProductByLookupKey(
   });
 }
 
-function buildShowcaseAttributes(product: HaitechShopProduct): InventoryProduct['attributes'] {
-  const attrs: NonNullable<InventoryProduct['attributes']> = [];
+function buildShowcaseAttributes(product: HaitechShopProduct): ProductAttribute[] {
+  const attrs: ProductAttribute[] = [];
   const eq = product.equipment;
-  if (eq?.speedPpm) attrs.push({ name: 'Velocidad', value: eq.speedPpm });
-  if (eq?.paperSize) attrs.push({ name: 'Formato', value: eq.paperSize });
-  if (eq?.scannerType) attrs.push({ name: 'Alimentador', value: eq.scannerType });
-  if (eq?.monthlyYield) attrs.push({ name: 'Volumen mensual', value: eq.monthlyYield });
+  if (eq?.speedPpm) attrs.push({ id: 'velocidad', name: 'Velocidad', value: eq.speedPpm });
+  if (eq?.paperSize) attrs.push({ id: 'formato', name: 'Formato', value: eq.paperSize });
+  if (eq?.scannerType) attrs.push({ id: 'alimentador', name: 'Alimentador', value: eq.scannerType });
+  if (eq?.monthlyYield) {
+    attrs.push({ id: 'volumen-mensual', name: 'Volumen mensual', value: eq.monthlyYield });
+  }
   if (/remanufactur/i.test(product.name)) {
-    attrs.push({ name: 'Condición', value: 'Remanufacturada' });
+    attrs.push({ id: 'condicion', name: 'Condición', value: 'Remanufacturada' });
   } else if (product.condition === 'seminuevo') {
-    attrs.push({ name: 'Condición', value: 'Seminueva' });
+    attrs.push({ id: 'condicion', name: 'Condición', value: 'Seminueva' });
   } else if (product.equipment) {
-    attrs.push({ name: 'Condición', value: 'Nueva' });
+    attrs.push({ id: 'condicion', name: 'Condición', value: 'Nueva' });
   }
   return attrs;
 }

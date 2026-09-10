@@ -204,7 +204,11 @@ export function ProductTonerPricesHover({
 
   const panel =
     panelOpen && lines.length > 0 ? (
-      <TonerPricesPanel lines={lines} saleRate={saleRate} isColor={isColor} />
+      <TonerPricesPanel
+        lines={lines}
+        {...(saleRate != null ? { saleRate } : {})}
+        isColor={isColor}
+      />
     ) : panelOpen ? (
       <div className="w-full rounded-md bg-[#F8FAFC] px-2 py-1 text-center text-[10px] leading-tight text-[#6B7280]">
         Sin tóner vinculado en catálogo

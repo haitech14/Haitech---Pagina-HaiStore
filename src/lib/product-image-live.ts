@@ -1,15 +1,15 @@
 import { extractProductImageCacheVersion } from '@/lib/admin-inventory-product-image';
 
 type LiveMediaSource = {
-  image_url?: string | null;
-  gallery?: string[] | null;
-  updated_at?: string | null;
+  image_url?: string | null | undefined;
+  gallery?: string[] | null | undefined;
+  updated_at?: string | null | undefined;
 } | null | undefined;
 
 type SnapshotMediaSource = {
-  image_url?: string | null;
-  image?: string | null;
-  gallery?: string[] | null;
+  image_url?: string | null | undefined;
+  image?: string | null | undefined;
+  gallery?: string[] | null | undefined;
 };
 
 function trimUrl(url: string | null | undefined): string | null {

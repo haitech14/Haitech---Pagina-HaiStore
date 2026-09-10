@@ -5,9 +5,9 @@ import { resolveLiveStorefrontMedia } from '@/lib/product-image-live';
 export function useLiveProductCardMedia(
   productId: string,
   snapshot: {
-    image_url?: string | null;
-    image?: string | null;
-    gallery?: string[] | null;
+    image_url?: string | null | undefined;
+    image?: string | null | undefined;
+    gallery?: string[] | null | undefined;
   },
   options?: { loadIfMissing?: boolean },
 ) {

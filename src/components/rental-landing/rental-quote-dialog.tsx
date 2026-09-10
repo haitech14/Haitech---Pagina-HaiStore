@@ -73,10 +73,10 @@ export function RentalQuoteDialog({ open, onOpenChange, quote }: RentalQuoteDial
     await submitWebLead({
       contact: {
         name: trimmedName,
-        companyOrRuc: ruc.trim() || company.trim() || undefined,
+        companyOrRuc: ruc.trim() || company.trim() || '',
         phone: trimmedPhone,
-        email: email.trim() || undefined,
-        city: undefined,
+        ...(email.trim() ? { email: email.trim() } : {}),
+        city: '',
       },
       channel: 'whatsapp-rental',
       message: summary,

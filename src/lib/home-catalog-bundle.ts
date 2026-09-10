@@ -290,7 +290,7 @@ export function applyInventoryProductToHomeBundle(
           condition,
           (items ?? []).map((item) => patchHomeBundleItem(item, product)),
         ]),
-      ),
+      ) as HomeCatalogSectionPayload['productsByCondition'],
     })),
   };
 }
