@@ -21,7 +21,7 @@ import {
   clipboardPriceFieldsFromDisplay,
   useCatalogDisplayPrice,
 } from '@/hooks/use-catalog-display-price';
-import { useCatalogProductRow } from '@/hooks/use-catalog-product-row';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
 import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import {
   buildProductCardImageCandidates,
@@ -155,7 +155,11 @@ export function HomeStorefrontProductCard({
   const { addItem } = useCart();
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [chromeReady, setChromeReady] = useState(false);
-  const catalogProduct = useCatalogProductRow(product.id, { loadIfMissing: true });
+  const { catalogProduct, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
+    useLiveProductCardMedia(product.id, {
+      image: product.image,
+      gallery: product.gallery,
+    });
   const displayPrice = useCatalogDisplayPrice({
     price: product.price,
     ...(product.prices ? { prices: product.prices } : {}),
@@ -229,10 +233,10 @@ export function HomeStorefrontProductCard({
         name: product.name,
         category: product.category,
         brand: product.brand ?? catalogProduct?.brand ?? null,
-        image_url: product.image ?? catalogProduct?.image_url ?? null,
-        gallery: [...(product.gallery ?? []), ...(catalogProduct?.gallery ?? [])],
+        image_url: liveImageUrl,
+        gallery: liveGallery,
       }),
-    [catalogProduct, code, product],
+    [catalogProduct, code, liveGallery, liveImageUrl, product],
   );
   const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
   const storedImageCandidates = useMemo(
@@ -260,7 +264,7 @@ export function HomeStorefrontProductCard({
     description: catalogProduct?.description ?? null,
     price: displayPrice.priceUsd,
     currency: 'USD',
-    image_url: product.image,
+    image_url: liveImageUrl,
     stock,
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
@@ -365,6 +369,7 @@ export function HomeStorefrontProductCard({
             hoverSrc={hoverImageSrc}
             alt={product.name}
             loading={priority ? 'eager' : 'lazy'}
+            imageVersion={imageVersion}
             className="size-full max-h-[124px] max-w-[124px] sm:max-h-[220px] sm:max-w-[220px] lg:max-h-[208px] lg:max-w-[208px]"
             imageClassName="size-full max-h-[124px] max-w-[124px] object-contain object-center sm:max-h-[220px] sm:max-w-[220px] lg:max-h-[208px] lg:max-w-[208px]"
           />

@@ -325,11 +325,8 @@ export async function persistProductMedia(product) {
   let finalImageUrl = image_url;
   if (finalImageUrl && isImageProductUrl(finalImageUrl)) {
     await refreshProductCardVariantsForUrl(finalImageUrl, publicDir);
-    // Asegura cache-bust aunque la URL ya fuera /products/... sin ?v=
-    if (!String(finalImageUrl).includes('?v=')) {
-      const bare = mediaPathname(finalImageUrl);
-      finalImageUrl = `${bare}?v=${Date.now()}`;
-    }
+    const bare = mediaPathname(finalImageUrl);
+    finalImageUrl = `${bare}?v=${Date.now()}`;
   }
 
   return {

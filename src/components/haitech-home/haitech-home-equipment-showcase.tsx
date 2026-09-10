@@ -1,20 +1,28 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   BarChart3,
   ChevronLeft,
   ChevronRight,
   Copy,
+  Cpu,
   Droplets,
   FileText,
   Gauge,
+  Laptop,
   LayoutGrid,
+  Microchip,
+  Monitor,
   PenTool,
   Printer,
+  Package,
   RefreshCw,
   ShieldCheck,
+  Table2,
 } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+
+import { HaitechEquipmentShowcaseTable } from '@/components/haitech-home/haitech-equipment-showcase-table';
 
 import {
   filterEquipmentShowcaseProducts,
@@ -32,7 +40,8 @@ import {
   HAITECH_FORMATO_ANCHO_FORMAT_FILTERS,
   HAITECH_LAPTOP_CONDITIONS,
   HAITECH_SCANNER_CONDITIONS,
-  HAITECH_LAPTOP_FILTERS,
+  HAITECH_LAPTOP_CPU_FILTERS,
+  HAITECH_LAPTOP_DEVICE_FILTERS,
   HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES,
   HAITECH_EQUIPMENT_SHOWCASE_PAGE_SIZE,
   HAITECH_EQUIPMENT_SHOWCASE_VISIBLE,
@@ -54,6 +63,7 @@ import {
   type HaitechLaptopActiveFilters,
   type HaitechLaptopFilterId,
   resolveShowcaseConsumableKind,
+  resolveShowcaseEquipmentTecnicoUsd,
   type HaitechShowcaseConsumableKind,
   type HaitechShowcaseFilterId,
 } from '@/data/haitech-home-equipment-showcase';
@@ -71,7 +81,7 @@ import { useDisplayCurrency } from '@/context/display-currency-context';
 import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
 import { DEFAULT_USD_TO_PEN } from '@/lib/exchange-rate';
 import { buildShowcaseProductsFromCatalog } from '@/lib/showcase-catalog-consumables';
-import { findShowcaseCatalogRow, resolveShowcaseProductHref } from '@/lib/showcase-product-href';
+import { findShowcaseCatalogRow, hydrateShowcaseProductFromCatalog, resolveShowcaseMediaCatalogId, resolveShowcaseProductHref } from '@/lib/showcase-product-href';
 import { toPublicProduct } from '@/lib/pricing';
 import {
   resolveShowcaseActivePriceRole,
@@ -81,12 +91,20 @@ import {
   showcaseUsdToPen,
 } from '@/lib/showcase-product-pricing';
 import { useCompanySettings } from '@/hooks/use-company-settings';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
+import { isPrinterEquipment } from '@/lib/build-product-detail';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { ProductCardDescriptorLine } from '@/components/product/product-card-title';
 import { splitProductCardTitleAtBrand } from '@/lib/product-card-title';
-import { CONSULTAR_PRECIO_LABEL, getDisplayPriceVisibility, isPriceOnRequest, PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/display-price';
+import { CONSULTAR_PRECIO_LABEL, getDisplayPriceVisibility, isPriceOnRequest } from '@/lib/display-price';
 import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
+import { productHasOfferAttribute } from '@/lib/product-detail-badges';
+import {
+  equipmentShowcaseImageSources,
+  productImageMasterUrl,
+  supportsResponsiveProductImage,
+} from '@/lib/responsive-image';
 import { resolveUserRoleDisplayPen, resolveUserRolePriceUsd } from '@/lib/roles';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
@@ -229,6 +247,38 @@ function SpecFilterIcon({
   active?: boolean;
 }) {
   if (id === 'todos') return <LayoutGrid className="size-3.5" aria-hidden="true" />;
+  if (id === 'pc') {
+    return (
+      <Monitor
+        className={cn('size-3.5', active ? 'text-white' : 'text-[#3B82F6]')}
+        aria-hidden="true"
+      />
+    );
+  }
+  if (id === 'laptop') {
+    return (
+      <Laptop
+        className={cn('size-3.5', active ? 'text-white' : 'text-[#3B82F6]')}
+        aria-hidden="true"
+      />
+    );
+  }
+  if (id === 'i5') {
+    return (
+      <Cpu
+        className={cn('size-3.5', active ? 'text-white' : 'text-[#3B82F6]')}
+        aria-hidden="true"
+      />
+    );
+  }
+  if (id === 'i7') {
+    return (
+      <Microchip
+        className={cn('size-3.5', active ? 'text-white' : 'text-[#3B82F6]')}
+        aria-hidden="true"
+      />
+    );
+  }
   if (id === 'laser') {
     return (
       <Printer
@@ -282,6 +332,71 @@ function SpecFilterIcon({
   return <PrintModeIcon mode="B/N" />;
 }
 
+const SHOWCASE_CARD_IMAGE_CLASS =
+  'h-auto w-[74%] max-h-[155px] object-contain object-center sm:max-h-[210px] lg:max-h-[230px]';
+
+function withShowcaseImageVersion(url: string, imageVersion?: string | null): string {
+  if (!imageVersion || url.startsWith('data:') || url.startsWith('blob:')) return url;
+  const [path, existingQuery] = url.split('?');
+  const params = new URLSearchParams(existingQuery ?? '');
+  params.set('v', imageVersion);
+  return `${path}?${params.toString()}`;
+}
+
+function EquipmentShowcaseCardImage({
+  src,
+  imageVersion = null,
+  onError,
+}: {
+  src: string;
+  imageVersion?: string | null;
+  onError: () => void;
+}) {
+  const responsive = supportsResponsiveProductImage(src)
+    ? equipmentShowcaseImageSources(src)
+    : null;
+  const fallbackSrc = withShowcaseImageVersion(
+    responsive?.fallbackSrc ?? productImageMasterUrl(src) ?? src,
+    imageVersion,
+  );
+
+  if (responsive) {
+    const webpSrcSet = responsive.webpSrcSet
+      .split(', ')
+      .map((entry) => {
+        const [url, width] = entry.split(' ');
+        if (!url || !width) return entry;
+        return `${withShowcaseImageVersion(url, imageVersion)} ${width}`;
+      })
+      .join(', ');
+
+    return (
+      <picture className="flex w-full items-center justify-center">
+        <source type="image/webp" srcSet={webpSrcSet} sizes={responsive.sizes} />
+        <img
+          src={fallbackSrc}
+          alt=""
+          className={SHOWCASE_CARD_IMAGE_CLASS}
+          loading="lazy"
+          decoding="async"
+          onError={onError}
+        />
+      </picture>
+    );
+  }
+
+  return (
+    <img
+      src={fallbackSrc}
+      alt=""
+      className={SHOWCASE_CARD_IMAGE_CLASS}
+      loading="lazy"
+      decoding="async"
+      onError={onError}
+    />
+  );
+}
+
 function toCartProduct(product: HaitechShopProduct, saleRate?: number): Product {
   const priceUsd = Math.round(penToUsd(product.price, saleRate) * 100) / 100;
   return {
@@ -299,12 +414,30 @@ function toCartProduct(product: HaitechShopProduct, saleRate?: number): Product 
   };
 }
 
+function readStockCount(value: number | null | undefined): number {
+  return Math.max(0, Math.floor(Number(value) || 0));
+}
+
+/** Stock vivo del catálogo cuando hay fila; si no, el de la vitrina. */
+function resolveShowcaseCardStock(
+  product: HaitechShopProduct,
+  catalogStock: number | null | undefined,
+): { stockCount: number; outOfStock: boolean } {
+  const fromCatalog = catalogStock == null ? null : readStockCount(catalogStock);
+  const fromProduct = product.stock == null ? null : readStockCount(product.stock);
+  const stockCount = fromCatalog ?? fromProduct ?? 0;
+  const hasStock = fromCatalog != null || fromProduct != null;
+  return { stockCount, outOfStock: hasStock && stockCount <= 0 };
+}
+
 function EquipmentShowcaseCard({
   product,
   catalogReady = false,
+  showStockAndToner = false,
 }: {
   product: HaitechShopProduct;
   catalogReady?: boolean;
+  showStockAndToner?: boolean;
 }) {
   const { viewAsRoles, effectiveRole } = useAuth();
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
@@ -312,6 +445,19 @@ function EquipmentShowcaseCard({
   const saleRate = companySettings?.usdToPenExchangeRate;
   const [imgError, setImgError] = useState(false);
   const isConsumable = Boolean(product.toner) || /repuesto|unidad de imagen|t[oó]ner/i.test(product.name);
+  const catalogRow = catalogReady ? findShowcaseCatalogRow(product) : undefined;
+  const liveMediaProductId = resolveShowcaseMediaCatalogId(product);
+  const { image_url: liveImageUrl, imageVersion } = useLiveProductCardMedia(
+    liveMediaProductId,
+    { image: product.image },
+    { loadIfMissing: catalogReady },
+  );
+  const displayImage = liveImageUrl?.trim() || product.image;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [displayImage, imageVersion]);
+
   const pricingOptions = useMemo(
     () => ({ saleRate, isConsumable }),
     [saleRate, isConsumable],
@@ -329,6 +475,7 @@ function EquipmentShowcaseCard({
         : [],
     [product, viewAsRoles, pricingOptions, catalogReady, showMultiRolePrices],
   );
+  const overlayTecnicoUsd = resolveShowcaseEquipmentTecnicoUsd(product);
   const activeUsdRaw =
     viewAsRoles.length === 1
       ? resolveUserRolePriceUsd(rolePricesUsd, viewAsRoles[0]!, {
@@ -337,7 +484,10 @@ function EquipmentShowcaseCard({
           productKeys: [product.id, product.code],
         })
       : rolePricesUsd[activePriceRole] ?? rolePricesUsd.public;
-  const priceUsd = showcaseDisplayUsd(activeUsdRaw, { isConsumable });
+  const priceUsd =
+    isConsumable || activePriceRole === 'tecnico'
+      ? Math.max(0, overlayTecnicoUsd ?? activeUsdRaw)
+      : showcaseDisplayUsd(activeUsdRaw, { isConsumable });
   const displayPen =
     viewAsRoles.length === 1
       ? resolveUserRoleDisplayPen(rolePricesUsd, viewAsRoles[0]!, {
@@ -370,14 +520,17 @@ function EquipmentShowcaseCard({
   const isSeminuevo = product.condition === 'seminuevo' && !isRemanufacturada;
   const isNuevo = !isSeminuevo && !isRemanufacturada;
   const codeLabel = resolveEquipmentShowcaseCode(product);
-  const hasStock = product.stock != null;
-  const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
-  const outOfStock = hasStock && stockCount <= 0;
+  const { stockCount, outOfStock } = resolveShowcaseCardStock(product, catalogRow?.stock);
   const cartProduct = useMemo(
-    () => toCartProduct({ ...product, price: displayPen }, saleRate),
-    [product, displayPen, saleRate],
+    () =>
+      toCartProduct(
+        { ...product, price: displayPen, image: displayImage, stock: stockCount },
+        saleRate,
+      ),
+    [product, displayPen, displayImage, stockCount, saleRate],
   );
-  const catalogRow = catalogReady ? findShowcaseCatalogRow(product) : undefined;
+  const isOffer =
+    product.isOffer === true || (catalogRow != null && productHasOfferAttribute(catalogRow));
   const tonerEquipmentProduct = useMemo(
     () => (catalogRow ? toPublicProduct(catalogRow, String(effectiveRole)) : cartProduct),
     [cartProduct, catalogRow, effectiveRole],
@@ -387,6 +540,11 @@ function EquipmentShowcaseCard({
     activePriceRole === 'tecnico' &&
     !showMultiRolePrices &&
     !priceOnRequest;
+  const showTonerPanel =
+    showStockAndToner &&
+    !isConsumable &&
+    !isSoftware &&
+    isPrinterEquipment(tonerEquipmentProduct);
 
   const originBadgeLabel =
     consumableOrigin === 'compatible'
@@ -396,6 +554,25 @@ function EquipmentShowcaseCard({
         : consumableOrigin === 'original'
           ? 'Original'
           : null;
+
+  const offerBesidePrice =
+    isOffer && !(showMultiRolePrices && viewAsRolePrices.length > 1) ? (
+      <span className="inline-flex h-[18px] shrink-0 items-center rounded-full bg-[#E30613] px-2 text-[8px] font-bold uppercase tracking-wide text-white sm:h-5 sm:px-2.5 sm:text-[9px]">
+        OFERTA
+      </span>
+    ) : null;
+
+  const primaryPriceClass =
+    'text-[14px] font-black tabular-nums sm:text-[17px]';
+
+  const withOfferBeside = (priceNode: ReactNode) => (
+    <span className="inline-flex max-w-full flex-wrap items-center justify-center gap-1.5">
+      <span className={primaryPriceClass} style={{ color: HAITECH_SHOP.brand }}>
+        {priceNode}
+      </span>
+      {offerBesidePrice}
+    </span>
+  );
 
   const priceLine = (() => {
     if (showMultiRolePrices && viewAsRolePrices.length > 1) {
@@ -410,42 +587,24 @@ function EquipmentShowcaseCard({
     }
     if (priceOnRequest) {
       return (
-        <span
-          className="text-[14px] font-bold text-[#6B7280] sm:text-[16px]"
-        >
-          {CONSULTAR_PRECIO_LABEL}
+        <span className="inline-flex max-w-full flex-wrap items-center justify-center gap-1.5">
+          <span className="text-[14px] font-bold text-[#6B7280] sm:text-[16px]">
+            {CONSULTAR_PRECIO_LABEL}
+          </span>
+          {offerBesidePrice}
         </span>
       );
     }
     if (displayCurrency === 'PEN') {
-      return (
-        <span
-          className="text-[14px] font-black tabular-nums sm:text-[17px]"
-          style={{ color: HAITECH_SHOP.brand }}
-        >
-          {formatHaitechPen(displayPen)}
-        </span>
-      );
+      return withOfferBeside(formatHaitechPen(displayPen));
     }
     if (displayCurrency === 'USD') {
-      return (
-        <span
-          className="text-[14px] font-black tabular-nums sm:text-[17px]"
-          style={{ color: HAITECH_SHOP.brand }}
-        >
-          {formatHaitechUsd(priceUsd)}
-        </span>
-      );
+      return withOfferBeside(formatHaitechUsd(priceUsd));
     }
     if (penFirst) {
       return (
         <span className="flex w-full flex-col items-center gap-0.5 text-center">
-          <span
-            className="text-[14px] font-black tabular-nums sm:text-[17px]"
-            style={{ color: HAITECH_SHOP.brand }}
-          >
-            {formatHaitechPen(displayPen)}
-          </span>
+          {withOfferBeside(formatHaitechPen(displayPen))}
           <span className="text-[12px] font-semibold tabular-nums text-[#6B7280]">
             {formatHaitechUsd(priceUsd)}
           </span>
@@ -454,12 +613,7 @@ function EquipmentShowcaseCard({
     }
     return (
       <span className="flex w-full flex-col items-center gap-0.5 text-center">
-        <span
-          className="text-[14px] font-black tabular-nums sm:text-[17px]"
-          style={{ color: HAITECH_SHOP.brand }}
-        >
-          {formatHaitechUsd(priceUsd)}
-        </span>
+        {withOfferBeside(formatHaitechUsd(priceUsd))}
         <span className="text-[12px] font-semibold tabular-nums text-[#6B7280]">
           {formatHaitechPen(displayPen)}
         </span>
@@ -492,8 +646,8 @@ function EquipmentShowcaseCard({
   return (
     <article
       className={cn(
-        'group group/card flex h-full flex-col overflow-hidden rounded-xl bg-white p-2.5',
-        'shadow-[0_10px_30px_rgba(15,23,42,0.08)] sm:rounded-[1.25rem] sm:p-4',
+        'group group/card flex h-full flex-col overflow-hidden rounded-xl border-0 bg-white p-2.5',
+        'shadow-[0_4px_18px_rgba(15,23,42,0.07)] sm:rounded-[1.25rem] sm:p-4',
       )}
     >
       <Link
@@ -514,31 +668,24 @@ function EquipmentShowcaseCard({
           </span>
         ) : isRemanufacturada ? (
           <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-emerald-600 bg-emerald-50 px-2 text-[8px] font-bold uppercase tracking-wide text-emerald-700 sm:h-6 sm:px-2.5 sm:text-[10px]">
-            Remanufacturada
+            REMANUFACTURADA
           </span>
         ) : isNuevo ? (
           <span className="inline-flex h-5 shrink-0 items-center rounded-full bg-black px-2 text-[8px] font-bold uppercase tracking-wide text-white sm:h-6 sm:px-2.5 sm:text-[10px]">
-            Nuevo
+            NUEVO
           </span>
         ) : (
           <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-[#D4D4D4] bg-white px-2 text-[8px] font-bold uppercase tracking-wide text-[#666] sm:h-6 sm:px-2.5 sm:text-[10px]">
-            Seminuevo
+            SEMINUEVO
           </span>
         )}
       </div>
 
-      <div
-        className="mt-1 flex min-h-[124px] flex-1 items-center justify-center px-1 sm:min-h-[188px] sm:px-2"
-      >
+      <div className="mt-1 flex min-h-[145px] w-full flex-1 items-center justify-center px-2 sm:min-h-[190px] sm:px-3 lg:min-h-[210px]">
         {!imgError ? (
-          <img
-            src={product.image}
-            alt=""
-            width={280}
-            height={228}
-            className="max-h-[136px] w-auto max-w-[96%] object-contain sm:max-h-[188px] sm:max-w-full"
-            loading="lazy"
-            decoding="async"
+          <EquipmentShowcaseCardImage
+            src={displayImage}
+            imageVersion={imageVersion}
             onError={() => setImgError(true)}
           />
         ) : (
@@ -634,14 +781,14 @@ function EquipmentShowcaseCard({
               </ul>
             )}
 
-            {codeLabel || hasStock ? (
+            {codeLabel || showStockAndToner ? (
               <div
                 className="mt-1.5 flex w-full min-w-0 items-center justify-center gap-1.5 text-center text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
                 aria-label={[
                   codeLabel ? `Código ${codeLabel}` : null,
-                  hasStock
+                  showStockAndToner
                     ? outOfStock
-                      ? PRODUCT_ON_REQUEST_STOCK_LABEL
+                      ? 'Sin stock'
                       : `Stock ${stockCount}`
                     : null,
                 ]
@@ -652,17 +799,18 @@ function EquipmentShowcaseCard({
                   <span className="min-w-0 truncate tabular-nums" title={codeLabel}>
                     Cód. {codeLabel}
                   </span>
-                ) : (
-                  <span className="min-w-0" aria-hidden="true" />
-                )}
-                {hasStock ? (
+                ) : null}
+                {showStockAndToner ? (
                   <ProductStockHover
                     stock={stockCount}
                     outOfStock={outOfStock}
-                    stockLocations={resolveHaitechShopStockLocations(product)}
+                    stockLocations={resolveHaitechShopStockLocations({
+                      ...product,
+                      stock: stockCount,
+                    })}
                     prefix="Stock "
-                    className="shrink-0 text-[10px] font-medium text-[#8a93a3] sm:text-[11px]"
-                    iconClassName="size-3 shrink-0"
+                    className="shrink-0 text-[10px] font-medium sm:text-[11px]"
+                    iconClassName="size-3.5 shrink-0 text-[#E30613]"
                   />
                 ) : null}
               </div>
@@ -693,12 +841,24 @@ function EquipmentShowcaseCard({
       </div>
       </Link>
 
-      {showTecnicoToner ? (
+      {showTonerPanel ? (
+        <ProductTonerPricesHover
+          product={tonerEquipmentProduct}
+          isColor={specs.printMode === 'Color'}
+          priceRole={activePriceRole === 'tecnico' ? 'tecnico' : 'public'}
+          {...(saleRate != null ? { saleRate } : {})}
+          placement="below"
+          alwaysVisible
+          className="mt-1 flex flex-col items-center"
+        >
+          <span className="sr-only">Tóner</span>
+        </ProductTonerPricesHover>
+      ) : showTecnicoToner ? (
         <ProductTonerPricesHover
           product={tonerEquipmentProduct}
           isColor={specs.printMode === 'Color'}
           priceRole="tecnico"
-          saleRate={saleRate}
+          {...(saleRate != null ? { saleRate } : {})}
           placement="below"
           className="mt-1 flex flex-col items-center"
         >
@@ -724,6 +884,21 @@ function EquipmentShowcaseCard({
             'h-10 min-h-10 max-h-10 w-auto flex-none justify-center rounded-lg px-3.5 text-[11px] font-bold shadow-none sm:h-11 sm:min-h-11 sm:max-h-11 sm:px-4 sm:text-[13px]',
             'border-[#E30613] bg-[#E30613] hover:border-[#c90511] hover:bg-[#c90511]',
           )}
+          endAdornment={
+            showStockAndToner ? (
+              <ProductStockHover
+                stock={stockCount}
+                outOfStock={outOfStock}
+                stockLocations={resolveHaitechShopStockLocations({
+                  ...product,
+                  stock: stockCount,
+                })}
+                prefix="Stock "
+                className="h-10 min-h-10 px-1.5 text-[11px] font-semibold sm:h-11 sm:min-h-11 sm:text-[12px]"
+                iconClassName="size-4 shrink-0 text-[#E30613] sm:size-[18px]"
+              />
+            ) : null
+          }
         />
       </div>
     </article>
@@ -868,12 +1043,11 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
     useState<HaitechFormatoAnchoActiveFilters>(
       () => parsed.formatoAnchoSpecFilters ?? EMPTY_FORMATO_ANCHO_SPEC_FILTERS,
     );
-  const [condition, setCondition] = useState<HaitechEquipmentConditionId>(() => {
-    if (parsed.condition) return parsed.condition;
-    if (parsed.categoryId === 'laptops') return 'seminuevas';
-    if (parsed.categoryId === 'escaneres') return 'nuevas';
-    return 'nuevas';
-  });
+  const [condition, setCondition] = useState<HaitechEquipmentConditionId>(
+    () => parsed.condition ?? 'nuevas',
+  );
+  const [showStockAndToner, setShowStockAndToner] = useState(true);
+  const [showTableView, setShowTableView] = useState(false);
   const [consumableKind, setConsumableKind] = useState<HaitechShowcaseConsumableKind>(
     () => parsed.consumableKind ?? 'all',
   );
@@ -925,8 +1099,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
       setFormatoAnchoSpecFilters(EMPTY_FORMATO_ANCHO_SPEC_FILTERS);
     }
     if (parsed.condition) setCondition(parsed.condition);
-    else if (parsed.categoryId === 'laptops') setCondition('seminuevas');
-    else if (parsed.categoryId === 'escaneres') setCondition('nuevas');
+    else setCondition('nuevas');
     if (parsed.consumableKind) setConsumableKind(parsed.consumableKind);
     else if (parsed.categoryId) setConsumableKind('all');
   }, [
@@ -1009,8 +1182,8 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
   const activeFilters = getShowcaseFiltersForCategory(categoryId);
 
   const allProducts = useMemo(
-    () =>
-      filterEquipmentShowcaseProducts({
+    () => {
+      const filtered = filterEquipmentShowcaseProducts({
         categoryId,
         specFilter,
         ...(isEquipmentCategory && !isLaptopCategory && !isFormatoAnchoCategory
@@ -1022,7 +1195,10 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
         consumableKind: resolveShowcaseConsumableKind(categoryId, consumableKind),
         ...(categoryId === 'toner' || categoryId === 'repuestos' ? { catalogConsumables } : {}),
         limit: Number.POSITIVE_INFINITY,
-      }),
+      });
+      if (!catalogReady) return filtered;
+      return filtered.map((product) => hydrateShowcaseProductFromCatalog(product));
+    },
     [
       categoryId,
       consumableKind,
@@ -1035,6 +1211,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
       isEquipmentCategory,
       isLaptopCategory,
       isFormatoAnchoCategory,
+      catalogReady,
     ],
   );
   const products = allProducts.slice(0, visibleCount);
@@ -1148,7 +1325,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
   return (
     <section
       id="equipos-vitrina"
-      className={cn('w-full bg-white px-3 pb-10 pt-6 sm:px-4 sm:pb-12 sm:pt-7 lg:px-5 lg:pb-14 lg:pt-8', className)}
+      className={cn('w-full bg-[#F3F4F6] px-3 pb-10 pt-6 sm:px-4 sm:pb-12 sm:pt-7 lg:px-5 lg:pb-14 lg:pt-8', className)}
       aria-labelledby="haitech-equipment-showcase-title"
     >
       <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}>
@@ -1179,11 +1356,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
             const nextLaptopFilters = EMPTY_LAPTOP_SPEC_FILTERS;
             const nextFormatoAnchoFilters = EMPTY_FORMATO_ANCHO_SPEC_FILTERS;
             const nextCondition: HaitechEquipmentConditionId =
-              nextCategoryId === 'laptops'
-                ? 'seminuevas'
-                : nextCategoryId === 'escaneres'
-                  ? 'nuevas'
-                  : condition;
+              nextCategoryId === 'laptops' || nextCategoryId === 'escaneres' ? 'nuevas' : condition;
             setCategoryId(nextCategoryId);
             setSpecFilter(nextFilter);
             setEquipmentSpecFilters(nextEquipmentFilters);
@@ -1233,7 +1406,19 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
           >
             {isEquipmentCategory ? (
               isLaptopCategory ? (
-                HAITECH_LAPTOP_FILTERS.map(renderFilterButton)
+                <>
+                  {renderFilterButton({ id: 'todos', label: 'Todos' })}
+                  <span
+                    className="mx-0.5 inline-block h-8 w-px shrink-0 self-center bg-[#D1D5DB]"
+                    aria-hidden="true"
+                  />
+                  {HAITECH_LAPTOP_DEVICE_FILTERS.map(renderFilterButton)}
+                  <span
+                    className="mx-0.5 inline-block h-8 w-px shrink-0 self-center bg-[#D1D5DB]"
+                    aria-hidden="true"
+                  />
+                  {HAITECH_LAPTOP_CPU_FILTERS.map(renderFilterButton)}
+                </>
               ) : isFormatoAnchoCategory ? (
                 <>
                   {renderFilterButton({ id: 'todos', label: 'Todos' })}
@@ -1300,60 +1485,112 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
             </h3>
           </div>
 
-          {showConditionToggle ? (
-            <div
-              className="inline-flex self-center rounded-full border border-[#E5E7EB] bg-white p-1 shadow-sm sm:self-auto"
-              role="tablist"
-              aria-label="Condición del equipo"
-            >
-              {conditionOptions.map((item) => {
-                const active = item.id === condition;
-                return (
+          {showConditionToggle || products.length > 0 ? (
+            <div className="inline-flex items-center gap-2 self-center sm:self-auto">
+              {showConditionToggle ? (
+                <>
+                  <div
+                    className="inline-flex rounded-full border border-[#E5E7EB] bg-white p-1 shadow-sm"
+                    role="tablist"
+                    aria-label="Condición del equipo"
+                  >
+                    {conditionOptions.map((item) => {
+                      const active = item.id === condition;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          role="tab"
+                          aria-selected={active}
+                          onClick={() => {
+                            setCondition(item.id);
+                            syncShowcaseUrl({
+                              categoryId,
+                              filter: specFilter,
+                              equipmentSpecFilters,
+                              formatoAnchoSpecFilters,
+                              laptopSpecFilters,
+                              condition: item.id,
+                              consumableKind,
+                            });
+                          }}
+                          className={cn(
+                            'h-9 rounded-full px-4 text-[12px] font-semibold transition-colors sm:h-10 sm:px-5 sm:text-[13px]',
+                            active ? 'bg-[#E30613] text-white' : 'bg-transparent text-[#444] hover:text-[#111]',
+                          )}
+                        >
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <button
-                    key={item.id}
                     type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => {
-                      setCondition(item.id);
-                      syncShowcaseUrl({
-                        categoryId,
-                        filter: specFilter,
-                        equipmentSpecFilters,
-                        formatoAnchoSpecFilters,
-                        laptopSpecFilters,
-                        condition: item.id,
-                        consumableKind,
-                      });
-                    }}
+                    aria-pressed={showStockAndToner}
+                    aria-label={
+                      showStockAndToner ? 'Ocultar stock y tóner' : 'Mostrar stock y tóner'
+                    }
+                    title="Stock y tóner"
+                    onClick={() => setShowStockAndToner((value) => !value)}
                     className={cn(
-                      'h-9 rounded-full px-4 text-[12px] font-semibold transition-colors sm:h-10 sm:px-5 sm:text-[13px]',
-                      active ? 'bg-[#E30613] text-white' : 'bg-transparent text-[#444] hover:text-[#111]',
+                      'inline-flex h-9 items-center gap-1 rounded-full border px-2.5 shadow-sm sm:h-10 sm:px-3',
+                      'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-offset-2',
+                      showStockAndToner
+                        ? 'border-[#E30613] bg-[#E30613] text-white'
+                        : 'border-[#E5E7EB] bg-white text-[#555] hover:text-[#111]',
                     )}
                   >
-                    {item.label}
+                    <Package className="size-4 shrink-0" strokeWidth={2.25} aria-hidden="true" />
+                    <Droplets className="size-4 shrink-0" strokeWidth={2.25} aria-hidden="true" />
                   </button>
-                );
-              })}
+                </>
+              ) : null}
+              <button
+                type="button"
+                aria-pressed={showTableView}
+                aria-label={showTableView ? 'Ver como tarjetas' : 'Ver como tabla'}
+                title={showTableView ? 'Vista tarjetas' : 'Vista tabla'}
+                onClick={() => setShowTableView((value) => !value)}
+                className={cn(
+                  'inline-flex h-9 items-center justify-center rounded-full border px-2.5 shadow-sm sm:h-10 sm:px-3',
+                  'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/40 focus-visible:ring-offset-2',
+                  showTableView
+                    ? 'border-[#E30613] bg-[#E30613] text-white'
+                    : 'border-[#E5E7EB] bg-white text-[#555] hover:text-[#111]',
+                )}
+              >
+                <Table2 className="size-4 shrink-0" strokeWidth={2.25} aria-hidden="true" />
+              </button>
             </div>
           ) : null}
         </div>
 
         {products.length > 0 ? (
           <>
-            <ul className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">
-              {productGridItems.map((item) =>
-                item.type === 'header' ? (
-                  <li key={item.id} className="col-span-full list-none">
-                    <EquipmentShowcaseSectionHeader label={item.label} />
-                  </li>
-                ) : (
-                  <li key={item.product.id}>
-                    <EquipmentShowcaseCard product={item.product} catalogReady={catalogReady} />
-                  </li>
-                ),
-              )}
-            </ul>
+            {showTableView ? (
+              <HaitechEquipmentShowcaseTable
+                items={productGridItems}
+                catalogReady={catalogReady}
+              />
+            ) : (
+              <ul className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">
+                {productGridItems.map((item) =>
+                  item.type === 'header' ? (
+                    <li key={item.id} className="col-span-full list-none">
+                      <EquipmentShowcaseSectionHeader label={item.label} />
+                    </li>
+                  ) : (
+                    <li key={item.product.id}>
+                      <EquipmentShowcaseCard
+                        product={item.product}
+                        catalogReady={catalogReady}
+                        showStockAndToner={showStockAndToner}
+                      />
+                    </li>
+                  ),
+                )}
+              </ul>
+            )}
             {hasMoreProducts ? (
               <div className="mt-8 flex justify-center sm:mt-10">
                 <button

@@ -1,5 +1,6 @@
 import type { HaitechShopProduct } from '@/data/haitech-home-shop';
 import { getCatalogRows, type CatalogRow } from '@/lib/catalog-featured';
+import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
 import { productPath } from '@/lib/product-path';
 import { findProductBySlugOrId } from '@/lib/product-slug';
 
@@ -8,7 +9,22 @@ const SHOWCASE_STUB_TO_CATALOG_ID: Readonly<Record<string, string>> = {
   mc320fw: 'cb1e47b2-d784-4bef-ae18-d4dae08723e4',
   'im-c320f': '481dbc77-436b-464d-b76f-930f7d79f4ff',
   'im-c401f': '5a142c47-521c-47af-92ec-dda8808907c9',
+  'mp-305-plus': 'ab878d89-61e0-4e51-a941-03455e1da407',
+  'im-600f': 'b32a43a1-09e4-49f6-8950-3639c9534700',
+  'im-550f': '328f41ef-d935-4807-85d0-e1db5bdf73fb',
+  'im-c4510': 'a9c74a93-3a15-42da-a9cf-33d59e2b1019',
+  'im-c2010': '9c65bcbd-3a13-41dd-81b1-95cb3256a7c1',
+  'im-c2510': '21e2cbd5-f6e7-4b44-93db-ca736ea8727b',
+  'im-c3010': '15ee65ab-6565-44c4-974e-ff5ba68b0c26',
+  'im-c6010': 'e1bffdf0-3515-468e-859a-990d1cb12561',
 };
+
+/**
+ * Stubs de vitrina sin fila propia: reutilizan la imagen viva del producto de tienda
+ * (sin heredar stock/precios vía findShowcaseCatalogRow).
+ * Remans (`*-reman`) se materializan solos en inventario; no mapear a seminuevos.
+ */
+const SHOWCASE_STUB_MEDIA_CATALOG_ID: Readonly<Record<string, string>> = {};
 
 function normalizeCatalogCode(code: string | null | undefined): string {
   return String(code ?? '')
@@ -78,6 +94,29 @@ function catalogRowLooksNuevo(row: CatalogRow): boolean {
   return /nueva/.test(haystack);
 }
 
+function catalogRowLooksRemanufacturada(row: CatalogRow): boolean {
+  return /remanufactur/i.test(`${row.category ?? ''} ${row.name ?? ''}`);
+}
+
+function catalogRowLooksSeminuevo(row: CatalogRow): boolean {
+  return /seminuev/i.test(`${row.category ?? ''} ${row.name ?? ''}`);
+}
+
+function isRemanufacturadaShowcaseProduct(product: HaitechShopProduct): boolean {
+  return /remanufactur/i.test(product.name ?? '');
+}
+
+function catalogRowLooksLikeConsumable(row: CatalogRow): boolean {
+  if (isTonerOrRepuestosCategory(row.category)) return true;
+  const name = (row.name ?? '').toLowerCase();
+  if (/multifuncional|impresora|fotocopiadora|escaner|escáner|plotter|laptop/.test(name)) {
+    return false;
+  }
+  return /t[oó]ner|cartucho|repuesto|almohadilla|cilindro|friction pad|unidad de imagen/.test(
+    name,
+  );
+}
+
 function findCatalogRowByModel(
   product: HaitechShopProduct,
   rows: readonly CatalogRow[],
@@ -85,13 +124,37 @@ function findCatalogRowByModel(
   const model = extractShowcaseEquipmentModel(product);
   if (!model) return undefined;
 
-  const matches = rows.filter((row) => catalogRowMatchesModel(row, model));
+  const preferEquipment = !product.toner;
+  const matches = rows.filter((row) => {
+    if (!catalogRowMatchesModel(row, model)) return false;
+    if (preferEquipment && catalogRowLooksLikeConsumable(row)) return false;
+    return true;
+  });
   if (matches.length === 0) return undefined;
-  if (matches.length === 1) return matches[0];
+
+  if (isRemanufacturadaShowcaseProduct(product)) {
+    const remans = matches.filter(catalogRowLooksRemanufacturada);
+    if (remans.length === 1) return remans[0];
+    // Evita enlazar remanufacturada a seminuevo/nuevo (imagen y precio incorrectos).
+    return undefined;
+  }
+
+  if (matches.length === 1) {
+    const only = matches[0]!;
+    if (product.condition === 'seminuevo' && catalogRowLooksRemanufacturada(only)) {
+      return undefined;
+    }
+    return only;
+  }
 
   if (isNuevoShowcaseProduct(product)) {
     const nuevas = matches.filter(catalogRowLooksNuevo);
     if (nuevas.length === 1) return nuevas[0];
+  }
+
+  if (product.condition === 'seminuevo') {
+    const seminuevas = matches.filter(catalogRowLooksSeminuevo);
+    if (seminuevas.length === 1) return seminuevas[0];
   }
 
   return undefined;
@@ -140,6 +203,15 @@ export function findShowcaseCatalogRow(product: HaitechShopProduct): CatalogRow 
   const rows = getCatalogRows();
   if (!rows.length) return undefined;
   return findCatalogRowForShowcaseProduct(product, rows);
+}
+
+/** Id de catálogo solo para imagen viva (stubs reman ↔ producto de tienda). */
+export function resolveShowcaseMediaCatalogId(product: HaitechShopProduct): string {
+  return (
+    SHOWCASE_STUB_MEDIA_CATALOG_ID[product.id] ??
+    findShowcaseCatalogRow(product)?.id ??
+    product.id
+  );
 }
 
 function formatShowcaseWarehouseName(warehouseId: string): string {

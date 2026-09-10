@@ -4,6 +4,7 @@ import {
   CATALOG_INDEX_UPDATED_EVENT,
   getCatalogMediaEpoch,
   getCatalogProductById,
+  isCatalogIndexLoaded,
   loadCatalogIndex,
   subscribeCatalogMediaUpdates,
   type CatalogRow,
@@ -24,7 +25,7 @@ export function useCatalogProductRow(
 
   useEffect(() => {
     if (!loadIfMissing) return;
-    if (getCatalogProductById(productId)) return;
+    if (isCatalogIndexLoaded()) return;
 
     let cancelled = false;
     void loadCatalogIndex().then(() => {

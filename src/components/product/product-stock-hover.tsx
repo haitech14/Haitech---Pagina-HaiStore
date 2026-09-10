@@ -79,7 +79,7 @@ export function ProductStockHover({
         className,
       )}
     >
-      {showIcon && !outOfStock ? (
+      {showIcon ? (
         <Package className={iconClassName} strokeWidth={1.75} aria-hidden="true" />
       ) : null}
       <span>{stockLabel}</span>

@@ -12,6 +12,7 @@ import {
   ListTree,
   Mail,
   Megaphone,
+  MessageCircle,
   MessageSquare,
   Package,
   Percent,
@@ -46,6 +47,7 @@ const ICONS: Record<string, LucideIcon> = {
   users: Users,
   'undo-2': Undo2,
   'file-text': FileText,
+  'message-circle': MessageCircle,
   package: Package,
   tags: Tags,
   'badge-check': BadgeCheck,
@@ -73,6 +75,20 @@ function isNavItemActive(pathname: string, search: string, href: string, key: st
   if (key === 'customers') {
     return pathname === ADMIN_ROUTES.CRM_CLIENTES || pathname.startsWith(`${ADMIN_ROUTES.CRM_CLIENTES}/`);
   }
+  if (key === 'quotes') {
+    return (
+      pathname.startsWith(ADMIN_ROUTES.VENTAS) &&
+      search.includes('vista=cotizaciones') &&
+      !search.includes('canal=whatsapp')
+    );
+  }
+  if (key === 'whatsapp-leads') {
+    return (
+      pathname.startsWith(ADMIN_ROUTES.VENTAS) &&
+      search.includes('vista=cotizaciones') &&
+      search.includes('canal=whatsapp')
+    );
+  }
   if (key === 'orders') {
     return (
       pathname.startsWith(ADMIN_ROUTES.VENTAS) &&
@@ -82,9 +98,6 @@ function isNavItemActive(pathname: string, search: string, href: string, key: st
       !search.includes('vista=tpv') &&
       !search.includes('nuevo=1')
     );
-  }
-  if (key === 'quotes') {
-    return pathname.startsWith(ADMIN_ROUTES.VENTAS) && search.includes('vista=cotizaciones');
   }
   if (key === 'settings' || key === 'roles' || key === 'users' || key === 'payments' || key === 'taxes') {
     return pathname.startsWith(ADMIN_ROUTES.SETTINGS);

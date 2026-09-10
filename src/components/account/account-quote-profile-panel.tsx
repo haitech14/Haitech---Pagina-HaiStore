@@ -2,15 +2,18 @@ import { useEffect, useState } from 'react';
 import { Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { SunatRucField } from '@/components/forms/sunat-ruc-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useQuoteProfile } from '@/hooks/use-quote-profile';
+import { useApplySunatRuc } from '@/hooks/use-sunat-ruc-lookup';
 import {
   EMPTY_PRODUCT_QUOTE_FORM,
   isCompleteProductQuoteForm,
   type ProductQuoteFormValues,
 } from '@/lib/generate-product-quote-from-contact';
-import { useQuoteProfile } from '@/hooks/use-quote-profile';
+import { applySunatToQuoteForm } from '@/lib/sunat-ruc';
 
 export function AccountQuoteProfilePanel() {
   const { profile, isLoading, saveQuoteProfile, isSaving } = useQuoteProfile();
@@ -20,6 +23,10 @@ export function AccountQuoteProfilePanel() {
   useEffect(() => {
     setForm(profile);
   }, [profile]);
+
+  const sunat = useApplySunatRuc(form.ruc, (data) => {
+    setForm((current) => applySunatToQuoteForm(current, data));
+  });
 
   const updateField = <K extends keyof ProductQuoteFormValues>(key: K, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -59,17 +66,16 @@ export function AccountQuoteProfilePanel() {
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2 sm:col-span-2 sm:max-w-xs">
-          <Label htmlFor="profile-ruc">RUC</Label>
-          <Input
-            id="profile-ruc"
-            value={form.ruc}
-            onChange={(event) => updateField('ruc', event.target.value)}
-            inputMode="numeric"
-            autoComplete="off"
-            required
-          />
-        </div>
+        <SunatRucField
+          id="profile-ruc"
+          className="space-y-2 sm:col-span-2 sm:max-w-xs"
+          value={form.ruc}
+          onValueChange={(ruc) => updateField('ruc', ruc)}
+          isFetching={sunat.isFetching}
+          isSuccess={sunat.isSuccess}
+          errorMessage={sunat.error instanceof Error ? sunat.error.message : null}
+          required
+        />
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="profile-razon-social">Razón Social</Label>
           <Input

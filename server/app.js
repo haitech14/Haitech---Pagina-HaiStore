@@ -33,6 +33,7 @@ import { forumRouter } from './routes/forum.js';
 import { mediaAlbumRouter } from './routes/media-album.js';
 import { couponsRouter } from './routes/coupons.js';
 import { checkoutRouter, webhooksRouter } from './routes/checkout.js';
+import { sunatRouter } from './routes/sunat.js';
 
 const corsOrigins = getCorsOrigins();
 
@@ -144,6 +145,7 @@ app.use('/api/sales-reports', salesReportsRouter);
 app.use('/api/forum', forumRouter);
 app.use('/api/media-album', mediaAlbumRouter);
 app.use('/api/coupons', couponsRouter);
+app.use('/api/sunat', sunatRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Recurso no encontrado' });

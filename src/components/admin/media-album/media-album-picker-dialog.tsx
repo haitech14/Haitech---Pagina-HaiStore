@@ -64,7 +64,9 @@ export function MediaAlbumPickerDialog({
   onConfirm,
   allowManage = true,
 }: MediaAlbumPickerDialogProps) {
-  const { data: items = [], isLoading, isError, error, refetch, isFetching } = useMediaAlbum(kind);
+  const { data: items = [], isLoading, isError, refetch, isFetching } = useMediaAlbum(kind, {
+    enabled: open,
+  });
   const { remove } = useMediaAlbumMutations();
   const [selectedById, setSelectedById] = useState<Map<string, MediaAlbumItem>>(() => new Map());
   const [search, setSearch] = useState('');
@@ -205,8 +207,8 @@ export function MediaAlbumPickerDialog({
         });
       }
       void refetch();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'No se pudo subir la imagen');
+    } catch {
+      toast.error('No se pudo subir la imagen. Inténtalo de nuevo.');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -304,9 +306,7 @@ export function MediaAlbumPickerDialog({
           ) : isError ? (
             <div className="flex min-h-40 flex-col items-center justify-center gap-3 text-center" role="alert">
               <p className="text-sm text-destructive">
-                {error instanceof Error
-                  ? error.message
-                  : 'No se pudo cargar el álbum. Verifica que la API admin esté activa.'}
+                No se pudo cargar el álbum. Inténtalo de nuevo.
               </p>
               <Button
                 type="button"

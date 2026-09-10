@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 import { HAITECH_BLACK_NAV_LINKS } from '@/data/haitech-home-shell';
 import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
+import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
 import { cn } from '@/lib/utils';
 
@@ -43,6 +44,13 @@ const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
     label: 'Servicio Técnico',
     matchActive: ({ pathname, search }) =>
       pathname.startsWith('/servicios') && search.includes('seccion=servicio-tecnico'),
+  },
+  {
+    id: 'soluciones',
+    to: categoryLandingPath('soluciones-colaboracion'),
+    label: 'Soluciones',
+    matchActive: ({ pathname }) =>
+      pathname.includes('soluciones') || pathname.startsWith('/software'),
   },
   ...HAITECH_BLACK_NAV_LINKS.filter(
     (item) => item.id !== 'servicio-tecnico' && item.id !== 'alquiler',

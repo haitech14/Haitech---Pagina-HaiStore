@@ -20,6 +20,8 @@ interface ProductCardHoverImageProps {
   imageClassName?: string;
   overlayClassName?: string;
   watermarkClassName?: string;
+  /** Fuerza recarga cuando el inventario cambia la misma ruta de archivo. */
+  imageVersion?: string | null;
   placeholder?: ReactNode;
   /** Eager solo para primeras tarjetas above-the-fold. */
   loading?: 'lazy' | 'eager';
@@ -38,6 +40,7 @@ export function ProductCardHoverImage({
   placeholder,
   loading = 'lazy',
   fetchPriority,
+  imageVersion = null,
 }: ProductCardHoverImageProps) {
   const [failedIndices, setFailedIndices] = useState<Set<number>>(() => new Set());
   const [hoverFailed, setHoverFailed] = useState(false);
@@ -57,7 +60,7 @@ export function ProductCardHoverImage({
     setFailedIndices(new Set());
     setHoverFailed(false);
     setHoverActivated(false);
-  }, [candidates.join('|'), hoverSrc, storedCandidates?.join('|')]);
+  }, [candidates.join('|'), hoverSrc, storedCandidates?.join('|'), imageVersion]);
 
   const displayIndex = useMemo(() => {
     for (let index = 0; index < candidates.length; index += 1) {
@@ -111,6 +114,7 @@ export function ProductCardHoverImage({
           alt={alt}
           loading={loading}
           {...(fetchPriority ? { fetchPriority } : {})}
+          imageVersion={imageVersion}
           disableWatermark
           className={cn(
             imageClassName,
@@ -134,6 +138,7 @@ export function ProductCardHoverImage({
             alt=""
             aria-hidden="true"
             loading="lazy"
+            imageVersion={imageVersion}
             disableWatermark
             className={imageClassName}
             {...(overlayClassName ? { overlayClassName } : {})}

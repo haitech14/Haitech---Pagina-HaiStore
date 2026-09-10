@@ -90,7 +90,7 @@ export const HAITECH_NAV_QUOTE_HREF = buildHaitechWhatsAppUrl(
   'Hola HAITECH, quiero comprar por WhatsApp.',
 );
 
-/** Menú principal del header: Comprar · Alquilar · Servicio Técnico. */
+/** Menú principal del header: Comprar · Alquilar · Servicio Técnico · Soluciones. */
 export const HAITECH_HOME_SECONDARY_NAV_LINKS = [
   {
     id: 'comprar',
@@ -109,6 +109,12 @@ export const HAITECH_HOME_SECONDARY_NAV_LINKS = [
     label: 'Servicio Técnico',
     href: serviceHubPath('servicio-tecnico'),
     menu: 'servicio-tecnico',
+  },
+  {
+    id: 'soluciones',
+    label: 'Soluciones',
+    href: categoryLandingPath('soluciones-colaboracion'),
+    menu: 'soluciones',
   },
   {
     id: 'mas',

@@ -48,11 +48,17 @@ import {
   exportUnifiedVentasToExcel,
 } from '@/lib/export-ventas-excel';
 import { formatTpvMoney } from '@/lib/tpv-pricing';
+import {
+  cotizacionCanalLabel,
+  cotizacionOrigenBadge,
+  proformaMatchesCanalFilter,
+  type CotizacionCanalFilter,
+} from '@/lib/cotizacion-canal';
 import { importedSaleMatchesQuery } from '@/lib/ventas-report-columns';
 import { cn } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { ImportedSaleDocument, VentasMonthSummary } from '@/types/imported-sale';
-import { PRICE_ROLE_LABELS, isPriceRole } from '@/types/product';
+import { PRICE_ROLE_LABELS, isPriceRole } from '@/lib/roles';
 import {
   PROFORMA_FOLLOW_UP_LABELS,
   type ProformaFollowUpStatus,
@@ -64,6 +70,7 @@ import type { StoreOrder } from '@/types/store';
 const ALL_STATUS = 'all' as const;
 const ALL_SELLERS = 'all' as const;
 const ALL_TYPES = 'all' as const;
+const ALL_CANALES = 'all' as const;
 
 type RowType = 'venta' | 'cotizacion' | 'historico';
 
@@ -143,11 +150,11 @@ function documentBadgeVariant(documentType: string): 'default' | 'secondary' | '
 }
 
 function cotizacionClientTypeLabel(proforma: ProformaRecord): string {
-  if (proforma.source === 'product') return 'Cotización web';
-  if (proforma.priceList && isPriceRole(proforma.priceList)) {
-    return PRICE_ROLE_LABELS[proforma.priceList];
+  const canal = cotizacionCanalLabel(proforma);
+  if (proforma.priceList && isPriceRole(proforma.priceList) && proforma.source === 'tpv') {
+    return `${PRICE_ROLE_LABELS[proforma.priceList]} · ${canal}`;
   }
-  return 'Mostrador';
+  return canal;
 }
 
 function buildRows(
@@ -196,6 +203,7 @@ interface SalesUnifiedListPanelProps {
   isLoading?: boolean;
   importedLoading?: boolean;
   defaultTypeFilter?: RowType | typeof ALL_TYPES;
+  defaultCanalFilter?: CotizacionCanalFilter;
 }
 
 export function SalesUnifiedListPanel({
@@ -208,6 +216,7 @@ export function SalesUnifiedListPanel({
   isLoading = false,
   importedLoading = false,
   defaultTypeFilter = ALL_TYPES,
+  defaultCanalFilter = ALL_CANALES,
 }: SalesUnifiedListPanelProps) {
   const { data: companySettings } = useCompanySettings();
   const { updateProforma, deleteProforma } = useProformaMutations();
@@ -218,6 +227,7 @@ export function SalesUnifiedListPanel({
     ALL_STATUS,
   );
   const [sellerFilter, setSellerFilter] = useState<string>(ALL_SELLERS);
+  const [canalFilter, setCanalFilter] = useState<CotizacionCanalFilter>(defaultCanalFilter);
   const [editing, setEditing] = useState<ProformaRecord | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -248,6 +258,7 @@ export function SalesUnifiedListPanel({
 
     return rows.filter((row) => {
       if (typeFilter !== ALL_TYPES && row.kind !== typeFilter) return false;
+      if (canalFilter !== ALL_CANALES && row.kind !== 'cotizacion') return false;
 
       if (row.kind === 'venta') {
         if (statusFilter !== ALL_STATUS) return false;
@@ -275,6 +286,7 @@ export function SalesUnifiedListPanel({
       }
 
       const proforma = row.proforma;
+      if (!proformaMatchesCanalFilter(proforma, canalFilter)) return false;
       if (statusFilter !== ALL_STATUS && proforma.followUpStatus !== statusFilter) {
         return false;
       }
@@ -303,7 +315,7 @@ export function SalesUnifiedListPanel({
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [rows, query, sellerFilter, statusFilter, typeFilter]);
+  }, [rows, query, sellerFilter, statusFilter, typeFilter, canalFilter]);
 
   const filteredHistoricoDocs = useMemo(() => {
     const q = query.trim();
@@ -505,6 +517,29 @@ export function SalesUnifiedListPanel({
             </SelectContent>
           </Select>
         </div>
+        {typeFilter === 'cotizacion' || typeFilter === ALL_TYPES ? (
+          <div className="w-full space-y-2 sm:w-48">
+            <Label htmlFor="sales-filter-canal" className="text-xs font-medium uppercase tracking-wide">
+              Canal cotización
+            </Label>
+            <Select
+              value={canalFilter}
+              onValueChange={(v) => setCanalFilter(v as CotizacionCanalFilter)}
+            >
+              <SelectTrigger id="sales-filter-canal">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_CANALES}>Todos los canales</SelectItem>
+                <SelectItem value="pdf">Cotización PDF</SelectItem>
+                <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                <SelectItem value="referral">Referidos</SelectItem>
+                <SelectItem value="web">Otros leads web</SelectItem>
+                <SelectItem value="tpv">Mostrador / TPV</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
         <div className="w-full space-y-2 sm:w-44">
           <Label htmlFor="sales-filter-status" className="text-xs font-medium uppercase tracking-wide">
             Seguimiento
@@ -578,7 +613,7 @@ export function SalesUnifiedListPanel({
       ) : rows.length === 0 ? (
         <AdminEmptyState
           title="Sin registros de ventas"
-          description="Importa reportes Excel de ventas o registra cotizaciones y pedidos desde el TPV."
+          description="Las cotizaciones PDF y derivaciones a WhatsApp de la tienda aparecen aquí, junto con pedidos y el TPV."
         />
       ) : filtered.length === 0 ? (
         <p className="rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
@@ -687,12 +722,13 @@ export function SalesUnifiedListPanel({
 
                 const proforma = row.proforma;
                 const busy = busyId === proforma.id;
+                const origenBadge = cotizacionOrigenBadge(proforma);
 
                 return (
                   <TableRow key={`cotizacion-${proforma.id}`}>
                     <TableCell>
-                      <Badge variant="outline" className="font-normal whitespace-nowrap">
-                        Cotización
+                      <Badge variant={origenBadge.variant} className="font-normal whitespace-nowrap">
+                        {origenBadge.label}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-semibold tabular-nums">
@@ -705,6 +741,9 @@ export function SalesUnifiedListPanel({
                         {' · '}
                         {cotizacionClientTypeLabel(proforma)}
                       </p>
+                      {proforma.lineItems[0]?.name ? (
+                        <p className="text-xs text-muted-foreground">{proforma.lineItems[0].name}</p>
+                      ) : null}
                       {proforma.customer.ciudad || proforma.customer.direccion ? (
                         <p className="text-xs text-muted-foreground">
                           {[proforma.customer.direccion, proforma.customer.ciudad]
@@ -712,15 +751,9 @@ export function SalesUnifiedListPanel({
                             .join(' · ')}
                         </p>
                       ) : null}
-                      {proforma.capture?.channelLabel ||
-                      proforma.capture?.channel ||
-                      proforma.channel ||
-                      proforma.capture?.ip ? (
+                      {proforma.capture?.ip ? (
                         <p className="mt-0.5 text-[11px] text-muted-foreground">
-                          {proforma.capture?.channelLabel ||
-                            proforma.capture?.channel ||
-                            proforma.channel}
-                          {proforma.capture?.ip ? ` · IP ${proforma.capture.ip}` : ''}
+                          IP {proforma.capture.ip}
                         </p>
                       ) : null}
                     </TableCell>

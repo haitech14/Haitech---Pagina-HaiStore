@@ -12,7 +12,8 @@ import { ProductCardTitle } from '@/components/product/product-card-title';
 import { ProductCardImageConditionBadge } from '@/components/product/product-card-image-condition-badge';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
-import { catalogRowToFeatured, getCatalogProductById } from '@/lib/catalog-featured';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
+import { catalogRowToFeatured } from '@/lib/catalog-featured';
 import {
   buildProductCardImageCandidates,
   buildProductCardStoredImageCandidates,
@@ -40,17 +41,29 @@ export function ProductHighlightCard({
 }: ProductHighlightCardProps) {
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
-  const catalogProduct = getCatalogProductById(product.id);
+  const { catalogProduct, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
+    useLiveProductCardMedia(product.id, {
+      image_url: product.image_url,
+      gallery: product.gallery,
+    });
   const catalogFeatured = useMemo(
     () => (catalogProduct ? catalogRowToFeatured(catalogProduct) : null),
     [catalogProduct],
   );
-  const imageCandidates = useMemo(() => buildProductCardImageCandidates(product), [product]);
-  const storedImageCandidates = useMemo(
-    () => buildProductCardStoredImageCandidates(product),
-    [product],
+  const imageProduct = useMemo(
+    () => ({
+      ...product,
+      image_url: liveImageUrl,
+      gallery: liveGallery,
+    }),
+    [liveGallery, liveImageUrl, product],
   );
-  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageProduct), [imageProduct]);
+  const storedImageCandidates = useMemo(
+    () => buildProductCardStoredImageCandidates(imageProduct),
+    [imageProduct],
+  );
+  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(imageProduct), [imageProduct]);
   const [quantity, setQuantity] = useState(1);
   const displayPrice = useCatalogDisplayPrice(product);
 
@@ -86,6 +99,7 @@ export function ProductHighlightCard({
           className="size-full"
           imageClassName={PRODUCT_CARD_IMAGE_CLASS}
           loading={imageLoading}
+          imageVersion={imageVersion}
           {...(imagePriority ? { fetchPriority: 'high' as const } : {})}
         />
       </Link>

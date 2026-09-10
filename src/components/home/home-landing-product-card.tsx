@@ -18,7 +18,7 @@ import {
   useCatalogDisplayPrice,
 } from '@/hooks/use-catalog-display-price';
 import type { FeaturedProduct } from '@/data/featured-products';
-import { useCatalogProductRow } from '@/hooks/use-catalog-product-row';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
 import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
 import { productQualifiesForBestSeller } from '@/lib/home-landing-product-badges';
 import {
@@ -56,7 +56,11 @@ export function HomeLandingProductCard({
   const { addItem } = useCart();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const catalogProduct = useCatalogProductRow(product.id);
+  const { catalogProduct, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
+    useLiveProductCardMedia(product.id, {
+      image: product.image,
+      gallery: product.gallery,
+    });
   const displayPrice = useCatalogDisplayPrice({
     price: product.price,
     ...(product.prices ? { prices: product.prices } : {}),
@@ -91,13 +95,10 @@ export function HomeLandingProductCard({
   const outOfStock = stockCount <= 0;
   const buyNowLabel = 'Agregar al carrito';
 
-  const catalogGallery = catalogProduct?.gallery ?? null;
-  const productGallery = product.gallery ?? null;
-  const galleryKey = [...(productGallery ?? []), ...(catalogGallery ?? [])].join('|');
-  const catalogImageUrl = catalogProduct?.image_url ?? null;
   const catalogBrand = catalogProduct?.brand ?? null;
   const productBrand = product.brand ?? catalogBrand ?? null;
-  const productImage = product.image ?? catalogImageUrl ?? null;
+  const productImage = liveImageUrl;
+  const galleryKey = liveGallery.join('|');
   const productCode = code ?? '';
 
   const detailPath = useMemo(() => {
@@ -117,7 +118,7 @@ export function HomeLandingProductCard({
         category: product.category,
         brand: productBrand,
         image_url: productImage,
-        gallery: [...(productGallery ?? []), ...(catalogGallery ?? [])],
+        gallery: liveGallery,
       }),
     [
       galleryKey,
@@ -127,6 +128,7 @@ export function HomeLandingProductCard({
       product.name,
       productBrand,
       productImage,
+      liveGallery,
     ],
   );
   const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
@@ -147,7 +149,7 @@ export function HomeLandingProductCard({
     description: catalogProduct?.description ?? null,
     price: displayPrice.priceUsd,
     currency: 'USD',
-    image_url: product.image,
+    image_url: liveImageUrl,
     stock,
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
@@ -186,6 +188,7 @@ export function HomeLandingProductCard({
                 hoverSrc={hoverImageSrc}
                 alt={product.name}
                 loading={priority ? 'eager' : 'lazy'}
+                imageVersion={imageVersion}
                 className="size-full max-h-[196px] max-w-[196px]"
                 imageClassName="size-full max-h-[196px] max-w-[196px] object-contain object-center"
               />

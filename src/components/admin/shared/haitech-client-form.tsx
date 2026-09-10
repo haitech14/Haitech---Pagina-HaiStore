@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from 'react';
 
+import { SunatRucField } from '@/components/forms/sunat-ruc-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -10,11 +11,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useTpvCustomerSearch } from '@/hooks/use-tpv-customers';
+import { useApplySunatRuc } from '@/hooks/use-sunat-ruc-lookup';
 import {
   EMPTY_HAITECH_CLIENT,
   type HaitechClientFormValues,
 } from '@/lib/haitech-client-schema';
 import { searchResultToHaitechClient } from '@/lib/haitech-client-mappers';
+import { applySunatToClientForm } from '@/lib/sunat-ruc';
 import { customerDisplayLabel } from '@/lib/tpv-customer';
 import { cn } from '@/lib/utils';
 import { PRICE_ROLE_LABELS, PRICE_ROLES } from '@/types/product';
@@ -60,6 +63,10 @@ export function HaitechClientForm({
     onChange({ ...value, ...partial });
   };
 
+  const sunat = useApplySunatRuc(value.rucDni, (data) => {
+    onChange(applySunatToClientForm(value, data));
+  });
+
   return (
     <div className={cn('space-y-3', className)}>
       <div className="relative space-y-1.5">
@@ -91,23 +98,24 @@ export function HaitechClientForm({
             onChange={(event) => patch({ nombreContacto: event.target.value })}
           />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor={`${idPrefix}-ruc`}>RUC / DNI</Label>
-          <Input
-            id={`${idPrefix}-ruc`}
-            value={value.rucDni}
-            inputMode="numeric"
-            autoComplete="off"
-            aria-controls={listId}
-            onChange={(event) => {
-              patch({ rucDni: event.target.value, storeCustomerId: null });
-              setSearchQuery(event.target.value);
-              setSuggestionsOpen(true);
-            }}
-            onFocus={() => setSuggestionsOpen(true)}
-            onBlur={() => window.setTimeout(() => setSuggestionsOpen(false), 150)}
-          />
-        </div>
+        <SunatRucField
+          id={`${idPrefix}-ruc`}
+          label="RUC / DNI"
+          documentType="ruc-or-dni"
+          placeholder="RUC o DNI"
+          value={value.rucDni}
+          onValueChange={(rucDni) => {
+            patch({ rucDni, storeCustomerId: null });
+            setSearchQuery(rucDni);
+            setSuggestionsOpen(true);
+          }}
+          isFetching={sunat.isFetching}
+          isSuccess={sunat.isSuccess}
+          errorMessage={sunat.error instanceof Error ? sunat.error.message : null}
+          aria-controls={listId}
+          onFocus={() => setSuggestionsOpen(true)}
+          onBlur={() => window.setTimeout(() => setSuggestionsOpen(false), 150)}
+        />
       </div>
 
       {showSuggestions ? (

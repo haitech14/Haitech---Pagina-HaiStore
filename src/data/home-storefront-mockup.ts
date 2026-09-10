@@ -14,6 +14,7 @@ import {
 
 import { categoryLandingPath } from '@/lib/category-path';
 import { serviceDetailPathFromLanding, serviceHubPath } from '@/lib/service-hub';
+import { storeShowcasePath } from '@/lib/store-showcase-path';
 
 /** Paleta de vitrina alineada a la marca HaiStore. */
 export const STOREFRONT_BLUE = '#E30613';
@@ -91,7 +92,7 @@ export const HOME_STOREFRONT_CATEGORIES: readonly HomeStorefrontCategoryCard[] =
   {
     id: 'impresoras-tinta',
     label: 'Impresoras de Tinta',
-    href: '/categoria/impresoras?buscar=tinta',
+    href: storeShowcasePath({ categoryId: 'impresoras', filter: 'tinta' }),
     imageSrc: '/home/category-chips/equipment/impresora-tinta.webp',
     imageAlt: 'Impresora de tinta',
     icon: Printer,

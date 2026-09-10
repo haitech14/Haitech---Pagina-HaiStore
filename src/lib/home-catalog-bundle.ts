@@ -1,7 +1,7 @@
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { CatalogFamilySlug, ProductCondition } from '@/lib/product-condition';
 import { apiFetch } from '@/lib/api';
-import type { Product } from '@/types/product';
+import type { InventoryProduct, Product } from '@/types/product';
 
 export const HOME_CATALOG_BUNDLE_QUERY_KEY = 'home-catalog-bundle';
 export const HOME_FEATURED_BUNDLE_LIMIT = 6;
@@ -242,6 +242,65 @@ export function collectProvisionalStoreProductsFromBundle(
   }
 
   return [...byId.values()];
+}
+
+type HomeBundleMediaPatch = Pick<
+  InventoryProduct,
+  'id' | 'image_url' | 'gallery' | 'stock' | 'name' | 'updated_at'
+>;
+
+function patchHomeBundleItem<T extends { id?: string; image?: string | null; image_url?: string | null; gallery?: string[]; stock?: number; name?: string }>(
+  item: T,
+  product: HomeBundleMediaPatch,
+): T {
+  if (!item?.id || item.id !== product.id) return item;
+
+  const nextImage =
+    product.image_url !== undefined ? product.image_url : (item.image_url ?? item.image ?? null);
+  const next: T = { ...item };
+
+  if ('image_url' in item || item.image_url !== undefined) {
+    next.image_url = nextImage;
+  }
+  if ('image' in item || item.image !== undefined) {
+    next.image = nextImage;
+  }
+  if (product.gallery !== undefined && ('gallery' in item || item.gallery !== undefined)) {
+    next.gallery = product.gallery ?? [];
+  }
+  if (product.stock != null && ('stock' in item || item.stock !== undefined)) {
+    next.stock = product.stock;
+  }
+  if (product.name) {
+    next.name = product.name;
+  }
+  return next;
+}
+
+export function applyInventoryProductToHomeBundle(
+  bundle: HomeCatalogBundleResponse,
+  product: HomeBundleMediaPatch,
+): HomeCatalogBundleResponse {
+  return {
+    featured: bundle.featured.map((item) => patchHomeBundleItem(item, product)),
+    sections: bundle.sections.map((section) => ({
+      ...section,
+      productsByCondition: Object.fromEntries(
+        Object.entries(section.productsByCondition ?? {}).map(([condition, items]) => [
+          condition,
+          (items ?? []).map((item) => patchHomeBundleItem(item, product)),
+        ]),
+      ),
+    })),
+  };
+}
+
+/** Parchea sessionStorage para que la home pinte la imagen nueva sin esperar el snapshot. */
+export function patchStoredHomeCatalogBundleProduct(product: HomeBundleMediaPatch): boolean {
+  const current = readStoredHomeCatalogBundle();
+  if (!current) return false;
+  storeHomeCatalogBundle(applyInventoryProductToHomeBundle(current, product), new Date().toISOString());
+  return true;
 }
 
 /** Bundle ya en memoria (sessionStorage) para seed síncrono. */

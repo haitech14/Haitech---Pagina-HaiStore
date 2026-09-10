@@ -103,15 +103,42 @@ export function isPdfAttachment(
   return false;
 }
 
-export function downloadProductAttachment(url: string, fileName: string): void {
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = fileName;
-  anchor.target = '_blank';
-  anchor.rel = 'noopener noreferrer';
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
+export async function downloadProductAttachment(url: string, fileName: string): Promise<void> {
+  const safeName = fileName.trim() || 'ficha-tecnica.pdf';
+  const triggerDownload = (href: string, revokeAfter = false) => {
+    const anchor = document.createElement('a');
+    anchor.href = href;
+    anchor.download = safeName;
+    anchor.rel = 'noopener noreferrer';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    if (revokeAfter) {
+      window.setTimeout(() => URL.revokeObjectURL(href), 1_000);
+    }
+  };
+
+  if (url.startsWith('data:') || url.startsWith('blob:')) {
+    triggerDownload(url);
+    return;
+  }
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const blob = await response.blob();
+    triggerDownload(URL.createObjectURL(blob), true);
+  } catch {
+    // Fallback: attribute download (same-origin) or open in a new tab.
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = safeName;
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  }
 }
 
 export function publicProductAttachments(

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';import {
   TableRow,
 } from '@/components/ui/table';
 import { useAdminProformas } from '@/hooks/use-admin-proformas';
+import { cotizacionCanalLabel } from '@/lib/cotizacion-canal';
 import { normalizePeruWhatsAppMsisdn } from '@/lib/whatsapp-sales';import { encodeWhatsAppText } from '@/lib/whatsapp-encoding';
 import { cn } from '@/lib/utils';
 import type { AdminResumenQuoteStatus } from '@/types/admin-resumen';
@@ -103,7 +104,7 @@ export function AdminResumenQuotesPanel() {
   return (
     <SectionCard
       title="Clientes que solicitaron cotización"
-      description="Prospectos pendientes de seguimiento. Usa Cotizar por WhatsApp para continuar la conversación."
+      description="Cotizaciones PDF y derivaciones a WhatsApp de la tienda. Usa Cotizar por WhatsApp para continuar el seguimiento."
     >
       {isLoading ? (
         <p className="text-sm text-muted-foreground" role="status">
@@ -112,7 +113,7 @@ export function AdminResumenQuotesPanel() {
       ) : proformas.length === 0 ? (
         <AdminEmptyState
           title="Sin cotizaciones registradas"
-          description="Las solicitudes del TPV o la tienda aparecerán aquí para seguimiento."
+          description="Las cotizaciones PDF y las derivaciones a WhatsApp de la tienda aparecen aquí para seguimiento."
           className="border-0 bg-transparent py-6"
         />
       ) : (
@@ -122,6 +123,7 @@ export function AdminResumenQuotesPanel() {
               <TableRow>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Producto / interés</TableHead>
+                <TableHead>Canal</TableHead>
                 <TableHead>Fecha</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Acción</TableHead>
@@ -155,11 +157,11 @@ export function AdminResumenQuotesPanel() {
                         </p>
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-[14rem]">
-                      <p className="truncate text-sm text-foreground">
-                        {proformaProductInterest(quote)}
-                      </p>
-                      <p className="text-xs capitalize text-muted-foreground">{quote.source}</p>
+                    <TableCell className="max-w-[14rem] text-sm text-muted-foreground">
+                      {proformaProductInterest(quote)}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {cotizacionCanalLabel(quote)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
                       {format(quote.createdAt, "d MMM yyyy · HH:mm", { locale: es })}

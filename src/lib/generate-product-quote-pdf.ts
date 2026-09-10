@@ -4,7 +4,7 @@ import QRCode from 'qrcode';
 import { amountToWordsEs } from '@/lib/amount-to-words-es';
 import { normalizePdfProductCode, pdfTableAmountColumnRight } from '@/lib/pdf-product-code';
 import { imageBasePath } from '@/lib/responsive-image';
-import { formatUsd, penToUsd } from '@/lib/utils';
+import { formatPenFromUsdPrecise, formatUsd, penToUsd } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 import type { ProductHeroSpecBullet } from '@/types/product-detail';
 import type { Product } from '@/types/product';
@@ -320,11 +320,14 @@ function productImageCandidateUrls(src: string): string[] {
 
   if (
     (path.startsWith('/products/') || path.startsWith('/album/')) &&
-    !/-(?:256|512|1024)\.webp$/i.test(path)
+    !/-(?:256|512|768|1024|1280|1920|2560)\.webp$/i.test(path)
   ) {
     const base = imageBasePath(path);
-    urls.push(`${base}-256.webp${query}`);
+    // Preferir resoluciones altas: la celda del PDF amplía la imagen.
+    urls.push(`${base}-1024.webp${query}`);
     urls.push(`${base}-512.webp${query}`);
+    urls.push(`${base}.webp${query}`);
+    urls.push(`${base}-256.webp${query}`);
   }
 
   urls.push(trimmed);
@@ -1064,12 +1067,12 @@ export async function buildProductQuotePdf(
   const tableX = MARGIN;
   const tableW = contentW;
   const col = {
-    n: 8,
-    img: 16,
-    code: 22,
-    desc: 58,
-    qty: 12,
-    um: 14,
+    n: 7,
+    img: 22,
+    code: 20,
+    desc: 55,
+    qty: 11,
+    um: 12,
     unit: 24,
     amount: 26,
   };
@@ -1100,13 +1103,34 @@ export async function buildProductQuotePdf(
   doc.text('IMPORTE', amountColRight, y + 4.1, { align: 'right' });
 
   y += headerH;
-  const rowH = 22;
+  const baseRowH = 28;
 
   quoteLines.forEach((line, index) => {
     const quantity = line.quantity ?? 1;
     const unitPriceUsd = toUsd(line.pricePen);
     const lineTotalUsd = Math.round(unitPriceUsd * quantity * 100) / 100;
     const rowImage = lineImages[index] ?? null;
+
+    const brief = line.shortDescription?.trim() || '';
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.4);
+    const productTitle = doc.splitTextToSize(`${line.name} / ${line.brand}`, col.desc - 2);
+    const titleLines = productTitle.slice(0, brief ? 2 : 3);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(5.7);
+    const briefLines: string[] = [];
+    if (brief) {
+      for (const source of brief.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean)) {
+        for (const wrapped of doc.splitTextToSize(source, col.desc - 2)) {
+          if (briefLines.length >= 5) break;
+          briefLines.push(wrapped);
+        }
+        if (briefLines.length >= 5) break;
+      }
+    }
+    const textBlockH =
+      titleLines.length * 3.1 + (briefLines.length > 0 ? 1.2 + briefLines.length * 2.7 : 0);
+    const rowH = Math.max(baseRowH, textBlockH + 8);
 
     doc.setDrawColor(226, 232, 240);
     doc.setFillColor(255, 255, 255);
@@ -1116,19 +1140,29 @@ export async function buildProductQuotePdf(
     doc.setTextColor(23, 23, 23);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
-    doc.text(String(index + 1), cellX + 3, y + 12);
+    doc.text(String(index + 1), cellX + 2.5, y + rowH / 2 + 1.5);
     cellX += col.n;
 
     doc.setDrawColor(241, 245, 249);
     doc.setFillColor(255, 255, 255);
-    doc.roundedRect(cellX + 1, y + 3, col.img - 2, rowH - 6, 1, 1, 'FD');
+    const imgPad = 1.5;
+    const imgBoxW = col.img - 2;
+    const imgBoxH = rowH - 4;
+    doc.roundedRect(cellX + 1, y + 2, imgBoxW, imgBoxH, 1.2, 1.2, 'FD');
     if (rowImage) {
-      addFittedImage(doc, rowImage, cellX + 2, y + 4, col.img - 4, rowH - 8);
+      addFittedImage(
+        doc,
+        rowImage,
+        cellX + 1 + imgPad,
+        y + 2 + imgPad,
+        imgBoxW - imgPad * 2,
+        imgBoxH - imgPad * 2,
+      );
     } else {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(5.5);
       doc.setTextColor(148, 163, 184);
-      doc.text('S/IMG', cellX + 4, y + 12);
+      doc.text('S/IMG', cellX + 5, y + rowH / 2 + 1);
     }
     cellX += col.img;
 
@@ -1139,21 +1173,19 @@ export async function buildProductQuotePdf(
       normalizePdfProductCode(line.sku, line.brand),
       col.code - 2,
     );
-    doc.text(codeLines.slice(0, 2), cellX + 1, y + 8);
+    doc.text(codeLines.slice(0, 3), cellX + 1, y + 7);
     cellX += col.code;
 
-    const brief = line.shortDescription?.trim() || '';
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.2);
+    const textStartY = y + 6;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.4);
     doc.setTextColor(23, 23, 23);
-    const productTitle = doc.splitTextToSize(`${line.name} / ${line.brand}`, col.desc - 2);
-    const titleLines = productTitle.slice(0, brief ? 2 : 3);
-    doc.text(titleLines, cellX + 1, y + 6);
-    if (brief) {
-      const briefY = y + 6 + titleLines.length * 3.2 + 0.6;
-      doc.setFontSize(5.8);
-      doc.setTextColor(100, 116, 139);
-      const briefLines = doc.splitTextToSize(brief, col.desc - 2).slice(0, 2);
+    doc.text(titleLines, cellX + 1, textStartY);
+    if (briefLines.length > 0) {
+      const briefY = textStartY + titleLines.length * 3.1 + 0.8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(5.7);
+      doc.setTextColor(71, 85, 105);
       doc.text(briefLines, cellX + 1, briefY);
     }
     cellX += col.desc;
@@ -1161,16 +1193,16 @@ export async function buildProductQuotePdf(
     doc.setTextColor(23, 23, 23);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.2);
-    doc.text(String(quantity), cellX + 4, y + 12);
+    doc.text(String(quantity), cellX + 3.5, y + rowH / 2 + 1.5);
     cellX += col.qty;
 
     doc.setFont('helvetica', 'normal');
-    doc.text('UNIDAD', cellX + 1, y + 12);
+    doc.text('UNIDAD', cellX + 0.5, y + rowH / 2 + 1.5);
     cellX += col.um;
 
     doc.setFont('helvetica', 'bold');
-    doc.text(formatUsd(unitPriceUsd), unitColRight, y + 12, { align: 'right' });
-    doc.text(formatUsd(lineTotalUsd), amountColRight, y + 12, { align: 'right' });
+    doc.text(formatUsd(unitPriceUsd), unitColRight, y + rowH / 2 + 1.5, { align: 'right' });
+    doc.text(formatUsd(lineTotalUsd), amountColRight, y + rowH / 2 + 1.5, { align: 'right' });
 
     y += rowH;
   });
@@ -1196,7 +1228,24 @@ export async function buildProductQuotePdf(
   doc.setFontSize(8.5);
   doc.text('TOTAL:', totalsLabelRight, y + 4.1, { align: 'right' });
   doc.text(formatUsd(totalUsd), amountColRight, y + 4.1, { align: 'right' });
-  y += 12;
+  y += 8.5;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.2);
+  doc.setTextColor(71, 85, 105);
+  doc.text(`Tipo de cambio: ${formatExchangeRate(exchangeRate)}`, amountColRight, y, {
+    align: 'right',
+  });
+  y += 4;
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(23, 23, 23);
+  doc.text(
+    `Equivale a ${formatPenFromUsdPrecise(totalUsd, exchangeRate)}`,
+    amountColRight,
+    y,
+    { align: 'right' },
+  );
+  y += 8;
 
   doc.setFillColor(...primaryLight);
   doc.setDrawColor(...primarySoft);

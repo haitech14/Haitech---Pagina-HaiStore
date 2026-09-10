@@ -492,3 +492,41 @@ export function InventoryProductResourceFields({
     </div>
   );
 }
+
+/** Campo único de Ficha técnica para la pestaña General del formulario. */
+export function InventoryTechnicalSheetField({
+  form,
+  onAttachmentsChange,
+  onError,
+}: {
+  form: InventoryProduct;
+  onAttachmentsChange: (attachments: ProductAttachment[]) => void;
+  onError?: ((message: string) => void) | undefined;
+}) {
+  const attachments = form.attachments ?? [];
+  const slot = FORM_ATTACHMENT_SLOTS[0];
+
+  const handleFile = async (file: File) => {
+    try {
+      const attachment = await readAttachmentFile(file, 'technical_sheet');
+      onAttachmentsChange(upsertProductAttachment(attachments, attachment));
+    } catch (error) {
+      onError?.(error instanceof Error ? error.message : 'No se pudo adjuntar la ficha técnica.');
+    }
+  };
+
+  return (
+    <ResourceSlot
+      label={slot.label}
+      hint={slot.hint}
+      shortHint={slot.shortHint}
+      accept={slot.accept}
+      icon={slot.icon}
+      attachment={findAttachment(attachments, 'technical_sheet')}
+      onFile={handleFile}
+      onRemove={() =>
+        onAttachmentsChange(attachments.filter((row) => row.kind !== 'technical_sheet'))
+      }
+    />
+  );
+}

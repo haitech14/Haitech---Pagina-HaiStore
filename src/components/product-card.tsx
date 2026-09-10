@@ -7,6 +7,7 @@ import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductCardHoverImage, PRODUCT_CARD_IMAGE_CLASS } from '@/components/product/product-card-hover-image';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
 import {
   buildProductCardImageCandidates,
   buildProductCardStoredImageCandidates,
@@ -28,12 +29,27 @@ interface ProductCardProps {
 export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
   const outOfStock = product.stock <= 0;
   const detailHref = productPath(product);
-  const imageCandidates = useMemo(() => buildProductCardImageCandidates(product), [product]);
-  const storedImageCandidates = useMemo(
-    () => buildProductCardStoredImageCandidates(product),
-    [product],
+  const { image_url: liveImageUrl, gallery: liveGallery, imageVersion } = useLiveProductCardMedia(
+    product.id,
+    {
+      image_url: product.image_url,
+      gallery: product.gallery,
+    },
   );
-  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
+  const imageProduct = useMemo(
+    () => ({
+      ...product,
+      image_url: liveImageUrl,
+      gallery: liveGallery,
+    }),
+    [liveGallery, liveImageUrl, product],
+  );
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageProduct), [imageProduct]);
+  const storedImageCandidates = useMemo(
+    () => buildProductCardStoredImageCandidates(imageProduct),
+    [imageProduct],
+  );
+  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(imageProduct), [imageProduct]);
   const displayPrice = useCatalogDisplayPrice(product);
 
   const cartActions = (
@@ -82,6 +98,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
                 className="size-full"
                 imageClassName={PRODUCT_CARD_IMAGE_CLASS}
                 watermarkClassName={PRODUCT_IMAGE_WATERMARK_OVERLAY_COMPACT_CLASS}
+                imageVersion={imageVersion}
               />
             </div>
           </div>
@@ -137,6 +154,7 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
                 alt={product.name}
                 className="size-full"
                 imageClassName={PRODUCT_CARD_IMAGE_CLASS}
+                imageVersion={imageVersion}
               />
             </div>
           </div>

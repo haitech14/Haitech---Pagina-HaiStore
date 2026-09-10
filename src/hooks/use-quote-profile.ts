@@ -42,7 +42,7 @@ function mergeQuoteProfile(
 }
 
 export function useQuoteProfile() {
-  const { user } = useAuth();
+  const { user, authProvider } = useAuth();
   const queryClient = useQueryClient();
   const { accountClient, isLoading: accountLoading } = useCheckoutAccountClient(Boolean(user));
 
@@ -62,17 +62,22 @@ export function useQuoteProfile() {
       storeQuoteProfile(form);
       storeWhatsAppContact(whatsAppContactFromProductQuoteForm(form));
 
-      if (user) {
+      const canSyncAccount = Boolean(user?.id && authProvider === 'supabase');
+      if (!canSyncAccount) return form;
+
+      try {
         await apiFetch<{ checkoutClient: Partial<HaitechClientFormValues> }>('/api/customers/me', {
           method: 'PATCH',
           body: JSON.stringify({ quoteProfile: form }),
         });
+      } catch (error) {
+        console.warn('[useQuoteProfile] Perfil guardado en el dispositivo; no se sincronizó la cuenta', error);
       }
 
       return form;
     },
     onSuccess: () => {
-      if (user) {
+      if (user?.id && authProvider === 'supabase') {
         void queryClient.invalidateQueries({ queryKey: ['checkout-account-client', user.email] });
         void queryClient.invalidateQueries({ queryKey: ['whatsapp-contact', user.email] });
       }

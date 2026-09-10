@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import {
+  productDetailLightboxImageSources,
   productDetailMainImageSources,
   productDetailThumbnailSources,
   productQuickViewMainImageSources,
@@ -8,7 +9,7 @@ import {
 } from '@/lib/responsive-image';
 import { cn } from '@/lib/utils';
 
-export type ProductGalleryResponsiveVariant = 'main' | 'thumb' | 'quickView';
+export type ProductGalleryResponsiveVariant = 'main' | 'thumb' | 'quickView' | 'lightbox';
 
 interface ProductGalleryResponsiveImageProps {
   src: string;
@@ -17,12 +18,14 @@ interface ProductGalleryResponsiveImageProps {
   loading?: 'lazy' | 'eager';
   sizes?: string;
   variant?: ProductGalleryResponsiveVariant;
+  fetchPriority?: 'high' | 'low' | 'auto';
   onError?: () => void;
 }
 
 function resolveSources(src: string, variant: ProductGalleryResponsiveVariant) {
   if (variant === 'thumb') return productDetailThumbnailSources(src);
   if (variant === 'quickView') return productQuickViewMainImageSources(src);
+  if (variant === 'lightbox') return productDetailLightboxImageSources(src);
   return productDetailMainImageSources(src);
 }
 
@@ -33,6 +36,7 @@ export function ProductGalleryResponsiveImage({
   loading = 'lazy',
   sizes,
   variant = 'main',
+  fetchPriority,
   onError,
 }: ProductGalleryResponsiveImageProps) {
   const [forcePlain, setForcePlain] = useState(false);
@@ -69,6 +73,7 @@ export function ProductGalleryResponsiveImage({
           className={imageClass}
           loading={loading}
           decoding="async"
+          {...(fetchPriority ? { fetchPriority } : {})}
           onLoad={() => setLoaded(true)}
           onError={handleError}
         />
@@ -83,6 +88,7 @@ export function ProductGalleryResponsiveImage({
       className={cn(imageClass, 'bg-white')}
       loading={loading}
       decoding="async"
+      {...(fetchPriority ? { fetchPriority } : {})}
       onLoad={() => setLoaded(true)}
       onError={handleError}
     />

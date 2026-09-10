@@ -369,6 +369,11 @@
           "id": "f8e2c1a0-9b3d-4e5f-a6c7-8d9e0f1a2b3c",
           "name": "Alimentador (ADF)",
           "value": "ARDF"
+        },
+        {
+          "id": "c3a91e7b-4d2f-4b18-9e6a-1f08c5d4b2a7",
+          "name": "Oferta",
+          "value": "Sí"
         }
       ],
       "stock_by_warehouse": [
@@ -4348,7 +4353,7 @@
       "gallery": [],
       "prices": {
         "public": 4829,
-        "tecnico": 4575,
+        "tecnico": 4579,
         "mayorista": 4400,
         "distribuidor": 4679
       },
@@ -4411,7 +4416,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 4
+          "quantity": 0
         },
         {
           "warehouse_id": "santa-catalina",
@@ -4439,7 +4444,7 @@
         },
         {
           "warehouse_id": "lince",
-          "quantity": 0
+          "quantity": 4
         },
         {
           "warehouse_id": "chiclayo",
@@ -5765,7 +5770,7 @@
       "id": "40c36a2a-794e-41aa-b075-d855c218bf6f",
       "name": "Impresora Multifuncional Nueva RICOH IM 4000 (SPDF)",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/40c36a2a-794e-41aa-b075-d855c218bf6f.webp?v=1784092931416",
@@ -5835,7 +5840,7 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "san-juan-lurigancho",
@@ -6971,14 +6976,14 @@
       "id": "cb1e47b2-d784-4bef-ae18-d4dae08723e4",
       "name": "Impresora Multifuncional Nueva RICOH M C320FW",
       "currency": "USD",
-      "stock": 4,
+      "stock": 1,
       "category": "Multifuncionales, Multifuncionales Nuevas",
       "brand": "Ricoh",
       "image_url": "/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp?v=1784112813940",
       "gallery": [],
       "prices": {
         "public": 1199,
-        "tecnico": 849,
+        "tecnico": 959,
         "mayorista": 949,
         "distribuidor": 949
       },
@@ -7059,7 +7064,7 @@
         },
         {
           "warehouse_id": "lince",
-          "quantity": 4
+          "quantity": 1
         },
         {
           "warehouse_id": "chiclayo",
@@ -7860,7 +7865,7 @@
       "stock": 5,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
-      "image_url": "/products/ricoh-mp-301-sn.webp?v=1788079312875",
+      "image_url": "/products/b-n-ricoh-mp-301.webp?v=1789054460438",
       "gallery": [],
       "prices": {
         "public": 399,
@@ -7962,7 +7967,7 @@
       "stock": 21,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
-      "image_url": "/products/ricoh-mp-401-c-unidad-de-imagen-220v.webp?v=1784134748467",
+      "image_url": "/products/ricoh-mp-401-c-unidad-de-imagen-220v.webp?v=1789054460438",
       "gallery": [],
       "prices": {
         "public": 399,
@@ -73658,7 +73663,7 @@
       ],
       "prices": {
         "public": 2199,
-        "tecnico": 1949,
+        "tecnico": 1959,
         "mayorista": 0,
         "distribuidor": 1979
       },
@@ -73709,6 +73714,11 @@
           "id": "fc608be1-932f-4e0a-941d-1f1db5efad83",
           "name": "Formato",
           "value": "A4 / OF"
+        },
+        {
+          "id": "e6b4c8d1-2a7f-4c39-8b5e-9d0a1f3c6e28",
+          "name": "Oferta",
+          "value": "Sí"
         }
       ],
       "sort_order": 76,

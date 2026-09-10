@@ -46,7 +46,7 @@ export function shouldWatermarkProductImage(url: string | null | undefined): boo
 }
 
 export function isProductImageWatermarkEnabled(): boolean {
-  return import.meta.env.VITE_HAISTORE_DISABLE_WATERMARK !== '1';
+  return false;
 }
 
 /** Overlay en vitrina: solo previews locales (data:). Rutas /products/ y /album/ ya llevan marca en servidor. */

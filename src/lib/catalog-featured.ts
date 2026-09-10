@@ -34,6 +34,8 @@ let catalogById: Map<string, CatalogRow> | null = null;
 let catalogBySlug: Map<string, CatalogRow> | null = null;
 /** Filas visibles cacheadas (evita refiltrar ~1500 filas en cada render de /tienda). */
 let catalogVisibleRows: CatalogRow[] | null = null;
+/** Parches de media/producto pendientes hasta que el índice de red/IDB se ponga al día. */
+const pendingCatalogProductPatches = new Map<string, InventoryProduct>();
 
 const CATALOG_MEDIA_UPDATED_EVENT = 'haistore-catalog-media-updated';
 
@@ -99,11 +101,57 @@ async function fetchCatalogIndexFromNetwork(): Promise<CatalogRow[]> {
   return normalizeCatalogRows(payload.products ?? []);
 }
 
+function mediaFreshness(product: {
+  image_url?: string | null;
+  updated_at?: string | null;
+}): number {
+  const url = typeof product.image_url === 'string' ? product.image_url : '';
+  const match = url.match(/[?&]v=([^&#]+)/);
+  if (match?.[1]) {
+    const fromQuery = Number(match[1]);
+    if (Number.isFinite(fromQuery)) return fromQuery;
+  }
+  if (product.updated_at) {
+    const fromDate = Date.parse(product.updated_at);
+    if (!Number.isNaN(fromDate)) return fromDate;
+  }
+  return 0;
+}
+
+function mergeCatalogRowWithPending(row: CatalogRow): CatalogRow {
+  const pending = pendingCatalogProductPatches.get(row.id);
+  if (!pending) return row;
+
+  const pendingFreshness = mediaFreshness(pending);
+  const rowFreshness = mediaFreshness(row);
+  if (rowFreshness && pendingFreshness && rowFreshness >= pendingFreshness) {
+    pendingCatalogProductPatches.delete(row.id);
+    return row;
+  }
+
+  try {
+    const merged: CatalogRow = { ...row, ...normalizeInventoryProduct(pending) };
+    if (row.compare_at_price_usd != null && merged.compare_at_price_usd == null) {
+      merged.compare_at_price_usd = row.compare_at_price_usd;
+    }
+    if (row.is_new != null && merged.is_new == null) {
+      merged.is_new = row.is_new;
+    }
+    return merged;
+  } catch {
+    return row;
+  }
+}
+
 function applyCatalogRows(rows: CatalogRow[]): CatalogRow[] {
-  catalogCache = rows;
+  catalogCache = rows.map(mergeCatalogRowWithPending);
   catalogVisibleRows = null;
-  rebuildCatalogLookupMaps(rows);
-  return rows;
+  rebuildCatalogLookupMaps(catalogCache);
+  return catalogCache;
+}
+
+export function isCatalogIndexLoaded(): boolean {
+  return catalogCache != null;
 }
 
 /** Empuja el índice fresco a React Query (roles en queryKey). */
@@ -178,9 +226,25 @@ export function preloadCatalogIndex(): void {
 export function patchCatalogIndexProductMedia(
   product: Pick<InventoryProduct, 'id' | 'image_url' | 'gallery'>,
 ): void {
-  if (!catalogCache) return;
+  const existingPending = pendingCatalogProductPatches.get(product.id);
+  if (existingPending) {
+    pendingCatalogProductPatches.set(product.id, {
+      ...existingPending,
+      image_url:
+        product.image_url !== undefined ? product.image_url : existingPending.image_url,
+      gallery:
+        product.gallery !== undefined ? product.gallery : existingPending.gallery,
+    });
+  }
+  if (!catalogCache) {
+    bumpCatalogMediaEpoch();
+    return;
+  }
   const index = catalogCache.findIndex((row) => row.id === product.id);
-  if (index < 0) return;
+  if (index < 0) {
+    bumpCatalogMediaEpoch();
+    return;
+  }
 
   const current = catalogCache[index];
   if (!current) return;
@@ -214,7 +278,15 @@ export function patchCatalogIndexProductMedia(
  * Requerido por `use-products` tras mutaciones admin.
  */
 export function patchCatalogIndexProduct(product: InventoryProduct): void {
-  if (!catalogCache || !product?.id) return;
+  if (!product?.id) return;
+  pendingCatalogProductPatches.set(product.id, product);
+  if (!catalogCache) {
+    bumpCatalogMediaEpoch();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(CATALOG_INDEX_UPDATED_EVENT));
+    }
+    return;
+  }
 
   const nextRow: CatalogRow = {
     ...normalizeInventoryProduct(product),
@@ -343,23 +415,40 @@ export function getCatalogFeaturedByCategories(
     .map((row) => catalogRowToFeatured(row));
 }
 
+function catalogRowFromPending(id: string): CatalogRow | undefined {
+  const pending = pendingCatalogProductPatches.get(id);
+  if (!pending) return undefined;
+  try {
+    const row = normalizeInventoryProduct(pending) as CatalogRow;
+    return isProductVisibleOnStorefront(row) ? row : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function getCatalogProductById(id: string): CatalogRow | undefined {
   const key = id.trim();
   if (!key) return undefined;
 
   if (catalogById || catalogBySlug) {
     const byId = catalogById?.get(key);
-    if (byId && isProductVisibleOnStorefront(byId)) return byId;
+    if (byId && isProductVisibleOnStorefront(byId)) {
+      return mergeCatalogRowWithPending(byId);
+    }
 
     const bySlug = catalogBySlug?.get(key.toLowerCase());
-    if (bySlug && isProductVisibleOnStorefront(bySlug)) return bySlug;
+    if (bySlug && isProductVisibleOnStorefront(bySlug)) {
+      return mergeCatalogRowWithPending(bySlug);
+    }
 
     // Fallback: findProductBySlugOrId puede resolver códigos / slugs legacy.
   }
 
   const rows = getCatalogRows();
-  const match = findProductBySlugOrId(rows, key);
-  return match as CatalogRow | undefined;
+  const match = findProductBySlugOrId(rows, key) as CatalogRow | undefined;
+  if (match) return mergeCatalogRowWithPending(match);
+
+  return catalogRowFromPending(key);
 }
 
 export async function getCatalogProductByIdAsync(id: string): Promise<CatalogRow | undefined> {

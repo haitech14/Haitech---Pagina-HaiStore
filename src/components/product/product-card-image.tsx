@@ -24,9 +24,11 @@ interface ProductCardImageProps {
 }
 
 function withImageVersion(url: string, imageVersion?: string | null): string {
-  if (!imageVersion) return url;
-  const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}v=${encodeURIComponent(imageVersion)}`;
+  if (!imageVersion || url.startsWith('data:') || url.startsWith('blob:')) return url;
+  const [path, existingQuery] = url.split('?');
+  const params = new URLSearchParams(existingQuery ?? '');
+  params.set('v', imageVersion);
+  return `${path}?${params.toString()}`;
 }
 
 function isImageAlreadyLoaded(img: HTMLImageElement | null): boolean {

@@ -1,16 +1,12 @@
 import { useCallback, useState } from 'react';
 import { FileText } from 'lucide-react';
 
-import { AttachmentPdfViewer } from '@/components/product-detail/attachment-pdf-viewer';
 import { ProductQuoteDialog } from '@/components/product-detail/product-quote-dialog';
 import {
   ProductQuotePdfViewer,
   type QuotePdfPreview,
 } from '@/components/product-detail/product-quote-pdf-viewer';
-import {
-  downloadProductAttachment,
-  isPdfAttachment,
-} from '@/lib/inventory-attachments';
+import { downloadProductAttachment } from '@/lib/inventory-attachments';
 import type { ProductHeroSpecBullet, ProductResourceLink } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
@@ -73,7 +69,6 @@ export function ProductDetailResources({
 }: ProductDetailResourcesProps) {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [pdfPreview, setPdfPreview] = useState<QuotePdfPreview | null>(null);
-  const [technicalSheetOpen, setTechnicalSheetOpen] = useState(false);
 
   const handlePreviewClose = useCallback((open: boolean) => {
     if (!open) {
@@ -89,18 +84,10 @@ export function ProductDetailResources({
   const manualLink = links.find((link) => link.label === 'Manual de Usuario');
   const driverLink = links.find((link) => link.label === 'Driver');
   const fichaFileName = fichaLink?.fileName ?? 'ficha-tecnica.pdf';
-  const fichaCanPreview = Boolean(
-    fichaLink?.href &&
-      isPdfAttachment(fichaLink.href, fichaLink.mimeType, fichaFileName),
-  );
 
   const handleTechnicalSheetClick = () => {
     if (!fichaLink?.href) return;
-    if (fichaCanPreview) {
-      setTechnicalSheetOpen(true);
-      return;
-    }
-    downloadProductAttachment(fichaLink.href, fichaFileName);
+    void downloadProductAttachment(fichaLink.href, fichaFileName);
   };
 
   if (links.length === 0) {
@@ -153,15 +140,6 @@ export function ProductDetailResources({
       />
 
       <ProductQuotePdfViewer preview={pdfPreview} onOpenChange={handlePreviewClose} autoDownload />
-
-      {fichaLink?.href && fichaCanPreview ? (
-        <AttachmentPdfViewer
-          open={technicalSheetOpen}
-          onOpenChange={setTechnicalSheetOpen}
-          url={fichaLink.href}
-          filename={fichaFileName}
-        />
-      ) : null}
     </>
   );
 }

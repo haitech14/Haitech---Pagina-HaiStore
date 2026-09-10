@@ -1,10 +1,12 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { FileText, Truck } from 'lucide-react';
 
+import { SunatRucField } from '@/components/forms/sunat-ruc-field';
 import { CheckoutSectionCard } from '@/components/checkout/checkout-section-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTpvCustomerSearch } from '@/hooks/use-tpv-customers';
+import { useApplySunatRuc } from '@/hooks/use-sunat-ruc-lookup';
 import {
   CHECKOUT_LIMA_TRANSPORTE_OPTIONS,
   CHECKOUT_PROVINCIA_AGENCIA_OPTIONS,
@@ -22,6 +24,7 @@ import {
   type HaitechClientFormValues,
 } from '@/lib/haitech-client-schema';
 import { searchResultToHaitechClient } from '@/lib/haitech-client-mappers';
+import { applySunatToClientForm } from '@/lib/sunat-ruc';
 import { customerDisplayLabel } from '@/lib/tpv-customer';
 import { cn } from '@/lib/utils';
 
@@ -86,6 +89,10 @@ export function CheckoutBillingShippingForm({
   const patch = (partial: Partial<HaitechClientFormValues>) => {
     onChange({ ...value, ...partial, tipoCliente: value.tipoCliente ?? 'public' });
   };
+
+  const sunat = useApplySunatRuc(value.rucDni, (data) => {
+    onChange(applySunatToClientForm(value, data));
+  });
 
   const handleDestinoChange = (destino: CheckoutDestinoEnvio) => {
     const partial: Partial<HaitechClientFormValues> = { destinoEnvio: destino };
@@ -192,33 +199,31 @@ export function CheckoutBillingShippingForm({
             />
           </div>
 
-          <div className="relative space-y-1.5">
-            <Label htmlFor={`${idPrefix}-ruc`}>
-              {tipoComprobante === 'factura' ? 'RUC' : 'RUC / DNI'}
-            </Label>
-            <Input
-              id={`${idPrefix}-ruc`}
-              value={value.rucDni}
-              inputMode="numeric"
-              autoComplete="off"
-              aria-controls={listId}
-              onChange={(event) => {
-                const rucDni = event.target.value;
-                const partial: Partial<HaitechClientFormValues> = {
-                  rucDni,
-                  storeCustomerId: null,
-                };
-                if (destinoEnvio === 'provincia' && !value.dniEntrega?.trim()) {
-                  partial.dniEntrega = rucDni;
-                }
-                patch(partial);
-                setSearchQuery(rucDni);
-                setSuggestionsOpen(true);
-              }}
-              onFocus={() => setSuggestionsOpen(true)}
-              onBlur={() => window.setTimeout(() => setSuggestionsOpen(false), 150)}
-            />
-          </div>
+          <SunatRucField
+            id={`${idPrefix}-ruc`}
+            label={tipoComprobante === 'factura' ? 'RUC' : 'RUC / DNI'}
+            documentType={tipoComprobante === 'factura' ? 'ruc' : 'ruc-or-dni'}
+            placeholder={tipoComprobante === 'factura' ? '20612146561' : 'RUC o DNI'}
+            value={value.rucDni}
+            onValueChange={(rucDni) => {
+              const partial: Partial<HaitechClientFormValues> = {
+                rucDni,
+                storeCustomerId: null,
+              };
+              if (destinoEnvio === 'provincia' && !value.dniEntrega?.trim()) {
+                partial.dniEntrega = rucDni;
+              }
+              patch(partial);
+              setSearchQuery(rucDni);
+              setSuggestionsOpen(true);
+            }}
+            isFetching={sunat.isFetching}
+            isSuccess={sunat.isSuccess}
+            errorMessage={sunat.error instanceof Error ? sunat.error.message : null}
+            aria-controls={listId}
+            onFocus={() => setSuggestionsOpen(true)}
+            onBlur={() => window.setTimeout(() => setSuggestionsOpen(false), 150)}
+          />
 
           <div className="space-y-1.5">
             <Label htmlFor={`${idPrefix}-email`}>Correo (opcional)</Label>

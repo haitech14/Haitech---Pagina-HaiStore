@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronDown, Lightbulb } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Lightbulb } from 'lucide-react';
 
+import { HeaderNavChevron } from '@/components/layout/header-nav-chevron';
 import { SolutionsMegaMenuPanel } from '@/components/layout/solutions-mega-menu-panel';
 import {
   DropdownMenu,
@@ -8,35 +10,84 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  computeMegaMenuDropdownLayout,
+  DARK_NAV_ICON_CLASS,
+  MAIN_NAV_ICON_CLASS,
+  MEGA_MENU_DROPDOWN_CLASS,
+  type MegaMenuDropdownLayout,
+  megaMenuDropdownStyle,
+  haitechBlackSubmenuTriggerClass,
+  haitechWhiteSubmenuTriggerClass,
+  lightNavSubmenuTriggerClass,
+  lightNavSubmenuTriggerCompactClass,
+  mainNavLinkClass,
+  darkNavSecondarySubmenuTriggerClass,
+  darkNavSubmenuTriggerClass,
+  type MainNavRowVariant,
+} from '@/components/layout/main-nav-styles';
+import {
   solutionsMegaMenuSectionMeta,
   solutionsMegaMenuSidebarIds,
   type SolutionsMegaMenuSectionId,
 } from '@/data/solutions-mega-menu';
-import { mainNavLinkClass, MAIN_NAV_ICON_CLASS } from '@/components/layout/main-nav-styles';
 import { cn } from '@/lib/utils';
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
-export function SolutionsMegaMenu() {
+function triggerClassForRow(
+  navRow: MainNavRowVariant,
+  isRouteActive: boolean,
+  open: boolean,
+): string {
+  switch (navRow) {
+    case 'haitech-white':
+      return haitechWhiteSubmenuTriggerClass(isRouteActive, open);
+    case 'haitech-black':
+      return haitechBlackSubmenuTriggerClass(isRouteActive, open);
+    case 'light':
+      return lightNavSubmenuTriggerClass(isRouteActive, open);
+    case 'light-compact':
+      return lightNavSubmenuTriggerCompactClass(isRouteActive, open);
+    case 'secondary':
+      return darkNavSecondarySubmenuTriggerClass(isRouteActive, open);
+    case 'default':
+      return darkNavSubmenuTriggerClass(isRouteActive, open);
+    default: {
+      const _exhaustive: never = navRow;
+      return _exhaustive;
+    }
+  }
+}
+
+export function SolutionsMegaMenu({
+  navRow = 'default',
+  showIcon = true,
+  showChevron = true,
+  label = 'Soluciones',
+  triggerHref,
+}: {
+  navRow?: MainNavRowVariant;
+  showIcon?: boolean;
+  showChevron?: boolean;
+  label?: string;
+  triggerHref?: string;
+} = {}) {
+  const location = useLocation();
   const defaultSection = solutionsMegaMenuSidebarIds[0] ?? 'colaboracion';
 
   const [open, setOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<SolutionsMegaMenuSectionId>(defaultSection);
-  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+  const [menuLayout, setMenuLayout] = useState<MegaMenuDropdownLayout | undefined>(undefined);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
-  const updateMenuWidth = useCallback(() => {
+  const isRouteActive =
+    location.pathname.includes('soluciones') || location.pathname.startsWith('/software');
+
+  const updateMenuLayout = useCallback(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
-    const container = trigger.closest('.container');
-    const containerRect = container?.getBoundingClientRect();
-    const triggerRect = trigger.getBoundingClientRect();
-    const left = containerRect?.left ?? triggerRect.left;
-    const rightMargin = containerRect
-      ? Math.max(12, window.innerWidth - containerRect.right)
-      : 12;
-    setMenuWidth(Math.max(880, window.innerWidth - left - rightMargin));
+    setMenuLayout(computeMegaMenuDropdownLayout(trigger));
   }, []);
 
   const clearCloseTimer = useCallback(() => {
@@ -48,16 +99,16 @@ export function SolutionsMegaMenu() {
 
   const openMenu = useCallback(() => {
     clearCloseTimer();
-    updateMenuWidth();
+    updateMenuLayout();
     setOpen(true);
-  }, [clearCloseTimer, updateMenuWidth]);
+  }, [clearCloseTimer, updateMenuLayout]);
 
   useEffect(() => {
     if (!open) return;
-    updateMenuWidth();
-    window.addEventListener('resize', updateMenuWidth);
-    return () => window.removeEventListener('resize', updateMenuWidth);
-  }, [open, updateMenuWidth]);
+    updateMenuLayout();
+    window.addEventListener('resize', updateMenuLayout);
+    return () => window.removeEventListener('resize', updateMenuLayout);
+  }, [open, updateMenuLayout]);
 
   const scheduleClose = useCallback(() => {
     clearCloseTimer();
@@ -68,26 +119,58 @@ export function SolutionsMegaMenu() {
 
   const closeMenu = () => setOpen(false);
 
+  const useWhiteHaitechTrigger = navRow === 'haitech-white' || navRow === 'haitech-black';
+  const triggerClass = useWhiteHaitechTrigger
+    ? triggerClassForRow(navRow, isRouteActive, open)
+    : cn(mainNavLinkClass(open || isRouteActive), 'gap-1');
+
+  const iconClass =
+    navRow === 'haitech-black' || navRow === 'default' || navRow === 'secondary'
+      ? DARK_NAV_ICON_CLASS
+      : MAIN_NAV_ICON_CLASS;
+
+  const triggerContent = (
+    <>
+      {showIcon ? <Lightbulb className={iconClass} strokeWidth={1.75} aria-hidden="true" /> : null}
+      {label}
+      {showChevron ? <HeaderNavChevron open={open} navRow={navRow} /> : null}
+    </>
+  );
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        <button
-          ref={triggerRef}
-          type="button"
-          aria-haspopup="true"
-          aria-expanded={open}
-          onMouseEnter={openMenu}
-          onMouseLeave={scheduleClose}
-          onFocus={openMenu}
-          className={cn(mainNavLinkClass(open), 'gap-1')}
-        >
-          <Lightbulb className={MAIN_NAV_ICON_CLASS} strokeWidth={1.75} aria-hidden="true" />
-          Soluciones
-          <ChevronDown
-            aria-hidden="true"
-            className={cn('size-3 transition-transform', open && 'rotate-180')}
-          />
-        </button>
+        {triggerHref ? (
+          <Link
+            ref={(node) => {
+              triggerRef.current = node;
+            }}
+            to={triggerHref}
+            aria-haspopup="true"
+            aria-expanded={open}
+            onMouseEnter={openMenu}
+            onMouseLeave={scheduleClose}
+            onFocus={openMenu}
+            className={triggerClass}
+          >
+            {triggerContent}
+          </Link>
+        ) : (
+          <button
+            ref={(node) => {
+              triggerRef.current = node;
+            }}
+            type="button"
+            aria-haspopup="true"
+            aria-expanded={open}
+            onMouseEnter={openMenu}
+            onMouseLeave={scheduleClose}
+            onFocus={openMenu}
+            className={triggerClass}
+          >
+            {triggerContent}
+          </button>
+        )}
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
@@ -96,13 +179,8 @@ export function SolutionsMegaMenu() {
         onMouseEnter={openMenu}
         onMouseLeave={scheduleClose}
         onCloseAutoFocus={(event) => event.preventDefault()}
-        className={cn(
-          'z-50 max-w-none overflow-hidden rounded-lg border border-border/70 p-0 shadow-xl',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out',
-          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-        )}
-        style={menuWidth ? { width: menuWidth, maxHeight: 'min(40rem, 82vh)' } : undefined}
+        className={MEGA_MENU_DROPDOWN_CLASS}
+        style={menuLayout ? megaMenuDropdownStyle(menuLayout) : undefined}
       >
         <SolutionsMegaMenuPanel
           activeSection={activeSection}

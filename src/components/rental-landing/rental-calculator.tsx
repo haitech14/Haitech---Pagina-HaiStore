@@ -76,12 +76,6 @@ const MODALITY_BENEFITS = [
   },
 ] as const;
 
-const HERO_MACHINES = [
-  '/products/ricoh-im-430f.webp',
-  '/products/196857c6-738b-4162-90aa-50dee575bcd8.webp',
-  '/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp',
-] as const;
-
 export function RentalCalculator() {
   const [input, setInput] = useState<RentalCalculatorInput>(DEFAULT_RENTAL_CALCULATOR);
   const [quoteOpen, setQuoteOpen] = useState(false);
@@ -142,47 +136,11 @@ export function RentalCalculator() {
   return (
     <section
       id={RENTAL_LANDING_CALCULATOR_ID}
-      aria-labelledby="rental-calculator-title"
+      aria-label="Calculadora de alquiler"
       className="scroll-mt-24 bg-[#F4F7FB] py-10 sm:py-14"
     >
       <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6">
-        <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#E30613]">
-              Tu negocio, sin límites
-            </p>
-            <h2
-              id="rental-calculator-title"
-              className="mt-2 text-balance text-[2.1rem] font-black leading-[1.05] tracking-tight text-[#111111] sm:text-5xl"
-            >
-              Calcula tu <span className="text-[#E30613]">alquiler</span>
-            </h2>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#6B7280] sm:text-base">
-              Simula tu plan, compara modalidades y elige la opción que mejor se adapte a las
-              necesidades de tu negocio.
-            </p>
-          </div>
-          <div className="hidden items-end justify-end gap-3 lg:flex">
-            <div className="flex items-end gap-2">
-              {HERO_MACHINES.map((src) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt=""
-                  className="h-20 w-auto object-contain sm:h-28"
-                  decoding="async"
-                />
-              ))}
-            </div>
-            <p className="max-w-[9.5rem] text-right text-[11px] font-semibold leading-snug text-[#111111]">
-              Equipos hoy.
-              <br />
-              Grandes resultados mañana.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.7fr)]">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.7fr)]">
           <div className="rounded-2xl border border-[#E6EAF0] bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:p-7">
             <fieldset>
               <legend className="text-sm font-semibold text-[#111111]">

@@ -83,7 +83,7 @@ function GalleryMainMedia({
       <video
         src={item.src}
         controls
-        className="max-h-[min(72vh,680px)] w-full max-w-full rounded-md bg-black object-contain"
+        className="h-auto w-auto max-h-[min(48vh,360px)] max-w-[min(96%,310px)] rounded-md bg-black object-contain sm:max-h-[min(52vh,440px)] sm:max-w-[380px] lg:max-h-[500px] lg:max-w-[420px]"
         preload="metadata"
       >
         <track kind="captions" />
@@ -104,8 +104,9 @@ function GalleryMainMedia({
       <ProductGalleryResponsiveImage
         src={item.src}
         alt={resolveProductImageAlt(productName, product, imageIndex, item.alt)}
-        className="max-h-[min(72vh,680px)] w-full max-w-full object-contain object-center"
+        className="h-auto w-auto max-h-[min(48vh,360px)] max-w-[min(96%,310px)] object-contain object-center sm:max-h-[min(52vh,440px)] sm:max-w-[380px] lg:max-h-[500px] lg:max-w-[420px]"
         loading="eager"
+        fetchPriority="high"
         variant="main"
         onError={onImageError}
       />
@@ -218,7 +219,7 @@ export function ProductDetailGallery({
       className={cn(
         'flex gap-2 p-2 [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1',
         'max-sm:order-2 max-sm:overflow-x-auto max-sm:bg-muted/10',
-        'sm:w-[4.25rem] sm:shrink-0 sm:flex-col sm:overflow-y-auto sm:bg-neutral-50 md:w-[4.75rem] lg:max-h-[min(68vh,640px)]',
+        'sm:w-[4.25rem] sm:shrink-0 sm:flex-col sm:overflow-y-auto sm:bg-neutral-50 md:w-[4.75rem] lg:max-h-[min(56vh,500px)]',
       )}
       aria-label={`Miniaturas de ${productName}`}
     >
@@ -253,8 +254,8 @@ export function ProductDetailGallery({
 
   if (galleryItems.length === 0) {
     return (
-      <div className="flex min-h-[260px] flex-col">
-        <div className="flex min-h-[260px] flex-1 items-center justify-center rounded-lg border border-border/60 bg-white p-4 sm:min-h-[320px]">
+      <div className="flex min-h-[280px] flex-col">
+        <div className="flex min-h-[280px] flex-1 items-center justify-center rounded-lg border border-border/60 bg-white p-4 sm:min-h-[360px]">
           <div className="text-center">
             <p className="text-sm font-semibold text-muted-foreground">Sin Imagen</p>
           </div>
@@ -266,7 +267,7 @@ export function ProductDetailGallery({
   return (
     <div className="flex w-full flex-col">
       <div className="relative overflow-hidden rounded-lg bg-white">
-        <div className="flex min-h-[220px] flex-col items-stretch max-sm:min-h-0 sm:min-h-[360px] sm:flex-row lg:min-h-[480px]">
+        <div className="flex min-h-[220px] flex-col items-stretch max-sm:min-h-0 sm:min-h-[320px] sm:flex-row lg:min-h-[400px]">
           <div className="hidden sm:contents">{thumbnailList}</div>
 
           <div className="relative min-w-0 flex-1 max-sm:order-1">
@@ -353,7 +354,8 @@ export function ProductDetailGallery({
                   alt={activeImage.alt}
                   className="mx-auto max-h-[85vh] w-full object-contain"
                   loading="eager"
-                  variant="main"
+                  fetchPriority="high"
+                  variant="lightbox"
                 />
               </ProductImageWatermarkOverlay>
             </div>

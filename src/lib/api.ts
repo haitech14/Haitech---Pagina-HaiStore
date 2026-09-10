@@ -16,14 +16,45 @@ function apiConnectionErrorMessage(): string {
     : 'No hay conexión con la API admin. Ejecuta «npm run dev:all» o «npm run server» (puerto 3080).';
 }
 
+const API_CONNECTION_MESSAGE_RE =
+  /no hay conexión con la api admin|no hay conexión con el servidor\. revisa el despliegue|npm run (dev:all|server)|puerto 3080/i;
+
+export class ApiConnectionError extends Error {
+  constructor(message = apiConnectionErrorMessage()) {
+    super(message);
+    this.name = 'ApiConnectionError';
+  }
+}
+
+export function isApiConnectionError(error: unknown): boolean {
+  if (error instanceof ApiConnectionError) return true;
+  if (error instanceof Error) return isApiConnectionErrorMessage(error.message);
+  return isApiConnectionErrorMessage(error);
+}
+
+export function isApiConnectionErrorMessage(message: unknown): boolean {
+  return typeof message === 'string' && API_CONNECTION_MESSAGE_RE.test(message);
+}
+
+function isAbortError(error: unknown): boolean {
+  return (
+    (typeof DOMException !== 'undefined' &&
+      error instanceof DOMException &&
+      error.name === 'AbortError') ||
+    (error instanceof Error && error.name === 'AbortError')
+  );
+}
+
 function isTransientApiError(error: unknown): boolean {
+  if (isAbortError(error)) return false;
+  if (error instanceof ApiConnectionError) return true;
   if (!(error instanceof Error)) return false;
-  return /502|504|conexión con la api|failed to fetch|networkerror|load failed|econnrefused/i.test(
+  return /502|504|conexión con la api|failed to fetch|networkerror|load failed|econnrefused|econnreset|etimedout|network request failed/i.test(
     error.message,
   );
 }
 
-export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+async function apiFetchOnce<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = await authHeaders();
   let response: Response;
 
@@ -36,8 +67,9 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
         ...init?.headers,
       },
     });
-  } catch {
-    throw new Error(apiConnectionErrorMessage());
+  } catch (error) {
+    if (isAbortError(error)) throw error;
+    throw new ApiConnectionError();
   }
 
   if (!response.ok) {
@@ -68,7 +100,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     }
 
     if (response.status === 502 || response.status === 504) {
-      throw new Error(apiConnectionErrorMessage());
+      throw new ApiConnectionError();
     }
     throw new Error(body.error ?? `Error ${response.status}`);
   }
@@ -82,12 +114,12 @@ export async function apiFetchWithRetry<T>(
   init?: RequestInit,
   options: { retries?: number; delayMs?: number } = {},
 ): Promise<T> {
-  const { retries = 4, delayMs = 700 } = options;
+  const { retries = 6, delayMs = 400 } = options;
   let lastError: unknown;
 
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
-      return await apiFetch<T>(path, init);
+      return await apiFetchOnce<T>(path, init);
     } catch (error) {
       lastError = error;
       if (!isTransientApiError(error) || attempt >= retries - 1) {
@@ -98,4 +130,8 @@ export async function apiFetchWithRetry<T>(
   }
 
   throw lastError;
+}
+
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  return apiFetchWithRetry<T>(path, init);
 }

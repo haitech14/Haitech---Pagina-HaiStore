@@ -26,15 +26,25 @@ export function resolveShowcaseProductPricesUsd(
   const rate = options.saleRate ?? DEFAULT_USD_TO_PEN;
   const catalogRow = findShowcaseCatalogRow(product);
 
+  const overlayTecnico =
+    resolveShowcaseEquipmentTecnicoUsd(product) ??
+    (catalogRow
+      ? resolveShowcaseEquipmentTecnicoUsd({ ...product, id: catalogRow.id })
+      : null);
+
   if (catalogRow?.prices) {
-    return ensureFullPrices(catalogRow.prices);
+    const prices = ensureFullPrices(catalogRow.prices);
+    if (overlayTecnico != null && overlayTecnico > 0) {
+      return { ...prices, tecnico: overlayTecnico };
+    }
+    return prices;
   }
 
   const publicUsdRaw = penToUsd(product.price, rate);
   const publicUsd = options.isConsumable
     ? publicUsdRaw
     : roundEquipmentDisplayUsd(publicUsdRaw);
-  const tecnicoUsd = resolveShowcaseEquipmentTecnicoUsd(product);
+  const tecnicoUsd = overlayTecnico;
 
   return ensureFullPrices({
     public: publicUsd,
@@ -81,7 +91,10 @@ export function resolveShowcaseRolePriceLines(
   return viewAsRoles.map((userRole) => {
     const priceRole = userRole === 'corporativo2' ? 'public' : resolvePriceRole(userRole);
     const rawUsd = resolveUserRolePriceUsd(pricesUsd, userRole, pricingContext);
-    const priceUsd = options.isConsumable ? rawUsd : showcaseDisplayUsd(rawUsd, options);
+    const priceUsd =
+      options.isConsumable || priceRole === 'tecnico'
+        ? rawUsd
+        : showcaseDisplayUsd(rawUsd, options);
     const pricePen = resolveUserRoleDisplayPen(pricesUsd, userRole, {
       ...pricingContext,
       penFromUsd: (usd) => showcaseUsdToPen(usd, options),

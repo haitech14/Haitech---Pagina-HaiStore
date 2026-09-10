@@ -107,6 +107,18 @@ export function productCardImageSources(imagePath: string) {
   };
 }
 
+/** Vitrina de equipos: cards más grandes y retina; evita el recorte -256. */
+export function equipmentShowcaseImageSources(imagePath: string) {
+  const base = imageBasePath(imagePath);
+  const q = imageCacheQuery(imagePath);
+  const master = productImageMasterUrl(imagePath);
+  return {
+    webpSrcSet: `${base}-512.webp${q} 512w, ${base}-1024.webp${q} 1024w, ${master} ${PRODUCT_IMAGE_MAX_EDGE}w`,
+    fallbackSrc: master,
+    sizes: '(max-width: 640px) 70vw, (max-width: 1024px) 40vw, 420px',
+  };
+}
+
 /** Variantes WebP para ficha de producto (miniatura y vista principal). */
 export function productDetailThumbnailSources(imagePath: string) {
   const base = imageBasePath(imagePath);
@@ -119,14 +131,22 @@ export function productDetailThumbnailSources(imagePath: string) {
 }
 
 export function productDetailMainImageSources(imagePath: string) {
-  const base = imageBasePath(imagePath);
-  const q = imageCacheQuery(imagePath);
   const master = productImageMasterUrl(imagePath);
-  // Prioriza la master (hasta PRODUCT_IMAGE_MAX_EDGE) en retina / Ampliar.
+  // Foto más chica en pantalla, siempre la master (2560) para máxima nitidez.
   return {
-    webpSrcSet: `${base}-1024.webp${q} 1024w, ${master} ${PRODUCT_IMAGE_MAX_EDGE}w`,
+    webpSrcSet: `${master} ${PRODUCT_IMAGE_MAX_EDGE}w`,
     fallbackSrc: master,
-    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 720px',
+    sizes: '100vw',
+  };
+}
+
+/** Vista ampliada: siempre la master, sin bajar a -1024. */
+export function productDetailLightboxImageSources(imagePath: string) {
+  const master = productImageMasterUrl(imagePath);
+  return {
+    webpSrcSet: `${master} ${PRODUCT_IMAGE_MAX_EDGE}w`,
+    fallbackSrc: master,
+    sizes: '100vw',
   };
 }
 
@@ -138,7 +158,7 @@ export function productQuickViewMainImageSources(imagePath: string) {
   return {
     webpSrcSet: `${base}-1024.webp${q} 1024w, ${master} ${PRODUCT_IMAGE_MAX_EDGE}w`,
     fallbackSrc: master,
-    sizes: '(max-width: 1024px) 90vw, 520px',
+    sizes: '(max-width: 1024px) 92vw, 720px',
   };
 }
 

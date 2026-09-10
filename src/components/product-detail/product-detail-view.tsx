@@ -46,7 +46,6 @@ import { buildProductClipboardPayload } from '@/lib/product-clipboard-text';
 import { productPath } from '@/lib/product-path';
 import {
   downloadProductAttachment,
-  isPdfAttachment,
 } from '@/lib/inventory-attachments';
 import { DEFAULT_BULK_DISCOUNT_TIERS, resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { ensureFullPrices } from '@/lib/roles';
@@ -527,18 +526,9 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const handleHeroTechnicalSheet = useCallback(() => {
     const fichaLink = detail.resourceLinks.find((link) => link.action === 'technical_sheet');
     const fichaFileName = fichaLink?.fileName ?? 'ficha-tecnica.pdf';
-    const fichaCanPreview = Boolean(
-      fichaLink?.href &&
-        isPdfAttachment(fichaLink.href, fichaLink.mimeType, fichaFileName),
-    );
-
-    if (fichaLink?.href && fichaCanPreview) {
-      window.open(fichaLink.href, '_blank', 'noopener,noreferrer');
-      return;
-    }
 
     if (fichaLink?.href) {
-      downloadProductAttachment(fichaLink.href, fichaFileName);
+      void downloadProductAttachment(fichaLink.href, fichaFileName);
       return;
     }
 
@@ -593,10 +583,11 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [fullPrices.public, preparationType, product, showPreparationTypeSelector],
   );
 
-  const complementaSidebarSlot = useMemo(() => {
-    if (!mockupLayout || purchaseMode === 'rent' || detail.isSupplyProduct) return null;
+  /** Cuadro «Complementa tu compra» encima de Descripción (no en el sidebar). */
+  const complementaAboveDescription = useMemo(() => {
+    if (purchaseMode === 'rent' || detail.isSupplyProduct) return null;
 
-    if (detail.isLaptopProduct && detail.comboItems.length > 0) {
+    if (detail.comboItems.length > 0) {
       return (
         <ProductDetailCombo
           items={detail.comboItems}
@@ -605,8 +596,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
           title="Complementa tu compra"
           layout="complement"
           collapsible={false}
-          embedded
-          className="border-0 bg-transparent shadow-none"
+          className="w-full"
         />
       );
     }
@@ -614,16 +604,17 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     const hasToner = purchasableTonerCards.length > 0;
     const sidebarAccessoryCards = resolveComplementaSidebarAccessoryCards(equipmentSteps);
     const stabilizerCard = resolveComplementaStabilizerCard(equipmentSteps);
-    const hasAccessories = sidebarAccessoryCards.length > 0;
+    const hasAccessories = sidebarAccessoryCards.length > 0 || heroAccessoryCards.length > 0;
     const hasWarranty = heroWarrantyUpgrades.length > 0;
     if (!hasToner && !hasAccessories && !hasWarranty && !stabilizerCard) return null;
 
     return (
       <ProductDetailComplementaCompra
-        variant="sidebar"
         tonerCards={purchasableTonerCards}
         defaultTonerSupplyType={resolveDefaultTonerSupplyTypeForEquipment(product)}
-        accessoryCards={sidebarAccessoryCards}
+        accessoryCards={
+          sidebarAccessoryCards.length > 0 ? sidebarAccessoryCards : heroAccessoryCards
+        }
         stabilizerCard={stabilizerCard}
         selectedTonerOptionIds={equipmentSelection.toner ?? new Set<string>()}
         equipmentSelection={equipmentSelection}
@@ -634,16 +625,16 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         selectedWarrantyOptionId={selectedWarrantyOptionId}
         onWarrantySelect={handleHeroWarrantySelect}
         {...(product.storefront_ui != null ? { storefrontUi: product.storefront_ui } : {})}
+        className="w-full rounded-xl border border-neutral-200 bg-white p-4 sm:p-5"
       />
     );
   }, [
-    mockupLayout,
     purchaseMode,
     detail.isSupplyProduct,
-    detail.isLaptopProduct,
     detail.comboItems,
     catalogProducts,
     equipmentSteps,
+    heroAccessoryCards,
     purchasableTonerCards,
     heroWarrantyUpgrades,
     heroWarrantyBaseLabel,
@@ -843,7 +834,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   consumableGroups={consumableGroups}
                   inventoryVariantOptions={inventoryVariantOptions}
                   layout={mockupLayout ? 'mockup' : 'default'}
-                  hideComplementaCompra={mockupLayout}
+                  hideComplementaCompra
                   onQuoteClick={() => setQuoteOpen(true)}
                   onTechnicalSheetClick={handleHeroTechnicalSheet}
                   onShareClick={() => {
@@ -877,7 +868,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                         onQuoteGenerated={setQuotePdfPreview}
                         layout={mockupLayout ? 'mockup' : 'default'}
                         outOfStock={outOfStock}
-                        complementaSlot={complementaSidebarSlot}
                       />
                     </div>
                   }
@@ -910,10 +900,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                 onQuoteGenerated={setQuotePdfPreview}
                 layout={mockupLayout ? 'mockup' : 'default'}
                 outOfStock={outOfStock}
-                complementaSlot={complementaSidebarSlot}
               />
             </div>
           </div>
+
+          {complementaAboveDescription ? (
+            <div className="mt-5 sm:mt-6">{complementaAboveDescription}</div>
+          ) : null}
 
           <section
             ref={productInfoSectionRef}

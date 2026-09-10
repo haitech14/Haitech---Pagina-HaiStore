@@ -4,7 +4,6 @@ import { useLocation, useParams } from 'react-router-dom';
 import { HaitechHomeEquipmentShowcase } from '@/components/haitech-home/haitech-home-equipment-showcase';
 import { StorePromoHeroBanner } from '@/components/store-storefront/store-promo-hero-banner';
 import { ProductDetailPage } from '@/pages/product-detail';
-import { CategoryPage } from '@/pages/category';
 import { useSeo } from '@/hooks/use-seo';
 import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
 import { buildStoreJsonLd, STORE_SITE_DESCRIPTION, STORE_SITE_TITLE } from '@/lib/seo';
@@ -68,21 +67,8 @@ export function StorePage() {
   );
 }
 
-/** Catálogo de categoría con el mismo layout storefront que `/tienda`. */
-export function CategoryStorefrontPage() {
-  return (
-    <div className={cn('store-storefront home-landing-sans flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
-      <CategoryPage storefrontMode />
-    </div>
-  );
-}
-
-/**
- * Una sola entrada lazy para /tienda y /categoria/:slug (evita re-Suspense al cruzar rutas).
- */
+/** Entrada lazy de `/tienda`: vitrina de Comprar. */
 export function StorefrontRoutePage() {
-  const { slug } = useParams<{ slug?: string }>();
-  if (slug) return <CategoryStorefrontPage />;
   return <StorePage />;
 }
 

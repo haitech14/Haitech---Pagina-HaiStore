@@ -3,6 +3,7 @@ import { Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/auth-context';
 import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { copyProductTextToClipboard } from '@/lib/copy-product-to-clipboard';
 import { inferColor } from '@/lib/category-catalog-filters';
@@ -11,6 +12,7 @@ import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { buildProductClipboardPayload } from '@/lib/product-clipboard-text';
 import { productPath } from '@/lib/product-path';
+import { submitWebLead } from '@/lib/submit-web-lead';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -23,6 +25,7 @@ export function ProductDetailReferralButton({
   product,
   className,
 }: ProductDetailReferralButtonProps) {
+  const { user } = useAuth();
   const [copying, setCopying] = useState(false);
   const detailPath = useMemo(() => productPath(product), [product]);
   const { title } = useMemo(() => getProductCardTitleContent(product), [product]);
@@ -59,6 +62,18 @@ export function ProductDetailReferralButton({
       });
 
       if (ok) {
+        void submitWebLead({
+          contact: {
+            name: user?.name?.trim() || 'Referido tienda',
+            companyOrRuc: '',
+            city: '',
+          },
+          channel: 'product-referral',
+          productName: title || product.name,
+          productId: product.id,
+          message: `Referido copiado: ${title || product.name}`,
+          createProforma: true,
+        });
         toast.success('Datos de referido copiados 📋');
         return;
       }

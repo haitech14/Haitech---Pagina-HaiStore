@@ -30,7 +30,7 @@ export const SEO_GUIDES: SeoGuide[] = [
     relatedLinks: [
       { label: 'Fotocopiadoras Ricoh', to: '/fotocopiadoras-ricoh' },
       { label: 'Alquiler vs compra', to: '/guias/alquiler-vs-compra-fotocopiadora' },
-      { label: 'Catálogo multifuncionales', to: '/categoria/multifuncionales' },
+      { label: 'Catálogo multifuncionales', to: '/tienda/multifuncionales' },
       { label: 'IM 550F', to: '/modelos/im-550f' },
     ],
   },
@@ -51,8 +51,8 @@ export const SEO_GUIDES: SeoGuide[] = [
     ],
     relatedLinks: [
       { label: 'Tóner Ricoh', to: '/toner-ricoh' },
-      { label: 'Categoría suministros', to: '/categoria/toner-suministros' },
-      { label: 'Repuestos', to: '/categoria/repuestos' },
+      { label: 'Categoría suministros', to: '/tienda/toner' },
+      { label: 'Repuestos', to: '/tienda/repuestos' },
       { label: 'Mantenimiento', to: '/guias/mantenimiento-fotocopiadoras' },
     ],
   },
@@ -95,7 +95,7 @@ export const SEO_GUIDES: SeoGuide[] = [
     ],
     relatedLinks: [
       { label: 'Servicio técnico', to: '/servicios?seccion=servicio-tecnico' },
-      { label: 'Repuestos', to: '/categoria/repuestos' },
+      { label: 'Repuestos', to: '/tienda/repuestos' },
       { label: 'Tóner Ricoh', to: '/toner-ricoh' },
       { label: 'Contacto', to: '/contacto' },
     ],

@@ -1,5 +1,8 @@
 /** Duplicado de IM C320F (ficha A4); la ficha principal sí va en vitrina. */
-export const HOME_CAROUSEL_EXCLUDED_PRODUCT_IDS = new Set(['ricoh-im-c320f-a4']);
+export const HOME_CAROUSEL_EXCLUDED_PRODUCT_IDS = new Set([
+  'ricoh-im-c320f-a4',
+  '7459b432-72a0-420a-8bff-015a0072f5ac',
+]);
 
 export function isHomeCarouselExcludedProduct(product) {
   const id = String(product?.id ?? '').trim();

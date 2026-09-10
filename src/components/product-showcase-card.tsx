@@ -16,7 +16,7 @@ import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { useProductCompare } from '@/context/product-compare-context';
 import { useWishlist } from '@/context/wishlist-context';
-import { getCatalogProductById } from '@/lib/catalog-featured';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
 import { featuredToWishlistItem } from '@/lib/wishlist-product';
 import type { FeaturedProduct } from '@/data/featured-products';
 import { featuredToCompareItem } from '@/lib/compare-product';
@@ -81,7 +81,11 @@ export function ProductShowcaseCard({
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const catalogProduct = getCatalogProductById(product.id);
+  const { catalogProduct, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
+    useLiveProductCardMedia(product.id, {
+      image: product.image,
+      gallery: product.gallery,
+    });
   const priceSource = useMemo(() => {
     const prices = product.prices ?? catalogProduct?.prices;
     return {
@@ -97,12 +101,9 @@ export function ProductShowcaseCard({
     name: product.name,
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
-    image_url: product.image ?? catalogProduct?.image_url ?? null,
-    gallery: [
-      ...(Array.isArray(product.gallery) ? product.gallery : []),
-      ...(catalogProduct?.gallery ?? []),
-    ],
-  }), [catalogProduct, product]);
+    image_url: liveImageUrl,
+    gallery: liveGallery,
+  }), [catalogProduct, liveGallery, liveImageUrl, product]);
   const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
   const storedImageCandidates = useMemo(
     () => buildProductCardStoredImageCandidates(imageSource),
@@ -127,7 +128,7 @@ export function ProductShowcaseCard({
     description: catalogProduct?.description ?? null,
     price: displayPrice.priceUsd,
     currency: 'USD',
-    image_url: product.image,
+    image_url: liveImageUrl,
     stock,
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
@@ -191,6 +192,7 @@ export function ProductShowcaseCard({
                 alt={product.name}
                 className="size-full"
                 imageClassName={PRODUCT_CARD_IMAGE_CLASS}
+                imageVersion={imageVersion}
               />
             </div>
           </div>

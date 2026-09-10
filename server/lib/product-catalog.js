@@ -1,6 +1,7 @@
 import { ensureFullPrices } from './roles.js';
 import {
   migrateInventoryProduct,
+  mutateInventory,
   readInventory,
   toPublicProduct,
   toPublicProductList,
@@ -28,6 +29,10 @@ import {
 } from '../../shared/product-lookup.js';
 import { deriveProductSlug } from '../../shared/product-slug.js';
 import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
+import {
+  findShowcaseEquipmentStub,
+  showcaseStubToInventoryProduct,
+} from '../../shared/showcase-equipment-stubs.js';
 
 export { shouldPreferSupabaseCatalog };
 
@@ -521,6 +526,40 @@ async function getPublicProductFromInventory(lookupKey, role) {
   return toPublicProduct(withResolvedMedia(migrated), role, warehouses);
 }
 
+/**
+ * Si el producto de vitrina no existe en inventario, lo crea automáticamente.
+ * @returns {Promise<object | undefined>}
+ */
+async function ensureShowcaseStubInInventory(lookupKey, role) {
+  const stub = findShowcaseEquipmentStub(lookupKey);
+  if (!stub) return undefined;
+
+  const created = showcaseStubToInventoryProduct(stub);
+  let persisted = created;
+
+  await mutateInventory((inventory) => {
+    const existing = findInventoryProductByLookupKey(inventory.products ?? [], lookupKey);
+    if (existing) {
+      persisted = existing;
+      return inventory;
+    }
+    const byId = (inventory.products ?? []).some((row) => row.id === created.id);
+    if (byId) {
+      persisted = (inventory.products ?? []).find((row) => row.id === created.id) ?? created;
+      return inventory;
+    }
+    return {
+      ...inventory,
+      products: [...(inventory.products ?? []), created],
+    };
+  }, { syncProductIds: [created.id] });
+
+  const { warehouses } = await readInventory();
+  const migrated = migrateInventoryProduct(persisted, warehouses);
+  if (!isProductVisibleOnStorefront(migrated)) return undefined;
+  return toPublicProduct(withResolvedMedia(migrated), role, warehouses);
+}
+
 export async function getPublicProductById(id, role = 'public') {
   const normalizedId = String(id ?? '').trim();
   if (!normalizedId) return undefined;
@@ -536,7 +575,10 @@ export async function getPublicProductById(id, role = 'public') {
     // Si no está en Supabase, seguir con inventario local (importaciones CLI, adjuntos, etc.).
   }
 
-  return getPublicProductFromInventory(normalizedId, role);
+  const fromInventory = await getPublicProductFromInventory(normalizedId, role);
+  if (fromInventory) return fromInventory;
+
+  return ensureShowcaseStubInInventory(normalizedId, role);
 }
 
 function normalizeSearchText(value) {

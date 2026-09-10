@@ -10,6 +10,7 @@ import { PurchaseSidebarRolePrices } from '@/components/product-detail/product-d
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
 import type { BulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { calculateInstallmentPreview } from '@/lib/checkout-totals';
@@ -17,6 +18,7 @@ import { ensureFullPrices } from '@/lib/roles';
 import { isColorPrinterEquipment } from '@/lib/build-product-detail';
 import { computeEquipmentExtrasUsd } from '@/lib/equipment-config-selection';
 import { cn, formatPenFromUsd, penToUsd } from '@/lib/utils';
+import { getCatalogProductById } from '@/lib/catalog-featured';
 import { ProductDetailRentalConfigurator,
   computeEquipmentRentalEstimate,
   type EquipmentRentalEstimate,
@@ -91,12 +93,20 @@ export function ProductDetailPurchaseCard({
   rentalConfiguratorRef,
   complementaSlot,
   layout = 'default',
-  outOfStock = false,
+  outOfStock: _outOfStock = false,
 }: ProductDetailPurchaseCardProps) {
   const isMockupLayout = layout === 'mockup';
   const isLaptopMockup = isMockupLayout && detail.isLaptopProduct;
+  const { isAdmin } = useAuth();
   const { addItem } = useCart();
   const navigate = useNavigate();
+  const catalogStock = getCatalogProductById(product.id)?.stock;
+  const stockCount = Math.max(
+    Math.max(0, Math.floor(Number(product.stock) || 0)),
+    Math.max(0, Math.floor(Number(catalogStock) || 0)),
+  );
+  const hasStock = stockCount > 0;
+  const stockLabel = `Stock ${stockCount}`;
 
   const fullPrices = useMemo(
     () => ensureFullPrices(product.prices ? product.prices : { public: product.price }),
@@ -193,14 +203,6 @@ export function ProductDetailPurchaseCard({
     [configuredUnitUsd, quantity],
   );
 
-  const displayDiscountPercent =
-    detail.discountPercent ??
-    (detail.isOnOffer && detail.oldPricePen != null && offerUnitUsd > 0
-      ? Math.round(
-          ((penToUsd(detail.oldPricePen) - offerUnitUsd) / penToUsd(detail.oldPricePen)) * 100,
-        )
-      : null);
-
   const buyPriceBlock = (
     <div aria-live="polite" aria-atomic="true">
       {showSeminuevaPreparationPrices && preparationType ? (
@@ -229,7 +231,7 @@ export function ProductDetailPurchaseCard({
           catalogPublicUsd={displayUsd}
           offerUnitUsd={offerUnitUsd}
           showDiscountBadge={!isMockupLayout}
-          showAdminPurchaseLine={isMockupLayout}
+          showAdminPurchaseLine={isMockupLayout && isAdmin}
           showOfferBreakdown={isLaptopMockup}
         />
       )}
@@ -245,38 +247,31 @@ export function ProductDetailPurchaseCard({
           <span
             className={cn(
               'rounded px-2 py-0.5 text-[0.6875rem] font-semibold',
-              outOfStock ? 'bg-neutral-100 text-neutral-600' : 'bg-emerald-50 text-emerald-700',
+              hasStock ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-100 text-neutral-600',
             )}
           >
-            {outOfStock ? 'Consultar stock' : 'En stock'}
+            {stockLabel}
           </span>
           <span className="rounded bg-pink-50 px-2 py-0.5 text-[0.6875rem] font-semibold text-pink-700">
             Exclusivo online
           </span>
         </div>
       ) : (
-        <div className="mb-3 flex items-center justify-between gap-2">
-          {displayDiscountPercent != null && displayDiscountPercent > 0 ? (
-            <span className="rounded bg-red-600 px-2 py-0.5 text-[0.6875rem] font-bold text-white">
-              {displayDiscountPercent}% OFF
-            </span>
-          ) : (
-            <span aria-hidden="true" />
-          )}
+        <div className="mb-3 flex items-center justify-end gap-2">
           <span
             className={cn(
               'inline-flex items-center gap-1.5 text-xs font-medium',
-              outOfStock ? 'text-neutral-500' : 'text-emerald-600',
+              hasStock ? 'text-emerald-600' : 'text-neutral-500',
             )}
           >
             <span
               className={cn(
                 'size-2 rounded-full',
-                outOfStock ? 'bg-neutral-400' : 'bg-emerald-500',
+                hasStock ? 'bg-emerald-500' : 'bg-neutral-400',
               )}
               aria-hidden="true"
             />
-            {outOfStock ? 'Consultar stock' : 'Stock disponible'}
+            {stockLabel}
           </span>
         </div>
       )

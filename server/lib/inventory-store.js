@@ -379,6 +379,8 @@ export function getDeletedProductIds(data) {
 /**
  * Fusiona un producto del catálogo maestro con el existente en inventario.
  * Conserva stock, proveedores, adjuntos y atributos; actualiza precios e imágenes del catálogo.
+ * Si el inventario quedó en 0 (sin unidades en almacenes) y el catálogo trae stock > 0,
+ * restaura el stock del catálogo para evitar fichas “agotadas” por desfase de snapshot.
  */
 export function mergeCatalogProduct(seed, existing, warehouses) {
   if (!existing) {
@@ -392,6 +394,16 @@ export function mergeCatalogProduct(seed, existing, warehouses) {
     ? existing.gallery.filter((url) => typeof url === 'string' && url.length > 0)
     : [];
 
+  const seedStock = Math.max(0, Math.floor(Number(seed.stock) || 0));
+  const existingStock = Math.max(0, Math.floor(Number(existing.stock) || 0));
+  const warehouseQty = Array.isArray(existing.stock_by_warehouse)
+    ? existing.stock_by_warehouse.reduce(
+        (sum, row) => sum + Math.max(0, Math.floor(Number(row?.quantity) || 0)),
+        0,
+      )
+    : existingStock;
+  const restoreCatalogStock = existingStock <= 0 && warehouseQty <= 0 && seedStock > 0;
+
   return migrateInventoryProduct(
     {
       ...seed,
@@ -400,8 +412,8 @@ export function mergeCatalogProduct(seed, existing, warehouses) {
       name: existing.name?.trim() || seed.name,
       category: existing.category ?? seed.category,
       brand: existing.brand ?? seed.brand,
-      stock: existing.stock,
-      stock_by_warehouse: existing.stock_by_warehouse,
+      stock: restoreCatalogStock ? seedStock : existing.stock,
+      stock_by_warehouse: restoreCatalogStock ? undefined : existing.stock_by_warehouse,
       suppliers: existing.suppliers,
       attachments: existing.attachments,
       attributes: existing.attributes,

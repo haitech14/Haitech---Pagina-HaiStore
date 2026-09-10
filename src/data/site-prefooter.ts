@@ -32,7 +32,7 @@ export const SITE_PREFOOTER_ITEMS: readonly SitePrefooterItem[] = [
     title: 'Impresoras',
     description: 'Impresoras láser Ricoh para oficina y empresa.',
     icon: Printer,
-    href: '/categoria/impresoras',
+    href: categoryLandingPath('impresoras'),
   },
   {
     id: 'nuestros-productos',

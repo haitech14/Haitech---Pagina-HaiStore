@@ -1,8 +1,6 @@
 import {
   buildProductQuotePdf,
-  buildQuoteTechnicalSheetFromLine,
   downloadQuotePdf,
-  downloadTechnicalSheetPdf,
 } from '@/lib/generate-product-quote-pdf';
 import { buildTpvDocumentPdf } from '@/lib/generate-tpv-document-pdf';
 import type { CompanySettings } from '@/types/company-settings';
@@ -80,19 +78,4 @@ export async function downloadProformaPdf(
 ): Promise<void> {
   const { blob, filename } = await regenerateProformaPdf(proforma, company);
   downloadQuotePdf(blob, filename);
-
-  if (proforma.source === 'product' && proforma.lineItems.length > 0) {
-    const sheets = proforma.lineItems.map((line) =>
-      buildQuoteTechnicalSheetFromLine({
-        name: line.name,
-        sku: line.sku,
-        brand: line.brand,
-        pricePen: line.unitPricePen,
-        quantity: line.quantity,
-        imageUrl: line.imageUrl ?? null,
-        shortDescription: line.shortDescription ?? null,
-      }),
-    );
-    void downloadTechnicalSheetPdf(sheets, company);
-  }
 }

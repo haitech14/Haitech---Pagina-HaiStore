@@ -14,14 +14,17 @@ import {
 import { useAdminOrdersList } from '@/hooks/use-admin-orders';
 import { useAdminProformas } from '@/hooks/use-admin-proformas';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
+import type { CotizacionCanalFilter } from '@/lib/cotizacion-canal';
 import { fileToBase64 } from '@/lib/file-to-base64';
 
 interface AdminVentasUnifiedPanelProps {
   defaultTypeFilter?: 'all' | 'venta' | 'cotizacion' | 'historico';
+  defaultCanalFilter?: CotizacionCanalFilter;
 }
 
 export function AdminVentasUnifiedPanel({
   defaultTypeFilter = 'all',
+  defaultCanalFilter = 'all',
 }: AdminVentasUnifiedPanelProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedMonth, setSelectedMonth] = useState<string>(ALL_IMPORTED_MONTHS);
@@ -147,6 +150,7 @@ export function AdminVentasUnifiedPanel({
         isLoading={ordersLoading || proformasLoading}
         importedLoading={importedLoading}
         defaultTypeFilter={defaultTypeFilter}
+        defaultCanalFilter={defaultCanalFilter}
       />
     </div>
   );

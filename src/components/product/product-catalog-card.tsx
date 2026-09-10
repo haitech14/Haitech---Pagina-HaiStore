@@ -24,6 +24,7 @@ import { ProductQuantityAddFooter } from '@/components/product/product-quantity-
 import { ViewAsRoleBadge } from '@/components/product/view-as-role-badge';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
 import {
   buildProductCardImageCandidates,
   buildProductCardStoredImageCandidates,
@@ -215,12 +216,27 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
-  const imageCandidates = useMemo(() => buildProductCardImageCandidates(product), [product]);
-  const storedImageCandidates = useMemo(
-    () => buildProductCardStoredImageCandidates(product),
-    [product],
+  const { image_url: liveImageUrl, gallery: liveGallery, imageVersion } = useLiveProductCardMedia(
+    product.id,
+    {
+      image_url: product.image_url,
+      gallery: product.gallery,
+    },
   );
-  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
+  const imageProduct = useMemo(
+    () => ({
+      ...product,
+      image_url: liveImageUrl,
+      gallery: liveGallery,
+    }),
+    [liveGallery, liveImageUrl, product],
+  );
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageProduct), [imageProduct]);
+  const storedImageCandidates = useMemo(
+    () => buildProductCardStoredImageCandidates(imageProduct),
+    [imageProduct],
+  );
+  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(imageProduct), [imageProduct]);
   const wishlistSelected = isWishlisted(product.id);
   const displayTitle = formatProductCardTitle(product);
   const rating = getCatalogCardRating(product);
@@ -269,6 +285,7 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
             alt={product.name}
             className="size-full"
             imageClassName={PRODUCT_CARD_IMAGE_CLASS}
+            imageVersion={imageVersion}
           />
         </Link>
       </div>

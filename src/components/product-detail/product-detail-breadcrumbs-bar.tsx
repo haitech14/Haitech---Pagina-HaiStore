@@ -9,6 +9,7 @@ import { ProductDetailBreadcrumbs } from '@/components/product-detail/product-de
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { fetchAdminInventoryProductById } from '@/hooks/use-products';
+import { isApiConnectionError } from '@/lib/api';
 import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
 import { cn } from '@/lib/utils';
 import type { InventoryProduct, Product } from '@/types/product';
@@ -31,14 +32,13 @@ export function ProductDetailBreadcrumbsBar({
 }: ProductDetailBreadcrumbsBarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAdmin, canAccessAdminPanel } = useAuth();
+  const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<InventoryProduct | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
 
-  // Staff del panel, o siempre en localhost para no “perder” el botón si la sesión caducó.
-  const showEditButton = canAccessAdminPanel || isAdmin || import.meta.env.DEV;
+  const showEditButton = isAdmin;
 
   const returnPath = `${location.pathname}${location.search}${location.hash}`;
 
@@ -49,7 +49,7 @@ export function ProductDetailBreadcrumbsBar({
   const openEdit = useCallback(async () => {
     if (!product.id || loadingEdit) return;
 
-    if (!canAccessAdminPanel && !isAdmin) {
+    if (!isAdmin) {
       toast.message('Inicia sesión de administrador para editar el producto.');
       goToLogin();
       return;
@@ -61,6 +61,7 @@ export function ProductDetailBreadcrumbsBar({
       setEditingProduct(full);
       setEditOpen(true);
     } catch (error) {
+      if (isApiConnectionError(error)) return;
       const message =
         error instanceof Error
           ? error.message
@@ -74,7 +75,7 @@ export function ProductDetailBreadcrumbsBar({
     } finally {
       setLoadingEdit(false);
     }
-  }, [canAccessAdminPanel, goToLogin, isAdmin, loadingEdit, product.id]);
+  }, [goToLogin, isAdmin, loadingEdit, product.id]);
 
   const handleSaved = useCallback(
     (saved: InventoryProduct) => {
@@ -127,7 +128,7 @@ export function ProductDetailBreadcrumbsBar({
         </div>
       </div>
 
-      {(canAccessAdminPanel || isAdmin) && editingProduct ? (
+      {isAdmin && editingProduct ? (
         <InventoryProductFormDialog
           open={editOpen}
           onOpenChange={(open) => {

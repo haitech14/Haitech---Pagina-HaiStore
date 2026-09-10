@@ -53,14 +53,19 @@ export const STORE_SHOWCASE_SLUGS = new Set([
 
 /** Vitrina /tienda/:slug → categoría canónica (evita duplicados). */
 export const VITRINA_CANONICAL_PATH = {
-  multifuncionales: '/categoria/multifuncionales?sub=todas',
-  impresoras: '/categoria/impresoras',
-  'formato-ancho': '/categoria/formato-ancho',
-  toner: '/categoria/toner-suministros',
-  'toner-repuestos': '/categoria/toner-suministros',
-  repuestos: '/categoria/repuestos',
-  accesorios: '/categoria/accesorios',
-  escaneres: '/categoria/escaneres',
+  multifuncionales: '/tienda/multifuncionales',
+  impresoras: '/tienda/impresoras',
+  'formato-ancho': '/tienda/formato-ancho',
+  toner: '/tienda/toner',
+  'toner-repuestos': '/tienda/toner',
+  repuestos: '/tienda/repuestos',
+  accesorios: '/tienda/accesorios',
+  escaneres: '/tienda/escaneres',
+  laptops: '/tienda/laptops',
+  monitores: '/tienda/monitores',
+  camaras: '/tienda/camaras',
+  'pantallas-interactivas': '/tienda/pantallas-interactivas',
+  videoconferencia: '/tienda/videoconferencia',
   software: '/software',
 };
 

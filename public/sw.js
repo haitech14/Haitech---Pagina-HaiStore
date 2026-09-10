@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'haistore-v2';
+const CACHE_VERSION = 'haistore-v3';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const CATALOG_CACHE = `${CACHE_VERSION}-catalog`;
 
@@ -23,10 +23,7 @@ self.addEventListener('activate', (event) => {
 });
 
 function isCacheFirstAsset(url) {
-  return (
-    url.pathname.startsWith('/assets/') ||
-    /\/products\/[^/]+-256\.webp$/i.test(url.pathname)
-  );
+  return url.pathname.startsWith('/assets/');
 }
 
 function isCatalogJson(url) {

@@ -165,91 +165,91 @@ const CATALOG_FEATURED_BY_SLUG: Record<string, MegaMenuFeaturedContent> = {
     title: 'Multifuncionales Ricoh',
     description:
       'Equipos todo en uno para imprimir, escanear y copiar con eficiencia energética y conectividad empresarial.',
-    href: '/categoria/multifuncionales',
+    href: categoryLandingPath('multifuncionales'),
   },
   impresoras: {
     image: '/categories/impresoras-512.webp',
     title: 'Impresoras láser e inkjet',
     description:
       'Desde equipos de escritorio hasta impresoras de alto volumen para oficinas exigentes.',
-    href: '/categoria/impresoras',
+    href: categoryLandingPath('impresoras'),
   },
   'formato-ancho': {
     image: '/categories/formato-ancho-512.webp',
     title: 'Plotters y formato ancho',
     description:
       'Impresión de planos, gráficos y señalización con precisión profesional.',
-    href: '/categoria/formato-ancho',
+    href: categoryLandingPath('formato-ancho'),
   },
   escaneres: {
     image: '/categories/escaneres-512.webp',
     title: 'Escáneres de documentos',
     description:
       'Digitaliza archivos con velocidad y calidad para flujos de trabajo sin papel.',
-    href: '/categoria/escaneres',
+    href: categoryLandingPath('escaneres'),
   },
   'toner-suministros': {
     image: '/categories/toner-suministros-512.webp',
     title: 'Tóner y suministros',
     description:
       'Consumibles originales y compatibles certificados para tu flota de impresión.',
-    href: '/categoria/toner-suministros',
+    href: categoryLandingPath('toner-suministros'),
   },
   repuestos: {
     image: '/categories/repuestos-512.webp',
     title: 'Repuestos y componentes',
     description:
       'Partes originales y compatibles para mantener tus equipos en óptimas condiciones.',
-    href: '/categoria/repuestos',
+    href: categoryLandingPath('repuestos'),
   },
   accesorios: {
     image: '/categories/accesorios-impresoras-512.webp',
     title: 'Accesorios de impresión',
     description:
       'Bandejas, finisher, grapadoras y accesorios para ampliar las capacidades de tu equipo.',
-    href: '/categoria/accesorios',
+    href: categoryLandingPath('accesorios'),
   },
   'computadoras-laptop': {
     image: '/categories/computadoras-laptop-512.webp',
     title: 'Computadoras y laptops',
     description:
       'Equipos de cómputo para productividad empresarial con soporte local Haitech.',
-    href: '/categoria/computadoras-laptop',
+    href: categoryLandingPath('computadoras-laptop'),
   },
   monitores: {
     image: '/categories/monitores-512.webp',
     title: 'Monitores profesionales',
     description:
       'Pantallas para oficina, diseño y videoconferencia con excelente relación calidad-precio.',
-    href: '/categoria/monitores',
+    href: categoryLandingPath('monitores'),
   },
   camaras: {
     image: '/categories/camaras-512.webp',
     title: 'Cámaras y videovigilancia',
     description:
       'Soluciones de seguridad y monitoreo para proteger tu negocio las 24 horas.',
-    href: '/categoria/camaras',
+    href: categoryLandingPath('camaras'),
   },
   alquiler: {
     image: '/categories/alquiler-512.webp',
     title: 'Alquiler de equipos',
     description:
       'Tecnología bajo demanda sin inversión inicial: impresoras, laptops y más.',
-    href: '/categoria/alquiler',
+    href: categoryLandingPath('alquiler'),
   },
   'soluciones-colaboracion': {
     image: '/categories/soluciones-colaboracion-512.webp',
     title: 'Pizarras interactivas',
     description:
       'IFPD 4K y soluciones de colaboración para salas de reunión modernas.',
-    href: '/categoria/soluciones-colaboracion',
+    href: categoryLandingPath('soluciones-colaboracion'),
   },
   'soluciones-negocio': {
     image: '/categories/soluciones-negocio-512.webp',
     title: 'Soluciones de negocio',
     description:
       'Infraestructura tecnológica integral para empresas en crecimiento.',
-    href: '/categoria/soluciones-negocio',
+    href: categoryLandingPath('soluciones-negocio'),
   },
 };
 

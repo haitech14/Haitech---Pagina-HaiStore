@@ -1,4 +1,4 @@
-import { ALL_SUBCATEGORIES_QUERY } from './category-query.js';
+import { categoryCanonicalPath } from './category-query.js';
 
 /**
  * Recorre el árbol de categorías y genera URLs indexables con metadatos.
@@ -16,7 +16,7 @@ export function collectCategoryTreeUrls(tree, parentRootSlug = null) {
     const walk = (current, root) => {
       if (current.children?.length) {
         for (const child of current.children) {
-          const pathname = `/categoria/${root}?sub=${encodeURIComponent(child.slug)}`;
+          const pathname = categoryCanonicalPath(root);
           entries.push({
             rootSlug: root,
             subSlug: child.slug,
@@ -31,10 +31,7 @@ export function collectCategoryTreeUrls(tree, parentRootSlug = null) {
 
     walk(node, rootSlug);
 
-    const basePath =
-      rootSlug === 'multifuncionales'
-        ? `/categoria/${rootSlug}?sub=${encodeURIComponent(ALL_SUBCATEGORIES_QUERY)}`
-        : `/categoria/${rootSlug}`;
+    const basePath = categoryCanonicalPath(rootSlug);
     entries.push({
       rootSlug,
       subSlug: rootSlug === 'multifuncionales' ? 'all' : '',

@@ -101,6 +101,8 @@ export function ProductWhatsAppButton({
       await saveContact(nextContact, {
         channel: 'whatsapp-product',
         createProforma: !options.generateQuote,
+        productName: product.name,
+        ...(product.id ? { productId: product.id } : {}),
       });
 
       let quoteNumber: string | undefined;

@@ -74,5 +74,5 @@ export function shouldShowProductImageWatermarkOverlay(url) {
  * @returns {boolean}
  */
 export function isProductImageWatermarkEnabled() {
-  return process.env.HAISTORE_DISABLE_WATERMARK !== '1';
+  return false;
 }

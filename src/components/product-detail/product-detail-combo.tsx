@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useCart } from '@/context/cart-context';
 import { productPath } from '@/lib/product-path';
-import { cn, penToUsd } from '@/lib/utils';
+import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
 import type { ProductComboItem } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
@@ -149,13 +149,19 @@ function ComplementSelectableCard({
   item,
   selected,
   onToggle,
+  stackedPrice = false,
 }: {
   item: ProductComboItem;
   selected: boolean;
   onToggle: (checked: boolean) => void;
+  /** Precio tachado + soles/dólares apilados (como en la tienda). */
+  stackedPrice?: boolean;
 }) {
   const inputId = `complement-${item.id}`;
   const unitUsd = comboItemUsd(item);
+  const compareUsd = unitUsd > 0 ? Math.round((unitUsd / (1 - 0.11)) * 100) / 100 : 0;
+  const discountPercent =
+    compareUsd > unitUsd ? Math.max(1, Math.round((1 - unitUsd / compareUsd) * 100)) : 0;
 
   return (
     <label
@@ -186,9 +192,32 @@ function ComplementSelectableCard({
         <span className="line-clamp-2 text-pretty text-[0.625rem] font-medium leading-snug text-[#0f1f3d] sm:text-[0.6875rem]">
           {item.name}
         </span>
-        <span className="truncate text-[0.6875rem] font-bold tabular-nums text-red-600 sm:text-xs">
-          <DualPrice usd={unitUsd} className="text-[0.6875rem] font-bold sm:text-xs" />
-        </span>
+        {stackedPrice ? (
+          <>
+            {discountPercent > 0 ? (
+              <span className="flex flex-wrap items-center gap-1">
+                <span className="text-[0.625rem] font-medium tabular-nums text-[#9CA3AF] line-through decoration-[#9CA3AF] sm:text-[0.6875rem]">
+                  {formatPenFromUsd(compareUsd)}
+                </span>
+                <span className="inline-flex rounded-full bg-[#E30613] px-1 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
+                  {discountPercent}% DSCT
+                </span>
+              </span>
+            ) : null}
+            <span className="flex flex-col items-start gap-0.5 tabular-nums">
+              <span className="text-[0.6875rem] font-bold leading-none text-red-600 sm:text-xs">
+                {formatPenFromUsd(unitUsd)}
+              </span>
+              <span className="text-[0.625rem] font-semibold leading-none text-[#6B7280] sm:text-[0.6875rem]">
+                {formatUsd(unitUsd)}
+              </span>
+            </span>
+          </>
+        ) : (
+          <span className="truncate text-[0.6875rem] font-bold tabular-nums text-red-600 sm:text-xs">
+            <DualPrice usd={unitUsd} className="text-[0.6875rem] font-bold sm:text-xs" />
+          </span>
+        )}
       </span>
     </label>
   );
@@ -346,13 +375,21 @@ export function ProductDetailCombo({
             )}
           >
             <ul
-              className="mt-3 grid list-none gap-2 p-0 sm:mt-4 sm:gap-2.5 sm:grid-cols-2 lg:grid-cols-3"
+              className="mt-3 grid list-none gap-2 p-0 sm:mt-4 sm:gap-2.5 sm:grid-cols-2"
             >
-              {items.map((item) => (
-                <li key={item.id} className="min-w-0">
+              {items.map((item, index) => (
+                <li
+                  key={item.id}
+                  className={cn(
+                    'min-w-0',
+                    // Tercera tarjeta: no ocupar el ancho completo de la fila.
+                    index === 2 && 'sm:max-w-[calc(50%-0.3125rem)]',
+                  )}
+                >
                   <ComplementSelectableCard
                     item={item}
                     selected={Boolean(selected[item.id])}
+                    stackedPrice={index < 2}
                     onToggle={(checked) =>
                       setSelected((prev) => ({ ...prev, [item.id]: checked }))
                     }

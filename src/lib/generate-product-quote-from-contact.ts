@@ -1,14 +1,17 @@
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { buildProformaPayloadFromProductQuote } from '@/lib/build-proforma-payload';
+import { buildProductQuoteShortDescription } from '@/lib/build-product-quote-short-description';
 import { buildProductQuoteLines } from '@/lib/equipment-config-selection';
 import {
   buildProductQuotePdf,
-  buildQuoteTechnicalSheetFromProduct,
-  downloadTechnicalSheetPdf,
   preloadQuotePdfAssets,
   type QuoteClientData,
 } from '@/lib/generate-product-quote-pdf';
 import type { HaitechClientFormValues } from '@/lib/haitech-client-schema';
+import {
+  downloadProductAttachment,
+  findTechnicalSheetAttachment,
+} from '@/lib/inventory-attachments';
 import { usdToPen } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 import type { CartConfigurationLine, Product } from '@/types/product';
@@ -139,6 +142,10 @@ export function contactToQuoteClient(contact: WhatsAppContact): QuoteClientData 
   };
 }
 
+function sanitizeAttachmentFileName(value: string): string {
+  return value.replace(/[^\w\s-]/g, '').trim().slice(0, 48) || 'producto';
+}
+
 export async function generateProductQuoteFromForm(
   form: ProductQuoteFormValues,
   context: ProductQuoteContext,
@@ -168,25 +175,12 @@ export async function generateProductQuoteFromClient(
       pricePen: usdToPen(context.product.price),
       quantity,
       imageUrl: context.product.image_url,
-      shortDescription: context.product.description?.trim() || null,
+      shortDescription: buildProductQuoteShortDescription(context.product),
     },
     context.equipmentConfiguration,
   );
 
   await preloadQuotePdfAssets([context.product.image_url]);
-
-  let technicalSheet = null;
-  try {
-    technicalSheet = buildQuoteTechnicalSheetFromProduct(context.product, {
-      displayTitle: context.displayTitle,
-      categoryLabel: context.categoryLabel ?? context.product.category ?? 'Equipo',
-      ...(context.heroSpecBullets ? { heroSpecBullets: context.heroSpecBullets } : {}),
-      ...(context.heroLead ? { heroLead: context.heroLead } : {}),
-      ...(context.heroDescription ? { heroDescription: context.heroDescription } : {}),
-    });
-  } catch (sheetError) {
-    console.warn('[generateProductQuoteFromContact] technical sheet skipped', sheetError);
-  }
 
   const generated = await buildProductQuotePdf(client, quoteLines, companySettings);
   const url = URL.createObjectURL(generated.blob);
@@ -198,30 +192,41 @@ export async function generateProductQuoteFromClient(
     quoteNumber: generated.quoteNumber,
   };
 
-  if (technicalSheet) {
-    void downloadTechnicalSheetPdf(technicalSheet, companySettings);
+  const productTechnicalSheet = findTechnicalSheetAttachment(context.product);
+  if (productTechnicalSheet?.url) {
+    const fileName =
+      productTechnicalSheet.file_name?.trim() ||
+      `${sanitizeAttachmentFileName(context.displayTitle)}-ficha-tecnica.pdf`;
+    void downloadProductAttachment(productTechnicalSheet.url, fileName).catch((sheetError) => {
+      console.warn(
+        '[generateProductQuoteFromClient] No se pudo descargar la ficha técnica del producto',
+        sheetError,
+      );
+    });
   }
 
   if (registerProductQuote) {
-    void registerProductQuote(
-      buildProformaPayloadFromProductQuote(
-        generated.quoteNumber,
-        client,
-        quoteLines.map((line, index) => ({
-          id: index === 0 ? context.product.id : `${context.product.id}::${line.sku}`,
-          name: line.name,
-          sku: line.sku,
-          brand: line.brand,
-          pricePen: line.pricePen,
-          quantity: line.quantity ?? quantity,
-          imageUrl: line.imageUrl ?? null,
-          shortDescription: line.shortDescription ?? null,
-        })),
-        companySettings.quoteValidityDays,
-      ),
-    ).catch(() => {
-      /* El llamador puede mostrar toast */
-    });
+    try {
+      await registerProductQuote(
+        buildProformaPayloadFromProductQuote(
+          generated.quoteNumber,
+          client,
+          quoteLines.map((line, index) => ({
+            id: index === 0 ? context.product.id : `${context.product.id}::${line.sku}`,
+            name: line.name,
+            sku: line.sku,
+            brand: line.brand,
+            pricePen: line.pricePen,
+            quantity: line.quantity ?? quantity,
+            imageUrl: line.imageUrl ?? null,
+            shortDescription: line.shortDescription ?? null,
+          })),
+          companySettings.quoteValidityDays,
+        ),
+      );
+    } catch (registerError) {
+      console.warn('[generateProductQuoteFromClient] No se registró en admin', registerError);
+    }
   }
 
   return preview;

@@ -32,6 +32,9 @@ function resolveAdminTopBarTitle(pathname: string, search: string): string {
   if (pathname.startsWith(ADMIN_ROUTES.PEDIDOS)) return 'Pedidos';
   if (pathname.startsWith(ADMIN_ROUTES.VENTAS)) {
     if (search.includes('vista=tpv') || search.includes('nuevo=1')) return 'Nueva venta';
+    if (search.includes('vista=cotizaciones') && search.includes('canal=whatsapp')) {
+      return 'WhatsApp / Leads';
+    }
     if (search.includes('vista=cotizaciones')) return 'Cotizaciones';
     if (search.includes('vista=devoluciones')) return 'Devoluciones';
     if (search.includes('vista=listado') || search.includes('vista=historico')) return 'Histórico de ventas';

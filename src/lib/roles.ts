@@ -111,6 +111,8 @@ export function resolveUserRolePriceUsd(
   }
   const priceRole = resolvePriceRole(userRole);
   const raw = full[priceRole] ?? full.public;
+  // Precio técnico se muestra tal cual (p. ej. US$ 859), sin redondeo 49/99.
+  if (priceRole === 'tecnico') return raw;
   return options?.isEquipment ? roundEquipmentDisplayUsd(raw) : raw;
 }
 

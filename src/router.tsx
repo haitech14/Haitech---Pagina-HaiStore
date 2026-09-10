@@ -10,10 +10,9 @@ import {
 
 import { RootLayout } from '@/components/layout/root-layout';
 import { lazyWithRetry } from '@/lib/lazy-with-retry';
+import { categoryRedirectFromLocation } from '@/lib/category-path';
 import { prefetchHomeCatalog } from '@/lib/prefetch-home-catalog';
-import { prefetchCategoryPage } from '@/lib/prefetch-category-page';
 import { prefetchStoreRoute } from '@/lib/prefetch-store-route';
-import { ALL_SUBCATEGORIES_QUERY } from '@/lib/store-category-display';
 import { legacyStoreShowcaseRedirectPath } from '@/lib/store-showcase-path';
 import { HomePage } from '@/pages/home';
 import { queryClient } from '@/providers';
@@ -560,29 +559,19 @@ export const router = createBrowserRouter([
       },
       {
         path: 'categoria/:slug',
-        loader: ({ params, request }) => {
+        loader: ({ request }) => {
           const url = new URL(request.url);
-          const slug = params.slug ?? '';
-          let subSlug = url.searchParams.get('sub');
-
-          if (slug === 'multifuncionales' && (!subSlug || subSlug === 'all')) {
-            url.searchParams.set('sub', ALL_SUBCATEGORIES_QUERY);
-            prefetchCategoryPage(queryClient, {
-              slug,
-              subSlug: ALL_SUBCATEGORIES_QUERY,
-            });
-            return redirect(`${url.pathname}?${url.searchParams.toString()}${url.hash}`);
-          }
-
-          if (subSlug === 'all') {
-            url.searchParams.set('sub', ALL_SUBCATEGORIES_QUERY);
-            return redirect(`${url.pathname}?${url.searchParams.toString()}${url.hash}`);
-          }
-
-          prefetchCategoryPage(queryClient, { slug, subSlug });
-          return null;
+          return redirect(categoryRedirectFromLocation(url.pathname, url.search));
         },
-        element: withSuspense(<StorefrontRoutePage />),
+        element: <Navigate to="/tienda" replace />,
+      },
+      {
+        path: 'categoria/:slug/*',
+        loader: ({ request }) => {
+          const url = new URL(request.url);
+          return redirect(categoryRedirectFromLocation(url.pathname, url.search));
+        },
+        element: <Navigate to="/tienda" replace />,
       },
       {
         path: 'tienda/producto/:slug',

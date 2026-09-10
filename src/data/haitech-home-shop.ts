@@ -158,27 +158,18 @@ export function formatHaitechPen(value: number): string {
   })}`;
 }
 
-/** Almacenes por defecto en tooltips de stock (Lima / Piura). */
+/** Tooltip de stock: todo el inventario se muestra en Lima. */
 export function resolveHaitechShopStockLocations(
-  product: Pick<HaitechShopProduct, 'stock' | 'stockLocations' | 'id'>,
+  product: Pick<HaitechShopProduct, 'stock' | 'stockLocations'>,
 ): { name: string; quantity: number }[] {
-  const explicit = (product.stockLocations ?? []).filter((row) => row.quantity > 0);
-  if (explicit.length > 0) {
-    return explicit.map((row) => ({ name: row.name, quantity: row.quantity }));
-  }
-
-  const total = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const explicitTotal = (product.stockLocations ?? []).reduce(
+    (sum, row) => sum + Math.max(0, Math.floor(Number(row.quantity) || 0)),
+    0,
+  );
+  const stockTotal = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const total = stockTotal > 0 ? stockTotal : explicitTotal;
   if (total <= 0) return [];
-
-  // Distribución estable por id (no aleatoria) entre sedes Lima y Piura.
-  const hash = Array.from(product.id).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-  const limaShare = 0.55 + (hash % 30) / 100;
-  const lima = Math.max(1, Math.min(total - (total > 1 ? 1 : 0), Math.round(total * limaShare)));
-  const piura = total - lima;
-
-  const locations = [{ name: 'Lima', quantity: lima }];
-  if (piura > 0) locations.push({ name: 'Piura', quantity: piura });
-  return locations;
+  return [{ name: 'Lima', quantity: total }];
 }
 
 const EQUIPMENT_FEATURES = ['copia', 'escanea', 'imprime', 'rendimiento'] as const;
@@ -273,6 +264,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     brand: 'RICOH',
     code: 'MP-305+',
     stock: 6,
+    isOffer: true,
     image: '/products/ab878d89-61e0-4e51-a941-03455e1da407.webp',
     colorSwatch: '#1a1a1a',
     price: 3899,
@@ -405,7 +397,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     name: 'Multifuncional color RICOH M C320FW',
     brand: 'RICOH',
     code: '418787-CP04H4',
-    stock: 4,
+    stock: 1,
     image: '/products/cb1e47b2-d784-4bef-ae18-d4dae08723e4.webp',
     colorSwatch: '#1a1a1a',
     price: 4099,
@@ -489,6 +481,8 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     name: 'Multifuncional color RICOH IM C2010',
     brand: 'RICOH',
     code: '419346',
+    stock: 4,
+    stockLocations: [{ name: 'Lima', quantity: 4 }],
     image: '/products/9c65bcbd-3a13-41dd-81b1-95cb3256a7c1.webp',
     colorSwatch: '#333',
     price: 17269,

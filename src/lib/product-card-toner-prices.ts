@@ -17,6 +17,7 @@ import {
   resolveKnownOriginalTonerProductIds,
   resolveTonerSupplyTypeFromProduct,
 } from '@/lib/product-merchandising';
+import { extractProductYield } from '@/lib/product-cost-per-copy';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { ensureFullPrices, type PriceRole } from '@/lib/roles';
 import type { Product } from '@/types/product';
@@ -30,6 +31,7 @@ export interface EquipmentTonerPriceLine {
   description?: string;
   name?: string;
   image?: string;
+  yieldLabel?: string;
 }
 
 const COLOR_ORDER = ['Negro', 'Cyan', 'Magenta', 'Amarillo'] as const;
@@ -187,6 +189,35 @@ function listedRowPriceUsd(row: ListedOriginalTonerRow, priceRole: PriceRole): n
 
 const GENERIC_TONER_THUMB = '/products/toner-418480.webp';
 
+function formatTonerYieldPages(pages: number): string {
+  return `${pages.toLocaleString('es-PE')} págs`;
+}
+
+function resolveTonerLineYield(options: {
+  product?: Product;
+  listedYieldPages?: string;
+  item?: ConsumableItem;
+}): string | undefined {
+  const { product, listedYieldPages, item } = options;
+  if (product) {
+    const info = extractProductYield(product);
+    if (info.pages != null && info.pages > 0) {
+      return formatTonerYieldPages(info.pages);
+    }
+  }
+  if (item?.yieldPages != null && item.yieldPages > 0) {
+    return formatTonerYieldPages(item.yieldPages);
+  }
+  const listed = listedYieldPages?.trim();
+  if (listed) {
+    const pages = Number.parseInt(listed.replace(/[^\d]/g, ''), 10);
+    if (Number.isFinite(pages) && pages > 0) {
+      return formatTonerYieldPages(pages);
+    }
+  }
+  return undefined;
+}
+
 function resolveTonerLineImage(
   product: Product | undefined,
   fallbackImage?: string | null,
@@ -212,6 +243,10 @@ function listedRowToLine(
     : 0;
   const priceUsd = fromCatalog > 0 ? fromCatalog : listedRowPriceUsd(row, priceRole);
   const image = resolveTonerLineImage(product);
+  const yieldLabel = resolveTonerLineYield({
+    ...(product ? { product } : {}),
+    listedYieldPages: row.yieldPages,
+  });
   return {
     id: product?.id ?? row.id,
     label: row.color,
@@ -221,6 +256,7 @@ function listedRowToLine(
     description: row.description,
     name: product?.name ?? row.name,
     image,
+    ...(yieldLabel ? { yieldLabel } : {}),
   };
 }
 
@@ -289,6 +325,10 @@ export function resolveEquipmentTonerPriceLines(
       .map((item) => {
         const product = catalogById.get(item.productId);
         const image = resolveTonerLineImage(product, item.image);
+        const yieldLabel = resolveTonerLineYield({
+          ...(product ? { product } : {}),
+          item,
+        });
         return {
           id: item.productId,
           label: lineLabel(item, catalogById),
@@ -297,6 +337,7 @@ export function resolveEquipmentTonerPriceLines(
           ...(item.sku ? { code: item.sku } : {}),
           name: item.name,
           image,
+          ...(yieldLabel ? { yieldLabel } : {}),
         };
       })
       .filter((line) => line.priceUsd > 0);

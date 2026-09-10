@@ -11,7 +11,10 @@ import type {
 const MEDIA_ALBUM_QUERY_KEY = ['media-album'] as const;
 const MEDIA_ALBUM_DRIVE_QUERY_KEY = ['media-album', 'drive'] as const;
 
-export function useMediaAlbum(kind?: MediaAlbumItemKind) {
+export function useMediaAlbum(
+  kind?: MediaAlbumItemKind,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: [...MEDIA_ALBUM_QUERY_KEY, kind ?? 'all'],
     queryFn: () => {
@@ -20,6 +23,7 @@ export function useMediaAlbum(kind?: MediaAlbumItemKind) {
     },
     select: (data) => data.items,
     staleTime: 30_000,
+    enabled: options?.enabled !== false,
     retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 4000),
     refetchOnMount: 'always',

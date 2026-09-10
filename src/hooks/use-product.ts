@@ -14,6 +14,7 @@ import { findProductInQueryCache } from '@/lib/find-cached-product';
 import { normalizeInventoryProduct } from '@/lib/inventory-product';
 import { toPublicProduct } from '@/lib/pricing';
 import { applyViewAsPriceToProduct, shouldApplyViewAsPriceTransform, viewAsRolesQueryKey } from '@/lib/view-as-role';
+import { resolveShowcaseSyntheticProduct } from '@/lib/showcase-synthetic-product';
 import type { Product } from '@/types/product';
 
 export async function fetchProductById(id: string): Promise<Product | null> {
@@ -85,6 +86,26 @@ export function useProduct(id: string | undefined) {
       : base;
   }, [id, featuredFallback, fetchedProduct, isFetched, role, viewAsRoles, effectiveRole]);
 
+  const fromShowcase = useMemo(() => {
+    if (!id || featuredFallback || fetchedProduct || fromCatalogJson || !isFetched) {
+      return undefined;
+    }
+    const synthetic = resolveShowcaseSyntheticProduct(id, role);
+    if (!synthetic) return undefined;
+    return shouldApplyViewAsPriceTransform(viewAsRoles)
+      ? applyViewAsPriceToProduct(synthetic, effectiveRole)
+      : synthetic;
+  }, [
+    id,
+    featuredFallback,
+    fetchedProduct,
+    fromCatalogJson,
+    isFetched,
+    role,
+    viewAsRoles,
+    effectiveRole,
+  ]);
+
   const applyViewAs = (candidate: Product | undefined): Product | undefined => {
     if (!candidate) return undefined;
     return shouldApplyViewAsPriceTransform(viewAsRoles)
@@ -96,7 +117,7 @@ export function useProduct(id: string | undefined) {
     isFetched && !fetchingOne
       ? featuredFallback
         ? featuredToProduct(featuredFallback)
-        : fromCatalogJson
+        : fromCatalogJson ?? fromShowcase
       : undefined;
 
   const product: Product | undefined =

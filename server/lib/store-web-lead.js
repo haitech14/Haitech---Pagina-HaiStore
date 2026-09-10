@@ -26,6 +26,7 @@ export const WEB_LEAD_CHANNEL_LABELS = {
   'account-signup': 'Registro / inicio de sesión',
   'account-login': 'Inicio de sesión',
   'quote-pdf': 'Cotización PDF',
+  'product-referral': 'Referido producto',
   contact: 'Contacto web',
 };
 

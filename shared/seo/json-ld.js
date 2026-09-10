@@ -2,6 +2,7 @@ import { buildAbsoluteUrl } from '../site-origin.js';
 import { buildProductPath } from '../product-slug.js';
 import { HOME_FAQ_SEO_ITEMS } from './home-faq-data.js';
 import { DEFAULT_SITE_DESCRIPTION, SITE_BRAND_NAME } from './meta.js';
+import { categoryCanonicalPath } from './category-query.js';
 import {
   extractProductModel,
   priceValidUntilSeo,
@@ -199,10 +200,10 @@ const SITELINK_HUBS = [
   { name: 'Nuestros Productos', pathname: '/tienda' },
   { name: 'Distribuidor Autorizado Ricoh', pathname: '/distribuidor-autorizado-ricoh' },
   { name: 'Fotocopiadoras', pathname: '/fotocopiadoras-ricoh' },
-  { name: 'Impresoras', pathname: '/categoria/impresoras' },
-  { name: 'Multifuncionales', pathname: '/categoria/multifuncionales?sub=todas' },
+  { name: 'Impresoras', pathname: '/tienda/impresoras' },
+  { name: 'Multifuncionales', pathname: '/tienda/multifuncionales' },
   { name: 'Tóner', pathname: '/toner-ricoh' },
-  { name: 'Repuestos', pathname: '/categoria/repuestos' },
+  { name: 'Repuestos', pathname: '/tienda/repuestos' },
   { name: 'Alquiler', pathname: '/alquiler-fotocopiadoras-lima' },
   { name: 'Servicio técnico', pathname: '/servicios?seccion=servicio-tecnico' },
   { name: 'Preguntas frecuentes', pathname: '/preguntas-frecuentes' },
@@ -218,9 +219,9 @@ const SITELINK_HUBS = [
   { name: 'Por qué comprar', pathname: '/por-que-comprar-con-nosotros' },
   { name: 'Fotocopiadoras Perú', pathname: '/fotocopiadoras-peru' },
   { name: 'Outsourcing', pathname: '/servicios?seccion=outsourcing' },
-  { name: 'Accesorios', pathname: '/categoria/accesorios' },
-  { name: 'Formato ancho', pathname: '/categoria/formato-ancho' },
-  { name: 'Escáneres', pathname: '/categoria/escaneres' },
+  { name: 'Accesorios', pathname: '/tienda/accesorios' },
+  { name: 'Formato ancho', pathname: '/tienda/formato-ancho' },
+  { name: 'Escáneres', pathname: '/tienda/escaneres' },
 ];
 
 export function buildWebsiteJsonLd(siteOrigin) {
@@ -319,10 +320,7 @@ export function buildServiceJsonLd(service, siteOrigin) {
  * @param {Array<{ name: string, url: string }>} topProducts
  */
 export function buildCategoryCollectionJsonLd(category, siteOrigin, topProducts = []) {
-  const pathname =
-    category.slug === 'multifuncionales'
-      ? `/categoria/${category.slug}?sub=todas`
-      : `/categoria/${category.slug}`;
+  const pathname = categoryCanonicalPath(category.slug);
   const url = buildAbsoluteUrl(pathname, siteOrigin);
 
   const blocks = [

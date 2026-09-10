@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { patchCatalogIndexProduct } from '@/lib/catalog-featured';
 import {
   invalidateProductQueries,
   PRODUCT_UPDATED_CHANNEL,
+  type ProductUpdatedBroadcast,
 } from '@/lib/invalidate-product-queries';
 
 /**
@@ -16,9 +18,20 @@ export function ProductQuerySync() {
     if (typeof BroadcastChannel === 'undefined') return;
 
     const channel = new BroadcastChannel(PRODUCT_UPDATED_CHANNEL);
-    channel.onmessage = (event: MessageEvent<{ productId?: string }>) => {
+    channel.onmessage = (event: MessageEvent<ProductUpdatedBroadcast>) => {
       const productId = event.data?.productId;
-      void invalidateProductQueries(queryClient, productId ? { productId } : undefined);
+      const inventoryProduct = event.data?.inventoryProduct;
+      if (inventoryProduct?.id) {
+        patchCatalogIndexProduct(inventoryProduct);
+      }
+      void invalidateProductQueries(
+        queryClient,
+        inventoryProduct
+          ? { productId: inventoryProduct.id, inventoryProduct }
+          : productId
+            ? { productId }
+            : undefined,
+      );
     };
 
     return () => {

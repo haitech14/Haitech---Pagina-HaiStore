@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { SunatRucField } from '@/components/forms/sunat-ruc-field';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,6 +17,7 @@ import type { QuotePdfPreview } from '@/components/product-detail/product-quote-
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProformaMutations } from '@/hooks/use-admin-proformas';
 import { useQuoteProfile } from '@/hooks/use-quote-profile';
+import { useApplySunatRuc } from '@/hooks/use-sunat-ruc-lookup';
 import {
   EMPTY_PRODUCT_QUOTE_FORM,
   generateProductQuoteFromForm,
@@ -23,6 +25,7 @@ import {
   type ProductQuoteContext,
   type ProductQuoteFormValues,
 } from '@/lib/generate-product-quote-from-contact';
+import { applySunatToQuoteForm } from '@/lib/sunat-ruc';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { CartConfigurationLine, Product } from '@/types/product';
 import type { ProductHeroSpecBullet } from '@/types/product-detail';
@@ -77,6 +80,10 @@ export function ProductQuoteDialog({
     );
   }, [open, profile, product.image_url]);
 
+  const sunat = useApplySunatRuc(form.ruc, (data) => {
+    setForm((current) => applySunatToQuoteForm(current, data));
+  });
+
   const updateField = <K extends keyof ProductQuoteFormValues>(key: K, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
   };
@@ -92,7 +99,11 @@ export function ProductQuoteDialog({
 
     setIsSubmitting(true);
     try {
-      await saveQuoteProfile(form);
+      try {
+        await saveQuoteProfile(form);
+      } catch (saveError) {
+        console.warn('[ProductQuoteDialog] Perfil no sincronizado; se genera el PDF igual', saveError);
+      }
 
       const context: ProductQuoteContext = {
         product,
@@ -142,18 +153,16 @@ export function ProductQuoteDialog({
         </DialogHeader>
 
         <form onSubmit={(event) => void onSubmit(event)} className="grid gap-4" noValidate>
-          <div className="space-y-2">
-            <Label htmlFor="quote-ruc">RUC</Label>
-            <Input
-              id="quote-ruc"
-              value={form.ruc}
-              onChange={(event) => updateField('ruc', event.target.value)}
-              autoComplete="off"
-              inputMode="numeric"
-              placeholder="Ej. 20123456789"
-              required
-            />
-          </div>
+          <SunatRucField
+            id="quote-ruc"
+            className="space-y-2"
+            value={form.ruc}
+            onValueChange={(ruc) => updateField('ruc', ruc)}
+            isFetching={sunat.isFetching}
+            isSuccess={sunat.isSuccess}
+            errorMessage={sunat.error instanceof Error ? sunat.error.message : null}
+            required
+          />
           <div className="space-y-2">
             <Label htmlFor="quote-razon-social">Razón Social</Label>
             <Input

@@ -1,4 +1,5 @@
 import '@/lib/install-random-uuid-polyfill';
+import '@/lib/suppress-api-connection-toasts';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

@@ -5,7 +5,7 @@ import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import type { HomeBestSellerProduct } from '@/data/home-best-sellers';
-import { getCatalogProductById } from '@/lib/catalog-featured';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
 import {
   buildProductCardImageCandidates,
   buildProductCardImageSource,
@@ -44,7 +44,10 @@ export function HomeBestSellerProductCard({
   showBestSellerBadge?: boolean;
   buttonVariant?: 'link' | 'grey';
 }) {
-  const catalog = getCatalogProductById(product.id);
+  const { catalogProduct: catalog, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
+    useLiveProductCardMedia(product.id, {
+      image: product.image,
+    });
   const cartProduct = toCartProduct(product);
   const imageSource = useMemo(
     () =>
@@ -54,10 +57,10 @@ export function HomeBestSellerProductCard({
         name: product.name,
         category: catalog?.category ?? 'Equipos',
         brand: product.brand ?? catalog?.brand ?? null,
-        image_url: product.image ?? catalog?.image_url ?? null,
-        gallery: catalog?.gallery ?? null,
+        image_url: liveImageUrl,
+        gallery: liveGallery,
       }),
-    [catalog, product],
+    [catalog, liveGallery, liveImageUrl, product],
   );
   const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageSource), [imageSource]);
   const storedImageCandidates = useMemo(
@@ -103,6 +106,7 @@ export function HomeBestSellerProductCard({
             alt={product.name}
             className="size-full"
             imageClassName="size-full object-contain"
+            imageVersion={imageVersion}
           />
         </Link>
       </div>

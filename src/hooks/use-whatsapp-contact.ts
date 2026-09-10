@@ -62,6 +62,8 @@ type SaveContactVars = {
   contact: WhatsAppContact;
   channel?: WebLeadChannel;
   createProforma?: boolean;
+  productName?: string;
+  productId?: string;
 };
 
 export function useWhatsAppContact(defaultChannel: WebLeadChannel = 'whatsapp-floating') {
@@ -94,7 +96,13 @@ export function useWhatsAppContact(defaultChannel: WebLeadChannel = 'whatsapp-fl
   });
 
   const saveMutation = useMutation({
-    mutationFn: async ({ contact, channel, createProforma }: SaveContactVars) => {
+    mutationFn: async ({
+      contact,
+      channel,
+      createProforma,
+      productName,
+      productId,
+    }: SaveContactVars) => {
       storeWhatsAppContact(contact);
       if (user) {
         try {
@@ -109,8 +117,12 @@ export function useWhatsAppContact(defaultChannel: WebLeadChannel = 'whatsapp-fl
       await submitWebLead({
         contact,
         channel: channel ?? defaultChannel,
-        message: 'Contacto WhatsApp registrado desde la tienda',
+        message: productName
+          ? `Consulta WhatsApp: ${productName}`
+          : 'Contacto WhatsApp registrado desde la tienda',
         createProforma: createProforma !== false,
+        ...(productName ? { productName } : {}),
+        ...(productId ? { productId } : {}),
       });
       return contact;
     },

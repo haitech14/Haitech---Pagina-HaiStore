@@ -6,6 +6,7 @@ import { AdminVentasUnifiedPanel } from '@/components/admin/sales/admin-ventas-u
 import { TpvPanel } from '@/components/admin/tpv/tpv-panel';
 import { Button } from '@/components/ui/button';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
+import type { CotizacionCanalFilter } from '@/lib/cotizacion-canal';
 
 function isTpvView(searchParams: URLSearchParams) {
   return searchParams.get('vista') === 'tpv' || searchParams.get('nuevo') === '1';
@@ -18,6 +19,20 @@ function resolveListTypeFilter(
   if (origen === 'cotizacion' || origen === 'cotizaciones') return 'cotizacion';
   if (origen === 'historico' || origen === 'haisales') return 'historico';
   if (origen === 'venta' || origen === 'tienda') return 'venta';
+  return 'all';
+}
+
+function resolveCanalFilter(searchParams: URLSearchParams): CotizacionCanalFilter {
+  const canal = searchParams.get('canal');
+  if (
+    canal === 'whatsapp' ||
+    canal === 'pdf' ||
+    canal === 'tpv' ||
+    canal === 'web' ||
+    canal === 'referral'
+  ) {
+    return canal;
+  }
   return 'all';
 }
 
@@ -88,7 +103,12 @@ export function AdminVentasPage() {
           ? 'historico'
           : resolveListTypeFilter(searchParams);
 
-    return <AdminVentasUnifiedPanel defaultTypeFilter={defaultTypeFilter} />;
+    return (
+      <AdminVentasUnifiedPanel
+        defaultTypeFilter={defaultTypeFilter}
+        defaultCanalFilter={resolveCanalFilter(searchParams)}
+      />
+    );
   }
 
   return <AdminPedidosDashboard />;

@@ -18,7 +18,7 @@ import {
   InventoryPhotoPreview,
   InventoryPhotoUploadBox,
 } from '@/components/admin/inventory/inventory-photo-upload-box';
-import { InventoryProductResourceFields } from '@/components/admin/inventory/inventory-product-resource-fields';
+import { InventoryProductResourceFields, InventoryTechnicalSheetField } from '@/components/admin/inventory/inventory-product-resource-fields';
 import {
   InventoryProductFormTabs,
   type InventoryProductFormTabId,
@@ -580,6 +580,12 @@ export function InventoryProductFormDialog({
                         rows={4}
                       />
                     </div>
+
+                    <InventoryTechnicalSheetField
+                      form={form}
+                      onAttachmentsChange={(attachments) => updateField('attachments', attachments)}
+                      onError={setError}
+                    />
 
                     <InventoryStorefrontDetailSection
                       embedded

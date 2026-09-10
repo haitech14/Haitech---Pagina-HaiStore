@@ -192,6 +192,12 @@ export const ADMIN_SIDEBAR_GROUPS: AdminSidebarNavGroup[] = [
       { key: 'orders', label: 'Pedidos', href: ADMIN_ROUTES.VENTAS, icon: 'shopping-cart', badge: 'orders-pending' },
       { key: 'customers', label: 'Clientes', href: ADMIN_ROUTES.CRM_CLIENTES, icon: 'users' },
       { key: 'quotes', label: 'Cotizaciones', href: `${ADMIN_ROUTES.VENTAS}?vista=cotizaciones`, icon: 'file-text' },
+      {
+        key: 'whatsapp-leads',
+        label: 'WhatsApp / Leads',
+        href: `${ADMIN_ROUTES.VENTAS}?vista=cotizaciones&canal=whatsapp`,
+        icon: 'message-circle',
+      },
     ],
   },
   {
@@ -344,6 +350,12 @@ export const ADMIN_SIDEBAR_SECTIONS: AdminSidebarMockupSection[] = [
       { key: 'orders', label: 'Pedidos', href: ADMIN_ROUTES.PEDIDOS, icon: 'calendar-days', badge: 'orders-pending' },
       { key: 'customers', label: 'Clientes', href: ADMIN_ROUTES.CRM_CLIENTES, icon: 'users' },
       { key: 'quotes', label: 'Cotizaciones', href: `${ADMIN_ROUTES.VENTAS}?vista=cotizaciones`, icon: 'file-text' },
+      {
+        key: 'whatsapp-leads',
+        label: 'WhatsApp / Leads',
+        href: `${ADMIN_ROUTES.VENTAS}?vista=cotizaciones&canal=whatsapp`,
+        icon: 'message-circle',
+      },
       { key: 'discounts', label: 'Descuentos', href: ADMIN_ROUTES.MARKETING_COUPONS, icon: 'star' },
     ],
   },

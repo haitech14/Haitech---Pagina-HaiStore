@@ -1,5 +1,12 @@
 import type { QueryClient } from '@tanstack/react-query';
 
+import { patchCatalogIndexProduct } from '@/lib/catalog-featured';
+import {
+  applyInventoryProductToHomeBundle,
+  HOME_CATALOG_BUNDLE_QUERY_KEY,
+  patchStoredHomeCatalogBundleProduct,
+  type HomeCatalogBundleResponse,
+} from '@/lib/home-catalog-bundle';
 import {
   mergeInventoryProductPatch,
   normalizeInventoryProduct,
@@ -16,6 +23,44 @@ import type { UserRole } from '@/lib/roles';
 import type { InventoryProduct, InventoryWarehouse, Product } from '@/types/product';
 
 export const PRODUCT_UPDATED_CHANNEL = 'haistore-product-updated';
+
+export type ProductUpdatedBroadcast = {
+  productId?: string;
+  inventoryProduct?: InventoryProduct;
+};
+
+function slimInventoryProductForBroadcast(
+  product: InventoryProduct,
+): InventoryProduct | undefined {
+  const imageUrl = product.image_url;
+  const gallery = Array.isArray(product.gallery) ? product.gallery : [];
+  if (
+    (typeof imageUrl === 'string' && imageUrl.startsWith('data:')) ||
+    gallery.some((url) => typeof url === 'string' && url.startsWith('data:'))
+  ) {
+    return {
+      ...product,
+      image_url:
+        typeof imageUrl === 'string' && imageUrl.startsWith('data:') ? null : imageUrl,
+      gallery: gallery.filter((url) => typeof url === 'string' && !url.startsWith('data:')),
+    };
+  }
+  return product;
+}
+
+function patchHomeCatalogBundleCaches(
+  queryClient: QueryClient,
+  product: InventoryProduct,
+): void {
+  patchStoredHomeCatalogBundleProduct(product);
+  const queries = queryClient.getQueriesData<HomeCatalogBundleResponse>({
+    queryKey: [HOME_CATALOG_BUNDLE_QUERY_KEY],
+  });
+  for (const [queryKey, current] of queries) {
+    if (!current) continue;
+    queryClient.setQueryData(queryKey, applyInventoryProductToHomeBundle(current, product));
+  }
+}
 
 function getCachedWarehouses(queryClient: QueryClient): InventoryWarehouse[] {
   const cached = queryClient.getQueryData<InventoryWarehouse[]>(['warehouses']);
@@ -155,6 +200,8 @@ export async function invalidateProductQueries(
     : null;
 
   if (inventoryProduct) {
+    patchCatalogIndexProduct(inventoryProduct);
+    patchHomeCatalogBundleCaches(queryClient, inventoryProduct);
     patchProductDetailCacheFromInventory(queryClient, inventoryProduct);
     queryClient.setQueryData<InventoryProduct[]>(['admin-inventory'], (current) => {
       if (!current) return current;
@@ -204,11 +251,17 @@ export async function invalidateProductQueries(
   ]);
 }
 
-export function broadcastProductUpdated(productId: string): void {
+export function broadcastProductUpdated(
+  productId: string,
+  inventoryProduct?: InventoryProduct,
+): void {
   if (typeof BroadcastChannel === 'undefined') return;
   try {
     const channel = new BroadcastChannel(PRODUCT_UPDATED_CHANNEL);
-    channel.postMessage({ productId });
+    const payload: ProductUpdatedBroadcast = { productId };
+    const slim = inventoryProduct ? slimInventoryProductForBroadcast(inventoryProduct) : undefined;
+    if (slim) payload.inventoryProduct = slim;
+    channel.postMessage(payload);
     channel.close();
   } catch {
     // BroadcastChannel unavailable
@@ -220,7 +273,7 @@ export async function notifyProductCatalogChanged(
   options?: { productId?: string; inventoryProduct?: InventoryProduct },
 ): Promise<void> {
   if (options?.productId) {
-    broadcastProductUpdated(options.productId);
+    broadcastProductUpdated(options.productId, options.inventoryProduct);
   }
   await invalidateProductQueries(queryClient, options);
 }

@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { DeferredCategoriesMegaMenu } from '@/components/layout/deferred-categories-mega-menu';
 import { ServicioTecnicoNavMegaMenu } from '@/components/layout/servicio-tecnico-nav-mega-menu';
 import { ServicesNavMegaMenu } from '@/components/layout/services-nav-mega-menu';
+import { SolutionsMegaMenu } from '@/components/layout/solutions-mega-menu';
 import {
   HAITECH_HOME_SECONDARY_NAV_LINKS,
   type HaitechHomeSecondaryNavLink,
@@ -37,8 +38,14 @@ function SecondaryNavDropdown({ item }: { item: HaitechHomeSecondaryNavLink }) {
       return <ServicioTecnicoNavMegaMenu {...shared} />;
     case 'alquiler':
       return <ServicesNavMegaMenu {...shared} />;
+    case 'soluciones':
+      return <SolutionsMegaMenu {...shared} />;
     case 'mas':
       return <SecondaryNavPlainLink item={item} />;
+    default: {
+      const _exhaustive: never = item.menu;
+      return _exhaustive;
+    }
   }
 }
 

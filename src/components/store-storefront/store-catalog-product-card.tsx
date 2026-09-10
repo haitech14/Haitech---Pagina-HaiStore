@@ -17,7 +17,8 @@ import {
   clipboardPriceFieldsFromDisplay,
   useCatalogDisplayPrice,
 } from '@/hooks/use-catalog-display-price';
-import { catalogRowToFeatured, getCatalogProductById } from '@/lib/catalog-featured';
+import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
+import { catalogRowToFeatured } from '@/lib/catalog-featured';
 import {
   buildProductCardImageCandidates,
   buildProductCardStoredImageCandidates,
@@ -101,18 +102,30 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const catalogProduct = getCatalogProductById(product.id);
+  const { catalogProduct, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
+    useLiveProductCardMedia(product.id, {
+      image_url: product.image_url,
+      gallery: product.gallery,
+    });
   const catalogFeatured = useMemo(
     () => (catalogProduct ? catalogRowToFeatured(catalogProduct) : null),
     [catalogProduct],
   );
   const quickViewSnapshot = useMemo(() => productToFeatured(product), [product]);
-  const imageCandidates = useMemo(() => buildProductCardImageCandidates(product), [product]);
-  const storedImageCandidates = useMemo(
-    () => buildProductCardStoredImageCandidates(product),
-    [product],
+  const imageProduct = useMemo(
+    () => ({
+      ...product,
+      image_url: liveImageUrl,
+      gallery: liveGallery,
+    }),
+    [liveGallery, liveImageUrl, product],
   );
-  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(product), [product]);
+  const imageCandidates = useMemo(() => buildProductCardImageCandidates(imageProduct), [imageProduct]);
+  const storedImageCandidates = useMemo(
+    () => buildProductCardStoredImageCandidates(imageProduct),
+    [imageProduct],
+  );
+  const hoverImageSrc = useMemo(() => resolveProductCardHoverImageFromProduct(imageProduct), [imageProduct]);
   const displayPrice = useCatalogDisplayPrice(product);
   const pricing = resolveProductCardPricing(product.id, displayPrice.priceUsd, {
     category: product.category,
@@ -165,10 +178,12 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   return (
     <article
       className={cn(
-        'group flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-shadow',
-        isFeatured
-          ? 'border border-[#E30613] shadow-[0_2px_14px_rgba(227,6,19,0.08)]'
-          : 'border border-[#e6e8ee] shadow-[0_2px_14px_rgba(15,31,61,0.06)] hover:shadow-md',
+        'group flex h-full flex-col overflow-hidden rounded-2xl transition-shadow',
+        isCarousel
+          ? 'border-0 bg-white shadow-[0_4px_18px_rgba(15,23,42,0.07)]'
+          : isFeatured
+            ? 'border border-[#E30613] bg-white shadow-[0_2px_14px_rgba(227,6,19,0.08)]'
+            : 'border border-[#e6e8ee] bg-white shadow-[0_2px_14px_rgba(15,31,61,0.06)] hover:shadow-md',
       )}
     >
       {isCarousel ? (
@@ -201,6 +216,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             imageClassName="size-full object-contain object-center"
             overlayClassName="size-full bg-white"
             loading={imageLoading}
+            imageVersion={imageVersion}
             {...(imagePriority ? { fetchPriority: 'high' as const } : {})}
           />
         </Link>

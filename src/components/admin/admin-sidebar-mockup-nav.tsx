@@ -9,6 +9,7 @@ import {
   Image,
   LayoutDashboard,
   Layers,
+  MessageCircle,
   Newspaper,
   Settings,
   ShoppingBag,
@@ -48,6 +49,7 @@ const ICONS: Record<string, LucideIcon> = {
   newspaper: Newspaper,
   users: Users,
   'file-text': FileText,
+  'message-circle': MessageCircle,
   star: Star,
   truck: Truck,
   user: User,
@@ -119,7 +121,18 @@ function isItemActive(
     return pathname.startsWith(ADMIN_ROUTES.PEDIDOS);
   }
   if (key === 'quotes') {
-    return pathname.startsWith(ADMIN_ROUTES.VENTAS) && search.includes('vista=cotizaciones');
+    return (
+      pathname.startsWith(ADMIN_ROUTES.VENTAS) &&
+      search.includes('vista=cotizaciones') &&
+      !search.includes('canal=whatsapp')
+    );
+  }
+  if (key === 'whatsapp-leads') {
+    return (
+      pathname.startsWith(ADMIN_ROUTES.VENTAS) &&
+      search.includes('vista=cotizaciones') &&
+      search.includes('canal=whatsapp')
+    );
   }
   if (key === 'discounts') {
     return pathname.startsWith(ADMIN_ROUTES.MARKETING_COUPONS);

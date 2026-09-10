@@ -26,6 +26,8 @@ interface ProductTonerPricesHoverProps {
   isColor?: boolean;
   priceRole?: PriceRole;
   saleRate?: number;
+  /** Muestra el panel de tóner sin esperar hover. */
+  alwaysVisible?: boolean;
 }
 
 const TONER_COLOR_DOT: Record<string, string> = {
@@ -137,9 +139,9 @@ function TonerPricesPanel({
                     {line.label}
                   </span>
                 </span>
-                {line.code ? (
+                {line.code || line.yieldLabel ? (
                   <span className="mt-0.5 block truncate text-[10px] font-medium tabular-nums text-[#8a93a3]">
-                    {line.code}
+                    {[line.code, line.yieldLabel].filter(Boolean).join(' · ')}
                   </span>
                 ) : null}
               </span>
@@ -170,15 +172,17 @@ export function ProductTonerPricesHover({
   isColor: isColorProp,
   priceRole: priceRoleProp,
   saleRate,
+  alwaysVisible = false,
 }: ProductTonerPricesHoverProps) {
   const { effectiveRole, role } = useAuth();
   const canShow = isPrinterEquipment(product);
   const isColor = isColorProp ?? isColorPrinterEquipment(product);
   const [hovering, setHovering] = useState(false);
-  const { data: queryCatalog } = useProducts({ enabled: canShow && hovering });
+  const panelOpen = alwaysVisible || hovering;
+  const { data: queryCatalog } = useProducts({ enabled: canShow && panelOpen });
 
   const lines = useMemo(() => {
-    if (!canShow || !hovering) return [];
+    if (!canShow || !panelOpen) return [];
     const priceRole = priceRoleProp ?? resolvePriceRole(String(effectiveRole));
     let catalog: Product[] = queryCatalog ?? [];
     if (catalog.length === 0) {
@@ -192,17 +196,17 @@ export function ProductTonerPricesHover({
       maxLines: 12,
     });
     return selectPrinterTonerSet(resolved, isColor);
-  }, [canShow, effectiveRole, hovering, isColor, priceRoleProp, product, queryCatalog, role]);
+  }, [canShow, effectiveRole, isColor, panelOpen, priceRoleProp, product, queryCatalog, role]);
 
   if (!canShow) {
     return <div className={cn('relative', className)}>{children}</div>;
   }
 
   const panel =
-    hovering && lines.length > 0 ? (
+    panelOpen && lines.length > 0 ? (
       <TonerPricesPanel lines={lines} saleRate={saleRate} isColor={isColor} />
-    ) : hovering ? (
-      <div className="rounded-md bg-[#F8FAFC] px-2 py-1.5 text-[10px] text-[#6B7280]">
+    ) : panelOpen ? (
+      <div className="w-full rounded-md bg-[#F8FAFC] px-2 py-1 text-center text-[10px] leading-tight text-[#6B7280]">
         Sin tóner vinculado en catálogo
       </div>
     ) : null;
@@ -210,14 +214,18 @@ export function ProductTonerPricesHover({
   return (
     <div
       className={cn('relative w-full', className)}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      onFocus={() => setHovering(true)}
-      onBlur={(event) => {
-        const next = event.relatedTarget;
-        if (next instanceof Node && event.currentTarget.contains(next)) return;
-        setHovering(false);
-      }}
+      onMouseEnter={alwaysVisible ? undefined : () => setHovering(true)}
+      onMouseLeave={alwaysVisible ? undefined : () => setHovering(false)}
+      onFocus={alwaysVisible ? undefined : () => setHovering(true)}
+      onBlur={
+        alwaysVisible
+          ? undefined
+          : (event) => {
+              const next = event.relatedTarget;
+              if (next instanceof Node && event.currentTarget.contains(next)) return;
+              setHovering(false);
+            }
+      }
     >
       {children}
       {panel ? (
@@ -226,7 +234,9 @@ export function ProductTonerPricesHover({
             {panel}
           </div>
         ) : (
-          <div className="relative z-20 mt-1.5 w-full">{panel}</div>
+          <div className={cn('relative z-20 w-full', lines.length > 0 ? 'mt-1.5' : '-mt-0.5')}>
+            {panel}
+          </div>
         )
       ) : null}
     </div>
