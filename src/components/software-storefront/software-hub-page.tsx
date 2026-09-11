@@ -1,13 +1,10 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { SoftwareCatalogSection } from '@/components/software-storefront/software-catalog-section';
 import { SoftwareCustomSolutionForm } from '@/components/software-storefront/software-custom-solution-form';
-import { SoftwareStorefrontHero } from '@/components/software-storefront/software-storefront-hero';
-import {
-  mapSoftwareHubSectionToCategory,
-  SOFTWARE_CATALOG_ID,
-} from '@/data/software-catalog';
+import { SoftwareSolutionsShowcase } from '@/components/software-storefront/software-solutions-showcase';
+import { StorefrontChannelHeroBanner } from '@/components/store-storefront/storefront-channel-hero-banner';
+import { SOFTWARE_CATALOG_ID } from '@/data/software-catalog';
 import { useSeo } from '@/hooks/use-seo';
 import { HOME_LANDING_SURFACE_CLASS } from '@/lib/home-landing-layout';
 import { buildAbsoluteUrl } from '@/lib/site-url';
@@ -15,16 +12,12 @@ import { cn } from '@/lib/utils';
 
 const LANDING_SEO = {
   title: 'Software | Haitech',
-    description:
+  description:
     'Software de gestión documental, automatización de procesos e integración Ricoh para empresas en Perú. Cotiza licencias y planes con Distribuidor Autorizado Haitech.',
 };
 
 export function SoftwareHubPage() {
   const [searchParams] = useSearchParams();
-  const section = searchParams.get('seccion') ?? '';
-  const initialCategory = searchParams.has('seccion')
-    ? mapSoftwareHubSectionToCategory(section)
-    : null;
 
   useSeo({
     title: LANDING_SEO.title,
@@ -46,11 +39,8 @@ export function SoftwareHubPage() {
 
   return (
     <div className={cn('software-storefront flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
-      <SoftwareStorefrontHero />
-      <SoftwareCatalogSection
-        initialCategory={initialCategory}
-        key={initialCategory ?? 'all'}
-      />
+      <StorefrontChannelHeroBanner channel="soluciones" />
+      <SoftwareSolutionsShowcase />
       <SoftwareCustomSolutionForm />
     </div>
   );

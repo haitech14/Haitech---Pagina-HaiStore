@@ -8,7 +8,10 @@ import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { findProductBySlugOrId } from '@/lib/product-slug';
 import type { FeaturedProduct } from '@/data/featured-products';
 import type { InventoryProduct, Product } from '@/types/product';
-import { isProductVisibleOnStorefront } from '../../shared/product-catalog-status.js';
+import {
+  isProductActiveInCatalog,
+  isProductVisibleOnStorefront,
+} from '../../shared/product-catalog-status.js';
 
 export const CATALOG_INDEX_UPDATED_EVENT = 'haistore-catalog-index-updated';
 
@@ -34,6 +37,8 @@ let catalogById: Map<string, CatalogRow> | null = null;
 let catalogBySlug: Map<string, CatalogRow> | null = null;
 /** Filas visibles cacheadas (evita refiltrar ~1500 filas en cada render de /tienda). */
 let catalogVisibleRows: CatalogRow[] | null = null;
+/** Filas activas (incluye tóner/repuestos ocultos de la tienda pública). */
+let catalogActiveRows: CatalogRow[] | null = null;
 /** Parches de media/producto pendientes hasta que el índice de red/IDB se ponga al día. */
 const pendingCatalogProductPatches = new Map<string, InventoryProduct>();
 
@@ -55,6 +60,7 @@ function clearCatalogLookupMaps(): void {
   catalogById = null;
   catalogBySlug = null;
   catalogVisibleRows = null;
+  catalogActiveRows = null;
 }
 
 function bumpCatalogMediaEpoch(): void {
@@ -146,6 +152,7 @@ function mergeCatalogRowWithPending(row: CatalogRow): CatalogRow {
 function applyCatalogRows(rows: CatalogRow[]): CatalogRow[] {
   catalogCache = rows.map(mergeCatalogRowWithPending);
   catalogVisibleRows = null;
+  catalogActiveRows = null;
   rebuildCatalogLookupMaps(catalogCache);
   return catalogCache;
 }
@@ -267,6 +274,7 @@ export function patchCatalogIndexProductMedia(
     ...catalogCache.slice(index + 1),
   ];
   catalogVisibleRows = null;
+  catalogActiveRows = null;
   catalogById?.set(nextRow.id, nextRow);
   const slug = typeof nextRow.slug === 'string' ? nextRow.slug.trim().toLowerCase() : '';
   if (slug) catalogBySlug?.set(slug, nextRow);
@@ -310,6 +318,7 @@ export function patchCatalogIndexProduct(product: InventoryProduct): void {
   }
 
   catalogVisibleRows = null;
+  catalogActiveRows = null;
   if (!catalogById) rebuildCatalogLookupMaps(catalogCache);
   else {
     const row = catalogCache.find((item) => item.id === product.id) ?? nextRow;
@@ -318,6 +327,9 @@ export function patchCatalogIndexProduct(product: InventoryProduct): void {
     if (slug) catalogBySlug?.set(slug, row);
   }
   bumpCatalogMediaEpoch();
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(CATALOG_INDEX_UPDATED_EVENT));
+  }
 }
 
 /** Filas del índice en caché (vacío hasta que termine la precarga). */
@@ -327,6 +339,18 @@ export function getCatalogRows(): CatalogRow[] {
     catalogVisibleRows = catalogCache.filter((row) => isProductVisibleOnStorefront(row));
   }
   return catalogVisibleRows;
+}
+
+/**
+ * Filas activas para rails de home (tóner / repuestos), aunque estén ocultos
+ * de la tienda pública vía `isStorefrontHiddenConsumableProduct`.
+ */
+export function getCatalogActiveRows(): CatalogRow[] {
+  if (!catalogCache) return [];
+  if (!catalogActiveRows) {
+    catalogActiveRows = catalogCache.filter((row) => isProductActiveInCatalog(row));
+  }
+  return catalogActiveRows;
 }
 
 export function normalizeCategoryName(value: string): string {

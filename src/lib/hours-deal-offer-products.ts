@@ -1,3 +1,4 @@
+import { listShowcaseEquipmentProducts } from '@/data/haitech-home-equipment-showcase';
 import { featuredToProduct } from '@/data/featured-products';
 import { type HaitechShopProduct } from '@/data/haitech-home-shop';
 import { catalogRowToFeatured, getCatalogRows, type CatalogRow } from '@/lib/catalog-featured';
@@ -7,6 +8,8 @@ import { usdToPenCharm } from '@/lib/pen-pricing';
 import { productHasOfferAttribute } from '@/lib/product-detail-badges';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { productPath } from '@/lib/product-path';
+import { findShowcaseCatalogRow } from '@/lib/showcase-product-href';
+import { resolveShowcaseSyntheticProduct } from '@/lib/showcase-synthetic-product';
 import type { Product } from '@/types/product';
 
 const DEFAULT_LIMIT = 12;
@@ -83,21 +86,82 @@ function rankHoursDealRows(): CatalogRow[] {
     });
 }
 
-/** Productos de oferta con el mismo modelo de tarjeta que la tienda. */
-export function listHoursDealOfferStoreProducts(limit = DEFAULT_LIMIT): Product[] {
-  return rankHoursDealRows()
-    .slice(0, limit)
-    .map((row) => featuredToProduct(catalogRowToFeatured(row)));
+function isShowcasePageOffer(product: HaitechShopProduct): boolean {
+  return product.isOffer === true || product.tabIds.includes('ofertas');
 }
 
-/** Productos visibles del inventario marcados con el atributo Oferta. */
+function withOfferAttribute(product: Product): Product {
+  if (productHasOfferAttribute(product)) return product;
+  return {
+    ...product,
+    attributes: [...(product.attributes ?? []), { id: 'oferta', name: 'Oferta', value: 'Sí' }],
+  };
+}
+
+/**
+ * Inventario con atributo Oferta + productos de la vitrina/home marcados en Ofertas.
+ * Prioriza filas de catálogo; completa con stubs de vitrina (catálogo o sintético).
+ */
+export function listHoursDealOfferStoreProducts(limit = DEFAULT_LIMIT): Product[] {
+  const byId = new Map<string, Product>();
+
+  for (const row of rankHoursDealRows()) {
+    byId.set(row.id, featuredToProduct(catalogRowToFeatured(row)));
+    if (byId.size >= limit) return [...byId.values()];
+  }
+
+  for (const shop of listShowcaseEquipmentProducts()) {
+    if (!isShowcasePageOffer(shop)) continue;
+
+    const catalogRow = findShowcaseCatalogRow(shop);
+    if (catalogRow) {
+      if (byId.has(catalogRow.id)) continue;
+      byId.set(
+        catalogRow.id,
+        withOfferAttribute(featuredToProduct(catalogRowToFeatured(catalogRow))),
+      );
+    } else {
+      const synthetic = resolveShowcaseSyntheticProduct(shop.id);
+      if (!synthetic || byId.has(synthetic.id)) continue;
+      byId.set(synthetic.id, withOfferAttribute(synthetic));
+    }
+
+    if (byId.size >= limit) break;
+  }
+
+  return [...byId.values()];
+}
+
+/** Productos visibles del inventario marcados con el atributo Oferta (+ vitrina Ofertas). */
 export function listHoursDealOfferProducts(limit = DEFAULT_LIMIT): HaitechShopProduct[] {
   const rate = getUsdToPenSaleRate();
   const products: HaitechShopProduct[] = [];
+  const seen = new Set<string>();
+
   for (const row of rankHoursDealRows()) {
     const product = catalogRowToHoursDealProduct(row, rate);
     if (!product) continue;
+    seen.add(product.id);
     products.push(product);
+    if (products.length >= limit) return products;
+  }
+
+  for (const shop of listShowcaseEquipmentProducts()) {
+    if (!isShowcasePageOffer(shop)) continue;
+    const catalogRow = findShowcaseCatalogRow(shop);
+    const id = catalogRow?.id ?? shop.id;
+    if (seen.has(id)) continue;
+
+    if (catalogRow) {
+      const product = catalogRowToHoursDealProduct(catalogRow, rate);
+      if (!product) continue;
+      seen.add(product.id);
+      products.push(product);
+    } else {
+      seen.add(shop.id);
+      products.push({ ...shop, isOffer: true, tabIds: [...new Set([...shop.tabIds, 'ofertas' as const])] });
+    }
+
     if (products.length >= limit) break;
   }
 

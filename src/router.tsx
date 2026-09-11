@@ -401,6 +401,8 @@ export const router = createBrowserRouter([
     element: withSuspense(<LoginRegisterPage />),
   },
   { path: '/qtc', element: <Navigate to="/" replace /> },
+  { path: '/tiendanova', element: <Navigate to="/admin" replace /> },
+  { path: '/tiendanova/*', element: <Navigate to="/admin" replace /> },
   {
     path: '/admin',
     element: withSuspense(<AdminLayout />),

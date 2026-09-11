@@ -1075,60 +1075,6 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     href: productPath('impresora-multifuncional-nueva-ricoh-im-7000-b51f56d88b03'),
   },
   {
-    id: 'ricoh-im-3010',
-    name: 'Multifuncional RICOH IM 3010',
-    brand: 'RICOH',
-    code: 'IM-3010',
-    stock: 0,
-    image: '/products/0aea108a-acd2-4ddd-af29-b2265097813c.webp',
-    price: 0,
-    condition: 'nuevo',
-    features: SHOWCASE_EQUIPMENT_FEATURES,
-    equipment: {
-      speedPpm: '30 ppm',
-      paperSize: 'A3',
-      scannerType: 'ARDF',
-      monthlyYield: '15.000 pág/mes',
-    },
-    tabIds: ['multifuncionales', 'ofertas'],
-  },
-  {
-    id: 'ricoh-im-4010',
-    name: 'Multifuncional RICOH IM 4010',
-    brand: 'RICOH',
-    code: 'IM-4010',
-    stock: 0,
-    image: '/products/40c36a2a-794e-41aa-b075-d855c218bf6f.webp',
-    price: 0,
-    condition: 'nuevo',
-    features: SHOWCASE_EQUIPMENT_FEATURES,
-    equipment: {
-      speedPpm: '40 ppm',
-      paperSize: 'A3',
-      scannerType: 'ARDF',
-      monthlyYield: '30.000 pág/mes',
-    },
-    tabIds: ['multifuncionales', 'ofertas'],
-  },
-  {
-    id: 'ricoh-im-5010',
-    name: 'Multifuncional RICOH IM 5010',
-    brand: 'RICOH',
-    code: 'IM-5010',
-    stock: 0,
-    image: '/products/c0ad567a-6ad7-4857-a087-fd574a903a04.webp',
-    price: 0,
-    condition: 'nuevo',
-    features: SHOWCASE_EQUIPMENT_FEATURES,
-    equipment: {
-      speedPpm: '50 ppm',
-      paperSize: 'A3',
-      scannerType: 'ARDF',
-      monthlyYield: '50.000 pág/mes',
-    },
-    tabIds: ['multifuncionales', 'ofertas'],
-  },
-  {
     id: '97079efe-de43-4619-b3f2-950d323fa773',
     name: 'Multifuncional RICOH IM 8000',
     brand: 'RICOH',
@@ -1499,8 +1445,8 @@ function formatShowcaseTitleSuffix(
 }
 
 /**
- * Título vitrina: «Impresora Nueva RICOH IM 460F (SPDF)»
- * (B/N o Color se indica en los specs de la card).
+ * Título vitrina: «Impresora Multifuncional Nueva RICOH IM 460F (SPDF)»
+ * (B/N o Color se indica en los specs de la card, no en el título).
  */
 export function formatEquipmentShowcaseFullTitle(product: HaitechShopProduct): string {
   if (product.toner || isRepuestoProduct(product)) {
@@ -1590,7 +1536,15 @@ export function formatEquipmentShowcaseFullTitle(product: HaitechShopProduct): s
       .replace(/\b(color|b\/n|bn|blanco\s*y\s*negro)\b/gi, ''),
   );
 
-  const titleBase = `Impresora ${conditionLabel} ${brand} ${model || product.name}`
+  const isPrinterOnly =
+    /^impresora\b/i.test(product.name) &&
+    !/\bmultifuncional\b/i.test(product.name) &&
+    product.features?.includes('escanea') !== true &&
+    !product.equipment?.scannerType;
+
+  const titleBase = (isPrinterOnly
+    ? `Impresora ${conditionLabel} ${brand} ${model || product.name}`
+    : `Impresora Multifuncional ${conditionLabel} ${brand} ${model || product.name}`)
     .replace(/\s+/g, ' ')
     .trim();
 

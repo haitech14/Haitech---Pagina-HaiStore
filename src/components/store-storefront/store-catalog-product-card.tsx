@@ -30,6 +30,7 @@ import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
+import { productHasOfferAttribute } from '@/lib/product-detail-badges';
 import { productPath } from '@/lib/product-path';
 import { productToFeatured } from '@/lib/store-products';
 import { productToWishlistItem } from '@/lib/wishlist-product';
@@ -42,15 +43,22 @@ interface StoreCatalogProductCardProps {
   imagePriority?: boolean;
   /** Carrusel home: marca/condición arriba, CTA Agregar al carrito + WhatsApp debajo. */
   variant?: 'catalog' | 'carousel';
+  /** Reduce padding e imagen (p. ej. franja «Solo por horas»). */
+  density?: 'default' | 'compact';
 }
 
 function formatCardConditionBadge(label: string): string {
+  if (/oferta/i.test(label)) return 'OFERTA';
   if (/nuev/i.test(label) && !/semi/i.test(label)) return 'NUEVO';
   return label.toUpperCase();
 }
 
 function isNewConditionBadge(label: string): boolean {
   return /nuev/i.test(label) && !/semi/i.test(label);
+}
+
+function isOfferConditionBadge(label: string): boolean {
+  return /oferta/i.test(label);
 }
 
 function ProductCardBrandConditionRow({
@@ -78,9 +86,11 @@ function ProductCardBrandConditionRow({
           className={cn(
             'inline-flex h-[18px] shrink-0 items-center justify-center rounded-full px-2.5',
             'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
-            isNewConditionBadge(condition) || /original/i.test(condition)
-              ? 'bg-[#111111] text-white'
-              : 'border border-[#555] bg-white text-[#555]',
+            isOfferConditionBadge(condition)
+              ? 'bg-[#E30613] text-white'
+              : isNewConditionBadge(condition) || /original/i.test(condition)
+                ? 'bg-[#111111] text-white'
+                : 'border border-[#555] bg-white text-[#555]',
           )}
         >
           {formatCardConditionBadge(condition)}
@@ -95,6 +105,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   imageLoading = 'lazy',
   imagePriority = false,
   variant = 'catalog',
+  density = 'default',
 }: StoreCatalogProductCardProps) {
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
@@ -139,13 +150,18 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
     category: product.category,
     brand: product.brand ?? catalogProduct?.brand ?? null,
     code: product.code ?? catalogProduct?.code ?? null,
-    attributes: product.attributes ?? [],
+    attributes: product.attributes?.length
+      ? product.attributes
+      : (catalogProduct?.attributes ?? []),
   };
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
   const isCarousel = variant === 'carousel';
+  const isCompact = density === 'compact';
   const buyNowLabel = 'Agregar al carrito';
   const buyNowLabelHover = 'Agregar';
-  const clipboardCondition = resolveProductCardBadgeLabel(titleProduct);
+  const clipboardCondition = productHasOfferAttribute(titleProduct)
+    ? 'Oferta'
+    : resolveProductCardBadgeLabel(titleProduct);
   const clipboardIsColor = inferColor(titleProduct) === 'Color';
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(titleProduct);
   const clipboardImageUrl = imageCandidates[0] ?? product.image_url ?? null;
@@ -178,9 +194,15 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   return (
     <article
       className={cn(
-        'group flex h-full flex-col overflow-hidden rounded-2xl transition-shadow',
+        'group flex h-full flex-col overflow-hidden transition-shadow',
+        isCompact ? 'rounded-xl' : 'rounded-2xl',
         isCarousel
-          ? 'border-0 bg-white shadow-[0_4px_18px_rgba(15,23,42,0.07)]'
+          ? cn(
+              'border border-[#E8E8E8] bg-white',
+              isCompact
+                ? 'shadow-[0_2px_10px_rgba(15,23,42,0.08)]'
+                : 'shadow-[0_4px_18px_rgba(15,23,42,0.08)]',
+            )
           : isFeatured
             ? 'border border-[#E30613] bg-white shadow-[0_2px_14px_rgba(227,6,19,0.08)]'
             : 'border border-[#e6e8ee] bg-white shadow-[0_2px_14px_rgba(15,31,61,0.06)] hover:shadow-md',
@@ -190,7 +212,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
         <ProductCardBrandConditionRow
           brand={brand}
           condition={clipboardCondition}
-          className="px-2.5 pt-2.5 md:px-3 md:pt-3"
+          className={isCompact ? 'px-2 pt-2' : 'px-2.5 pt-2.5 md:px-3 md:pt-3'}
         />
       ) : null}
 
@@ -200,7 +222,9 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           className={cn(
             'relative block w-full overflow-hidden bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset',
             isCarousel
-              ? 'aspect-square p-4 md:p-6'
+              ? isCompact
+                ? 'aspect-[5/4] p-2 sm:p-2.5'
+                : 'aspect-square p-4 md:p-6'
               : 'aspect-[4/5] p-2 md:aspect-square md:p-3',
           )}
           aria-label={`Ver ficha de ${product.name}`}
@@ -256,7 +280,12 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
         />
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col px-2 pb-2 pt-1.5 md:px-3 md:pb-3 md:pt-2">
+      <div
+        className={cn(
+          'flex min-h-0 flex-1 flex-col',
+          isCompact ? 'px-2 pb-2 pt-1' : 'px-2 pb-2 pt-1.5 md:px-3 md:pb-3 md:pt-2',
+        )}
+      >
         {isCarousel ? null : (
           <ProductCardBrandConditionRow brand={brand} condition={clipboardCondition} />
         )}
@@ -270,7 +299,10 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
         >
           <h3
             className={cn(
-              'text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm',
+              'font-bold leading-snug text-[#111111]',
+              isCompact
+                ? 'text-[0.6875rem] sm:text-[0.75rem]'
+                : 'text-[0.75rem] sm:text-sm',
               isCarousel ? 'text-center' : 'text-pretty break-words',
             )}
           >
@@ -307,18 +339,26 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           </>
         )}
 
-        <div className="mt-1.5 md:mt-2">
+        <div className={cn(isCompact ? 'mt-1' : 'mt-1.5 md:mt-2')}>
           <ProductCardFeaturedPricing
             productId={product.id}
             currentUsd={pricing.currentUsd}
             compareUsd={pricing.compareUsd}
             showAccentBar={false}
             accentUsd
+            showOfferLabel={productHasOfferAttribute(titleProduct)}
+            size={isCarousel && !isCompact ? 'lg' : 'default'}
             align={isCarousel ? 'center' : 'start'}
           />
         </div>
 
-        <div className={cn('relative z-[2] mt-auto pt-2 md:pt-2.5', isCarousel && 'flex justify-center')}>
+        <div
+          className={cn(
+            'relative z-[2] mt-auto',
+            isCompact ? 'pt-1.5' : 'pt-2 md:pt-2.5',
+            isCarousel && 'flex justify-center',
+          )}
+        >
           <ProductQuantityAddFooter
             product={product}
             size="sm"
@@ -327,10 +367,12 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             addLabel={buyNowLabel}
             {...(buyNowLabelHover ? { addLabelHover: buyNowLabelHover } : {})}
             onQuantityChange={setQuantity}
-            quantityClassName="h-9 rounded-lg md:h-10"
+            quantityClassName={isCompact ? 'h-8 rounded-md' : 'h-9 rounded-lg md:h-10'}
             addButtonClassName={cn(
               isCarousel
-                ? 'h-9 min-h-9 max-h-9 w-auto min-w-0 flex-none justify-center whitespace-nowrap rounded-lg px-3.5 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem] md:h-10 md:min-h-10 md:max-h-10 md:px-4 md:text-xs'
+                ? isCompact
+                  ? 'h-8 min-h-8 max-h-8 w-auto min-w-0 flex-none justify-center whitespace-nowrap rounded-md px-2.5 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem]'
+                  : 'h-9 min-h-9 max-h-9 w-auto min-w-0 flex-none justify-center whitespace-nowrap rounded-lg px-3.5 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem] md:h-10 md:min-h-10 md:max-h-10 md:px-4 md:text-xs'
                 : 'h-9 min-h-9 max-h-9 min-w-0 flex-1 justify-center whitespace-nowrap rounded-lg px-2 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem] md:h-10 md:min-h-10 md:max-h-10 md:px-3 md:text-xs group-hover:flex-none group-hover:px-2.5 md:group-hover:px-3',
               'bg-[#E30613] hover:bg-[#c90511]',
             )}

@@ -61,17 +61,32 @@ export function normalizeProductStock(
     const quantities = new Map<string, number>();
     for (const entry of stockByWarehouse) {
       const warehouse_id = entry.warehouse_id?.trim() ?? '';
-      if (!warehouse_id || !ids.has(warehouse_id)) continue;
+      if (!warehouse_id) continue;
+      // Conservar almacenes fuera de `list` (p. ej. índice de catálogo sin warehouses
+      // y stock real en «operativo»). Antes se descartaban y el total quedaba en 0.
       const quantity = Math.max(0, Math.floor(Number(entry.quantity) || 0));
       quantities.set(warehouse_id, (quantities.get(warehouse_id) ?? 0) + quantity);
     }
 
     if (quantities.size > 0) {
-      const stock_by_warehouse = list.map((warehouse) => ({
+      const knownRows = list.map((warehouse) => ({
         warehouse_id: warehouse.id,
         quantity: quantities.get(warehouse.id) ?? 0,
       }));
-      const stock = stock_by_warehouse.reduce((sum, row) => sum + row.quantity, 0);
+      const extraRows = [...quantities.entries()]
+        .filter(([warehouse_id]) => !ids.has(warehouse_id))
+        .map(([warehouse_id, quantity]) => ({ warehouse_id, quantity }));
+      const stock_by_warehouse = [...knownRows, ...extraRows];
+      const stock = [...quantities.values()].reduce((sum, quantity) => sum + quantity, 0);
+      if (stock === 0 && legacy > 0) {
+        return {
+          stock_by_warehouse: list.map((warehouse) => ({
+            warehouse_id: warehouse.id,
+            quantity: warehouse.id === defaultId ? legacy : 0,
+          })),
+          stock: legacy,
+        };
+      }
       return { stock_by_warehouse, stock };
     }
   }

@@ -1,93 +1,115 @@
 import type { LucideIcon } from 'lucide-react';
-import { Briefcase, Video, Wrench } from 'lucide-react';
+import { Briefcase, FileStack, Headset, KeyRound } from 'lucide-react';
 
-import { categories } from '@/data/categories';
 import type { MegaMenuStaticColumnGroup } from '@/data/mega-menu';
 import { NUESTRAS_SOLUCIONES_ITEMS } from '@/data/nuestras-soluciones';
-import { categoryLandingPath } from '@/lib/category-path';
+import { serviceHubPath } from '@/lib/service-hub';
 
-export type SolutionsMegaMenuSectionId = 'colaboracion' | 'negocio' | 'servicios';
+export type SolutionsMegaMenuSectionId =
+  | 'gestion-documental'
+  | 'software-licencias'
+  | 'servicios-administrados'
+  | 'servicios-empresariales';
 
 export const solutionsMegaMenuSectionMeta: Record<
   SolutionsMegaMenuSectionId,
   { label: string; description: string; icon: LucideIcon }
 > = {
-  colaboracion: {
-    label: 'Pizarras Interactivas',
-    description: 'Pizarras IFPD 4K y soportes para salas de reunión.',
-    icon: Video,
+  'gestion-documental': {
+    label: 'Gestión Documental',
+    description: 'Digitalización, flujos, archivo y firma electrónica.',
+    icon: FileStack,
   },
-  negocio: {
-    label: 'Negocio',
-    description: 'Infraestructura y tecnología para empresas.',
+  'software-licencias': {
+    label: 'Software y Licencias',
+    description: 'Microsoft 365, Adobe, antivirus, ERP/CRM y SaaS.',
+    icon: KeyRound,
+  },
+  'servicios-administrados': {
+    label: 'Servicios Administrados',
+    description: 'Outsourcing, flota Ricoh, monitoreo y soporte TI.',
+    icon: Headset,
+  },
+  'servicios-empresariales': {
+    label: 'Servicios Empresariales',
+    description: 'Alquiler, leasing, oficinas y consultoría tecnológica.',
     icon: Briefcase,
-  },
-  servicios: {
-    label: 'Servicios',
-    description: 'Alquiler, soporte técnico, outsourcing y servicios corporativos.',
-    icon: Wrench,
   },
 };
 
 export const solutionsMegaMenuSidebarIds: SolutionsMegaMenuSectionId[] = [
-  'colaboracion',
-  'negocio',
-  'servicios',
+  'gestion-documental',
+  'software-licencias',
+  'servicios-administrados',
+  'servicios-empresariales',
 ];
 
-const colaboracionCategory = categories.find(
-  (category) => category.slug === 'soluciones-colaboracion',
-)!;
-const negocioCategory = categories.find((category) => category.slug === 'soluciones-negocio')!;
+const softwareSection = (seccion: string) => `/software?seccion=${seccion}`;
+const contactoTema = (tema: string) => `/contacto?tema=${encodeURIComponent(tema)}`;
 
-export const solutionsMegaMenuColaboracionColumnGroups: readonly MegaMenuStaticColumnGroup[] = [
+export const solutionsMegaMenuGestionDocumentalColumnGroups: readonly MegaMenuStaticColumnGroup[] = [
   {
-    slug: colaboracionCategory.slug,
-    title: colaboracionCategory.name,
-    image: colaboracionCategory.image ?? '/categories/soluciones-colaboracion.png',
-    href: categoryLandingPath(colaboracionCategory.slug),
+    slug: 'gestion-documental',
+    title: 'Gestión Documental',
+    image: '/categories/soluciones-negocio.png',
+    href: softwareSection('gestion-documental'),
     links: [
-      { name: 'Pizarras interactivas nuevas', href: categoryLandingPath(colaboracionCategory.slug) },
-      { name: 'Soportes de pared', href: categoryLandingPath(colaboracionCategory.slug) },
-      { name: 'Ver catálogo IFPD', href: categoryLandingPath(colaboracionCategory.slug) },
+      { name: 'Digitalización de documentos', href: softwareSection('gestion-documental') },
+      { name: 'Flujos de aprobación', href: softwareSection('automatizacion-procesos') },
+      { name: 'Archivo electrónico', href: softwareSection('gestion-documental') },
+      { name: 'Firma digital', href: softwareSection('gestion-documental') },
     ],
   },
 ];
 
-export const solutionsMegaMenuNegocioColumnGroups: readonly MegaMenuStaticColumnGroup[] = [
+export const solutionsMegaMenuSoftwareLicenciasColumnGroups: readonly MegaMenuStaticColumnGroup[] = [
   {
-    slug: negocioCategory.slug,
-    title: negocioCategory.name,
-    image: negocioCategory.image ?? '/categories/soluciones-negocio.png',
-    href: categoryLandingPath(negocioCategory.slug),
+    slug: 'software-licencias',
+    title: 'Software y Licencias',
+    image: '/categories/soluciones-negocio.png',
+    href: '/software',
     links: [
-      { name: 'Flotas gestionadas', href: categoryLandingPath(negocioCategory.slug) },
-      { name: 'Leasing tecnológico', href: categoryLandingPath(negocioCategory.slug) },
-      { name: 'Soluciones B2B a medida', href: categoryLandingPath(negocioCategory.slug) },
+      { name: 'Microsoft 365', href: softwareSection('software-empresarial') },
+      { name: 'Adobe', href: softwareSection('software-empresarial') },
+      { name: 'Antivirus empresarial', href: softwareSection('antivirus') },
+      { name: 'Sistemas ERP/CRM', href: softwareSection('software-empresarial') },
+      { name: 'Licencias por suscripción', href: '/software' },
+      { name: 'SaaS (Software como servicio)', href: '/software' },
     ],
   },
 ];
 
-export const solutionsMegaMenuServiciosColumnGroups: readonly MegaMenuStaticColumnGroup[] = [
-  {
-    slug: 'operacion',
-    title: 'Operación',
-    image: '/services/alquiler/impresoras.png',
-    href: '/servicios',
-    links: NUESTRAS_SOLUCIONES_ITEMS.filter(
-      (item) => item.slug === 'alquiler' || item.slug === 'outsourcing',
-    ).map((item) => ({ name: item.infoboxTitle, href: item.href })),
-  },
-  {
-    slug: 'soporte',
-    title: 'Soporte y corporativo',
-    image: '/services/servicio-tecnico/preventivo.png',
-    href: '/servicios',
-    links: NUESTRAS_SOLUCIONES_ITEMS.filter(
-      (item) => item.slug === 'servicio-tecnico' || item.slug === 'servicios-corporativos',
-    ).map((item) => ({ name: item.infoboxTitle, href: item.href })),
-  },
-];
+export const solutionsMegaMenuServiciosAdministradosColumnGroups: readonly MegaMenuStaticColumnGroup[] =
+  [
+    {
+      slug: 'servicios-administrados',
+      title: 'Servicios Administrados',
+      image: '/services/hero/outsourcing-impresion.png',
+      href: serviceHubPath('outsourcing'),
+      links: [
+        { name: 'Outsourcing de impresión', href: serviceHubPath('outsourcing') },
+        { name: 'Administración de equipos Ricoh', href: serviceHubPath('outsourcing') },
+        { name: 'Monitoreo remoto', href: serviceHubPath('outsourcing') },
+        { name: 'Soporte TI', href: serviceHubPath('servicio-tecnico') },
+      ],
+    },
+  ];
+
+export const solutionsMegaMenuServiciosEmpresarialesColumnGroups: readonly MegaMenuStaticColumnGroup[] =
+  [
+    {
+      slug: 'servicios-empresariales',
+      title: 'Servicios Empresariales',
+      image: '/categories/alquiler.png',
+      href: serviceHubPath('servicios-corporativos'),
+      links: [
+        { name: 'Alquiler de equipos', href: serviceHubPath('alquiler') },
+        { name: 'Leasing tecnológico', href: contactoTema('leasing') },
+        { name: 'Implementación de oficinas', href: serviceHubPath('servicios-corporativos') },
+        { name: 'Consultoría tecnológica', href: contactoTema('consultoria') },
+      ],
+    },
+  ];
 
 export const solutionsMegaMenuFeatured = {
   title: '¿Compras para tu empresa?',
@@ -95,11 +117,11 @@ export const solutionsMegaMenuFeatured = {
   image: '/promo-cards/b2b-printer.png',
   imageAlt: 'Multifuncional Ricoh profesional para empresas',
   cta: 'Ver soluciones B2B',
-  href: categoryLandingPath('soluciones-negocio'),
+  href: serviceHubPath('servicios-corporativos'),
 };
 
 export interface SolutionsMegaMenuCategorySection {
-  id: Exclude<SolutionsMegaMenuSectionId, 'servicios'>;
+  id: SolutionsMegaMenuSectionId;
   name: string;
   tagline: string;
   image: string;
@@ -109,20 +131,40 @@ export interface SolutionsMegaMenuCategorySection {
 
 export const solutionsMegaMenuCategorySections: readonly SolutionsMegaMenuCategorySection[] = [
   {
-    id: 'colaboracion',
-    name: colaboracionCategory.name,
-    tagline: colaboracionCategory.tagline ?? '',
-    image: colaboracionCategory.image ?? '/categories/soluciones-colaboracion.png',
-    href: categoryLandingPath(colaboracionCategory.slug),
-    highlights: solutionsMegaMenuColaboracionColumnGroups[0].links.map((link) => link.name),
+    id: 'gestion-documental',
+    name: 'Gestión Documental',
+    tagline: 'Digitalización, flujos, archivo y firma electrónica.',
+    image: '/categories/soluciones-negocio.png',
+    href: softwareSection('gestion-documental'),
+    highlights: solutionsMegaMenuGestionDocumentalColumnGroups[0].links.map((link) => link.name),
   },
   {
-    id: 'negocio',
-    name: negocioCategory.name,
-    tagline: negocioCategory.tagline ?? '',
-    image: negocioCategory.image ?? '/categories/soluciones-negocio.png',
-    href: categoryLandingPath(negocioCategory.slug),
-    highlights: solutionsMegaMenuNegocioColumnGroups[0].links.map((link) => link.name),
+    id: 'software-licencias',
+    name: 'Software y Licencias',
+    tagline: 'Microsoft 365, Adobe, antivirus, ERP/CRM y SaaS.',
+    image: '/categories/soluciones-negocio.png',
+    href: '/software',
+    highlights: solutionsMegaMenuSoftwareLicenciasColumnGroups[0].links.map((link) => link.name),
+  },
+  {
+    id: 'servicios-administrados',
+    name: 'Servicios Administrados',
+    tagline: 'Outsourcing, flota Ricoh, monitoreo y soporte TI.',
+    image: '/services/hero/outsourcing-impresion.png',
+    href: serviceHubPath('outsourcing'),
+    highlights: solutionsMegaMenuServiciosAdministradosColumnGroups[0].links.map(
+      (link) => link.name,
+    ),
+  },
+  {
+    id: 'servicios-empresariales',
+    name: 'Servicios Empresariales',
+    tagline: 'Alquiler, leasing, oficinas y consultoría tecnológica.',
+    image: '/categories/alquiler.png',
+    href: serviceHubPath('servicios-corporativos'),
+    highlights: solutionsMegaMenuServiciosEmpresarialesColumnGroups[0].links.map(
+      (link) => link.name,
+    ),
   },
 ];
 
@@ -131,7 +173,18 @@ export const solutionsMegaMenuServiceItems = NUESTRAS_SOLUCIONES_ITEMS;
 export function solutionsMegaMenuColumnGroupsForSection(
   sectionId: SolutionsMegaMenuSectionId,
 ): readonly MegaMenuStaticColumnGroup[] {
-  if (sectionId === 'colaboracion') return solutionsMegaMenuColaboracionColumnGroups;
-  if (sectionId === 'negocio') return solutionsMegaMenuNegocioColumnGroups;
-  return solutionsMegaMenuServiciosColumnGroups;
+  switch (sectionId) {
+    case 'gestion-documental':
+      return solutionsMegaMenuGestionDocumentalColumnGroups;
+    case 'software-licencias':
+      return solutionsMegaMenuSoftwareLicenciasColumnGroups;
+    case 'servicios-administrados':
+      return solutionsMegaMenuServiciosAdministradosColumnGroups;
+    case 'servicios-empresariales':
+      return solutionsMegaMenuServiciosEmpresarialesColumnGroups;
+    default: {
+      const _exhaustive: never = sectionId;
+      return _exhaustive;
+    }
+  }
 }

@@ -139,6 +139,7 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
       { name: 'Rendimiento (5%)', value: '14,500' },
       { name: 'Color', value: 'Negro' },
     ],
+    status: 'inactiva',
     prices: {
       public: roundSalePriceToNinety(82.5),
       tecnico: roundSalePriceToNinety(69.5),
@@ -169,10 +170,10 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
       { name: 'Color', value: 'Negro' },
     ],
     prices: {
-      public: roundSalePriceToNinety(132.5),
-      tecnico: roundSalePriceToNinety(112.5),
-      mayorista: roundSalePriceToNinety(107.5),
-      distribuidor: roundSalePriceToNinety(99.5),
+      public: 160,
+      tecnico: 135.9,
+      mayorista: 129.9,
+      distribuidor: 120.3,
     },
     purchase_price_usd: 84.9,
     suppliers: [{ name: 'Proveedor Ricoh del Peru', purchase_price_usd: 84.9 }],

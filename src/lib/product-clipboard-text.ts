@@ -31,6 +31,8 @@ export interface ProductClipboardTextInput {
   code?: string | null;
   title: string;
   stock: number;
+  /** Si es false, omite la línea de stock en el texto copiado. */
+  includeStock?: boolean;
   /** Precio de oferta / vigente (del rol seleccionado). */
   priceUsd: number | null | undefined;
   /** Rol de precio usado en `priceUsd` (para descuentos por volumen). */
@@ -306,7 +308,9 @@ export function buildProductClipboardPayload(input: ProductClipboardTextInput): 
       `⚙️ Características: ${htmlBold(basicFeatures)}`,
     );
   }
-  push(`📊 Stock: ${stockLabel}`, `📊 Stock: ${escapeHtml(stockLabel)}`);
+  if (input.includeStock !== false) {
+    push(`📊 Stock: ${stockLabel}`, `📊 Stock: ${escapeHtml(stockLabel)}`);
+  }
 
   plainLines.push('');
   htmlLines.push('');

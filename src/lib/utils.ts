@@ -85,3 +85,15 @@ export function formatPenFromUsdPrecise(usd: number, rate = getUsdToPenSaleRate(
     maximumFractionDigits: 2,
   }).format(usd * rate);
 }
+
+/** Quita ítems con el mismo `id` para listas React (carruseles, tablas). */
+export function uniqueById<T extends { id: string }>(items: readonly T[]): T[] {
+  const seen = new Set<string>();
+  const unique: T[] = [];
+  for (const item of items) {
+    if (!item?.id || seen.has(item.id)) continue;
+    seen.add(item.id);
+    unique.push(item);
+  }
+  return unique;
+}

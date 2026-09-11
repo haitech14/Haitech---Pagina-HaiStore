@@ -106,7 +106,7 @@ export function AdminDashboardMainColumn() {
             </p>
           ) : salesSeries.hasData ? (
             <>
-              <ChartContainer config={salesChartConfig} className="h-[10.5rem] w-full">
+              <ChartContainer config={salesChartConfig} className="h-[10.5rem] w-full aspect-auto">
                 <ComposedChart
                   data={chartData}
                   barCategoryGap="42%"

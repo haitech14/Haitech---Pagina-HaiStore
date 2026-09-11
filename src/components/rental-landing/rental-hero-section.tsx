@@ -1,109 +1,66 @@
-import { ArrowRight, Leaf, Printer, ShieldCheck, Zap } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import { RENTAL_LANDING_CALCULATOR_ID } from '@/data/rental-landing-pricing';
+import { RENTAL_SOLUTION_CONFIGURATOR_ID } from '@/data/rental-solution-configurator';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 import { cn } from '@/lib/utils';
 
-const HERO_BG = '/home/alquiler-hero-bg.png?v=2026-09-09-bg1';
-
-const HERO_BENEFITS = [
-  { id: 'equipos', label: 'Equipos multifuncionales', icon: Printer },
-  { id: 'confianza', label: 'Confiabilidad RICOH', icon: ShieldCheck },
-  { id: 'productividad', label: 'Mayor productividad', icon: Zap },
-  { id: 'sostenible', label: 'Tu oficina más sostenible', icon: Leaf },
-] as const;
+const HERO_BG = '/home/alquiler-hero-bg.png?v=2026-09-10-banner';
 
 export const RENTAL_CALCULATOR_REVEAL_EVENT = 'haitech:rental-calculator-reveal';
 
 function scrollToCalculator() {
   window.dispatchEvent(new Event(RENTAL_CALCULATOR_REVEAL_EVENT));
-  document.getElementById(RENTAL_LANDING_CALCULATOR_ID)?.scrollIntoView({
+  document.getElementById(RENTAL_SOLUTION_CONFIGURATOR_ID)?.scrollIntoView({
     behavior: 'smooth',
     block: 'start',
   });
 }
 
+/** Hero de alquiler: solo el banner gráfico (el copy ya viene en la imagen). */
 export function RentalHeroSection() {
   const advisorHref = buildHaitechWhatsAppUrl(
-    'Hola, quiero hablar con un asesor sobre leasing o alquiler de fotocopiadoras RICOH.',
+    'Hola, quiero hablar con un asesor sobre alquiler de equipos RICOH.',
   );
 
   return (
     <section
       aria-labelledby="rental-hero-title"
-      className="relative isolate overflow-hidden bg-white"
+      className="relative isolate overflow-hidden bg-[#F4F5F7]"
     >
-      <img
-        src={HERO_BG}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 size-full object-cover object-[72%_center] sm:object-[right_center]"
-        fetchPriority="high"
-        decoding="async"
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white via-white/80 to-white/30 sm:via-white/65 sm:to-transparent"
-        aria-hidden="true"
-      />
+      <h1 id="rental-hero-title" className="sr-only">
+        Alquiler de equipos Ricoh
+      </h1>
 
-      <div
-        className={cn(
-          'container relative z-10 px-4 py-10 sm:px-6 sm:py-12',
-          'min-h-[280px] sm:min-h-[320px] lg:min-h-[360px] lg:py-14',
-        )}
-      >
-        <div className="max-w-xl">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#E30613] sm:text-xs">
-            Oficinas más productivas
-          </p>
-          <h1
-            id="rental-hero-title"
-            className="mt-3 text-balance text-[2rem] font-black leading-[1.08] tracking-tight text-[#111111] sm:text-5xl"
-          >
-            Calcula tu plan de
-            <br />
-            leasing o alquiler
-            <br />
-            <span className="text-[#E30613]">RICOH</span>
-          </h1>
-          <p className="mt-4 max-w-lg text-pretty text-sm leading-relaxed text-[#4B5563] sm:text-base">
-            Elige la modalidad, volumen y plazo y obtén una cuota estimada en segundos.
-          </p>
+      <div className="relative mx-auto w-full max-w-[1400px]">
+        <img
+          src={HERO_BG}
+          alt="Alquiler de equipos Ricoh — equipos seminuevos con servicio integral incluido"
+          className="block h-auto w-full object-cover object-center"
+          fetchPriority="high"
+          decoding="async"
+        />
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Button
+        {/* Zonas clicables sobre los CTAs del banner */}
+        <div
+          className={cn(
+            'absolute inset-0',
+            'grid grid-cols-1 content-end gap-2 px-[5%] pb-[8%] sm:pb-[7%] md:content-center md:pb-0',
+            'md:grid-cols-[minmax(0,0.55fr)_minmax(0,0.45fr)]',
+          )}
+        >
+          <div className="flex max-w-md flex-col justify-end gap-2 sm:gap-2.5 md:translate-y-[18%] lg:translate-y-[22%]">
+            <button
               type="button"
-              className="h-11 min-h-11 gap-1.5 bg-[#E30613] px-5 text-sm font-semibold text-white hover:bg-[#c40511]"
               onClick={scrollToCalculator}
-            >
-              Calcular ahora
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="h-11 min-h-11 border-[#D1D5DB] bg-white px-5 text-sm font-semibold text-[#111111] hover:bg-[#F9FAFB]"
-            >
-              <a href={advisorHref} target="_blank" rel="noopener noreferrer">
-                Hablar con un asesor
-              </a>
-            </Button>
+              className="h-10 w-[min(100%,11.5rem)] rounded-md bg-transparent sm:h-11 sm:w-[13rem]"
+              aria-label="Cotiza tu alquiler"
+            />
+            <a
+              href={advisorHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block h-10 w-[min(100%,12.5rem)] rounded-md sm:h-11 sm:w-[14rem]"
+              aria-label="Habla con un asesor"
+            />
           </div>
-
-          <ul className="mt-8 grid grid-cols-2 gap-x-5 gap-y-4 sm:grid-cols-4">
-            {HERO_BENEFITS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.id} className="flex flex-col items-start gap-1.5">
-                  <Icon className="size-5 text-[#E30613]" strokeWidth={1.75} aria-hidden="true" />
-                  <span className="text-[11px] font-medium leading-snug text-[#374151] sm:text-xs">
-                    {item.label}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
         </div>
       </div>
     </section>

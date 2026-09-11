@@ -91,7 +91,7 @@ export function AdminEnviosKpis({ shipments, range }: AdminEnviosKpisProps) {
                 <span className="text-xs text-muted-foreground">{kpi.trendLabel}</span>
               </div>
 
-              <ChartContainer config={sparkConfig} className="h-8 w-16">
+              <ChartContainer config={sparkConfig} className="h-8 w-16 aspect-auto">
                 <AreaChart data={sparkData} aria-hidden="true">
                   <Area
                     type="monotone"

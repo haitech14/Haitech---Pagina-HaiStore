@@ -1,6 +1,7 @@
-import { Area, AreaChart, ResponsiveContainer } from 'recharts';
+import { Area, AreaChart } from 'recharts';
 import { Eye, Heart, Megaphone, Pin, TrendingDown, TrendingUp } from 'lucide-react';
 
+import { ChartContainer } from '@/components/ui/chart';
 import { MURAL_BLOG_KPIS } from '@/data/mural-blog-mock';
 import { cn } from '@/lib/utils';
 import type { MuralBlogKpi } from '@/types/mural-blog';
@@ -11,6 +12,10 @@ const KPI_ICONS = {
   heart: Heart,
   eye: Eye,
 } as const;
+
+const sparkConfig = {
+  value: { label: 'Tendencia', color: 'currentColor' },
+};
 
 function formatTrend(kpi: MuralBlogKpi) {
   if (kpi.trend === null) return kpi.trendLabel;
@@ -46,7 +51,7 @@ export function MuralKpis() {
                   <Icon className="size-4" aria-hidden="true" />
                 </span>
                 <div className="h-8 w-14 shrink-0" aria-hidden="true">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ChartContainer config={sparkConfig} className="h-8 w-14 aspect-auto">
                     <AreaChart data={chartData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
                       <defs>
                         <linearGradient id={`mural-kpi-${kpi.id}`} x1="0" y1="0" x2="0" y2="1">
@@ -64,7 +69,7 @@ export function MuralKpis() {
                         isAnimationActive={false}
                       />
                     </AreaChart>
-                  </ResponsiveContainer>
+                  </ChartContainer>
                 </div>
               </div>
             </div>

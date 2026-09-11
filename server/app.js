@@ -153,7 +153,16 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Recurso no encontrado' });
 });
 
+function isSupabaseQuotaError(message) {
+  return /exceed_egress_quota|egress_quota|spend cap|service for this project is restricted/i.test(
+    message,
+  );
+}
+
 function resolveApiErrorStatus(message) {
+  if (isSupabaseQuotaError(message)) {
+    return 503;
+  }
   if (
     /catálogo vacío|supabase no configurado|migraci[oó]n|tabla products no encontrada/i.test(
       message,
@@ -176,8 +185,11 @@ function resolveApiErrorBody(message, isProductRoute, err) {
   if (err?.type === 'entity.parse.failed') {
     return isProductRoute ? 'Datos del producto inválidos' : 'Datos de la solicitud inválidos';
   }
+  if (isSupabaseQuotaError(message)) {
+    return 'Supabase alcanzó el límite de tráfico (egress). Actualiza el plan o quita el spend cap para restaurar HaiSales y HaiSupport.';
+  }
   if (
-    /catálogo vacío|supabase|migraci[oó]n|tabla products no encontrada|categoría no encontrada|elimina primero|padre no es válida|no se puede asignar|orden inválido/i.test(
+    /catálogo vacío|supabase|migraci[oó]n|tabla products no encontrada|store_customers|haisales|haisupport|categoría no encontrada|elimina primero|padre no es válida|no se puede asignar|orden inválido/i.test(
       message,
     )
   ) {

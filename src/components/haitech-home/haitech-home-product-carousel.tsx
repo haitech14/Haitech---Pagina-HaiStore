@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
@@ -6,11 +6,12 @@ import { StoreCatalogProductCard } from '@/components/store-storefront/store-cat
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
   HAITECH_PRODUCT_CAROUSEL_ARROW,
+  HAITECH_PRODUCT_CAROUSEL_ARROW_LEFT,
+  HAITECH_PRODUCT_CAROUSEL_ARROW_RIGHT,
   HAITECH_PRODUCT_CAROUSEL_GAP,
-  HAITECH_PRODUCT_CAROUSEL_GUTTER,
   HAITECH_PRODUCT_CAROUSEL_SLIDE,
 } from '@/lib/haitech-product-carousel-layout';
-import { cn } from '@/lib/utils';
+import { cn, uniqueById } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
 export function HaitechHomeProductCarousel({
@@ -24,7 +25,8 @@ export function HaitechHomeProductCarousel({
 }) {
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
-  const showNav = products.length > 1;
+  const slides = useMemo(() => uniqueById(products), [products]);
+  const showNav = slides.length > 1;
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
@@ -61,15 +63,15 @@ export function HaitechHomeProductCarousel({
     emblaApi.scrollTo(0);
   }, [emblaApi, products]);
 
-  if (products.length === 0) return null;
+  if (slides.length === 0) return null;
 
   return (
-    <div className={cn('relative', showNav && HAITECH_PRODUCT_CAROUSEL_GUTTER, className)}>
+    <div className={cn('relative', className)}>
       {showNav ? (
         <>
           <button
             type="button"
-            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'left-0')}
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, HAITECH_PRODUCT_CAROUSEL_ARROW_LEFT)}
             aria-label="Productos anteriores"
             disabled={!canScrollPrev}
             onClick={scrollPrev}
@@ -78,7 +80,7 @@ export function HaitechHomeProductCarousel({
           </button>
           <button
             type="button"
-            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'right-0')}
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, HAITECH_PRODUCT_CAROUSEL_ARROW_RIGHT)}
             aria-label="Productos siguientes"
             disabled={!canScrollNext}
             onClick={scrollNext}
@@ -90,7 +92,7 @@ export function HaitechHomeProductCarousel({
 
       <div className="overflow-hidden" ref={emblaRef}>
         <ul className={cn('flex touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list" aria-label={ariaLabel}>
-          {products.map((product) => (
+          {slides.map((product) => (
             <li key={product.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
               <StoreCatalogProductCard product={product} variant="carousel" />
             </li>

@@ -73,7 +73,7 @@ export function SolutionsMegaMenu({
   triggerHref?: string;
 } = {}) {
   const location = useLocation();
-  const defaultSection = solutionsMegaMenuSidebarIds[0] ?? 'colaboracion';
+  const defaultSection = solutionsMegaMenuSidebarIds[0] ?? 'gestion-documental';
 
   const [open, setOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<SolutionsMegaMenuSectionId>(defaultSection);

@@ -63,31 +63,14 @@ export function ProductCardBrandLine({
   );
 }
 
-const DESCRIPTOR_CLUSTER_PATTERN =
-  /^(.*?)(\bMultifuncional(?:\s+(?:B\/N|Color))?(?:\s+(?:Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo))?)$/i;
-const COLOR_CONDITION_CLUSTER_PATTERN =
-  /^(.*?)(\b(?:B\/N|Color)\s+(?:Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo))$/i;
+const DESCRIPTOR_KEEP_TOGETHER_PATTERN =
+  /^(Impresora(?:\s+Multifuncional)?|Multifuncional)(?:\s+(?:B\/N|Color))?\s+(?:Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo)$/i;
 
-/** Mantiene junto «Multifuncional B/N Nueva» (u homólogos) para no partirlo en dos líneas. */
+/** Mantiene junto «Impresora Multifuncional Nueva» (u homólogos) en una sola línea. */
 export function ProductCardDescriptorLine({ text }: { text: string }) {
-  const descriptorMatch = text.match(DESCRIPTOR_CLUSTER_PATTERN);
-  if (descriptorMatch?.[1]?.trim() && descriptorMatch[2]) {
-    return (
-      <>
-        {descriptorMatch[1]}
-        <span className="whitespace-nowrap">{descriptorMatch[2]}</span>
-      </>
-    );
-  }
-
-  const colorMatch = text.match(COLOR_CONDITION_CLUSTER_PATTERN);
-  if (colorMatch?.[1]?.trim() && colorMatch[2]) {
-    return (
-      <>
-        {colorMatch[1]}
-        <span className="whitespace-nowrap">{colorMatch[2]}</span>
-      </>
-    );
+  const trimmed = text.trim();
+  if (DESCRIPTOR_KEEP_TOGETHER_PATTERN.test(trimmed)) {
+    return <span className="whitespace-nowrap">{trimmed}</span>;
   }
 
   return text;

@@ -1,8 +1,8 @@
 import type { RentalPlanOption } from '@/types/product-detail';
 import { usdToPen } from '@/lib/utils';
 
-/** Costo por copia monocromática B/N (PEN/pág. A4 equivalente). */
-export const RENTAL_BW_COPY_COST_PEN = 0.0767;
+/** Costo por copia monocromática B/N sin IGV (PEN/pág. A4 equivalente). */
+export const RENTAL_BW_COPY_COST_PEN = 0.065;
 
 /** @deprecated Usar RENTAL_BW_COPY_COST_PEN */
 export const RENTAL_EXCESS_COPY_COST_PEN = RENTAL_BW_COPY_COST_PEN;
@@ -13,14 +13,14 @@ export const RENTAL_BW_VARIABLE_COPY_COST_PEN = RENTAL_BW_COPY_COST_PEN;
 /** @deprecated Usar RENTAL_BW_COPY_COST_PEN */
 export const RENTAL_BLACK_COPY_COST_PEN = RENTAL_BW_COPY_COST_PEN;
 
-/** Excedente negro en equipo color (PEN/pág.). */
-export const RENTAL_COLOR_BLACK_EXCESS_COPY_COST_PEN = 0.118;
+/** Costo por página negro en equipo color, sin IGV (PEN/pág.). */
+export const RENTAL_COLOR_BLACK_EXCESS_COPY_COST_PEN = 0.1;
 
 /** @deprecated Usar RENTAL_COLOR_BLACK_EXCESS_COPY_COST_PEN */
 export const RENTAL_COLOR_BLACK_VARIABLE_COPY_COST_PEN = RENTAL_COLOR_BLACK_EXCESS_COPY_COST_PEN;
 
-/** Excedente color en equipo color (PEN/pág.). */
-export const RENTAL_COLOR_EXCESS_COPY_COST_PEN = 0.413;
+/** Costo por página color en equipo color, sin IGV (PEN/pág.). */
+export const RENTAL_COLOR_EXCESS_COPY_COST_PEN = 0.35;
 
 /** @deprecated Usar RENTAL_COLOR_EXCESS_COPY_COST_PEN */
 export const RENTAL_COLOR_VARIABLE_COPY_COST_PEN = RENTAL_COLOR_EXCESS_COPY_COST_PEN;
@@ -31,11 +31,14 @@ export const RENTAL_A3_TO_A4_FACTOR = 2;
 /** Proporción negro / total en planes color (p. ej. 3 000 + 2 000 = 5 000). */
 export const RENTAL_COLOR_BLACK_PAGE_SHARE = 0.6;
 
-/** Escaneo de cortesía: % del plan base sin cargo. */
-export const RENTAL_SCAN_COURTESY_RATIO = 0.3;
+/** Escaneo de cortesía: % del volumen de impresión mensual. */
+export const RENTAL_SCAN_COURTESY_RATIO = 0.2;
 
-/** Costo por página de escaneo sobre la cortesía (PEN). */
-export const RENTAL_SCAN_EXCESS_COPY_COST_PEN = 0.0236;
+/** Costo por página de escaneo sobre la cortesía, sin IGV (PEN). */
+export const RENTAL_SCAN_EXCESS_COPY_COST_PEN = 0.02;
+
+/** IGV Perú (fracción). */
+export const RENTAL_IGV_RATE = 0.18;
 
 /** Bolsa mínima de páginas para el cálculo. */
 export const RENTAL_MIN_BILLABLE_PAGES = 5000;

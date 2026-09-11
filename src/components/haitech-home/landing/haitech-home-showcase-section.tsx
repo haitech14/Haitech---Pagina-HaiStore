@@ -103,31 +103,21 @@ function BenefitsBlock() {
       >
         <BenefitsHeader />
 
-        <div className="lg:hidden">
-          <TwoUpInfoboxCarousel
-            items={HAITECH_SHOWCASE_BENEFITS}
-            ariaLabel="Beneficios HAITECH"
-            renderItem={(item) => {
-              const benefit = benefitById.get(item.id);
-              if (!benefit) return null;
-              return (
-                <BenefitCard
-                  title={benefit.title}
-                  subtitle={benefit.subtitle}
-                  iconSrc={benefit.iconSrc}
-                />
-              );
-            }}
-          />
-        </div>
-
-        <ul className="hidden grid-cols-3 gap-3.5 lg:grid lg:gap-3 xl:grid-cols-6 xl:gap-4">
-          {HAITECH_SHOWCASE_BENEFITS.map((item) => (
-            <li key={item.id} className="min-w-0">
-              <BenefitCard title={item.title} subtitle={item.subtitle} iconSrc={item.iconSrc} />
-            </li>
-          ))}
-        </ul>
+        <TwoUpInfoboxCarousel
+          items={HAITECH_SHOWCASE_BENEFITS}
+          ariaLabel="Beneficios HAITECH"
+          renderItem={(item) => {
+            const benefit = benefitById.get(item.id);
+            if (!benefit) return null;
+            return (
+              <BenefitCard
+                title={benefit.title}
+                subtitle={benefit.subtitle}
+                iconSrc={benefit.iconSrc}
+              />
+            );
+          }}
+        />
       </div>
     </section>
   );

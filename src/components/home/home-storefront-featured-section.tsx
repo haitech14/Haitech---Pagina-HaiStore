@@ -28,13 +28,15 @@ import type { HomeFeaturedEquipmentConditionFilterId } from '@/data/home-feature
 import { useHomeCatalogBundle } from '@/hooks/use-home-catalog-bundle';
 import {
   HAITECH_PRODUCT_CAROUSEL_ARROW,
+  HAITECH_PRODUCT_CAROUSEL_ARROW_LEFT,
+  HAITECH_PRODUCT_CAROUSEL_ARROW_RIGHT,
   HAITECH_PRODUCT_CAROUSEL_GAP,
-  HAITECH_PRODUCT_CAROUSEL_GUTTER,
   HAITECH_PRODUCT_CAROUSEL_SLIDE,
 } from '@/lib/haitech-product-carousel-layout';
 import {
   catalogRowToFeatured,
-  getCatalogRows,
+  getCatalogActiveRows,
+  isCatalogIndexLoaded,
   loadCatalogIndex,
   type CatalogRow,
 } from '@/lib/catalog-featured';
@@ -201,7 +203,7 @@ function FeaturedSkeleton() {
     <ul className={cn('flex', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list">
       {Array.from({ length: 4 }).map((_, index) => (
         <li key={index} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
-          <div className="rounded-lg bg-white p-2.5">
+          <div className="rounded-2xl border border-[#E8E8E8] bg-white p-2.5 shadow-[0_4px_18px_rgba(15,23,42,0.08)]">
             <Skeleton className="aspect-square w-full rounded-md" />
             <Skeleton className="mt-2 h-2.5 w-12" />
             <Skeleton className="mt-1.5 h-3 w-full" />
@@ -272,8 +274,20 @@ function FeaturedProductsCarousel({
   /** Solo el primer rail debería pasar 2–3 para LCP de cards. */
   eagerImageCount?: number;
 }) {
-  const productIdsKey = products.map((product) => product.id).join('|');
-  const showNav = products.length > 1;
+  const slides = useMemo(() => {
+    const seen = new Set<string>();
+    const unique: Array<{ product: FeaturedProduct; storeProduct: ReturnType<typeof featuredToProduct> }> =
+      [];
+    for (const product of products) {
+      const storeProduct = featuredToProduct(product);
+      if (seen.has(storeProduct.id)) continue;
+      seen.add(storeProduct.id);
+      unique.push({ product, storeProduct });
+    }
+    return unique;
+  }, [products]);
+  const productIdsKey = slides.map((slide) => slide.storeProduct.id).join('|');
+  const showNav = slides.length > 1;
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     dragFree: false,
@@ -316,7 +330,7 @@ function FeaturedProductsCarousel({
   }, [emblaApi, productIdsKey]);
 
   useEffect(() => {
-    if (!emblaApi || autoplayPaused || products.length < 2) return;
+    if (!emblaApi || autoplayPaused || slides.length < 2) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const timer = window.setInterval(() => {
@@ -328,11 +342,11 @@ function FeaturedProductsCarousel({
     }, 3500);
 
     return () => window.clearInterval(timer);
-  }, [autoplayPaused, emblaApi, products.length]);
+  }, [autoplayPaused, emblaApi, slides.length]);
 
   return (
     <div
-      className={cn('relative', showNav && HAITECH_PRODUCT_CAROUSEL_GUTTER)}
+      className="relative"
       onMouseEnter={pauseAutoplay}
       onMouseLeave={resumeAutoplay}
     >
@@ -340,7 +354,7 @@ function FeaturedProductsCarousel({
         <>
           <button
             type="button"
-            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'left-0')}
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, HAITECH_PRODUCT_CAROUSEL_ARROW_LEFT)}
             aria-label={`Anterior: ${paginationLabel}`}
             disabled={!canScrollPrev}
             onClick={scrollPrev}
@@ -349,7 +363,7 @@ function FeaturedProductsCarousel({
           </button>
           <button
             type="button"
-            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'right-0')}
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, HAITECH_PRODUCT_CAROUSEL_ARROW_RIGHT)}
             aria-label={`Siguiente: ${paginationLabel}`}
             disabled={!canScrollNext}
             onClick={scrollNext}
@@ -361,19 +375,16 @@ function FeaturedProductsCarousel({
 
       <div className="overflow-hidden" ref={emblaRef}>
         <ul className={cn('flex touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)} role="list">
-          {products.map((product, index) => {
-            const storeProduct = featuredToProduct(product);
-            return (
-              <li key={storeProduct.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
-                <StoreCatalogProductCard
-                  product={storeProduct}
-                  variant="carousel"
-                  imageLoading={index < eagerImageCount ? 'eager' : 'lazy'}
-                  imagePriority={index < eagerImageCount}
-                />
-              </li>
-            );
-          })}
+          {slides.map(({ storeProduct }, index) => (
+            <li key={storeProduct.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
+              <StoreCatalogProductCard
+                product={storeProduct}
+                variant="carousel"
+                imageLoading={index < eagerImageCount ? 'eager' : 'lazy'}
+                imagePriority={index < eagerImageCount}
+              />
+            </li>
+          ))}
         </ul>
       </div>
     </div>
@@ -422,9 +433,9 @@ function StorefrontCatalogRail({
   const showSkeleton = isLoading && products.length === 0;
 
   return (
-    <section aria-labelledby={rail.titleId} className="pt-0">
-      <div className="container pb-2 pt-2 sm:pb-3 sm:pt-3">
-        <header className="mb-2 flex flex-col gap-2 sm:mb-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <section aria-labelledby={rail.titleId} className="bg-[#F5F5F5]">
+      <div className="container py-4 sm:py-5 lg:py-6">
+        <header className="mb-3 flex flex-col gap-2 sm:mb-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="flex min-w-0 items-baseline gap-3">
             <h2
               id={rail.titleId}
@@ -460,9 +471,7 @@ function StorefrontCatalogRail({
         </header>
 
         {showSkeleton ? (
-          <div className={HAITECH_PRODUCT_CAROUSEL_GUTTER}>
-            <FeaturedSkeleton />
-          </div>
+          <FeaturedSkeleton />
         ) : products.length === 0 ? (
           <p className="rounded-lg border border-dashed border-[#D9DEE7] bg-white px-4 py-7 text-center text-sm text-[#666666]">
             No hay productos para este filtro.
@@ -482,7 +491,7 @@ function StorefrontCatalogRail({
 
 export function HomeStorefrontFeaturedSection() {
   const { data: catalogBundle, isLoading: bundleLoading } = useHomeCatalogBundle();
-  const [catalogReady, setCatalogReady] = useState(() => getCatalogRows().length > 0);
+  const [catalogReady, setCatalogReady] = useState(() => isCatalogIndexLoaded());
 
   useEffect(() => {
     if (catalogReady) return;
@@ -517,12 +526,19 @@ export function HomeStorefrontFeaturedSection() {
 
   const productPool = useMemo(() => {
     const merged: FeaturedProduct[] = [];
-    const seen = new Set<string>();
+    const seenIds = new Set<string>();
+    const seenCodes = new Set<string>();
 
     const pushUnique = (item: FeaturedProduct) => {
-      if (seen.has(item.id) || merged.length >= STOREFRONT_FEATURED_POOL_LIMIT) return;
-      seen.add(item.id);
-      merged.push(catalogReady ? enrichFeaturedFromCatalog(item) : item);
+      if (merged.length >= STOREFRONT_FEATURED_POOL_LIMIT) return;
+      const next = catalogReady ? enrichFeaturedFromCatalog(item) : item;
+      if (seenIds.has(item.id) || seenIds.has(next.id)) return;
+      const code = next.code?.trim().toUpperCase() || item.code?.trim().toUpperCase();
+      if (code && seenCodes.has(code)) return;
+      seenIds.add(item.id);
+      seenIds.add(next.id);
+      if (code) seenCodes.add(code);
+      merged.push(next);
     };
 
     for (const product of catalogBundle?.featured ?? []) {
@@ -537,15 +553,17 @@ export function HomeStorefrontFeaturedSection() {
       }
     }
 
+    // Curados primero (p. ej. unidad de imagen), luego el índice activo.
+    for (const product of shopConsumableFallbackProducts()) {
+      pushUnique(product);
+    }
+
     if (catalogReady) {
-      for (const row of getCatalogRows()) {
+      // Incluye tóner/repuestos activos (ocultos de /tienda pero visibles en rails home).
+      for (const row of getCatalogActiveRows()) {
         if (!isStorefrontCatalogCandidate(row)) continue;
         pushUnique(catalogRowToFeatured(row));
       }
-    }
-
-    for (const product of shopConsumableFallbackProducts()) {
-      pushUnique(product);
     }
 
     return merged;
@@ -554,7 +572,7 @@ export function HomeStorefrontFeaturedSection() {
   const isLoading = bundleLoading && !catalogBundle;
 
   return (
-    <div className="bg-white">
+    <div className="flex flex-col gap-3 sm:gap-4">
       {STOREFRONT_CATALOG_RAILS.map((rail, index) => {
         const railBlock = (
           <StorefrontCatalogRail

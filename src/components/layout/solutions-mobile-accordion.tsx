@@ -13,7 +13,7 @@ interface SolutionsMobileAccordionProps {
 }
 
 export function SolutionsMobileAccordion({ onNavigate }: SolutionsMobileAccordionProps) {
-  const defaultSection = solutionsMegaMenuSidebarIds[0] ?? 'colaboracion';
+  const defaultSection = solutionsMegaMenuSidebarIds[0] ?? 'gestion-documental';
   const [open, setOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<SolutionsMegaMenuSectionId>(defaultSection);
 

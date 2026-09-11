@@ -7,7 +7,7 @@ import {
   type MouseEvent,
 } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Package, Plane, ShoppingCart } from 'lucide-react';
+import { Heart, Plane, ShoppingCart } from 'lucide-react';
 
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
@@ -35,7 +35,6 @@ import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
-import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { productPath } from '@/lib/product-path';
 import { featuredToWishlistItem } from '@/lib/wishlist-product';
 import type { ProductBadgeSource } from '@/lib/product-detail-badges';
@@ -220,9 +219,6 @@ export function HomeStorefrontProductCard({
   const hoverSpecBadges = buildStorefrontHoverSpecBadges(productSource);
   const productCodeLabel = (displayCode ?? code)?.trim() || null;
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(productSource);
-  const stockHoverLabel = outOfStock
-    ? PRODUCT_ON_REQUEST_STOCK_LABEL
-    : String(Math.max(0, Math.floor(stockCount)));
   const wishlistSelected = isWishlisted(product.id);
 
   const imageSource = useMemo(
@@ -335,6 +331,7 @@ export function HomeStorefrontProductCard({
                 productName={product.name}
                 title={productTitle}
                 stock={stockCount}
+                includeStock={false}
                 {...clipboardPriceFieldsFromDisplay(displayPrice)}
                 productId={product.id}
                 productPath={detailPath}
@@ -420,27 +417,13 @@ export function HomeStorefrontProductCard({
           <div className="min-h-0 overflow-hidden">
             <div
               className="mt-1.5 flex min-w-0 items-center gap-1.5"
-              aria-label="Código y stock"
+              aria-label={productCodeLabel ? `Código ${productCodeLabel}` : undefined}
             >
               {productCodeLabel ? (
                 <span className="min-w-0 truncate text-[0.625rem] font-medium tabular-nums leading-none text-[#6B7280] sm:text-[0.6875rem]">
                   {productCodeLabel}
                 </span>
-              ) : (
-                <span className="min-w-0" aria-hidden="true" />
-              )}
-              <span
-                className={cn(
-                  'ml-auto inline-flex shrink-0 items-center gap-1 text-[0.625rem] font-medium tabular-nums leading-none sm:text-[0.6875rem]',
-                  outOfStock ? 'text-[#6B7280]' : 'text-emerald-700',
-                )}
-                title={outOfStock ? PRODUCT_ON_REQUEST_STOCK_LABEL : `Stock ${stockHoverLabel}`}
-              >
-                {!outOfStock ? (
-                  <Package className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                ) : null}
-                <span>{outOfStock ? PRODUCT_ON_REQUEST_STOCK_LABEL : `Stock ${stockHoverLabel}`}</span>
-              </span>
+              ) : null}
             </div>
             {hoverSpecBadges.length > 0 ? (
               <div

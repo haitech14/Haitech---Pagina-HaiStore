@@ -1,5 +1,4 @@
 import { isPrinterEquipment } from '@/lib/build-product-detail';
-import { IM430F_ORIGINAL_TONER_PRODUCT_ID } from '@/lib/equipment-config-catalog';
 import { tonerProductMatchesEquipment } from '@/lib/product-equipment-consumables';
 import { buildProductImageCandidates } from '@/lib/product-image-url';
 import { ensureFullPrices } from '@/lib/roles';
@@ -127,18 +126,6 @@ interface CuratedAccessory {
 
 const IM430F_CURATED_ACCESSORIES: CuratedAccessory[] = [
   {
-    id: 'combo-toner-cartucho-im430f',
-    name: 'Toner Cartucho RICOH IM 430F',
-    priceUsd: 68,
-    fallbackImage: '/products/toner-419078.webp',
-    defaultSelected: true,
-    matchPatterns: [
-      /cartucho.*im\s*430/i,
-      /toner.*im\s*430/i,
-      /print cartridge im\s*430/i,
-    ],
-  },
-  {
     id: 'combo-gabinete-alto-tipo-i',
     name: 'Gabinete alto Tipo I',
     priceUsd: 280,
@@ -166,11 +153,6 @@ function resolveCatalogPublicUsd(product: Product): number {
 }
 
 function findCuratedCatalogMatch(accessory: CuratedAccessory, catalog: Product[]): Product | undefined {
-  if (accessory.id === 'combo-toner-cartucho-im430f') {
-    const preferred = catalog.find((row) => row.id === IM430F_ORIGINAL_TONER_PRODUCT_ID);
-    if (preferred) return preferred;
-  }
-
   return catalog.find((row) => matchesCuratedAccessory(row, accessory));
 }
 
@@ -182,11 +164,9 @@ const CURATED_COMBO_DEDICATED_IMAGES = new Set([
 function buildCuratedComboItem(accessory: CuratedAccessory, catalog: Product[]): ProductComboItem {
   const matched = findCuratedCatalogMatch(accessory, catalog);
   const linkedProduct =
-    accessory.id === 'combo-toner-cartucho-im430f' && matched?.id === IM430F_ORIGINAL_TONER_PRODUCT_ID
+    matched && Math.abs(resolveCatalogPublicUsd(matched) - accessory.priceUsd) < 0.01
       ? matched
-      : matched && Math.abs(resolveCatalogPublicUsd(matched) - accessory.priceUsd) < 0.01
-        ? matched
-        : undefined;
+      : undefined;
 
   const image = CURATED_COMBO_DEDICATED_IMAGES.has(accessory.id)
     ? accessory.fallbackImage

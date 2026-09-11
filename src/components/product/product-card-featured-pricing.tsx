@@ -15,6 +15,15 @@ const FEATURED_PRICE_CURRENT_CLASS =
 const FEATURED_PRICE_CURRENT_ACCENT_CLASS =
   'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]';
 
+const FEATURED_PRICE_CURRENT_ACCENT_LG_CLASS =
+  'text-[1.125rem] font-bold tabular-nums leading-tight text-[#E30613] sm:text-[1.25rem]';
+
+const FEATURED_PRICE_SECONDARY_CLASS =
+  'text-xs font-medium tabular-nums leading-tight text-[#6B7280] sm:text-sm';
+
+const FEATURED_PRICE_SECONDARY_LG_CLASS =
+  'text-sm font-semibold tabular-nums leading-tight text-[#6B7280] sm:text-base';
+
 function formatFeaturedUsdLabel(usd: number): string {
   const normalized = Math.round(usd * 100) / 100;
   if (Math.abs(normalized % 1) < 0.001) {
@@ -105,6 +114,10 @@ export interface ProductCardFeaturedPricingProps {
   showAccentBar?: boolean;
   /** Precio vigente en US$ rojo (vitrina / mockup). */
   accentUsd?: boolean;
+  /** Etiqueta «Oferta» a la derecha del precio principal. */
+  showOfferLabel?: boolean;
+  /** Tamaño tipográfico del precio (carrusel / destacados). */
+  size?: 'default' | 'lg';
   align?: 'start' | 'center';
   className?: string;
 }
@@ -121,12 +134,15 @@ export function ProductCardFeaturedPricing({
   compareUsd,
   showAccentBar = true,
   accentUsd = false,
+  showOfferLabel = false,
+  size = 'default',
   align = 'start',
   className,
 }: ProductCardFeaturedPricingProps) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const penFirst = dualPriceOrder === 'pen-usd';
+  const large = size === 'lg';
 
   const centered = align === 'center';
 
@@ -165,9 +181,27 @@ export function ProductCardFeaturedPricing({
             ) : null}
           </div>
         ) : null}
-        <p className={FEATURED_PRICE_CURRENT_ACCENT_CLASS}>{primaryLabel}</p>
+        <div
+          className={cn(
+            'flex flex-wrap items-baseline gap-1.5',
+            centered && 'justify-center',
+          )}
+        >
+          <p
+            className={
+              large ? FEATURED_PRICE_CURRENT_ACCENT_LG_CLASS : FEATURED_PRICE_CURRENT_ACCENT_CLASS
+            }
+          >
+            {primaryLabel}
+          </p>
+          {showOfferLabel ? (
+            <span className="inline-flex items-center rounded-full bg-[#E30613] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white sm:text-[10px]">
+              Oferta
+            </span>
+          ) : null}
+        </div>
         {secondaryLabel ? (
-          <p className="text-xs font-medium tabular-nums leading-tight text-[#6B7280] sm:text-sm">
+          <p className={large ? FEATURED_PRICE_SECONDARY_LG_CLASS : FEATURED_PRICE_SECONDARY_CLASS}>
             {secondaryLabel}
           </p>
         ) : null}

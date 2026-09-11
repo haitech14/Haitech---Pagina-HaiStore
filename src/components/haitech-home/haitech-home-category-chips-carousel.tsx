@@ -148,13 +148,13 @@ export function HaitechHomeCategoryChipsCarousel({ className }: { className?: st
 export function HaitechHomeCategoryChipsSection({ className }: { className?: string }) {
   return (
     <section
-      className={cn('w-full bg-white px-3 pb-6 pt-6 sm:px-4 sm:pb-8 sm:pt-8 lg:px-5', className)}
+      className={cn('w-full bg-white px-3 pb-2 pt-5 sm:px-4 sm:pb-2.5 sm:pt-6 lg:px-5', className)}
       aria-labelledby="haitech-home-categories-title"
     >
       <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}>
         <h2
           id="haitech-home-categories-title"
-          className="mb-6 text-center text-[22px] font-bold leading-tight text-[#222222] sm:mb-8 sm:text-[26px] lg:text-[28px]"
+          className="mb-4 text-center text-[22px] font-bold leading-tight text-[#222222] sm:mb-5 sm:text-[26px] lg:text-[28px]"
         >
           Expertos en Equipamiento de Oficina
         </h2>

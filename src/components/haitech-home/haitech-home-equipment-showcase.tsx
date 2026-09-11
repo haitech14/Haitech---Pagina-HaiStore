@@ -78,10 +78,11 @@ import { ProductQuantityAddFooter } from '@/components/product/product-quantity-
 import { ProductTonerPricesHover } from '@/components/product/product-toner-prices-hover';
 import { useAuth } from '@/context/auth-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
-import { getCatalogRows, loadCatalogIndex } from '@/lib/catalog-featured';
+import { getCatalogActiveRows, loadCatalogIndex, CATALOG_INDEX_UPDATED_EVENT, subscribeCatalogMediaUpdates } from '@/lib/catalog-featured';
 import { DEFAULT_USD_TO_PEN } from '@/lib/exchange-rate';
 import { buildShowcaseProductsFromCatalog } from '@/lib/showcase-catalog-consumables';
 import { findShowcaseCatalogRow, hydrateShowcaseProductFromCatalog, resolveShowcaseMediaCatalogId, resolveShowcaseProductHref } from '@/lib/showcase-product-href';
+import { resolveCatalogStock } from '@/lib/catalog-row-lookup';
 import { toPublicProduct } from '@/lib/pricing';
 import {
   resolveShowcaseActivePriceRole,
@@ -147,7 +148,7 @@ function EquipmentShowcaseCardTitle({
 
   return (
     <>
-      <span className="block w-full leading-tight">
+      <span className="block w-full whitespace-nowrap leading-tight">
         <ProductCardDescriptorLine text={firstLine} />
       </span>
       {secondLine ? (
@@ -414,19 +415,13 @@ function toCartProduct(product: HaitechShopProduct, saleRate?: number): Product 
   };
 }
 
-function readStockCount(value: number | null | undefined): number {
-  return Math.max(0, Math.floor(Number(value) || 0));
-}
-
-/** Stock vivo del catálogo cuando hay fila; si no, el de la vitrina. */
+/** Stock vivo del catálogo (incluye almacenes) + fallback de vitrina. */
 function resolveShowcaseCardStock(
   product: HaitechShopProduct,
-  catalogStock: number | null | undefined,
+  catalogRow: ReturnType<typeof findShowcaseCatalogRow>,
 ): { stockCount: number; outOfStock: boolean } {
-  const fromCatalog = catalogStock == null ? null : readStockCount(catalogStock);
-  const fromProduct = product.stock == null ? null : readStockCount(product.stock);
-  const stockCount = fromCatalog ?? fromProduct ?? 0;
-  const hasStock = fromCatalog != null || fromProduct != null;
+  const stockCount = resolveCatalogStock(catalogRow, product.stock);
+  const hasStock = catalogRow != null || product.stock != null;
   return { stockCount, outOfStock: hasStock && stockCount <= 0 };
 }
 
@@ -520,7 +515,7 @@ function EquipmentShowcaseCard({
   const isSeminuevo = product.condition === 'seminuevo' && !isRemanufacturada;
   const isNuevo = !isSeminuevo && !isRemanufacturada;
   const codeLabel = resolveEquipmentShowcaseCode(product);
-  const { stockCount, outOfStock } = resolveShowcaseCardStock(product, catalogRow?.stock);
+  const { stockCount, outOfStock } = resolveShowcaseCardStock(product, catalogRow);
   const cartProduct = useMemo(
     () =>
       toCartProduct(
@@ -947,12 +942,12 @@ function ShowcaseCategoryCarousel({
   const canScroll = canScrollPrev || canScrollNext;
 
   return (
-    <div className={cn('relative mx-auto max-w-[1280px]', canScroll && 'px-10 sm:px-12')}>
+    <div className="relative mx-auto max-w-[1280px]">
       {canScroll ? (
         <>
           <button
             type="button"
-            className={cn(categoryCarouselArrowClass, 'left-0')}
+            className={cn(categoryCarouselArrowClass, 'left-1 z-20 sm:left-2')}
             aria-label="Categorías anteriores"
             disabled={!canScrollPrev}
             onClick={scrollPrev}
@@ -961,7 +956,7 @@ function ShowcaseCategoryCarousel({
           </button>
           <button
             type="button"
-            className={cn(categoryCarouselArrowClass, 'right-0')}
+            className={cn(categoryCarouselArrowClass, 'right-1 z-20 sm:right-2')}
             aria-label="Categorías siguientes"
             disabled={!canScrollNext}
             onClick={scrollNext}
@@ -1046,13 +1041,14 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
   const [condition, setCondition] = useState<HaitechEquipmentConditionId>(
     () => parsed.condition ?? 'nuevas',
   );
-  const [showStockAndToner, setShowStockAndToner] = useState(true);
+  const [showStockAndToner, setShowStockAndToner] = useState(false);
   const [showTableView, setShowTableView] = useState(false);
   const [consumableKind, setConsumableKind] = useState<HaitechShowcaseConsumableKind>(
     () => parsed.consumableKind ?? 'all',
   );
   const [visibleCount, setVisibleCount] = useState(HAITECH_EQUIPMENT_SHOWCASE_VISIBLE);
-  const [catalogReady, setCatalogReady] = useState(() => getCatalogRows().length > 0);
+  const [catalogReady, setCatalogReady] = useState(() => getCatalogActiveRows().length > 0);
+  const [catalogRevision, setCatalogRevision] = useState(0);
   const { data: companySettings } = useCompanySettings();
   const exchangeRate = companySettings?.usdToPenExchangeRate ?? DEFAULT_USD_TO_PEN;
 
@@ -1073,9 +1069,19 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
     };
   }, [catalogReady]);
 
+  useEffect(() => {
+    const bump = () => setCatalogRevision((current) => current + 1);
+    window.addEventListener(CATALOG_INDEX_UPDATED_EVENT, bump);
+    const unsubscribe = subscribeCatalogMediaUpdates(bump);
+    return () => {
+      window.removeEventListener(CATALOG_INDEX_UPDATED_EVENT, bump);
+      unsubscribe();
+    };
+  }, []);
+
   const catalogConsumables = useMemo(
-    () => (catalogReady ? buildShowcaseProductsFromCatalog(getCatalogRows(), exchangeRate) : []),
-    [catalogReady, exchangeRate],
+    () => (catalogReady ? buildShowcaseProductsFromCatalog(getCatalogActiveRows(), exchangeRate) : []),
+    [catalogReady, catalogRevision, exchangeRate],
   );
 
   useEffect(() => {
@@ -1212,6 +1218,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
       isLaptopCategory,
       isFormatoAnchoCategory,
       catalogReady,
+      catalogRevision,
     ],
   );
   const products = allProducts.slice(0, visibleCount);
@@ -1571,6 +1578,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
               <HaitechEquipmentShowcaseTable
                 items={productGridItems}
                 catalogReady={catalogReady}
+                showStockAndToner={showStockAndToner}
               />
             ) : (
               <ul className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">

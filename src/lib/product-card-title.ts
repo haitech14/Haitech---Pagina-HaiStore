@@ -10,7 +10,7 @@ import {
   resolveProductSpeedPpm,
 } from '@/lib/category-catalog-filters';
 import { resolveHomeLandingConsumableSubtitle } from '@/lib/home-featured-product-filter';
-import { isPrinterProduct, isSupplyBadgeProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
+import { isPrinterProduct, type ProductBadgeSource } from '@/lib/product-detail-badges';
 import { formatInventoryProductName } from '@/lib/inventory-product-name';
 import { formatProductDisplayCode } from '@/lib/product-display-code';
 import { resolveProductCardConditionLabel } from '@/lib/product-card-condition';
@@ -73,7 +73,7 @@ export interface ProductCardTitleLines {
   secondLine: string | null;
 }
 
-/** Línea 1: texto previo a la marca; línea 2: marca + modelo (p. ej. «Impresora Nueva» / «RICOH M C320FW»). */
+/** Línea 1: descriptor (p. ej. «Impresora Multifuncional Nueva»); línea 2: marca + modelo. */
 export function splitProductCardTitleAtBrand(
   title: string,
   brand?: string | null,
@@ -82,7 +82,7 @@ export function splitProductCardTitleAtBrand(
   if (!normalized) return { firstLine: '', secondLine: null };
 
   const equipmentPrefix = normalized.match(
-    /^(Impresora|Multifuncional|Plotter)(?:\s+de\s+Planos)?\s+(Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo)\s+/i,
+    /^(Impresora(?:\s+Multifuncional)?|Multifuncional|Plotter)(?:\s+de\s+Planos)?(?:\s+(?:B\/N|Color))?\s+(Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo)\s+/i,
   );
   if (equipmentPrefix) {
     const firstLine = equipmentPrefix[0].trim();
@@ -178,17 +178,6 @@ function formatProductCardDisplayName(
   return isTonerTitle ? formatted.replace(/\bINTERCOPY\b/g, 'Intercopy') : formatted;
 }
 
-function isColorPrinter(product: ProductBadgeSource): boolean {
-  const haystack = `${product.name} ${product.category ?? ''}`.toLowerCase();
-  return (
-    haystack.includes('color') ||
-    haystack.includes('a color') ||
-    /\bim\s+c\d{3,4}/i.test(product.name) ||
-    /\bbizhub\s+c/i.test(product.name)
-  );
-}
-
-/** Palabras descriptivas de equipos con mayúscula inicial fija en títulos de catálogo. */
 function capitalizeEquipmentDescriptorWords(text: string): string {
   return text
     .replace(/\bmultifuncional\b/gi, 'Multifuncional')
@@ -326,7 +315,7 @@ export function getHomeLandingProductCardLines(
   };
 }
 
-/** Añade «B/N» en equipos monocromáticos si el nombre aún no lo incluye. */
+/** Asegura capitalización del descriptor; no inserta «B/N» (va en specs de la card). */
 export function formatProductCardTitle(
   product: ProductBadgeSource & {
     name: string;
@@ -334,31 +323,9 @@ export function formatProductCardTitle(
     brand?: string | null;
   },
 ): string {
-  let title = capitalizeEquipmentDescriptorWords(
+  return capitalizeEquipmentDescriptorWords(
     formatProductCardDisplayName(product.name, { brand: product.brand ?? null }),
-  );
-  if (
-    isSupplyBadgeProduct(product) ||
-    !isPrinterProduct(product) ||
-    isColorPrinter(product) ||
-    /\bB\/N\b/i.test(title)
-  ) {
-    return title;
-  }
-
-  if (/^impresora\s+multifuncional\s+/i.test(title)) {
-    return title.replace(/^impresora\s+multifuncional\s+/i, 'Impresora Multifuncional B/N ');
-  }
-
-  if (/^impresora\s+/i.test(title)) {
-    return title.replace(/^impresora\s+/i, 'Impresora B/N ');
-  }
-
-  if (/^multifuncional\s+/i.test(title)) {
-    return title.replace(/^multifuncional\s+/i, 'Multifuncional B/N ');
-  }
-
-  return `${title} B/N`;
+  ).replace(/\s+\bB\/N\b/gi, '');
 }
 
 /** Quita el código embebido en el título, p. ej. «… (418787)». */

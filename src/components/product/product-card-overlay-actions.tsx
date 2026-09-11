@@ -115,6 +115,7 @@ export function ProductCardOverlayActions({
           productName={productName}
           title={clipboard.title}
           stock={clipboard.stock}
+          {...(clipboard.includeStock != null ? { includeStock: clipboard.includeStock } : {})}
           priceUsd={clipboard.priceUsd}
           {...(clipboard.code != null ? { code: clipboard.code } : {})}
           {...(clipboard.priceRole != null ? { priceRole: clipboard.priceRole } : {})}

@@ -122,11 +122,12 @@ function normalizeAttrName(name: string): string {
 }
 
 function findAttributeValue(product: Product, needles: readonly string[]): string | null {
+  const normalizedNeedles = needles.map(normalizeAttrName).filter(Boolean);
   for (const attr of product.attributes ?? []) {
     const key = normalizeAttrName(attr.name);
     const value = attr.value?.trim();
     if (!key || !value) continue;
-    if (needles.some((needle) => key === needle || key.includes(needle))) {
+    if (normalizedNeedles.some((needle) => key === needle || key.includes(needle))) {
       return value;
     }
   }
@@ -204,8 +205,14 @@ function resolveAnioFabricacion(product: Product): string {
     'fabricación',
     'year',
     'año',
+    'ano',
   ]);
-  return stored ?? '—';
+  if (stored) return stored;
+
+  const fromDescription = product.description?.match(
+    /a[nñ]o\s+de\s+fabricaci[oó]n\s*:\s*(\d{4})/i,
+  )?.[1];
+  return fromDescription ?? '—';
 }
 
 export function getProductTableSpecDisplay(

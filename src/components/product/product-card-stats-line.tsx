@@ -10,6 +10,8 @@ interface ProductCardStatsLineProps {
   outOfStock?: boolean;
   /** Código de producto a la izquierda; stock queda a la derecha. */
   code?: string | null;
+  /** Si es false, no muestra stock (solo código si hay). */
+  showStock?: boolean;
   className?: string;
 }
 
@@ -24,11 +26,14 @@ export function ProductCardStatsLine({
   stock,
   outOfStock = false,
   code = null,
+  showStock = true,
   className,
 }: ProductCardStatsLineProps) {
   void _product;
   const stockLabel = formatStockLabel(outOfStock, stock);
   const codeLabel = code?.trim() || null;
+
+  if (!codeLabel && !showStock) return null;
 
   return (
     <div
@@ -38,7 +43,7 @@ export function ProductCardStatsLine({
       )}
       aria-label={[
         codeLabel ? `Código ${codeLabel}` : null,
-        outOfStock ? stockLabel : `Stock ${stockLabel}`,
+        showStock ? (outOfStock ? stockLabel : `Stock ${stockLabel}`) : null,
       ]
         .filter(Boolean)
         .join(', ')}
@@ -50,17 +55,19 @@ export function ProductCardStatsLine({
       ) : (
         <span className="min-w-0" aria-hidden="true" />
       )}
-      <span
-        className={cn(
-          'ml-auto inline-flex shrink-0 items-center gap-1 tabular-nums',
-          outOfStock ? 'text-[#8a93a3]' : 'text-emerald-700',
-        )}
-      >
-        {!outOfStock ? (
-          <Package className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-        ) : null}
-        <span>{stockLabel}</span>
-      </span>
+      {showStock ? (
+        <span
+          className={cn(
+            'ml-auto inline-flex shrink-0 items-center gap-1 tabular-nums',
+            outOfStock ? 'text-[#8a93a3]' : 'text-emerald-700',
+          )}
+        >
+          {!outOfStock ? (
+            <Package className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+          ) : null}
+          <span>{stockLabel}</span>
+        </span>
+      ) : null}
     </div>
   );
 }

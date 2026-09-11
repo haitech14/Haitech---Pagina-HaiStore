@@ -1,5 +1,5 @@
-import { AdminDashboardHome } from '@/components/admin/dashboard/admin-dashboard-home';
+import { DashboardPage } from '@/pages/tiendanova/DashboardPage';
 
 export function AdminDashboard() {
-  return <AdminDashboardHome />;
+  return <DashboardPage />;
 }

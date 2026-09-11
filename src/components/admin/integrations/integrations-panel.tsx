@@ -88,7 +88,9 @@ export function IntegrationsPanel() {
         );
       })
       .catch((error) => {
-        toast.error(error instanceof Error ? error.message : 'No se pudo sincronizar HaiSupport');
+        toast.error(error instanceof Error ? error.message : 'No se pudo sincronizar HaiSupport', {
+          id: 'haitech-integrations-error',
+        });
       });
   };
 
@@ -102,7 +104,9 @@ export function IntegrationsPanel() {
         );
       })
       .catch((error) => {
-        toast.error(error instanceof Error ? error.message : 'No se pudo sincronizar HaiSales');
+        toast.error(error instanceof Error ? error.message : 'No se pudo sincronizar HaiSales', {
+          id: 'haitech-integrations-error',
+        });
       });
   };
 
@@ -116,7 +120,9 @@ export function IntegrationsPanel() {
         );
       })
       .catch((error) => {
-        toast.error(error instanceof Error ? error.message : 'No se pudo importar Excel HaiSales');
+        toast.error(error instanceof Error ? error.message : 'No se pudo importar Excel HaiSales', {
+          id: 'haitech-integrations-error',
+        });
       });
   };
 
@@ -130,7 +136,9 @@ export function IntegrationsPanel() {
         void haiSalesStatus.refetch();
       })
       .catch((error) => {
-        toast.error(error instanceof Error ? error.message : 'No se pudo sincronizar');
+        toast.error(error instanceof Error ? error.message : 'No se pudo sincronizar', {
+          id: 'haitech-integrations-error',
+        });
       });
   };
 

@@ -1,6 +1,7 @@
-import { Area, AreaChart, ResponsiveContainer } from 'recharts';
+import { Area, AreaChart } from 'recharts';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 
+import { ChartContainer } from '@/components/ui/chart';
 import { BANDEJA_KPIS } from '@/data/bandeja-mock';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +9,10 @@ function formatTrend(trend: number) {
   const sign = trend > 0 ? '+' : '';
   return `${sign}${trend}%`;
 }
+
+const sparkConfig = {
+  value: { label: 'Tendencia', color: 'currentColor' },
+};
 
 export function BandejaKpis() {
   return (
@@ -29,7 +34,7 @@ export function BandejaKpis() {
                 </p>
               </div>
               <div className="h-10 w-16 shrink-0" aria-hidden="true">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer config={sparkConfig} className="h-10 w-16 aspect-auto">
                   <AreaChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id={`bandeja-kpi-${kpi.id}`} x1="0" y1="0" x2="0" y2="1">
@@ -47,7 +52,7 @@ export function BandejaKpis() {
                       isAnimationActive={false}
                     />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
 

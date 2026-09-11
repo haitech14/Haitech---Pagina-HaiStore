@@ -60,17 +60,32 @@ export function normalizeProductStock(stockByWarehouse, legacyStock, warehouses)
       if (!entry || typeof entry !== 'object') continue;
       const warehouse_id =
         typeof entry.warehouse_id === 'string' ? entry.warehouse_id.trim() : '';
-      if (!warehouse_id || !ids.has(warehouse_id)) continue;
+      if (!warehouse_id) continue;
+      // Conservar almacenes fuera de `list` (p. ej. stock en «operativo» cuando
+      // solo se pasa el almacén por defecto). Antes se descartaban y el total era 0.
       const quantity = Math.max(0, Math.floor(Number(entry.quantity) || 0));
       quantities.set(warehouse_id, (quantities.get(warehouse_id) ?? 0) + quantity);
     }
 
     if (quantities.size > 0) {
-      const stock_by_warehouse = list.map((warehouse) => ({
+      const knownRows = list.map((warehouse) => ({
         warehouse_id: warehouse.id,
         quantity: quantities.get(warehouse.id) ?? 0,
       }));
-      const stock = stock_by_warehouse.reduce((sum, row) => sum + row.quantity, 0);
+      const extraRows = [...quantities.entries()]
+        .filter(([warehouse_id]) => !ids.has(warehouse_id))
+        .map(([warehouse_id, quantity]) => ({ warehouse_id, quantity }));
+      const stock_by_warehouse = [...knownRows, ...extraRows];
+      const stock = [...quantities.values()].reduce((sum, quantity) => sum + quantity, 0);
+      if (stock === 0 && legacy > 0) {
+        return {
+          stock_by_warehouse: list.map((warehouse) => ({
+            warehouse_id: warehouse.id,
+            quantity: warehouse.id === defaultId ? legacy : 0,
+          })),
+          stock: legacy,
+        };
+      }
       return { stock_by_warehouse, stock };
     }
   }

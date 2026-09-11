@@ -8,8 +8,9 @@ import { featuredToProduct, type FeaturedProduct } from '@/data/featured-product
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import {
   HAITECH_PRODUCT_CAROUSEL_ARROW,
+  HAITECH_PRODUCT_CAROUSEL_ARROW_LEFT,
+  HAITECH_PRODUCT_CAROUSEL_ARROW_RIGHT,
   HAITECH_PRODUCT_CAROUSEL_GAP,
-  HAITECH_PRODUCT_CAROUSEL_GUTTER,
   HAITECH_PRODUCT_CAROUSEL_SLIDE,
 } from '@/lib/haitech-product-carousel-layout';
 import { cn } from '@/lib/utils';
@@ -77,7 +78,18 @@ export function ProductCarouselSection({
     };
   }, [emblaApi]);
 
-  const productIdsKey = useMemo(() => products.map((product) => product.id).join('|'), [products]);
+  const slides = useMemo(() => {
+    const seen = new Set<string>();
+    const unique: Array<{ id: string; storeProduct: ReturnType<typeof featuredToProduct> }> = [];
+    for (const product of products) {
+      const storeProduct = featuredToProduct(product);
+      if (seen.has(storeProduct.id)) continue;
+      seen.add(storeProduct.id);
+      unique.push({ id: storeProduct.id, storeProduct });
+    }
+    return unique;
+  }, [products]);
+  const productIdsKey = useMemo(() => slides.map((slide) => slide.id).join('|'), [slides]);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -86,7 +98,7 @@ export function ProductCarouselSection({
   }, [emblaApi, productIdsKey]);
 
   const showDots = scrollSnaps.length > 1;
-  const showArrows = showNavArrows && products.length > 0;
+  const showArrows = showNavArrows && slides.length > 0;
 
   const sectionLabel = hideHeader ? undefined : titleId;
 
@@ -116,12 +128,12 @@ export function ProductCarouselSection({
       ) : null}
 
       <div className="flex flex-col gap-4">
-        <div className={cn('relative', showArrows && HAITECH_PRODUCT_CAROUSEL_GUTTER)}>
+        <div className="relative">
           {showArrows ? (
             <>
               <button
                 type="button"
-                className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'left-0')}
+                className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, HAITECH_PRODUCT_CAROUSEL_ARROW_LEFT)}
                 aria-label="Productos anteriores"
                 disabled={!canScrollPrev}
                 onClick={scrollPrev}
@@ -130,7 +142,7 @@ export function ProductCarouselSection({
               </button>
               <button
                 type="button"
-                className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, 'right-0')}
+                className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, HAITECH_PRODUCT_CAROUSEL_ARROW_RIGHT)}
                 aria-label="Productos siguientes"
                 disabled={!canScrollNext}
                 onClick={scrollNext}
@@ -141,11 +153,11 @@ export function ProductCarouselSection({
           ) : null}
 
           <div className="overflow-hidden" ref={emblaRef}>
-            {products.length > 0 ? (
+            {slides.length > 0 ? (
               <ul className={cn('flex flex-nowrap touch-pan-y', HAITECH_PRODUCT_CAROUSEL_GAP)}>
-                {products.map((product) => (
-                  <li key={product.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
-                    <StoreCatalogProductCard product={featuredToProduct(product)} variant="carousel" />
+                {slides.map((slide) => (
+                  <li key={slide.id} className={HAITECH_PRODUCT_CAROUSEL_SLIDE}>
+                    <StoreCatalogProductCard product={slide.storeProduct} variant="carousel" />
                   </li>
                 ))}
               </ul>
@@ -157,7 +169,7 @@ export function ProductCarouselSection({
           </div>
         </div>
 
-        {showDots && products.length > 0 && (
+        {showDots && slides.length > 0 && (
           <div
             className="flex items-center justify-center gap-1.5"
             role="tablist"

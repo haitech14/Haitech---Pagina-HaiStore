@@ -3,7 +3,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 import { HAITECH_BLACK_NAV_LINKS } from '@/data/haitech-home-shell';
 import { prefetchStoreRouteFromEvent } from '@/lib/prefetch-store-route';
-import { categoryLandingPath } from '@/lib/category-path';
 import { serviceHubPath } from '@/lib/service-hub';
 import { cn } from '@/lib/utils';
 
@@ -47,7 +46,7 @@ const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
   },
   {
     id: 'soluciones',
-    to: categoryLandingPath('soluciones-colaboracion'),
+    to: '/software?seccion=gestion-documental',
     label: 'Soluciones',
     matchActive: ({ pathname }) =>
       pathname.includes('soluciones') || pathname.startsWith('/software'),

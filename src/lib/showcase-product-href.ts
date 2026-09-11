@@ -1,5 +1,6 @@
 import type { HaitechShopProduct } from '@/data/haitech-home-shop';
 import { getCatalogRows, type CatalogRow } from '@/lib/catalog-featured';
+import { resolveCatalogStock } from '@/lib/catalog-row-lookup';
 import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
 import { productPath } from '@/lib/product-path';
 import { findProductBySlugOrId } from '@/lib/product-slug';
@@ -10,6 +11,9 @@ const SHOWCASE_STUB_TO_CATALOG_ID: Readonly<Record<string, string>> = {
   'im-c320f': '481dbc77-436b-464d-b76f-930f7d79f4ff',
   'im-c401f': '5a142c47-521c-47af-92ec-dda8808907c9',
   'mp-305-plus': 'ab878d89-61e0-4e51-a941-03455e1da407',
+  'im-430f': 'ricoh-im-430f',
+  'm-320f': 'bfb264b8-70dc-4ad4-9686-2df02df8c75e',
+  'im-460f': '71289ec2-dbca-4780-b319-eb3d259fadb5',
   'im-600f': 'b32a43a1-09e4-49f6-8950-3639c9534700',
   'im-550f': '328f41ef-d935-4807-85d0-e1db5bdf73fb',
   'im-c4510': 'a9c74a93-3a15-42da-a9cf-33d59e2b1019',
@@ -235,7 +239,7 @@ export function hydrateShowcaseProductFromCatalog(product: HaitechShopProduct): 
   const row = findShowcaseCatalogRow(product);
   if (!row) return product;
 
-  const stock = Math.max(0, Math.floor(Number(row.stock) || 0));
+  const stock = resolveCatalogStock(row, product.stock);
   const stockLocations = (row.stock_by_warehouse ?? [])
     .filter((entry) => Number(entry.quantity) > 0)
     .map((entry) => ({

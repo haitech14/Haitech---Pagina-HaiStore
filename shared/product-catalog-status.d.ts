@@ -17,6 +17,10 @@ export function isStorefrontHiddenConsumableProduct(
     | undefined,
 ): boolean;
 
+export function isProductActiveInCatalog(
+  product: { status?: unknown; brand?: unknown } | null | undefined,
+): boolean;
+
 export function isProductVisibleOnStorefront(
   product:
     | { status?: unknown; brand?: unknown; name?: unknown; category?: unknown; description?: unknown }

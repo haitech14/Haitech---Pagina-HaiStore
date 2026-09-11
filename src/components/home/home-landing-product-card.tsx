@@ -20,6 +20,7 @@ import {
 import type { FeaturedProduct } from '@/data/featured-products';
 import { useLiveProductCardMedia } from '@/hooks/use-live-product-card-media';
 import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
+import { resolveCatalogStock } from '@/lib/catalog-row-lookup';
 import { productQualifiesForBestSeller } from '@/lib/home-landing-product-badges';
 import {
   buildProductCardImageCandidates,
@@ -73,7 +74,7 @@ export function HomeLandingProductCard({
   });
 
   const code = product.code ?? catalogProduct?.code ?? null;
-  const stock = catalogProduct?.stock ?? product.stock ?? 0;
+  const stock = resolveCatalogStock(catalogProduct, product.stock);
   const stockCount = Math.max(0, Math.floor(Number(stock) || 0));
 
   const productSource = {

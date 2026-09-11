@@ -1,7 +1,7 @@
 import { serviceHubPath } from '@/lib/service-hub';
 import { HAITECH_WHATSAPP_DISPLAY } from '@/lib/whatsapp-sales';
 
-export type StorefrontChannelBannerId = 'alquiler' | 'servicio-tecnico';
+export type StorefrontChannelBannerId = 'alquiler' | 'servicio-tecnico' | 'soluciones';
 
 export type StorefrontChannelBannerProduct = {
   id: string;
@@ -131,5 +131,54 @@ export const STOREFRONT_CHANNEL_BANNERS: Record<
       { id: 'planes', title: 'Planes de mantenimiento', subtitle: 'Preventivo y correctivo' },
     ],
     tagline: 'Continuidad para tu negocio',
+  },
+  soluciones: {
+    id: 'soluciones',
+    href: '/software?seccion=gestion-documental',
+    campaign: 'soluciones-promo-banner',
+    eyebrow: 'Digitaliza tu empresa',
+    titleLines: ['SOLUCIONES DE', 'SOFTWARE', 'PARA TU NEGOCIO'],
+    titleAccentLine: 1,
+    features: [
+      { id: 'documental', label: 'Gestión documental' },
+      { id: 'automatizacion', label: 'Automatización' },
+      { id: 'ricoh', label: 'Integración Ricoh' },
+    ],
+    ctaLabel: 'Cotizar ahora',
+    phoneDisplay: PHONE,
+    quoteLines: [
+      'Vi el banner de soluciones de software Haitech.',
+      'Me interesa cotizar licencias o un plan empresarial.',
+    ],
+    products: [
+      {
+        id: 'gestion',
+        name: 'Documental',
+        image: '/categories/soluciones-negocio.png',
+        price: 'Desde',
+        specs: 'Gestión y archivo',
+      },
+      {
+        id: 'antivirus',
+        name: 'Antivirus',
+        image: '/products/eset-nod32-licencia-12-meses.webp',
+        price: 'Licencias',
+        specs: 'Protección empresarial',
+      },
+      {
+        id: 'saas',
+        name: 'Empresarial',
+        image: '/services/servicios-corporativos/saas.png',
+        price: 'A medida',
+        specs: 'Software y SaaS',
+      },
+    ],
+    barItems: [
+      { id: 'asesoria', title: 'Asesoría especializada', subtitle: 'Sin compromiso' },
+      { id: 'licencias', title: 'Licencias flexibles', subtitle: 'Mensual o anual' },
+      { id: 'integracion', title: 'Integración Ricoh', subtitle: 'Flujos de impresión' },
+      { id: 'soporte', title: 'Soporte Haitech', subtitle: 'Acompañamiento local' },
+    ],
+    tagline: 'Software que impulsa tu operación',
   },
 };

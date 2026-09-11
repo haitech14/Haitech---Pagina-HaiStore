@@ -59,12 +59,24 @@ export function isStorefrontHiddenConsumableProduct(product) {
 }
 
 /**
+ * Producto activo y marca permitida (incluye tóner/repuestos).
+ * Usar en rails home / vitrinas de consumibles; la tienda pública sigue con
+ * `isProductVisibleOnStorefront` (oculta consumibles).
+ * @param {{ status?: unknown; brand?: unknown } | null | undefined} product
+ * @returns {boolean}
+ */
+export function isProductActiveInCatalog(product) {
+  if (normalizeProductCatalogStatus(product?.status) !== 'activa') return false;
+  if (isStorefrontHiddenBrand(product?.brand)) return false;
+  return true;
+}
+
+/**
  * @param {{ status?: unknown; brand?: unknown; name?: unknown; category?: unknown; description?: unknown } | null | undefined} product
  * @returns {boolean}
  */
 export function isProductVisibleOnStorefront(product) {
-  if (normalizeProductCatalogStatus(product?.status) !== 'activa') return false;
-  if (isStorefrontHiddenBrand(product?.brand)) return false;
+  if (!isProductActiveInCatalog(product)) return false;
   if (isStorefrontHiddenConsumableProduct(product)) return false;
   return true;
 }

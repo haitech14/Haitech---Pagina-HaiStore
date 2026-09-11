@@ -2,7 +2,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -15,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { SizedResponsiveContainer } from '@/components/ui/chart';
 
 const salesData = [
   { month: 'Ene', ventas: 4200 },
@@ -57,7 +57,7 @@ export function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <SizedResponsiveContainer>
               <BarChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="month" className="text-xs" />
@@ -72,7 +72,7 @@ export function DashboardPage() {
                 />
                 <Bar dataKey="ventas" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
-            </ResponsiveContainer>
+            </SizedResponsiveContainer>
           </div>
         </CardContent>
       </Card>

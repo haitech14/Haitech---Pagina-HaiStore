@@ -46,7 +46,6 @@ import {
   CASETERA_500_PB1160_PRODUCT_ID,
   ESTABILIZADOR_2KVA_PRODUCT_ID,
   GABINETE_ALTO_TIPO_I_PRODUCT_ID,
-  IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
   IM600F_ORIGINAL_TONER_PRODUCT_ID,
   IM_C320F_EQUIPMENT_PRODUCT_ID,
@@ -1543,13 +1542,6 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
           description: '8,000 páginas — incluido con el equipo',
           pricePen: 0,
           included: true,
-        },
-        {
-          id: 'toner-ricoh-im-430f',
-          productId: IM430F_ORIGINAL_TONER_PRODUCT_ID,
-          name: 'Toner RICOH IM 430F',
-          description: '15,500 páginas al 5%',
-          pricePen: 0,
         },
       ]
       : isM320f(product)

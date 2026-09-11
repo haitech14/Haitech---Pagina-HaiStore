@@ -113,7 +113,7 @@ export const HAITECH_HOME_SECONDARY_NAV_LINKS = [
   {
     id: 'soluciones',
     label: 'Soluciones',
-    href: categoryLandingPath('soluciones-colaboracion'),
+    href: '/software?seccion=gestion-documental',
     menu: 'soluciones',
   },
   {

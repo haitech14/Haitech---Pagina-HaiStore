@@ -21,6 +21,50 @@ function useChart() {
   return context;
 }
 
+function useElementSize<T extends HTMLElement>() {
+  const ref = React.useRef<T | null>(null);
+  const [size, setSize] = React.useState({ width: 0, height: 0 });
+
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      const width = Math.max(0, Math.round(rect.width));
+      const height = Math.max(0, Math.round(rect.height));
+      setSize((prev) => (prev.width === width && prev.height === height ? prev : { width, height }));
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, size };
+}
+
+function SizedResponsiveContainer({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
+}) {
+  const { ref, size } = useElementSize<HTMLDivElement>();
+
+  return (
+    <div ref={ref} className={cn('h-full w-full min-h-0 min-w-0', className)}>
+      {size.width > 0 && size.height > 0 ? (
+        <RechartsPrimitive.ResponsiveContainer width={size.width} height={size.height}>
+          {children}
+        </RechartsPrimitive.ResponsiveContainer>
+      ) : null}
+    </div>
+  );
+}
+
 function ChartContainer({
   id,
   className,
@@ -33,19 +77,25 @@ function ChartContainer({
 }) {
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, '')}`;
+  const { ref, size } = useElementSize<HTMLDivElement>();
 
   return (
     <ChartContext.Provider value={{ config }}>
       <div
         data-chart={chartId}
         className={cn(
-          'flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke="#ccc"]]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke="#fff"]]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke="#ccc"]]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke="#ccc"]]:stroke-border [&_.recharts-sector[stroke="#fff"]]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none',
+          'relative block w-full min-h-0 min-w-0 aspect-video text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke="#ccc"]]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke="#fff"]]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke="#ccc"]]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke="#ccc"]]:stroke-border [&_.recharts-sector[stroke="#fff"]]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none',
           className,
         )}
         {...props}
+        ref={ref}
       >
         <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer>{children}</RechartsPrimitive.ResponsiveContainer>
+        {size.width > 0 && size.height > 0 ? (
+          <RechartsPrimitive.ResponsiveContainer width={size.width} height={size.height}>
+            {children}
+          </RechartsPrimitive.ResponsiveContainer>
+        ) : null}
       </div>
     </ChartContext.Provider>
   );
@@ -120,4 +170,11 @@ function ChartTooltipContent({
 const ChartTooltip = RechartsPrimitive.Tooltip;
 const ChartLegend = RechartsPrimitive.Legend;
 
-export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartStyle };
+export {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartStyle,
+  SizedResponsiveContainer,
+};
