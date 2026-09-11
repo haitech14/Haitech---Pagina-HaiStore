@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 const TITLES: Record<StorefrontChannelBannerId, { eyebrow: string; title: string }> = {
   alquiler: { eyebrow: 'Catálogo', title: 'Equipos en alquiler' },
   'servicio-tecnico': { eyebrow: 'Catálogo', title: 'Servicios técnicos' },
+  soluciones: { eyebrow: 'Catálogo', title: 'Soluciones de software' },
 };
 
 interface ServicesChannelCardsGridProps {

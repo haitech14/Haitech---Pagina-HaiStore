@@ -17,6 +17,9 @@ interface SunatRucFieldProps {
   placeholder?: string;
   documentType?: 'ruc' | 'ruc-or-dni';
   className?: string;
+  inputClassName?: string;
+  labelClassName?: string;
+  successMessage?: string;
   onFocus?: () => void;
   onBlur?: () => void;
   'aria-controls'?: string;
@@ -34,6 +37,9 @@ export function SunatRucField({
   placeholder = '20612146561',
   documentType = 'ruc',
   className,
+  inputClassName,
+  labelClassName,
+  successMessage = 'Razón social actualizada desde SUNAT.',
   onFocus,
   onBlur,
   'aria-controls': ariaControls,
@@ -43,7 +49,9 @@ export function SunatRucField({
 
   return (
     <div className={cn('space-y-1.5', className)}>
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} className={cn(labelClassName)}>
+        {label}
+      </Label>
       <div className="relative">
         <Input
           id={id}
@@ -54,7 +62,7 @@ export function SunatRucField({
           maxLength={11}
           required={required}
           placeholder={placeholder}
-          className="pr-9"
+          className={cn('pr-9', inputClassName)}
           onFocus={onFocus}
           onBlur={onBlur}
           aria-controls={ariaControls}
@@ -75,7 +83,7 @@ export function SunatRucField({
           {errorMessage}
         </p>
       ) : isSuccess && complete ? (
-        <p className="text-xs text-muted-foreground">Razón social actualizada desde SUNAT.</p>
+        <p className="text-xs text-muted-foreground">{successMessage}</p>
       ) : digits.length > 0 && !complete && (documentType === 'ruc' || digits.length > 8) ? (
         <p className="text-xs text-muted-foreground">Completa los 11 dígitos para consultar SUNAT.</p>
       ) : null}

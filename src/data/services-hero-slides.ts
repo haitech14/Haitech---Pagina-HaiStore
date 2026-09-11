@@ -19,9 +19,9 @@ export const servicesHeroSlides: HomeHeroSlide[] = [
   {
     ...SERVICES_HERO_COMPACT_SHARED,
     id: 'servicios-soporte-tecnico',
-    backgroundImage: '/promotions/promo-hero-servicio.webp',
-    imageWidth: 1536,
-    imageHeight: 1024,
+    backgroundImage: '/promotions/promo-hero-servicio-tecnico.png?v=2026-09-10-1738',
+    imageWidth: 2084,
+    imageHeight: 754,
     imageAlt:
       'Soporte técnico especializado para impresoras y equipos de oficina — Haitech',
     linkHref: serviceHubPath('servicio-tecnico'),

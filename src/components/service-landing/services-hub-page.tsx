@@ -2,11 +2,10 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { RentalLandingPage } from '@/components/rental-landing/rental-landing-page';
+import { MaintenancePlanLandingPage } from '@/components/maintenance-plan-landing/maintenance-plan-landing-page';
 import { ServicesCatalogSection } from '@/components/services-storefront/services-catalog-section';
-import { ServicesChannelCardsGrid } from '@/components/services-storefront/services-channel-cards-grid';
 import { ServicesCustomSolutionForm } from '@/components/services-storefront/services-custom-solution-form';
 import { ServicesStorefrontHero } from '@/components/services-storefront/services-storefront-hero';
-import { StorefrontChannelHeroBanner } from '@/components/store-storefront/storefront-channel-hero-banner';
 import { mapHubSectionToCategory } from '@/data/services-catalog';
 import type { ServiceLandingSlug } from '@/data/service-landings';
 import type { ServiceCatalogCategoryId } from '@/types/services-catalog';
@@ -90,25 +89,18 @@ export function ServicesHubPage() {
     return <RentalLandingPage />;
   }
 
-  const isComprarClone = section === 'servicio-tecnico';
+  if (section === 'servicio-tecnico') {
+    return <MaintenancePlanLandingPage />;
+  }
 
   return (
     <div className={cn('services-storefront flex flex-col', HOME_LANDING_SURFACE_CLASS)}>
-      {isComprarClone ? (
-        <>
-          <StorefrontChannelHeroBanner channel={section} />
-          <ServicesChannelCardsGrid channel={section} />
-        </>
-      ) : (
-        <>
-          <ServicesStorefrontHero section={section} />
-          <ServicesCatalogSection
-            activeCategory={activeCategory}
-            onCategoryChange={handleCategoryChange}
-            key={section}
-          />
-        </>
-      )}
+      <ServicesStorefrontHero section={section} />
+      <ServicesCatalogSection
+        activeCategory={activeCategory}
+        onCategoryChange={handleCategoryChange}
+        key={section}
+      />
       <ServicesCustomSolutionForm />
     </div>
   );

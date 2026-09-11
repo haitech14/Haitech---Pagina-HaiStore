@@ -13,6 +13,8 @@ const cache = new Map();
  * @property {string} razonSocial
  * @property {string} direccion
  * @property {string} ciudad
+ * @property {string} distrito
+ * @property {string} departamento
  * @property {string | null} estado
  * @property {string | null} condicion
  */
@@ -54,6 +56,26 @@ function pickString(record, keys) {
   return '';
 }
 
+const SMALL_PLACE_WORDS = new Set(['de', 'del', 'la', 'las', 'los', 'y', 'el']);
+
+function titleCasePlace(value) {
+  const words = value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  return words
+    .map((word, index) => {
+      if (index > 0 && SMALL_PLACE_WORDS.has(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+}
+
+function placeKey(value) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
 function remember(numero, data, ttlMs) {
   if (cache.size >= MAX_CACHE_ENTRIES) {
     const oldestKey = cache.keys().next().value;
@@ -71,15 +93,22 @@ function mapSunatPayload(payload, numero) {
   const razonSocial = pickString(payload, ['razonSocial', 'razon_social', 'nombre', 'name']);
   if (!razonSocial) return null;
 
-  const distrito = pickString(payload, ['distrito']);
-  const provincia = pickString(payload, ['provincia']);
-  const departamento = pickString(payload, ['departamento']);
+  const distrito = titleCasePlace(pickString(payload, ['distrito']));
+  const provincia = titleCasePlace(pickString(payload, ['provincia']));
+  const departamento = titleCasePlace(pickString(payload, ['departamento']));
+  const provinciaKey = placeKey(provincia);
+  const departamentoKey = placeKey(departamento);
+  let ciudad = provincia || departamento || distrito;
+  if (provinciaKey === 'lima' || departamentoKey === 'lima') ciudad = 'Lima';
+  if (provinciaKey === 'callao' || departamentoKey === 'callao') ciudad = 'Callao';
 
   return {
     numero: pickString(payload, ['numeroDocumento', 'ruc']) || numero,
     razonSocial,
     direccion: pickString(payload, ['direccion', 'domicilioFiscal', 'direccionCompleta']),
-    ciudad: distrito || provincia || departamento,
+    ciudad,
+    distrito,
+    departamento,
     estado: pickString(payload, ['estado']) || null,
     condicion: pickString(payload, ['condicion']) || null,
   };
