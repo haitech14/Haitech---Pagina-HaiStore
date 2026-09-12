@@ -83,6 +83,21 @@ interface ConfigurationFormProps {
 const FIELD =
   'h-11 min-h-11 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm text-[#111111] outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]';
 
+function optionsWithCurrent(options: readonly string[], current: string): string[] {
+  const trimmed = current.trim();
+  if (!trimmed) return [...options];
+  if (options.some((item) => item.toLowerCase() === trimmed.toLowerCase())) {
+    return [...options];
+  }
+  return [trimmed, ...options];
+}
+
+function matchingOption(options: readonly string[], current: string): string | undefined {
+  const trimmed = current.trim();
+  if (!trimmed) return undefined;
+  return options.find((item) => item.toLowerCase() === trimmed.toLowerCase()) ?? trimmed;
+}
+
 const optionCardClass = (selected: boolean) =>
   cn(
     'rounded-xl border px-3.5 py-3 text-left transition',
@@ -439,46 +454,59 @@ export function ConfigurationForm({
               <Label htmlFor="solution-city" className="text-sm font-semibold text-[#111111]">
                 Ciudad
               </Label>
-              <input
-                id="solution-city"
-                type="text"
-                list="solution-city-suggestions"
-                value={city}
-                onChange={(event) => onCityChange(event.target.value)}
-                placeholder="Lima"
-                className={FIELD}
-                autoComplete="address-level2"
-              />
-              <datalist id="solution-city-suggestions">
-                {SOLUTION_CITY_SUGGESTIONS.map((item) => (
-                  <option key={item} value={item} />
-                ))}
-              </datalist>
+              <Select
+                value={matchingOption(SOLUTION_CITY_SUGGESTIONS, city) ?? 'Lima'}
+                onValueChange={(value) => {
+                  onCityChange(value);
+                  if (resolveSolutionLocationFromCity(value) !== 'lima') {
+                    onDistrictChange('');
+                  }
+                }}
+              >
+                <SelectTrigger id="solution-city" className={FIELD}>
+                  <SelectValue placeholder="Selecciona ciudad" />
+                </SelectTrigger>
+                <SelectContent>
+                  {optionsWithCurrent(SOLUTION_CITY_SUGGESTIONS, city).map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="solution-district" className="text-sm font-semibold text-[#111111]">
                 Distrito
               </Label>
-              <input
-                id="solution-district"
-                type="text"
-                list="solution-district-suggestions"
-                value={district}
-                onChange={(event) => onDistrictChange(event.target.value)}
-                placeholder={
-                  resolveSolutionLocationFromCity(city) === 'lima' ? 'Miraflores' : 'Centro'
-                }
-                className={FIELD}
-                autoComplete="address-level3"
-              />
-              <datalist id="solution-district-suggestions">
-                {(resolveSolutionLocationFromCity(city) === 'lima'
-                  ? SOLUTION_LIMA_DISTRICT_SUGGESTIONS
-                  : []
-                ).map((item) => (
-                  <option key={item} value={item} />
-                ))}
-              </datalist>
+              {resolveSolutionLocationFromCity(city) === 'lima' ? (
+                <Select
+                  value={matchingOption(SOLUTION_LIMA_DISTRICT_SUGGESTIONS, district)}
+                  onValueChange={onDistrictChange}
+                >
+                  <SelectTrigger id="solution-district" className={FIELD}>
+                    <SelectValue placeholder="Selecciona distrito" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {optionsWithCurrent(SOLUTION_LIMA_DISTRICT_SUGGESTIONS, district).map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {item}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <input
+                  id="solution-district"
+                  type="text"
+                  name="solution-district"
+                  value={district}
+                  onChange={(event) => onDistrictChange(event.target.value)}
+                  placeholder="Centro"
+                  className={FIELD}
+                  autoComplete="off"
+                />
+              )}
             </div>
           </div>
         </div>

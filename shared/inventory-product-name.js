@@ -295,7 +295,7 @@ export function formatInventoryProductName(name) {
 }
 
 export function isSeminuevaProductName(name) {
-  return /\bseminueva\b/i.test(String(name ?? '').trim());
+  return /\bseminuev[oa]s?\b/i.test(String(name ?? '').trim());
 }
 
 /** Equipo nuevo en inventario: «NUEVA» / «NUEVO» en el nombre y sin «seminueva». */
@@ -312,7 +312,7 @@ export function productQualifiesAsSeminuevaEquipment(product) {
   const name = String(product?.name ?? '').trim();
   if (isSeminuevaProductName(name)) return true;
   const category = String(product?.category ?? '').toLowerCase();
-  return category.includes('seminuevas');
+  return category.includes('seminuevas') || category.includes('seminuevos');
 }
 
 export function isRemanufacturadaProductName(name) {
@@ -326,7 +326,7 @@ export function productQualifiesAsRemanufacturadaEquipment(product) {
   if (isRemanufacturadaProductName(name)) return true;
   if (productQualifiesAsNuevaEquipment(product)) return false;
   const category = String(product?.category ?? '').toLowerCase();
-  if (category.includes('seminuevas')) return false;
+  if (category.includes('seminuevas') || category.includes('seminuevos')) return false;
   return category.includes('remanufacturadas') || category.includes('remanufacturados');
 }
 

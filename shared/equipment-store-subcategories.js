@@ -154,6 +154,45 @@ export const EQUIPMENT_STORE_SUBCATEGORIES = {
       ],
     },
   ],
+  accesorios: [
+    {
+      slug: 'accesorios-seminuevos',
+      name: 'Accesorios Seminuevos',
+      inventoryLabels: ['Accesorios Seminuevos', 'Accesorios, Accesorios Seminuevos'],
+      image: '/categories/accesorios-impresoras.png',
+    },
+  ],
+  'computadoras-laptop': [
+    {
+      slug: 'computadoras-seminuevas',
+      name: 'Computadoras Seminuevas',
+      inventoryLabels: [
+        'Computadoras Seminuevas',
+        'Computadoras y Laptop, Computadoras Seminuevas',
+      ],
+      image: '/categories/computadoras-laptop.png',
+    },
+    {
+      slug: 'laptops-seminuevas',
+      name: 'Laptops Seminuevas',
+      inventoryLabels: ['Laptops Seminuevas', 'Computadoras y Laptop, Laptops Seminuevas'],
+      image: '/categories/computadoras-laptop.png',
+    },
+    {
+      slug: 'computadoras-monitores',
+      name: 'Monitores',
+      inventoryLabels: ['Monitores', 'Computadoras y Laptop, Monitores'],
+      image: '/categories/monitores.png',
+    },
+  ],
+  'formato-ancho': [
+    {
+      slug: 'formato-ancho-seminuevos',
+      name: 'Formato Ancho Seminuevos',
+      inventoryLabels: ['Formato Ancho Seminuevos', 'Formato Ancho, Formato Ancho Seminuevos'],
+      image: '/categories/formato-ancho.png',
+    },
+  ],
   'equipos-de-oficina': [
     {
       slug: 'espiraladoras',

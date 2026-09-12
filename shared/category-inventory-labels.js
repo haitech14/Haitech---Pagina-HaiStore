@@ -21,8 +21,15 @@ export const CATEGORY_INVENTORY_LABELS = {
     'Impresoras Láser Nuevas',
     'Impresoras, Impresoras Laser Nuevas',
     'Impresoras, Impresoras Láser Nuevas',
+    'Impresoras Laser Seminuevas',
+    'Impresoras Láser Seminuevas',
   ],
-  'formato-ancho': ['Formato Ancho', 'Plotter y Multifuncional de Planos'],
+  'formato-ancho': [
+    'Formato Ancho',
+    'Plotter y Multifuncional de Planos',
+    'Formato Ancho Seminuevos',
+    'Formato Ancho, Formato Ancho Seminuevos',
+  ],
   'toner-suministros': [
     'Toner y Suministros',
     'Toner',
@@ -66,15 +73,24 @@ export const CATEGORY_INVENTORY_LABELS = {
     'Repuestos Compatibles, Unidades Compatibles',
     'Repuestos, Repuestos Compatibles, Unidades Compatibles',
   ],
-  accesorios: ['Accesorios'],
+  accesorios: ['Accesorios', 'Accesorios Seminuevos', 'Accesorios, Accesorios Seminuevos'],
   escaneres: ['Escáneres', 'Escáneres Nuevos', 'Escáneres, Escáneres Nuevos'],
   camaras: ['Cámaras'],
-  'computadoras-laptop': ['Computadoras y Laptop', 'Computadoras Laptop', 'Laptops'],
+  'computadoras-laptop': [
+    'Computadoras y Laptop',
+    'Computadoras Laptop',
+    'Laptops',
+    'Computadoras Seminuevas',
+    'Computadoras y Laptop, Computadoras Seminuevas',
+    'Laptops Seminuevas',
+    'Computadoras y Laptop, Laptops Seminuevas',
+    'Computadoras y Laptop, Monitores',
+  ],
   alquiler: ['Alquiler'],
   'soluciones-colaboracion': ['Pizarras Interactivas'],
   'equipamiento-videoconferencias': ['Equipamiento para Videoconferencias'],
   tecnologia: ['Tecnología y cómputo'],
-  monitores: ['Monitores'],
+  monitores: ['Monitores', 'Computadoras y Laptop, Monitores'],
   'equipos-de-oficina': [
     'Equipos de Oficina',
     'Equipos de Oficina, Espiraladoras',
@@ -126,6 +142,17 @@ export const SUBCATEGORY_INVENTORY_LABELS = {
   'impresoras-laser-seminuevas': [
     'Impresoras Laser Seminuevas',
     'Impresoras Láser Seminuevas',
+  ],
+  'accesorios-seminuevos': ['Accesorios Seminuevos', 'Accesorios, Accesorios Seminuevos'],
+  'computadoras-seminuevas': [
+    'Computadoras Seminuevas',
+    'Computadoras y Laptop, Computadoras Seminuevas',
+  ],
+  'laptops-seminuevas': ['Laptops Seminuevas', 'Computadoras y Laptop, Laptops Seminuevas'],
+  'computadoras-monitores': ['Monitores', 'Computadoras y Laptop, Monitores'],
+  'formato-ancho-seminuevos': [
+    'Formato Ancho Seminuevos',
+    'Formato Ancho, Formato Ancho Seminuevos',
   ],
   'impresoras-laser-remanufacturadas': [
     'Impresoras Laser Remanufacturadas',
@@ -313,6 +340,10 @@ const NUEVAS_EQUIPMENT_SUBSLUGS = new Set([
 const SEMINUEVAS_EQUIPMENT_SUBSLUGS = new Set([
   'multifuncionales-seminuevas',
   'impresoras-laser-seminuevas',
+  'accesorios-seminuevos',
+  'computadoras-seminuevas',
+  'laptops-seminuevas',
+  'formato-ancho-seminuevos',
 ]);
 
 const REMANUFACTURADAS_EQUIPMENT_SUBSLUGS = new Set([

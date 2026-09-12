@@ -59,7 +59,7 @@ const STORE_PAGE_ROOTS = [
     name: 'Formato Ancho',
     tagline: 'Plotters y equipos para gran formato',
     image: '/categories/formato-ancho.png',
-    inventoryLabels: ['Formato Ancho', 'Plotter y Multifuncional de Planos'],
+    inventoryLabels: ['Formato Ancho', 'Plotter y Multifuncional de Planos', 'Formato Ancho Seminuevos'],
   },
   {
     slug: 'toner-suministros',
@@ -87,7 +87,7 @@ const STORE_PAGE_ROOTS = [
     name: 'Accesorios',
     tagline: 'Bandejas, finisher y complementos para impresoras',
     image: '/categories/accesorios-impresoras.png',
-    inventoryLabels: ['Accesorios'],
+    inventoryLabels: ['Accesorios', 'Accesorios Seminuevos', 'Accesorios, Accesorios Seminuevos'],
   },
   {
     slug: 'servicio-tecnico',
@@ -136,14 +136,20 @@ const STORE_PAGE_ROOTS = [
     name: 'Computadoras y Laptop',
     tagline: 'Equipos de cómputo y accesorios',
     image: '/categories/computadoras-laptop.png',
-    inventoryLabels: ['Computadoras y Laptop', 'Computadoras Laptop', 'Laptops'],
+    inventoryLabels: [
+      'Computadoras y Laptop',
+      'Computadoras Laptop',
+      'Laptops',
+      'Computadoras Seminuevas',
+      'Laptops Seminuevas',
+    ],
   },
   {
     slug: 'monitores',
     name: 'Monitores',
     tagline: 'Pantallas para oficina y productividad',
     image: '/categories/monitores.png',
-    inventoryLabels: ['Monitores'],
+    inventoryLabels: ['Monitores', 'Computadoras y Laptop, Monitores'],
   },
   {
     slug: 'tecnologia',
@@ -205,6 +211,13 @@ const EQUIPMENT_SUBCATEGORIES = {
     { slug: 'toner-recarga', name: 'Toner Recarga' },
   ],
   escaneres: [{ slug: 'escaneres-nuevos', name: 'Escáneres Nuevos' }],
+  accesorios: [{ slug: 'accesorios-seminuevos', name: 'Accesorios Seminuevos' }],
+  'computadoras-laptop': [
+    { slug: 'computadoras-seminuevas', name: 'Computadoras Seminuevas' },
+    { slug: 'laptops-seminuevas', name: 'Laptops Seminuevas' },
+    { slug: 'computadoras-monitores', name: 'Monitores' },
+  ],
+  'formato-ancho': [{ slug: 'formato-ancho-seminuevos', name: 'Formato Ancho Seminuevos' }],
   'equipos-de-oficina': [
     { slug: 'espiraladoras', name: 'Espiraladoras' },
     { slug: 'anilladoras', name: 'Anilladoras' },

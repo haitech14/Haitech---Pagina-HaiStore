@@ -115,6 +115,9 @@ export const MAINTENANCE_IGV_RATE = 0.18;
 export const MAINTENANCE_PLAN_REF_PAGES = 55_000;
 export const MAINTENANCE_PLAN_REF_MONTHLY_PEN = 304;
 
+/** Mínimo comercial del plan anual: S/ 99 + IGV /mes. */
+export const MAINTENANCE_PLAN_MIN_MONTHLY_PEN = 99;
+
 export const MAINTENANCE_VOLUME_MIN = 1_000;
 export const MAINTENANCE_VOLUME_MAX = 150_000;
 export const MAINTENANCE_VOLUME_SLIDER_MIN = 5_000;
@@ -704,7 +707,7 @@ export function calculateMaintenancePlanQuote(
   const printFactor = PRINT_TYPE_FACTOR[state.printType] ?? 1;
   const formatFactor = PAPER_FORMAT_FACTOR[state.paperFormat] ?? 1;
 
-  const monthlyBeforeDiscount = moneyPen(
+  const rawMonthly = moneyPen(
     MAINTENANCE_PLAN_REF_MONTHLY_PEN *
       volumeFactor *
       quantity *
@@ -712,10 +715,20 @@ export function calculateMaintenancePlanQuote(
       printFactor *
       formatFactor,
   );
-  const monthlyPen = moneyPen(monthlyBeforeDiscount * (1 - discountRate));
+  const monthlyBeforeDiscount = moneyPen(
+    Math.max(MAINTENANCE_PLAN_MIN_MONTHLY_PEN, rawMonthly),
+  );
+  const monthlyPen = moneyPen(
+    Math.max(MAINTENANCE_PLAN_MIN_MONTHLY_PEN, monthlyBeforeDiscount * (1 - discountRate)),
+  );
   const monthlyIgvPen = moneyPen(monthlyPen * MAINTENANCE_IGV_RATE);
   const monthlyTotalPen = monthlyPen + monthlyIgvPen;
-  const monthlyBeforeDiscountTotal = monthlyBeforeDiscount + moneyPen(monthlyBeforeDiscount * MAINTENANCE_IGV_RATE);
+  const monthlyBeforeDiscountTotal =
+    monthlyBeforeDiscount + moneyPen(monthlyBeforeDiscount * MAINTENANCE_IGV_RATE);
+  const savingsPercent =
+    monthlyBeforeDiscount > 0
+      ? Math.round((1 - monthlyPen / monthlyBeforeDiscount) * 100)
+      : 0;
 
   const visitPen = moneyPen(
     MAINTENANCE_INDIVIDUAL_VISIT_BASE_PEN *
@@ -739,7 +752,7 @@ export function calculateMaintenancePlanQuote(
     monthlyTotalPen,
     monthlyBeforeDiscountTotal,
     visitPen,
-    savingsPercent: Math.round(discountRate * 100),
+    savingsPercent,
     equipmentLabel: equipment.label,
     modelLabel: resolveMaintenanceModelLabel(state.modelId, state.customModel),
     difficultyLabel: difficultyLabel(model.difficulty),

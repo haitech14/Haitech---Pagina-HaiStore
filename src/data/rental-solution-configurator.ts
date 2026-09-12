@@ -35,7 +35,7 @@ export const SOLUTION_LOCATIONS: readonly { id: SolutionLocationId; label: strin
   { id: 'provincias', label: 'Provincias' },
 ] as const;
 
-/** Ciudades frecuentes para el cotizador (texto libre también permitido). */
+/** Ciudades del cotizador (selector). */
 export const SOLUTION_CITY_SUGGESTIONS = [
   'Lima',
   'Arequipa',
@@ -47,7 +47,7 @@ export const SOLUTION_CITY_SUGGESTIONS = [
   'Huancayo',
 ] as const;
 
-/** Distritos de Lima Metropolitana (sugerencias). */
+/** Distritos de Lima Metropolitana. */
 export const SOLUTION_LIMA_DISTRICT_SUGGESTIONS = [
   'Miraflores',
   'San Isidro',
