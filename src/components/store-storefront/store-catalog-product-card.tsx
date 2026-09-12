@@ -194,7 +194,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   return (
     <article
       className={cn(
-        'group flex h-full flex-col overflow-hidden transition-shadow',
+        'group flex h-full w-full flex-col overflow-hidden transition-shadow',
         isCompact ? 'rounded-xl' : 'rounded-2xl',
         isCarousel
           ? cn(
@@ -223,26 +223,28 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             'relative block w-full overflow-hidden bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-inset',
             isCarousel
               ? isCompact
-                ? 'aspect-[5/4] p-2 sm:p-2.5'
-                : 'aspect-square p-4 md:p-6'
+                ? 'aspect-[5/4] p-1.5 sm:p-2'
+                : 'aspect-square p-2 md:p-2.5'
               : 'aspect-[4/5] p-2 md:aspect-square md:p-3',
           )}
           aria-label={`Ver ficha de ${product.name}`}
         >
           {isFeatured ? <ProductCardFeaturedStar /> : null}
 
-          <ProductCardHoverImage
-            candidates={imageCandidates}
-            storedCandidates={storedImageCandidates}
-            hoverSrc={hoverImageSrc}
-            alt={product.name}
-            className="size-full"
-            imageClassName="size-full object-contain object-center"
-            overlayClassName="size-full bg-white"
-            loading={imageLoading}
-            imageVersion={imageVersion}
-            {...(imagePriority ? { fetchPriority: 'high' as const } : {})}
-          />
+          <div className={cn('size-full', isCarousel && 'scale-[1.08]')}>
+            <ProductCardHoverImage
+              candidates={imageCandidates}
+              storedCandidates={storedImageCandidates}
+              hoverSrc={hoverImageSrc}
+              alt={product.name}
+              className="size-full"
+              imageClassName="size-full object-contain object-center"
+              overlayClassName="size-full bg-white"
+              loading={imageLoading}
+              imageVersion={imageVersion}
+              {...(imagePriority ? { fetchPriority: 'high' as const } : {})}
+            />
+          </div>
         </Link>
 
         <ProductCardOverlayActions
@@ -349,6 +351,8 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             showOfferLabel={productHasOfferAttribute(titleProduct)}
             size={isCarousel && !isCompact ? 'lg' : 'default'}
             align={isCarousel ? 'center' : 'start'}
+            category={product.category}
+            wholesaleUsd={product.prices?.mayorista}
           />
         </div>
 

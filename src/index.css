@@ -127,6 +127,10 @@
     font-weight: 400;
   }
 
+  .font-price {
+    font-family: var(--font-price);
+  }
+
   .home-landing-sans {
     font-family: var(--font-sans);
   }

@@ -289,7 +289,18 @@ function isLaptopProduct(product: FeaturedProduct): boolean {
     matchesCategoryLabels(product, HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS.laptops) ||
     haystack.includes('laptop') ||
     haystack.includes('notebook') ||
-    haystack.includes('macbook')
+    haystack.includes('macbook') ||
+    haystack.includes('optiplex') ||
+    haystack.includes('computadora') ||
+    /\bpc\b/.test(haystack)
+  );
+}
+
+function isMonitorProduct(product: FeaturedProduct): boolean {
+  const haystack = productHaystack(product);
+  return (
+    matchesCategoryLabels(product, 'monitores') ||
+    (haystack.includes('monitor') && matchesCategoryLabels(product, HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS.laptops))
   );
 }
 
@@ -305,6 +316,7 @@ export function isHomeFeaturedEquipmentProduct(product: FeaturedProduct): boolea
     isPantallasInteractivasProduct(product) ||
     isVideoconferenciaProduct(product) ||
     isLaptopProduct(product) ||
+    isMonitorProduct(product) ||
     matchesCategoryLabels(product, 'accesorios') ||
     isPrinterProduct(product)
   );
@@ -357,7 +369,7 @@ export function matchesHomeFeaturedEquipmentCategoryFilter(
     case 'videoconferencia':
       return isVideoconferenciaProduct(product);
     case 'laptops':
-      return isLaptopProduct(product);
+      return isLaptopProduct(product) || isMonitorProduct(product);
     case 'accesorios':
       return matchesCategoryLabels(product, HOME_EQUIPMENT_CATEGORY_FILTER_SLUGS.accesorios);
     default: {

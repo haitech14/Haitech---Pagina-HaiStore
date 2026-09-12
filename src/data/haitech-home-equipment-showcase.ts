@@ -43,7 +43,7 @@ export type HaitechConsumableOriginFilterId =
 export type HaitechImpresoraSubtypeFilterId = 'laser' | 'tinta' | 'termica' | 'matricial';
 
 /** Filtros vitrina PC / Laptops. */
-export type HaitechLaptopFilterId = 'todos' | 'pc' | 'laptop' | 'i5' | 'i7';
+export type HaitechLaptopFilterId = 'todos' | 'pc' | 'laptop' | 'monitores' | 'i5' | 'i7';
 
 /** Filtros vitrina Formato Ancho. */
 export type HaitechFormatoAnchoFilterId =
@@ -345,6 +345,7 @@ export const HAITECH_LAPTOP_DEVICE_FILTERS: readonly {
 }[] = [
   { id: 'pc', label: 'PC' },
   { id: 'laptop', label: 'Laptop' },
+  { id: 'monitores', label: 'Monitores' },
 ] as const;
 
 /** Procesador en vitrina PC / Laptops. */
@@ -368,7 +369,7 @@ export const HAITECH_LAPTOP_FILTERS: readonly {
 
 /** Tipo de equipo + procesador activos en vitrina PC / Laptops. */
 export type HaitechLaptopActiveFilters = {
-  device: 'pc' | 'laptop' | null;
+  device: 'pc' | 'laptop' | 'monitores' | null;
   cpu: 'i5' | 'i7' | null;
 };
 
@@ -387,7 +388,7 @@ export function toggleLaptopSpecFilter(
 ): HaitechLaptopActiveFilters {
   if (filterId === 'todos') return { ...EMPTY_LAPTOP_SPEC_FILTERS };
 
-  if (filterId === 'pc' || filterId === 'laptop') {
+  if (filterId === 'pc' || filterId === 'laptop' || filterId === 'monitores') {
     return {
       ...current,
       device: current.device === filterId ? null : filterId,
@@ -404,22 +405,24 @@ export function isLaptopSpecFilterActive(
   filterId: HaitechLaptopFilterId,
 ): boolean {
   if (filterId === 'todos') return isLaptopSpecFiltersEmpty(filters);
-  if (filterId === 'pc' || filterId === 'laptop') return filters.device === filterId;
+  if (filterId === 'pc' || filterId === 'laptop' || filterId === 'monitores') return filters.device === filterId;
   return filters.cpu === filterId;
 }
 
 export function resolveLaptopShowcaseTraits(product: HaitechShopProduct): {
-  device: 'pc' | 'laptop' | null;
+  device: 'pc' | 'laptop' | 'monitores' | null;
   cpu: 'i5' | 'i7' | null;
 } {
   const name = product.name.toLowerCase();
+  const categoryIds = product.showcaseCategoryIds ?? [];
   const device =
-    product.showcaseLaptopDevice ??
-    (/\blaptop\b|\bnotebook\b|\bmacbook\b/.test(name)
-      ? 'laptop'
-      : /\bpc\b|\boptiplex\b|\bdesktop\b/.test(name)
-        ? 'pc'
-        : null);
+    categoryIds.includes('monitores') || /\bmonitor/.test(name)
+      ? 'monitores'
+      : product.showcaseLaptopDevice === 'laptop' || /\blaptop\b|\bnotebook\b|\bmacbook\b/.test(name)
+        ? 'laptop'
+        : product.showcaseLaptopDevice === 'pc' || /\bpc\b|\boptiplex\b|\bdesktop\b|\bcomputadora\b/.test(name)
+          ? 'pc'
+          : null;
   const cpu =
     product.showcaseLaptopCpu ??
     (/\bi7\b|\bcore\s*i7\b/.test(name) ? 'i7' : /\bi5\b|\bcore\s*i5\b/.test(name) ? 'i5' : null);
@@ -1855,6 +1858,7 @@ export function filterEquipmentShowcaseProducts(options: {
   condition: HaitechEquipmentConditionId;
   consumableKind?: HaitechShowcaseConsumableKind;
   catalogConsumables?: readonly HaitechShopProduct[];
+  catalogEquipment?: readonly HaitechShopProduct[];
   limit?: number;
 }): HaitechShopProduct[] {
   if (isShowcaseConsumableCategory(options.categoryId)) return [];
@@ -1889,10 +1893,10 @@ export function filterEquipmentShowcaseProducts(options: {
     options.consumableKind ?? 'all',
   );
 
-  const pool =
-    isShowcaseConsumableCategory(options.categoryId)
-      ? mergeCatalogConsumablesIntoPool(showcaseProductPool(), options.catalogConsumables)
-      : showcaseProductPool();
+  const pool = mergeCatalogConsumablesIntoPool(
+    mergeCatalogConsumablesIntoPool(showcaseProductPool(), options.catalogEquipment),
+    isShowcaseConsumableCategory(options.categoryId) ? options.catalogConsumables : undefined,
+  );
 
   const filtered = pool
     .filter((product) => {

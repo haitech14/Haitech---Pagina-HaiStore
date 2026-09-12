@@ -27,6 +27,7 @@ import {
   type HaitechShopProduct,
 } from '@/data/haitech-home-shop';
 import { useCompanySettings } from '@/hooks/use-company-settings';
+import { ProductVolumeBuyIncentive } from '@/components/product/product-volume-buy-incentive';
 import { getDisplayPriceVisibility } from '@/lib/display-price';
 import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
 import { penToUsd, cn } from '@/lib/utils';
@@ -589,6 +590,13 @@ function CardPriceBlock({
         </>
       )}
       {displayCurrency === 'BOTH' && priceUsd <= 0 && penPrimary}
+      {priceUsd > 0 ? (
+        <ProductVolumeBuyIncentive
+          unitPriceUsd={priceUsd}
+          isToner={isConsumableProduct}
+          align={isFeaturedVariant ? 'center' : 'start'}
+        />
+      ) : null}
     </div>
   );
 }

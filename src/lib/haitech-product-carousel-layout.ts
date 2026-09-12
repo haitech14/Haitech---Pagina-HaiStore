@@ -1,10 +1,10 @@
 /** Layout compartido para carruseles de productos en la home HAITECH. */
 
-export const HAITECH_PRODUCT_CAROUSEL_GAP = 'gap-2 sm:gap-3.5 md:gap-4';
+export const HAITECH_PRODUCT_CAROUSEL_GAP = 'gap-1.5';
 
-/** 2 tarjetas móvil · 2 sm · 3 md · 4 lg. */
+/** 2 tarjetas móvil · 2 sm · 3 md · 4 lg. Hueco 0.375rem. */
 export const HAITECH_PRODUCT_CAROUSEL_SLIDE =
-  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.5rem)/2)] sm:flex-[0_0_calc((100%-0.875rem)/2)] md:flex-[0_0_calc((100%-2rem)/3)] lg:flex-[0_0_calc((100%-3rem)/4)]';
+  'min-w-0 shrink-0 flex-[0_0_calc((100%-0.375rem)/2)] sm:flex-[0_0_calc((100%-0.375rem)/2)] md:flex-[0_0_calc((100%-0.75rem)/3)] lg:flex-[0_0_calc((100%-1.125rem)/4)]';
 
 /** Flecha flotante: no reserva espacio; se superpone al carrusel. */
 export const HAITECH_PRODUCT_CAROUSEL_ARROW =

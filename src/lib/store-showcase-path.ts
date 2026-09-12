@@ -67,6 +67,7 @@ const LAPTOP_SPEC_FILTERS = new Set<HaitechShowcaseFilterId>([
   'todos',
   'pc',
   'laptop',
+  'monitores',
   'i5',
   'i7',
 ]);

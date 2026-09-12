@@ -81,6 +81,7 @@ import { useDisplayCurrency } from '@/context/display-currency-context';
 import { getCatalogActiveRows, loadCatalogIndex, CATALOG_INDEX_UPDATED_EVENT, subscribeCatalogMediaUpdates } from '@/lib/catalog-featured';
 import { DEFAULT_USD_TO_PEN } from '@/lib/exchange-rate';
 import { buildShowcaseProductsFromCatalog } from '@/lib/showcase-catalog-consumables';
+import { buildShowcaseEquipmentFromCatalog } from '@/lib/showcase-catalog-equipment';
 import { findShowcaseCatalogRow, hydrateShowcaseProductFromCatalog, resolveShowcaseMediaCatalogId, resolveShowcaseProductHref } from '@/lib/showcase-product-href';
 import { resolveCatalogStock } from '@/lib/catalog-row-lookup';
 import { toPublicProduct } from '@/lib/pricing';
@@ -98,6 +99,7 @@ import { isPrinterEquipment } from '@/lib/build-product-detail';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { ProductCardDescriptorLine } from '@/components/product/product-card-title';
 import { splitProductCardTitleAtBrand } from '@/lib/product-card-title';
+import { ProductVolumeBuyIncentive } from '@/components/product/product-volume-buy-incentive';
 import { CONSULTAR_PRECIO_LABEL, getDisplayPriceVisibility, isPriceOnRequest } from '@/lib/display-price';
 import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
 import { productHasOfferAttribute } from '@/lib/product-detail-badges';
@@ -590,11 +592,30 @@ function EquipmentShowcaseCard({
         </span>
       );
     }
+    const volumeIncentive =
+      activePriceRole === 'public' ? (
+        <ProductVolumeBuyIncentive
+          unitPriceUsd={priceUsd}
+          isToner={Boolean(product.toner) || /t[oó]ner/i.test(product.name)}
+          wholesaleUsd={rolePricesUsd.mayorista}
+        />
+      ) : null;
+
     if (displayCurrency === 'PEN') {
-      return withOfferBeside(formatHaitechPen(displayPen));
+      return (
+        <span className="flex w-full flex-col items-center gap-0.5 text-center">
+          {withOfferBeside(formatHaitechPen(displayPen))}
+          {volumeIncentive}
+        </span>
+      );
     }
     if (displayCurrency === 'USD') {
-      return withOfferBeside(formatHaitechUsd(priceUsd));
+      return (
+        <span className="flex w-full flex-col items-center gap-0.5 text-center">
+          {withOfferBeside(formatHaitechUsd(priceUsd))}
+          {volumeIncentive}
+        </span>
+      );
     }
     if (penFirst) {
       return (
@@ -603,6 +624,7 @@ function EquipmentShowcaseCard({
           <span className="text-[12px] font-semibold tabular-nums text-[#6B7280]">
             {formatHaitechUsd(priceUsd)}
           </span>
+          {volumeIncentive}
         </span>
       );
     }
@@ -612,6 +634,7 @@ function EquipmentShowcaseCard({
         <span className="text-[12px] font-semibold tabular-nums text-[#6B7280]">
           {formatHaitechPen(displayPen)}
         </span>
+        {volumeIncentive}
       </span>
     );
   })();
@@ -1083,6 +1106,10 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
     () => (catalogReady ? buildShowcaseProductsFromCatalog(getCatalogActiveRows(), exchangeRate) : []),
     [catalogReady, catalogRevision, exchangeRate],
   );
+  const catalogEquipment = useMemo(
+    () => (catalogReady ? buildShowcaseEquipmentFromCatalog(getCatalogActiveRows(), exchangeRate) : []),
+    [catalogReady, catalogRevision, exchangeRate],
+  );
 
   useEffect(() => {
     if (parsed.categoryId) setCategoryId(parsed.categoryId);
@@ -1200,6 +1227,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
         condition,
         consumableKind: resolveShowcaseConsumableKind(categoryId, consumableKind),
         ...(categoryId === 'toner' || categoryId === 'repuestos' ? { catalogConsumables } : {}),
+        catalogEquipment,
         limit: Number.POSITIVE_INFINITY,
       });
       if (!catalogReady) return filtered;
@@ -1214,6 +1242,7 @@ export function HaitechHomeEquipmentShowcase({ className }: { className?: string
       formatoAnchoSpecFilters,
       condition,
       catalogConsumables,
+      catalogEquipment,
       isEquipmentCategory,
       isLaptopCategory,
       isFormatoAnchoCategory,

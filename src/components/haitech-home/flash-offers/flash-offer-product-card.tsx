@@ -12,63 +12,6 @@ import { productPath } from '@/lib/product-path';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
-function BliAwardBadge({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        'pointer-events-none absolute bottom-1 right-2.5 z-[2] w-[72px]',
-        className,
-      )}
-      aria-hidden="true"
-    >
-      <svg viewBox="0 0 120 120" className="h-auto w-full drop-shadow-md" role="img">
-        <defs>
-          <linearGradient id="bli-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#F6D860" />
-            <stop offset="50%" stopColor="#E8B923" />
-            <stop offset="100%" stopColor="#C99212" />
-          </linearGradient>
-        </defs>
-        <circle cx="60" cy="60" r="54" fill="url(#bli-gold)" stroke="#1E3A8A" strokeWidth="4" />
-        <circle cx="60" cy="60" r="42" fill="#1E40AF" />
-        <text
-          x="60"
-          y="48"
-          textAnchor="middle"
-          fill="#F6D860"
-          fontSize="11"
-          fontWeight="800"
-          fontFamily="Arial, sans-serif"
-        >
-          2025
-        </text>
-        <text
-          x="60"
-          y="64"
-          textAnchor="middle"
-          fill="#FFFFFF"
-          fontSize="13"
-          fontWeight="800"
-          fontFamily="Arial, sans-serif"
-        >
-          BLI
-        </text>
-        <text
-          x="60"
-          y="80"
-          textAnchor="middle"
-          fill="#F6D860"
-          fontSize="9"
-          fontWeight="700"
-          fontFamily="Arial, sans-serif"
-        >
-          PICK AWARD
-        </text>
-      </svg>
-    </div>
-  );
-}
-
 function toCartProduct(item: RicohFlashOfferProduct): Product {
   return {
     id: item.id,
@@ -104,13 +47,13 @@ export function FlashOfferProductCard({
   return (
     <article
       className={cn(
-        'group relative flex h-[420px] w-full max-w-[240px] min-w-0 flex-col overflow-hidden rounded-[14px] bg-white',
+        'group relative flex h-[420px] w-full max-w-[228px] min-w-0 flex-col overflow-hidden rounded-[14px] bg-white',
         'shadow-[0_6px_16px_rgba(100,0,10,0.12)] transition-shadow duration-200',
         'hover:shadow-[0_10px_22px_rgba(100,0,10,0.16)]',
       )}
     >
       <div className="flex items-start justify-between px-3 pb-0.5 pt-3">
-        <p className="text-[15px] font-bold leading-none tracking-tight text-[#e60012]">
+        <p className="font-[family-name:var(--font-infobox)] text-[15px] font-bold leading-none tracking-tight text-[#e60012]">
           {product.brand}
         </p>
         <div className="flex flex-col items-end gap-1.5">
@@ -154,20 +97,24 @@ export function FlashOfferProductCard({
             onError={() => setImgError(true)}
           />
         )}
-        {product.awardBadge ? <BliAwardBadge /> : null}
       </Link>
 
       <div className="flex flex-1 flex-col px-3 pb-3 pt-0.5">
         <Link to={href} className="outline-none focus-visible:ring-2 focus-visible:ring-[#ed0016]/35">
-          <p className="text-[12px] font-medium leading-snug text-[#181818]">{product.subtitle}</p>
-          <h3 className="mt-0.5 text-[16px] font-extrabold leading-tight tracking-tight text-[#17191F]">
+          <p className="font-[family-name:var(--font-infobox)] text-[12px] font-medium leading-snug text-[#181818]">
+            {product.subtitle}
+          </p>
+          <h3 className="mt-0.5 font-[family-name:var(--font-infobox)] text-[16px] font-bold leading-tight tracking-tight text-[#17191F]">
             {product.model}
           </h3>
         </Link>
 
         <div className="mt-2">
           <div className="flex flex-wrap items-center gap-1.5">
-            <p className="text-[22px] font-extrabold leading-none tabular-nums text-[#ed0016]">
+            <p
+              className="font-price text-[23px] font-bold leading-none tabular-nums tracking-[-0.03em] text-[#ed0016]"
+              style={{ fontFamily: 'var(--font-price)' }}
+            >
               {formatFlashOfferPen(product.pricePen)}
             </p>
             <span className="inline-flex items-center rounded-full bg-[#ffe5e8] px-2.5 py-1 text-[10px] font-bold uppercase leading-none text-[#e60012]">
@@ -184,7 +131,7 @@ export function FlashOfferProductCard({
           onClick={() => onAddToCart(product)}
           className={cn(
             'mt-auto flex h-[42px] w-full items-center justify-center gap-1.5 rounded-lg',
-            'bg-[#ed0016] text-[13px] font-bold text-white',
+            'bg-[#ed0016] font-[family-name:var(--font-infobox)] text-[13px] font-bold text-white',
             'transition duration-200 ease-out',
             'hover:-translate-y-px hover:bg-[#c90012]',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ed0016]/50 focus-visible:ring-offset-2',

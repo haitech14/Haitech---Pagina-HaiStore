@@ -1,6 +1,15 @@
 /** Ofertas flash RICOH — datos de la franja promocional «Solo por horas». */
 
-export const OFFER_END_DATE = '2026-09-11T23:59:59-05:00';
+/** Ciclo del temporizador: se reinicia cada 12 h (00:00 y 12:00, hora de Lima). */
+export const FLASH_OFFER_CYCLE_MS = 12 * 60 * 60 * 1000;
+const FLASH_OFFER_EPOCH_MS = Date.parse('2026-01-01T00:00:00-05:00');
+
+/** Próximo cierre de la ventana de 12 horas a partir de `now`. */
+export function getNextFlashOfferEnd(now = Date.now()): string {
+  const elapsed = Math.max(0, now - FLASH_OFFER_EPOCH_MS);
+  const nextIndex = Math.floor(elapsed / FLASH_OFFER_CYCLE_MS) + 1;
+  return new Date(FLASH_OFFER_EPOCH_MS + nextIndex * FLASH_OFFER_CYCLE_MS).toISOString();
+}
 
 export interface RicohFlashOfferProduct {
   id: string;
@@ -13,8 +22,6 @@ export interface RicohFlashOfferProduct {
   /** Slug canónico para productPath(). */
   slug: string;
   offer: boolean;
-  /** Sello BLI sobre la imagen (p. ej. IM C320F). */
-  awardBadge?: boolean;
 }
 
 export const RICOH_FLASH_OFFER_PRODUCTS: readonly RicohFlashOfferProduct[] = [
@@ -47,10 +54,9 @@ export const RICOH_FLASH_OFFER_PRODUCTS: readonly RicohFlashOfferProduct[] = [
     model: 'RICOH IM C320F',
     pricePen: 3419,
     priceUsd: 999,
-    image: '/products/ricoh-im-c320f.webp',
+    image: '/products/ricoh-im-c320f-2.webp',
     slug: 'impresora-multifuncional-nueva-ricoh-im-c320f-a4',
     offer: true,
-    awardBadge: true,
   },
   {
     id: '7459b432-72a0-420a-8bff-015a0072f5ac',

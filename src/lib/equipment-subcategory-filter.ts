@@ -13,6 +13,10 @@ const NUEVAS_EQUIPMENT_SUBSLUGS = new Set([
 const SEMINUEVAS_EQUIPMENT_SUBSLUGS = new Set([
   'multifuncionales-seminuevas',
   'impresoras-laser-seminuevas',
+  'accesorios-seminuevos',
+  'computadoras-seminuevas',
+  'laptops-seminuevas',
+  'formato-ancho-seminuevos',
 ]);
 
 const REMANUFACTURADAS_EQUIPMENT_SUBSLUGS = new Set([

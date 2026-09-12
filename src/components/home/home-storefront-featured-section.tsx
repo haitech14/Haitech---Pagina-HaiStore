@@ -80,7 +80,15 @@ function isStorefrontCatalogCandidate(row: CatalogRow): boolean {
     haystack.includes('cilindro') ||
     haystack.includes('fusor') ||
     haystack.includes('unidad de imagen') ||
-    haystack.includes('unidad fusora')
+    haystack.includes('unidad fusora') ||
+    haystack.includes('laptop') ||
+    haystack.includes('optiplex') ||
+    haystack.includes('computadora') ||
+    haystack.includes('monitor') ||
+    haystack.includes('plotter') ||
+    haystack.includes('accesorio') ||
+    haystack.includes('mueble') ||
+    haystack.includes('casetera')
   );
 }
 
@@ -572,7 +580,7 @@ export function HomeStorefrontFeaturedSection() {
   const isLoading = bundleLoading && !catalogBundle;
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4">
+    <div className="flex flex-col bg-[#F5F5F5]">
       {STOREFRONT_CATALOG_RAILS.map((rail, index) => {
         const railBlock = (
           <StorefrontCatalogRail
@@ -588,7 +596,7 @@ export function HomeStorefrontFeaturedSection() {
         }
 
         return (
-          <LazyHomeSection key={rail.kind} minHeight="520px">
+          <LazyHomeSection key={rail.kind} minHeight="520px" className="bg-[#F5F5F5]">
             {railBlock}
           </LazyHomeSection>
         );

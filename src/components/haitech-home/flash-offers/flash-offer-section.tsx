@@ -8,7 +8,6 @@ import {
   handleAddToCart,
 } from '@/components/haitech-home/flash-offers/flash-offer-product-card';
 import {
-  OFFER_END_DATE,
   RICOH_FLASH_OFFER_PRODUCTS,
   type RicohFlashOfferProduct,
 } from '@/data/ricoh-flash-offers';
@@ -17,11 +16,11 @@ import { useCart } from '@/context/cart-context';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn, uniqueById } from '@/lib/utils';
 
-/** 1 en móvil · 2 en tablet · 3 en desktop; la tarjeta queda a 240px y se centra en el hueco. */
+/** 1 en móvil; desde sm el slide deja un hueco visible entre tarjetas. */
 const FLASH_SLIDE_CLASS =
-  'flex min-w-0 shrink-0 justify-center flex-[0_0_100%] sm:flex-[0_0_calc((100%-0.75rem)/2)] lg:flex-[0_0_calc((100%-1.5rem)/3)]';
+  'flex min-w-0 shrink-0 justify-center flex-[0_0_100%] sm:flex-[0_0_236px]';
 
-const AUTOPLAY_MS = 4000;
+const AUTOPLAY_MS = 3200;
 
 const BENEFITS = [
   { id: 'envio', label: 'Envío\nrápido', Icon: Truck },
@@ -33,8 +32,8 @@ function FlashOfferPromoBlock() {
   return (
     <div
       className={cn(
-        'relative flex min-h-[340px] flex-col overflow-hidden px-5 py-6 sm:px-6 sm:py-7',
-        'lg:min-h-[440px] lg:w-[24%] lg:min-w-[220px] lg:max-w-[300px] lg:shrink-0 lg:px-7 lg:py-8',
+        'relative flex min-h-[340px] flex-col overflow-hidden px-8 py-6 sm:px-10 sm:py-7',
+        'lg:min-h-[440px] lg:w-[26%] lg:min-w-[260px] lg:max-w-[340px] lg:shrink-0 lg:px-10 lg:py-8',
       )}
       style={{
         background: 'linear-gradient(135deg, #d90012 0%, #ed0016 55%, #ff2435 100%)',
@@ -62,35 +61,35 @@ function FlashOfferPromoBlock() {
       <div className="relative z-[1] flex flex-1 flex-col">
         <div className="flex items-center gap-2">
           <span className="h-px w-5 bg-white" aria-hidden="true" />
-          <p className="text-[10px] font-medium uppercase tracking-[5px] text-white sm:text-[11px]">
+          <p className="font-[family-name:var(--font-infobox)] text-[10px] font-medium uppercase tracking-[5px] text-white sm:text-[11px]">
             OFERTAS RICOH
           </p>
         </div>
 
         <h2
           id="haitech-favorites-title"
-          className="mt-3.5 text-[32px] font-extrabold leading-[0.98] text-white sm:text-[40px] lg:text-[48px]"
+          className="mt-3.5 font-[family-name:var(--font-infobox)] text-[32px] font-bold leading-[0.95] tracking-tight text-white sm:text-[40px] lg:text-[48px]"
         >
           Solo por
           <br />
           horas
         </h2>
 
-        <p className="mt-3 max-w-[15rem] text-[14px] font-medium leading-[1.3] text-white sm:text-[16px]">
+        <p className="mt-3 max-w-[15rem] font-[family-name:var(--font-infobox)] text-[14px] font-medium leading-[1.35] text-white sm:text-[16px]">
           Tecnología que impulsa
           <br />
           tu negocio, a un precio único.
         </p>
 
         <div className="mt-5">
-          <OfferCountdown endDate={OFFER_END_DATE} />
+          <OfferCountdown />
         </div>
 
         <div className="mt-auto grid grid-cols-3 gap-2 pt-6 lg:pt-7">
           {BENEFITS.map(({ id, label, Icon }) => (
             <div key={id} className="flex flex-col items-start gap-1.5">
               <Icon className="size-5 text-white sm:size-[22px]" strokeWidth={1.75} aria-hidden="true" />
-              <p className="whitespace-pre-line text-[11px] font-medium leading-snug text-white sm:text-[12px]">
+              <p className="whitespace-pre-line font-[family-name:var(--font-infobox)] text-[11px] font-medium leading-snug text-white sm:text-[12px]">
                 {label}
               </p>
             </div>
@@ -116,7 +115,12 @@ function ProductCarousel({
   const [canNext, setCanNext] = useState(false);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
   const slides = useMemo(() => uniqueById(products), [products]);
-  const canLoop = slides.length > 3;
+  const loopSlides = useMemo(() => {
+    if (slides.length < 2) return slides;
+    return [...slides, ...slides];
+  }, [slides]);
+  const [fitsInView, setFitsInView] = useState(false);
+  const canLoop = slides.length >= 2;
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
@@ -140,19 +144,53 @@ function ProductCarousel({
     if (!emblaApi) return;
 
     const onSelect = () => {
+      if (fitsInView) {
+        setCanPrev(false);
+        setCanNext(false);
+        return;
+      }
       setCanPrev(emblaApi.canScrollPrev() || canLoop);
       setCanNext(emblaApi.canScrollNext() || canLoop || slides.length > 1);
     };
 
+    const updateFit = () => {
+      const viewport = emblaApi.rootNode();
+      const firstSlide = emblaApi.containerNode().children[0] as HTMLElement | undefined;
+      if (!firstSlide || loopSlides.length === 0) {
+        setFitsInView(false);
+        return;
+      }
+      const styles = window.getComputedStyle(emblaApi.containerNode());
+      const gap = Number.parseFloat(styles.columnGap || styles.gap) || 0;
+      const uniqueCount = slides.length;
+      const total = uniqueCount * firstSlide.offsetWidth + Math.max(0, uniqueCount - 1) * gap;
+      setFitsInView(!canLoop && total <= viewport.clientWidth + 1);
+    };
+
     onSelect();
+    updateFit();
     emblaApi.on('select', onSelect);
     emblaApi.on('reInit', onSelect);
+    emblaApi.on('reInit', updateFit);
+    emblaApi.on('resize', updateFit);
 
     return () => {
       emblaApi.off('select', onSelect);
       emblaApi.off('reInit', onSelect);
+      emblaApi.off('reInit', updateFit);
+      emblaApi.off('resize', updateFit);
     };
-  }, [canLoop, emblaApi, slides.length]);
+  }, [canLoop, emblaApi, fitsInView, loopSlides.length, slides.length]);
+
+  useEffect(() => {
+    emblaApi?.reInit({
+      align: 'start',
+      loop: canLoop,
+      containScroll: canLoop ? false : 'trimSnaps',
+      slidesToScroll: 1,
+      watchDrag: emblaShouldWatchDrag,
+    });
+  }, [canLoop, emblaApi]);
 
   useEffect(() => {
     if (!emblaApi || autoplayPaused || slides.length < 2) return;
@@ -168,12 +206,14 @@ function ProductCarousel({
 
   return (
     <div
-      className="relative min-w-0 flex-1 py-3 lg:py-3.5"
+      className="relative flex min-h-0 min-w-0 flex-1 items-center py-3 lg:py-3.5"
       onMouseEnter={pauseAutoplay}
       onMouseLeave={resumeAutoplay}
       onFocusCapture={pauseAutoplay}
       onBlurCapture={resumeAutoplay}
     >
+      {!fitsInView ? (
+        <>
       <button
         type="button"
         aria-label="Productos anteriores"
@@ -204,11 +244,13 @@ function ProductCarousel({
       >
         <ChevronRight className="size-5" strokeWidth={2.5} aria-hidden="true" />
       </button>
+        </>
+      ) : null}
 
-      <div ref={emblaRef} className="overflow-hidden px-0 pb-1 pl-2 pr-3 sm:pl-0 sm:pr-3.5">
-        <div className="flex gap-3">
-          {slides.map((product) => (
-            <div key={product.id} data-flash-card className={FLASH_SLIDE_CLASS}>
+      <div ref={emblaRef} className="w-full overflow-hidden px-3 pb-1 sm:px-4">
+        <div className={cn('flex gap-3 sm:gap-4', fitsInView && 'justify-center')}>
+          {loopSlides.map((product, index) => (
+            <div key={`${product.id}-${index}`} data-flash-card className={FLASH_SLIDE_CLASS}>
               <FlashOfferProductCard
                 product={product}
                 favorited={favorites.has(product.id)}

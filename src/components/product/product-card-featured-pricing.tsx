@@ -4,6 +4,7 @@ import {
   getDisplayPriceVisibility,
   isPriceOnRequest,
 } from '@/lib/display-price';
+import { ProductVolumeBuyIncentive } from '@/components/product/product-volume-buy-incentive';
 import { cn, formatPenFromUsd, formatUsd, formatEquipmentUsd } from '@/lib/utils';
 
 const FEATURED_PRICE_COMPARE_CLASS =
@@ -16,13 +17,13 @@ const FEATURED_PRICE_CURRENT_ACCENT_CLASS =
   'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]';
 
 const FEATURED_PRICE_CURRENT_ACCENT_LG_CLASS =
-  'text-[1.125rem] font-bold tabular-nums leading-tight text-[#E30613] sm:text-[1.25rem]';
+  'text-[1.0625rem] font-bold tabular-nums leading-tight text-[#E30613] sm:text-[1.125rem]';
 
 const FEATURED_PRICE_SECONDARY_CLASS =
   'text-xs font-medium tabular-nums leading-tight text-[#6B7280] sm:text-sm';
 
 const FEATURED_PRICE_SECONDARY_LG_CLASS =
-  'text-sm font-semibold tabular-nums leading-tight text-[#6B7280] sm:text-base';
+  'text-[0.8125rem] font-medium tabular-nums leading-tight text-[#6B7280] sm:text-[0.875rem]';
 
 function formatFeaturedUsdLabel(usd: number): string {
   const normalized = Math.round(usd * 100) / 100;
@@ -119,6 +120,8 @@ export interface ProductCardFeaturedPricingProps {
   /** Tamaño tipográfico del precio (carrusel / destacados). */
   size?: 'default' | 'lg';
   align?: 'start' | 'center';
+  category?: string | null;
+  wholesaleUsd?: number | null;
   className?: string;
 }
 
@@ -137,6 +140,8 @@ export function ProductCardFeaturedPricing({
   showOfferLabel = false,
   size = 'default',
   align = 'start',
+  category,
+  wholesaleUsd,
   className,
 }: ProductCardFeaturedPricingProps) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
@@ -205,6 +210,12 @@ export function ProductCardFeaturedPricing({
             {secondaryLabel}
           </p>
         ) : null}
+        <ProductVolumeBuyIncentive
+          unitPriceUsd={currentUsd}
+          category={category}
+          wholesaleUsd={wholesaleUsd}
+          align={align}
+        />
         {hasDiscount && showAccentBar ? (
           <span
             className={cn('mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]', centered && 'mx-auto')}
@@ -252,6 +263,12 @@ export function ProductCardFeaturedPricing({
           )}
         </p>
       ) : null}
+      <ProductVolumeBuyIncentive
+        unitPriceUsd={currentUsd}
+        category={category}
+        wholesaleUsd={wholesaleUsd}
+        align={align}
+      />
       {hasDiscount && showAccentBar ? (
         <span
           className={cn('mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]', centered && 'mx-auto')}

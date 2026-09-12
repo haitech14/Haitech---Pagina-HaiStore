@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 
-import { OFFER_END_DATE } from '@/data/ricoh-flash-offers';
+import { getNextFlashOfferEnd } from '@/data/ricoh-flash-offers';
 import { cn } from '@/lib/utils';
 
 function padTwo(value: number): string {
   return String(Math.max(0, value)).padStart(2, '0');
 }
 
-function remainingUntil(endIso: string, now = Date.now()): {
+function remainingUntilNextCycle(now = Date.now()): {
   days: number;
   hours: number;
   minutes: number;
   seconds: number;
   totalMs: number;
 } {
-  const end = new Date(endIso).getTime();
+  const end = Date.parse(getNextFlashOfferEnd(now));
   const totalMs = Math.max(0, end - now);
   const totalSec = Math.floor(totalMs / 1000);
   const days = Math.floor(totalSec / 86400);
@@ -25,22 +25,18 @@ function remainingUntil(endIso: string, now = Date.now()): {
 }
 
 interface OfferCountdownProps {
-  endDate?: string;
   className?: string;
 }
 
-export function OfferCountdown({
-  endDate = OFFER_END_DATE,
-  className,
-}: OfferCountdownProps) {
-  const [parts, setParts] = useState(() => remainingUntil(endDate));
+export function OfferCountdown({ className }: OfferCountdownProps) {
+  const [parts, setParts] = useState(() => remainingUntilNextCycle());
 
   useEffect(() => {
-    const tick = () => setParts(remainingUntil(endDate));
+    const tick = () => setParts(remainingUntilNextCycle());
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, [endDate]);
+  }, []);
 
   const units = [
     { value: padTwo(parts.days), label: 'DÍAS' },
@@ -76,12 +72,13 @@ export function OfferCountdown({
                 className={cn(
                   'flex h-10 w-full min-w-[40px] max-w-[52px] items-center justify-center rounded-lg',
                   'border border-white/12 bg-[rgba(180,0,15,0.25)]',
-                  'text-[20px] font-bold tabular-nums text-white sm:h-12 sm:min-w-[52px] sm:text-[24px]',
+                  'font-[family-name:var(--font-infobox)] text-[20px] font-bold tabular-nums text-white',
+                  'sm:h-12 sm:min-w-[52px] sm:text-[24px]',
                 )}
               >
                 {unit.value}
               </span>
-              <span className="text-[8px] font-medium uppercase tracking-[0.06em] text-white sm:text-[9px]">
+              <span className="font-[family-name:var(--font-infobox)] text-[8px] font-medium uppercase tracking-[0.08em] text-white sm:text-[9px]">
                 {unit.label}
               </span>
             </div>

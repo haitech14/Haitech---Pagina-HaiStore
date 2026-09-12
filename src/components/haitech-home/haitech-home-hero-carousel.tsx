@@ -13,8 +13,8 @@ const HERO_IMAGE_CLASS = cn(
   'absolute inset-0 h-full object-cover',
   // Móvil: un poco de recorte para encuadrar el titular, sin acercar tanto las impresoras.
   'w-[165%] max-w-none',
-  // Desktop: muestra el arte completo (sin recortar impresoras ni textos).
-  'sm:w-full sm:max-w-full sm:object-contain',
+  // Desktop: llena el recuadro más bajo (recorta un poco arriba/abajo, no los lados).
+  'sm:w-full sm:max-w-full sm:object-cover sm:object-center',
 );
 
 function heroSlideImageStyle(slide: HeroSlide): CSSProperties {
@@ -103,8 +103,8 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
       <div
         className={cn(
           'relative w-full overflow-hidden bg-white',
-          'aspect-[16/11] min-h-[248px] max-h-[min(420px,92vw)]',
-          'sm:aspect-[2094/751] sm:min-h-[160px] sm:max-h-[min(720px,40vw)]',
+          'aspect-[16/11] min-h-[220px] max-h-[min(340px,88vw)]',
+          'sm:aspect-[3.5/1] sm:min-h-[140px] sm:max-h-[min(420px,28vw)]',
         )}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}

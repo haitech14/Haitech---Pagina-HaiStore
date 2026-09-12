@@ -448,6 +448,8 @@ export function HomeStorefrontProductCard({
               compareUsd={pricing.compareUsd}
               showAccentBar={false}
               accentUsd
+              category={product.category}
+              wholesaleUsd={product.prices?.mayorista}
             />
           )}
         </div>

@@ -52,6 +52,8 @@ export const categories: Category[] = [
       'Impresoras Láser Nuevas',
       'Impresoras, Impresoras Laser Nuevas',
       'Impresoras, Impresoras Láser Nuevas',
+      'Impresoras Laser Seminuevas',
+      'Impresoras Láser Seminuevas',
       'Impresoras Térmicas',
       'Impresoras Termicas',
       'Impresoras, Impresoras Térmicas',
@@ -67,6 +69,7 @@ export const categories: Category[] = [
     inventoryCategories: [
       'Formato Ancho',
       'Plotter y Multifuncional de Planos',
+      'Formato Ancho Seminuevos',
     ],
     image: '/categories/formato-ancho.png',
   },
@@ -175,7 +178,7 @@ export const categories: Category[] = [
     tagline: 'Bandejas, finisher y complementos para impresoras',
     icon: PackageOpen,
     image: '/categories/accesorios-impresoras.png',
-    inventoryCategories: ['Accesorios'],
+    inventoryCategories: ['Accesorios', 'Accesorios Seminuevos'],
   },
   {
     slug: 'servicio-tecnico',
@@ -228,7 +231,13 @@ export const categories: Category[] = [
     name: 'Computadoras y Laptop',
     tagline: 'Equipos de cómputo y accesorios',
     icon: Laptop,
-    inventoryCategories: ['Computadoras y Laptop', 'Computadoras Laptop', 'Laptops'],
+    inventoryCategories: [
+      'Computadoras y Laptop',
+      'Computadoras Laptop',
+      'Laptops',
+      'Computadoras Seminuevas',
+      'Laptops Seminuevas',
+    ],
     image: '/categories/computadoras-laptop.png',
   },
   {
@@ -237,7 +246,7 @@ export const categories: Category[] = [
     tagline: 'Pantallas para oficina y productividad',
     icon: Monitor,
     image: '/categories/monitores.png',
-    inventoryCategories: ['Monitores'],
+    inventoryCategories: ['Monitores', 'Computadoras y Laptop, Monitores'],
   },
   {
     slug: 'tecnologia',

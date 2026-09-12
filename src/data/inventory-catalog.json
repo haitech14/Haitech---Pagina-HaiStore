@@ -434,10 +434,10 @@
       "image_url": "/products/dd5efa36-73f6-4241-b2ad-6e74ef058733.webp?v=1784112813934",
       "gallery": [],
       "prices": {
-        "public": 749,
-        "tecnico": 499,
-        "mayorista": 480,
-        "distribuidor": 549
+        "tecnico": 389,
+        "mayorista": 374,
+        "distribuidor": 428,
+        "public": 584
       },
       "created_at": "2026-06-05T20:36:44.520915+00:00",
       "code": "DD5EFA",
@@ -543,12 +543,17 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.899Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "attributes": [
         {
           "id": "68b32dd3-663a-4da2-9ef2-3f9ce9771814",
           "name": "Voltaje",
           "value": "220V"
+        },
+        {
+          "id": "f60980c4-152d-4221-8206-dc08c861da58",
+          "name": "Modelo de equipo",
+          "value": "IM C400F"
         }
       ],
       "suppliers": [
@@ -558,23 +563,28 @@
           "purchase_price_usd": 539.28
         }
       ],
-      "purchase_price_usd": 539.28
+      "purchase_price_usd": 539.28,
+      "status": "activa",
+      "variant_product_ids": [
+        "b0811a6f-0f94-4bea-8804-3f7dd0d28a1c",
+        "a853cd99-17e7-445a-a6b2-4f527753db6f"
+      ]
     },
     {
       "id": "03b408ff-0b06-4ec5-90ed-94dcb40fd67c",
       "name": "Impresora Multifuncional Seminueva RICOH IM C300F",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 3,
-      "category": "Multifuncionales Seminuevas",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/03b408ff-0b06-4ec5-90ed-94dcb40fd67c.webp?v=1784112814162",
       "gallery": [],
       "prices": {
-        "public": 799,
-        "tecnico": 499,
-        "mayorista": 480,
-        "distribuidor": 549
+        "tecnico": 369,
+        "mayorista": 355,
+        "distribuidor": 406,
+        "public": 591
       },
       "created_at": "2026-06-23T16:03:20.453Z",
       "code": "DD5EFA367",
@@ -665,7 +675,7 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 3
+          "quantity": 0
         },
         {
           "warehouse_id": "san-juan-lurigancho",
@@ -680,7 +690,13 @@
           "quantity": 0
         }
       ],
-      "attributes": [],
+      "attributes": [
+        {
+          "id": "62e0c650-30ab-4fee-8ae6-7c5d3dfa407a",
+          "name": "Modelo de equipo",
+          "value": "IM C300F"
+        }
+      ],
       "suppliers": [
         {
           "id": "0c0e4bb4-9cf4-42a0-9ae2-9bfcef93bdd8",
@@ -688,7 +704,12 @@
           "purchase_price_usd": 503.28
         }
       ],
-      "purchase_price_usd": 503.28
+      "purchase_price_usd": 503.28,
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa",
+      "variant_product_ids": [
+        "4950b07c-50aa-4884-9e40-e7c9cd1362cb"
+      ]
     },
     {
       "id": "mochila-techpro",
@@ -1070,11 +1091,11 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM 600F 220V",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 27,
+      "stock": 10,
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 7
+          "quantity": 10
         },
         {
           "warehouse_id": "santa-catalina",
@@ -1082,11 +1103,11 @@
         },
         {
           "warehouse_id": "partes-scrap",
-          "quantity": 14
+          "quantity": 0
         },
         {
           "warehouse_id": "otros-estados",
-          "quantity": 6
+          "quantity": 0
         },
         {
           "warehouse_id": "1931",
@@ -1117,10 +1138,10 @@
       "sort_order": 10,
       "slug": "impresora-multifuncional-seminueva-ricoh-im-600f-220v-fd51b686-519",
       "prices": {
-        "public": 1357,
-        "tecnico": 439,
-        "mayorista": 404,
-        "distribuidor": 470
+        "tecnico": 399,
+        "mayorista": 367,
+        "distribuidor": 427,
+        "public": 1233
       },
       "attributes": [
         {
@@ -1167,10 +1188,11 @@
           "purchase_price_usd": 532.08
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.900Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
         "ae1904f7-4a13-4076-802a-4d917a8471aa"
-      ]
+      ],
+      "status": "activa"
     },
     {
       "id": "ee249761-a942-4397-8170-ee156acd06cf",
@@ -1178,7 +1200,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH MP 5055 110V",
       "description": "Impresora Multifuncional Seminueva RICOH MP 5055 110V",
       "currency": "USD",
-      "stock": 10,
+      "stock": 0,
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
@@ -1194,7 +1216,7 @@
         },
         {
           "warehouse_id": "otros-estados",
-          "quantity": 10
+          "quantity": 0
         },
         {
           "warehouse_id": "1931",
@@ -1225,10 +1247,10 @@
       "sort_order": 11,
       "slug": "impresora-multifuncional-seminueva-ricoh-mp-5055-110v-ee249761-a94",
       "prices": {
-        "public": 2345,
         "tecnico": 759,
         "mayorista": 698,
-        "distribuidor": 812
+        "distribuidor": 812,
+        "public": 2345
       },
       "attributes": [
         {
@@ -1270,10 +1292,11 @@
           "purchase_price_usd": 762.48
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.900Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
         "46b85626-5927-4442-83ec-104c52e6a5e1"
-      ]
+      ],
+      "status": "activa"
     },
     {
       "id": "7459b432-72a0-420a-8bff-015a0072f5ac",
@@ -1399,10 +1422,10 @@
       "sort_order": 13,
       "slug": "seminuevo-im2500-e392ea82",
       "prices": {
-        "public": 2098,
         "tecnico": 679,
         "mayorista": 625,
-        "distribuidor": 727
+        "distribuidor": 727,
+        "public": 2098
       },
       "attributes": [
         {
@@ -1506,7 +1529,7 @@
       ],
       "attachments": [],
       "purchase_price_usd": 1510.56,
-      "updated_at": "2026-07-27T20:40:24.900Z"
+      "updated_at": "2026-09-12T17:40:41.978Z"
     },
     {
       "id": "1b3c58f9-4612-49fd-a412-2baa0fe8f7a8",
@@ -1632,7 +1655,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM C2000 110V",
       "description": "Impresora Multifuncional Seminueva RICOH IM C2000 110V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
@@ -1648,7 +1671,7 @@
         },
         {
           "warehouse_id": "otros-estados",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "1931",
@@ -1667,10 +1690,10 @@
       "sort_order": 15,
       "slug": "impresora-multifuncional-seminueva-ricoh-im-c2000-110v-7613294c-20e",
       "prices": {
-        "public": 2129,
-        "tecnico": 689,
-        "mayorista": 634,
-        "distribuidor": 737
+        "tecnico": 599,
+        "mayorista": 551,
+        "distribuidor": 641,
+        "public": 1851
       },
       "attributes": [
         {
@@ -1702,10 +1725,13 @@
           "purchase_price_usd": 784.08
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
-        "b06406c6-945c-4107-89f4-c35de3a33544"
-      ]
+        "b06406c6-945c-4107-89f4-c35de3a33544",
+        "9e77a73a-753a-4e28-859b-68fe7cba5e0e",
+        "dbd6ad0b-ee55-4fae-82e8-83009bd88e94"
+      ],
+      "status": "activa"
     },
     {
       "id": "ricoh-im-430f",
@@ -2289,10 +2315,10 @@
       "image_url": "/products/189620fe-a5e5-4526-a399-8aa6a308bd1d.webp?v=1784112813951",
       "gallery": [],
       "prices": {
-        "public": 1017,
         "tecnico": 329,
         "mayorista": 303,
-        "distribuidor": 352
+        "distribuidor": 352,
+        "public": 1017
       },
       "created_at": "2026-06-02T06:52:50.922Z",
       "code": "423509-CP66P6",
@@ -2326,6 +2352,16 @@
           "id": "71a00b3c-35d6-46df-b43f-284fd10a4c5f",
           "name": "Voltaje",
           "value": "220V"
+        },
+        {
+          "id": "3826b7f7-2bb2-47c7-a810-114460b405c2",
+          "name": "Variante",
+          "value": "U. Imagen nueva P502"
+        },
+        {
+          "id": "56e2339d-3afc-4fdc-80b6-13354c08ed7f",
+          "name": "Modelo de equipo",
+          "value": "IM 430F"
         }
       ],
       "sort_order": 21,
@@ -2368,7 +2404,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.900Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "deaf7cb4-da08-46ca-98be-36da0d152d4f",
@@ -2376,7 +2412,11 @@
           "purchase_price_usd": 452.88
         }
       ],
-      "purchase_price_usd": 452.88
+      "purchase_price_usd": 452.88,
+      "status": "activa",
+      "variant_product_ids": [
+        "a430f001-7c3e-4a91-8b12-1d2e3f4a4301"
+      ]
     },
     {
       "id": "71289ec2-dbca-4780-b319-eb3d259fadb5",
@@ -2573,10 +2613,10 @@
       "image_url": "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp?v=1785181086863",
       "gallery": [],
       "prices": {
-        "public": 1140,
-        "tecnico": 369,
-        "mayorista": 339,
-        "distribuidor": 395
+        "tecnico": 349,
+        "mayorista": 321,
+        "distribuidor": 374,
+        "public": 1078
       },
       "created_at": "2026-06-02T06:55:02.531Z",
       "code": "418460-CP908Y-LP",
@@ -2657,8 +2697,9 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.902Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
+        "a550f001-7c3e-4a91-8b12-1d2e3f4a5501",
         "a4be1850-48ac-40fd-8962-14c00bec5e59",
         "9a955212-f712-4a2e-acf7-f03b059f7c98",
         "1f34bfe4-95be-45c4-be3e-37a740fee9b9"
@@ -2670,7 +2711,8 @@
           "purchase_price_usd": 481.68
         }
       ],
-      "purchase_price_usd": 481.68
+      "purchase_price_usd": 481.68,
+      "status": "activa"
     },
     {
       "id": "1f34bfe4-95be-45c4-be3e-37a740fee9b9",
@@ -2678,11 +2720,11 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM 550F Cilindro y cuchilla nueva 110V",
       "description": "Impresora Multifuncional Seminueva RICOH IM 550F Cilindro y cuchilla nueva 110V",
       "currency": "USD",
-      "stock": 8,
+      "stock": 0,
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 8
+          "quantity": 0
         },
         {
           "warehouse_id": "santa-catalina",
@@ -2725,10 +2767,10 @@
       "sort_order": 24,
       "slug": "impresora-multifuncional-seminueva-ricoh-im-550f-cilindro-y-cuchilla-nueva-110v-1f34bfe4-95b",
       "prices": {
-        "public": 1514,
-        "tecnico": 490,
-        "mayorista": 450,
-        "distribuidor": 525
+        "tecnico": 469,
+        "mayorista": 431,
+        "distribuidor": 503,
+        "public": 1449
       },
       "attributes": [
         {
@@ -2770,11 +2812,13 @@
       "purchase_price_usd": 0,
       "suppliers": [],
       "variant_product_ids": [
+        "a550f001-7c3e-4a91-8b12-1d2e3f4a5501",
         "2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2",
         "a4be1850-48ac-40fd-8962-14c00bec5e59",
         "9a955212-f712-4a2e-acf7-f03b059f7c98"
       ],
-      "updated_at": "2026-07-27T20:40:24.902Z"
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa"
     },
     {
       "id": "9a955212-f712-4a2e-acf7-f03b059f7c98",
@@ -2782,7 +2826,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM 550F Cilindro y cuchilla nueva 220V",
       "description": "Impresora Multifuncional Seminueva RICOH IM 550F (cilindro y cuchilla nueva) 220V",
       "currency": "USD",
-      "stock": 0,
+      "stock": 15,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-550f-cilindro-y-cuchilla-220v.webp?v=1785181079313",
@@ -2791,10 +2835,10 @@
       "sort_order": 25,
       "slug": "impresora-multifuncional-seminueva-ricoh-im-550f-cilindro-y-cuchilla-nueva-220v-9a955212-f71",
       "prices": {
-        "public": 1514,
-        "tecnico": 490,
-        "mayorista": 451,
-        "distribuidor": 524
+        "tecnico": 469,
+        "mayorista": 432,
+        "distribuidor": 502,
+        "public": 1449
       },
       "attributes": [
         {
@@ -2841,7 +2885,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 15
         },
         {
           "warehouse_id": "santa-catalina",
@@ -2877,11 +2921,12 @@
         }
       ],
       "variant_product_ids": [
+        "a550f001-7c3e-4a91-8b12-1d2e3f4a5501",
         "2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2",
         "a4be1850-48ac-40fd-8962-14c00bec5e59",
         "1f34bfe4-95be-45c4-be3e-37a740fee9b9"
       ],
-      "updated_at": "2026-07-27T20:40:24.902Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "15319159-187d-4b66-a29b-11f4b60105e8",
@@ -2889,7 +2934,8 @@
           "purchase_price_usd": 1090.08
         }
       ],
-      "purchase_price_usd": 1090.08
+      "purchase_price_usd": 1090.08,
+      "status": "activa"
     },
     {
       "id": "a4be1850-48ac-40fd-8962-14c00bec5e59",
@@ -2944,10 +2990,10 @@
       "sort_order": 26,
       "slug": "impresora-multifuncional-seminueva-ricoh-im-550f-ligero-punto-110v-a4be1850-48a",
       "prices": {
-        "public": 1140,
-        "tecnico": 369,
-        "mayorista": 339,
-        "distribuidor": 395
+        "tecnico": 349,
+        "mayorista": 321,
+        "distribuidor": 374,
+        "public": 1078
       },
       "attributes": [
         {
@@ -2989,27 +3035,29 @@
       "purchase_price_usd": 0,
       "suppliers": [],
       "variant_product_ids": [
+        "a550f001-7c3e-4a91-8b12-1d2e3f4a5501",
         "2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2",
         "9a955212-f712-4a2e-acf7-f03b059f7c98",
         "1f34bfe4-95be-45c4-be3e-37a740fee9b9"
       ],
-      "updated_at": "2026-07-27T20:40:24.902Z"
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa"
     },
     {
       "id": "ae1904f7-4a13-4076-802a-4d917a8471aa",
       "name": "Impresora Multifuncional Seminueva RICOH IM 600F 110V",
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nSPDF — Alimentador de originales doble scan\nFormato A4, A5, A6 Bypass Formato A4-Carta\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
-      "stock": 10,
-      "category": "Multifuncionales Seminuevas",
+      "stock": 0,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-600f-110v.webp?v=1785184835538",
       "gallery": [],
       "prices": {
-        "public": 1357,
-        "tecnico": 439,
-        "mayorista": 404,
-        "distribuidor": 470
+        "tecnico": 399,
+        "mayorista": 367,
+        "distribuidor": 427,
+        "public": 1233
       },
       "created_at": "2026-06-02T06:56:21.935Z",
       "code": "418460-SN",
@@ -3043,6 +3091,11 @@
           "id": "61605c90-8caf-4247-9415-1472b3201bdd",
           "name": "Voltaje",
           "value": "110V"
+        },
+        {
+          "id": "b377f7a1-dd2c-41e8-a053-25eb235a5ff5",
+          "name": "Modelo de equipo",
+          "value": "IM 600F"
         }
       ],
       "sort_order": 27,
@@ -3112,7 +3165,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 10
+          "quantity": 0
         },
         {
           "warehouse_id": "santa-catalina",
@@ -3147,7 +3200,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.900Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
         "fd51b686-5191-4fa0-8d41-9f13527467cd"
       ],
@@ -3158,22 +3211,23 @@
           "purchase_price_usd": 532.08
         }
       ],
-      "purchase_price_usd": 532.08
+      "purchase_price_usd": 532.08,
+      "status": "activa"
     },
     {
       "id": "46b85626-5927-4442-83ec-104c52e6a5e1",
       "name": "Impresora Multifuncional B/N Seminueva RICOH MP 5055",
       "currency": "USD",
-      "stock": 3,
+      "stock": 2,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/b-n-ricoh-mp-5055.webp?v=1784224060053",
       "gallery": [],
       "prices": {
-        "public": 2345,
         "tecnico": 759,
         "mayorista": 698,
-        "distribuidor": 812
+        "distribuidor": 812,
+        "public": 2345
       },
       "created_at": "2026-06-02T06:59:00.528Z",
       "code": "418460-CP908Y-CPAPIN-CPC-CPE3W0",
@@ -3209,7 +3263,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 3
+          "quantity": 2
         },
         {
           "warehouse_id": "santa-catalina",
@@ -3244,7 +3298,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.900Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
         "ee249761-a942-4397-8170-ee156acd06cf"
       ],
@@ -3255,7 +3309,8 @@
           "purchase_price_usd": 762.48
         }
       ],
-      "purchase_price_usd": 762.48
+      "purchase_price_usd": 762.48,
+      "status": "activa"
     },
     {
       "id": "ad426356-30b8-4c6c-a55c-b40bb22a495b",
@@ -3355,10 +3410,10 @@
       "image_url": "/products/b-n-ricoh-mp-3055.webp?v=1784224060053",
       "gallery": [],
       "prices": {
-        "public": 1696,
-        "tecnico": 549,
-        "mayorista": 505,
-        "distribuidor": 587
+        "tecnico": 499,
+        "mayorista": 459,
+        "distribuidor": 534,
+        "public": 1542
       },
       "created_at": "2026-06-16T08:11:14.926Z",
       "code": "418460-CP908Y-CPAPIN-CPC-CP4XNY",
@@ -3429,7 +3484,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.900Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "e13fb9b5-9e43-4524-aca3-5f5ae0df7213",
@@ -3437,7 +3492,8 @@
           "purchase_price_usd": 611.28
         }
       ],
-      "purchase_price_usd": 611.28
+      "purchase_price_usd": 611.28,
+      "status": "activa"
     },
     {
       "id": "c3be1bb4-4943-4af6-b85e-03be836cc111",
@@ -3533,17 +3589,17 @@
       "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 50,000 páginas al mes\nRegalo: 01 de Toner Cartucho Compatible Nuevo y Envio Gratis",
       "currency": "USD",
       "stock": 1,
-      "category": "Multifuncionales Seminuevas",
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/d3931df1-8564-4e5f-b8eb-b6e9759879a2.webp?v=1784112813940",
       "gallery": [
         "/products/d3931df1-8564-4e5f-b8eb-b6e9759879a2-2.webp"
       ],
       "prices": {
-        "public": 2005,
-        "tecnico": 649,
-        "mayorista": 597,
-        "distribuidor": 694
+        "tecnico": 599,
+        "mayorista": 551,
+        "distribuidor": 641,
+        "public": 1851
       },
       "created_at": "2026-06-16T08:12:58.885Z",
       "code": "418460-CP908Y-CPAPIN-CPC-CP75VP",
@@ -3678,22 +3734,24 @@
           "purchase_price_usd": 683.28
         }
       ],
-      "purchase_price_usd": 683.28
+      "purchase_price_usd": 683.28,
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa"
     },
     {
       "id": "9b94a5c0-f07d-42d6-bf0a-0a08afb7812c",
       "name": "Impresora Multifuncional Seminueva RICOH MP 2555 220V",
       "currency": "USD",
-      "stock": 4,
+      "stock": 2,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-mp-2555-220v.webp?v=1784134984225",
       "gallery": [],
       "prices": {
-        "public": 699,
-        "tecnico": 449,
-        "mayorista": 580,
-        "distribuidor": 899
+        "tecnico": 479,
+        "mayorista": 619,
+        "distribuidor": 959,
+        "public": 746
       },
       "created_at": "2026-06-16T08:10:04.860Z",
       "code": "418460-CP908Y-CPAPIN-CPC-CP3FLO",
@@ -3729,7 +3787,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 2
         },
         {
           "warehouse_id": "santa-catalina",
@@ -3741,7 +3799,7 @@
         },
         {
           "warehouse_id": "otros-estados",
-          "quantity": 4
+          "quantity": 0
         },
         {
           "warehouse_id": "1931",
@@ -3764,7 +3822,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.900Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "3cb61474-d7bf-4e8d-a662-fbe05cc08bf2",
@@ -3772,7 +3830,8 @@
           "purchase_price_usd": 503.28
         }
       ],
-      "purchase_price_usd": 503.28
+      "purchase_price_usd": 503.28,
+      "status": "activa"
     },
     {
       "id": "8e90c732-c859-49a5-bbba-7cfa3ac12a9c",
@@ -5012,10 +5071,10 @@
       "image_url": "/products/85a313f0-5b40-4325-979f-6d7a2c7d28e9.webp?v=1784112813935",
       "gallery": [],
       "prices": {
-        "public": 3499,
-        "tecnico": 2150,
-        "mayorista": 1950,
-        "distribuidor": 2250
+        "tecnico": 2490,
+        "mayorista": 2258,
+        "distribuidor": 2606,
+        "public": 4052
       },
       "created_at": "2026-06-02T07:08:31.483Z",
       "code": "418843-CP8Y1I-CPO80O-CPQ-CPQCFV",
@@ -5046,7 +5105,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 1
         },
         {
           "warehouse_id": "santa-catalina",
@@ -5066,7 +5125,7 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "san-juan-lurigancho",
@@ -5088,7 +5147,9 @@
           "purchase_price_usd": 2519.28
         }
       ],
-      "purchase_price_usd": 2519.28
+      "purchase_price_usd": 2519.28,
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa"
     },
     {
       "id": "520c1ae5-3136-4b72-aee2-941c70fe9f4d",
@@ -5659,114 +5720,6 @@
       "purchase_price_usd": 3232.8
     },
     {
-      "id": "ricoh-im-3010",
-      "code": "IM-3010",
-      "name": "Impresora Multifuncional Nueva RICOH IM 3010",
-      "description": "Copiadora, Impresora, Escaner y fax\n70 ppm y escaneo de 180 ipm\nConectividad: Wi-Fi, Ethernet, USB\nEstándar\nFormato A3\nProducción mensual 30,000 páginas al mes\nRegalo: 01 Toner de Inicio y Envío Gratis",
-      "currency": "USD",
-      "stock": 0,
-      "category": "Multifuncionales, Multifuncionales Nuevas",
-      "brand": "Ricoh",
-      "image_url": "/products/ricoh-im-3010.webp?v=1788079312480",
-      "gallery": [],
-      "created_at": "2026-08-29T21:02:48.900Z",
-      "sort_order": 51,
-      "slug": "impresora-multifuncional-nueva-ricoh-im-3010-ricoh-im-3010",
-      "prices": {
-        "public": 0,
-        "tecnico": 0,
-        "mayorista": 0,
-        "distribuidor": 0
-      },
-      "attributes": [
-        {
-          "id": "edea0894-fbff-41d3-aedd-88a4f4b0501e",
-          "name": "Color",
-          "value": "B/N"
-        },
-        {
-          "id": "dc7f4dca-0be1-4cdf-9260-387cca1a1542",
-          "name": "Formato papel",
-          "value": "A3"
-        },
-        {
-          "id": "d6adeeb5-0f33-437d-b1e1-b293728a6d68",
-          "name": "Producción",
-          "value": "Mediano (15,000 páginas aprox)"
-        },
-        {
-          "id": "d5a2ff4b-49d5-4bd7-b9bd-6ac3fbdc292f",
-          "name": "Instalación",
-          "value": "• Print Cartridge BK [842124]\nCoste instalación — Compra: $64.26 | Mayorista: $74.78 | Técnico: $78.52 | Público: $86.37\nPaquete instalado — Compra: $2596.90 | Mayorista: $2978.90 | Técnico: $3127.90 | Público: $3440.90"
-        },
-        {
-          "id": "7941edb2-971c-4747-9eba-342737167c58",
-          "name": "A3",
-          "value": "Sí"
-        },
-        {
-          "id": "2b41b541-996f-4825-9ab5-8c7b86bc9665",
-          "name": "Alimentador (ADF)",
-          "value": "ARDF"
-        },
-        {
-          "id": "b993eea6-f6ed-4739-ae4d-bf4959297b11",
-          "name": "Modelo de equipo",
-          "value": "IM 3010"
-        },
-        {
-          "id": "5b5a6e9c-8510-4db6-bf7a-c0012ca6f481",
-          "name": "Velocidad",
-          "value": "30 ppm"
-        },
-        {
-          "id": "4837ed74-5497-4257-853b-aac767ac96c6",
-          "name": "Año",
-          "value": "2025"
-        }
-      ],
-      "stock_by_warehouse": [
-        {
-          "warehouse_id": "operativo",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "santa-catalina",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "partes-scrap",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "otros-estados",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "1931",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "principal",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "san-juan-lurigancho",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "lince",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "chiclayo",
-          "quantity": 0
-        }
-      ],
-      "suppliers": [],
-      "purchase_price_usd": 0
-    },
-    {
       "id": "40c36a2a-794e-41aa-b075-d855c218bf6f",
       "name": "Impresora Multifuncional Nueva RICOH IM 4000 (SPDF)",
       "currency": "USD",
@@ -5983,109 +5936,6 @@
         }
       ],
       "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 50 ppm\nConectividad: Wi-Fi, Ethernet, USB\nC/ARDF / Mueble\nFormato A3\nAño de fabricación: 2023\nRegalo: Envío Gratis"
-    },
-    {
-      "id": "ricoh-im-4010",
-      "code": "IM-4010",
-      "name": "Impresora Multifuncional Nueva RICOH IM 4010",
-      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nFormato A3\nRegalo: Envío Gratis",
-      "currency": "USD",
-      "stock": 0,
-      "category": "Multifuncionales, Multifuncionales Nuevas",
-      "brand": "Ricoh",
-      "image_url": "/products/ricoh-im-4010.webp?v=1788079312480",
-      "gallery": [],
-      "created_at": "2026-08-29T21:02:48.901Z",
-      "sort_order": 54,
-      "slug": "impresora-multifuncional-nueva-ricoh-im-4010-ricoh-im-4010",
-      "prices": {
-        "public": 0,
-        "tecnico": 0,
-        "mayorista": 0,
-        "distribuidor": 0
-      },
-      "attributes": [
-        {
-          "id": "c3747565-420b-41fa-8cd5-f1a36549137c",
-          "name": "Color",
-          "value": "B/N"
-        },
-        {
-          "id": "ed899a8e-88d0-4761-8bd3-e7cbcf029ae3",
-          "name": "Formato papel",
-          "value": "A3"
-        },
-        {
-          "id": "494c4f7f-d7cb-4a22-b837-7ecb18c17690",
-          "name": "Producción",
-          "value": "Alta Producción (50,000 páginas aprox)"
-        },
-        {
-          "id": "c9186550-86af-4358-98de-32c341003240",
-          "name": "Instalación",
-          "value": "• Print Cartridge BK [842126]\nCoste instalación — Compra: $71.71 | Mayorista: $83.45 | Técnico: $87.63 | Público: $96.39\nPaquete instalado — Compra: $4482.90 | Mayorista: $5101.90 | Técnico: $5356.90 | Público: $5892.90"
-        },
-        {
-          "id": "8019646d-bdb2-4112-b797-45e6c8e43797",
-          "name": "Alimentador (ADF)",
-          "value": "ARDF"
-        },
-        {
-          "id": "999e8fb2-9efb-40f0-8006-aa1f9eedb73d",
-          "name": "Modelo de equipo",
-          "value": "IM 4010"
-        },
-        {
-          "id": "27fe8944-bf21-49f2-9cae-ca4446a0b5e8",
-          "name": "Velocidad",
-          "value": "40 ppm"
-        },
-        {
-          "id": "85c6036a-46e3-4c98-9c8d-75a5a94eb568",
-          "name": "Año",
-          "value": "2025"
-        }
-      ],
-      "stock_by_warehouse": [
-        {
-          "warehouse_id": "operativo",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "santa-catalina",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "partes-scrap",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "otros-estados",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "1931",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "principal",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "san-juan-lurigancho",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "lince",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "chiclayo",
-          "quantity": 0
-        }
-      ],
-      "suppliers": [],
-      "purchase_price_usd": 0
     },
     {
       "id": "e43fbb0d-3fe1-47cc-815e-0e72854e9fce",
@@ -6315,10 +6165,10 @@
       "image_url": "/products/63c1beb6-9263-4680-87e2-141c72b44fd1.webp?v=1784112813942",
       "gallery": [],
       "prices": {
-        "public": 8185,
-        "tecnico": 2649,
-        "mayorista": 2437,
-        "distribuidor": 2834
+        "tecnico": 2499,
+        "mayorista": 2299,
+        "distribuidor": 2674,
+        "public": 7722
       },
       "created_at": "2026-06-02T07:03:21.792Z",
       "code": "418779-CPJPHC",
@@ -6391,130 +6241,24 @@
           "purchase_price_usd": 2123.28
         }
       ],
-      "purchase_price_usd": 2123.28
-    },
-    {
-      "id": "ricoh-im-5010",
-      "code": "IM-5010",
-      "name": "Impresora Multifuncional Nueva RICOH IM 5010",
-      "description": "Copiadora, Impresora, Escáner y fax\nConectividad: Wi-Fi, Ethernet, USB\nFormato A3\nRegalo: Envío Gratis",
-      "currency": "USD",
-      "stock": 0,
-      "category": "Multifuncionales, Multifuncionales Nuevas",
-      "brand": "Ricoh",
-      "image_url": "/products/ricoh-im-5010.webp?v=1788079312481",
-      "gallery": [],
-      "created_at": "2026-08-29T21:02:48.901Z",
-      "sort_order": 58,
-      "slug": "impresora-multifuncional-nueva-ricoh-im-5010-ricoh-im-5010",
-      "prices": {
-        "public": 0,
-        "tecnico": 0,
-        "mayorista": 0,
-        "distribuidor": 0
-      },
-      "attributes": [
-        {
-          "id": "7822e00b-072a-4854-b8d1-ea00572b9183",
-          "name": "Color",
-          "value": "B/N"
-        },
-        {
-          "id": "8d95bdae-03fd-4e08-a6d4-f534d3772abb",
-          "name": "Formato papel",
-          "value": "A3"
-        },
-        {
-          "id": "ed6ef0ed-2a24-40c2-8627-3ad7e0b26e9a",
-          "name": "Producción",
-          "value": "Alta Producción (50,000 páginas aprox)"
-        },
-        {
-          "id": "e810f168-de7d-498b-8089-3e7ac141e2ab",
-          "name": "Instalación",
-          "value": "• Print Cartridge BK [842126]\nCoste instalación — Compra: $71.71 | Mayorista: $83.45 | Técnico: $87.63 | Público: $96.39\nPaquete instalado — Compra: $5136.90 | Mayorista: $5834.90 | Técnico: $6126.90 | Público: $6738.90"
-        },
-        {
-          "id": "feae9cf8-0d67-4245-8150-c44df3c2b89f",
-          "name": "A3",
-          "value": "Sí"
-        },
-        {
-          "id": "aff06cb8-60ef-4259-9b0e-caaa2ad46cb3",
-          "name": "Alimentador (ADF)",
-          "value": "ARDF"
-        },
-        {
-          "id": "04ad7b7c-0581-412d-b07f-ed349efd330c",
-          "name": "Modelo de equipo",
-          "value": "IM 5010"
-        },
-        {
-          "id": "77066be1-79f2-4a58-b390-e48ce11577b0",
-          "name": "Velocidad",
-          "value": "50 ppm"
-        },
-        {
-          "id": "a2b19dd4-b80d-4791-ada1-cba83cc50fde",
-          "name": "Año",
-          "value": "2025"
-        }
-      ],
-      "stock_by_warehouse": [
-        {
-          "warehouse_id": "operativo",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "santa-catalina",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "partes-scrap",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "otros-estados",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "1931",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "principal",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "san-juan-lurigancho",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "lince",
-          "quantity": 0
-        },
-        {
-          "warehouse_id": "chiclayo",
-          "quantity": 0
-        }
-      ],
-      "suppliers": [],
-      "purchase_price_usd": 0
+      "purchase_price_usd": 2123.28,
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa"
     },
     {
       "id": "bdf63599-9741-4b7b-9168-77d49b29def3",
       "name": "Impresora Multifuncional Seminueva RICOH MP 7503 220V",
       "currency": "USD",
-      "stock": 0,
+      "stock": 3,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/bdf63599-9741-4b7b-9168-77d49b29def3.webp?v=1784112813940",
       "gallery": [],
       "prices": {
-        "public": 2999,
-        "tecnico": 2599,
-        "mayorista": 2500,
-        "distribuidor": 2699
+        "tecnico": 2150,
+        "mayorista": 2068,
+        "distribuidor": 2233,
+        "public": 2481
       },
       "created_at": "2026-06-02T07:05:22.694Z",
       "code": "418779-CPJPHC-CPMARQ",
@@ -6545,7 +6289,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 3
         },
         {
           "warehouse_id": "santa-catalina",
@@ -6587,7 +6331,9 @@
           "purchase_price_usd": 2159.28
         }
       ],
-      "purchase_price_usd": 2159.28
+      "purchase_price_usd": 2159.28,
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa"
     },
     {
       "id": "97079efe-de43-4619-b3f2-950d323fa773",
@@ -7767,10 +7513,10 @@
       "image_url": "/products/452b7860-4bc7-4b89-ba43-41e94158686d.webp?v=1784112813941",
       "gallery": [],
       "prices": {
-        "public": 368,
         "tecnico": 119,
         "mayorista": 109,
-        "distribuidor": 127
+        "distribuidor": 127,
+        "public": 368
       },
       "created_at": "2026-06-02T06:41:20.647Z",
       "code": "408535-CPNO1H-CPRE2V",
@@ -7846,7 +7592,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "9aa8399d-5697-4d78-a5e4-91f099263259",
@@ -7854,7 +7600,8 @@
           "purchase_price_usd": 301.68
         }
       ],
-      "purchase_price_usd": 301.68
+      "purchase_price_usd": 301.68,
+      "status": "activa"
     },
     {
       "id": "ricoh-mp-301-sn",
@@ -8064,10 +7811,10 @@
       "image_url": "/products/393e6e4b-e246-4a5b-b4ba-4a58fd4b8cce.webp?v=1784112813941",
       "gallery": [],
       "prices": {
-        "public": 430,
         "tecnico": 139,
         "mayorista": 128,
-        "distribuidor": 149
+        "distribuidor": 149,
+        "public": 430
       },
       "created_at": "2026-06-02T06:43:31.145Z",
       "code": "408535-CPNO1H-CPRE2V-CPU6RT",
@@ -8143,7 +7890,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "ab51303d-5fc9-4c8e-b3f8-614446ca3971",
@@ -8151,22 +7898,23 @@
           "purchase_price_usd": 316.08
         }
       ],
-      "purchase_price_usd": 316.08
+      "purchase_price_usd": 316.08,
+      "status": "activa"
     },
     {
       "id": "371c5e40-c823-4db1-b36c-895ae1fb53e1",
       "name": "Impresora Multifuncional B/N Seminueva RICOH MP 501",
       "currency": "USD",
-      "stock": 8,
+      "stock": 1,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/371c5e40-c823-4db1-b36c-895ae1fb53e1.webp?v=1784112813941",
       "gallery": [],
       "prices": {
-        "public": 769,
-        "tecnico": 249,
-        "mayorista": 229,
-        "distribuidor": 266
+        "tecnico": 259,
+        "mayorista": 238,
+        "distribuidor": 277,
+        "public": 800
       },
       "created_at": "2026-06-02T06:51:00.851Z",
       "code": "408535-CPNO1H-CPRE2V-CPU-CP3TRN",
@@ -8202,7 +7950,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 8
+          "quantity": 1
         },
         {
           "warehouse_id": "santa-catalina",
@@ -8237,7 +7985,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "252352cd-4498-4461-9b0a-0c6c0b3c01fd",
@@ -8245,7 +7993,8 @@
           "purchase_price_usd": 395.28
         }
       ],
-      "purchase_price_usd": 395.28
+      "purchase_price_usd": 395.28,
+      "status": "activa"
     },
     {
       "id": "d53b0f11-e996-4f06-8857-13fc8a6d9eb8",
@@ -8646,16 +8395,16 @@
       "id": "dd031da8-d2cd-4219-b582-c97514e144c9",
       "name": "Impresora Laser B/N Seminueva RICOH P 502",
       "currency": "USD",
-      "stock": 12,
+      "stock": 1,
       "category": "Impresoras Laser Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/dd031da8-d2cd-4219-b582-c97514e144c9.webp?v=1784112813942",
       "gallery": [],
       "prices": {
-        "public": 699,
-        "tecnico": 399,
-        "mayorista": 599,
-        "distribuidor": 649
+        "tecnico": 132,
+        "mayorista": 198,
+        "distribuidor": 215,
+        "public": 231
       },
       "created_at": "2026-06-16T08:18:31.355Z",
       "code": "418495-CPEAEZ",
@@ -8664,7 +8413,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 1
         },
         {
           "warehouse_id": "santa-catalina",
@@ -8676,7 +8425,7 @@
         },
         {
           "warehouse_id": "otros-estados",
-          "quantity": 12
+          "quantity": 0
         },
         {
           "warehouse_id": "1931",
@@ -8699,12 +8448,17 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "attributes": [
         {
           "id": "5c417fd1-ea3c-4a0b-aed1-57078522468c",
           "name": "Voltaje",
           "value": "220V"
+        },
+        {
+          "id": "d3c063e5-819a-4602-a25f-bb8e5ec1d8a4",
+          "name": "Variante",
+          "value": "Ligero Punto"
         }
       ],
       "suppliers": [
@@ -8714,7 +8468,8 @@
           "purchase_price_usd": 503.28
         }
       ],
-      "purchase_price_usd": 503.28
+      "purchase_price_usd": 503.28,
+      "status": "activa"
     },
     {
       "id": "4950b07c-50aa-4884-9e40-e7c9cd1362cb",
@@ -8728,10 +8483,10 @@
         "/products/4950b07c-50aa-4884-9e40-e7c9cd1362cb-2.webp"
       ],
       "prices": {
-        "public": 699,
-        "tecnico": 469,
-        "mayorista": 450,
-        "distribuidor": 519
+        "tecnico": 369,
+        "mayorista": 354,
+        "distribuidor": 408,
+        "public": 550
       },
       "created_at": "2026-06-05T20:30:41.113Z",
       "code": "418569-SEMI",
@@ -8745,6 +8500,16 @@
           "id": "466abc30-29d4-4322-a045-fbca6d554582",
           "name": "Formato papel",
           "value": "A4"
+        },
+        {
+          "id": "860334bb-1f23-46c6-b006-2daa31757200",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "72512e91-4724-4763-8250-9c339fa66316",
+          "name": "Modelo de equipo",
+          "value": "IM C300F"
         }
       ],
       "sort_order": 83,
@@ -8794,7 +8559,12 @@
           "purchase_price_usd": 503.28
         }
       ],
-      "purchase_price_usd": 503.28
+      "purchase_price_usd": 503.28,
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa",
+      "variant_product_ids": [
+        "03b408ff-0b06-4ec5-90ed-94dcb40fd67c"
+      ]
     },
     {
       "id": "18d27357-57ca-4059-960e-41521f29c013",
@@ -9031,10 +8801,10 @@
       "image_url": "/products/color-ricoh-im-c400f-120v.webp?v=1784224060062",
       "gallery": [],
       "prices": {
-        "public": 1326,
-        "tecnico": 429,
-        "mayorista": 395,
-        "distribuidor": 459
+        "tecnico": 389,
+        "mayorista": 358,
+        "distribuidor": 416,
+        "public": 1202
       },
       "created_at": "2026-06-16T07:48:30.401Z",
       "code": "418569-SEMI-CPBOSH",
@@ -9057,7 +8827,12 @@
         {
           "id": "2cd92f7d-8191-4d19-85c7-3ab4c39f7e5c",
           "name": "Voltaje",
-          "value": "220V"
+          "value": "120V"
+        },
+        {
+          "id": "ef5c82e7-c2f6-4aa4-8abb-01a94882a3a5",
+          "name": "Modelo de equipo",
+          "value": "IM C400F"
         }
       ],
       "sort_order": 86,
@@ -9100,7 +8875,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "52e68703-be0c-485d-8caf-f105e2c1a86d",
@@ -9108,7 +8883,12 @@
           "purchase_price_usd": 596.88
         }
       ],
-      "purchase_price_usd": 596.88
+      "purchase_price_usd": 596.88,
+      "status": "activa",
+      "variant_product_ids": [
+        "a853cd99-17e7-445a-a6b2-4f527753db6f",
+        "dd5efa36-73f6-4241-b2ad-6e74ef058733"
+      ]
     },
     {
       "id": "87bd0c8b-3b1c-436d-a2a3-7d59620406ef",
@@ -9283,10 +9063,10 @@
       "image_url": "/products/color-ricoh-im-c2000.webp?v=1784224060062",
       "gallery": [],
       "prices": {
-        "public": 2129,
-        "tecnico": 689,
-        "mayorista": 634,
-        "distribuidor": 737
+        "tecnico": 599,
+        "mayorista": 551,
+        "distribuidor": 641,
+        "public": 1851
       },
       "created_at": "2026-06-06T14:31:47.919Z",
       "code": "418276",
@@ -9305,6 +9085,16 @@
           "id": "09ad1262-4215-4c8c-b81d-dc5ee8c3e3dd",
           "name": "Voltaje",
           "value": "220V"
+        },
+        {
+          "id": "1f17f8f0-9e1a-4f58-9c22-a0c6c856ff87",
+          "name": "Variante",
+          "value": "Estándar"
+        },
+        {
+          "id": "49965bdd-1c7f-4e20-aaa0-41f260f297e5",
+          "name": "Modelo de equipo",
+          "value": "IM C2000"
         }
       ],
       "sort_order": 89,
@@ -9347,9 +9137,11 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
-        "7613294c-20ec-4576-8cef-3eaf75ba5fee"
+        "7613294c-20ec-4576-8cef-3eaf75ba5fee",
+        "9e77a73a-753a-4e28-859b-68fe7cba5e0e",
+        "dbd6ad0b-ee55-4fae-82e8-83009bd88e94"
       ],
       "suppliers": [
         {
@@ -9358,7 +9150,8 @@
           "purchase_price_usd": 784.08
         }
       ],
-      "purchase_price_usd": 784.08
+      "purchase_price_usd": 784.08,
+      "status": "activa"
     },
     {
       "id": "9e77a73a-753a-4e28-859b-68fe7cba5e0e",
@@ -9370,10 +9163,10 @@
       "image_url": "/products/ricoh-im-c2000-cilindro-cuchilla-rod-carga-220v.webp?v=1785174116988",
       "gallery": [],
       "prices": {
-        "public": 1149,
-        "tecnico": 729,
-        "mayorista": 680,
-        "distribuidor": 749
+        "tecnico": 719,
+        "mayorista": 671,
+        "distribuidor": 738,
+        "public": 1133
       },
       "created_at": "2026-06-16T07:31:42.772Z",
       "code": "418276-CPQ3AS",
@@ -9437,10 +9230,13 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
-        "c54ea344-0162-42eb-96be-333014d14186"
-      ]
+        "b06406c6-945c-4107-89f4-c35de3a33544",
+        "7613294c-20ec-4576-8cef-3eaf75ba5fee",
+        "dbd6ad0b-ee55-4fae-82e8-83009bd88e94"
+      ],
+      "status": "activa"
     },
     {
       "id": "dbd6ad0b-ee55-4fae-82e8-83009bd88e94",
@@ -9448,7 +9244,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM C2000 (cilindro, cuchilla, rod. carga) 220V",
       "description": "Impresora Multifuncional Seminueva RICOH IM C2000 (cilindro, cuchilla, rod. carga) 220V",
       "currency": "USD",
-      "stock": 2,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-c2000-cilindro-cuchilla-rod-carga-220v.webp?v=1788079313263",
@@ -9461,10 +9257,10 @@
       "sort_order": 91,
       "slug": "impresora-multifuncional-seminueva-ricoh-im-c2000-cilindro-cuchilla-rod-carga-22-dbd6ad0b-ee5",
       "prices": {
-        "public": 2222,
         "tecnico": 719,
         "mayorista": 661,
-        "distribuidor": 769
+        "distribuidor": 769,
+        "public": 2222
       },
       "attributes": [
         {
@@ -9512,7 +9308,7 @@
         },
         {
           "warehouse_id": "1931",
-          "quantity": 2
+          "quantity": 0
         },
         {
           "warehouse_id": "principal",
@@ -9538,7 +9334,14 @@
           "purchase_price_usd": 1599.84
         }
       ],
-      "purchase_price_usd": 1599.84
+      "purchase_price_usd": 1599.84,
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa",
+      "variant_product_ids": [
+        "b06406c6-945c-4107-89f4-c35de3a33544",
+        "7613294c-20ec-4576-8cef-3eaf75ba5fee",
+        "9e77a73a-753a-4e28-859b-68fe7cba5e0e"
+      ]
     },
     {
       "id": "44413e3b-a3ef-4644-8eed-e550168ae9d8",
@@ -9550,10 +9353,10 @@
       "image_url": "/products/color-ricoh-im-c3000.webp?v=1784224060062",
       "gallery": [],
       "prices": {
-        "public": 2469,
-        "tecnico": 799,
-        "mayorista": 735,
-        "distribuidor": 855
+        "tecnico": 739,
+        "mayorista": 680,
+        "distribuidor": 791,
+        "public": 2284
       },
       "created_at": "2026-06-16T07:29:59.040Z",
       "code": "418276-CPNV9C",
@@ -9614,7 +9417,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "11800ccc-9fd9-440e-9043-842b290d4ed0",
@@ -9622,22 +9425,23 @@
           "purchase_price_usd": 863.28
         }
       ],
-      "purchase_price_usd": 863.28
+      "purchase_price_usd": 863.28,
+      "status": "activa"
     },
     {
       "id": "6490d3d9-bfd0-4a48-82c4-dadca949c8f1",
       "name": "Impresora Multifuncional Color Seminueva RICOH IM C4500 (120V)",
       "currency": "USD",
-      "stock": 3,
+      "stock": 7,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/color-ricoh-im-c4500-120v.webp?v=1784224060062",
       "gallery": [],
       "prices": {
-        "public": 3550,
-        "tecnico": 1149,
-        "mayorista": 1057,
-        "distribuidor": 1229
+        "tecnico": 999,
+        "mayorista": 919,
+        "distribuidor": 1069,
+        "public": 3087
       },
       "created_at": "2026-06-16T07:32:24.721Z",
       "code": "418276-CPNV9C-CPQZO0",
@@ -9660,7 +9464,12 @@
         {
           "id": "211cd18b-cd5a-4130-91c1-210b45c4e963",
           "name": "Voltaje",
-          "value": "220V"
+          "value": "120V"
+        },
+        {
+          "id": "f4bc0354-6feb-446a-9b07-886f2fa6e7ee",
+          "name": "Modelo de equipo",
+          "value": "IM C4500"
         }
       ],
       "sort_order": 93,
@@ -9668,7 +9477,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 3
+          "quantity": 7
         },
         {
           "warehouse_id": "santa-catalina",
@@ -9703,7 +9512,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "8371c32e-0baa-4fc7-a609-fa20f7ff798c",
@@ -9711,7 +9520,11 @@
           "purchase_price_usd": 1115.28
         }
       ],
-      "purchase_price_usd": 1115.28
+      "purchase_price_usd": 1115.28,
+      "status": "activa",
+      "variant_product_ids": [
+        "caf19a37-c3e7-4d5c-b3da-91aef5a5cd15"
+      ]
     },
     {
       "id": "d90459c7-33f6-4441-942c-0f2aa9532f2a",
@@ -9795,16 +9608,16 @@
       "id": "45207219-5a92-4c59-b95a-7e5fe66c4a2d",
       "name": "Impresora Multifuncional Seminueva RICOH MP C2504 220V",
       "currency": "USD",
-      "stock": 0,
+      "stock": 1,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/45207219-5a92-4c59-b95a-7e5fe66c4a2d.webp?v=1784112813942",
       "gallery": [],
       "prices": {
-        "public": 1099,
-        "tecnico": 649,
-        "mayorista": 619,
-        "distribuidor": 1199
+        "tecnico": 679,
+        "mayorista": 648,
+        "distribuidor": 1254,
+        "public": 1150
       },
       "created_at": "2026-06-16T07:34:08.974Z",
       "code": "418276-CPNV9C-CPQZO0-CPT83X",
@@ -9818,6 +9631,16 @@
           "id": "26a2e0d6-e369-4e40-bfe1-5ddccb4e56c0",
           "name": "Formato papel",
           "value": "A3"
+        },
+        {
+          "id": "831e88b6-5ac0-4f7f-91fc-2b11818d3332",
+          "name": "Variante",
+          "value": "Cilindro Mg, cuchilla, 3 rod. carga"
+        },
+        {
+          "id": "78340036-824c-4b32-8b4f-671cca5b5c4e",
+          "name": "Modelo de equipo",
+          "value": "MP C2504"
         }
       ],
       "sort_order": 95,
@@ -9825,7 +9648,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 1
         },
         {
           "warehouse_id": "santa-catalina",
@@ -9867,7 +9690,9 @@
           "purchase_price_usd": 791.28
         }
       ],
-      "purchase_price_usd": 791.28
+      "purchase_price_usd": 791.28,
+      "updated_at": "2026-09-12T17:40:41.978Z",
+      "status": "activa"
     },
     {
       "id": "ec2eeb41-3af8-4f81-ab78-fa92ec052e04",
@@ -9879,10 +9704,10 @@
       "image_url": "/products/color-ricoh-mp-c3004.webp?v=1784224060063",
       "gallery": [],
       "prices": {
-        "public": 2067,
-        "tecnico": 669,
-        "mayorista": 615,
-        "distribuidor": 716
+        "tecnico": 599,
+        "mayorista": 551,
+        "distribuidor": 641,
+        "public": 1851
       },
       "created_at": "2026-06-16T07:36:57.239Z",
       "code": "418276-CPNV9C-CPQZO0-CPT-CPWTXZ",
@@ -9943,7 +9768,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "variant_product_ids": [
         "5faaa575-c210-4a85-af9a-4d1c526bda46"
       ],
@@ -9954,22 +9779,23 @@
           "purchase_price_usd": 769.68
         }
       ],
-      "purchase_price_usd": 769.68
+      "purchase_price_usd": 769.68,
+      "status": "activa"
     },
     {
       "id": "5c0405f3-d580-49de-97cf-17b4e4a70fac",
       "name": "Impresora Multifuncional Seminueva RICOH MP C3504 220V",
       "currency": "USD",
-      "stock": 3,
+      "stock": 1,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-mp-c3504-220v.webp?v=1784135442141",
       "gallery": [],
       "prices": {
-        "public": 1129,
-        "tecnico": 679,
-        "mayorista": 659,
-        "distribuidor": 1199
+        "tecnico": 639,
+        "mayorista": 620,
+        "distribuidor": 1128,
+        "public": 1062
       },
       "created_at": "2026-06-16T07:38:57.592Z",
       "code": "418276-CPNV9C-CPQZO0-CPT-CPZET4",
@@ -9990,7 +9816,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 3
+          "quantity": 1
         },
         {
           "warehouse_id": "santa-catalina",
@@ -10025,7 +9851,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T18:29:52.158Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "5f6418d1-9670-4f0c-b0fb-b36facf386be",
@@ -10033,7 +9859,8 @@
           "purchase_price_usd": 812.88
         }
       ],
-      "purchase_price_usd": 812.88
+      "purchase_price_usd": 812.88,
+      "status": "activa"
     },
     {
       "id": "07f8da66-9ecf-427b-b92e-d31edd4989c3",
@@ -10281,15 +10108,15 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM C400F 220V",
       "currency": "USD",
       "stock": 0,
-      "category": "Multifuncionales",
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-c400f-220v.webp?v=1788079313262",
       "gallery": [],
       "prices": {
-        "public": 699,
-        "tecnico": 499,
-        "mayorista": 450,
-        "distribuidor": 519
+        "tecnico": 389,
+        "mayorista": 351,
+        "distribuidor": 405,
+        "public": 545
       },
       "created_at": "2026-06-06T14:22:52.489Z",
       "code": "418569-SEMI-CP0BWP",
@@ -10308,6 +10135,11 @@
           "id": "2992b82c-6dfe-48f4-8875-8a2a90dd5185",
           "name": "Voltaje",
           "value": "220V"
+        },
+        {
+          "id": "5f691826-3b08-4b2b-91fd-86ed816d37b3",
+          "name": "Modelo de equipo",
+          "value": "IM C400F"
         }
       ],
       "sort_order": 101,
@@ -10350,7 +10182,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.978Z",
       "suppliers": [
         {
           "id": "0999beb1-8f10-4f86-8f09-70a3a2cdfbb8",
@@ -10358,7 +10190,12 @@
           "purchase_price_usd": 503.28
         }
       ],
-      "purchase_price_usd": 503.28
+      "purchase_price_usd": 503.28,
+      "status": "activa",
+      "variant_product_ids": [
+        "b0811a6f-0f94-4bea-8804-3f7dd0d28a1c",
+        "dd5efa36-73f6-4241-b2ad-6e74ef058733"
+      ]
     },
     {
       "id": "408339",
@@ -22113,16 +21950,16 @@
       "description": "Seminuevo — USB 6",
       "price": 429,
       "prices": {
-        "public": 429,
         "tecnico": 129,
-        "mayorista": 329,
-        "distribuidor": 379
+        "mayorista": 119,
+        "distribuidor": 138,
+        "public": 399
       },
       "currency": "USD",
       "image_url": null,
       "gallery": [],
-      "stock": 52,
-      "category": "Computadoras y Laptop",
+      "stock": 40,
+      "category": "Computadoras y Laptop, Computadoras Seminuevas",
       "brand": "DELL",
       "attributes": [
         {
@@ -22154,7 +21991,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 52
+          "quantity": 40
         },
         {
           "warehouse_id": "santa-catalina",
@@ -22188,7 +22025,8 @@
           "warehouse_id": "chiclayo",
           "quantity": 0
         }
-      ]
+      ],
+      "updated_at": "2026-09-12T17:40:41.978Z"
     },
     {
       "id": "intercopy-mp-c2050c-yellow",
@@ -22288,16 +22126,16 @@
       "description": "Seminuevo — 1T USB 6",
       "price": 479,
       "prices": {
-        "public": 479,
-        "tecnico": 175,
-        "mayorista": 379,
-        "distribuidor": 429
+        "tecnico": 165,
+        "mayorista": 357,
+        "distribuidor": 404,
+        "public": 452
       },
       "currency": "USD",
       "image_url": null,
       "gallery": [],
-      "stock": 25,
-      "category": "Computadoras y Laptop",
+      "stock": 10,
+      "category": "Computadoras y Laptop, Computadoras Seminuevas",
       "brand": "DELL",
       "attributes": [
         {
@@ -22329,7 +22167,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 25
+          "quantity": 10
         },
         {
           "warehouse_id": "santa-catalina",
@@ -22363,7 +22201,8 @@
           "warehouse_id": "chiclayo",
           "quantity": 0
         }
-      ]
+      ],
+      "updated_at": "2026-09-12T17:40:41.979Z"
     },
     {
       "id": "intercopy-mp-c2050c-cyan",
@@ -22463,10 +22302,10 @@
       "description": "Seminuevo — Monocromático",
       "price": 359,
       "prices": {
-        "public": 359,
         "tecnico": 59,
-        "mayorista": 259,
-        "distribuidor": 309
+        "mayorista": 54,
+        "distribuidor": 63,
+        "public": 182
       },
       "currency": "USD",
       "image_url": null,
@@ -22543,7 +22382,8 @@
           "warehouse_id": "chiclayo",
           "quantity": 0
         }
-      ]
+      ],
+      "updated_at": "2026-09-12T17:40:41.979Z"
     },
     {
       "id": "intercopy-mp-c2050c-magenta",
@@ -22823,10 +22663,10 @@
       "description": "Seminuevo alineado a lista comercial",
       "price": 479,
       "prices": {
-        "public": 479,
-        "tecnico": 179,
-        "mayorista": 379,
-        "distribuidor": 429
+        "tecnico": 189,
+        "mayorista": 400,
+        "distribuidor": 453,
+        "public": 506
       },
       "currency": "USD",
       "image_url": null,
@@ -22898,7 +22738,8 @@
           "warehouse_id": "chiclayo",
           "quantity": 0
         }
-      ]
+      ],
+      "updated_at": "2026-09-12T17:40:41.979Z"
     },
     {
       "id": "intercopy-mp-c2503hc-yellow",
@@ -22998,10 +22839,10 @@
       "description": "Seminuevo alineado a lista comercial",
       "price": 499,
       "prices": {
-        "public": 499,
         "tecnico": 99,
-        "mayorista": 399,
-        "distribuidor": 449
+        "mayorista": 91,
+        "distribuidor": 106,
+        "public": 306
       },
       "currency": "USD",
       "image_url": null,
@@ -23073,7 +22914,8 @@
           "warehouse_id": "chiclayo",
           "quantity": 0
         }
-      ]
+      ],
+      "updated_at": "2026-09-12T17:40:41.979Z"
     },
     {
       "id": "intercopy-mp-c2503hc-cyan",
@@ -23173,10 +23015,10 @@
       "description": "Seminuevo alineado a lista comercial",
       "price": 519,
       "prices": {
-        "public": 519,
         "tecnico": 119,
-        "mayorista": 419,
-        "distribuidor": 469
+        "mayorista": 109,
+        "distribuidor": 127,
+        "public": 368
       },
       "currency": "USD",
       "image_url": null,
@@ -23248,7 +23090,8 @@
           "warehouse_id": "chiclayo",
           "quantity": 0
         }
-      ]
+      ],
+      "updated_at": "2026-09-12T17:40:41.979Z"
     },
     {
       "id": "intercopy-mp-c2503hc-magenta",
@@ -23348,16 +23191,16 @@
       "description": "Seminuevo — teclado nuevo",
       "price": 489,
       "prices": {
-        "public": 489,
         "tecnico": 189,
-        "mayorista": 389,
-        "distribuidor": 439
+        "mayorista": 174,
+        "distribuidor": 202,
+        "public": 584
       },
       "currency": "USD",
       "image_url": null,
       "gallery": [],
       "stock": 2,
-      "category": "Computadoras y Laptop",
+      "category": "Computadoras y Laptop, Laptops Seminuevas",
       "brand": "DELL",
       "attributes": [
         {
@@ -23423,7 +23266,8 @@
           "warehouse_id": "chiclayo",
           "quantity": 0
         }
-      ]
+      ],
+      "updated_at": "2026-09-12T17:40:41.979Z"
     },
     {
       "id": "intercopy-mp-c2503hc-negro",
@@ -68130,16 +67974,16 @@
       "id": "c54ea344-0162-42eb-96be-333014d14186",
       "name": "Impresora Multifuncional Seminueva RICOH IM C2500 110V",
       "currency": "USD",
-      "stock": 2,
+      "stock": 1,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-c2500-110v.webp?v=1784135916936",
       "gallery": [],
       "prices": {
-        "public": 999,
-        "tecnico": 879,
-        "mayorista": 849,
-        "distribuidor": 779
+        "tecnico": 649,
+        "mayorista": 627,
+        "distribuidor": 575,
+        "public": 738
       },
       "created_at": "2026-06-20T16:02:01.791Z",
       "code": "EQ-RICOHIMC2500LT110V",
@@ -68148,7 +67992,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 0
+          "quantity": 1
         },
         {
           "warehouse_id": "santa-catalina",
@@ -68156,11 +68000,11 @@
         },
         {
           "warehouse_id": "partes-scrap",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "otros-estados",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "1931",
@@ -68183,12 +68027,17 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.979Z",
       "attributes": [
         {
           "id": "50d0a03f-8e0e-482c-890c-41a2c5b9c205",
           "name": "Voltaje",
           "value": "110V"
+        },
+        {
+          "id": "52853ff6-4554-45a4-b33a-ae9ee448274d",
+          "name": "Modelo de equipo",
+          "value": "IM C2500"
         }
       ],
       "variant_product_ids": [
@@ -68201,7 +68050,8 @@
           "purchase_price_usd": 719.28
         }
       ],
-      "purchase_price_usd": 719.28
+      "purchase_price_usd": 719.28,
+      "status": "activa"
     },
     {
       "id": "647c7762-732c-427d-9e66-34670efb5b93",
@@ -68213,10 +68063,10 @@
       "image_url": "/products/ricoh-im-c3500-110v.webp?v=1784135916936",
       "gallery": [],
       "prices": {
-        "public": 999,
-        "tecnico": 879,
-        "mayorista": 849,
-        "distribuidor": 779
+        "tecnico": 889,
+        "mayorista": 859,
+        "distribuidor": 788,
+        "public": 1010
       },
       "created_at": "2026-06-20T16:02:01.794Z",
       "code": "EQ-RICOHIMC3500110V",
@@ -68260,7 +68110,13 @@
           "quantity": 0
         }
       ],
-      "attributes": [],
+      "attributes": [
+        {
+          "id": "ce51493e-4ba6-49c1-abb3-55b9235b3f23",
+          "name": "Modelo de equipo",
+          "value": "IM C3500"
+        }
+      ],
       "suppliers": [
         {
           "id": "b245fbf8-d6cd-4a9d-b42d-d682423a3c07",
@@ -68268,7 +68124,9 @@
           "purchase_price_usd": 719.28
         }
       ],
-      "purchase_price_usd": 719.28
+      "purchase_price_usd": 719.28,
+      "updated_at": "2026-09-12T17:40:41.979Z",
+      "status": "activa"
     },
     {
       "id": "caf19a37-c3e7-4d5c-b3da-91aef5a5cd15",
@@ -68284,10 +68142,10 @@
         "/products/caf19a37-c3e7-4d5c-b3da-91aef5a5cd15-512.webp"
       ],
       "prices": {
-        "public": 999,
-        "tecnico": 879,
-        "mayorista": 849,
-        "distribuidor": 779
+        "tecnico": 999,
+        "mayorista": 965,
+        "distribuidor": 885,
+        "public": 1135
       },
       "created_at": "2026-06-20T16:02:01.799Z",
       "code": "EQ-RICOHIMC4500LT110V",
@@ -68338,7 +68196,19 @@
           "purchase_price_usd": 719.28
         }
       ],
-      "purchase_price_usd": 719.28
+      "purchase_price_usd": 719.28,
+      "attributes": [
+        {
+          "id": "61524409-3a39-4305-bc45-b8adbebb914d",
+          "name": "Modelo de equipo",
+          "value": "IM C4500"
+        }
+      ],
+      "updated_at": "2026-09-12T17:40:41.979Z",
+      "status": "activa",
+      "variant_product_ids": [
+        "6490d3d9-bfd0-4a48-82c4-dadca949c8f1"
+      ]
     },
     {
       "id": "3dd68e42-2f3a-467e-ae15-514800ef3c26",
@@ -68891,15 +68761,15 @@
       "name": "Impresora Láser Color Seminueva RICOH SP C840DN",
       "currency": "USD",
       "stock": 2,
-      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "category": "Impresoras Laser Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/l-ser-color-ricoh-sp-c840dn.webp?v=1784224060097",
       "gallery": [],
       "prices": {
-        "public": 1171,
-        "tecnico": 379,
-        "mayorista": 349,
-        "distribuidor": 406
+        "tecnico": 359,
+        "mayorista": 331,
+        "distribuidor": 385,
+        "public": 1109
       },
       "created_at": "2026-06-20T16:02:01.787Z",
       "code": "EQ-RICOHSPC840DN110V",
@@ -68943,7 +68813,7 @@
           "quantity": 0
         }
       ],
-      "updated_at": "2026-07-27T20:40:24.901Z",
+      "updated_at": "2026-09-12T17:40:41.979Z",
       "attributes": [
         {
           "id": "2db1c3df-3598-4e0d-bd54-b782d59deabe",
@@ -68968,7 +68838,8 @@
           "purchase_price_usd": 546.48
         }
       ],
-      "purchase_price_usd": 546.48
+      "purchase_price_usd": 546.48,
+      "status": "activa"
     },
     {
       "id": "dfcc1b1c-100a-4cb4-80b1-c1e24e1d991a",
@@ -70803,12 +70674,13 @@
           "name": "Corporacion Ross",
           "purchase_price_usd": 52.69
         }
-      ]
+      ],
+      "status": "inactiva"
     },
     {
       "id": "418480",
       "code": "418480",
-      "name": "Toner Cartucho Original RICOH IM 550F / IM 600F (Rend 40,000)",
+      "name": "Toner Original RICOH IM 600F (40,000 págs al 5%)",
       "description": "Cartucho original negro alto rendimiento — Rend 40,000 páginas al 5% — IM 600F / P-800 / P-801",
       "currency": "USD",
       "stock": 0,
@@ -70822,10 +70694,10 @@
       "purchase_price_usd": 149.48,
       "created_at": "2026-06-24T00:00:00.000Z",
       "prices": {
-        "public": 132.9,
-        "tecnico": 112.9,
-        "mayorista": 107.9,
-        "distribuidor": 99.9
+        "public": 160,
+        "tecnico": 135.9,
+        "mayorista": 129.9,
+        "distribuidor": 120.3
       },
       "slug": "418480",
       "stock_by_warehouse": [
@@ -70895,7 +70767,8 @@
           "name": "Corporacion Ross",
           "purchase_price_usd": 164.43
         }
-      ]
+      ],
+      "price": 160
     },
     {
       "id": "8f3c2a1b-6d4e-4f9a-b2c1-ricoh-theta-z1",
@@ -74229,6 +74102,756 @@
           "quantity": 0
         }
       ]
+    },
+    {
+      "id": "a550f001-7c3e-4a91-8b12-1d2e3f4a5501",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 550F 220V",
+      "currency": "USD",
+      "stock": 45,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp?v=1785181086863",
+      "gallery": [],
+      "prices": {
+        "tecnico": 379,
+        "mayorista": 348,
+        "distribuidor": 406,
+        "public": 1171
+      },
+      "created_at": "2026-09-12T17:40:41.971Z",
+      "code": "418460-CP908Y-STD",
+      "attributes": [
+        {
+          "id": "14d8cf32-983a-4f0f-949b-497666ba234f",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "5e2d4868-75d7-4ad4-a2cc-8b43a62ad06b",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "3e73c1d6-7169-4fee-af66-ff2a6ccb5e6a",
+          "name": "Producción",
+          "value": "Mediano (15,000 páginas aprox)"
+        },
+        {
+          "id": "4e22552e-16de-4df2-9006-d37c691627a7",
+          "name": "Alimentador (ADF)",
+          "value": "Estándar"
+        },
+        {
+          "id": "6fa21b05-7258-4be6-83ef-32414bc7945c",
+          "name": "Variante",
+          "value": "Estándar"
+        },
+        {
+          "id": "236b34d1-af98-4666-819a-5e74da31ad5d",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "6cc9d1cb-5a37-4dbf-8dfb-c684d6d5250f",
+          "name": "Modelo de equipo",
+          "value": "IM 550F"
+        }
+      ],
+      "sort_order": 24,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-550f-220v-a550f001-7c3",
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 45
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "updated_at": "2026-09-12T17:40:41.972Z",
+      "variant_product_ids": [
+        "2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2",
+        "a4be1850-48ac-40fd-8962-14c00bec5e59",
+        "9a955212-f712-4a2e-acf7-f03b059f7c98",
+        "1f34bfe4-95be-45c4-be3e-37a740fee9b9"
+      ],
+      "suppliers": [
+        {
+          "id": "9ec6446f-da5e-4842-b39b-96e2039d5792",
+          "name": "",
+          "purchase_price_usd": 481.68
+        }
+      ],
+      "purchase_price_usd": 481.68,
+      "description": "Impresora Multifuncional Seminueva RICOH IM 550F 220V",
+      "status": "activa",
+      "is_featured": false
+    },
+    {
+      "id": "a430f001-7c3e-4a91-8b12-1d2e3f4a4301",
+      "name": "Impresora Multifuncional Seminueva RICOH IM 430F 220V",
+      "description": "Impresora Multifuncional Seminueva RICOH IM 430F 220V",
+      "currency": "USD",
+      "stock": 12,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/189620fe-a5e5-4526-a399-8aa6a308bd1d.webp?v=1784112813951",
+      "gallery": [],
+      "prices": {
+        "tecnico": 229,
+        "mayorista": 211,
+        "distribuidor": 245,
+        "public": 708
+      },
+      "created_at": "2026-09-12T17:40:41.974Z",
+      "code": "423509-STD",
+      "attributes": [
+        {
+          "id": "0d74fabd-a78d-4a63-b232-26998ea5e553",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "fbec26fe-b0c6-465f-bb29-1bd8c885f588",
+          "name": "Formato papel",
+          "value": "A4"
+        },
+        {
+          "id": "e6166bc8-a811-41e5-888b-0b40da66261f",
+          "name": "Producción",
+          "value": "Basico (>5000 páginas)"
+        },
+        {
+          "id": "65a93575-3c5a-4967-ba05-60471790689a",
+          "name": "Alimentador (ADF)",
+          "value": "Doble Scan"
+        },
+        {
+          "id": "71a00b3c-35d6-46df-b43f-284fd10a4c5f",
+          "name": "Voltaje",
+          "value": "220V"
+        },
+        {
+          "id": "b6855207-f054-4b30-8ec1-8308908c22e0",
+          "name": "Variante",
+          "value": "Estándar"
+        },
+        {
+          "id": "1ca2e1d2-3b8e-47b8-8d2f-e6276779ce7a",
+          "name": "Modelo de equipo",
+          "value": "IM 430F"
+        }
+      ],
+      "sort_order": 22,
+      "slug": "impresora-multifuncional-seminueva-ricoh-im-430f-220v-a430f001-7c3",
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 12
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "updated_at": "2026-09-12T17:40:41.974Z",
+      "suppliers": [
+        {
+          "id": "deaf7cb4-da08-46ca-98be-36da0d152d4f",
+          "name": "",
+          "purchase_price_usd": 452.88
+        }
+      ],
+      "purchase_price_usd": 452.88,
+      "variant_product_ids": [
+        "189620fe-a5e5-4526-a399-8aa6a308bd1d"
+      ],
+      "status": "activa",
+      "is_featured": false
+    },
+    {
+      "id": "a3050001-7c3e-4a91-8b12-1d2e3f4a0305",
+      "code": "SEMI-MP305PLUS",
+      "name": "Impresora Multifuncional B/N Seminueva RICOH MP 305+",
+      "description": "Impresora Multifuncional B/N Seminueva RICOH MP 305+",
+      "currency": "USD",
+      "stock": 1,
+      "category": "Multifuncionales, Multifuncionales Seminuevas",
+      "brand": "Ricoh",
+      "image_url": "/products/ab878d89-61e0-4e51-a941-03455e1da407.webp?v=1784112813940",
+      "gallery": [],
+      "purchase_price_usd": 791.28,
+      "created_at": "2026-09-12T17:40:41.974Z",
+      "prices": {
+        "tecnico": 179,
+        "mayorista": 169,
+        "distribuidor": 196,
+        "public": 223
+      },
+      "sort_order": 3,
+      "slug": "impresora-multifuncional-b-n-seminueva-ricoh-mp-305-a3050001-7c3",
+      "attributes": [
+        {
+          "id": "04d5917b-8cdd-4bc9-8b0e-2995024ee2e0",
+          "name": "Color",
+          "value": "B/N"
+        },
+        {
+          "id": "58fd5324-eb07-4b2f-b45d-9b61f7763799",
+          "name": "Formato",
+          "value": "A4 / A3"
+        },
+        {
+          "id": "4e7adafb-8762-4b0b-ad84-ea55765aceee",
+          "name": "Formato papel",
+          "value": "A3"
+        },
+        {
+          "id": "9cc0d1a7-f29e-41c9-8c46-b1f13215e853",
+          "name": "Velocidad",
+          "value": "30 ppm"
+        },
+        {
+          "id": "a8b564b6-5ea8-4503-a866-e972839323df",
+          "name": "Año",
+          "value": "2023"
+        },
+        {
+          "id": "ea940f54-0434-4398-8161-745570710515",
+          "name": "Modelo de equipo",
+          "value": "MP 305+"
+        },
+        {
+          "id": "a25deb34-c039-485d-9aea-33d3c8e0dace",
+          "name": "A4",
+          "value": "Sí"
+        },
+        {
+          "id": "24f8f6f6-c6e7-4199-b0f7-7681c398de0e",
+          "name": "A3",
+          "value": "Sí"
+        },
+        {
+          "id": "f8e2c1a0-9b3d-4e5f-a6c7-8d9e0f1a2b3c",
+          "name": "Alimentador (ADF)",
+          "value": "ARDF"
+        },
+        {
+          "id": "c3a91e7b-4d2f-4b18-9e6a-1f08c5d4b2a7",
+          "name": "Oferta",
+          "value": "Sí"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 1
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "updated_at": "2026-09-12T17:40:41.974Z",
+      "suppliers": [
+        {
+          "id": "997dcf75-fcc2-478a-8229-97f3c7943965",
+          "name": "",
+          "purchase_price_usd": 791.28
+        }
+      ],
+      "variant_product_ids": [],
+      "status": "activa",
+      "is_featured": false
+    },
+    {
+      "id": "a0c22000-7c3e-4a91-8b12-1d2e3f4a2200",
+      "code": "SEMI-MP-CW2200-120V",
+      "name": "Plotter Seminuevo RICOH MP CW2200 120V",
+      "description": "Plotter Seminuevo RICOH MP CW2200 120V",
+      "currency": "USD",
+      "category": "Formato Ancho, Formato Ancho Seminuevos",
+      "brand": "Ricoh",
+      "image_url": "/products/plotter-laser-color-ricoh-im-cw2200.webp",
+      "gallery": [],
+      "created_at": "2026-09-12T17:40:41.976Z",
+      "sort_order": 10,
+      "slug": "plotter-seminuevo-ricoh-mp-cw2200-120v-a0c22000-7c3",
+      "status": "activa",
+      "prices": {
+        "tecnico": 1990,
+        "mayorista": 1950,
+        "distribuidor": 1996,
+        "public": 2149
+      },
+      "attributes": [
+        {
+          "id": "5bb32fac-9ef7-441f-8391-2ae13c82ee5e",
+          "name": "Modelo de equipo",
+          "value": "MP CW2200"
+        },
+        {
+          "id": "0d47739a-fced-4a04-b6e2-78138d2de4b7",
+          "name": "Voltaje",
+          "value": "120V"
+        },
+        {
+          "id": "a05f8d66-26fc-4ab8-b51c-d6c806aa929d",
+          "name": "Formato papel",
+          "value": "Ancho"
+        }
+      ],
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 1
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "stock": 1,
+      "suppliers": [
+        {
+          "id": "8f934279-dde7-44ba-bdd9-a3ab5e06e3f3",
+          "name": "",
+          "purchase_price_usd": 13366.08
+        }
+      ],
+      "purchase_price_usd": 13366.08,
+      "updated_at": "2026-09-12T17:40:41.976Z",
+      "variant_product_ids": [],
+      "is_featured": false
+    },
+    {
+      "id": "a0acc501-7c3e-4a91-8b12-1d2e3f4a0501",
+      "name": "Mueble Seminuevo MP 501 (gris) y melamina",
+      "currency": "USD",
+      "stock": 5,
+      "category": "Accesorios, Accesorios Seminuevos",
+      "brand": "Ricoh",
+      "image_url": "/products/371c5e40-c823-4db1-b36c-895ae1fb53e1.webp?v=1784112813941",
+      "gallery": [],
+      "prices": {
+        "tecnico": 20,
+        "mayorista": 18,
+        "distribuidor": 21,
+        "public": 62
+      },
+      "created_at": "2026-09-12T17:40:41.977Z",
+      "code": "MUEBLE-MP501-SN",
+      "attributes": [
+        {
+          "id": "011c3046-8c8f-49da-9207-3376b0d9c44e",
+          "name": "Modelo de equipo",
+          "value": "MP 501"
+        }
+      ],
+      "sort_order": 77,
+      "slug": "mueble-seminuevo-mp-501-gris-y-melamina-a0acc501-7c3",
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 5
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "updated_at": "2026-09-12T17:40:41.977Z",
+      "suppliers": [
+        {
+          "id": "252352cd-4498-4461-9b0a-0c6c0b3c01fd",
+          "name": "",
+          "purchase_price_usd": 395.28
+        }
+      ],
+      "purchase_price_usd": 395.28,
+      "description": "Mueble Seminuevo MP 501 (gris) y melamina",
+      "variant_product_ids": [],
+      "status": "activa",
+      "is_featured": false
+    },
+    {
+      "id": "a0acc550-7c3e-4a91-8b12-1d2e3f4a0550",
+      "name": "Mueble Seminuevo IM 550",
+      "currency": "USD",
+      "stock": 15,
+      "category": "Accesorios, Accesorios Seminuevos",
+      "brand": "Ricoh",
+      "image_url": "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp?v=1785181086863",
+      "gallery": [],
+      "prices": {
+        "tecnico": 25,
+        "mayorista": 23,
+        "distribuidor": 27,
+        "public": 77
+      },
+      "created_at": "2026-09-12T17:40:41.977Z",
+      "code": "MUEBLE-IM550-SN",
+      "attributes": [
+        {
+          "id": "0ecbf9a0-de2f-4347-a3f4-612241ebc786",
+          "name": "Modelo de equipo",
+          "value": "IM 550F"
+        }
+      ],
+      "sort_order": 24,
+      "slug": "mueble-seminuevo-im-550-a0acc550-7c3",
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 15
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "updated_at": "2026-09-12T17:40:41.977Z",
+      "variant_product_ids": [],
+      "suppliers": [
+        {
+          "id": "9ec6446f-da5e-4842-b39b-96e2039d5792",
+          "name": "",
+          "purchase_price_usd": 481.68
+        }
+      ],
+      "purchase_price_usd": 481.68,
+      "description": "Mueble Seminuevo IM 550",
+      "status": "activa",
+      "is_featured": false
+    },
+    {
+      "id": "a0acc552-7c3e-4a91-8b12-1d2e3f4a0c55",
+      "name": "2da Casetera Seminueva IM 550",
+      "currency": "USD",
+      "stock": 21,
+      "category": "Accesorios, Accesorios Seminuevos",
+      "brand": "Ricoh",
+      "image_url": "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp?v=1785181086863",
+      "gallery": [],
+      "prices": {
+        "tecnico": 15,
+        "mayorista": 14,
+        "distribuidor": 16,
+        "public": 46
+      },
+      "created_at": "2026-09-12T17:40:41.977Z",
+      "code": "CASS-IM550-SN",
+      "attributes": [
+        {
+          "id": "60ba3428-3839-460a-bdb0-b7789f3c98fd",
+          "name": "Modelo de equipo",
+          "value": "IM 550F"
+        }
+      ],
+      "sort_order": 24,
+      "slug": "2da-casetera-seminueva-im-550-a0acc552-7c3",
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 21
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "updated_at": "2026-09-12T17:40:41.977Z",
+      "variant_product_ids": [],
+      "suppliers": [
+        {
+          "id": "9ec6446f-da5e-4842-b39b-96e2039d5792",
+          "name": "",
+          "purchase_price_usd": 481.68
+        }
+      ],
+      "purchase_price_usd": 481.68,
+      "description": "2da Casetera Seminueva IM 550",
+      "status": "activa",
+      "is_featured": false
+    },
+    {
+      "id": "a0d0e185-7c3e-4a91-8b12-1d2e3f4a0d18",
+      "slug": "monitor-seminuevo-dell-18-5-a0d0e185-7c3",
+      "name": "Monitor Seminuevo DELL 18.5",
+      "code": "MON-DELL-185-SN",
+      "description": "Monitor Seminuevo DELL 18.5",
+      "price": 429,
+      "prices": {
+        "tecnico": 39,
+        "mayorista": 99,
+        "distribuidor": 115,
+        "public": 130
+      },
+      "currency": "USD",
+      "image_url": "/categories/monitores.png",
+      "gallery": [],
+      "stock": 38,
+      "category": "Computadoras y Laptop, Monitores",
+      "brand": "DELL",
+      "attributes": [
+        {
+          "id": "424ea400-0143-4a3c-874d-107085d947a6",
+          "name": "Modelo de equipo",
+          "value": "DELL 18.5"
+        }
+      ],
+      "sort_order": 224,
+      "created_at": "2026-09-12T17:40:41.977Z",
+      "is_featured": false,
+      "status": "activa",
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "suppliers": [
+        {
+          "id": "8b7bd81b-4acc-478e-a555-1299a13ce09e",
+          "name": "",
+          "purchase_price_usd": 308.88
+        }
+      ],
+      "attachments": [],
+      "purchase_price_usd": 308.88,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 38
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "updated_at": "2026-09-12T17:40:41.977Z",
+      "variant_product_ids": []
     }
   ],
   "warehouses": [

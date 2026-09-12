@@ -295,6 +295,8 @@ export function HomeLandingProductCard({
               currentUsd={pricing.currentUsd}
               compareUsd={pricing.compareUsd}
               showAccentBar={false}
+              category={product.category}
+              wholesaleUsd={product.prices?.mayorista}
             />
           )}
         </div>
