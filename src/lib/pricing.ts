@@ -13,6 +13,7 @@ import {
 } from '@/lib/product-storefront-detail';
 import { normalizeVolumeRolePrices } from '@/lib/product-volume-role-prices';
 import { normalizePreparationPrices } from '@/lib/seminueva-preparation';
+import { isEquipmentDisplayPriceCategory } from '@/lib/pen-pricing';
 import {
   ensureFullPrices,
   resolvePriceRole,
@@ -29,6 +30,7 @@ export function getEffectivePrice(product: InventoryProduct, role: string): numb
   const prices = ensureFullPrices(product.prices);
   return resolveUserRolePriceUsd(prices, role, {
     productKeys: [product.id, product.code, product.slug],
+    isEquipment: isEquipmentDisplayPriceCategory(product.category),
   });
 }
 

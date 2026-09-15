@@ -109,6 +109,7 @@ import { isPrinterEquipment } from '@/lib/build-product-detail';
 import { isDesktopTablePrinter } from '@/lib/nuevo-equipment-variants';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
 import { ProductCardDescriptorLine } from '@/components/product/product-card-title';
+import { ProductCardEstadoBadge } from '@/components/product/product-card-estado-badge';
 import { splitProductCardTitleAtBrand } from '@/lib/product-card-title';
 import { CONSULTAR_PRECIO_LABEL, getDisplayPriceVisibility, isPriceOnRequest } from '@/lib/display-price';
 import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
@@ -151,6 +152,22 @@ function formatHaitechUsd(usd: number): string {
   })}`;
 }
 
+function stripShowcaseTitleMeta(title: string, brand?: string | null) {
+  const { firstLine, secondLine } = splitProductCardTitleAtBrand(title, brand);
+  const descriptor = firstLine
+    .replace(/\b(Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo|Remanufacturado)s?\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const brandName = brand?.trim() ?? '';
+  let modelLine = secondLine?.trim() || null;
+  if (modelLine && brandName) {
+    const escaped = brandName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const stripped = modelLine.replace(new RegExp(`^${escaped}\\s+`, 'i'), '').trim();
+    if (stripped) modelLine = stripped;
+  }
+  return { descriptor: descriptor || firstLine, modelLine };
+}
+
 function EquipmentShowcaseCardTitle({
   title,
   brand,
@@ -158,13 +175,12 @@ function EquipmentShowcaseCardTitle({
   title: string;
   brand?: string | null;
 }) {
-  const { firstLine, secondLine } = splitProductCardTitleAtBrand(title, brand);
-  const modelLine = secondLine?.trim() || null;
+  const { descriptor, modelLine } = stripShowcaseTitleMeta(title, brand);
 
   return (
     <>
       <span className="block w-full whitespace-nowrap leading-tight">
-        <ProductCardDescriptorLine text={firstLine} />
+        <ProductCardDescriptorLine text={descriptor} />
       </span>
       {modelLine ? (
         <span className="mt-0.5 block w-full truncate whitespace-nowrap leading-tight">
@@ -736,6 +752,19 @@ function EquipmentShowcaseCard({
           ? 'Original'
           : null;
 
+  const brandLabel = (product.brand ?? (isConsumable || isSoftware ? null : 'RICOH'))
+    ?.trim()
+    .toUpperCase() || null;
+  const conditionLabel = isSoftware
+    ? null
+    : isConsumable
+      ? originBadgeLabel
+      : isRemanufacturada
+        ? 'Remanufacturada'
+        : isSeminuevo
+          ? 'Seminueva'
+          : 'Nueva';
+
   const offerBesidePrice =
     isOffer && !(showMultiRolePrices && viewAsRolePrices.length > 1) ? (
       <span className="inline-flex h-[18px] shrink-0 items-center rounded-full bg-[#E30613] px-2 text-[8px] font-bold uppercase tracking-wide text-white sm:h-5 sm:px-2.5 sm:text-[9px]">
@@ -853,6 +882,24 @@ function EquipmentShowcaseCard({
         aria-label={`Ver ficha de ${title}`}
       >
       <div className="relative min-h-[145px] w-full flex-1 overflow-hidden sm:min-h-[190px] lg:min-h-[210px]">
+        {brandLabel || conditionLabel ? (
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-[3] flex items-start justify-between gap-2 px-1 pt-1 sm:px-1.5 sm:pt-1.5">
+            {brandLabel ? (
+              <span className="min-w-0 truncate text-xs font-bold uppercase leading-none tracking-wide text-[#E30613] sm:text-sm">
+                {brandLabel}
+              </span>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+            {conditionLabel ? (
+              <ProductCardEstadoBadge
+                label={conditionLabel}
+                className="rounded-md px-2 py-0.5 text-[0.625rem] font-semibold sm:px-2.5 sm:text-[0.6875rem]"
+              />
+            ) : null}
+          </div>
+        ) : null}
+
         <div className="absolute inset-0 flex items-center justify-center px-1">
           {!imgError ? (
             <EquipmentShowcaseCardImage
@@ -867,8 +914,9 @@ function EquipmentShowcaseCard({
             </span>
           )}
         </div>
+
         {!isConsumable && !isSoftware && !isMonitorCard && !isLaptopCard ? (
-          <div className="pointer-events-none relative z-[2] ml-auto flex min-h-[145px] w-[5.35rem] shrink-0 flex-col items-end gap-1.5 pt-0.5 sm:min-h-[190px] sm:w-[6.25rem] sm:gap-2 lg:min-h-[210px]">
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-[2] flex w-[5.35rem] items-center justify-end sm:w-[6.25rem]">
             <EquipmentCardSpecRail specs={specs} />
           </div>
         ) : null}
@@ -879,37 +927,19 @@ function EquipmentShowcaseCard({
           className="flex w-full flex-col items-center gap-0.5 text-center text-[11px] font-bold leading-snug text-[#111] sm:text-[14px]"
           title={title}
         >
-          <EquipmentShowcaseCardTitle title={title} brand={product.brand ?? null} />
+          <EquipmentShowcaseCardTitle title={title} brand={product.brand ?? brandLabel} />
         </h3>
 
-        <div
-          className="mt-1.5 flex w-full min-w-0 items-center justify-between gap-2 text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
-          aria-label={[
-            codeLabel ? `Código ${codeLabel}` : null,
-            outOfStock ? 'Sin stock' : `Stock ${stockCount}`,
-          ]
-            .filter(Boolean)
-            .join(', ')}
-        >
-          {codeLabel ? (
+        {codeLabel ? (
+          <div
+            className="mt-1.5 flex w-full min-w-0 items-center justify-center text-center text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
+            aria-label={`Código ${codeLabel}`}
+          >
             <span className="min-w-0 truncate tabular-nums" title={codeLabel}>
               Cód. {codeLabel}
             </span>
-          ) : (
-            <span className="min-w-0" aria-hidden="true" />
-          )}
-          <ProductStockHover
-            stock={stockCount}
-            outOfStock={outOfStock}
-            stockLocations={resolveHaitechShopStockLocations({
-              ...product,
-              stock: stockCount,
-            })}
-            prefix="Stock "
-            className="ml-auto shrink-0 text-[10px] font-medium sm:text-[11px]"
-            iconClassName="size-3.5 shrink-0 text-[#E30613]"
-          />
-        </div>
+          </div>
+        ) : null}
 
         <div
           className={cn(

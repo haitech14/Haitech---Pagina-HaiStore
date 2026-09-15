@@ -94,7 +94,10 @@ export function ProductEquipmentRentalQuoteDialog({
     };
 
     try {
-      await saveContact(nextContact);
+      await saveContact(nextContact, {
+        channel: 'whatsapp-rental',
+        productName: displayTitle,
+      });
       const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
       const generated = await buildEquipmentRentalQuotePdf(values, estimate, rentalProduct, company);
 

@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS = {
   ruc: '20612146561',
   address: 'Av. Petit Thouars 1935 - Lince, Lima - Perú',
   city: 'Lima',
-  phone: '+51 915 149 290',
+  phone: '915 149 290 – 965 805 873',
   email: 'ventas@haitech.pe',
   website: 'www.haitech.pe',
   logoUrl: '/logo.png',
@@ -27,14 +27,20 @@ const DEFAULT_SETTINGS = {
   currencyLabel: 'SOLES (PEN)',
   defaultClientType: 'Corporativo',
   bankAccountsText: [
-    'BCP SOLES: 194-123456789-0-12 — CCI 00219400123456789012',
-    'BCP DÓLARES: 194-987654321-1-99 — CCI 00219400987654321999',
-    'BBVA SOLES: 0011-0123-456789012345 — CCI 0110123001234567890123',
-    'BBVA DÓLARES: 0011-0987-654321098765 — CCI 0110123098765432109876',
+    'BCP',
+    'Soles: 193-42000064-0-88',
+    'Dólares: 193-42000068-1-38',
+    'BBVA',
+    'Soles: 0011-0161-0100004744-2',
+    'Dólares: 0011-0161-0100004753-1',
+    'Interbank',
+    'Soles: 200-3005987-782',
+    'Dólares: 200-3005987-790',
+    'Yape 915 149 290 NBN TECNOLOGIA TOTAL SAC',
   ].join('\n'),
   supportUrl: 'https://soporte.haitech.pe/',
   quoteFooterText:
-    'Representación impresa con fines informativos. Consulte el enlace de soporte o escanee el código QR para referencia.',
+    'HAITECH S.A.C. | Soluciones tecnológicas para tu empresa',
   quoteTermsText: [
     'Validez de la oferta: 3 días calendario o hasta agotar stock.',
     'Los precios pueden variar sin previo aviso por fluctuaciones del proveedor o tipo de cambio.',
@@ -109,6 +115,24 @@ async function ensureSettingsFile() {
   }
 }
 
+const PLACEHOLDER_BANK_ACCOUNT = /194-123456789|0011-0123-456789012345/;
+
+function resolveBankAccountsText(input) {
+  const text = String(input ?? DEFAULT_SETTINGS.bankAccountsText).trim();
+  if (!text || PLACEHOLDER_BANK_ACCOUNT.test(text)) {
+    return DEFAULT_SETTINGS.bankAccountsText;
+  }
+  return text;
+}
+
+function resolveQuoteFooterText(input) {
+  const text = String(input ?? DEFAULT_SETTINGS.quoteFooterText).trim();
+  if (!text || /Representación impresa con fines informativos/i.test(text)) {
+    return DEFAULT_SETTINGS.quoteFooterText;
+  }
+  return text;
+}
+
 function normalizeSettings(input = {}) {
   return {
     companyName: String(input.companyName ?? DEFAULT_SETTINGS.companyName).trim(),
@@ -127,9 +151,9 @@ function normalizeSettings(input = {}) {
     quoteNextNumber: Math.max(1, Number(input.quoteNextNumber) || DEFAULT_SETTINGS.quoteNextNumber),
     currencyLabel: String(input.currencyLabel ?? DEFAULT_SETTINGS.currencyLabel).trim(),
     defaultClientType: String(input.defaultClientType ?? DEFAULT_SETTINGS.defaultClientType).trim(),
-    bankAccountsText: String(input.bankAccountsText ?? DEFAULT_SETTINGS.bankAccountsText).trim(),
+    bankAccountsText: resolveBankAccountsText(input.bankAccountsText),
     supportUrl: String(input.supportUrl ?? DEFAULT_SETTINGS.supportUrl).trim(),
-    quoteFooterText: String(input.quoteFooterText ?? DEFAULT_SETTINGS.quoteFooterText).trim(),
+    quoteFooterText: resolveQuoteFooterText(input.quoteFooterText),
     quoteTermsText: String(input.quoteTermsText ?? DEFAULT_SETTINGS.quoteTermsText).trim(),
     quoteValidityDays: Math.max(1, Number(input.quoteValidityDays) || DEFAULT_SETTINGS.quoteValidityDays),
     primaryColor: String(input.primaryColor ?? DEFAULT_SETTINGS.primaryColor).trim(),

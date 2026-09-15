@@ -325,7 +325,7 @@ export async function buildShipmentLabelPdf(
   const margin = page.margin;
   const contentW = pageW - margin * 2;
 
-  const logo = company.logoUrl ? await loadImageDataUrl(company.logoUrl) : null;
+  const logo = await loadImageDataUrl('/logo.png');
   const showHero = format === 'a4-landscape' || format === 'a5';
   const hero = showHero ? await loadImageDataUrl(LABEL_HERO_IMAGE) : null;
 

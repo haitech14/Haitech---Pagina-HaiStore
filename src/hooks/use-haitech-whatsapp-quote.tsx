@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
 import {
+  buildHaitechSalesWhatsAppMessage,
   openHaitechSalesWhatsApp,
   type HaitechWhatsAppQuoteContext,
 } from '@/lib/haitech-whatsapp-quote';
@@ -54,15 +55,28 @@ export function useHaitechWhatsAppQuote({
     async (nextContact: WhatsAppContact, request: HaitechWhatsAppQuoteRequest = {}) => {
       setIsProcessing(true);
       try {
-        await saveContact(nextContact, { channel, createProforma });
         const resolvedCampaign = request.campaign ?? campaign;
         const context: HaitechWhatsAppQuoteContext = {
           ...(resolvedCampaign ? { campaign: resolvedCampaign } : {}),
           ...(request.extraLines?.length ? { extraLines: request.extraLines } : {}),
         };
+        const message = request.messageBuilder
+          ? request.messageBuilder(nextContact)
+          : buildHaitechSalesWhatsAppMessage(nextContact, context);
+
+        const equipmentLine = request.extraLines?.find((line) => /^equipo:/i.test(line));
+        const productName = equipmentLine?.replace(/^equipo:\s*/i, '');
+
+        await saveContact(nextContact, {
+          channel: resolvedCampaign === 'header-ventas' ? 'whatsapp-header' : channel,
+          createProforma,
+          message,
+          ...(resolvedCampaign ? { campaign: resolvedCampaign } : {}),
+          ...(productName ? { productName } : {}),
+        });
 
         if (request.messageBuilder) {
-          const url = buildHaitechWhatsAppUrl(request.messageBuilder(nextContact));
+          const url = buildHaitechWhatsAppUrl(message);
           window.open(url, '_blank', 'noopener,noreferrer');
         } else {
           openHaitechSalesWhatsApp(nextContact, context);

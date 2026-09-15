@@ -21,87 +21,26 @@ export function CheckoutCartLinePricing({
   volumeDiscount,
 }: CheckoutCartLinePricingProps) {
   const lineTotalUsd = unitUsd * quantity;
-  const dualPriceProps = { className: 'justify-end' };
-  const inlineDualPriceProps = { className: 'font-medium tabular-nums' };
-
-  if (compact) {
-    return (
-      <dl className={cn('space-y-0.5 text-xs sm:text-sm', className)}>
-        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-          <dt className="text-muted-foreground">P. Unit</dt>
-          <dd className={cn(CHECKOUT_TOTALS_PRICE_CLASS, 'm-0')}>
-            <DualPrice usd={unitUsd} {...inlineDualPriceProps} />
-          </dd>
-        </div>
-        {showTotal ? (
-          <>
-            <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-              <dt className="font-medium text-foreground">Total</dt>
-              <dd className={cn(CHECKOUT_TOTALS_PRICE_CLASS, 'm-0 font-bold')}>
-                <DualPrice usd={lineTotalUsd} {...inlineDualPriceProps} />
-              </dd>
-            </div>
-            {volumeDiscount && volumeDiscount.volumeDiscountUsd > 0.001 ? (
-              <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-                <dt className="text-muted-foreground">
-                  {volumeDiscount.discountPercent > 0
-                    ? `Dscto (${volumeDiscount.discountPercent}%)`
-                    : 'Dscto'}
-                </dt>
-                <dd className={cn(CHECKOUT_TOTALS_PRICE_CLASS, 'm-0 font-semibold text-primary')}>
-                  − <DualPrice usd={volumeDiscount.volumeDiscountUsd} {...inlineDualPriceProps} />
-                </dd>
-              </div>
-            ) : null}
-          </>
-        ) : null}
-      </dl>
-    );
-  }
+  const priceProps = { compact: true as const, className: 'justify-end' };
 
   return (
-    <dl
-      className={cn(
-        'grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-3 gap-y-1 text-xs sm:text-sm',
-        className,
-      )}
-    >
-      <dt className="text-muted-foreground">P. Unit</dt>
-      <dd className={cn(CHECKOUT_TOTALS_PRICE_CLASS, compact ? 'text-xs sm:text-sm' : '')}>
-        <DualPrice usd={unitUsd} {...dualPriceProps} />
-      </dd>
+    <div className={cn('min-w-0 text-right', className)}>
       {showTotal ? (
-        <>
-          <dt className={cn('font-medium text-foreground', compact ? '' : 'sm:text-sm')}>Total</dt>
-          <dd
-            className={cn(
-              CHECKOUT_TOTALS_PRICE_CLASS,
-              'font-bold',
-              compact ? 'text-sm sm:text-base' : 'text-sm sm:text-base',
-            )}
-          >
-            <DualPrice usd={lineTotalUsd} {...dualPriceProps} />
-          </dd>
-          {volumeDiscount && volumeDiscount.volumeDiscountUsd > 0.001 ? (
-            <>
-              <dt className="text-muted-foreground">
-                {volumeDiscount.discountPercent > 0
-                  ? `Dscto (${volumeDiscount.discountPercent}%)`
-                  : 'Dscto'}
-              </dt>
-              <dd
-                className={cn(
-                  CHECKOUT_TOTALS_PRICE_CLASS,
-                  'font-semibold text-primary',
-                  compact ? 'text-xs sm:text-sm' : '',
-                )}
-              >
-                − <DualPrice usd={volumeDiscount.volumeDiscountUsd} {...dualPriceProps} />
-              </dd>
-            </>
-          ) : null}
-        </>
+        <p className={cn(CHECKOUT_TOTALS_PRICE_CLASS, 'font-bold')}>
+          <DualPrice usd={lineTotalUsd} {...priceProps} />
+        </p>
       ) : null}
-    </dl>
+      {quantity > 1 ? (
+        <p className="mt-0.5 text-[0.6875rem] text-muted-foreground">
+          {quantity} × <DualPrice usd={unitUsd} compact />
+        </p>
+      ) : null}
+      {volumeDiscount && volumeDiscount.volumeDiscountUsd > 0.001 ? (
+        <p className="mt-0.5 text-[0.6875rem] font-semibold text-primary">
+          − <DualPrice usd={volumeDiscount.volumeDiscountUsd} compact />
+          {volumeDiscount.discountPercent > 0 ? ` (${volumeDiscount.discountPercent}%)` : ''}
+        </p>
+      ) : null}
+    </div>
   );
 }

@@ -32,8 +32,8 @@ function FlashOfferPromoBlock() {
   return (
     <div
       className={cn(
-        'relative flex min-h-[340px] flex-col overflow-hidden px-8 py-6 sm:px-10 sm:py-7',
-        'lg:min-h-[440px] lg:w-[26%] lg:min-w-[260px] lg:max-w-[340px] lg:shrink-0 lg:px-10 lg:py-8',
+        'relative flex min-h-[300px] flex-col overflow-hidden px-8 py-5 sm:px-10 sm:py-6',
+        'lg:min-h-[360px] lg:w-[26%] lg:min-w-[260px] lg:max-w-[340px] lg:shrink-0 lg:px-10 lg:py-7',
       )}
       style={{
         background: 'linear-gradient(135deg, #d90012 0%, #ed0016 55%, #ff2435 100%)',
@@ -184,7 +184,7 @@ function ProductCarousel({
 
   return (
     <div
-      className="relative flex min-h-0 min-w-0 flex-1 items-center py-3 lg:py-3.5"
+      className="relative flex min-h-0 min-w-0 flex-1 items-center py-2.5 lg:py-3"
       onMouseEnter={pauseAutoplay}
       onMouseLeave={resumeAutoplay}
       onFocusCapture={pauseAutoplay}
@@ -265,7 +265,7 @@ export function FlashOfferSection({ className }: { className?: string }) {
           'mx-auto mt-2 overflow-hidden rounded-[16px] bg-[#ed0016]',
           'w-[calc(100%-24px)] shadow-[0_10px_28px_rgba(180,0,20,0.2)]',
           'sm:mt-2.5 sm:w-[calc(100%-40px)] lg:mt-3 lg:w-[calc(100%-48px)]',
-          'min-h-[400px] lg:min-h-[440px]',
+          'min-h-[340px] lg:min-h-[360px]',
         )}
         style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}
       >

@@ -14,8 +14,8 @@ interface CheckoutSuccessProps {
 }
 
 function resolveManualMethod(method: string | null | undefined): ManualPaymentMethodId {
-  if (method?.includes('Yape') || method?.includes('Plin')) return 'yape-plin';
-  if (method?.includes('contra entrega')) return 'contra-entrega';
+  if (method?.toLowerCase().includes('yape') || method?.toLowerCase().includes('plin')) return 'yape-plin';
+  if (method?.toLowerCase().includes('contra')) return 'contra-entrega';
   return 'transferencia';
 }
 

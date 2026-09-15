@@ -1,4 +1,7 @@
+import { useLocation } from 'react-router-dom';
+
 import { mobileBottomOffsetStyle, useMobileBottomInset } from '@/context/mobile-bottom-inset-context';
+import { shouldShowMobileBottomNav } from '@/lib/mobile-bottom-nav';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 import { cn } from '@/lib/utils';
 
@@ -9,7 +12,12 @@ const WHATSAPP_FAB_BOTTOM_REM = 1.25;
 
 export function WhatsAppFloatingButton() {
   const bottomInset = useMobileBottomInset();
+  const { pathname } = useLocation();
   const href = buildHaitechWhatsAppUrl(WHATSAPP_MESSAGE);
+
+  if (!shouldShowMobileBottomNav(pathname)) {
+    return null;
+  }
 
   return (
     <div

@@ -20,6 +20,8 @@ export const HOME_CAROUSEL_EXCLUDED_PRODUCT_IDS = new Set([
   'e8f574f7-c70c-44b6-8d28-95023f47f72d',
   // MP C2504 (cilindro mg, cuchilla) retirada de vitrina.
   '2ae814f0-ec1e-41cb-b557-20ebe3a31094',
+  // Stub LISTA IM 430F (220 Y 120V) sin imagen.
+  '9a2b429a-0be0-46de-8320-ce57ee9a9f83',
 ]);
 
 const HOME_CAROUSEL_EXCLUDED_NAME_PATTERNS = [

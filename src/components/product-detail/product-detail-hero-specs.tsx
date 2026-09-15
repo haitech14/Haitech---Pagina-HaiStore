@@ -51,7 +51,7 @@ function renderSpecItem(bullet: ProductHeroSpecBullet, index: number) {
         strokeWidth={1.75}
         aria-hidden="true"
       />
-      <p className="min-w-0 text-pretty text-xs leading-snug text-neutral-700">
+      <p className="min-w-0 text-pretty text-[0.8125rem] leading-snug text-neutral-700 sm:text-sm">
         {copy.description
           ? copy.label && !copy.description.toLowerCase().includes(copy.label.toLowerCase())
             ? `${copy.label} ${copy.description}`

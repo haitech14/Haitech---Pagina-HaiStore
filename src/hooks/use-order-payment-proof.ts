@@ -17,22 +17,23 @@ export interface OrderPaymentProofUploadResult {
   payment_proof_file_name: string;
 }
 
-export function useUploadOrderPaymentProof() {
+export function useUploadOrderPaymentProof(endpoint: 'account' | 'checkout' = 'account') {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ orderId, file }: { orderId: string; file: File }) => {
       const dataUrl = await readFileAsDataUrl(file);
-      return apiFetch<OrderPaymentProofUploadResult>(
-        `/api/orders/my/${encodeURIComponent(orderId)}/payment-proof`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            dataUrl,
-            fileName: file.name,
-          }),
-        },
-      );
+      const path =
+        endpoint === 'checkout'
+          ? `/api/checkout/orders/${encodeURIComponent(orderId)}/payment-proof`
+          : `/api/orders/my/${encodeURIComponent(orderId)}/payment-proof`;
+      return apiFetch<OrderPaymentProofUploadResult>(path, {
+        method: 'POST',
+        body: JSON.stringify({
+          dataUrl,
+          fileName: file.name,
+        }),
+      });
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['orders', 'my'] });

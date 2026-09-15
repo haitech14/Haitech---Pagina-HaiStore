@@ -16,7 +16,7 @@ import {
   generateProductQuoteFromContact,
   type ProductQuoteContext,
 } from '@/lib/generate-product-quote-from-contact';
-import { openProductWhatsAppChat, type ProductWhatsAppLineItem } from '@/lib/product-whatsapp-message';
+import { openProductWhatsAppChat, buildProductWhatsAppMessage, type ProductWhatsAppLineItem } from '@/lib/product-whatsapp-message';
 import { productPath } from '@/lib/product-path';
 import { buildAbsoluteUrl } from '@/lib/site-url';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
@@ -103,6 +103,9 @@ export function ProductWhatsAppButton({
         createProforma: !options.generateQuote,
         productName: product.name,
         ...(product.id ? { productId: product.id } : {}),
+        message: buildProductWhatsAppMessage(lineItem, nextContact, {
+          generateQuote: options.generateQuote,
+        }),
       });
 
       let quoteNumber: string | undefined;

@@ -1,5 +1,7 @@
 export const IM550F_CHILD_VARIANT_IDS: Set<string>;
 
+export function isListaCatalogStubProduct(product: unknown): boolean;
+
 export function isIm550fChildVariantSku(product: unknown): boolean;
 
 export function isEquipmentVariantSkuForSearch(product: unknown): boolean;

@@ -1,5 +1,6 @@
 import type { QuotePdfPreview } from '@/components/product-detail/product-quote-pdf-viewer';
 import { buildProformaPayloadFromProductQuote } from '@/lib/build-proforma-payload';
+import { buildEquipmentQuoteAddonLines } from '@/lib/build-equipment-quote-addon-lines';
 import { buildProductQuoteShortDescription } from '@/lib/build-product-quote-short-description';
 import { buildProductQuoteLines } from '@/lib/equipment-config-selection';
 import {
@@ -12,6 +13,8 @@ import {
   downloadProductAttachment,
   findTechnicalSheetAttachment,
 } from '@/lib/inventory-attachments';
+import { isPrinterEquipment } from '@/lib/build-product-detail';
+import { resolvePublicDisplayUsd, roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
 import { usdToPen } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 import type { CartConfigurationLine, Product } from '@/types/product';
@@ -113,6 +116,8 @@ export interface ProductQuoteContext {
   heroDescription?: string;
   equipmentConfiguration?: CartConfigurationLine;
   quantity?: number;
+  /** Precio USD de la ficha (evita desfase con redondeo comercial). */
+  unitUsd?: number;
 }
 
 export function contactToQuoteClient(contact: WhatsAppContact): QuoteClientData {
@@ -142,6 +147,18 @@ export function contactToQuoteClient(contact: WhatsAppContact): QuoteClientData 
   };
 }
 
+/** USD de cotización = mismo precio público de vitrina (p. ej. IM 430F $1099). */
+export function resolveQuoteUnitUsd(product: Product, overrideUsd?: number): number {
+  const raw =
+    overrideUsd != null && Number.isFinite(overrideUsd) && overrideUsd > 0
+      ? overrideUsd
+      : Number(product.prices?.public ?? product.price) || 0;
+  if (isPrinterEquipment(product)) {
+    return roundEquipmentDisplayUsd(raw);
+  }
+  return resolvePublicDisplayUsd(raw, product.category);
+}
+
 function sanitizeAttachmentFileName(value: string): string {
   return value.replace(/[^\w\s-]/g, '').trim().slice(0, 48) || 'producto';
 }
@@ -167,12 +184,14 @@ export async function generateProductQuoteFromClient(
   registerProductQuote?: (payload: ReturnType<typeof buildProformaPayloadFromProductQuote>) => Promise<unknown>,
 ): Promise<QuotePdfPreview> {
   const quantity = context.quantity ?? 1;
+  const unitUsd = resolveQuoteUnitUsd(context.product, context.unitUsd);
   const quoteLines = buildProductQuoteLines(
     {
       name: context.displayTitle,
       sku: context.sku,
       brand: context.brandLabel,
-      pricePen: usdToPen(context.product.price),
+      priceUsd: unitUsd,
+      pricePen: usdToPen(unitUsd),
       quantity,
       imageUrl: context.product.image_url,
       shortDescription: buildProductQuoteShortDescription(context.product),
@@ -180,7 +199,18 @@ export async function generateProductQuoteFromClient(
     context.equipmentConfiguration,
   );
 
-  await preloadQuotePdfAssets([context.product.image_url]);
+  const addonLines = await buildEquipmentQuoteAddonLines(context.product, {
+    existingLines: quoteLines,
+    ...(context.equipmentConfiguration?.options
+      ? { selectedOptions: context.equipmentConfiguration.options }
+      : {}),
+  });
+  quoteLines.push(...addonLines);
+
+  await preloadQuotePdfAssets([
+    context.product.image_url,
+    ...addonLines.map((line) => line.imageUrl),
+  ]);
 
   const generated = await buildProductQuotePdf(client, quoteLines, companySettings);
   const url = URL.createObjectURL(generated.blob);
@@ -217,6 +247,7 @@ export async function generateProductQuoteFromClient(
             sku: line.sku,
             brand: line.brand,
             pricePen: line.pricePen,
+            ...(line.priceUsd != null ? { priceUsd: line.priceUsd } : {}),
             quantity: line.quantity ?? quantity,
             imageUrl: line.imageUrl ?? null,
             shortDescription: line.shortDescription ?? null,

@@ -2,9 +2,11 @@ import { GState, jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
 
 import { amountToWordsEs } from '@/lib/amount-to-words-es';
+import { buildEquipmentQuoteWarrantyLine } from '@/lib/build-product-quote-short-description';
+import { ESTABILIZADOR_2KVA_PRODUCT_ID, ESTABILIZADOR_QUOTE_CODE } from '@/lib/equipment-config-catalog';
 import { normalizePdfProductCode, pdfTableAmountColumnRight } from '@/lib/pdf-product-code';
 import { imageBasePath } from '@/lib/responsive-image';
-import { formatPenFromUsdPrecise, formatUsd, penToUsd } from '@/lib/utils';
+import { formatPenFromUsd, formatStorefrontUsd, penToUsd } from '@/lib/utils';
 import { DEFAULT_COMPANY_SETTINGS, type CompanySettings } from '@/types/company-settings';
 import type { ProductHeroSpecBullet } from '@/types/product-detail';
 import type { Product } from '@/types/product';
@@ -23,6 +25,8 @@ export interface QuoteProductData {
   sku: string;
   brand: string;
   pricePen: number;
+  /** Precio unitario USD (IGV incluido). Si falta, se deriva de pricePen. */
+  priceUsd?: number;
   quantity?: number;
   imageUrl?: string | null;
   /** Descripción breve del producto (debajo del título en DESCRIPCIÓN). */
@@ -61,14 +65,13 @@ type LoadedImage = { dataUrl: string; width: number; height: number };
 const PAGE_W = 210;
 const PAGE_H = 297;
 const MARGIN = 12;
-const PROFORMA_PRIMARY: Rgb = [0, 0, 0];
+/** Rojo marca HAITECH / RICOH (#E30613). */
+const PROFORMA_PRIMARY: Rgb = [227, 6, 19];
 /** Cabeceras de sección y fila de columnas en tablas del PDF. */
-const PROFORMA_SECTION_HEADER: Rgb = [3, 80, 183];
-const QUOTE_LOGO_FALLBACK = '/logo.png';
-const QUOTE_LOGO_SOURCE = '/logo-haitech.png';
-const QUOTE_LOGO_DARK = '/logo-oscuro.png';
+const PROFORMA_SECTION_HEADER: Rgb = [227, 6, 19];
+const QUOTE_LOGO_PATH = '/logo.png';
 const DEFAULT_PRINTER_FUNCTIONS = ['Copiadora', 'Impresora', 'Escáner'];
-const IMAGE_LOAD_TIMEOUT_MS = 4_000;
+const IMAGE_LOAD_TIMEOUT_MS = 1_500;
 const MAX_RASTER_EDGE_PX = 720;
 
 const quoteImageCache = new Map<string, LoadedImage | null>();
@@ -345,28 +348,227 @@ async function loadProductImageForQuote(src: string): Promise<LoadedImage | null
 }
 
 export function preloadQuotePdfAssets(imageUrls: Array<string | null | undefined> = []): void {
-  void loadImageDataUrl(QUOTE_LOGO_DARK);
-  void loadImageDataUrl(QUOTE_LOGO_SOURCE);
-  const quoteLogoOptions = { stripBackground: true, monochromeBlack: true };
-  void loadImageDataUrl(QUOTE_LOGO_FALLBACK, quoteLogoOptions);
+  void loadImageDataUrl(QUOTE_LOGO_PATH, { stripBackground: false });
   for (const url of imageUrls) {
     if (url?.trim()) void loadProductImageForQuote(url.trim());
   }
 }
 
+function isPlaceholderBankAccounts(text: string): boolean {
+  return /194-123456789|0011-0123-456789012345/.test(text);
+}
+
+function isLegacyQuoteFooter(text: string): boolean {
+  return /Representación impresa con fines informativos|Visita nuestro catálogo completo/i.test(text);
+}
+
+type QuoteBankDetail = {
+  kind: 'soles' | 'dolares' | 'other';
+  account: string;
+  cci: string;
+};
+
+type QuoteBankBlock = {
+  title: string;
+  details: QuoteBankDetail[];
+};
+
+function digitsOnly(value: string): string {
+  return value.replace(/\D/g, '');
+}
+
+function splitAccountAndCci(raw: string): { account: string; cci: string } {
+  const cciMatch = /(?:—|–|\|)?\s*CCI(?:\s*(?:Soles|D[oó]lares))?\s*:?\s*([0-9][0-9\s-]{10,})\s*$/i.exec(
+    raw,
+  );
+  if (!cciMatch) return { account: raw.trim(), cci: '' };
+  return {
+    account: raw.slice(0, cciMatch.index).replace(/[—–|]\s*$/, '').trim(),
+    cci: digitsOnly(cciMatch[1] ?? ''),
+  };
+}
+
+function inferQuoteBankCci(bank: string, account: string): string {
+  const digits = digitsOnly(account);
+  if (digits.length === 20) return digits;
+  const name = bank.toUpperCase();
+  if (name === 'BCP' && digits.length >= 11) {
+    const office = digits.slice(0, 3);
+    const body = digits.slice(3).padStart(14, '0').slice(-14);
+    return `002${office}${body}`;
+  }
+  if (name === 'BBVA' && digits.length >= 16) {
+    const normalized = digits.replace(/^0011/, '011');
+    return normalized.padEnd(20, '0').slice(0, 20);
+  }
+  if (/^INTERBANK$/i.test(name) && digits.length >= 10) {
+    const office = digits.slice(0, 3);
+    const body = digits.slice(3).padStart(14, '0').slice(-14);
+    return `003${office}${body}`;
+  }
+  return '';
+}
+
+function formatQuoteCci(cci: string): string {
+  const digits = digitsOnly(cci);
+  if (digits.length !== 20) return cci;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+function parseQuoteBankDetail(raw: string, bank: string): QuoteBankDetail {
+  const kind: QuoteBankDetail['kind'] = /^Soles\b/i.test(raw)
+    ? 'soles'
+    : /^D[oó]lares\b/i.test(raw)
+      ? 'dolares'
+      : 'other';
+  const withoutKind = raw.replace(/^(Soles|D[oó]lares)\s*:?\s*/i, '').trim();
+  const split = splitAccountAndCci(withoutKind);
+  const cci = split.cci || inferQuoteBankCci(bank, split.account);
+  return { kind, account: split.account, cci };
+}
+
+function parseQuoteBankBlocks(text: string): QuoteBankBlock[] {
+  const lines = text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const blocks: QuoteBankBlock[] = [];
+  let current: QuoteBankBlock | null = null;
+
+  const flush = () => {
+    if (current) blocks.push(current);
+    current = null;
+  };
+
+  const bankTitle = (raw: string) => {
+    const upper = raw.toUpperCase();
+    if (upper === 'INTERBANK') return 'Interbank';
+    if (upper === 'YAPE') return 'Yape';
+    return upper;
+  };
+
+  const pushDetail = (bank: string, raw: string) => {
+    if (!current || current.title !== bank) {
+      flush();
+      current = { title: bank, details: [] };
+    }
+    current.details.push(parseQuoteBankDetail(raw, bank));
+  };
+
+  for (const line of lines) {
+    if (/^Yape\b/i.test(line)) {
+      flush();
+      blocks.push({ title: line, details: [] });
+      continue;
+    }
+
+    const labeled = /^(BCP|BBVA|Interbank)\s+(SOLES|D[OÓ]LARES)\s*:?\s*(.+)$/i.exec(line);
+    if (labeled) {
+      const bank = bankTitle(labeled[1] ?? '');
+      const kind = /soles/i.test(labeled[2] ?? '') ? 'Soles' : 'Dólares';
+      pushDetail(bank, `${kind}: ${labeled[3] ?? ''}`);
+      continue;
+    }
+
+    const header = /^(BCP|BBVA|Interbank)\b/i.exec(line);
+    const isAmountLine = /^(Soles|D[oó]lares)\b/i.test(line);
+    if (header && !isAmountLine) {
+      flush();
+      current = { title: bankTitle(header[1] ?? ''), details: [] };
+      const rest = line.slice(header[0].length).replace(/^[:\s]+/, '').trim();
+      if (rest) current.details.push(parseQuoteBankDetail(rest, current.title));
+      continue;
+    }
+
+    if (current && isAmountLine) {
+      current.details.push(parseQuoteBankDetail(line.replace(/\s+/g, ' '), current.title));
+      continue;
+    }
+
+    if (current) {
+      current.details.push(parseQuoteBankDetail(line, current.title));
+    } else {
+      blocks.push({ title: line, details: [] });
+    }
+  }
+  flush();
+  return blocks;
+}
+
+function isQuoteStabilizerLine(line: QuoteProductData): boolean {
+  const hay = `${line.sku} ${line.name}`.toLowerCase();
+  return (
+    line.sku === ESTABILIZADOR_2KVA_PRODUCT_ID ||
+    line.sku === 'ESTAB-2KVA' ||
+    (/estabilizador/.test(hay) && /2000|2\s*kva|2kva/.test(hay))
+  );
+}
+
+function quoteLineDisplayCode(line: QuoteProductData): string {
+  if (isQuoteStabilizerLine(line)) return ESTABILIZADOR_QUOTE_CODE;
+  return normalizePdfProductCode(line.sku, line.brand);
+}
+
+function isQuoteEquipmentLine(line: QuoteProductData): boolean {
+  if (isQuoteStabilizerLine(line)) return false;
+  const name = line.name.toLowerCase();
+  const brief = line.shortDescription?.toLowerCase() ?? '';
+  if (/t[oó]ner|cartucho|chip|repuesto|almohadilla|cilindro/.test(name) && !/multifuncional|impresora|fotocopiadora/.test(name)) {
+    return false;
+  }
+  return (
+    /multifuncional|impresora|fotocopiadora|copiadora/.test(name) ||
+    /condici[oó]n:/.test(brief)
+  );
+}
+
+function withEquipmentWarranty(line: QuoteProductData, brief: string): string {
+  if (!isQuoteEquipmentLine(line) || /garant[ií]a/i.test(brief)) return brief;
+  const source = `${line.name}\n${brief}`;
+  const warranty = buildEquipmentQuoteWarrantyLine(source);
+  if (!brief) return `Garantía:\n• ${warranty}`;
+  return `${brief}\n\nGarantía:\n• ${warranty}`;
+}
+
+function drawWhatsAppMark(doc: jsPDF, x: number, y: number, size: number, fill: Rgb, cut: Rgb) {
+  const r = size / 2;
+  const cx = x + r;
+  const cy = y + r;
+  doc.setFillColor(...fill);
+  doc.circle(cx, cy, r, 'F');
+  doc.setFillColor(...cut);
+  doc.circle(cx + r * 0.05, cy - r * 0.08, r * 0.58, 'F');
+  doc.setFillColor(...fill);
+  doc.circle(cx + r * 0.08, cy - r * 0.12, r * 0.22, 'F');
+}
+
+function quoteLineUnitUsd(line: QuoteProductData, exchangeRate: number): number {
+  if (line.priceUsd != null && Number.isFinite(line.priceUsd) && line.priceUsd > 0) {
+    return Math.round(line.priceUsd * 100) / 100;
+  }
+  return penToUsd(line.pricePen, exchangeRate);
+}
+
 function normalizeQuoteCompany(company: CompanySettings): CompanySettings {
+  const bankAccountsText = String(
+    company.bankAccountsText ?? DEFAULT_COMPANY_SETTINGS.bankAccountsText,
+  ).trim();
+  const quoteFooterText = String(
+    company.quoteFooterText ?? DEFAULT_COMPANY_SETTINGS.quoteFooterText,
+  ).trim();
+
   return {
     ...DEFAULT_COMPANY_SETTINGS,
     ...company,
     companyName: String(company.companyName ?? DEFAULT_COMPANY_SETTINGS.companyName).trim(),
     legalName: String(company.legalName ?? DEFAULT_COMPANY_SETTINGS.legalName).trim(),
-    bankAccountsText: String(
-      company.bankAccountsText ?? DEFAULT_COMPANY_SETTINGS.bankAccountsText,
-    ).trim(),
+    bankAccountsText: isPlaceholderBankAccounts(bankAccountsText)
+      ? DEFAULT_COMPANY_SETTINGS.bankAccountsText
+      : bankAccountsText || DEFAULT_COMPANY_SETTINGS.bankAccountsText,
     quoteTermsText: String(company.quoteTermsText ?? DEFAULT_COMPANY_SETTINGS.quoteTermsText).trim(),
-    quoteFooterText: String(
-      company.quoteFooterText ?? DEFAULT_COMPANY_SETTINGS.quoteFooterText,
-    ).trim(),
+    quoteFooterText: isLegacyQuoteFooter(quoteFooterText)
+      ? DEFAULT_COMPANY_SETTINGS.quoteFooterText
+      : quoteFooterText || DEFAULT_COMPANY_SETTINGS.quoteFooterText,
     quoteValidityDays: Math.max(
       1,
       Number(company.quoteValidityDays) || DEFAULT_COMPANY_SETTINGS.quoteValidityDays,
@@ -403,14 +605,11 @@ function resolveFetchUrl(src: string): string {
   return src;
 }
 
+const QUOTE_SALES_EMAIL = 'ventas@haitech.pe';
 const QUOTE_CURRENCY_LABEL = 'DÓLARES (USD)';
 
-function formatExchangeRate(value: number): string {
-  const rate = Number.isFinite(value) && value > 0 ? value : DEFAULT_COMPANY_SETTINGS.usdToPenExchangeRate;
-  return `S/ ${rate.toLocaleString('es-PE', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })} por USD`;
+function formatQuoteUsd(value: number): string {
+  return formatStorefrontUsd(value);
 }
 
 function formatShortDate(date: Date): string {
@@ -425,32 +624,24 @@ function sanitizePdfFilenamePart(value: string): string {
   return value.replace(/[^\w\s-]/g, '').trim().slice(0, 40) || 'producto';
 }
 
-function tintRgb([r, g, b]: Rgb, factor: number): Rgb {
-  return [
-    Math.round(r + (255 - r) * factor),
-    Math.round(g + (255 - g) * factor),
-    Math.round(b + (255 - b) * factor),
-  ];
-}
-
 function imageFormat(dataUrl: string): 'PNG' | 'JPEG' {
   const mime = dataUrl.match(/^data:([^;]+)/i)?.[1]?.toLowerCase() ?? '';
   if (mime.includes('jpeg') || mime.includes('jpg')) return 'JPEG';
   return 'PNG';
 }
 
-function fitImage(
+function fitImageToTextHeight(
   width: number,
   height: number,
   maxWidth: number,
-  maxHeight: number,
+  targetHeight: number,
 ): { width: number; height: number } {
-  const ratio = width / height;
-  let w = maxWidth;
-  let h = w / ratio;
-  if (h > maxHeight) {
-    h = maxHeight;
-    w = h * ratio;
+  const ratio = width / Math.max(height, 1);
+  let h = Math.max(targetHeight, 1);
+  let w = h * ratio;
+  if (w > maxWidth) {
+    w = maxWidth;
+    h = w / ratio;
   }
   return { width: w, height: h };
 }
@@ -462,11 +653,12 @@ function addFittedImage(
   y: number,
   maxWidth: number,
   maxHeight: number,
+  vAlign: 'center' | 'top' = 'center',
 ) {
   try {
-    const size = fitImage(image.width, image.height, maxWidth, maxHeight);
+    const size = fitImageToTextHeight(image.width, image.height, maxWidth, maxHeight);
     const offsetX = x + (maxWidth - size.width) / 2;
-    const offsetY = y + (maxHeight - size.height) / 2;
+    const offsetY = vAlign === 'top' ? y : y + Math.max(0, (maxHeight - size.height) / 2);
     doc.addImage(
       image.dataUrl,
       imageFormat(image.dataUrl),
@@ -516,37 +708,18 @@ function buildQuoteNumber(company: CompanySettings): string {
 }
 
 export function resolveQuoteLogoUrl(_company: CompanySettings): string {
-  return QUOTE_LOGO_FALLBACK;
-}
-
-function isRasterLogoCandidate(url: string): boolean {
-  const normalized = url.split('?')[0]?.toLowerCase() ?? '';
-  return !normalized.endsWith('.ico') && !normalized.endsWith('.svg');
+  return QUOTE_LOGO_PATH;
 }
 
 async function loadQuoteLogo(
-  company: CompanySettings,
+  _company: CompanySettings,
   options: Pick<RasterizeImageOptions, 'stripBackground' | 'monochromeBlack'> = {},
 ): Promise<LoadedImage | null> {
-  const wantsDarkLogo = options.monochromeBlack ?? false;
-
-  if (wantsDarkLogo) {
-    const preparedDark = await loadImageDataUrl(QUOTE_LOGO_DARK);
-    if (preparedDark) return preparedDark;
-  }
-
   const logoOptions = {
     stripBackground: options.stripBackground ?? false,
-    monochromeBlack: wantsDarkLogo,
+    monochromeBlack: false,
   };
-  const candidates = [
-    ...(wantsDarkLogo
-      ? [QUOTE_LOGO_DARK, QUOTE_LOGO_SOURCE, QUOTE_LOGO_FALLBACK, '/logo.png']
-      : ['/logoclaro.png', QUOTE_LOGO_SOURCE, QUOTE_LOGO_FALLBACK, '/logo.png']),
-    company.logoUrl?.trim(),
-  ]
-    .filter((url): url is string => Boolean(url))
-    .filter(isRasterLogoCandidate);
+  const candidates = [QUOTE_LOGO_PATH];
 
   const seen = new Set<string>();
   const unique = candidates.filter((url) => {
@@ -555,14 +728,11 @@ async function loadQuoteLogo(
     return true;
   });
 
-  const results = await Promise.all(
-    unique.map((url) =>
-      url === QUOTE_LOGO_DARK && wantsDarkLogo
-        ? loadImageDataUrl(url)
-        : loadImageDataUrl(url, logoOptions),
-    ),
-  );
-  return results.find((result) => result != null) ?? null;
+  for (const url of unique) {
+    const loaded = await loadImageDataUrl(url, logoOptions);
+    if (loaded) return loaded;
+  }
+  return null;
 }
 
 function coverImageRect(
@@ -914,8 +1084,6 @@ export async function buildProductQuotePdf(
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const primary = PROFORMA_PRIMARY;
   const tableHeader = PROFORMA_SECTION_HEADER;
-  const primarySoft = tintRgb(primary, 0.88);
-  const primaryLight = tintRgb(primary, 0.94);
   const contentW = PAGE_W - MARGIN * 2;
   const exchangeRate =
     Number(companyInput.usdToPenExchangeRate) || DEFAULT_COMPANY_SETTINGS.usdToPenExchangeRate;
@@ -924,21 +1092,20 @@ export async function buildProductQuotePdf(
   const expiryDate = new Date(issueDate);
   expiryDate.setDate(expiryDate.getDate() + company.quoteValidityDays);
 
-  const subtotalPen = quoteLines.reduce(
-    (sum, line) => sum + line.pricePen * (line.quantity ?? 1),
-    0,
-  );
-  const toUsd = (pen: number) => penToUsd(pen, exchangeRate);
-  const subtotalUsd = toUsd(subtotalPen);
-  const gravadaUsd = Math.round((subtotalUsd / 1.18) * 100) / 100;
-  const igvUsd = Math.round((subtotalUsd - gravadaUsd) * 100) / 100;
-  const totalUsd = subtotalUsd;
+  const lineTotals = quoteLines.map((line) => {
+    const quantity = line.quantity ?? 1;
+    const unitUsd = quoteLineUnitUsd(line, exchangeRate);
+    return Math.round(unitUsd * quantity * 100) / 100;
+  });
+  const totalUsd = Math.round(lineTotals.reduce((sum, value) => sum + value, 0) * 100) / 100;
+  const gravadaUsd = Math.round((totalUsd / 1.18) * 100) / 100;
+  const igvUsd = Math.round((totalUsd - gravadaUsd) * 100) / 100;
 
   const quoteNumber = buildQuoteNumber(company);
   const qrPayload = `${company.supportUrl}?ref=${encodeURIComponent(quoteNumber)}`;
 
   const [logo, lineImages, badgeQrDataUrl] = await Promise.all([
-    loadQuoteLogo(company, { stripBackground: true, monochromeBlack: true }),
+    loadQuoteLogo(company, { stripBackground: false }),
     Promise.all(
       quoteLines.map((line) =>
         line.imageUrl?.trim()
@@ -959,18 +1126,38 @@ export async function buildProductQuotePdf(
 
   let y = MARGIN;
 
-  const badgeW = 56;
-  const qrSize = 16;
-  const badgeX = PAGE_W - MARGIN - badgeW;
-  const logoW = 34;
-  const logoH = 18;
+  const qrSize = 18;
+  const qrX = PAGE_W - MARGIN - qrSize;
+  const badgeRight = PAGE_W - MARGIN;
+  const logoW = 42;
+  const logoH = 16;
 
   if (logo) {
-    addFittedImage(doc, logo, MARGIN, y + 1, logoW, logoH);
+    addFittedImage(doc, logo, MARGIN, y + 2, logoW, logoH, 'top');
   }
 
+  const qrY = y + 1;
+  if (badgeQrDataUrl) {
+    doc.addImage(badgeQrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
+  }
+
+  doc.setTextColor(...primary);
+  doc.setFont('helvetica', 'bold');
+  let badgeY = qrY + qrSize + 3.4;
+  doc.setFontSize(8);
+  doc.text(company.quoteDocumentLabel, badgeRight, badgeY, { align: 'right' });
+  badgeY += 3.2;
+  doc.setFontSize(6.8);
+  doc.text(quoteNumber, badgeRight, badgeY, { align: 'right' });
+  badgeY += 3.1;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.6);
+  doc.text(`RUC ${company.ruc}`, badgeRight, badgeY, { align: 'right' });
+
+  const clusterW = 34;
+  const clusterX = PAGE_W - MARGIN - clusterW;
   const centerX = MARGIN + logoW + 3;
-  const centerW = badgeX - centerX - 3;
+  const centerW = Math.max(52, clusterX - centerX - 3);
   let centerY = y + 4.5;
 
   doc.setTextColor(...primary);
@@ -990,35 +1177,47 @@ export async function buildProductQuotePdf(
   centerY += addressLines.length * 2.6 + 0.8;
   const descLines = doc.splitTextToSize(company.businessDescription || company.tagline, centerW);
   doc.text(descLines, centerX + centerW / 2, centerY, { align: 'center' });
+  centerY += descLines.length * 2.6 + 0.6;
+  doc.setFontSize(6.2);
+  doc.setTextColor(23, 23, 23);
+  const contactLine = `Ventas: 915 149 290 | Soporte/Alquiler 965 805 873 | ${QUOTE_SALES_EMAIL}`;
+  const contactLines = doc.splitTextToSize(contactLine, centerW);
+  doc.text(contactLines, centerX + centerW / 2, centerY, { align: 'center' });
+  centerY += contactLines.length * 2.5;
 
-  const textBlockX = badgeX + qrSize + 1.5;
-  const textBlockW = badgeW - qrSize - 1.5;
-  const textCenterX = textBlockX + textBlockW / 2;
-  const badgeH = 22;
+  y = Math.max(centerY + 3, badgeY + 4, y + 28);
 
-  doc.setTextColor(...primary);
-
-  if (badgeQrDataUrl) {
-    doc.addImage(badgeQrDataUrl, 'PNG', badgeX - 0.5, y + 2, qrSize, qrSize);
-  }
-
-  let badgeTextY = y + 5.5;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.8);
-  doc.text(`RUC ${company.ruc}`, textCenterX, badgeTextY, { align: 'center' });
-  badgeTextY += 3.6;
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12.5);
-  doc.text(company.quoteDocumentLabel, textCenterX, badgeTextY, { align: 'center' });
-  badgeTextY += 4.2;
-  doc.setFontSize(7.2);
-  doc.text(quoteNumber, textCenterX, badgeTextY, { align: 'center' });
-
-  y += Math.max(28, badgeH + 4);
-
-  const boxGap = 4;
+  const boxGap = 8;
   const boxW = (contentW - boxGap) / 2;
-  const boxH = 40;
+  const clientRows: [string, string][] = [
+    ['CLIENTE:', client.razonSocial],
+    ['RUC:', client.ruc],
+    ['DIRECCIÓN:', client.direccion],
+    ['CIUDAD:', client.ciudad],
+    ['ATENCIÓN:', client.atencion],
+    ['CELULAR:', client.celular],
+  ];
+  const detailRows: [string, string][] = [
+    ['FECHA EMISIÓN:', formatShortDate(issueDate)],
+    ['FECHA DE VENC.:', formatShortDate(expiryDate)],
+    ['MONEDA:', QUOTE_CURRENCY_LABEL],
+    ['TIPO DE CLIENTE:', company.defaultClientType],
+  ];
+  const labelW = 18;
+  const valueW = boxW - 8;
+  const sectionTitleH = 5.5;
+  const afterTitleGap = 4.4;
+  const clientLineH = 3.15;
+  const measureRowBlock = (rows: [string, string][], rowLabelW: number) =>
+    rows.reduce((height, [, value]) => {
+      const lines = doc.splitTextToSize(value || ' ', valueW - rowLabelW);
+      return height + Math.max(Array.isArray(lines) ? lines.length : 1, 1) * clientLineH;
+    }, 0);
+  const boxH =
+    sectionTitleH +
+    afterTitleGap +
+    Math.max(measureRowBlock(clientRows, labelW), measureRowBlock(detailRows, 28)) +
+    2.4;
   const leftX = MARGIN;
   const rightX = MARGIN + boxW + boxGap;
 
@@ -1030,50 +1229,33 @@ export async function buildProductQuotePdf(
   drawSectionTitle(doc, leftX, y, boxW, 'DATOS DEL CLIENTE', tableHeader);
   drawSectionTitle(doc, rightX, y, boxW, 'DETALLE DE LA PROFORMA', tableHeader);
 
-  let rowY = y + 8;
-  const labelW = 18;
-  const valueW = boxW - 8;
-
-  const clientRows: [string, string][] = [
-    ['CLIENTE:', client.razonSocial],
-    ['RUC:', client.ruc],
-    ['DIRECCIÓN:', client.direccion],
-    ['CIUDAD:', client.ciudad],
-    ['ATENCIÓN:', client.atencion],
-    ['CELULAR:', client.celular],
-  ];
+  let rowY = y + sectionTitleH + afterTitleGap;
+  const labelWInner = 18;
+  const valueWInner = boxW - 8;
 
   clientRows.forEach(([label, value]) => {
-    const drawn = drawLabelValue(doc, label, value, leftX + 3, rowY, labelW, valueW);
-    rowY += Math.max(drawn, 1) * 3.1 + 0.5;
+    const drawn = drawLabelValue(doc, label, value, leftX + 3, rowY, labelWInner, valueWInner);
+    rowY += Math.max(drawn, 1) * clientLineH;
   });
 
-  rowY = y + 8;
-  const detailRows: [string, string][] = [
-    ['FECHA EMISIÓN:', formatShortDate(issueDate)],
-    ['FECHA DE VENC.:', formatShortDate(expiryDate)],
-    ['MONEDA:', QUOTE_CURRENCY_LABEL],
-    ['TIPO DE CAMBIO:', formatExchangeRate(exchangeRate)],
-    ['TIPO DE CLIENTE:', company.defaultClientType],
-  ];
-
+  rowY = y + sectionTitleH + afterTitleGap;
   detailRows.forEach(([label, value]) => {
-    const drawn = drawLabelValue(doc, label, value, rightX + 3, rowY, 28, valueW);
-    rowY += Math.max(drawn, 1) * 3.1 + 0.5;
+    const drawn = drawLabelValue(doc, label, value, rightX + 3, rowY, 28, valueWInner);
+    rowY += Math.max(drawn, 1) * clientLineH;
   });
 
-  y += boxH + 5;
+  y += boxH + 1.4;
 
   const tableX = MARGIN;
   const tableW = contentW;
   const col = {
     n: 7,
-    img: 22,
-    code: 20,
-    desc: 55,
-    qty: 11,
-    um: 12,
-    unit: 24,
+    code: 18,
+    img: 30,
+    desc: 54,
+    qty: 10,
+    um: 16,
+    unit: 23,
     amount: 26,
   };
   const amountColRight = pdfTableAmountColumnRight(tableX, tableW);
@@ -1087,67 +1269,97 @@ export async function buildProductQuotePdf(
   doc.setFontSize(6.6);
 
   let cx = tableX + 2;
-  doc.text('N°', cx + 2, y + 4.1);
+  doc.text('N°', cx + col.n / 2 - 1, y + 4.1, { align: 'center' });
   cx += col.n;
+  doc.text('CÓDIGO', cx + col.code / 2 - 1, y + 4.1, { align: 'center' });
+  cx += col.code;
   doc.text('IMAGEN', cx + 1, y + 4.1);
   cx += col.img;
-  doc.text('CÓDIGO', cx + 1, y + 4.1);
-  cx += col.code;
   doc.text('DESCRIPCIÓN', cx + 1, y + 4.1);
   cx += col.desc;
   doc.text('CANT.', cx + 2, y + 4.1);
   cx += col.qty;
-  doc.text('UM', cx + 2, y + 4.1);
+  doc.setFontSize(5.8);
+  doc.text('U. Medida', cx + col.um / 2 - 1, y + 4.1, { align: 'center' });
   cx += col.um;
-  doc.text('P/U', unitColRight, y + 4.1, { align: 'right' });
-  doc.text('IMPORTE', amountColRight, y + 4.1, { align: 'right' });
+  doc.setFontSize(6.6);
+  doc.text('P. Unit', unitColRight, y + 4.1, { align: 'right' });
+  doc.text('Total', amountColRight, y + 4.1, { align: 'right' });
 
   y += headerH;
-  const baseRowH = 28;
+  const baseRowH = 26;
+  const descLineHeightFactor = 1.08;
+  const titleToBriefGap = 0.25;
+  const textStartOffset = 3.2;
+  const briefFontSize = 5.8;
+  const titleFontSize = 6.4;
+  const mmPerPt = 1 / doc.internal.scaleFactor;
+  const titleLineH = titleFontSize * mmPerPt * descLineHeightFactor;
+  const briefLineH = briefFontSize * mmPerPt * descLineHeightFactor;
 
   quoteLines.forEach((line, index) => {
     const quantity = line.quantity ?? 1;
-    const unitPriceUsd = toUsd(line.pricePen);
+    const unitPriceUsd = quoteLineUnitUsd(line, exchangeRate);
     const lineTotalUsd = Math.round(unitPriceUsd * quantity * 100) / 100;
     const rowImage = lineImages[index] ?? null;
 
-    const brief = line.shortDescription?.trim() || '';
+    const brief = withEquipmentWarranty(line, line.shortDescription?.trim() || '');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6.4);
-    const productTitle = doc.splitTextToSize(`${line.name} / ${line.brand}`, col.desc - 2);
-    const titleLines = productTitle.slice(0, brief ? 2 : 3);
+    doc.setFontSize(titleFontSize);
+    const titleLines = doc.splitTextToSize(line.name, col.desc - 2);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(5.7);
+    doc.setFontSize(briefFontSize);
     const briefLines: string[] = [];
     if (brief) {
-      for (const source of brief.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean)) {
-        for (const wrapped of doc.splitTextToSize(source, col.desc - 2)) {
-          if (briefLines.length >= 5) break;
-          briefLines.push(wrapped);
+      for (const source of brief.split(/\r?\n/)) {
+        const trimmed = source.trim();
+        if (!trimmed) {
+          if (briefLines.length > 0) briefLines.push(' ');
+          continue;
         }
-        if (briefLines.length >= 5) break;
+        briefLines.push(...doc.splitTextToSize(trimmed, col.desc - 2));
       }
     }
     const textBlockH =
-      titleLines.length * 3.1 + (briefLines.length > 0 ? 1.2 + briefLines.length * 2.7 : 0);
-    const rowH = Math.max(baseRowH, textBlockH + 8);
+      titleLines.length * titleLineH +
+      (briefLines.length > 0 ? titleToBriefGap + briefLines.length * briefLineH : 0);
+    const rowH = Math.max(baseRowH, textStartOffset + textBlockH + 4.5);
+
+    if (y + rowH > PAGE_H - 18) {
+      doc.addPage();
+      y = MARGIN;
+    }
 
     doc.setDrawColor(226, 232, 240);
     doc.setFillColor(255, 255, 255);
     doc.rect(tableX, y, tableW, rowH, 'FD');
 
     let cellX = tableX + 2;
+    const midY = y + rowH / 2;
     doc.setTextColor(23, 23, 23);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
-    doc.text(String(index + 1), cellX + 2.5, y + rowH / 2 + 1.5);
+    doc.text(String(index + 1), cellX + col.n / 2 - 1, midY, { align: 'center', baseline: 'middle' });
     cellX += col.n;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.4);
+    const codeLines = doc.splitTextToSize(
+      quoteLineDisplayCode(line),
+      col.code - 2,
+    );
+    doc.setLineHeightFactor(descLineHeightFactor);
+    doc.text(codeLines, cellX + col.code / 2 - 1, midY, {
+      align: 'center',
+      baseline: 'middle',
+    });
+    cellX += col.code;
 
     doc.setDrawColor(241, 245, 249);
     doc.setFillColor(255, 255, 255);
-    const imgPad = 1.5;
+    const imgPad = 1.2;
     const imgBoxW = col.img - 2;
-    const imgBoxH = rowH - 4;
+    const imgBoxH = Math.max(14, rowH - 4);
     doc.roundedRect(cellX + 1, y + 2, imgBoxW, imgBoxH, 1.2, 1.2, 'FD');
     if (rowImage) {
       addFittedImage(
@@ -1157,105 +1369,108 @@ export async function buildProductQuotePdf(
         y + 2 + imgPad,
         imgBoxW - imgPad * 2,
         imgBoxH - imgPad * 2,
+        'center',
       );
     } else {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(5.5);
       doc.setTextColor(148, 163, 184);
-      doc.text('S/IMG', cellX + 5, y + rowH / 2 + 1);
+      doc.text('S/IMG', cellX + imgBoxW / 2, midY, { align: 'center', baseline: 'middle' });
     }
     cellX += col.img;
 
-    doc.setTextColor(23, 23, 23);
+    doc.setLineHeightFactor(descLineHeightFactor);
+    const textStartY = y + Math.max(2, (rowH - textBlockH) / 2);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6.4);
-    const codeLines = doc.splitTextToSize(
-      normalizePdfProductCode(line.sku, line.brand),
-      col.code - 2,
-    );
-    doc.text(codeLines.slice(0, 3), cellX + 1, y + 7);
-    cellX += col.code;
-
-    const textStartY = y + 6;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6.4);
+    doc.setFontSize(titleFontSize);
     doc.setTextColor(23, 23, 23);
-    doc.text(titleLines, cellX + 1, textStartY);
+    doc.text(titleLines, cellX + 1, textStartY, { baseline: 'top' });
     if (briefLines.length > 0) {
-      const briefY = textStartY + titleLines.length * 3.1 + 0.8;
+      const briefY = textStartY + titleLines.length * titleLineH + titleToBriefGap;
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(5.7);
+      doc.setFontSize(briefFontSize);
       doc.setTextColor(71, 85, 105);
-      doc.text(briefLines, cellX + 1, briefY);
+      doc.text(briefLines, cellX + 1, briefY, { baseline: 'top' });
     }
     cellX += col.desc;
 
+    doc.setLineHeightFactor(1.15);
     doc.setTextColor(23, 23, 23);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.2);
-    doc.text(String(quantity), cellX + 3.5, y + rowH / 2 + 1.5);
+    doc.text(String(quantity), cellX + col.qty / 2, midY, { align: 'center', baseline: 'middle' });
     cellX += col.qty;
 
     doc.setFont('helvetica', 'normal');
-    doc.text('UNIDAD', cellX + 0.5, y + rowH / 2 + 1.5);
+    doc.text('UNIDAD', cellX + col.um / 2, midY, { align: 'center', baseline: 'middle' });
     cellX += col.um;
 
     doc.setFont('helvetica', 'bold');
-    doc.text(formatUsd(unitPriceUsd), unitColRight, y + rowH / 2 + 1.5, { align: 'right' });
-    doc.text(formatUsd(lineTotalUsd), amountColRight, y + rowH / 2 + 1.5, { align: 'right' });
+    doc.text(formatQuoteUsd(unitPriceUsd), unitColRight, midY, { align: 'right', baseline: 'middle' });
+    doc.text(formatQuoteUsd(lineTotalUsd), amountColRight, midY, { align: 'right', baseline: 'middle' });
 
     y += rowH;
   });
 
-  y += 4;
+  if (y + 42 > PAGE_H - 16) {
+    doc.addPage();
+    y = MARGIN;
+  } else {
+    y += 0.7;
+  }
 
   const totalsLabelRight = unitColRight - 2;
+  const totalUsdText = formatQuoteUsd(totalUsd);
+  const lettersW = Math.max(58, totalsLabelRight - 24 - MARGIN);
+  const amountWords = amountToWordsEs(totalUsd, 'DÓLARES');
+  const lettersBlock = `IMPORTE EN LETRAS: ${amountWords}`;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.4);
+  const lettersLines = doc.splitTextToSize(lettersBlock, lettersW);
 
+  const totalsStartY = y;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(55, 65, 81);
-  doc.text('GRAVADA:', totalsLabelRight, y + 4, { align: 'right' });
-  doc.text(formatUsd(gravadaUsd), amountColRight, y + 4, { align: 'right' });
-  y += 6.5;
-  doc.text('IGV 18.00 %:', totalsLabelRight, y + 4, { align: 'right' });
-  doc.text(formatUsd(igvUsd), amountColRight, y + 4, { align: 'right' });
-  y += 7.5;
+  doc.text('GRAVADA:', totalsLabelRight, y + 2.2, { align: 'right' });
+  doc.text(formatQuoteUsd(gravadaUsd), amountColRight, y + 2.2, { align: 'right' });
+  y += 4.4;
+  doc.text('IGV 18.00 %:', totalsLabelRight, y + 3.2, { align: 'right' });
+  doc.text(formatQuoteUsd(igvUsd), amountColRight, y + 3.2, { align: 'right' });
+  y += 4.8;
 
-  doc.setFillColor(...tableHeader);
-  doc.roundedRect(amountColRight - col.amount - 2, y, col.amount + 4, 6, 1.2, 1.2, 'F');
-  doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
-  doc.text('TOTAL:', totalsLabelRight, y + 4.1, { align: 'right' });
-  doc.text(formatUsd(totalUsd), amountColRight, y + 4.1, { align: 'right' });
-  y += 8.5;
+  const totalBoxPadX = 1.5;
+  const totalBoxW = doc.getTextWidth(totalUsdText) + totalBoxPadX * 2;
+  const totalBoxX = amountColRight - totalBoxW + totalBoxPadX;
+  doc.setFillColor(...tableHeader);
+  doc.roundedRect(totalBoxX, y, totalBoxW, 5.4, 1, 1, 'F');
+  doc.setTextColor(55, 65, 81);
+  doc.text('Total US$', totalsLabelRight, y + 3.8, { align: 'right' });
+  doc.setTextColor(255, 255, 255);
+  doc.text(totalUsdText, amountColRight, y + 3.8, { align: 'right' });
+  y += 7;
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.2);
-  doc.setTextColor(71, 85, 105);
-  doc.text(`Tipo de cambio: ${formatExchangeRate(exchangeRate)}`, amountColRight, y, {
-    align: 'right',
-  });
-  y += 4;
   doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.2);
   doc.setTextColor(23, 23, 23);
   doc.text(
-    `Equivale a ${formatPenFromUsdPrecise(totalUsd, exchangeRate)}`,
+    `(Soles ${formatPenFromUsd(totalUsd, exchangeRate)})`,
     amountColRight,
     y,
     { align: 'right' },
   );
-  y += 8;
 
-  doc.setFillColor(...primaryLight);
-  doc.setDrawColor(...primarySoft);
-  doc.roundedRect(MARGIN, y, contentW, 10, 2, 2, 'FD');
   doc.setTextColor(...primary);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
-  const amountWords = amountToWordsEs(totalUsd, 'DÓLARES');
-  doc.text(`IMPORTE EN LETRAS: ${amountWords}`, MARGIN + 4, y + 6.5);
-  y += 14;
+  doc.setFontSize(7.4);
+  doc.setLineHeightFactor(1.2);
+  doc.text(lettersLines, MARGIN, totalsStartY + 2.2);
+  doc.setLineHeightFactor(1.15);
+
+  const lettersBottom = totalsStartY + 2.2 + lettersLines.length * 3.4;
+  y = Math.max(y + 6, lettersBottom + 4);
 
   const summaryNotes = options?.summaryNotes?.filter((note) => note != null) ?? [];
   if (summaryNotes.length > 0) {
@@ -1291,7 +1506,29 @@ export async function buildProductQuotePdf(
     y += notesBoxH + 5;
   }
 
-  const footerBoxH = 42;
+  const bankBlocks = parseQuoteBankBlocks(company.bankAccountsText);
+  const termLines = company.quoteTermsText.split('\n').filter(Boolean);
+  const banksAfterTitle = 4.8;
+  const bankLineH = 2.35;
+  const bankBlockGap = 1.15;
+  const termLineH = 2.45;
+  const termGap = 0.45;
+  const footerBoxH = Math.max(
+    28,
+    5.5 +
+      banksAfterTitle +
+      bankBlocks.reduce((sum, block) => {
+        const titleWrap = /^yape\b/i.test(block.title) ? 2 : 1;
+        return sum + titleWrap * bankLineH + block.details.length * bankLineH + bankBlockGap;
+      }, 0),
+    5.5 + banksAfterTitle + termLines.length * (termLineH + termGap) + 4,
+  );
+
+  if (y + footerBoxH + 16 > PAGE_H) {
+    doc.addPage();
+    y = MARGIN;
+  }
+
   doc.setDrawColor(226, 232, 240);
   doc.setFillColor(255, 255, 255);
   doc.roundedRect(leftX, y, boxW, footerBoxH, 2, 2, 'FD');
@@ -1299,36 +1536,77 @@ export async function buildProductQuotePdf(
   drawSectionTitle(doc, leftX, y, boxW, 'CUENTAS BANCARIAS', tableHeader);
   drawSectionTitle(doc, rightX, y, boxW, 'TÉRMINOS Y CONDICIONES', tableHeader);
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.8);
   doc.setTextColor(51, 65, 85);
-  const bankLines = company.bankAccountsText.split('\n').filter(Boolean);
-  let bankY = y + 9;
-  bankLines.forEach((line) => {
-    const wrapped = doc.splitTextToSize(`• ${line}`, boxW - 6);
-    doc.text(wrapped, leftX + 3, bankY);
-    bankY += wrapped.length * 3.4 + 1;
+  let bankY = y + 5.5 + banksAfterTitle;
+  const bankLeftW = (boxW - 8) * 0.52;
+  const bankRightX = leftX + 3 + bankLeftW;
+  bankBlocks.forEach((block) => {
+    const isYape = /^yape\b/i.test(block.title);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.2);
+    if (isYape) {
+      const titleLines = doc.splitTextToSize(block.title, boxW - 6);
+      doc.text(titleLines, leftX + 3, bankY);
+      bankY += titleLines.length * bankLineH + bankBlockGap;
+      return;
+    }
+
+    doc.text(block.title, leftX + 3, bankY);
+    bankY += bankLineH;
+    block.details.forEach((detail) => {
+      const kindLabel =
+        detail.kind === 'soles' ? 'Soles' : detail.kind === 'dolares' ? 'Dólares' : '';
+      const leftText = kindLabel ? `${kindLabel}: ${detail.account}` : detail.account;
+      const cciLabel =
+        detail.kind === 'soles' ? 'CCI Soles' : detail.kind === 'dolares' ? 'CCI Dólares' : 'CCI';
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(5.5);
+      const leftLines = doc.splitTextToSize(leftText, bankLeftW - 1);
+      doc.text(leftLines, leftX + 3, bankY);
+      if (detail.cci) {
+        const cciLines = doc.splitTextToSize(
+          `${cciLabel}: ${formatQuoteCci(detail.cci)}`,
+          boxW - 8 - bankLeftW,
+        );
+        doc.text(cciLines, bankRightX, bankY);
+      }
+      bankY += Math.max(leftLines.length, 1) * 2.15;
+    });
+    bankY += bankBlockGap;
   });
 
-  const termLines = company.quoteTermsText.split('\n').filter(Boolean);
-  let termY = y + 9;
+  let termY = y + 5.5 + banksAfterTitle;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(5.9);
   termLines.forEach((line) => {
     const wrapped = doc.splitTextToSize(`• ${line}`, boxW - 6);
     doc.text(wrapped, rightX + 3, termY);
-    termY += wrapped.length * 3.4 + 1;
+    termY += wrapped.length * termLineH + termGap;
   });
 
-  const barH = 6;
+  const barH = 10;
   const barY = PAGE_H - barH;
   doc.setFillColor(...tableHeader);
   doc.rect(0, barY, PAGE_W, barH, 'F');
 
   doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(5.8);
-  const footerText = `${company.quoteDocumentLabel} ${quoteNumber}. ${company.quoteFooterText} ${company.supportUrl}`;
-  const footerLines = doc.splitTextToSize(footerText, PAGE_W - MARGIN * 2);
-  doc.text(footerLines.slice(0, 1), MARGIN, barY + 4);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(5.6);
+  const footerLeft = 'Gracias por confiar en HAITECH  |  Conoce más soluciones en: www.haitech.pe';
+  const footerRight = '915149290 / 965 805 873   Av. Petit Thouars 1935 - Lince';
+  const iconSize = 3.6;
+  const iconGap = 1.4;
+  const leftW = doc.getTextWidth(footerLeft);
+  const rightW = doc.getTextWidth(footerRight);
+  const groupW = leftW + iconGap + iconSize + iconGap + rightW;
+  const groupX = (PAGE_W - groupW) / 2;
+  const footerY = barY + 6.2;
+  doc.text(footerLeft, groupX, footerY);
+  drawWhatsAppMark(doc, groupX + leftW + iconGap, footerY - iconSize + 0.4, iconSize, [255, 255, 255], tableHeader);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(5.6);
+  doc.text(footerRight, groupX + leftW + iconGap + iconSize + iconGap, footerY);
 
   const safeName = client.razonSocial.replace(/[^\w\s-]/g, '').trim().slice(0, 30);
   const filename = `${company.quoteNumberPrefix}-${quoteNumber.split('-').pop()}-${safeName || 'cliente'}.pdf`.toLowerCase();
@@ -1341,10 +1619,36 @@ export async function buildProductQuotePdf(
 }
 
 export function downloadQuotePdf(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = filename;
-  anchor.click();
-  URL.revokeObjectURL(url);
+  const pdfBlob =
+    blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+
+  const saveWithAnchor = () => {
+    const url = URL.createObjectURL(pdfBlob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.rel = 'noopener';
+    if (isMobile) anchor.target = '_blank';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    window.setTimeout(() => URL.revokeObjectURL(url), isMobile ? 60_000 : 2_000);
+  };
+
+  if (
+    isMobile &&
+    typeof navigator.share === 'function' &&
+    typeof navigator.canShare === 'function' &&
+    navigator.canShare({ files: [file] })
+  ) {
+    void navigator.share({ files: [file], title: filename }).catch((error: unknown) => {
+      if (error instanceof Error && error.name === 'AbortError') return;
+      saveWithAnchor();
+    });
+    return;
+  }
+
+  saveWithAnchor();
 }

@@ -53,6 +53,7 @@ export function buildProformaPayloadFromProductQuote(
     sku: string;
     brand: string;
     pricePen: number;
+    priceUsd?: number;
     quantity?: number;
     imageUrl?: string | null;
     shortDescription?: string | null;
@@ -66,6 +67,7 @@ export function buildProformaPayloadFromProductQuote(
     brand: line.brand,
     quantity: line.quantity ?? 1,
     unitPricePen: line.pricePen,
+    ...(line.priceUsd != null && line.priceUsd > 0 ? { unitPriceUsd: line.priceUsd } : {}),
     imageUrl: line.imageUrl ?? null,
     shortDescription: line.shortDescription ?? null,
   }));

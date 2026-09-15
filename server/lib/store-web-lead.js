@@ -6,6 +6,7 @@
 import { randomUUID } from 'crypto';
 
 import { getSupabaseAdmin } from './supabase-auth.js';
+import { upsertWebLeadCustomerFile } from './web-lead-customers-file-store.js';
 
 /** @type {Record<string, string>} */
 export const WEB_LEAD_CHANNEL_LABELS = {
@@ -23,6 +24,7 @@ export const WEB_LEAD_CHANNEL_LABELS = {
   'whatsapp-floating': 'WhatsApp flotante',
   'whatsapp-rental': 'WhatsApp alquiler',
   'whatsapp-home': 'WhatsApp home',
+  'header-ventas': 'WhatsApp header ventas',
   'account-signup': 'Registro / inicio de sesión',
   'account-login': 'Inicio de sesión',
   'quote-pdf': 'Cotización PDF',
@@ -41,11 +43,33 @@ export function webLeadChannelLabel(channel) {
 }
 
 /**
+ * Alinea campañas del mensaje de WhatsApp con el canal del panel.
+ * @param {unknown} channel
+ * @param {unknown} campaign
+ */
+export function resolveWebLeadChannel(channel, campaign) {
+  const ch = typeof channel === 'string' ? channel.trim() : '';
+  const camp = typeof campaign === 'string' ? campaign.trim() : '';
+  if (camp === 'header-ventas' && (!ch || ch === 'whatsapp-home' || ch === 'whatsapp-floating' || ch === 'contact')) {
+    return 'whatsapp-header';
+  }
+  if (camp === 'header-cotizar' && (!ch || ch === 'whatsapp-home' || ch === 'whatsapp-floating' || ch === 'contact')) {
+    return 'whatsapp-cotizar';
+  }
+  return ch || 'contact';
+}
+
+export function isWhatsAppFollowUpChannel(channel) {
+  const key = String(channel ?? '').toLowerCase();
+  return key.includes('whatsapp') || key.startsWith('header-');
+}
+
+/**
  * @param {string | null | undefined} companyOrRuc
  * @param {string | null | undefined} name
  * @returns {{ companyName: string | null, taxId: string | null }}
  */
-function parseCompanyOrRuc(companyOrRuc, name) {
+export function parseCompanyOrRuc(companyOrRuc, name) {
   const trimmed = String(companyOrRuc ?? '').trim();
   if (!trimmed) return { companyName: null, taxId: null };
   const digitsOnly = trimmed.replace(/\D/g, '');
@@ -133,8 +157,6 @@ function parseLeadHistory(persona) {
  */
 export async function upsertStoreCustomerFromWebLead(lead) {
   const supabase = getSupabaseAdmin();
-  if (!supabase) return null;
-
   const name = String(lead.name ?? '').trim();
   if (name.length < 2) return null;
 
@@ -157,7 +179,29 @@ export async function upsertStoreCustomerFromWebLead(lead) {
   const userAgent = typeof meta.userAgent === 'string' ? meta.userAgent.trim() : '';
   const direccion =
     typeof meta.direccion === 'string' ? meta.direccion.trim() : '';
+  const campaign = typeof meta.campaign === 'string' ? meta.campaign.trim() : '';
   const now = new Date().toISOString();
+
+  if (!supabase) {
+    return upsertFileCustomerFromLead({
+      name,
+      email,
+      phone,
+      companyName,
+      taxId,
+      city,
+      direccion,
+      channel,
+      channelLabel,
+      message,
+      productName,
+      productId,
+      campaign,
+      ip,
+      userAgent,
+      now,
+    });
+  }
 
   /** @type {Record<string, unknown> | null} */
   let existing = null;
@@ -186,7 +230,8 @@ export async function upsertStoreCustomerFromWebLead(lead) {
     at: now,
     channel,
     channelLabel,
-    message: message ? message.slice(0, 280) : null,
+    campaign: campaign || null,
+    message: message ? message.slice(0, 800) : null,
     productName,
     productId,
     ticketId: lead.ticketId ?? null,
@@ -254,8 +299,9 @@ export async function upsertStoreCustomerFromWebLead(lead) {
       .single();
     if (error) {
       console.warn('[store-web-lead] update:', error.message);
-      return null;
+      return upsertFileCustomerFallback(payload, existing.id, false);
     }
+    await upsertFileCustomerFallback({ ...payload, created_at: existing.created_at }, data.id, false);
     return { id: data.id, email: data.email, created: false };
   }
 
@@ -278,14 +324,102 @@ export async function upsertStoreCustomerFromWebLead(lead) {
         .maybeSingle();
       if (again?.id) {
         await supabase.from('store_customers').update(payload).eq('id', again.id);
+        await upsertFileCustomerFallback({ ...payload, created_at: now }, again.id, false);
         return { id: again.id, email: again.email, created: false };
       }
     }
     console.warn('[store-web-lead] insert:', error.message);
-    return null;
+    return upsertFileCustomerFallback({ id: randomUUID(), ...payload, created_at: now }, null, true);
   }
 
+  await upsertFileCustomerFallback({ ...payload, created_at: now }, data.id, true);
   return { id: data.id, email: data.email, created: true };
+}
+
+/**
+ * @param {Record<string, unknown>} payload
+ * @param {string | null} existingId
+ * @param {boolean} [_createdHint]
+ */
+async function upsertFileCustomerFallback(payload, existingId, _createdHint) {
+  return upsertWebLeadCustomerFile({
+    id: existingId ?? payload.id ?? randomUUID(),
+    ...payload,
+  });
+}
+
+/**
+ * @param {{
+ *   name: string;
+ *   email: string;
+ *   phone: string | null;
+ *   companyName: string | null;
+ *   taxId: string | null;
+ *   city: string | null;
+ *   direccion: string;
+ *   channel: string;
+ *   channelLabel: string;
+ *   message: string;
+ *   productName: string | null;
+ *   productId: string | null;
+ *   campaign: string;
+ *   ip: string;
+ *   userAgent: string;
+ *   now: string;
+ * }} fields
+ */
+async function upsertFileCustomerFromLead(fields) {
+  const history = [
+    {
+      at: fields.now,
+      channel: fields.channel,
+      channelLabel: fields.channelLabel,
+      campaign: fields.campaign || null,
+      message: fields.message ? fields.message.slice(0, 800) : null,
+      productName: fields.productName,
+      productId: fields.productId,
+      ip: fields.ip || null,
+      userAgent: fields.userAgent ? fields.userAgent.slice(0, 240) : null,
+      direccion: fields.direccion || null,
+    },
+  ];
+
+  return upsertWebLeadCustomerFile({
+    email: fields.email,
+    full_name: fields.name,
+    phone: fields.phone,
+    company_name: fields.companyName,
+    tax_id: fields.taxId,
+    nombre_contacto: fields.name,
+    ciudad: fields.city,
+    direccion: fields.direccion || null,
+    tipo_cliente: 'public',
+    profile_role: 'public',
+    source: 'haistore',
+    persona_data: {
+      canal_ruta: fields.channelLabel,
+      web_lead_last_at: fields.now,
+      web_lead_last_channel: fields.channel,
+      web_lead_history: JSON.stringify(history),
+      observaciones: `[${fields.now.slice(0, 16).replace('T', ' ')}] ${fields.channelLabel}${
+        fields.message ? `: ${fields.message.slice(0, 160)}` : ''
+      }`,
+      ...(fields.taxId
+        ? {
+            numero_documento: fields.taxId,
+            tipo_documento: fields.taxId.length === 11 ? 'RUC' : 'DNI',
+          }
+        : {}),
+      nombre_razon_social: fields.companyName || fields.name,
+      contacto: fields.name,
+      ...(fields.city ? { ubigeo: fields.city } : {}),
+      ...(fields.phone ? { telefono_principal: fields.phone } : {}),
+      ...(fields.direccion ? { direccion: fields.direccion } : {}),
+    },
+    notes: `${fields.now.slice(0, 16).replace('T', ' ')} · ${fields.channelLabel}`,
+    created_at: fields.now,
+    updated_at: fields.now,
+  });
 }
 
 /**

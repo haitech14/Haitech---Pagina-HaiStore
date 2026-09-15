@@ -38,6 +38,7 @@ import { ProductRentalQuoteDialog } from '@/components/product-detail/product-re
 import { ProductDetailResources } from '@/components/product-detail/product-detail-resources';
 import { AttachmentPdfViewer } from '@/components/product-detail/attachment-pdf-viewer';
 import { buildProductDetail, isColorPrinterEquipment } from '@/lib/build-product-detail';
+import { resolveAttachmentPdfPreviewUrl } from '@/lib/inventory-attachments';
 import { copyProductTextToClipboard } from '@/lib/copy-product-to-clipboard';
 import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { inferColor } from '@/lib/category-catalog-filters';
@@ -48,6 +49,7 @@ import { buildProductClipboardPayload } from '@/lib/product-clipboard-text';
 import { productPath } from '@/lib/product-path';
 import { DEFAULT_BULK_DISCOUNT_TIERS, resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { ensureFullPrices } from '@/lib/roles';
+import { resolvePublicDisplayUsd } from '@/lib/pen-pricing';
 import {
   resolvePublicUnitBaseWithPreparationUsd,
   resolveSeminuevaPreparationSurchargeUsd,
@@ -278,6 +280,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     () => ensureFullPrices(product.prices ? product.prices : { public: product.price }),
     [product.price, product.prices],
   );
+  const publicDisplayUsd = resolvePublicDisplayUsd(fullPrices.public, product.category);
   const showPreparationTypeSelector = shouldShowSeminuevaPreparationSelector(
     product,
     role,
@@ -287,7 +290,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     ? resolveSeminuevaPreparationSurchargeUsd(preparationType, product)
     : 0;
   const publicUnitBaseUsd = resolvePublicUnitBaseWithPreparationUsd(
-    fullPrices.public,
+    publicDisplayUsd,
     showPreparationTypeSelector ? preparationType : 'acondicionado',
     product,
   );
@@ -567,7 +570,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
     if (fichaLink?.href) {
       setAttachmentPdfPreview({
-        url: fichaLink.href,
+        url: resolveAttachmentPdfPreviewUrl(fichaLink.href),
         filename: fichaFileName,
         title: 'Ficha técnica',
       });
@@ -620,9 +623,9 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const comboMainUnitUsd = useMemo(
     () =>
       showPreparationTypeSelector
-        ? resolvePublicUnitBaseWithPreparationUsd(fullPrices.public, preparationType, product)
-        : fullPrices.public,
-    [fullPrices.public, preparationType, product, showPreparationTypeSelector],
+        ? resolvePublicUnitBaseWithPreparationUsd(publicDisplayUsd, preparationType, product)
+        : publicDisplayUsd,
+    [publicDisplayUsd, preparationType, product, showPreparationTypeSelector],
   );
 
   /** Cuadro «Complementa tu compra» encima de Descripción (no en el sidebar). */
@@ -786,17 +789,17 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   };
 
   const heroGridClass =
-    'grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start lg:gap-6';
+    'grid gap-5 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:items-start lg:gap-7';
 
   const detailLayoutGridClass =
-    'lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-start lg:gap-6 xl:gap-8';
+    'lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start lg:gap-7 xl:gap-8';
 
   const showOriginalBadge =
     /ricoh/i.test(detail.brandLabel) &&
     (/original/i.test(product.name) || /original/i.test(product.category ?? ''));
 
   const isColorEquipment = useMemo(() => isColorPrinterEquipment(product), [product]);
-  const equipmentBasePriceUsd = fullPrices.public;
+  const equipmentBasePriceUsd = publicDisplayUsd;
 
   const fallbackRentalQuoteEstimate = useMemo<EquipmentRentalEstimate | null>(() => {
     if (detail.rentalPlans.length === 0) return null;
@@ -826,8 +829,8 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
   return (
     <div className="bg-neutral-50 pb-20 lg:pb-0">
-      <div className="container py-3 sm:py-5">
-        <div className="mb-4 sm:mb-5">
+      <div className="container py-2 sm:py-3">
+        <div className="mb-2 sm:mb-2.5">
           <ProductDetailBreadcrumbsBar items={breadcrumbs} product={product} />
         </div>
 
@@ -1184,6 +1187,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
           heroLead={detail.heroLead}
           heroDescription={detail.heroDescription}
           equipmentConfiguration={equipmentConfiguration}
+          unitUsd={publicDisplayUsd}
           onGenerated={setQuotePdfPreview}
         />
       )}
@@ -1225,7 +1229,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         onQuantityChange={setQuantity}
         volumePricing={volumePricing}
         basePriceUsd={publicUnitBaseUsd}
-        catalogPublicUsd={fullPrices.public}
+        catalogPublicUsd={publicDisplayUsd}
         bulkDiscountTiers={bulkDiscountTiers}
         floorPriceUsd={fullPrices.tecnico}
         outOfStock={outOfStock}

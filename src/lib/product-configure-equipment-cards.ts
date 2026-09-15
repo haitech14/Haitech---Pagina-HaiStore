@@ -18,7 +18,7 @@ const FALLBACK_IMAGES: Record<ConfigureEquipmentCarouselOptionId, string> = {
   'casetera-250': '/categories/accesorios-impresoras.png',
   'casetera-500': '/categories/repuestos.png',
   gabinete: '/products/combo-gabinete-alto.webp',
-  'estabilizador-2000w': '/categories/accesorios-impresoras.png',
+  'estabilizador-2000w': '/products/estabilizador-solido-2000w.png',
   'router-wifi': '/categories/soluciones-negocio.png',
   'garantia-2y': '/products/combo-garantia-extendida.webp',
 };

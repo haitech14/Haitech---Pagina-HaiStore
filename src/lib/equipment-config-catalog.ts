@@ -146,6 +146,9 @@ export const TALL_CABINET_IM430_PRODUCT_ID = 'ricoh-lp-1607-00';
 /** Estabilizador sólido 2 KVA (~2000 W). */
 export const ESTABILIZADOR_2KVA_PRODUCT_ID = 'deltron-psstie2042';
 
+/** Código visible en cotizaciones / proformas. */
+export const ESTABILIZADOR_QUOTE_CODE = 'EST2000W';
+
 /** Router Wi-Fi gigabit. */
 export const ROUTER_WIFI_PRODUCT_ID = 'deltron-rtdldir-2150';
 
@@ -311,7 +314,7 @@ const OPTION_CATALOG_HINTS: Record<string, OptionCatalogHint> = {
   'estabilizador-2000w': {
     keywords: ['estabilizador', '2000', '2kva', 'solido', 'sólido', 'watts', 'estb', '220'],
     categories: ['Accesorios', 'Repuestos', 'Suministros', 'Soluciones de Negocio'],
-    fallbackImage: '/categories/accesorios-impresoras.png',
+    fallbackImage: '/products/estabilizador-solido-2000w.png',
   },
   'starter-kit': {
     keywords: ['kit', 'inicio', 'starter', 'toner'],

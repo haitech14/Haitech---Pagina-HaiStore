@@ -3,7 +3,10 @@ import { ClipboardList } from 'lucide-react';
 
 import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
-import { openHeroQuoteWhatsApp } from '@/lib/hero-whatsapp-message';
+import {
+  buildHeroQuoteWhatsAppMessage,
+  openHeroQuoteWhatsApp,
+} from '@/lib/hero-whatsapp-message';
 import type { WhatsAppContact } from '@/lib/whatsapp-contact';
 import { cn } from '@/lib/utils';
 
@@ -16,7 +19,11 @@ export function HeaderCotizarButton({ className }: HeaderCotizarButtonProps) {
   const { contact, saveContact, isSaving } = useWhatsAppContact();
 
   const handleSubmit = async (nextContact: WhatsAppContact) => {
-    await saveContact(nextContact);
+    await saveContact(nextContact, {
+      channel: 'whatsapp-cotizar',
+      campaign: 'header-cotizar',
+      message: buildHeroQuoteWhatsAppMessage(nextContact, { campaign: 'header-cotizar' }),
+    });
     const opened = openHeroQuoteWhatsApp(nextContact, { campaign: 'header-cotizar' });
     if (!opened) {
       throw new Error('No se pudo abrir WhatsApp. Inténtalo de nuevo.');

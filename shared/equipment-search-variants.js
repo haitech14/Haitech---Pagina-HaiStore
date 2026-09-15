@@ -29,6 +29,11 @@ function normalizeVariantKey(value) {
     .toLowerCase();
 }
 
+/** Stubs de lista (código LISTA-…): no son fichas de vitrina ni del buscador. */
+export function isListaCatalogStubProduct(product) {
+  return /^LISTA-/i.test(String(product?.code ?? '').trim());
+}
+
 /** True si el producto es una opción de variante (no el SKU base Estándar). */
 export function isIm550fChildVariantSku(product) {
   const id = String(product?.id ?? '').trim();
@@ -38,6 +43,7 @@ export function isIm550fChildVariantSku(product) {
 }
 
 export function isEquipmentVariantSkuForSearch(product) {
+  if (isListaCatalogStubProduct(product)) return true;
   if (isIm550fChildVariantSku(product)) return true;
   const fromAttr = readAttribute(product, 'Variante');
   if (!fromAttr) return false;

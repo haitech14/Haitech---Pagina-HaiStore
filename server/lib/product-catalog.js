@@ -23,6 +23,7 @@ import {
 import { productMatchesCategorySlugFilter } from '../../shared/home-catalog-filter.js';
 import { excludeStoreSoftwareProducts } from '../../shared/store-software-products.js';
 import { excludeEquipmentVariantSkusFromSearch } from '../../shared/equipment-search-variants.js';
+import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
 import {
   findInventoryProductByLookupKey,
   resolveCanonicalProductId,
@@ -614,6 +615,7 @@ export async function searchPublicProducts({
 
   matched = excludeStoreSoftwareProducts(matched);
   matched = excludeEquipmentVariantSkusFromSearch(matched, allProducts);
+  matched = matched.filter((product) => !isHomeCarouselExcludedProduct(product));
 
   if (normalizedCategory !== 'all') {
     matched = matched.filter((product) => productMatchesCategorySlugFilter(product, normalizedCategory));

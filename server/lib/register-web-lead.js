@@ -5,8 +5,15 @@
 
 import { randomUUID } from 'crypto';
 
+import {
+  buildWhatsAppPipelineLead,
+  upsertCrmPipelineLeadFile,
+} from './crm-pipeline-file-store.js';
 import { createProformaFromBody, saveProforma } from './proformas-store.js';
 import {
+  isWhatsAppFollowUpChannel,
+  parseCompanyOrRuc,
+  resolveWebLeadChannel,
   upsertStoreCustomerFromWebLead,
   webLeadChannelLabel,
 } from './store-web-lead.js';
@@ -42,6 +49,7 @@ export function captureFromRequest(req) {
  *   productId?: string | null;
  *   ticketId?: string | null;
  *   ticketCode?: string | null;
+ *   campaign?: string | null;
  *   createProforma?: boolean;
  *   capture?: { ip?: string; userAgent?: string; referer?: string; path?: string } | null;
  * }} input
@@ -52,7 +60,8 @@ export async function registerWebLead(input) {
     throw new Error('El nombre debe tener al menos 2 caracteres.');
   }
 
-  const channel = String(input.channel ?? 'contact').trim() || 'contact';
+  const campaign = String(input.campaign ?? '').trim();
+  const channel = resolveWebLeadChannel(input.channel, campaign);
   const channelLabel = webLeadChannelLabel(channel);
   const city = String(input.city ?? '').trim();
   const direccion = String(input.direccion ?? '').trim();
@@ -63,6 +72,7 @@ export async function registerWebLead(input) {
   const message = String(input.message ?? '').trim();
   const capture = input.capture && typeof input.capture === 'object' ? input.capture : {};
   const createProforma = input.createProforma !== false;
+  const { taxId } = parseCompanyOrRuc(companyOrRuc, name);
 
   const customerUpsert = await upsertStoreCustomerFromWebLead({
     name,
@@ -82,8 +92,35 @@ export async function registerWebLead(input) {
       referer: capture.referer ?? null,
       path: capture.path ?? null,
       direccion: direccion || null,
+      campaign: campaign || null,
     },
   });
+
+  if (isWhatsAppFollowUpChannel(channel) || campaign) {
+    try {
+      await upsertCrmPipelineLeadFile(
+        buildWhatsAppPipelineLead({
+          name,
+          companyOrRuc: companyOrRuc || name,
+          city: city || null,
+          phone: phone || null,
+          email: typeof input.email === 'string' ? input.email : null,
+          channelLabel,
+          channel,
+          message: message || null,
+          campaign: campaign || null,
+          productName: productName || null,
+          taxId,
+          customerId: customerUpsert?.id ?? null,
+        }),
+      );
+    } catch (error) {
+      console.warn(
+        '[register-web-lead] CRM pipeline:',
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
 
   /** @type {Awaited<ReturnType<typeof saveProforma>> | null} */
   let proforma = null;
@@ -98,7 +135,8 @@ export async function registerWebLead(input) {
 
     const notesParts = [
       `Canal: ${channelLabel}`,
-      message ? `Mensaje: ${message.slice(0, 500)}` : null,
+      campaign ? `Referencia: ${campaign}` : null,
+      message ? `Mensaje: ${message.slice(0, 800)}` : null,
       capture.ip ? `IP: ${capture.ip}` : null,
       capture.userAgent ? `UA: ${String(capture.userAgent).slice(0, 180)}` : null,
       capture.referer ? `Referer: ${String(capture.referer).slice(0, 200)}` : null,

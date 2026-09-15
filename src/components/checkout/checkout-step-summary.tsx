@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ShoppingBag } from 'lucide-react';
+import { ChevronDown, ShoppingBag } from 'lucide-react';
 
 import { CheckoutCartLine } from '@/components/checkout/checkout-cart-line';
 import { CheckoutCouponField, type AppliedCheckoutCoupon } from '@/components/checkout/checkout-coupon-field';
@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cartLineUnitUsd } from '@/context/cart-context';
 import { resolveCartVolumeDiscountSummary } from '@/lib/checkout-cart-bulk-discount';
-import { calculateCheckoutTotals, type CheckoutPaymentCurrency } from '@/lib/checkout-totals';
+import { calculateCheckoutTotals, formatCheckoutAmount, type CheckoutPaymentCurrency } from '@/lib/checkout-totals';
 import type { CheckoutPaymentProvider } from '@/lib/build-checkout-session-payload';
 import type { HaitechClientFormValues } from '@/lib/haitech-client-schema';
 import { parseCheckoutAddonLineId } from '@/lib/checkout-multifuncional-addons';
@@ -85,7 +85,11 @@ function CheckoutOrderTotalsContent({
     freeShipping,
   });
   const volumeDiscount = showVolumeDiscount ? resolveCartVolumeDiscountSummary(items) : null;
-  const dualPriceProps = { className: 'justify-end', stacked: true as const, allowZero: true as const };
+  const dualPriceProps = {
+    className: 'justify-end',
+    compact: true as const,
+    allowZero: true as const,
+  };
 
   return (
     <div className="space-y-3">
@@ -145,13 +149,6 @@ function CheckoutOrderTotalsContent({
         labelClassName="text-sm font-medium text-muted-foreground"
         valueClassName="text-base font-bold sm:text-lg"
         className="border-t border-border pt-3"
-      />
-
-      <CheckoutTotalsBreakdown
-        baseUsd={totals.baseUsd}
-        section="payment-options"
-        shippingPen={shippingPen}
-        freeShipping={freeShipping}
       />
     </div>
   );
@@ -234,59 +231,93 @@ export function CheckoutOrderSummary({
     [client, freeShipping],
   );
   const showPaymentTotals = paymentProvider != null && paymentCurrency != null;
+  const headerTotals = calculateCheckoutTotals({
+    subtotalUsd: totalPrice,
+    discountUsd,
+    paymentProvider: paymentProvider ?? 'manual',
+    shippingPen: shippingQuote ? (freeShipping ? 0 : shippingQuote.pen) : 0,
+    freeShipping,
+  });
+  const headerTotal =
+    showPaymentTotals && paymentCurrency != null ? (
+      formatCheckoutAmount(headerTotals.totalUsd, headerTotals.totalPen, paymentCurrency)
+    ) : (
+      <DualPrice usd={headerTotals.totalUsd} allowZero compact preferCurrency={paymentCurrency} />
+    );
+
+  const renderSummaryBody = () => (
+    <>
+      <CheckoutCartItemsList
+        items={primaryItems}
+        cartLineIds={cartLineIds}
+        showMultifuncionalAddons={false}
+        showVolumePromo={false}
+        {...(onRemoveItem ? { onRemoveItem } : {})}
+      />
+
+      {!compact ? (
+        <CheckoutCouponField
+          subtotalUsd={totalPrice}
+          customerEmail={customerEmail}
+          lineItems={couponLineItems}
+          applied={appliedCoupon}
+          onAppliedChange={onCouponChange}
+        />
+      ) : null}
+
+      {showPaymentTotals && paymentProvider != null && paymentCurrency != null ? (
+        <CheckoutPaymentTotals
+          items={items}
+          subtotalUsd={totalPrice}
+          discountUsd={discountUsd}
+          paymentProvider={paymentProvider}
+          paymentCurrency={paymentCurrency}
+          showSubtotal
+          showVolumeDiscount={false}
+          shippingQuote={shippingQuote}
+          {...(appliedCoupon?.code ? { couponCode: appliedCoupon.code } : {})}
+          {...(freeShipping ? { freeShipping: true as const } : {})}
+        />
+      ) : (
+        <CheckoutOrderTotalsContent
+          items={items}
+          totalPrice={totalPrice}
+          appliedCoupon={appliedCoupon}
+          shippingQuote={shippingQuote}
+          showSubtotal={compact}
+          showVolumeDiscount={false}
+        />
+      )}
+    </>
+  );
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <ShoppingBag className="size-5 text-red-600" aria-hidden="true" />
-          Resumen del pedido
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <CheckoutCartItemsList
-          items={primaryItems}
-          cartLineIds={cartLineIds}
-          showMultifuncionalAddons={false}
-          showVolumePromo={false}
-          {...(onRemoveItem ? { onRemoveItem } : {})}
-        />
+    <>
+      <details className="group rounded-lg border border-border bg-card lg:hidden">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+          <span className="flex min-w-0 items-center gap-2 font-semibold">
+            <ShoppingBag className="size-4 shrink-0 text-red-600" aria-hidden="true" />
+            Tu pedido
+            <ChevronDown
+              className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </span>
+          <span className="shrink-0 text-sm font-bold tabular-nums">{headerTotal}</span>
+        </summary>
+        <div className="space-y-3 border-t border-border px-4 py-3">{renderSummaryBody()}</div>
+      </details>
 
-        {!compact ? (
-          <CheckoutCouponField
-            subtotalUsd={totalPrice}
-            customerEmail={customerEmail}
-            lineItems={couponLineItems}
-            applied={appliedCoupon}
-            onAppliedChange={onCouponChange}
-          />
-        ) : null}
-
-        {showPaymentTotals && paymentProvider != null && paymentCurrency != null ? (
-          <CheckoutPaymentTotals
-            items={items}
-            subtotalUsd={totalPrice}
-            discountUsd={discountUsd}
-            paymentProvider={paymentProvider}
-            paymentCurrency={paymentCurrency}
-            showSubtotal
-            showVolumeDiscount={false}
-            shippingQuote={shippingQuote}
-            {...(appliedCoupon?.code ? { couponCode: appliedCoupon.code } : {})}
-            {...(freeShipping ? { freeShipping: true as const } : {})}
-          />
-        ) : (
-          <CheckoutOrderTotalsContent
-            items={items}
-            totalPrice={totalPrice}
-            appliedCoupon={appliedCoupon}
-            shippingQuote={shippingQuote}
-            showSubtotal={compact}
-            showVolumeDiscount={false}
-          />
-        )}
-      </CardContent>
-    </Card>
+      <Card className="hidden lg:block">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <ShoppingBag className="size-5 text-red-600" aria-hidden="true" />
+            Resumen del pedido
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">{renderSummaryBody()}</CardContent>
+      </Card>
+    </>
   );
 }
 
@@ -371,7 +402,7 @@ export function CheckoutStepSummary({
           <div className="min-w-0 flex-1">
             <p className="text-xs text-muted-foreground">Total estimado</p>
             <p className="text-lg font-bold leading-tight">
-              <DualPrice usd={totalPrice - (appliedCoupon?.discountUsd ?? 0)} allowZero />
+              <DualPrice usd={totalPrice - (appliedCoupon?.discountUsd ?? 0)} allowZero compact />
             </p>
           </div>
           <Button

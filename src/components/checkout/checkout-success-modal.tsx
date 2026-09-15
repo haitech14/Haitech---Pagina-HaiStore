@@ -26,6 +26,11 @@ import { DualPrice } from '@/components/product-showcase-card';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import type { CartItem } from '@/types/product';
 
+function isMobileViewport(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(max-width: 640px)').matches || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
 export interface CheckoutSuccessOrder {
   orderNumber: string;
   paymentMethod: string;
@@ -34,8 +39,12 @@ export interface CheckoutSuccessOrder {
   items: CartItem[];
   subtotalUsd: number;
   discountUsd: number;
+  totalUsd: number;
+  totalPen: number;
   couponCode?: string | null;
   client: HaitechClientFormValues;
+  paymentProofUploaded?: boolean;
+  paymentProofUploadFailed?: boolean;
 }
 
 interface CheckoutSuccessModalProps {
@@ -44,7 +53,7 @@ interface CheckoutSuccessModalProps {
   pdfLoading: boolean;
   companyPhone: string;
   onOpenChange: (open: boolean) => void;
-  onViewPdf: () => void;
+  onViewPdf: () => Promise<QuotePdfPreview | null> | void;
 }
 
 export function CheckoutSuccessModal({
@@ -94,6 +103,19 @@ export function CheckoutSuccessModal({
       totalPen: totals.totalPen,
       client: order.client,
     });
+  };
+
+  const handleViewOrder = async () => {
+    const preview =
+      pdfPreview ??
+      (await Promise.resolve(onViewPdf())) ??
+      null;
+    if (!preview) return;
+    if (isMobileViewport()) {
+      downloadQuotePdf(preview.blob, preview.filename);
+      return;
+    }
+    setShowPdf(true);
   };
 
   const handleDownloadPdf = () => {
@@ -162,10 +184,10 @@ export function CheckoutSuccessModal({
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium leading-snug">{item.product.name}</p>
                           <p className="mt-0.5 text-xs text-muted-foreground">
-                            {item.quantity} × <DualPrice usd={cartLineUnitUsd(item)} />
+                            {item.quantity} × <DualPrice usd={cartLineUnitUsd(item)} compact />
                           </p>
                           <p className="mt-1 text-sm font-semibold">
-                            <DualPrice usd={lineUsd} />
+                            <DualPrice usd={lineUsd} compact />
                           </p>
                         </div>
                       </li>
@@ -207,6 +229,17 @@ export function CheckoutSuccessModal({
                   Pago
                 </h2>
                 <p className="mb-2 text-sm text-muted-foreground">{order.paymentMethod}</p>
+                {order.paymentProofUploaded ? (
+                  <p className="mb-2 text-xs font-medium text-emerald-700">
+                    Comprobante recibido. Un asesor lo validará a la brevedad.
+                  </p>
+                ) : null}
+                {order.paymentProofUploadFailed ? (
+                  <p className="mb-2 text-xs text-amber-700">
+                    El pedido quedó registrado, pero el comprobante no se pudo adjuntar. Envíalo por
+                    WhatsApp.
+                  </p>
+                ) : null}
                 <CheckoutPaymentTotals
                   items={order.items}
                   subtotalUsd={order.subtotalUsd}
@@ -231,13 +264,7 @@ export function CheckoutSuccessModal({
                 variant="outline"
                 className="min-h-11 flex-1 gap-2"
                 disabled={pdfLoading}
-                onClick={() => {
-                  if (pdfPreview) {
-                    setShowPdf(true);
-                  } else {
-                    onViewPdf();
-                  }
-                }}
+                onClick={() => void handleViewOrder()}
               >
                 {pdfLoading ? (
                   <Loader2 className="size-4 animate-spin" aria-hidden="true" />
@@ -273,13 +300,30 @@ export function CheckoutSuccessModal({
             </div>
 
             {pdfPreview ? (
-              <div className="min-h-0 flex-1 overflow-hidden bg-neutral-100 px-4 py-3">
-                <iframe
-                  src={pdfPreview.url}
-                  title={`Vista previa ${pdfPreview.filename}`}
-                  className="size-full min-h-[50vh] rounded-lg border border-neutral-200 bg-white"
-                />
-              </div>
+              isMobileViewport() ? (
+                <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+                  <FileText className="size-10 text-red-600" aria-hidden="true" />
+                  <p className="max-w-sm text-sm text-muted-foreground">
+                    En el celular, descarga o comparte el PDF para abrirlo.
+                  </p>
+                  <Button
+                    type="button"
+                    className="min-h-11 w-full max-w-xs gap-2 bg-red-600 hover:bg-red-500"
+                    onClick={handleDownloadPdf}
+                  >
+                    <Download className="size-4" aria-hidden="true" />
+                    Descargar / compartir PDF
+                  </Button>
+                </div>
+              ) : (
+                <div className="min-h-0 flex-1 overflow-hidden bg-neutral-100 px-4 py-3">
+                  <iframe
+                    src={pdfPreview.url}
+                    title={`Vista previa ${pdfPreview.filename}`}
+                    className="size-full min-h-[50vh] rounded-lg border border-neutral-200 bg-white"
+                  />
+                </div>
+              )
             ) : (
               <div className="flex flex-1 items-center justify-center p-8" role="status">
                 <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden="true" />

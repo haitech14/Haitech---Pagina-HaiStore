@@ -9,7 +9,21 @@ import { getSupabaseAdmin } from '../supabase-auth.js';
  */
 export async function confirmOrderPaid(orderId, options = {}) {
   const supabase = getSupabaseAdmin();
-  if (!supabase) throw new Error('Supabase no configurado');
+  if (!supabase) {
+    const { updateStoreOrderFile, getStoreOrderFileById } = await import('../store-orders-file-store.js');
+    const existing = await getStoreOrderFileById(orderId);
+    if (!existing) throw new Error('Pedido no encontrado');
+    if (existing.payment_status === 'paid') return existing;
+    const now = new Date().toISOString();
+    return updateStoreOrderFile(orderId, {
+      payment_status: 'paid',
+      status: existing.status === 'pending_payment' ? 'confirmed' : existing.status,
+      paid_at: now,
+      ...(options.externalPaymentId ? { external_payment_id: options.externalPaymentId } : {}),
+      ...(options.provider ? { payment_provider: options.provider } : {}),
+      ...(options.metadata ? { payment_metadata: options.metadata } : {}),
+    });
+  }
 
   const { data: order, error: readError } = await supabase
     .from('store_orders')
@@ -99,7 +113,13 @@ export async function confirmOrderPaid(orderId, options = {}) {
  */
 export async function markOrderPaymentFailed(orderId, options = {}) {
   const supabase = getSupabaseAdmin();
-  if (!supabase) throw new Error('Supabase no configurado');
+  if (!supabase) {
+    const { updateStoreOrderFile } = await import('../store-orders-file-store.js');
+    return updateStoreOrderFile(orderId, {
+      payment_status: 'failed',
+      ...(options.metadata ? { payment_metadata: options.metadata } : {}),
+    });
+  }
 
   const { data: order, error } = await supabase
     .from('store_orders')

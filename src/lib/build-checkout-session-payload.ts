@@ -9,9 +9,9 @@ export type CheckoutPaymentProvider = 'manual' | 'culqi' | 'mercadopago';
 export type ManualPaymentMethodId = 'transferencia' | 'yape-plin' | 'contra-entrega';
 
 const MANUAL_LABELS: Record<ManualPaymentMethodId, string> = {
-  transferencia: 'Transferencia bancaria / depósito',
+  transferencia: 'Transferencia Bancaria',
   'yape-plin': 'Yape / Plin',
-  'contra-entrega': 'Pago contra entrega (Lima)',
+  'contra-entrega': 'Contraentrega',
 };
 
 export function manualPaymentLabel(method: ManualPaymentMethodId): string {

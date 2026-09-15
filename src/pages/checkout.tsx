@@ -23,6 +23,7 @@ import {
 import { useCheckoutAccountClient } from '@/hooks/use-checkout-account-client';
 import { useCheckoutFlow } from '@/hooks/use-checkout-flow';
 import { useCompanySettings } from '@/hooks/use-company-settings';
+import { useUploadOrderPaymentProof } from '@/hooks/use-order-payment-proof';
 import { useSeo } from '@/hooks/use-seo';
 import { buildCheckoutSessionPayload, manualPaymentLabel } from '@/lib/build-checkout-session-payload';
 import { calculateCheckoutTotals } from '@/lib/checkout-totals';
@@ -58,7 +59,9 @@ export function CheckoutPage() {
   const [successOrder, setSuccessOrder] = useState<CheckoutSuccessOrder | null>(null);
   const [orderPdfPreview, setOrderPdfPreview] = useState<QuotePdfPreview | null>(null);
   const [orderPdfLoading, setOrderPdfLoading] = useState(false);
+  const [proofFile, setProofFile] = useState<File | null>(null);
   const prefilledRef = useRef(false);
+  const uploadPaymentProof = useUploadOrderPaymentProof('checkout');
 
   const discountUsd = state.appliedCoupon?.discountUsd ?? 0;
   const freeShipping = Boolean(state.appliedCoupon?.freeShipping);
@@ -108,10 +111,6 @@ export function CheckoutPage() {
     });
     if (!parsed.success) {
       actions.setError(parsed.error.issues[0]?.message ?? 'Datos inválidos');
-      return null;
-    }
-    if (!parsed.data.email?.trim()) {
-      actions.setError('El correo electrónico es obligatorio.');
       return null;
     }
     return parsed.data;
@@ -186,7 +185,10 @@ export function CheckoutPage() {
       });
   };
 
-  const finishCheckout = (order: CheckoutSessionOrder) => {
+  const finishCheckout = (
+    order: CheckoutSessionOrder,
+    extras?: { paymentProofUploaded?: boolean; paymentProofUploadFailed?: boolean },
+  ) => {
     const paymentMethod = resolvePaymentMethod(order);
     const snapshotItems = [...items];
     const snapshotClient = { ...state.client };
@@ -199,8 +201,12 @@ export function CheckoutPage() {
       items: snapshotItems,
       subtotalUsd: totalPrice,
       discountUsd,
+      totalUsd: checkoutTotals.totalUsd,
+      totalPen: checkoutTotals.totalPen,
       couponCode: state.appliedCoupon?.code ?? null,
       client: snapshotClient,
+      ...(extras?.paymentProofUploaded ? { paymentProofUploaded: true } : {}),
+      ...(extras?.paymentProofUploadFailed ? { paymentProofUploadFailed: true } : {}),
     };
 
     clear();
@@ -212,10 +218,40 @@ export function CheckoutPage() {
     generatePdfInBackground(order, snapshotItems, snapshotClient, totalPen, paymentMethod);
   };
 
+  const needsPaymentProof =
+    state.paymentProvider === 'manual' &&
+    (state.manualMethod === 'transferencia' || state.manualMethod === 'yape-plin');
+
+  const attachPaymentProof = async (orderId: string) => {
+    if (!proofFile || !needsPaymentProof) return 'skipped' as const;
+    try {
+      await uploadPaymentProof.mutateAsync({ orderId, file: proofFile });
+      return 'uploaded' as const;
+    } catch {
+      return 'failed' as const;
+    }
+  };
+
   const handleConfirmManual = async () => {
     const order = pendingOrder ?? (await createSession());
     if (!order) return;
+
+    const shouldAttachProof = Boolean(proofFile) && needsPaymentProof;
     finishCheckout(order);
+    setProofFile(null);
+
+    if (!shouldAttachProof) return;
+    void attachPaymentProof(order.id).then((proofResult) => {
+      setSuccessOrder((current) =>
+        current
+          ? {
+              ...current,
+              ...(proofResult === 'uploaded' ? { paymentProofUploaded: true } : {}),
+              ...(proofResult === 'failed' ? { paymentProofUploadFailed: true } : {}),
+            }
+          : current,
+      );
+    });
   };
 
   const handleConfirmCard = async () => {
@@ -301,35 +337,40 @@ export function CheckoutPage() {
     }
   };
 
-  const handleViewPdf = () => {
-    if (orderPdfPreview || !successOrder) return;
+  const handleViewPdf = async (): Promise<QuotePdfPreview | null> => {
+    if (orderPdfPreview) return orderPdfPreview;
+    if (!successOrder) return null;
     const company = companySettings ?? DEFAULT_COMPANY_SETTINGS;
     setOrderPdfLoading(true);
-    void createStoreOrderPdfPreview(
-      buildOrderPdfInputFromCheckout(
-        {
-          id: '',
-          order_number: successOrder.orderNumber,
-          status: 'confirmed',
-          payment_status: 'pending',
-          payment_provider: successOrder.paymentProvider,
-          total_usd: checkoutTotals.totalUsd,
-          total_pen: checkoutTotals.totalPen,
-          currency: successOrder.paymentCurrency,
-          payment_method: successOrder.paymentMethod,
-        },
-        successOrder.items,
-        successOrder.client,
-        checkoutTotals.totalPen,
-        successOrder.paymentMethod,
-      ),
-      company,
-    )
-      .then((preview) => {
-        revokePreviewUrl(orderPdfPreview);
-        setOrderPdfPreview(preview);
-      })
-      .finally(() => setOrderPdfLoading(false));
+    try {
+      const preview = await createStoreOrderPdfPreview(
+        buildOrderPdfInputFromCheckout(
+          {
+            id: '',
+            order_number: successOrder.orderNumber,
+            status: 'confirmed',
+            payment_status: 'pending',
+            payment_provider: successOrder.paymentProvider,
+            total_usd: successOrder.totalUsd,
+            total_pen: successOrder.totalPen,
+            currency: successOrder.paymentCurrency,
+            payment_method: successOrder.paymentMethod,
+          },
+          successOrder.items,
+          successOrder.client,
+          successOrder.totalPen,
+          successOrder.paymentMethod,
+        ),
+        company,
+      );
+      revokePreviewUrl(orderPdfPreview);
+      setOrderPdfPreview(preview);
+      return preview;
+    } catch {
+      return null;
+    } finally {
+      setOrderPdfLoading(false);
+    }
   };
 
   const customerEmail = state.client.email?.trim();
@@ -397,6 +438,7 @@ export function CheckoutPage() {
             paymentCurrency={state.paymentCurrency}
             paymentOptions={paymentOptions}
             email={state.client.email?.trim() ?? ''}
+            totalUsd={pendingOrder?.total_usd ?? checkoutTotals.totalUsd}
             totalPen={totalPenForPayment}
             orderNumber={pendingOrder?.order_number ?? null}
             isSubmitting={state.isSubmitting || checkoutSession.isPending}
@@ -414,10 +456,12 @@ export function CheckoutPage() {
             onCulqiToken={(token) => void handleCulqiToken(token)}
             onCulqiError={(message) => actions.setError(message)}
             onMercadoPago={() => void handleMercadoPago()}
+            proofFile={proofFile}
+            onProofFileChange={setProofFile}
           />
         ) : null}
 
-        <Button asChild variant="ghost" className="mt-4 min-h-11 w-full sm:w-auto">
+        <Button asChild variant="ghost" className="mt-4 hidden min-h-11 w-full sm:inline-flex sm:w-auto">
           <Link to="/tienda">Seguir comprando</Link>
         </Button>
       </CheckoutLayout>

@@ -81,6 +81,16 @@ export function roundEquipmentDisplayUsd(usd: number): number {
   return roundUsdToNearestFortyNineOrNinetyNine(usd);
 }
 
+/** Precio público de vitrina: equipos al 49/99; el resto sin redondeo comercial. */
+export function resolvePublicDisplayUsd(
+  usd: number,
+  category?: string | null,
+): number {
+  if (!Number.isFinite(usd) || usd <= 0) return 0;
+  if (!isEquipmentDisplayPriceCategory(category)) return usd;
+  return roundEquipmentDisplayUsd(usd);
+}
+
 /**
  * Redondeo comercial en soles enteros al dígito 9 más cercano.
  * Ej.: 2287 → 2289; 2190 → 2189; 2429 (ya termina en 9) se mantiene.

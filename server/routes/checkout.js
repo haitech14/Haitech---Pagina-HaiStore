@@ -15,6 +15,8 @@ import {
   createStoreOrderFromBody,
   getStoreOrderById,
 } from '../lib/orders-store.js';
+import { mergePaymentProofMetadata, saveOrderPaymentProof } from '../lib/order-payment-proof.js';
+import { updateStoreOrderFile } from '../lib/store-orders-file-store.js';
 import { getSupabaseAdmin } from '../lib/supabase-auth.js';
 
 export const checkoutRouter = Router();
@@ -24,9 +26,6 @@ const VALID_PROVIDERS = new Set(['manual', 'culqi', 'mercadopago']);
 function mapCheckoutError(error, res, next) {
   if (!(error instanceof Error)) return next(error);
   const message = error.message;
-  if (message.includes('Supabase no configurado')) {
-    return res.status(503).json({ error: message });
-  }
   if (
     message.includes('requiere') ||
     message.includes('obligator') ||
@@ -227,14 +226,22 @@ checkoutRouter.post('/mercadopago/preference', optionalAuth, async (req, res, ne
 
     const supabase = getSupabaseAdmin();
     if (supabase && preference.id) {
-      await supabase
+      const { error } = await supabase
         .from('store_orders')
         .update({
           payment_intent_token: preference.id,
           payment_metadata: preference,
         })
         .eq('id', orderId);
+      if (error) {
+        console.warn('[checkout] mercadopago supabase:', error.message);
+      }
     }
+
+    await updateStoreOrderFile(orderId, {
+      payment_intent_token: preference.id ?? null,
+      payment_metadata: preference,
+    }).catch(() => {});
 
     res.json({
       preferenceId: preference.id,
@@ -305,4 +312,54 @@ webhooksRouter.post('/mercadopago', async (req, res, next) => {
 
 checkoutRouter.get('/payment-options', (_req, res) => {
   res.json(buildPaymentOptions());
+});
+
+checkoutRouter.post('/orders/:orderId/payment-proof', optionalAuth, async (req, res, next) => {
+  try {
+    const orderId = String(req.params.orderId ?? '').trim();
+    if (!orderId) {
+      return res.status(400).json({ error: 'Pedido no válido' });
+    }
+
+    const order = await getStoreOrderById(orderId);
+    if (!order) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    const proof = await saveOrderPaymentProof(orderId, req.body?.dataUrl, req.body?.fileName);
+    const paymentMetadata = mergePaymentProofMetadata(order.payment_metadata, proof);
+
+    const supabase = getSupabaseAdmin();
+    if (supabase) {
+      const { error } = await supabase
+        .from('store_orders')
+        .update({
+          payment_metadata: paymentMetadata,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', orderId);
+      if (error) {
+        console.warn('[checkout] payment-proof supabase:', error.message);
+      }
+    }
+
+    await updateStoreOrderFile(orderId, { payment_metadata: paymentMetadata });
+
+    res.json({
+      ok: true,
+      payment_proof_url: proof.url,
+      payment_proof_file_name: proof.fileName,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      if (
+        error.message.includes('Formato') ||
+        error.message.includes('Solo se permiten') ||
+        error.message.includes('no puede superar')
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+    next(error);
+  }
 });

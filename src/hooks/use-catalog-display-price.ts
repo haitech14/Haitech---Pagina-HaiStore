@@ -12,7 +12,7 @@ import {
   type UserRole,
 } from '@/lib/roles';
 import { getUsdToPenSaleRate } from '@/lib/exchange-rate';
-import { isEquipmentDisplayPriceCategory, roundPenToNearestNine } from '@/lib/pen-pricing';
+import { isEquipmentDisplayPriceCategory, roundEquipmentDisplayUsd, roundPenToNearestNine } from '@/lib/pen-pricing';
 import type { Product } from '@/types/product';
 
 type CatalogPriceSource = {
@@ -93,9 +93,12 @@ export function resolveCatalogDisplayPrice(
   }
 
   const priceRole = product.price_role ?? resolvePriceRole(options.effectiveRole);
+  const rawUsd = product.price;
+  const priceUsd =
+    isEquipment && priceRole !== 'tecnico' ? roundEquipmentDisplayUsd(rawUsd) : rawUsd;
 
   return {
-    priceUsd: product.price,
+    priceUsd,
     priceRole,
     previewAsRole: false,
     viewAsLabel: null,

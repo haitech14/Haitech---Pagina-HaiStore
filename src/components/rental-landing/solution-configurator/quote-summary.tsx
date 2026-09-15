@@ -31,6 +31,7 @@ interface QuoteSummaryProps {
   onColorPagesChange?: (value: number) => void;
   onVolumePagesChange?: (value: number) => void;
   onTermChange?: (value: SolutionTermMonths) => void;
+  canEditMinBagSplit?: boolean;
   className?: string;
 }
 
@@ -42,6 +43,7 @@ export function QuoteSummary({
   onColorPagesChange,
   onVolumePagesChange,
   onTermChange,
+  canEditMinBagSplit = false,
   className,
 }: QuoteSummaryProps) {
   const model = modelById(state.modelId);
@@ -170,7 +172,7 @@ export function QuoteSummary({
                 <dd className="flex flex-wrap items-center gap-x-1.5 gap-y-1 font-semibold text-[#111111]">
                   <span className="inline-flex items-center gap-1">
                     {state.blackPages.toLocaleString('es-PE')} negro
-                    {onBlackPagesChange ? (
+                    {canEditMinBagSplit && onBlackPagesChange ? (
                       <PagesEditPopover
                         kind="black"
                         value={state.blackPages}
@@ -182,7 +184,7 @@ export function QuoteSummary({
                   <span className="text-[#9CA3AF]">+</span>
                   <span className="inline-flex items-center gap-1">
                     {state.colorPages.toLocaleString('es-PE')} color
-                    {onColorPagesChange ? (
+                    {canEditMinBagSplit && onColorPagesChange ? (
                       <PagesEditPopover
                         kind="color"
                         value={state.colorPages}

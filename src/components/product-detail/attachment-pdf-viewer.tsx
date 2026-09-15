@@ -96,6 +96,16 @@ export function AttachmentPdfViewer({
         return;
       }
 
+      // Drive /preview y embeds similares: cargar directo en el iframe (sin fetch/blob).
+      if (/drive\.google\.com\/file\/d\/[^/]+\/preview/i.test(url)) {
+        if (!cancelled) {
+          setPreviewUrl(url);
+          setError(false);
+          setLoading(false);
+        }
+        return;
+      }
+
       setLoading(true);
       setError(false);
       try {
@@ -103,9 +113,10 @@ export function AttachmentPdfViewer({
         objectUrl = URL.createObjectURL(pdfBlob);
         if (!cancelled) setPreviewUrl(objectUrl);
       } catch {
+        // Si el fetch falla (CORS), intentar incrustar la URL original.
         if (!cancelled) {
-          setPreviewUrl(null);
-          setError(true);
+          setPreviewUrl(url);
+          setError(false);
         }
       } finally {
         if (!cancelled) setLoading(false);

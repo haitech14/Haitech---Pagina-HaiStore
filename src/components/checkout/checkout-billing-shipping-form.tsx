@@ -149,7 +149,7 @@ export function CheckoutBillingShippingForm({
           <div
             role="radiogroup"
             aria-label="Tipo de comprobante"
-            className="grid grid-cols-2 gap-3"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2"
           >
             {CHECKOUT_COMPROBANTE_TYPES.map((tipo) => {
               const selected = tipoComprobante === tipo;
@@ -310,7 +310,7 @@ export function CheckoutBillingShippingForm({
           <div
             role="radiogroup"
             aria-label="Destino de envío"
-            className="grid grid-cols-2 gap-3"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2"
           >
             {CHECKOUT_DESTINO_ENVIO.map((destino) => {
               const selected = destinoEnvio === destino;

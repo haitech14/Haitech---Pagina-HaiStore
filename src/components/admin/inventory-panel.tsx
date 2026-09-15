@@ -30,6 +30,7 @@ import {
 } from '@/components/admin/inventory/inventory-category-filter-select';
 import { InventoryProductFormDialog } from '@/components/admin/inventory/inventory-product-form-dialog';
 import { InventoryRowCells } from '@/components/admin/inventory/inventory-row-cells';
+import { ProductEditor } from '@/components/ProductEditor';
 import { InventoryTableSectionHeadingRow } from '@/components/admin/inventory/inventory-table-section-heading-row';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -89,7 +90,8 @@ export function InventoryPanel() {
     syncCatalog,
   } = useInventoryMutations();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
   const [editing, setEditing] = useState<InventoryProduct | null>(null);
   const [page, setPage] = useState(1);
@@ -213,12 +215,12 @@ export function InventoryPanel() {
 
   const openCreate = () => {
     setEditing(null);
-    setDialogOpen(true);
+    setCreateDialogOpen(true);
   };
 
   const openEdit = (product: InventoryProduct) => {
     setEditing(product);
-    setDialogOpen(true);
+    setEditDialogOpen(true);
   };
 
   const handleDelete = async (product: InventoryProduct) => {
@@ -717,12 +719,18 @@ export function InventoryPanel() {
       </div>
 
       <InventoryProductFormDialog
-        open={dialogOpen}
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        initial={null}
+      />
+
+      <ProductEditor
+        open={editDialogOpen}
         onOpenChange={(open) => {
-          setDialogOpen(open);
+          setEditDialogOpen(open);
           if (!open) setEditing(null);
         }}
-        initial={editing}
+        product={editing}
       />
 
       <InventoryBulkEditDialog

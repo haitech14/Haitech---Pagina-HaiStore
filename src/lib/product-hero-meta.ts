@@ -105,7 +105,7 @@ function formatConditionAttributeValue(value: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }
 
-const NUEVA_SEALED_LABEL = 'Nueva (Sellada en caja)';
+const NUEVA_SEALED_LABEL = 'Nueva Sellada en caja';
 
 function enrichNuevaConditionLabel(label: string): string {
   if (/^nueva\b/i.test(label)) return NUEVA_SEALED_LABEL;

@@ -31,7 +31,8 @@ export function CheckoutManualInstructions({ method }: CheckoutManualInstruction
           <span className="font-semibold text-foreground">{company.legalName}</span>
         </p>
         <p className="mt-2">
-          Tras confirmar, un asesor validará tu transferencia y coordinará el envío.
+          Tras confirmar, adjunta tu comprobante para que un asesor valide la transferencia y
+          coordine el envío.
         </p>
       </div>
     );
@@ -60,8 +61,8 @@ export function CheckoutManualInstructions({ method }: CheckoutManualInstruction
           </p>
         </div>
         <p className="mt-2">
-          Escanea el código QR, realiza el pago y confirma tu pedido. Un asesor validará tu
-          comprobante y coordinará el envío.
+          Escanea el código QR, realiza el pago y sube tu comprobante. Un asesor validará el
+          voucher y coordinará el envío.
         </p>
       </div>
     );
@@ -71,7 +72,7 @@ export function CheckoutManualInstructions({ method }: CheckoutManualInstruction
     return (
       <p className="text-xs text-muted-foreground" role="note">
         Pagarás al recibir tu pedido en Lima metropolitana. Un asesor confirmará disponibilidad
-        de envío.
+        de envío contraentrega.
       </p>
     );
   }

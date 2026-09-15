@@ -16,7 +16,7 @@ const STAGE_IDS = new Set<CrmPipelineStageId>([
   'venta_completada',
 ]);
 
-function isPipelineLead(value: unknown): value is CrmPipelineLead {
+export function isPipelineLead(value: unknown): value is CrmPipelineLead {
   if (!value || typeof value !== 'object') return false;
   const lead = value as CrmPipelineLead;
   return (
@@ -91,4 +91,57 @@ export function saveCrmPipelineLeads(leads: CrmPipelineLead[]): void {
   } catch {
     /* quota / modo privado */
   }
+}
+
+export function mergePipelineLeads(
+  local: CrmPipelineLead[],
+  remote: CrmPipelineLead[],
+): CrmPipelineLead[] {
+  const byId = new Map<string, CrmPipelineLead>();
+
+  for (const lead of local) {
+    byId.set(lead.id, normalizePipelineLead(lead));
+  }
+
+  for (const incomingRaw of remote) {
+    if (!isPipelineLead(incomingRaw)) continue;
+    const incoming = normalizePipelineLead(incomingRaw);
+    const existing = byId.get(incoming.id);
+    if (!existing) {
+      byId.set(incoming.id, incoming);
+      continue;
+    }
+
+    const existingNotes = existing.formSnapshot.notes?.trim() ?? '';
+    const incomingNotes = incoming.formSnapshot.notes?.trim() ?? '';
+    const notes =
+      !incomingNotes || existingNotes.includes(incomingNotes)
+        ? existingNotes
+        : incomingNotes.includes(existingNotes)
+          ? incomingNotes
+          : [existingNotes, incomingNotes].filter(Boolean).join('\n\n').slice(0, 4000);
+
+    byId.set(incoming.id, {
+      ...incoming,
+      stageId: existing.stageId,
+      followUpLabel: existing.followUpLabel || incoming.followUpLabel,
+      sellerName:
+        existing.sellerName && existing.sellerName !== 'Tienda en línea'
+          ? existing.sellerName
+          : incoming.sellerName,
+      tasks: existing.tasks.length > 0 ? existing.tasks : incoming.tasks,
+      formSnapshot: {
+        ...incoming.formSnapshot,
+        ...existing.formSnapshot,
+        notes,
+        stageId: existing.stageId,
+        ownerLabel: existing.formSnapshot.ownerLabel || incoming.formSnapshot.ownerLabel,
+        tasks: existing.tasks.length > 0 ? existing.tasks : incoming.tasks,
+      },
+    });
+  }
+
+  return [...byId.values()].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 }

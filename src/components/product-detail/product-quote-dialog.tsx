@@ -42,6 +42,8 @@ interface ProductQuoteDialogProps {
   heroLead?: string;
   heroDescription?: string;
   equipmentConfiguration?: CartConfigurationLine | undefined;
+  /** Precio USD de vitrina (mismo total que la ficha). */
+  unitUsd?: number;
   onGenerated: (preview: QuotePdfPreview) => void;
 }
 
@@ -59,11 +61,13 @@ export function ProductQuoteDialog({
   heroLead,
   heroDescription,
   equipmentConfiguration,
+  unitUsd,
   onGenerated,
 }: ProductQuoteDialogProps) {
   const { data: companySettings } = useCompanySettings();
   const { registerProductQuote } = useProformaMutations();
-  const { profile, saveQuoteProfile, isSaving: isSavingProfile } = useQuoteProfile();
+  const { profile, saveQuoteProfile, saveQuoteDraft, resolveFormOnOpen, isSaving: isSavingProfile } =
+    useQuoteProfile();
   const [form, setForm] = useState<ProductQuoteFormValues>(EMPTY_FORM);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,12 +77,24 @@ export function ProductQuoteDialog({
 
   useEffect(() => {
     if (!open) return;
-    setForm(profile);
+    setForm(resolveFormOnOpen(profile));
     setSubmitError(null);
     void import('@/lib/generate-product-quote-pdf').then(({ preloadQuotePdfAssets }) =>
       preloadQuotePdfAssets([product.image_url]),
     );
-  }, [open, profile, product.image_url]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate on open
+  }, [open, product.image_url]);
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = window.setTimeout(() => saveQuoteDraft(form), 400);
+    return () => window.clearTimeout(timer);
+  }, [form, open, saveQuoteDraft]);
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next) saveQuoteDraft(form);
+    onOpenChange(next);
+  };
 
   const sunat = useApplySunatRuc(form.ruc, (data) => {
     setForm((current) => applySunatToQuoteForm(current, data));
@@ -115,6 +131,7 @@ export function ProductQuoteDialog({
         ...(heroLead ? { heroLead } : {}),
         ...(heroDescription ? { heroDescription } : {}),
         ...(equipmentConfiguration ? { equipmentConfiguration } : {}),
+        ...(unitUsd != null ? { unitUsd } : {}),
       };
 
       const preview = await generateProductQuoteFromForm(
@@ -140,7 +157,7 @@ export function ProductQuoteDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[92vh] max-w-sm overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Generar cotización</DialogTitle>

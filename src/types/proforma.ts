@@ -17,6 +17,7 @@ export interface ProformaLineItem {
   brand: string;
   quantity: number;
   unitPricePen: number;
+  unitPriceUsd?: number;
   imageUrl?: string | null;
   shortDescription?: string | null;
 }

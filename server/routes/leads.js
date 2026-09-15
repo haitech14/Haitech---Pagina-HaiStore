@@ -33,6 +33,7 @@ leadsRouter.post('/web', async (req, res, next) => {
       city: typeof body.city === 'string' ? body.city : null,
       direccion: typeof body.direccion === 'string' ? body.direccion : null,
       channel: typeof body.channel === 'string' ? body.channel : 'whatsapp-floating',
+      campaign: typeof body.campaign === 'string' ? body.campaign : null,
       message: typeof body.message === 'string' ? body.message : null,
       productName: typeof body.productName === 'string' ? body.productName : null,
       productId: typeof body.productId === 'string' ? body.productId : null,

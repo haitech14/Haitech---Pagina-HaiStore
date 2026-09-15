@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Link } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail
 import { HOME_HERO_WHATSAPP_LINK } from '@/data/home-hero-slides';
 import { categoryPath } from '@/lib/category-path';
 import { CONSULTAR_PRECIO_LABEL, formatPenUsdParenthetical, isPriceOnRequest } from '@/lib/display-price';
+import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import type { EquipmentSkuVariant, EquipmentSkuVariantId } from '@/lib/equipment-sku-variants';
 import {
   HAITECH_PRODUCT_CAROUSEL_ARROW,
@@ -52,41 +53,56 @@ function VariantRailCard({
         aria-pressed={selected}
         onClick={() => onSelect(variant.id)}
         className={cn(
-          'flex h-full w-full flex-col rounded-lg border bg-white text-left transition-shadow hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E31B23]',
-          compact ? 'p-1.5 sm:p-2' : 'p-2',
+          'flex w-full items-center gap-2.5 rounded-xl border bg-white text-left transition-shadow hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E31B23]',
+          compact ? 'px-2 py-2' : 'px-2.5 py-2.5',
           selected ? 'border-[#E31B23] ring-1 ring-[#E31B23]' : 'border-neutral-200',
         )}
       >
         <div
           className={cn(
-            'flex items-center justify-center overflow-hidden rounded-md bg-neutral-50',
-            compact ? 'h-14 sm:h-16' : 'h-[4.5rem] sm:h-20',
+            'flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-neutral-50',
+            compact ? 'size-12 sm:size-14' : 'size-14 sm:size-16',
           )}
         >
           {image ? (
-            <img src={image} alt="" className="max-h-full max-w-full object-contain" loading="lazy" />
+            <img
+              src={image}
+              alt=""
+              className="max-h-full max-w-full object-contain object-center"
+              loading="lazy"
+            />
           ) : (
-            <span className="text-2xl font-bold text-neutral-200">{variant.title.charAt(0)}</span>
+            <span className="text-lg font-bold text-neutral-200">{variant.title.charAt(0)}</span>
           )}
         </div>
-        {brand ? (
-          <p className="mt-2 truncate text-[10px] font-bold uppercase tracking-wide text-[#E31B23]">
-            {brand}
+        <div className="min-w-0 flex-1">
+          {brand ? (
+            <p className="truncate text-[10px] font-bold uppercase leading-none tracking-wide text-[#E31B23]">
+              {brand}
+            </p>
+          ) : null}
+          <p className="mt-0.5 truncate text-[0.75rem] font-bold leading-tight text-neutral-900 sm:text-[0.8125rem]">
+            {variant.title}
           </p>
-        ) : null}
-        <p className="mt-0.5 line-clamp-2 text-[11px] font-bold leading-snug text-neutral-900 sm:text-xs">
-          {variant.title}
-        </p>
-        {variant.id === 'pack-emprendedor' ? (
-          <p className="mt-0.5 font-mono text-[10px] text-neutral-500">{variant.code}</p>
-        ) : null}
-        <p className="mt-1 line-clamp-2 text-[10px] leading-tight text-neutral-500">{variant.subtitle}</p>
+          {variant.id === 'pack-emprendedor' ? (
+            <p className="mt-0.5 truncate font-mono text-[10px] text-neutral-500">{variant.code}</p>
+          ) : null}
+          <p className="mt-0.5 truncate text-[10px] leading-tight text-neutral-500 sm:text-[11px]">
+            {variant.subtitle}
+          </p>
+        </div>
       </button>
     </li>
   );
 }
 
-function ComplementRailCard({ product }: { product: Product }) {
+function ComplementRailCard({
+  product,
+  className,
+}: {
+  product: Product;
+  className?: string;
+}) {
   const title = product.name.trim() || getProductCardTitleContent(product).title;
   const image = product.image_url?.trim();
   const synthetic = product.id.startsWith('complement-merch-');
@@ -101,7 +117,7 @@ function ComplementRailCard({ product }: { product: Product }) {
   );
 
   return (
-    <li className="min-w-0 shrink-0 basis-[9.75rem] sm:basis-[11rem]">
+    <li className={cn('min-w-0', className)}>
       <article className="flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-2.5">
         {href ? (
           <Link
@@ -127,14 +143,99 @@ function ComplementRailCard({ product }: { product: Product }) {
         <p className="mt-1 text-sm font-bold tabular-nums text-[#E31B23]">
           {isPriceOnRequest(priceUsd) ? CONSULTAR_PRECIO_LABEL : formatPenUsdParenthetical(priceUsd)}
         </p>
-        <AddToCartButton
-          product={product}
-          className="mt-auto h-8 min-h-8 w-full rounded-md px-2 text-[11px] font-bold"
-        >
-          Comprar
-        </AddToCartButton>
+        <div className="mt-auto pt-3">
+          <AddToCartButton
+            product={product}
+            className="h-auto min-h-9 w-full justify-center gap-1.5 rounded-full px-2.5 py-2 text-[10px] font-bold leading-tight sm:min-h-9 sm:px-3 sm:text-[11px]"
+          >
+            <ShoppingCart className="size-3.5 shrink-0" aria-hidden="true" />
+            <span className="min-w-0 text-center whitespace-normal">Agregar al carrito</span>
+          </AddToCartButton>
+        </div>
       </article>
     </li>
+  );
+}
+
+function ComplementProductsCarousel({ products }: { products: Product[] }) {
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: 'start',
+    containScroll: 'trimSnaps',
+    dragFree: true,
+    slidesToScroll: 1,
+    watchDrag: emblaShouldWatchDrag,
+  });
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const onSelect = () => {
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi]);
+
+  useEffect(() => {
+    emblaApi?.reInit();
+  }, [emblaApi, products]);
+
+  const showArrows = canScrollPrev || canScrollNext;
+
+  return (
+    <div className="relative mt-3">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <ul
+          className="flex touch-pan-x gap-3 sm:gap-3.5"
+          role="list"
+          aria-label="Accesorios recomendados"
+        >
+          {products.map((item) => (
+            <ComplementRailCard
+              key={item.id}
+              product={item}
+              className="shrink-0 flex-[0_0_10.5rem] sm:flex-[0_0_12rem]"
+            />
+          ))}
+        </ul>
+      </div>
+
+      {showArrows ? (
+        <>
+          <button
+            type="button"
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, HAITECH_PRODUCT_CAROUSEL_ARROW_LEFT)}
+            aria-label="Accesorios anteriores"
+            disabled={!canScrollPrev}
+            onClick={scrollPrev}
+          >
+            <ChevronLeft className="size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={cn(HAITECH_PRODUCT_CAROUSEL_ARROW, HAITECH_PRODUCT_CAROUSEL_ARROW_RIGHT)}
+            aria-label="Accesorios siguientes"
+            disabled={!canScrollNext}
+            onClick={scrollNext}
+          >
+            <ChevronRight className="size-5" strokeWidth={2} aria-hidden="true" />
+          </button>
+        </>
+      ) : null}
+    </div>
   );
 }
 
@@ -223,7 +324,7 @@ function SkuVariantCardsCarousel({
 
   const showArrows = canScrollPrev || canScrollNext;
   const slideClass = compact
-    ? 'shrink-0 flex-[0_0_calc((100%-0.5rem)/2)]'
+    ? 'shrink-0 flex-[0_0_calc((100%-0.5rem)/2)] sm:flex-[0_0_calc((100%-1rem)/3)]'
     : 'shrink-0 flex-[0_0_calc((100%-0.5rem)/2)] sm:flex-[0_0_calc((100%-1.5rem)/3)] lg:flex-[0_0_calc((100%-2.25rem)/4)]';
 
   return (
@@ -282,6 +383,7 @@ export function ProductDetailSkuVariantRail({
   className,
   compact = false,
   asAccordion = false,
+  hideHeader = false,
   expanded,
   onExpandedChange,
 }: {
@@ -292,6 +394,8 @@ export function ProductDetailSkuVariantRail({
   className?: string;
   compact?: boolean;
   asAccordion?: boolean;
+  /** Oculta el subtítulo/CTA (cuando el padre ya muestra el encabezado). */
+  hideHeader?: boolean;
   expanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
 }) {
@@ -318,19 +422,21 @@ export function ProductDetailSkuVariantRail({
         {...(onExpandedChange ? { onExpandedChange } : {})}
       >
         <div className="space-y-2">
-          <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-            <p className="text-[0.625rem] text-neutral-500">
-              Elige el combinado que mejor se ajuste a tu necesidad
-            </p>
-            <a
-              href={HOME_HERO_WHATSAPP_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[0.625rem] font-semibold text-[#E31B23] hover:text-[#c41820]"
-            >
-              Consulta a un asesor
-            </a>
-          </div>
+          {!hideHeader ? (
+            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+              <p className="text-[0.625rem] text-neutral-500">
+                Elige el combinado que mejor se ajuste a tu necesidad
+              </p>
+              <a
+                href={HOME_HERO_WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[0.625rem] font-semibold text-[#E31B23] hover:text-[#c41820]"
+              >
+                Consulta a un asesor
+              </a>
+            </div>
+          ) : null}
           {cards}
         </div>
       </ProductDetailHeroCollapsibleSection>
@@ -340,19 +446,21 @@ export function ProductDetailSkuVariantRail({
   if (compact) {
     return (
       <section aria-label="Variantes de producto" className={className}>
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-          <p className="text-[0.625rem] leading-snug text-neutral-500">
-            Elige el combinado que mejor se ajuste a tu necesidad
-          </p>
-          <a
-            href={HOME_HERO_WHATSAPP_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 text-[0.625rem] font-semibold text-[#E31B23] hover:text-[#c41820]"
-          >
-            Consulta a un asesor
-          </a>
-        </div>
+        {!hideHeader ? (
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+            <p className="text-[0.625rem] leading-snug text-neutral-500">
+              Elige el combinado que mejor se ajuste a tu necesidad
+            </p>
+            <a
+              href={HOME_HERO_WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-[0.625rem] font-semibold text-[#E31B23] hover:text-[#c41820]"
+            >
+              Consulta a un asesor
+            </a>
+          </div>
+        ) : null}
         {cards}
       </section>
     );
@@ -409,11 +517,7 @@ export function ProductDetailMerchRails({
           <span id="complementa-compra-titulo" className="sr-only">
             Complementa tu compra
           </span>
-          <ul className="mt-3 flex gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-3.5 [&::-webkit-scrollbar]:hidden">
-            {complementProducts.map((item) => (
-              <ComplementRailCard key={item.id} product={item} />
-            ))}
-          </ul>
+          <ComplementProductsCarousel products={complementProducts} />
         </section>
       ) : null}
     </div>

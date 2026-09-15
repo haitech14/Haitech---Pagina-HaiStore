@@ -46,9 +46,20 @@ type LoadedImage = { dataUrl: string; width: number; height: number };
 
 const PAGE_W = 210;
 const MARGIN = 12;
-const PRIMARY: Rgb = [0, 0, 0];
+/** Rojo vino para badges, cabeceras y pie. */
+const PRIMARY: Rgb = [122, 20, 42];
 const LOGO_FALLBACK = '/logo.png';
+const IMAGE_LOAD_TIMEOUT_MS = 800;
 const imageCache = new Map<string, LoadedImage | null>();
+
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => {
+      window.setTimeout(() => resolve(fallback), ms);
+    }),
+  ]);
+}
 
 function formatPen(value: number): string {
   return `S/ ${value.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -79,53 +90,68 @@ async function loadLineImage(url: string | null | undefined): Promise<LoadedImag
   if (!src) return null;
   if (imageCache.has(src)) return imageCache.get(src) ?? null;
 
-  try {
-    const response = await fetch(src.startsWith('/') ? encodeURI(src) : src);
-    if (!response.ok) {
-      imageCache.set(src, null);
-      return null;
-    }
-    const blob = await response.blob();
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(new Error('image read failed'));
-      reader.readAsDataURL(blob);
-    });
-    const image = await createImageBitmap(blob);
-    const loaded = { dataUrl, width: image.width, height: image.height };
-    imageCache.set(src, loaded);
-    return loaded;
-  } catch {
-    imageCache.set(src, null);
-    return null;
-  }
-}
-
-async function loadLogo(company: CompanySettings): Promise<LoadedImage | null> {
-  const candidates = [
-    company.logoUrl?.trim(),
-    LOGO_FALLBACK,
-    '/logoclaro.png',
-  ].filter(Boolean) as string[];
-  for (const src of candidates) {
+  const load = async (): Promise<LoadedImage | null> => {
     try {
-      const response = await fetch(src.startsWith('/') ? encodeURI(src) : src);
-      if (!response.ok) continue;
+      const controller = new AbortController();
+      const abortId = window.setTimeout(() => controller.abort(), IMAGE_LOAD_TIMEOUT_MS);
+      const response = await fetch(src.startsWith('/') ? encodeURI(src) : src, {
+        signal: controller.signal,
+      });
+      window.clearTimeout(abortId);
+      if (!response.ok) {
+        imageCache.set(src, null);
+        return null;
+      }
       const blob = await response.blob();
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result));
-        reader.onerror = () => reject(new Error('logo read failed'));
+        reader.onerror = () => reject(new Error('image read failed'));
         reader.readAsDataURL(blob);
       });
       const image = await createImageBitmap(blob);
-      return { dataUrl, width: image.width, height: image.height };
+      const loaded = { dataUrl, width: image.width, height: image.height };
+      imageCache.set(src, loaded);
+      return loaded;
     } catch {
-      // intentar siguiente candidato
+      imageCache.set(src, null);
+      return null;
     }
-  }
-  return null;
+  };
+
+  return withTimeout(load(), IMAGE_LOAD_TIMEOUT_MS + 150, null);
+}
+
+async function loadLogo(_company: CompanySettings): Promise<LoadedImage | null> {
+  const candidates = [LOGO_FALLBACK];
+
+  const load = async (): Promise<LoadedImage | null> => {
+    for (const src of candidates) {
+      try {
+        const controller = new AbortController();
+        const abortId = window.setTimeout(() => controller.abort(), IMAGE_LOAD_TIMEOUT_MS);
+        const response = await fetch(src.startsWith('/') ? encodeURI(src) : src, {
+          signal: controller.signal,
+        });
+        window.clearTimeout(abortId);
+        if (!response.ok) continue;
+        const blob = await response.blob();
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(new Error('logo read failed'));
+          reader.readAsDataURL(blob);
+        });
+        const image = await createImageBitmap(blob);
+        return { dataUrl, width: image.width, height: image.height };
+      } catch {
+        // intentar siguiente candidato
+      }
+    }
+    return null;
+  };
+
+  return withTimeout(load(), IMAGE_LOAD_TIMEOUT_MS + 200, null);
 }
 
 function fitImage(

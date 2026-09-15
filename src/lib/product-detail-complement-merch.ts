@@ -20,7 +20,7 @@ export const COMPLEMENT_MERCH_SPECS: ComplementMerchSpec[] = [
     name: 'Estabilizador Sólido 2000 watts',
     productId: ESTABILIZADOR_2KVA_PRODUCT_ID,
     priceUsd: 150,
-    fallbackImage: '/categories/accesorios-impresoras.png',
+    fallbackImage: '/products/estabilizador-solido-2000w.png',
     matchName: /estabilizador.*2000|s[oó]lido\s*2000/i,
   },
   {

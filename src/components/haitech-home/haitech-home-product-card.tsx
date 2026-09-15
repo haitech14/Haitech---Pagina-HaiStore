@@ -537,7 +537,7 @@ function CardInfo({
 
       {isFeaturedVariant ? null : codeLabel || hasStock ? (
         <div
-          className="mt-1.5 grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-left text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
+          className="mt-1.5 flex w-full min-w-0 items-center justify-center gap-3 text-center text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
           aria-label={[
             codeLabel ? `Código ${codeLabel}` : null,
             hasStock ? (outOfStock ? 'Sin stock' : `Stock ${stockCount}`) : null,
@@ -546,12 +546,10 @@ function CardInfo({
             .join(', ')}
         >
           {codeLabel ? (
-            <span className="min-w-0 truncate text-left tabular-nums" title={codeLabel}>
+            <span className="min-w-0 truncate tabular-nums" title={codeLabel}>
               Cód. {codeLabel}
             </span>
-          ) : (
-            <span className="min-w-0" aria-hidden="true" />
-          )}
+          ) : null}
           {hasStock ? (
             <ProductStockHover
               stock={stockCount}
@@ -559,7 +557,7 @@ function CardInfo({
               stockLocations={resolveHaitechShopStockLocations(product)}
               prefix="Stock "
               emptyLabel="Sin stock"
-              className="shrink-0 justify-end text-right text-[10px] font-medium sm:text-[11px]"
+              className="shrink-0 justify-center text-[10px] font-medium sm:text-[11px]"
               iconClassName="size-3 shrink-0"
             />
           ) : null}

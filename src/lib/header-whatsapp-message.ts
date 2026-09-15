@@ -3,7 +3,7 @@ import { encodeWhatsAppText } from '@/lib/whatsapp-encoding';
 import type { WhatsAppContact } from '@/lib/whatsapp-contact';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 
-function buildHeaderWhatsAppMessage(
+export function buildHeaderWhatsAppMessage(
   contact: WhatsAppContact,
   topic: 'ventas' | 'soporte',
 ): string {

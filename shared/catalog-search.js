@@ -340,6 +340,24 @@ function buildModelQueryCompact(query) {
   return /\d/.test(compact) && compact.length >= 3 ? compact : '';
 }
 
+/**
+ * Variantes del modelo para consumibles: «im430f» también busca «im430»
+ * (tóners a menudo omiten la letra final del equipo).
+ */
+function buildConsumableModelQueryVariants(modelQueryCompact) {
+  if (!modelQueryCompact) return [];
+  const variants = [modelQueryCompact];
+  const withoutTrailingLetter = modelQueryCompact.replace(/(\d)[a-z]$/i, '$1');
+  if (
+    withoutTrailingLetter !== modelQueryCompact &&
+    withoutTrailingLetter.length >= 3 &&
+    /\d/.test(withoutTrailingLetter)
+  ) {
+    variants.push(withoutTrailingLetter);
+  }
+  return variants;
+}
+
 function requiresStrictModelMatch(query) {
   if (!looksLikeEquipmentModelSearch(query)) return false;
   const modelQueryCompact = buildModelQueryCompact(query);
@@ -350,22 +368,29 @@ function productHasStrongModelMatch(product, query) {
   const modelQueryCompact = buildModelQueryCompact(query);
   if (!modelQueryCompact) return true;
 
-  if (scoreModelQueryMatch(product, modelQueryCompact) > 0) return true;
+  const isConsumable = isConsumableOrPartProduct(product);
+  const variants = isConsumable
+    ? buildConsumableModelQueryVariants(modelQueryCompact)
+    : [modelQueryCompact];
 
-  const nameCompact = compactSearchText(product.name ?? '');
-  const primaryCompact = compactSearchText(getNamePrimarySegment(product.name ?? ''));
-  const { haystackCompact } = resolveProductHaystackFields(product);
+  for (const variant of variants) {
+    if (scoreModelQueryMatch(product, variant) > 0) return true;
 
-  if (
-    compactIncludesBoundedModelTerm(nameCompact, modelQueryCompact) ||
-    compactIncludesBoundedModelTerm(primaryCompact, modelQueryCompact) ||
-    compactIncludesBoundedModelTerm(haystackCompact, modelQueryCompact)
-  ) {
-    return true;
-  }
+    const nameCompact = compactSearchText(product.name ?? '');
+    const primaryCompact = compactSearchText(getNamePrimarySegment(product.name ?? ''));
+    const { haystackCompact } = resolveProductHaystackFields(product);
 
-  if (nameCompact.startsWith(modelQueryCompact) || primaryCompact.startsWith(modelQueryCompact)) {
-    return true;
+    if (
+      compactIncludesBoundedModelTerm(nameCompact, variant) ||
+      compactIncludesBoundedModelTerm(primaryCompact, variant) ||
+      compactIncludesBoundedModelTerm(haystackCompact, variant)
+    ) {
+      return true;
+    }
+
+    if (nameCompact.startsWith(variant) || primaryCompact.startsWith(variant)) {
+      return true;
+    }
   }
 
   return false;
@@ -683,12 +708,28 @@ export function scoreProductSearchRelevance(product, query) {
   }
 
   if (equipmentIntent && isConsumableOrPartProduct(product)) {
-    score -= numericModelSearch ? 55_000 : 38_000;
+    const strongConsumableMatch = productHasStrongModelMatch(product, query);
+    score -= numericModelSearch
+      ? strongConsumableMatch
+        ? 12_000
+        : 55_000
+      : strongConsumableMatch
+        ? 8_000
+        : 38_000;
+    if (strongConsumableMatch) score += 28_000;
   }
 
   const modelQueryCompact = buildModelQueryCompact(query);
   if (modelQueryCompact) {
-    score += scoreModelQueryMatch(product, modelQueryCompact);
+    if (isConsumableOrPartProduct(product)) {
+      let bestModelScore = 0;
+      for (const variant of buildConsumableModelQueryVariants(modelQueryCompact)) {
+        bestModelScore = Math.max(bestModelScore, scoreModelQueryMatch(product, variant));
+      }
+      score += bestModelScore;
+    } else {
+      score += scoreModelQueryMatch(product, modelQueryCompact);
+    }
   }
 
   if (numericModelSearch && isUnrelatedCategoryForPrinterModelSearch(product)) {
@@ -866,7 +907,22 @@ export function productMatchesSearchQuery(product, query) {
   const termsMatch = terms.every((term) =>
     termMatchesHaystack(term, haystack, haystackCompact, modelTokens, { allowFuzzy: false }),
   );
-  if (!termsMatch) return false;
+  if (!termsMatch) {
+    // Tóner/repuestos suelen omitir la letra final del modelo (IM 430 vs IM 430F).
+    if (
+      isConsumableOrPartProduct(product) &&
+      looksLikeEquipmentModelSearch(query) &&
+      productHasStrongModelMatch(product, query)
+    ) {
+      const brandTerms = terms.filter((term) => KNOWN_BRANDS.includes(term));
+      return brandTerms.every((term) =>
+        termMatchesHaystack(term, haystack, haystackCompact, modelTokens, {
+          allowFuzzy: false,
+        }),
+      );
+    }
+    return false;
+  }
 
   return !requiresStrictModelMatch(query) || productHasStrongModelMatch(product, query);
 }

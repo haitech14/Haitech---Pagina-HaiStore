@@ -49,7 +49,7 @@ export function CheckoutTotalsBreakdown({
 
   if (baseUsd <= 0) return null;
 
-  const priceProps = { className: 'justify-end', allowZero: true as const };
+  const priceProps = { className: 'justify-end', allowZero: true as const, compact: true as const };
 
   if (section === 'tax') {
     return (

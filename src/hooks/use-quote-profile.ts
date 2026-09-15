@@ -5,7 +5,6 @@ import { useAuth } from '@/context/auth-context';
 import { useCheckoutAccountClient } from '@/hooks/use-checkout-account-client';
 import { apiFetch } from '@/lib/api';
 import {
-  EMPTY_PRODUCT_QUOTE_FORM,
   productQuoteFormFromCheckoutClient,
   productQuoteFormFromWhatsAppContact,
   type ProductQuoteFormValues,
@@ -13,33 +12,16 @@ import {
 } from '@/lib/generate-product-quote-from-contact';
 import type { HaitechClientFormValues } from '@/lib/haitech-client-schema';
 import {
+  mergeQuoteForm,
+  persistQuoteDraft,
   readStoredQuoteProfile,
+  resolveQuoteFormOnOpen,
   storeQuoteProfile,
 } from '@/lib/quote-profile-storage';
 import {
   readStoredWhatsAppContact,
   storeWhatsAppContact,
 } from '@/lib/whatsapp-contact';
-
-function mergeQuoteProfile(
-  ...sources: Array<Partial<ProductQuoteFormValues> | null | undefined>
-): ProductQuoteFormValues {
-  const merged: ProductQuoteFormValues = { ...EMPTY_PRODUCT_QUOTE_FORM };
-
-  for (const source of sources) {
-    if (!source) continue;
-    if (!merged.ruc && source.ruc?.trim()) merged.ruc = source.ruc.trim();
-    if (!merged.razonSocial && source.razonSocial?.trim()) {
-      merged.razonSocial = source.razonSocial.trim();
-    }
-    if (!merged.atencion && source.atencion?.trim()) merged.atencion = source.atencion.trim();
-    if (!merged.celular && source.celular?.trim()) merged.celular = source.celular.trim();
-    if (!merged.direccion && source.direccion?.trim()) merged.direccion = source.direccion.trim();
-    if (!merged.ciudad && source.ciudad?.trim()) merged.ciudad = source.ciudad.trim();
-  }
-
-  return merged;
-}
 
 export function useQuoteProfile() {
   const { user, authProvider } = useAuth();
@@ -54,7 +36,7 @@ export function useQuoteProfile() {
       ? productQuoteFormFromCheckoutClient(accountClient)
       : null;
 
-    return mergeQuoteProfile(fromAccount, stored, fromWhatsapp);
+    return mergeQuoteForm(stored, fromAccount, fromWhatsapp);
   }, [accountClient, user?.email]);
 
   const saveMutation = useMutation({
@@ -88,6 +70,8 @@ export function useQuoteProfile() {
     profile,
     isLoading: accountLoading,
     saveQuoteProfile: saveMutation.mutateAsync,
+    saveQuoteDraft: persistQuoteDraft,
+    resolveFormOnOpen: resolveQuoteFormOnOpen,
     isSaving: saveMutation.isPending,
   };
 }

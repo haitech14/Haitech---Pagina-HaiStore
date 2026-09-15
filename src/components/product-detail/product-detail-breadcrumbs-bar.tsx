@@ -4,7 +4,7 @@ import { Heart, Pencil, Share2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { InventoryProductFormDialog } from '@/components/admin/inventory/inventory-product-form-dialog';
+import { ProductEditor } from '@/components/ProductEditor';
 import { ProductDetailBreadcrumbs } from '@/components/product-detail/product-detail-breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
@@ -98,20 +98,20 @@ export function ProductDetailBreadcrumbsBar({
   return (
     <>
       <div className={cn('border-b border-neutral-100 bg-white text-neutral-700', className)}>
-        <div className="container flex items-center justify-between gap-x-2 py-1">
+        <div className="container flex items-center justify-between gap-x-2 py-0.5">
           <ProductDetailBreadcrumbs items={items} className="mb-0 min-w-0 flex-1" />
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="h-7 gap-1 px-2 text-xs font-medium text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
+              className="h-6 gap-1 px-1.5 text-[11px] font-medium text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
               onClick={() => toggle(productToWishlistItem(product))}
               aria-pressed={wishlisted}
               aria-label={wishlisted ? 'Quitar de favoritos' : 'Añadir a favoritos'}
             >
               <Heart
-                className={cn('size-3.5', wishlisted ? 'fill-[#E31B23] text-[#E31B23]' : '')}
+                className={cn('size-3', wishlisted ? 'fill-[#E31B23] text-[#E31B23]' : '')}
                 aria-hidden="true"
               />
               Favoritos
@@ -121,10 +121,10 @@ export function ProductDetailBreadcrumbsBar({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-7 gap-1 px-2 text-xs font-medium text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
+                className="h-6 gap-1 px-1.5 text-[11px] font-medium text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
                 onClick={onShareClick}
               >
-                <Share2 className="size-3.5" aria-hidden="true" />
+                <Share2 className="size-3" aria-hidden="true" />
                 Compartir
               </Button>
             ) : null}
@@ -133,7 +133,7 @@ export function ProductDetailBreadcrumbsBar({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-7 shrink-0 gap-1 border-border px-2 text-xs text-foreground hover:bg-muted/50 focus-visible:ring-[#E31B23]"
+                className="h-6 shrink-0 gap-1 border-border px-1.5 text-[11px] text-foreground hover:bg-muted/50 focus-visible:ring-[#E31B23]"
                 disabled={loadingEdit}
                 onClick={() => {
                   void openEdit();
@@ -141,7 +141,7 @@ export function ProductDetailBreadcrumbsBar({
                 title="Editar producto en inventario"
                 aria-label="Editar producto"
               >
-                <Pencil className="size-3" aria-hidden="true" />
+                <Pencil className="size-2.5" aria-hidden="true" />
                 {loadingEdit ? 'Cargando…' : 'Editar'}
               </Button>
             ) : null}
@@ -150,13 +150,13 @@ export function ProductDetailBreadcrumbsBar({
       </div>
 
       {isAdmin && editingProduct ? (
-        <InventoryProductFormDialog
+        <ProductEditor
           open={editOpen}
           onOpenChange={(open) => {
             setEditOpen(open);
             if (!open) setEditingProduct(null);
           }}
-          initial={editingProduct}
+          product={editingProduct}
           onSaved={handleSaved}
         />
       ) : null}

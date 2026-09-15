@@ -7,7 +7,7 @@ import {
   ProductQuotePdfViewer,
   type QuotePdfPreview,
 } from '@/components/product-detail/product-quote-pdf-viewer';
-import { downloadProductAttachment, isPdfAttachment } from '@/lib/inventory-attachments';
+import { resolveAttachmentPdfPreviewUrl } from '@/lib/inventory-attachments';
 import type { ProductHeroSpecBullet, ProductResourceLink } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
@@ -93,15 +93,11 @@ export function ProductDetailResources({
 
   const handleTechnicalSheetClick = () => {
     if (!fichaLink?.href) return;
-    if (isPdfAttachment(fichaLink.href, fichaLink.mimeType, fichaFileName)) {
-      setAttachmentPdfPreview({
-        url: fichaLink.href,
-        filename: fichaFileName,
-        title: 'Ficha técnica',
-      });
-      return;
-    }
-    void downloadProductAttachment(fichaLink.href, fichaFileName);
+    setAttachmentPdfPreview({
+      url: resolveAttachmentPdfPreviewUrl(fichaLink.href),
+      filename: fichaFileName,
+      title: 'Ficha técnica',
+    });
   };
 
   if (links.length === 0) {

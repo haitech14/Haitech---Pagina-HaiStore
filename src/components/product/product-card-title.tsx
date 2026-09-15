@@ -40,6 +40,7 @@ interface ProductCardBrandLineProps {
   brand: string | null;
   conditionLabel?: string | null;
   brandClassName?: string;
+  className?: string;
 }
 
 /** Marca y badge de condición en la misma fila (p. ej. RICOH + Nueva). */
@@ -47,12 +48,13 @@ export function ProductCardBrandLine({
   brand,
   conditionLabel,
   brandClassName,
+  className,
 }: ProductCardBrandLineProps) {
   const trimmedLabel = conditionLabel?.trim();
   if (!brand && !trimmedLabel) return null;
 
   return (
-    <div className={PRODUCT_CARD_BRAND_ROW_CLASS}>
+    <div className={cn(PRODUCT_CARD_BRAND_ROW_CLASS, className)}>
       {brand ? (
         <p className={cn(PRODUCT_CARD_BRAND_CLASS, 'min-w-0 shrink truncate leading-none', brandClassName)}>
           {brand}

@@ -5,7 +5,7 @@ import {
   getDisplayPriceVisibility,
   isPriceOnRequest,
 } from '@/lib/display-price';
-import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
+import { cn, formatPenFromUsd, formatStorefrontUsd, penToUsd } from '@/lib/utils';
 
 export interface RentalEstimateDualPriceProps {
   estimatedMonthlyPen: number;
@@ -25,7 +25,7 @@ export function RentalEstimateDualPrice({
   const penFirst = dualPriceOrder === 'pen-usd';
 
   const usdSpan = showUsd ? (
-    <span className="text-foreground">{formatUsd(usd)}</span>
+    <span className="text-foreground">{formatStorefrontUsd(usd)}</span>
   ) : null;
   const penSpan = showPen ? (
     <span className="text-red-600">S/ {formatEquipmentRentalPen(estimatedMonthlyPen)}</span>
@@ -67,6 +67,8 @@ export interface DualPriceProps {
   alwaysBoth?: boolean | undefined;
   /** Apila PEN y USD en líneas separadas (sidebar checkout). */
   stacked?: boolean | undefined;
+  compact?: boolean | undefined;
+  preferCurrency?: 'PEN' | 'USD' | undefined;
   /**
    * When true, keep rendering $0 / S/ 0 (checkout totals, discounts, IGV).
    * Default: storefront product prices show «Consultar Precio» instead.
@@ -82,13 +84,16 @@ export function DualPrice({
   penOverride,
   alwaysBoth = false,
   stacked = false,
+  compact = false,
+  preferCurrency,
   allowZero = false,
 }: DualPriceProps) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const visibility = getDisplayPriceVisibility(displayCurrency);
   const showUsd = alwaysBoth || visibility.showUsd;
   const showPen = alwaysBoth || visibility.showPen;
-  const penFirst = dualPriceOrder === 'pen-usd';
+  const penFirst =
+    preferCurrency === 'PEN' ? true : preferCurrency === 'USD' ? false : dualPriceOrder === 'pen-usd';
   const strike = strikethrough
     ? 'line-through decoration-muted-foreground decoration-solid'
     : undefined;
@@ -109,18 +114,36 @@ export function DualPrice({
       : formatPenFromUsd(usd);
 
   const usdSpan = showUsd ? (
-    <span className={cn(strike, 'text-foreground')}>{formatUsd(usd)}</span>
+    <span className={cn(strike, 'text-foreground')}>{formatStorefrontUsd(usd)}</span>
   ) : null;
   const penSpan = showPen ? (
     <span className={cn(strike, 'text-foreground')}>{penLabel}</span>
   ) : null;
 
+  if (compact && showUsd && showPen) {
+    const primary = penFirst ? penLabel : formatStorefrontUsd(usd);
+    const secondary = penFirst ? formatStorefrontUsd(usd) : penLabel;
+    return (
+      <span
+        className={cn(
+          'inline-flex max-w-full flex-wrap items-baseline gap-x-1 tabular-nums leading-tight sm:flex-nowrap sm:whitespace-nowrap',
+          className,
+        )}
+      >
+        <span className={cn(strike, 'font-semibold text-foreground')}>{primary}</span>
+        <span className={cn(strike, 'text-[0.7em] font-medium text-muted-foreground')}>
+          {secondary}
+        </span>
+      </span>
+    );
+  }
+
   if (stacked && showUsd && showPen) {
     const primary = penFirst
       ? { label: penLabel, className: 'text-foreground' }
-      : { label: formatUsd(usd), className: 'text-foreground' };
+      : { label: formatStorefrontUsd(usd), className: 'text-foreground' };
     const secondary = penFirst
-      ? { label: formatUsd(usd), className: 'text-foreground' }
+      ? { label: formatStorefrontUsd(usd), className: 'text-foreground' }
       : { label: penLabel, className: 'text-foreground' };
 
     return (

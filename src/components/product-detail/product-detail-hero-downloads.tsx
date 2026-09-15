@@ -7,6 +7,7 @@ import {
   downloadProductAttachment,
   findAttachmentByKind,
   isPdfAttachment,
+  resolveAttachmentPdfPreviewUrl,
 } from '@/lib/inventory-attachments';
 import type { Product, ProductAttachmentKind } from '@/types/product';
 import { cn } from '@/lib/utils';
@@ -82,11 +83,16 @@ export function ProductDetailHeroDownloads({
         const openAsPdf = Boolean(href) && isPdfAttachment(href, attachment?.mime_type, fileName);
 
         const handleClick = () => {
-          if (href && openAsPdf) {
-            setPdfPreview({ url: href, filename: fileName, title: item.label });
-            return;
-          }
           if (href) {
+            // Ficha técnica siempre en vista previa; otros adjuntos PDF también.
+            if (item.kind === 'technical_sheet' || openAsPdf) {
+              setPdfPreview({
+                url: resolveAttachmentPdfPreviewUrl(href),
+                filename: fileName,
+                title: item.label,
+              });
+              return;
+            }
             void downloadProductAttachment(href, fileName);
             return;
           }

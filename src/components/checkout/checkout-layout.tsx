@@ -43,7 +43,7 @@ export function CheckoutProgressBar({ currentStep }: CheckoutProgressBarProps) {
               </span>
               <span
                 className={cn(
-                  'truncate text-[0.625rem] font-medium sm:text-sm',
+                  'truncate text-xs font-medium sm:text-sm',
                   active ? 'text-foreground' : 'text-muted-foreground',
                 )}
               >
@@ -89,8 +89,12 @@ export function CheckoutLayout({ currentStep, children, sidebar }: CheckoutLayou
             sidebar ? CHECKOUT_TOTAL_COLUMN_CLASS : 'grid-cols-1',
           )}
         >
-          <div>{children}</div>
-          {sidebar ? <aside className="min-w-0 lg:sticky lg:top-24">{sidebar}</aside> : null}
+          {sidebar ? (
+            <aside className="min-w-0 lg:col-start-2 lg:row-start-1 lg:sticky lg:top-24">
+              {sidebar}
+            </aside>
+          ) : null}
+          <div className="min-w-0 lg:col-start-1 lg:row-start-1">{children}</div>
         </div>
       </div>
     </div>

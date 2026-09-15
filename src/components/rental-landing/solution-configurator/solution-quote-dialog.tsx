@@ -61,7 +61,8 @@ export function SolutionQuoteDialog({
 }: SolutionQuoteDialogProps) {
   const { data: companySettings } = useCompanySettings();
   const { registerProductQuote } = useProformaMutations();
-  const { profile, saveQuoteProfile, isSaving: isSavingProfile } = useQuoteProfile();
+  const { profile, saveQuoteProfile, saveQuoteDraft, resolveFormOnOpen, isSaving: isSavingProfile } =
+    useQuoteProfile();
   const [form, setForm] = useState<ProductQuoteFormValues>(EMPTY_PRODUCT_QUOTE_FORM);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,16 +71,24 @@ export function SolutionQuoteDialog({
 
   useEffect(() => {
     if (!open) return;
+    const stored = resolveFormOnOpen(profile);
     setForm({
       ...EMPTY_PRODUCT_QUOTE_FORM,
-      ...profile,
+      ...stored,
       ciudad:
-        profile.ciudad?.trim() ||
+        stored.ciudad?.trim() ||
         [state.city.trim() || 'Lima', state.district.trim()].filter(Boolean).join(', '),
     });
     setSubmitError(null);
     void preloadQuotePdfAssets(product.imageUrl ? [product.imageUrl] : []);
-  }, [open, profile, product.imageUrl, state.city, state.district]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate on open
+  }, [open, product.imageUrl, state.city, state.district]);
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = window.setTimeout(() => saveQuoteDraft(form), 400);
+    return () => window.clearTimeout(timer);
+  }, [form, open, saveQuoteDraft]);
 
   const sunat = useApplySunatRuc(form.ruc, (data) => {
     setForm((current) => applySunatToQuoteForm(current, data));
@@ -204,8 +213,14 @@ export function SolutionQuoteDialog({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) saveQuoteDraft(form);
+        onOpenChange(next);
+      }}
+    >
       <DialogContent className="max-h-[92vh] max-w-sm overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Generar cotización</DialogTitle>

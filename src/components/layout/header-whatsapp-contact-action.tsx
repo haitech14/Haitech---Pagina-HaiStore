@@ -5,6 +5,7 @@ import { WhatsAppContactDialog } from '@/components/whatsapp-contact-dialog';
 import { headerDarkUtilityButtonClass } from '@/components/layout/header-action-strip';
 import { useWhatsAppContact } from '@/hooks/use-whatsapp-contact';
 import {
+  buildHeaderWhatsAppMessage,
   openHeaderSalesWhatsApp,
   openHeaderSupportWhatsApp,
 } from '@/lib/header-whatsapp-message';
@@ -58,7 +59,11 @@ export function HeaderWhatsAppContactAction({
   const copy = DIALOG_COPY[topic];
 
   const handleSubmit = async (nextContact: WhatsAppContact) => {
-    await saveContact(nextContact);
+    await saveContact(nextContact, {
+      channel: topic === 'ventas' ? 'whatsapp-header' : 'header-soporte',
+      campaign: topic === 'ventas' ? 'header-ventas' : 'header-soporte',
+      message: buildHeaderWhatsAppMessage(nextContact, topic),
+    });
     const opened = openWhatsAppForTopic(topic, nextContact);
     if (!opened) {
       throw new Error('No se pudo abrir WhatsApp. Inténtalo de nuevo.');

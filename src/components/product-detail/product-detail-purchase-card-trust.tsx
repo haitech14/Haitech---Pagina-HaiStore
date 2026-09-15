@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 interface ProductDetailPurchaseCardTrustProps {
   className?: string;
   variant?: 'default' | 'laptop' | 'premium';
+  /** Texto e iconos claros sobre fondo marca. */
+  onBrand?: boolean;
 }
 
 const TRUST_ICONS = {
@@ -45,18 +47,47 @@ const PREMIUM_TRUST_ITEMS = [
 export function ProductDetailPurchaseCardTrust({
   className,
   variant = 'default',
+  onBrand = false,
 }: ProductDetailPurchaseCardTrustProps) {
   if (variant === 'premium') {
     return (
-      <ul className={cn('space-y-2 border-t border-neutral-100 pt-3', className)} aria-label="Beneficios de compra">
+      <ul
+        className={cn(
+          'space-y-2 border-t pt-3',
+          onBrand ? 'border-white/25' : 'border-neutral-100',
+          className,
+        )}
+        aria-label="Beneficios de compra"
+      >
         {PREMIUM_TRUST_ITEMS.map((item) => {
           const Icon = item.icon;
           return (
             <li key={item.id} className="flex items-start gap-2.5">
-              <Icon className="mt-0.5 size-4 shrink-0 text-neutral-400" strokeWidth={1.75} aria-hidden="true" />
+              <Icon
+                className={cn(
+                  'mt-0.5 size-4 shrink-0',
+                  onBrand ? 'text-white/85' : 'text-neutral-400',
+                )}
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
               <span className="min-w-0">
-                <span className="block text-xs font-semibold leading-snug text-neutral-800">{item.title}</span>
-                <span className="block text-[11px] leading-snug text-neutral-500">{item.subtitle}</span>
+                <span
+                  className={cn(
+                    'block text-xs font-semibold leading-snug',
+                    onBrand ? 'text-white' : 'text-neutral-800',
+                  )}
+                >
+                  {item.title}
+                </span>
+                <span
+                  className={cn(
+                    'block text-[11px] leading-snug',
+                    onBrand ? 'text-white/75' : 'text-neutral-500',
+                  )}
+                >
+                  {item.subtitle}
+                </span>
               </span>
             </li>
           );

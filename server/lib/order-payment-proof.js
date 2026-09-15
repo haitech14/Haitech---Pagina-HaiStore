@@ -72,3 +72,14 @@ export async function saveOrderPaymentProof(orderId, dataUrl, fileName) {
     uploadedAt: new Date().toISOString(),
   };
 }
+
+export function mergePaymentProofMetadata(existing, proof) {
+  const current = existing && typeof existing === 'object' ? existing : {};
+  return {
+    ...current,
+    payment_proof_url: proof.url,
+    payment_proof_file_name: proof.fileName,
+    payment_proof_uploaded_at: proof.uploadedAt,
+    payment_proof_mime_type: proof.mimeType,
+  };
+}

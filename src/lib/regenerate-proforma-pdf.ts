@@ -43,6 +43,7 @@ export async function regenerateProformaPdf(
       sku: line.sku,
       brand: line.brand,
       pricePen: line.unitPricePen,
+      ...(line.unitPriceUsd != null && line.unitPriceUsd > 0 ? { priceUsd: line.unitPriceUsd } : {}),
       quantity: line.quantity,
       imageUrl: line.imageUrl ?? null,
       shortDescription: line.shortDescription ?? null,

@@ -78,6 +78,14 @@ interface ConfigurationFormProps {
   onScanPagesChange: (value: number) => void;
   onCityChange: (value: string) => void;
   onDistrictChange: (value: string) => void;
+  /** Solo administrador: editar bolsas mínimas negro/color (ajuste temporal de sesión). */
+  canEditMinBagSplit?: boolean;
+  /** Si se define, controla volumen + reparto al mover slider/presets. */
+  onVolumeBalanced?: (volumePages: number) => void;
+  /** Marca que el admin personalizó el reparto negro/color. */
+  onMinBagSplitEdited?: () => void;
+  tempMinBagSplitActive?: boolean;
+  onResetTempMinBagSplit?: () => void;
 }
 
 const FIELD =
@@ -134,6 +142,11 @@ export function ConfigurationForm({
   onScanPagesChange,
   onCityChange,
   onDistrictChange,
+  canEditMinBagSplit = false,
+  onVolumeBalanced,
+  onMinBagSplitEdited,
+  tempMinBagSplitActive = false,
+  onResetTempMinBagSplit,
 }: ConfigurationFormProps) {
   const [modelPickerOpen, setModelPickerOpen] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
@@ -182,6 +195,10 @@ export function ConfigurationForm({
   };
 
   const setVolumeBalanced = (nextRaw: number) => {
+    if (onVolumeBalanced) {
+      onVolumeBalanced(nextRaw);
+      return;
+    }
     const next = clampVolumePages(nextRaw);
     onVolumeChange(next);
     if (isColor) {
@@ -202,6 +219,23 @@ export function ConfigurationForm({
     onColorPagesChange(nextColor);
     onVolumeChange(clampVolumePages(blackPages + nextColor));
   };
+
+  const handleMinBagBlackChange = (raw: number) => {
+    if (!canEditMinBagSplit) return;
+    onMinBagSplitEdited?.();
+    handleBlackChange(raw);
+  };
+
+  const handleMinBagColorChange = (raw: number) => {
+    if (!canEditMinBagSplit) return;
+    onMinBagSplitEdited?.();
+    handleColorChange(raw);
+  };
+
+  const minBagFieldClass = cn(
+    FIELD,
+    !canEditMinBagSplit && 'cursor-default bg-[#F9FAFB] text-[#374151]',
+  );
 
   return (
     <div className="rounded-2xl border border-[#E8E8E8] bg-white p-4 shadow-[0_10px_28px_-20px_rgba(15,23,42,0.35)] sm:p-6">
@@ -678,6 +712,24 @@ export function ConfigurationForm({
 
                 {isColor ? (
                   <div className="space-y-3 border-t border-[#ECECEC] pt-3">
+                    {canEditMinBagSplit ? (
+                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#FDE68A] bg-[#FFFBEB] px-3 py-2 text-[11px] text-[#92400E]">
+                        <p>
+                          {tempMinBagSplitActive
+                            ? 'Ajuste temporal activo: el reparto negro/color se mantiene en esta sesión.'
+                            : 'Como administrador puedes modificar las bolsas mínimas para esta cotización.'}
+                        </p>
+                        {tempMinBagSplitActive && onResetTempMinBagSplit ? (
+                          <button
+                            type="button"
+                            onClick={onResetTempMinBagSplit}
+                            className="shrink-0 rounded-full border border-[#F59E0B] bg-white px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#B45309] transition hover:bg-[#FEF3C7]"
+                          >
+                            Restablecer
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between gap-2">
@@ -687,12 +739,14 @@ export function ConfigurationForm({
                           >
                             Bolsa de impresión mínima negro
                           </Label>
-                          <PagesEditPopover
-                            kind="black"
-                            value={blackPages}
-                            volume={volume}
-                            onSelect={handleBlackChange}
-                          />
+                          {canEditMinBagSplit ? (
+                            <PagesEditPopover
+                              kind="black"
+                              value={blackPages}
+                              volume={volume}
+                              onSelect={handleMinBagBlackChange}
+                            />
+                          ) : null}
                         </div>
                         <input
                           id="solution-black-pages"
@@ -701,8 +755,9 @@ export function ConfigurationForm({
                           max={200000}
                           step={100}
                           value={blackPages}
-                          onChange={(event) => handleBlackChange(Number(event.target.value))}
-                          className={FIELD}
+                          readOnly={!canEditMinBagSplit}
+                          onChange={(event) => handleMinBagBlackChange(Number(event.target.value))}
+                          className={minBagFieldClass}
                         />
                         <p className="text-[11px] text-[#6B7280]">
                           {formatCopyCostPen(SOLUTION_COPY_COSTS.colorBlack)}/pág. + IGV
@@ -745,12 +800,14 @@ export function ConfigurationForm({
                           >
                             Bolsa de impresión mínima color
                           </Label>
-                          <PagesEditPopover
-                            kind="color"
-                            value={colorPages}
-                            volume={volume}
-                            onSelect={handleColorChange}
-                          />
+                          {canEditMinBagSplit ? (
+                            <PagesEditPopover
+                              kind="color"
+                              value={colorPages}
+                              volume={volume}
+                              onSelect={handleMinBagColorChange}
+                            />
+                          ) : null}
                         </div>
                         <input
                           id="solution-color-pages"
@@ -759,8 +816,9 @@ export function ConfigurationForm({
                           max={200000}
                           step={100}
                           value={colorPages}
-                          onChange={(event) => handleColorChange(Number(event.target.value))}
-                          className={FIELD}
+                          readOnly={!canEditMinBagSplit}
+                          onChange={(event) => handleMinBagColorChange(Number(event.target.value))}
+                          className={minBagFieldClass}
                         />
                         <p className="text-[11px] text-[#6B7280]">
                           {formatCopyCostPen(SOLUTION_COPY_COSTS.color)}/pág. + IGV

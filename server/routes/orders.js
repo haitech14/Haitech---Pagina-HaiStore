@@ -68,26 +68,29 @@ ordersRouter.get('/my', requireAuth, async (req, res, next) => {
 ordersRouter.post('/my/:orderId/payment-proof', requireAuth, async (req, res, next) => {
   try {
     const supabase = getSupabaseAdmin();
-    if (!supabase) {
-      return res.status(503).json({ error: 'Supabase no configurado' });
-    }
-
     const orderId = String(req.params.orderId ?? '').trim();
     if (!orderId) {
       return res.status(400).json({ error: 'Pedido no válido' });
     }
 
-    const { data: order, error: readError } = await supabase
-      .from('store_orders')
-      .select('id, user_id, payment_metadata, payment_status')
-      .eq('id', orderId)
-      .maybeSingle();
-
-    if (readError || !order) {
+    let order = null;
+    if (supabase) {
+      const { data, error: readError } = await supabase
+        .from('store_orders')
+        .select('id, user_id, payment_metadata, payment_status')
+        .eq('id', orderId)
+        .maybeSingle();
+      if (!readError && data) order = data;
+    }
+    if (!order) {
+      const { getStoreOrderFileById } = await import('../lib/store-orders-file-store.js');
+      order = await getStoreOrderFileById(orderId);
+    }
+    if (!order) {
       return res.status(404).json({ error: 'Pedido no encontrado' });
     }
 
-    if (!req.user?.id || order.user_id !== req.user.id) {
+    if (req.user?.id && order.user_id && order.user_id !== req.user.id) {
       return res.status(403).json({ error: 'No tienes permiso para adjuntar este comprobante' });
     }
 
@@ -105,18 +108,22 @@ ordersRouter.post('/my/:orderId/payment-proof', requireAuth, async (req, res, ne
       payment_proof_mime_type: proof.mimeType,
     };
 
-    const { error: updateError } = await supabase
-      .from('store_orders')
-      .update({
-        payment_metadata: paymentMetadata,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', orderId);
+    if (supabase) {
+      const { error: updateError } = await supabase
+        .from('store_orders')
+        .update({
+          payment_metadata: paymentMetadata,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', orderId);
 
-    if (updateError) {
-      console.error('[orders] payment-proof update:', updateError.message);
-      return res.status(500).json({ error: 'No se pudo guardar el comprobante' });
+      if (updateError) {
+        console.error('[orders] payment-proof update:', updateError.message);
+      }
     }
+
+    const { updateStoreOrderFile } = await import('../lib/store-orders-file-store.js');
+    await updateStoreOrderFile(orderId, { payment_metadata: paymentMetadata });
 
     notifyHaiSupportChange('orders', 'update', {
       id: orderId,

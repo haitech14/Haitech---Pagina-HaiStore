@@ -1,10 +1,8 @@
 import { useId, useMemo, useState } from 'react';
 import { ChevronDown, Tag } from 'lucide-react';
 
-import { useDisplayCurrency } from '@/context/display-currency-context';
-import { formatDisplayPriceFromUsd } from '@/lib/display-price';
+import { formatPenUsdParenthetical } from '@/lib/display-price';
 import {
-  formatUsdLessPerUnit,
   parseBulkDiscountRange,
   resolveBulkDiscountPricing,
 } from '@/lib/bulk-discount-tiers';
@@ -27,18 +25,30 @@ interface VolumeRow {
   isQuote: boolean;
 }
 
+function formatTierQuantityLabel(bounds: { min: number; max: number }, range: string): string {
+  if (bounds.max === Number.POSITIVE_INFINITY) {
+    return `${bounds.min} o más`;
+  }
+  if (bounds.min === bounds.max) {
+    return `${bounds.min} ${bounds.min === 1 ? 'unidad' : 'unidades'}`;
+  }
+  if (range.includes('+')) {
+    return `${bounds.min} o más`;
+  }
+  return `${bounds.min} a ${bounds.max} unidades`;
+}
+
 function buildVolumeRows(
   basePriceUsd: number,
   tiers: BulkDiscountTier[],
   floorPriceUsd: number,
   equipmentExtrasUsd: number,
-  formatPrice: (usd: number) => string,
 ): VolumeRow[] {
   const rows: VolumeRow[] = [
     {
       key: '1',
       label: '1 unidad',
-      priceLabel: formatPrice(basePriceUsd + equipmentExtrasUsd),
+      priceLabel: formatPenUsdParenthetical(basePriceUsd + equipmentExtrasUsd),
       isQuote: false,
     },
   ];
@@ -54,12 +64,9 @@ function buildVolumeRows(
     if (!bounds) continue;
 
     const sampleQty = bounds.min;
-    const pricing = resolveBulkDiscountPricing(sampleQty, basePriceUsd, tiers, {
-      floorPriceUsd,
-    });
-    const unitUsd = pricing.unitUsd + equipmentExtrasUsd;
+    const isOpenEnded = bounds.max === Number.POSITIVE_INFINITY || tier.range.includes('+');
 
-    if (bounds.max === Number.POSITIVE_INFINITY && sampleQty >= 5) {
+    if (isOpenEnded && sampleQty >= 10) {
       rows.push({
         key: tier.range,
         label: `${bounds.min} o más`,
@@ -69,22 +76,15 @@ function buildVolumeRows(
       continue;
     }
 
-    const label =
-      bounds.min === bounds.max
-        ? `${bounds.min} unidades`
-        : bounds.max === Number.POSITIVE_INFINITY
-          ? `${bounds.min}+ unidades`
-          : `${bounds.min} a ${bounds.max} unidades`;
-
-    const savingsUsd = Math.max(0, Math.round((basePriceUsd - pricing.unitUsd) * 100) / 100);
-    const savingsLabel = savingsUsd > 0.001 ? formatUsdLessPerUnit(savingsUsd) : null;
+    const pricing = resolveBulkDiscountPricing(sampleQty, basePriceUsd, tiers, {
+      floorPriceUsd,
+    });
+    const unitUsd = pricing.unitUsd + equipmentExtrasUsd;
 
     rows.push({
       key: tier.range,
-      label,
-      priceLabel: savingsLabel
-        ? `${savingsLabel} · ${formatPrice(unitUsd)} c/u`
-        : `${formatPrice(unitUsd)} c/u`,
+      label: formatTierQuantityLabel(bounds, tier.range),
+      priceLabel: `${formatPenUsdParenthetical(unitUsd)} c/u`,
       isQuote: false,
     });
   }
@@ -100,27 +100,13 @@ export function ProductDetailVolumePurchaseHint({
   equipmentExtrasUsd = 0,
   className,
 }: ProductDetailVolumePurchaseHintProps) {
-  const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const [open, setOpen] = useState(false);
   const panelId = useId();
 
   const rows = useMemo(() => {
     if (bulkDiscountTiers.length === 0) return [];
-    return buildVolumeRows(
-      basePriceUsd,
-      bulkDiscountTiers,
-      floorPriceUsd,
-      equipmentExtrasUsd,
-      (usd) => formatDisplayPriceFromUsd(usd, displayCurrency, dualPriceOrder),
-    );
-  }, [
-    bulkDiscountTiers,
-    basePriceUsd,
-    floorPriceUsd,
-    equipmentExtrasUsd,
-    displayCurrency,
-    dualPriceOrder,
-  ]);
+    return buildVolumeRows(basePriceUsd, bulkDiscountTiers, floorPriceUsd, equipmentExtrasUsd);
+  }, [bulkDiscountTiers, basePriceUsd, floorPriceUsd, equipmentExtrasUsd]);
 
   if (rows.length <= 1) return null;
 
@@ -151,7 +137,7 @@ export function ProductDetailVolumePurchaseHint({
           id={panelId}
           role="region"
           aria-label="Precios por volumen"
-          className="absolute left-0 top-full z-20 mt-1.5 w-64 rounded-lg border border-neutral-100 bg-white p-2.5 shadow-md"
+          className="absolute left-0 top-full z-20 mt-1.5 w-72 rounded-lg border border-neutral-100 bg-white p-2.5 shadow-md"
         >
           <ul className="space-y-1.5 text-xs text-neutral-700">
             {rows.map((row) => (
@@ -159,8 +145,8 @@ export function ProductDetailVolumePurchaseHint({
                 <span>{row.label}:</span>
                 <span
                   className={cn(
-                    'shrink-0 font-semibold',
-                    row.isQuote ? 'text-neutral-500' : 'text-[#0f1f3d]',
+                    'shrink-0 font-semibold tabular-nums',
+                    row.isQuote ? 'font-normal text-neutral-500' : 'text-[#0f1f3d]',
                   )}
                 >
                   {row.priceLabel}

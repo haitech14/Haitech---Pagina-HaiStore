@@ -93,6 +93,9 @@ export function ProductDetailHeroInfo({
   skuVariants = [],
   selectedSkuVariantId = 'base',
   onSkuVariantSelect,
+  showPreparationTypeSelector = false,
+  preparationType = 'acondicionado',
+  onPreparationTypeChange,
   mobilePurchaseSlot,
   purchaseMode = 'buy',
   layout = 'default',
@@ -118,12 +121,15 @@ export function ProductDetailHeroInfo({
   const hasAddableToner = Boolean(addableToner?.name?.trim());
   const hasStabilizerSection = stabilizerCard != null;
   const hasSkuVariants = skuVariants.length > 0 && onSkuVariantSelect != null;
+  const hasPreparation =
+    showPreparationTypeSelector === true && onPreparationTypeChange != null;
   const hasComplementaItems =
     hasTonerSection ||
     hasAccessorySection ||
     hasAddableToner ||
     hasStabilizerSection ||
-    hasSkuVariants;
+    hasSkuVariants ||
+    hasPreparation;
   const showComplementaCompra =
     !hideComplementaCompra &&
     showBuyHeroOptions &&
@@ -178,7 +184,7 @@ export function ProductDetailHeroInfo({
     ) : null;
 
   const titleBlock = (
-    <h1 className="text-pretty text-xl font-bold leading-tight tracking-tight text-neutral-900 sm:text-[1.375rem] lg:text-[1.5rem]">
+    <h1 className="text-pretty text-[1.375rem] font-bold leading-tight tracking-tight text-neutral-900 sm:text-[1.5rem] lg:text-[1.625rem]">
       {detail.heroTitle ?? product.name}
     </h1>
   );
@@ -191,7 +197,7 @@ export function ProductDetailHeroInfo({
 
   const titleStatsBlock =
     titleStatsItems.length > 0 ? (
-      <p className="mt-1.5 text-xs leading-snug text-neutral-500">
+      <p className="mt-1.5 text-[0.8125rem] leading-snug text-neutral-500 sm:text-sm">
         {titleStatsItems.map((item, index) => (
           <span key={item.label}>
             {index > 0 ? <span className="mx-1.5 text-neutral-300">·</span> : null}
@@ -334,9 +340,12 @@ export function ProductDetailHeroInfo({
           skuVariants={skuVariants}
           selectedSkuVariantId={selectedSkuVariantId}
           {...(onSkuVariantSelect ? { onSkuVariantSelect } : {})}
+          showPreparationTypeSelector={hasPreparation}
+          preparationType={preparationType}
+          {...(onPreparationTypeChange ? { onPreparationTypeChange } : {})}
           variant="hero"
           {...(product.storefront_ui != null ? { storefrontUi: product.storefront_ui } : {})}
-          className="mt-3"
+          className="mt-3.5"
         />
       ) : null}
 

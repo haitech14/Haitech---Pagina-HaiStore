@@ -61,9 +61,11 @@ async function fetchAccountContact(): Promise<WhatsAppContact> {
 type SaveContactVars = {
   contact: WhatsAppContact;
   channel?: WebLeadChannel;
+  campaign?: string;
   createProforma?: boolean;
   productName?: string;
   productId?: string;
+  message?: string;
 };
 
 export function useWhatsAppContact(defaultChannel: WebLeadChannel = 'whatsapp-floating') {
@@ -99,9 +101,11 @@ export function useWhatsAppContact(defaultChannel: WebLeadChannel = 'whatsapp-fl
     mutationFn: async ({
       contact,
       channel,
+      campaign,
       createProforma,
       productName,
       productId,
+      message,
     }: SaveContactVars) => {
       storeWhatsAppContact(contact);
       if (user) {
@@ -117,10 +121,13 @@ export function useWhatsAppContact(defaultChannel: WebLeadChannel = 'whatsapp-fl
       await submitWebLead({
         contact,
         channel: channel ?? defaultChannel,
-        message: productName
-          ? `Consulta WhatsApp: ${productName}`
-          : 'Contacto WhatsApp registrado desde la tienda',
+        message:
+          message?.trim() ||
+          (productName
+            ? `Consulta WhatsApp: ${productName}`
+            : 'Contacto WhatsApp registrado desde la tienda'),
         createProforma: createProforma !== false,
+        ...(campaign ? { campaign } : {}),
         ...(productName ? { productName } : {}),
         ...(productId ? { productId } : {}),
       });

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useCart } from '@/context/cart-context';
 import { productPath } from '@/lib/product-path';
-import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
+import { cn, penToUsd } from '@/lib/utils';
 import type { ProductComboItem } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
@@ -149,75 +149,49 @@ function ComplementSelectableCard({
   item,
   selected,
   onToggle,
-  stackedPrice = false,
 }: {
   item: ProductComboItem;
   selected: boolean;
   onToggle: (checked: boolean) => void;
-  /** Precio tachado + soles/dólares apilados (como en la tienda). */
-  stackedPrice?: boolean;
 }) {
   const inputId = `complement-${item.id}`;
   const unitUsd = comboItemUsd(item);
-  const compareUsd = unitUsd > 0 ? Math.round((unitUsd / (1 - 0.11)) * 100) / 100 : 0;
-  const discountPercent =
-    compareUsd > unitUsd ? Math.max(1, Math.round((1 - unitUsd / compareUsd) * 100)) : 0;
 
   return (
     <label
       htmlFor={inputId}
       className={cn(
-        'relative flex h-full w-full min-w-0 cursor-pointer flex-col gap-2 rounded-lg border bg-white p-2.5 text-left transition-colors sm:p-3',
-        selected ? 'border-red-600 ring-1 ring-red-600/25' : 'border-border/60 hover:border-border',
+        'flex min-w-0 cursor-pointer items-center gap-2.5 rounded-md border bg-white px-2.5 py-2 text-left transition-colors',
+        selected
+          ? 'border-red-600/35 bg-red-50/70'
+          : 'border-transparent hover:bg-neutral-50',
       )}
     >
       <Checkbox
         id={inputId}
         checked={selected}
         onCheckedChange={(checked) => onToggle(checked === true)}
-        className="absolute left-2 top-2 z-10 size-3.5 shrink-0 border-border bg-white data-[state=checked]:border-red-600 data-[state=checked]:bg-red-600 sm:size-4"
+        className="size-3.5 shrink-0 border-border bg-white data-[state=checked]:border-red-600 data-[state=checked]:bg-red-600"
         aria-label={`Incluir ${item.name}`}
       />
 
-      <span className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-md border border-border/40 bg-muted/25 p-2 pt-6">
+      <span className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-white p-0.5">
         <img
           src={item.image}
           alt=""
-          className="max-h-full max-w-full object-contain"
+          className="size-full object-contain"
           loading="lazy"
         />
       </span>
 
-      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-        <span className="line-clamp-2 text-pretty text-[0.625rem] font-medium leading-snug text-[#0f1f3d] sm:text-[0.6875rem]">
+      <span className="min-w-0 flex-1">
+        <span className="line-clamp-2 text-xs font-semibold leading-tight text-[#0f1f3d]">
           {item.name}
         </span>
-        {stackedPrice ? (
-          <>
-            {discountPercent > 0 ? (
-              <span className="flex flex-wrap items-center gap-1">
-                <span className="text-[0.625rem] font-medium tabular-nums text-[#9CA3AF] line-through decoration-[#9CA3AF] sm:text-[0.6875rem]">
-                  {formatPenFromUsd(compareUsd)}
-                </span>
-                <span className="inline-flex rounded-full bg-[#E30613] px-1 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
-                  {discountPercent}% DSCT
-                </span>
-              </span>
-            ) : null}
-            <span className="flex flex-col items-start gap-0.5 tabular-nums">
-              <span className="text-[0.6875rem] font-bold leading-none text-red-600 sm:text-xs">
-                {formatPenFromUsd(unitUsd)}
-              </span>
-              <span className="text-[0.625rem] font-semibold leading-none text-[#6B7280] sm:text-[0.6875rem]">
-                {formatUsd(unitUsd)}
-              </span>
-            </span>
-          </>
-        ) : (
-          <span className="truncate text-[0.6875rem] font-bold tabular-nums text-red-600 sm:text-xs">
-            <DualPrice usd={unitUsd} className="text-[0.6875rem] font-bold sm:text-xs" />
-          </span>
-        )}
+      </span>
+
+      <span className="shrink-0 text-[0.6875rem] font-semibold tabular-nums text-[#0f1f3d]">
+        <DualPrice usd={unitUsd} className="text-[0.6875rem] font-semibold" />
       </span>
     </label>
   );
@@ -374,13 +348,12 @@ export function ProductDetailCombo({
               collapsible && 'border-t border-border/40',
             )}
           >
-            <ul className="mt-3 grid list-none grid-cols-1 gap-2 p-0 sm:mt-4 lg:gap-2.5">
+            <ul className="mt-2 grid list-none grid-cols-1 gap-1.5 p-0 sm:mt-3" aria-label={title}>
               {items.map((item) => (
                 <li key={item.id} className="min-w-0">
                   <ComplementSelectableCard
                     item={item}
                     selected={Boolean(selected[item.id])}
-                    stackedPrice
                     onToggle={(checked) =>
                       setSelected((prev) => ({ ...prev, [item.id]: checked }))
                     }

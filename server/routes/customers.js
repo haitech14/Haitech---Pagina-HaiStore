@@ -26,6 +26,7 @@ import {
   STORE_CUSTOMER_ADMIN_SELECT,
 } from '../lib/persona-excel.js';
 import { getSupabaseAdmin } from '../lib/supabase-auth.js';
+import { listWebLeadCustomersFile } from '../lib/web-lead-customers-file-store.js';
 
 export const customersRouter = Router();
 
@@ -396,27 +397,41 @@ customersRouter.get('/admin/search', requireAdmin, async (req, res, next) => {
 
       if (error) {
         console.error('[customers] search error:', error);
-        return res.status(500).json({ error: 'No se pudo buscar clientes' });
+      } else {
+        storeCustomers = (data ?? []).map((row) => ({
+          id: row.id,
+          email: row.email,
+          full_name: row.full_name,
+          phone: row.phone,
+          company_name: row.company_name,
+          tax_id: row.tax_id,
+          default_billing: row.default_billing,
+          profile_role: row.profiles?.role ?? null,
+          source: 'haistore',
+        }));
       }
-
-      storeCustomers = (data ?? []).map((row) => ({
-        id: row.id,
-        email: row.email,
-        full_name: row.full_name,
-        phone: row.phone,
-        company_name: row.company_name,
-        tax_id: row.tax_id,
-        default_billing: row.default_billing,
-        profile_role: row.profiles?.role ?? null,
-        source: 'haistore',
-      }));
     }
 
+    const fileCustomers = (await listWebLeadCustomersFile()).filter((row) => {
+      const hay = [
+        row.full_name,
+        row.company_name,
+        row.tax_id,
+        row.email,
+        row.ciudad,
+        row.nombre_contacto,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return hay.includes(q.toLowerCase());
+    });
+
     const haisupportMatches = await searchHaiSupportClients(q, 12);
-    const customers = mergeStoreAndHaiSupportCustomers(storeCustomers, haisupportMatches).slice(
-      0,
-      12,
-    );
+    const customers = mergeStoreAndHaiSupportCustomers(
+      mergeStoreAndHaiSupportCustomers(storeCustomers, fileCustomers),
+      haisupportMatches,
+    ).slice(0, 12);
 
     res.json({ customers, source: 'merged' });
   } catch (error) {
@@ -439,10 +454,9 @@ customersRouter.get('/admin/all', requireAdmin, async (_req, res, next) => {
       if (error) {
         console.error('[customers] list error:', error);
         if (isMissingStoreCustomersTable(error)) {
-          return res.status(503).json({ error: STORE_CUSTOMERS_MIGRATION_HINT });
+          console.warn('[customers]', STORE_CUSTOMERS_MIGRATION_HINT);
         }
-        return res.status(500).json({ error: 'No se pudieron cargar los clientes' });
-      }
+      } else {
 
       const rows = data ?? [];
       const profileIds = [...new Set(rows.map((row) => row.profile_id).filter(Boolean))];
@@ -478,19 +492,27 @@ customersRouter.get('/admin/all', requireAdmin, async (_req, res, next) => {
           productos_interes: productosInteres,
         };
       });
+      }
     }
 
+    const fileCustomers = await listWebLeadCustomersFile();
     const haisupportCustomers = isHaiSupportSupabaseConfigured()
       ? await listHaiSupportClients()
       : [];
 
-    const customers = mergeStoreAndHaiSupportCustomers(storeCustomers, haisupportCustomers);
+    const customers = mergeStoreAndHaiSupportCustomers(
+      mergeStoreAndHaiSupportCustomers(storeCustomers, fileCustomers),
+      haisupportCustomers,
+    );
 
     res.json({
       customers,
-      source: supabase || haisupportCustomers.length > 0 ? 'merged' : 'unavailable',
+      source:
+        supabase || fileCustomers.length > 0 || haisupportCustomers.length > 0
+          ? 'merged'
+          : 'unavailable',
       counts: {
-        haistore: storeCustomers.length,
+        haistore: storeCustomers.length + fileCustomers.length,
         haisupport: haisupportCustomers.length,
         merged: customers.length,
       },

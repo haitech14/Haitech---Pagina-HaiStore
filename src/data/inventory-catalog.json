@@ -1750,7 +1750,7 @@
       "purchase_price_usd": 791.28,
       "created_at": "2026-05-15T00:00:00.000Z",
       "prices": {
-        "public": 1079,
+        "public": 1099,
         "tecnico": 899,
         "mayorista": 899,
         "distribuidor": 969

@@ -7,6 +7,7 @@ import { AdminInventarioPageHeader } from '@/components/admin/inventario/admin-i
 import { AdminInventarioStockTakeBanner } from '@/components/admin/inventario/admin-inventario-stock-take-banner';
 import { AdminInventarioTablePanel } from '@/components/admin/inventario/admin-inventario-table-panel';
 import { AdminInventarioWidgets } from '@/components/admin/inventario/admin-inventario-widgets';
+import { ProductEditor } from '@/components/ProductEditor';
 import { useAdminUtilityPanel } from '@/context/admin-utility-panel-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { cn } from '@/lib/utils';
@@ -31,7 +32,8 @@ import type { InventoryProduct } from '@/types/product';
 import { toast } from 'sonner';
 
 export function AdminInventarioDashboard() {
-  const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<InventoryProduct | null>(null);
   const queryClient = useQueryClient();
   const {
@@ -62,12 +64,12 @@ export function AdminInventarioDashboard() {
 
   const openCreateProduct = useCallback(() => {
     setEditingProduct(null);
-    setProductDialogOpen(true);
+    setCreateDialogOpen(true);
   }, []);
 
   const openEditProduct = useCallback(async (product: InventoryProduct) => {
     setEditingProduct(product);
-    setProductDialogOpen(true);
+    setEditDialogOpen(true);
     try {
       const full = await fetchAdminInventoryProductById(product.id);
       setEditingProduct(full);
@@ -80,8 +82,12 @@ export function AdminInventarioDashboard() {
     }
   }, []);
 
-  const handleProductDialogOpenChange = useCallback((open: boolean) => {
-    setProductDialogOpen(open);
+  const handleCreateDialogOpenChange = useCallback((open: boolean) => {
+    setCreateDialogOpen(open);
+  }, []);
+
+  const handleEditDialogOpenChange = useCallback((open: boolean) => {
+    setEditDialogOpen(open);
     if (!open) setEditingProduct(null);
   }, []);
 
@@ -146,14 +152,18 @@ export function AdminInventarioDashboard() {
       </div>
 
       <InventoryProductFormDialog
-        open={productDialogOpen}
-        onOpenChange={handleProductDialogOpenChange}
-        initial={editingProduct}
+        open={createDialogOpen}
+        onOpenChange={handleCreateDialogOpenChange}
+        initial={null}
         onCreated={(product) => {
-          // No hacer refetch a pelo: puede traer snapshot stale y borrar el upsert
-          // de createProduct. Re-merge + invalidate seguro.
           upsertAdminInventoryProducts(queryClient, [product], { prepend: true });
         }}
+      />
+
+      <ProductEditor
+        open={editDialogOpen}
+        onOpenChange={handleEditDialogOpenChange}
+        product={editingProduct}
         onSaved={(product) => {
           upsertAdminInventoryProducts(queryClient, [product], { prepend: true });
         }}

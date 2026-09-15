@@ -1,4 +1,4 @@
-﻿import {
+import {
   calculateCheckoutTotals,
   hasCardPaymentSurcharge,
   type CheckoutPaymentCurrency,
@@ -29,7 +29,7 @@ export function CheckoutPaymentTotals({
   subtotalUsd,
   discountUsd = 0,
   paymentProvider,
-  paymentCurrency: _paymentCurrency,
+  paymentCurrency,
   showSubtotal = false,
   showVolumeDiscount = true,
   couponCode,
@@ -46,7 +46,12 @@ export function CheckoutPaymentTotals({
   });
   const showSurcharge = hasCardPaymentSurcharge(paymentProvider);
   const volumeDiscount = showVolumeDiscount ? resolveCartVolumeDiscountSummary(items) : null;
-  const dualPriceProps = { className: 'justify-end', stacked: true as const, allowZero: true as const };
+  const dualPriceProps = {
+    className: 'justify-end',
+    compact: true as const,
+    allowZero: true as const,
+    ...(paymentCurrency ? { preferCurrency: paymentCurrency } : {}),
+  };
 
   return (
     <div className="space-y-3">
@@ -108,13 +113,15 @@ export function CheckoutPaymentTotals({
         className="border-t border-border pt-3"
       />
 
-      <CheckoutTotalsBreakdown
-        baseUsd={totals.baseUsd}
-        section="payment-options"
-        showCardPreview={!showSurcharge}
-        shippingPen={shippingPen}
-        freeShipping={freeShipping}
-      />
+      {showSurcharge ? (
+        <CheckoutTotalsBreakdown
+          baseUsd={totals.baseUsd}
+          section="payment-options"
+          showCardPreview
+          shippingPen={shippingPen}
+          freeShipping={freeShipping}
+        />
+      ) : null}
     </div>
   );
 }

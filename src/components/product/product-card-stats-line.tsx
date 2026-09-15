@@ -8,7 +8,7 @@ interface ProductCardStatsLineProps {
   product: ProductBadgeSource;
   stock: number;
   outOfStock?: boolean;
-  /** Código de producto a la izquierda; stock queda a la derecha. */
+  /** Código de producto y stock centrados en la tarjeta. */
   code?: string | null;
   /** Si es false, no muestra stock (solo código si hay). */
   showStock?: boolean;
@@ -20,7 +20,7 @@ function formatStockLabel(outOfStock: boolean, stock: number): string {
   return `Stock ${Math.max(0, Math.floor(Number(stock) || 0))}`;
 }
 
-/** Línea compacta: código a la izquierda y stock a la derecha. */
+/** Línea compacta: código y stock centrados. */
 export function ProductCardStatsLine({
   product: _product,
   stock,
@@ -38,7 +38,7 @@ export function ProductCardStatsLine({
   return (
     <div
       className={cn(
-        'grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-left',
+        'flex w-full min-w-0 items-center justify-center gap-3 text-center',
         'text-[0.6875rem] font-medium leading-none text-[#8a93a3] sm:text-[0.75rem]',
         className,
       )}
@@ -50,16 +50,14 @@ export function ProductCardStatsLine({
         .join(', ')}
     >
       {codeLabel ? (
-        <span className="min-w-0 truncate text-left tabular-nums" title={codeLabel}>
+        <span className="min-w-0 truncate tabular-nums" title={codeLabel}>
           Cód. {codeLabel}
         </span>
-      ) : (
-        <span className="min-w-0" aria-hidden="true" />
-      )}
+      ) : null}
       {showStock ? (
         <span
           className={cn(
-            'inline-flex shrink-0 items-center justify-end gap-1 whitespace-nowrap text-right tabular-nums',
+            'inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap tabular-nums',
             outOfStock ? 'text-[#8a93a3]' : 'text-emerald-700',
           )}
         >

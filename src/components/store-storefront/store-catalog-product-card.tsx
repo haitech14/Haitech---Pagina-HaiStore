@@ -284,7 +284,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           outOfStock={outOfStock}
           code={code}
           className={cn(
-            'mt-1 w-full text-left',
+            'mt-1 w-full text-center',
             isCompact ? 'text-[0.5625rem] sm:text-[0.625rem]' : 'text-[0.625rem] sm:text-[0.6875rem]',
           )}
         />

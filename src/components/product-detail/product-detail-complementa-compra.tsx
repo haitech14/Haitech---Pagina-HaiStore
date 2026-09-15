@@ -4,8 +4,10 @@ import { useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail/product-detail-hero-collapsible-section';
+import { ProductDetailPreparationTypeSelector } from '@/components/product-detail/product-detail-preparation-type-selector';
 import { ProductDetailSkuVariantRail } from '@/components/product-detail/product-detail-merch-rails';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { HOME_HERO_WHATSAPP_LINK } from '@/data/home-hero-slides';
 import type { EquipmentSelectionState } from '@/lib/equipment-config-selection';
 import { formatPenUsdParenthetical } from '@/lib/display-price';
 import type { EquipmentSkuVariant, EquipmentSkuVariantId } from '@/lib/equipment-sku-variants';
@@ -22,6 +24,7 @@ import {
   type ConfigureTonerSupplyType,
 } from '@/lib/product-configure-toner';
 import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
+import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
 import { cn, penToUsd } from '@/lib/utils';
 import type { ResolvedStorefrontUi, StoredStorefrontUi } from '@/types/product-storefront';
 import type { Product } from '@/types/product';
@@ -60,9 +63,12 @@ interface ProductDetailComplementaCompraProps {
   skuVariants?: EquipmentSkuVariant[];
   selectedSkuVariantId?: EquipmentSkuVariantId;
   onSkuVariantSelect?: (variantId: EquipmentSkuVariantId) => void;
+  showPreparationTypeSelector?: boolean;
+  preparationType?: SeminuevaPreparationType;
+  onPreparationTypeChange?: (value: SeminuevaPreparationType) => void;
 }
 
-type ComplementaHeroAccordionId = 'toner' | 'accessories' | 'stabilizer';
+type ComplementaHeroAccordionId = 'combinado' | 'toner' | 'accessories' | 'stabilizer';
 
 function ComplementaCardNoImage() {
   return (
@@ -363,7 +369,7 @@ function ComplementaAccessoryCards({
   onAccessoryToggle: (card: ConfigureHeroAccessoryCard) => void;
 }) {
   return (
-    <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
+    <ul className="grid grid-cols-1 gap-1.5">
       {cards.map((card) => {
         const selected = (equipmentSelection[card.stepId] ?? new Set<string>()).has(card.optionId);
         const inputId = `complementa-accessory-${card.stepId}-${card.optionId}`;
@@ -374,53 +380,46 @@ function ComplementaAccessoryCards({
             <label
               htmlFor={inputId}
               className={cn(
-                'flex h-full cursor-pointer flex-col gap-2 rounded-md border bg-white px-2 py-2 transition-colors',
-                selected ? 'border-red-600/40' : 'border-neutral-200 hover:border-neutral-300',
+                'flex min-w-0 cursor-pointer items-center gap-2.5 rounded-md border px-2.5 py-2 transition-colors',
+                selected
+                  ? 'border-red-600/35 bg-red-50/70'
+                  : 'border-transparent bg-white hover:bg-neutral-50',
               )}
             >
-              <div className="flex min-w-0 items-start gap-2">
-                <div className="flex aspect-square size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 p-0.5 sm:size-14">
-                  {card.imageCandidates[0] ? (
-                    <img
-                      src={card.imageCandidates[0]}
-                      alt=""
-                      className="size-full object-contain"
-                    />
-                  ) : (
-                    <ComplementaCardNoImage />
-                  )}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-3 text-[0.6875rem] font-semibold leading-snug text-[#0f1f3d] sm:text-xs">
-                    {card.title}
-                  </p>
-                  {code ? (
-                    <p className="mt-0.5 text-[0.625rem] text-neutral-500 sm:text-[0.6875rem]">
-                      SKU: {code}
-                    </p>
-                  ) : null}
-                  <p className="mt-0.5 text-[0.6875rem] font-semibold text-red-600">
-                    {card.prices.public > 0.001 ? (
-                      <HeroPenUsdPrice usd={card.prices.public} />
-                    ) : (
-                      'Consultar precio'
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <span className="flex items-center gap-1.5 border-t border-neutral-100 pt-2">
-                <input
-                  id={inputId}
-                  type="checkbox"
-                  checked={selected}
-                  onChange={() => onAccessoryToggle(card)}
-                  className="size-4 shrink-0 accent-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
-                />
-                <span className="text-[0.625rem] font-medium leading-tight text-neutral-600 sm:text-[0.6875rem]">
-                  Agregar a mi compra
+              <input
+                id={inputId}
+                type="checkbox"
+                checked={selected}
+                onChange={() => onAccessoryToggle(card)}
+                className="size-3.5 shrink-0 accent-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+              />
+              <span className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-white p-0.5">
+                {card.imageCandidates[0] ? (
+                  <img
+                    src={card.imageCandidates[0]}
+                    alt=""
+                    className="size-full object-contain"
+                  />
+                ) : (
+                  <ComplementaCardNoImage />
+                )}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="line-clamp-2 text-xs font-semibold leading-tight text-[#0f1f3d]">
+                  {card.title}
                 </span>
+                {code ? (
+                  <span className="mt-0.5 block truncate text-[0.625rem] leading-snug text-neutral-500">
+                    SKU: {code}
+                  </span>
+                ) : null}
+              </span>
+              <span className="shrink-0 text-[0.6875rem] font-semibold tabular-nums text-[#0f1f3d]">
+                {card.prices.public > 0.001 ? (
+                  <HeroPenUsdPrice usd={card.prices.public} />
+                ) : (
+                  'Consultar precio'
+                )}
               </span>
             </label>
           </li>
@@ -637,44 +636,43 @@ function ComplementaAddableTonerRow({
     <label
       htmlFor={inputId}
       className={cn(
-        'flex cursor-pointer flex-col gap-2 rounded-md border px-2 py-2 transition-colors',
-        selected ? 'border-red-600/40 bg-white' : 'border-neutral-200 bg-white hover:border-neutral-300',
+        'flex min-w-0 cursor-pointer items-center gap-2.5 rounded-md border px-2.5 py-2 transition-colors',
+        selected
+          ? 'border-red-600/35 bg-red-50/70'
+          : 'border-transparent bg-white hover:bg-neutral-50',
       )}
     >
-      <div className="flex min-w-0 items-start gap-2">
-        <div className="flex aspect-square size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-white p-0.5">
-          {toner.image ? (
-            <img src={toner.image} alt="" className="size-full object-contain" />
-          ) : (
-            <ComplementaCardNoImage />
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-[0.6875rem] font-semibold leading-snug text-[#0f1f3d] sm:text-xs">
-            {toner.name}
-          </p>
-          {toner.code ? (
-            <p className="mt-0.5 text-[0.625rem] text-neutral-500">SKU: {toner.code}</p>
-          ) : null}
-          {toner.yieldLabel ? (
-            <p className="mt-0.5 text-[0.625rem] text-neutral-500">{toner.yieldLabel}</p>
-          ) : null}
-          <p className="mt-0.5 text-[0.6875rem] font-semibold text-red-600">
-            {priceUsd > 0.001 ? <HeroPenUsdPrice usd={priceUsd} /> : 'Consultar precio'}
-          </p>
-        </div>
-      </div>
-      <span className="flex items-center gap-1.5 border-t border-neutral-100 pt-2">
-        <input
-          id={inputId}
-          type="checkbox"
-          checked={selected}
-          onChange={onToggle}
-          className="size-4 shrink-0 accent-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
-        />
-        <span className="text-[0.625rem] font-medium leading-tight text-neutral-600 sm:text-[0.6875rem]">
-          Agregar a mi compra
+      <input
+        id={inputId}
+        type="checkbox"
+        checked={selected}
+        onChange={onToggle}
+        className="size-3.5 shrink-0 accent-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+      />
+      <span className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-white p-0.5">
+        {toner.image ? (
+          <img src={toner.image} alt="" className="size-full object-contain" />
+        ) : (
+          <ComplementaCardNoImage />
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="line-clamp-2 text-xs font-semibold leading-tight text-[#0f1f3d]">
+          {toner.name}
         </span>
+        {toner.code ? (
+          <span className="mt-0.5 block truncate text-[0.625rem] leading-snug text-neutral-500">
+            SKU: {toner.code}
+          </span>
+        ) : null}
+        {toner.yieldLabel ? (
+          <span className="mt-0.5 block truncate text-[0.625rem] leading-snug text-neutral-500">
+            {toner.yieldLabel}
+          </span>
+        ) : null}
+      </span>
+      <span className="shrink-0 text-[0.6875rem] font-semibold tabular-nums text-[#0f1f3d]">
+        {priceUsd > 0.001 ? <HeroPenUsdPrice usd={priceUsd} /> : 'Consultar precio'}
       </span>
     </label>
   );
@@ -705,28 +703,39 @@ export function ProductDetailComplementaCompra({
   skuVariants = [],
   selectedSkuVariantId = 'base',
   onSkuVariantSelect,
+  showPreparationTypeSelector = false,
+  preparationType = 'acondicionado',
+  onPreparationTypeChange,
 }: ProductDetailComplementaCompraProps) {
   const resolvedUi = useMemo(() => resolveStorefrontUi(storefrontUi), [storefrontUi]);
   const isDesktopLayout = useMediaQuery('(min-width: 1024px)');
   const isSidebarVariant = variant === 'sidebar';
-  const [heroAccordion, setHeroAccordion] = useState<ComplementaHeroAccordionId | null>(null);
+  const hasToner = tonerCards.length > 0;
+  const hasAccessories = accessoryCards.length > 0;
+  const hasStabilizer = stabilizerCard != null;
+  const hasAddableToner = Boolean(addableToner?.name?.trim());
+  const hasSkuVariants = skuVariants.length > 0 && skuProduct != null && onSkuVariantSelect != null;
+  const hasPreparation =
+    showPreparationTypeSelector &&
+    skuProduct != null &&
+    onPreparationTypeChange != null;
+  const showCombinadoStep = hasSkuVariants && !hasPreparation;
+  const [heroAccordion, setHeroAccordion] = useState<ComplementaHeroAccordionId | null>(
+    showCombinadoStep ? 'combinado' : null,
+  );
   const heroAccordionProps = (id: ComplementaHeroAccordionId) => ({
     expanded: heroAccordion === id,
     onExpandedChange: (next: boolean) => {
       setHeroAccordion(next ? id : null);
     },
   });
-  const hasToner = tonerCards.length > 0;
-  const hasAccessories = accessoryCards.length > 0;
-  const hasStabilizer = stabilizerCard != null;
-  const hasAddableToner = Boolean(addableToner?.name?.trim());
-  const hasSkuVariants = skuVariants.length > 0 && skuProduct != null && onSkuVariantSelect != null;
   const hasConfig =
     hasAccessories ||
     hasStabilizer ||
     Boolean(maintenanceSlot) ||
     hasAddableToner ||
-    hasSkuVariants;
+    hasSkuVariants ||
+    hasPreparation;
 
   if (!hasToner && !hasConfig) return null;
 
@@ -758,80 +767,130 @@ export function ProductDetailComplementaCompra({
 
     return (
       <div className={cn('space-y-2', className)}>
-        {hasSkuVariants && skuProduct && onSkuVariantSelect ? (
-          <ProductDetailSkuVariantRail
-            product={skuProduct}
-            skuVariants={skuVariants}
-            selectedSkuVariantId={selectedSkuVariantId}
-            onSkuVariantSelect={onSkuVariantSelect}
-            compact
-          />
-        ) : null}
+        {(() => {
+          let step = 1;
+          const combinadoStep = showCombinadoStep ? step++ : null;
+          const preparationStep = hasPreparation ? step++ : null;
+          const tonerStep = hasAddableToner || hasToner ? step++ : null;
+          const accessoriesStep = hasAccessories ? step++ : null;
+          const stabilizerStep = hasStabilizer ? step++ : null;
 
-        {hasAddableToner && addableToner ? (
-          <ProductDetailHeroCollapsibleSection
-            title="Tóner"
-            badge="Opcional"
-            panelAriaLabel="Agregar tóner"
-            {...heroAccordionProps('toner')}
-          >
-            <div className="space-y-1.5">
-              <p className="text-[0.625rem] text-neutral-500">
-                Agrega un tóner adicional
-              </p>
-              <ComplementaAddableTonerRow
-                toner={addableToner}
-                selected={addableTonerSelected}
-                onToggle={() => onAddableTonerToggle?.(addableToner.optionId)}
-              />
-            </div>
-          </ProductDetailHeroCollapsibleSection>
-        ) : hasToner ? (
-          <ProductDetailHeroCollapsibleSection
-            title="Tóner"
-            badge="Opcional"
-            panelAriaLabel="Tóner original"
-            {...heroAccordionProps('toner')}
-          >
-            <ComplementaTonerCards
-              cards={tonerCards}
-              selectedTonerOptionIds={selectedTonerOptionIds}
-              onTonerToggle={onTonerToggle}
-              defaultSupplyType={defaultTonerSupplyType}
-              storefrontUi={resolvedUi}
-            />
-          </ProductDetailHeroCollapsibleSection>
-        ) : null}
+          return (
+            <>
+              {showCombinadoStep && skuProduct && onSkuVariantSelect ? (
+                <ProductDetailHeroCollapsibleSection
+                  title="Tipo de Preparado/Configuración"
+                  panelAriaLabel="Elige el tipo de preparado o configuración del equipo"
+                  {...(combinadoStep != null ? { stepNumber: combinadoStep } : {})}
+                  {...heroAccordionProps('combinado')}
+                >
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                      <p className="text-[0.625rem] leading-snug text-neutral-500">
+                        Elige el combinado que mejor se ajuste a tu necesidad
+                      </p>
+                      <a
+                        href={HOME_HERO_WHATSAPP_LINK}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 text-[0.625rem] font-semibold text-[#E31B23] hover:text-[#c41820]"
+                      >
+                        Consulta a un asesor
+                      </a>
+                    </div>
+                    <ProductDetailSkuVariantRail
+                      product={skuProduct}
+                      skuVariants={skuVariants}
+                      selectedSkuVariantId={selectedSkuVariantId}
+                      onSkuVariantSelect={onSkuVariantSelect}
+                      compact
+                      hideHeader
+                    />
+                  </div>
+                </ProductDetailHeroCollapsibleSection>
+              ) : null}
 
-        {hasAccessories ? (
-          <ProductDetailHeroCollapsibleSection
-            title="Accesorios"
-            badge="Opcional"
-            panelAriaLabel="Accesorios del equipo"
-            {...heroAccordionProps('accessories')}
-          >
-            <ComplementaAccessoryCards
-              cards={accessoryCards}
-              equipmentSelection={equipmentSelection}
-              onAccessoryToggle={onAccessoryToggle}
-            />
-          </ProductDetailHeroCollapsibleSection>
-        ) : null}
+              {hasPreparation && skuProduct && onPreparationTypeChange ? (
+                <ProductDetailPreparationTypeSelector
+                  product={skuProduct}
+                  value={preparationType}
+                  onChange={onPreparationTypeChange}
+                  compact
+                  {...(preparationStep != null ? { stepNumber: preparationStep } : {})}
+                />
+              ) : null}
 
-        {hasStabilizer && stabilizerCard ? (
-          <ProductDetailHeroCollapsibleSection
-            title="Estabilizador"
-            badge="Opcional"
-            panelAriaLabel="Estabilizador de voltaje"
-            {...heroAccordionProps('stabilizer')}
-          >
-            <ComplementaAccessoryCards
-              cards={[stabilizerCard]}
-              equipmentSelection={equipmentSelection}
-              onAccessoryToggle={onAccessoryToggle}
-            />
-          </ProductDetailHeroCollapsibleSection>
-        ) : null}
+              {hasAddableToner && addableToner ? (
+                <ProductDetailHeroCollapsibleSection
+                  title="Tóner"
+                  badge="Opcional"
+                  panelAriaLabel="Agregar tóner"
+                  {...(tonerStep != null ? { stepNumber: tonerStep } : {})}
+                  {...heroAccordionProps('toner')}
+                >
+                  <div className="space-y-1.5">
+                    <p className="text-[0.625rem] text-neutral-500">
+                      Agrega un tóner adicional
+                    </p>
+                    <ComplementaAddableTonerRow
+                      toner={addableToner}
+                      selected={addableTonerSelected}
+                      onToggle={() => onAddableTonerToggle?.(addableToner.optionId)}
+                    />
+                  </div>
+                </ProductDetailHeroCollapsibleSection>
+              ) : hasToner ? (
+                <ProductDetailHeroCollapsibleSection
+                  title="Tóner"
+                  badge="Opcional"
+                  panelAriaLabel="Tóner original"
+                  {...(tonerStep != null ? { stepNumber: tonerStep } : {})}
+                  {...heroAccordionProps('toner')}
+                >
+                  <ComplementaTonerCards
+                    cards={tonerCards}
+                    selectedTonerOptionIds={selectedTonerOptionIds}
+                    onTonerToggle={onTonerToggle}
+                    defaultSupplyType={defaultTonerSupplyType}
+                    storefrontUi={resolvedUi}
+                  />
+                </ProductDetailHeroCollapsibleSection>
+              ) : null}
+
+              {hasAccessories ? (
+                <ProductDetailHeroCollapsibleSection
+                  title="Accesorios"
+                  badge="Opcional"
+                  panelAriaLabel="Accesorios del equipo"
+                  {...(accessoriesStep != null ? { stepNumber: accessoriesStep } : {})}
+                  {...heroAccordionProps('accessories')}
+                >
+                  <ComplementaAccessoryCards
+                    cards={accessoryCards}
+                    equipmentSelection={equipmentSelection}
+                    onAccessoryToggle={onAccessoryToggle}
+                  />
+                </ProductDetailHeroCollapsibleSection>
+              ) : null}
+
+              {hasStabilizer && stabilizerCard ? (
+                <ProductDetailHeroCollapsibleSection
+                  title="Estabilizador"
+                  badge="Opcional"
+                  panelAriaLabel="Estabilizador de voltaje"
+                  {...(stabilizerStep != null ? { stepNumber: stabilizerStep } : {})}
+                  {...heroAccordionProps('stabilizer')}
+                >
+                  <ComplementaAccessoryCards
+                    cards={[stabilizerCard]}
+                    equipmentSelection={equipmentSelection}
+                    onAccessoryToggle={onAccessoryToggle}
+                  />
+                </ProductDetailHeroCollapsibleSection>
+              ) : null}
+            </>
+          );
+        })()}
       </div>
     );
   }

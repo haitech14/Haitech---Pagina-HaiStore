@@ -113,7 +113,8 @@ export function resolveUserRolePriceUsd(
   const raw = full[priceRole] ?? full.public;
   // Precio técnico se muestra tal cual (p. ej. US$ 859), sin redondeo 49/99.
   if (priceRole === 'tecnico') return raw;
-  return options?.isEquipment ? roundEquipmentDisplayUsd(raw) : raw;
+  if (options?.isEquipment) return roundEquipmentDisplayUsd(raw);
+  return raw;
 }
 
 /** PEN de vitrina/catálogo para un rol (corporativo 2 puede tener PEN fijo). */

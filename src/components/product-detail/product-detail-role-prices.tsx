@@ -8,13 +8,14 @@ import type { CatalogRolePriceLine } from '@/hooks/use-catalog-display-price';
 import { resolveCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
 import { resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { getDisplayPriceVisibility, CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
+import { isEquipmentDisplayPriceCategory, roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
 import { PRICE_ROLE_LABELS, type PriceRole, type ProductRolePrices } from '@/lib/roles';
-import { cn, formatPenFromUsd, formatUsd, penToUsd } from '@/lib/utils';
+import { cn, formatPenFromUsd, formatStorefrontUsd, formatUsd, penToUsd } from '@/lib/utils';
 import type { BulkDiscountTier } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
 interface ProductDetailRolePriceLinesProps {
-  product: Pick<Product, 'id' | 'price' | 'prices' | 'price_role'>;
+  product: Pick<Product, 'id' | 'price' | 'prices' | 'price_role' | 'category'>;
   quantity: number;
   fullPrices: ProductRolePrices;
   bulkDiscountTiers: BulkDiscountTier[];
@@ -31,9 +32,14 @@ function computeRoleTotalUsd(
   bulkDiscountTiers: BulkDiscountTier[],
   equipmentExtrasUsd: number,
   preparationSurchargeUsd = 0,
+  category?: string | null,
 ): number {
+  const isEquipment = isEquipmentDisplayPriceCategory(category);
+  const rawRoleUsd = fullPrices[role];
+  const roleUsd =
+    isEquipment && role !== 'tecnico' ? roundEquipmentDisplayUsd(rawRoleUsd) : rawRoleUsd;
   const floorPriceUsd = fullPrices.tecnico + preparationSurchargeUsd;
-  const baseUsd = fullPrices[role] + preparationSurchargeUsd;
+  const baseUsd = roleUsd + preparationSurchargeUsd;
   const volume = resolveBulkDiscountPricing(quantity, baseUsd, bulkDiscountTiers, {
     floorPriceUsd,
   });
@@ -41,7 +47,7 @@ function computeRoleTotalUsd(
 }
 
 interface ProductDetailRoleTotalsInput {
-  product: Pick<Product, 'id' | 'price' | 'prices' | 'price_role'>;
+  product: Pick<Product, 'id' | 'price' | 'prices' | 'price_role' | 'category'>;
   quantity: number;
   fullPrices: ProductRolePrices;
   bulkDiscountTiers: BulkDiscountTier[];
@@ -68,8 +74,9 @@ function useProductDetailRoleTotals({
         bulkDiscountTiers,
         equipmentExtrasUsd,
         preparationSurchargeUsd,
+        product.category,
       ),
-    [quantity, fullPrices, bulkDiscountTiers, equipmentExtrasUsd, preparationSurchargeUsd],
+    [quantity, fullPrices, bulkDiscountTiers, equipmentExtrasUsd, preparationSurchargeUsd, product.category],
   );
 
   const tecnicoTotalUsd = useMemo(
@@ -81,8 +88,9 @@ function useProductDetailRoleTotals({
         bulkDiscountTiers,
         equipmentExtrasUsd,
         preparationSurchargeUsd,
+        product.category,
       ),
-    [quantity, fullPrices, bulkDiscountTiers, equipmentExtrasUsd, preparationSurchargeUsd],
+    [quantity, fullPrices, bulkDiscountTiers, equipmentExtrasUsd, preparationSurchargeUsd, product.category],
   );
 
   const displayPrice = resolveCatalogDisplayPrice(product, {
@@ -91,21 +99,27 @@ function useProductDetailRoleTotals({
     isAdmin,
   });
 
-  const visitorTotalUsd = useMemo(() => {
-    const priceRole = displayPrice.priceRole;
-    const adjustedBase = fullPrices[priceRole] + preparationSurchargeUsd;
-    const volume = resolveBulkDiscountPricing(quantity, adjustedBase, bulkDiscountTiers, {
-      floorPriceUsd: fullPrices.tecnico + preparationSurchargeUsd,
-    });
-    return volume.totalUsd + equipmentExtrasUsd * quantity;
-  }, [
-    displayPrice.priceRole,
-    fullPrices,
-    preparationSurchargeUsd,
-    quantity,
-    bulkDiscountTiers,
-    equipmentExtrasUsd,
-  ]);
+  const visitorTotalUsd = useMemo(
+    () =>
+      computeRoleTotalUsd(
+        displayPrice.priceRole,
+        quantity,
+        fullPrices,
+        bulkDiscountTiers,
+        equipmentExtrasUsd,
+        preparationSurchargeUsd,
+        product.category,
+      ),
+    [
+      displayPrice.priceRole,
+      quantity,
+      fullPrices,
+      bulkDiscountTiers,
+      equipmentExtrasUsd,
+      preparationSurchargeUsd,
+      product.category,
+    ],
+  );
 
   const viewAsTotals = useMemo<CatalogRolePriceLine[]>(() => {
     if (displayPrice.viewAsRolePrices.length <= 1) return [];
@@ -142,44 +156,51 @@ function useProductDetailRoleTotals({
   };
 }
 
-function DiscountBadge({ percent }: { percent: number }) {
+function DiscountBadge({ percent, onBrand = false }: { percent: number; onBrand?: boolean }) {
   return (
-    <span className="inline-flex rounded-full bg-[#E30613] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white">
+    <span
+      className={cn(
+        'inline-flex rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide',
+        onBrand ? 'bg-white text-[#6B1423]' : 'bg-[#E30613] text-white',
+      )}
+    >
       {percent}% DSCT
     </span>
   );
 }
 
-function BuySidebarInlineDualPrice({ usd, className }: { usd: number; className?: string }) {
+function BuySidebarInlineDualPrice({
+  usd,
+  className,
+  onBrand = false,
+}: {
+  usd: number;
+  className?: string;
+  onBrand?: boolean;
+}) {
   const { displayCurrency } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const both = showUsd && showPen;
+  const primaryClass = cn(
+    'text-[1.75rem] font-bold leading-none tabular-nums sm:text-[2rem]',
+    onBrand ? 'text-white' : 'text-neutral-900',
+  );
+  const secondaryClass = cn(
+    'text-sm font-semibold leading-none tabular-nums',
+    onBrand ? 'text-white/80' : 'text-[#6B7280]',
+  );
 
   if (isPriceOnRequest(usd)) {
     return (
       <div className={cn('flex flex-col items-start gap-0.5', className)}>
-        <span className="text-[1.75rem] font-bold leading-none text-neutral-900 sm:text-[2rem]">
-          {CONSULTAR_PRECIO_LABEL}
-        </span>
+        <span className={primaryClass}>{CONSULTAR_PRECIO_LABEL}</span>
       </div>
     );
   }
 
-  const penPrimary = (
-    <span className="text-[1.75rem] font-bold leading-none tabular-nums text-neutral-900 sm:text-[2rem]">
-      {formatPenFromUsd(usd)}
-    </span>
-  );
-  const usdPrimary = (
-    <span className="text-[1.75rem] font-bold leading-none tabular-nums text-neutral-900 sm:text-[2rem]">
-      {formatUsd(usd)}
-    </span>
-  );
-  const usdSecondary = (
-    <span className="text-sm font-semibold leading-none tabular-nums text-[#6B7280]">
-      {formatUsd(usd)}
-    </span>
-  );
+  const penPrimary = <span className={primaryClass}>{formatPenFromUsd(usd)}</span>;
+  const usdPrimary = <span className={primaryClass}>{formatStorefrontUsd(usd)}</span>;
+  const usdSecondary = <span className={secondaryClass}>{formatStorefrontUsd(usd)}</span>;
 
   return (
     <div className={cn('flex flex-col items-start gap-0.5', className)}>
@@ -198,10 +219,20 @@ function BuySidebarInlineDualPrice({ usd, className }: { usd: number; className?
   );
 }
 
-function TecnicoDualPrice({ usd, className }: { usd: number; className?: string }) {
+function TecnicoDualPrice({
+  usd,
+  className,
+  onBrand = false,
+}: {
+  usd: number;
+  className?: string;
+  onBrand?: boolean;
+}) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const { showUsd, showPen } = getDisplayPriceVisibility(displayCurrency);
   const penFirst = dualPriceOrder === 'pen-usd';
+  const mutedClass = onBrand ? 'font-medium text-white/75' : 'font-medium text-neutral-500';
+  const sepClass = onBrand ? 'text-white/40' : 'text-neutral-300';
 
   if (isPriceOnRequest(usd)) {
     return (
@@ -211,15 +242,11 @@ function TecnicoDualPrice({ usd, className }: { usd: number; className?: string 
     );
   }
 
-  const penSpan = showPen ? (
-    <span className="font-medium text-neutral-500">{formatPenFromUsd(usd)}</span>
-  ) : null;
-  const usdSpan = showUsd ? (
-    <span className="font-medium text-neutral-500">{formatUsd(usd)}</span>
-  ) : null;
+  const penSpan = showPen ? <span className={mutedClass}>{formatPenFromUsd(usd)}</span> : null;
+  const usdSpan = showUsd ? <span className={mutedClass}>{formatUsd(usd)}</span> : null;
   const separator =
     showUsd && showPen ? (
-      <span className="text-neutral-300" aria-hidden="true">
+      <span className={sepClass} aria-hidden="true">
         ·
       </span>
     ) : null;
@@ -248,23 +275,30 @@ function BuySidebarSecondaryPrices({
   showTecnico,
   showAdminPurchaseLine,
   productId,
+  onBrand = false,
 }: {
   tecnicoUsd: number;
   showTecnico: boolean;
   showAdminPurchaseLine: boolean;
   productId: string;
+  onBrand?: boolean;
 }) {
   if (!showTecnico && !showAdminPurchaseLine) return null;
 
   return (
-    <div className="mt-1 flex flex-wrap items-baseline gap-x-1 text-[0.6875rem] text-neutral-400">
+    <div
+      className={cn(
+        'mt-1 flex flex-wrap items-baseline gap-x-1 text-[0.6875rem]',
+        onBrand ? 'text-white/75' : 'text-neutral-400',
+      )}
+    >
       {showTecnico ? (
         <span>
-          Precio técnico: <TecnicoDualPrice usd={tecnicoUsd} />
+          Precio técnico: <TecnicoDualPrice usd={tecnicoUsd} onBrand={onBrand} />
         </span>
       ) : null}
       {showTecnico && showAdminPurchaseLine ? (
-        <span className="text-neutral-300" aria-hidden="true">
+        <span className={onBrand ? 'text-white/40' : 'text-neutral-300'} aria-hidden="true">
           |
         </span>
       ) : null}
@@ -301,6 +335,8 @@ interface PurchaseSidebarRolePricesProps extends ProductDetailRoleTotalsInput {
   showAdminPurchaseLine?: boolean;
   /** Desglose Antes / DSCTO / Ahorras estilo mockup laptop. */
   showOfferBreakdown?: boolean;
+  /** Texto claro sobre fondo marca (sidebar rojo). */
+  onBrand?: boolean;
 }
 
 /** Sidebar y barra móvil: Público destacado y Técnico secundario para admin. */
@@ -322,6 +358,7 @@ export function PurchaseSidebarRolePrices({
   showDiscountBadge: _showDiscountBadge = true,
   showAdminPurchaseLine = false,
   showOfferBreakdown = false,
+  onBrand = false,
 }: PurchaseSidebarRolePricesProps) {
   const { user, isAdmin, viewAsRoles } = useAuth();
   const { publicTotalUsd, tecnicoTotalUsd, visitorTotalUsd, viewAsTotals, showAdminBreakdown } =
@@ -367,11 +404,18 @@ export function PurchaseSidebarRolePrices({
   const storeCompareRow =
     showComparePrice && antesTotalUsd != null ? (
       <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-        <span className="text-xs font-medium tabular-nums text-[#9CA3AF] line-through decoration-[#9CA3AF] sm:text-[13px]">
+        <span
+          className={cn(
+            'text-xs font-medium tabular-nums line-through sm:text-[13px]',
+            onBrand
+              ? 'text-white/70 decoration-white/70'
+              : 'text-[#9CA3AF] decoration-[#9CA3AF]',
+          )}
+        >
           {formatPenFromUsd(antesTotalUsd)}
         </span>
         {displayDiscountPercent != null && displayDiscountPercent > 0 ? (
-          <DiscountBadge percent={displayDiscountPercent} />
+          <DiscountBadge percent={displayDiscountPercent} onBrand={onBrand} />
         ) : null}
       </div>
     ) : null;
@@ -379,7 +423,7 @@ export function PurchaseSidebarRolePrices({
   const mainPriceClass = cn(
     'font-bold leading-none tabular-nums',
     compact ? 'text-base sm:text-lg' : 'text-[1.625rem] sm:text-[1.75rem]',
-    isBuySidebar && '[&_span]:text-neutral-900',
+    isBuySidebar && (onBrand ? '[&_span]:text-white' : '[&_span]:text-neutral-900'),
   );
   const secondaryPriceClass = cn(
     'font-semibold tabular-nums',
@@ -403,12 +447,13 @@ export function PurchaseSidebarRolePrices({
     return (
       <div className={className} aria-label="Precios por rol">
         {storeCompareRow}
-        <BuySidebarInlineDualPrice usd={publicTotalUsd} />
+        <BuySidebarInlineDualPrice usd={publicTotalUsd} onBrand={onBrand} />
         <BuySidebarSecondaryPrices
           tecnicoUsd={tecnicoTotalUsd}
           showTecnico
           showAdminPurchaseLine={allowPurchaseLine}
           productId={product.id}
+          onBrand={onBrand}
         />
         {!allowPurchaseLine && isAdmin ? <AdminPurchaseCostLine productId={product.id} /> : null}
       </div>
@@ -426,25 +471,36 @@ export function PurchaseSidebarRolePrices({
         {storeCompareRow}
         {showOfferBreakdown && displayDiscountPercent != null && displayDiscountPercent > 0 && !storeCompareRow ? (
           <div className="mb-1.5 flex flex-wrap items-center gap-2">
-            <DiscountBadge percent={displayDiscountPercent} />
+            <DiscountBadge percent={displayDiscountPercent} onBrand={onBrand} />
             {savingsUsd != null && savingsUsd > 0.001 ? (
-              <span className="text-xs font-semibold text-emerald-600">
+              <span
+                className={cn(
+                  'text-xs font-semibold',
+                  onBrand ? 'text-white' : 'text-emerald-600',
+                )}
+              >
                 Ahorras: {formatPenFromUsd(savingsUsd)}
               </span>
             ) : null}
           </div>
         ) : null}
         {showOfferBreakdown && savingsUsd != null && savingsUsd > 0.001 && storeCompareRow ? (
-          <p className="mb-1 text-xs font-semibold text-emerald-600">
+          <p
+            className={cn(
+              'mb-1 text-xs font-semibold',
+              onBrand ? 'text-white' : 'text-emerald-600',
+            )}
+          >
             Ahorras: {formatPenFromUsd(savingsUsd)}
           </p>
         ) : null}
-        <BuySidebarInlineDualPrice usd={visitorTotalUsd} />
+        <BuySidebarInlineDualPrice usd={visitorTotalUsd} onBrand={onBrand} />
         <BuySidebarSecondaryPrices
           tecnicoUsd={tecnicoTotalUsd}
           showTecnico={showTecnicoSecondary}
           showAdminPurchaseLine={allowPurchaseLine}
           productId={product.id}
+          onBrand={onBrand}
         />
       </div>
     );

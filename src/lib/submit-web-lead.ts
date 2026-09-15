@@ -21,6 +21,7 @@ export type SubmitWebLeadInput = {
     direccion?: string;
   };
   channel: WebLeadChannel;
+  campaign?: string;
   message?: string;
   productName?: string;
   productId?: string;
@@ -43,6 +44,7 @@ export async function submitWebLead(input: SubmitWebLeadInput): Promise<void> {
         phone: input.contact.phone?.trim() || undefined,
         direccion: input.contact.direccion?.trim() || undefined,
         channel: input.channel,
+        campaign: input.campaign,
         message: input.message,
         productName: input.productName,
         productId: input.productId,

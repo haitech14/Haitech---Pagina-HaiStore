@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { mdiWhatsapp } from '@mdi/js';
 import { Icon } from '@mdi/react';
 import { Loader2 } from 'lucide-react';
@@ -7,6 +7,8 @@ import { CheckoutCulqiForm } from '@/components/checkout/checkout-culqi-form';
 import { CheckoutManualInstructions } from '@/components/checkout/checkout-manual-instructions';
 import { CheckoutMercadoPagoButton } from '@/components/checkout/checkout-mercadopago-button';
 import { CheckoutMobileActionBar } from '@/components/checkout/checkout-mobile-action-bar';
+import { CheckoutPaymentProofField } from '@/components/checkout/checkout-payment-proof-field';
+import { DualPrice } from '@/components/product-showcase-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCart } from '@/context/cart-context';
@@ -19,10 +21,10 @@ import type { CheckoutPaymentCurrency } from '@/lib/checkout-totals';
 import { cn } from '@/lib/utils';
 import type { CheckoutPaymentOptions } from '@/types/checkout';
 
-const MANUAL_METHODS: Array<{ id: ManualPaymentMethodId; label: string }> = [
-  { id: 'transferencia', label: 'Transferencia bancaria / depósito' },
-  { id: 'yape-plin', label: 'Yape / Plin' },
-  { id: 'contra-entrega', label: 'Pago contra entrega (Lima)' },
+const MANUAL_METHODS: Array<{ id: ManualPaymentMethodId; label: string; description: string }> = [
+  { id: 'transferencia', label: 'Transferencia Bancaria', description: 'Depósito a cuenta Haitech' },
+  { id: 'yape-plin', label: 'Yape / Plin', description: 'Pago con QR' },
+  { id: 'contra-entrega', label: 'Contraentrega', description: 'Pagas al recibir (Lima)' },
 ];
 
 const PAYMENT_CURRENCIES: Array<{ id: CheckoutPaymentCurrency; label: string }> = [
@@ -47,6 +49,7 @@ interface CheckoutStepPaymentProps {
   paymentCurrency: CheckoutPaymentCurrency;
   paymentOptions: CheckoutPaymentOptions | undefined;
   email: string;
+  totalUsd: number;
   totalPen: number;
   orderNumber: string | null;
   isSubmitting: boolean;
@@ -61,6 +64,8 @@ interface CheckoutStepPaymentProps {
   onCulqiToken: (token: string) => void;
   onCulqiError: (message: string) => void;
   onMercadoPago: () => void;
+  proofFile?: File | null;
+  onProofFileChange?: (file: File | null) => void;
 }
 
 export function CheckoutStepPayment({
@@ -69,6 +74,7 @@ export function CheckoutStepPayment({
   paymentCurrency,
   paymentOptions,
   email,
+  totalUsd,
   totalPen,
   orderNumber,
   isSubmitting,
@@ -83,11 +89,19 @@ export function CheckoutStepPayment({
   onCulqiToken,
   onCulqiError,
   onMercadoPago,
+  proofFile = null,
+  onProofFileChange,
 }: CheckoutStepPaymentProps) {
   const { items, totalPrice } = useCart();
   const culqiEnabled = Boolean(paymentOptions?.culqi && paymentOptions.culqiPublicKey);
   const mercadoPagoEnabled = Boolean(paymentOptions?.mercadopago);
   const cardPaymentSelected = isCardProvider(paymentProvider);
+  const culqiOpenRef = useRef<(() => Promise<void>) | null>(null);
+  const [culqiStatus, setCulqiStatus] = useState({ ready: false, loading: false });
+
+  const handleBindCulqiOpen = useCallback((open: () => Promise<void>) => {
+    culqiOpenRef.current = open;
+  }, []);
 
   const availableCardGateways = useMemo(
     () =>
@@ -97,19 +111,7 @@ export function CheckoutStepPayment({
     [culqiEnabled, mercadoPagoEnabled],
   );
 
-  const providerOptions = useMemo(() => {
-    const options: Array<{ id: 'manual' | 'card'; label: string; enabled: boolean }> = [
-      { id: 'manual', label: 'Pago manual', enabled: paymentOptions?.manual !== false },
-    ];
-    if (availableCardGateways.length > 0) {
-      options.push({
-        id: 'card',
-        label: 'Tarjeta de crédito / débito',
-        enabled: true,
-      });
-    }
-    return options.filter((option) => option.enabled);
-  }, [paymentOptions, availableCardGateways.length]);
+  const showProofUpload = paymentProvider === 'manual' && (manualMethod === 'transferencia' || manualMethod === 'yape-plin');
 
   const handleSelectPaymentGroup = (group: 'manual' | 'card') => {
     if (group === 'manual') {
@@ -118,11 +120,20 @@ export function CheckoutStepPayment({
     }
 
     const preferredGateway =
+      availableCardGateways.find((gateway) => gateway.id === 'mercadopago')?.id ??
       availableCardGateways.find((gateway) => gateway.id === paymentProvider)?.id ??
-      availableCardGateways[0]?.id;
-    if (preferredGateway) {
-      onPaymentProviderChange(preferredGateway);
+      availableCardGateways[0]?.id ??
+      'mercadopago';
+    onPaymentProviderChange(preferredGateway);
+  };
+
+  const handleSelectCheckoutMethod = (choice: ManualPaymentMethodId | 'card') => {
+    if (choice === 'card') {
+      handleSelectPaymentGroup('card');
+      return;
     }
+    onPaymentProviderChange('manual');
+    onManualMethodChange(choice);
   };
 
   const handleOpenCulqi = async () => {
@@ -170,6 +181,40 @@ export function CheckoutStepPayment({
           )}
         </Button>
       ) : null}
+      {cardPaymentSelected && paymentProvider === 'culqi' && culqiEnabled ? (
+        <Button
+          type="button"
+          onClick={() => void culqiOpenRef.current?.()}
+          disabled={isSubmitting || !culqiStatus.ready || culqiStatus.loading}
+          className="min-h-11 flex-1 bg-red-600 font-semibold hover:bg-red-500"
+        >
+          {isSubmitting || culqiStatus.loading || !culqiStatus.ready ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+              {culqiStatus.ready ? 'Abriendo…' : 'Cargando…'}
+            </>
+          ) : (
+            'Pagar con tarjeta'
+          )}
+        </Button>
+      ) : null}
+      {cardPaymentSelected && paymentProvider !== 'culqi' ? (
+        <Button
+          type="button"
+          onClick={onMercadoPago}
+          disabled={isSubmitting}
+          className="min-h-11 flex-1 bg-red-600 font-semibold hover:bg-red-500"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+              Redirigiendo…
+            </>
+          ) : (
+            'Pagar con tarjeta'
+          )}
+        </Button>
+      ) : null}
     </>
   );
 
@@ -183,14 +228,11 @@ export function CheckoutStepPayment({
           <fieldset>
             <legend className="sr-only">Seleccione forma de pago</legend>
             <div className="space-y-2">
-              {providerOptions.map((option) => {
-                const selected =
-                  option.id === 'manual'
-                    ? paymentProvider === 'manual'
-                    : cardPaymentSelected;
+              {MANUAL_METHODS.map((method) => {
+                const selected = paymentProvider === 'manual' && manualMethod === method.id;
                 return (
                   <label
-                    key={option.id}
+                    key={method.id}
                     className={cn(
                       'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors',
                       selected
@@ -200,50 +242,44 @@ export function CheckoutStepPayment({
                   >
                     <input
                       type="radio"
-                      name="payment-provider"
-                      value={option.id}
+                      name="checkout-method"
+                      value={method.id}
                       checked={selected}
-                      onChange={() => handleSelectPaymentGroup(option.id)}
+                      onChange={() => handleSelectCheckoutMethod(method.id)}
                       className="size-4 accent-red-600"
                     />
-                    <span className="font-medium">{option.label}</span>
+                    <span className="min-w-0">
+                      <span className="block font-medium">{method.label}</span>
+                      <span className="block text-xs text-muted-foreground">{method.description}</span>
+                    </span>
                   </label>
                 );
               })}
+              <label
+                className={cn(
+                  'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors',
+                  cardPaymentSelected
+                    ? 'border-red-600 bg-red-50/60'
+                    : 'border-border hover:bg-muted/30',
+                )}
+              >
+                <input
+                  type="radio"
+                  name="checkout-method"
+                  value="card"
+                  checked={cardPaymentSelected}
+                  onChange={() => handleSelectCheckoutMethod('card')}
+                  className="size-4 accent-red-600"
+                />
+                <span className="min-w-0">
+                  <span className="block font-medium">Pago con tarjeta</span>
+                  <span className="block text-xs text-muted-foreground">
+                    Visa, Mastercard y más · serás redirigido a pagar
+                  </span>
+                </span>
+              </label>
             </div>
           </fieldset>
-
-          {cardPaymentSelected && availableCardGateways.length > 1 ? (
-            <fieldset>
-              <legend className="mb-2 text-sm font-medium text-foreground">
-                Pasarela de pago
-              </legend>
-              <div className="space-y-2">
-                {availableCardGateways.map((gateway) => {
-                  const selected = paymentProvider === gateway.id;
-                  return (
-                    <label
-                      key={gateway.id}
-                      className={cn(
-                        'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm',
-                        selected ? 'border-red-600/60 bg-muted/30' : 'border-border',
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="card-gateway"
-                        value={gateway.id}
-                        checked={selected}
-                        onChange={() => onPaymentProviderChange(gateway.id)}
-                        className="size-4 accent-red-600"
-                      />
-                      <span>{gateway.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
-          ) : null}
 
           <fieldset>
             <legend className="mb-2 text-sm font-medium text-foreground">
@@ -282,73 +318,57 @@ export function CheckoutStepPayment({
 
           {paymentProvider === 'manual' ? (
             <div className="space-y-3">
-              <fieldset>
-                <legend className="mb-2 text-sm font-medium text-foreground">Método manual</legend>
-                <div className="space-y-2">
-                  {MANUAL_METHODS.map((method) => {
-                    const selected = manualMethod === method.id;
-                    return (
-                      <label
-                        key={method.id}
-                        className={cn(
-                          'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm',
-                          selected ? 'border-red-600/60 bg-muted/30' : 'border-border',
-                        )}
-                      >
-                        <input
-                          type="radio"
-                          name="manual-method"
-                          value={method.id}
-                          checked={selected}
-                          onChange={() => onManualMethodChange(method.id)}
-                          className="size-4 accent-red-600"
-                        />
-                        <span>{method.label}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </fieldset>
               <CheckoutManualInstructions method={manualMethod} />
+              {showProofUpload && onProofFileChange ? (
+                <CheckoutPaymentProofField
+                  file={proofFile}
+                  onFileChange={onProofFileChange}
+                  disabled={isSubmitting}
+                  hint={
+                    manualMethod === 'yape-plin'
+                      ? 'Sube la captura de Yape o Plin (JPG, PNG, WEBP o PDF, máx. 5 MB).'
+                      : 'Sube el voucher o captura de tu transferencia (JPG, PNG, WEBP o PDF, máx. 5 MB).'
+                  }
+                />
+              ) : null}
             </div>
           ) : null}
 
           {cardPaymentSelected ? (
             <div className="space-y-3">
-              {paymentProvider === 'culqi' ? (
+              {paymentProvider === 'culqi' && culqiEnabled && paymentOptions?.culqiPublicKey ? (
                 <>
                   <p className="text-xs text-muted-foreground" role="note">
                     Se aplicará un recargo del 5% por pago con tarjeta. El total actualizado aparece en
                     el resumen del pedido.
                   </p>
-                  {culqiEnabled && paymentOptions?.culqiPublicKey ? (
-                    <CheckoutCulqiForm
-                      publicKey={paymentOptions.culqiPublicKey}
-                      email={email}
-                      amountPen={totalPen}
-                      orderNumber={orderNumber}
-                      onBeforeOpen={handleOpenCulqi}
-                      onToken={onCulqiToken}
-                      onError={onCulqiError}
-                      disabled={isSubmitting}
-                    />
-                  ) : null}
+                  <CheckoutCulqiForm
+                    publicKey={paymentOptions.culqiPublicKey}
+                    email={email}
+                    amountPen={totalPen}
+                    orderNumber={orderNumber}
+                    onBeforeOpen={handleOpenCulqi}
+                    onToken={onCulqiToken}
+                    onError={onCulqiError}
+                    disabled={isSubmitting}
+                    className="hidden sm:inline-flex"
+                    onBindOpen={handleBindCulqiOpen}
+                    onStatusChange={setCulqiStatus}
+                  />
                 </>
-              ) : null}
-
-              {paymentProvider === 'mercadopago' && mercadoPagoEnabled ? (
-                <CheckoutMercadoPagoButton
-                  onPay={onMercadoPago}
-                  disabled={isSubmitting}
-                  loading={isSubmitting}
-                />
-              ) : null}
-
-              {paymentProvider === 'culqi' && !culqiEnabled ? (
-                <p className="text-xs text-muted-foreground" role="note">
-                  Un asesor te contactará para coordinar el pago con tarjeta y confirmar el pedido.
-                </p>
-              ) : null}
+              ) : (
+                <>
+                  <p className="text-xs text-muted-foreground" role="note">
+                    Al continuar te redirigiremos a la pasarela segura para pagar con tarjeta.
+                  </p>
+                  <CheckoutMercadoPagoButton
+                    onPay={onMercadoPago}
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                    className="hidden sm:inline-flex"
+                  />
+                </>
+              )}
             </div>
           ) : null}
         </CardContent>
@@ -363,7 +383,7 @@ export function CheckoutStepPayment({
       <Button
         type="button"
         variant="outline"
-        className="min-h-11 w-full gap-2 border-[#25D366]/50 text-[#128C7E] hover:bg-[#ecfdf5] sm:w-auto"
+        className="hidden min-h-11 w-full gap-2 border-[#25D366]/50 text-[#128C7E] hover:bg-[#ecfdf5] sm:inline-flex sm:w-auto"
         onClick={() => openCartQuoteWhatsApp(items, totalPrice)}
       >
         <Icon path={mdiWhatsapp} size={0.85} aria-hidden="true" />
@@ -374,11 +394,24 @@ export function CheckoutStepPayment({
 
       <CheckoutMobileActionBar>
         <div className="flex flex-col gap-2">
+          <div className="flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Total</p>
+              <p className="text-base font-bold leading-tight">
+                <DualPrice
+                  usd={totalUsd}
+                  allowZero
+                  compact
+                  preferCurrency={paymentCurrency}
+                />
+              </p>
+            </div>
+          </div>
           <div className="flex gap-2">{actionButtons}</div>
           <Button
             type="button"
             variant="outline"
-            className="min-h-10 w-full gap-2 border-[#25D366]/50 text-xs text-[#128C7E] hover:bg-[#ecfdf5]"
+            className="min-h-11 w-full gap-2 border-[#25D366]/50 text-sm text-[#128C7E] hover:bg-[#ecfdf5]"
             onClick={() => openCartQuoteWhatsApp(items, totalPrice)}
           >
             <Icon path={mdiWhatsapp} size={0.75} aria-hidden="true" />

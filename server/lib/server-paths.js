@@ -26,6 +26,18 @@ export function getProformasPath() {
   return path.join(getServerDataDir(), 'proformas.json');
 }
 
+export function getWebLeadCustomersPath() {
+  return path.join(getServerDataDir(), 'web-lead-customers.json');
+}
+
+export function getCrmPipelineLeadsPath() {
+  return path.join(getServerDataDir(), 'crm-pipeline-leads.json');
+}
+
+export function getStoreOrdersPath() {
+  return path.join(getServerDataDir(), 'store-orders.json');
+}
+
 export function getStoreCategoriesPath() {
   return path.join(getServerDataDir(), 'store-categories.json');
 }

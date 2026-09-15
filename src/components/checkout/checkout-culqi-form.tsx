@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CreditCard, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 declare global {
   interface Window {
@@ -48,6 +49,9 @@ interface CheckoutCulqiFormProps {
   onToken: (token: string) => void;
   onError: (message: string) => void;
   disabled?: boolean;
+  className?: string;
+  onBindOpen?: (open: () => Promise<void>) => void;
+  onStatusChange?: (status: { ready: boolean; loading: boolean }) => void;
 }
 
 export function CheckoutCulqiForm({
@@ -59,6 +63,9 @@ export function CheckoutCulqiForm({
   onToken,
   onError,
   disabled,
+  className,
+  onBindOpen,
+  onStatusChange,
 }: CheckoutCulqiFormProps) {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
@@ -119,6 +126,10 @@ export function CheckoutCulqiForm({
     };
   }, [publicKey, amountPen, activeOrderNumber, onError]);
 
+  useEffect(() => {
+    onStatusChange?.({ ready, loading });
+  }, [ready, loading, onStatusChange]);
+
   const openCulqi = async () => {
     if (!window.Culqi || !ready) return;
     setLoading(true);
@@ -149,11 +160,18 @@ export function CheckoutCulqiForm({
     }
   };
 
+  const openCulqiRef = useRef(openCulqi);
+  openCulqiRef.current = openCulqi;
+
+  useEffect(() => {
+    onBindOpen?.(() => openCulqiRef.current());
+  }, [onBindOpen]);
+
   return (
     <Button
       type="button"
       variant="outline"
-      className="min-h-11 w-full justify-center gap-2"
+      className={cn('min-h-11 w-full justify-center gap-2', className)}
       disabled={disabled || !ready || loading}
       onClick={() => void openCulqi()}
     >

@@ -35,7 +35,7 @@ import { normalizeProductCatalogStatus } from '../../shared/product-catalog-stat
 import { formatNuevaProductName, resolveXrefProductFields } from '../../shared/inventory-product-name.js';
 import { normalizeMerchandisingOptionalProducts } from '../../shared/merchandising-optional-product.js';
 import { isBundleProduct, normalizeBundleComponents, syncInventoryBundleProducts } from './product-bundle.js';
-import { ensureFullPrices, resolvePriceRole, resolveUserRolePriceUsd } from './roles.js';
+import { ensureFullPrices, isEquipmentCategory, resolvePriceRole, resolveUserRolePriceUsd } from './roles.js';
 import { shouldPreferSupabaseCatalog } from './catalog-source.js';
 import { getInventoryPath } from './server-paths.js';
 
@@ -855,6 +855,7 @@ export function getEffectivePrice(product, role) {
   const prices = ensureFullPrices(product.prices ?? { public: product.price ?? 0 });
   return resolveUserRolePriceUsd(prices, role, {
     productKeys: [product.id, product.code, product.slug],
+    isEquipment: isEquipmentCategory(product.category),
   });
 }
 
@@ -875,6 +876,7 @@ export function toPublicProduct(product, role, warehouses) {
     description: product.description ?? null,
     price: resolveUserRolePriceUsd(prices, role, {
       productKeys: [product.id, product.code, product.slug],
+      isEquipment: isEquipmentCategory(product.category),
     }),
     prices,
     currency: product.currency ?? 'USD',

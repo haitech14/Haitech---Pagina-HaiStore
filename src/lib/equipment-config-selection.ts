@@ -126,6 +126,7 @@ export interface ProductQuoteLineInput {
   sku: string;
   brand: string;
   pricePen: number;
+  priceUsd?: number;
   quantity?: number;
   imageUrl?: string | null;
   shortDescription?: string | null;
@@ -148,6 +149,7 @@ export function buildProductQuoteLines(
       sku: option.sku ?? `CFG-${option.optionId}`,
       brand: `Paso ${option.stepNumber}`,
       pricePen: option.pricePen,
+      ...(option.priceUsd != null && option.priceUsd > 0 ? { priceUsd: option.priceUsd } : {}),
       quantity: 1,
       imageUrl: option.imageUrl ?? null,
     });

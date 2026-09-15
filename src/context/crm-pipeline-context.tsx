@@ -10,6 +10,7 @@ import {
 } from 'react';
 
 import { useCompanySettings } from '@/hooks/use-company-settings';
+import { apiFetch } from '@/lib/api';
 import {
   computePipelineKpisFromLeads,
   computeResumenMetricsFromLeads,
@@ -17,7 +18,14 @@ import {
   type CrmResumenLeadMetrics,
 } from '@/lib/crm-lead-form';
 import { applyLeadStageChange } from '@/lib/crm-pipeline-stage-styles';
-import { loadCrmPipelineLeads, saveCrmPipelineLeads, CRM_PIPELINE_UPDATED_EVENT } from '@/lib/crm-pipeline-storage';
+import {
+  CRM_PIPELINE_UPDATED_EVENT,
+  isPipelineLead,
+  loadCrmPipelineLeads,
+  mergePipelineLeads,
+  normalizePipelineLead,
+  saveCrmPipelineLeads,
+} from '@/lib/crm-pipeline-storage';
 import { DEFAULT_COMPANY_SETTINGS } from '@/types/company-settings';
 import type { CrmPipelineLead, CrmPipelineStageId } from '@/types/crm-pipeline';
 
@@ -34,6 +42,20 @@ interface CrmPipelineContextValue {
 
 const CrmPipelineContext = createContext<CrmPipelineContextValue | null>(null);
 
+function persistLeadToServer(lead: CrmPipelineLead) {
+  void apiFetch(`/api/crm/pipeline-leads/${encodeURIComponent(lead.id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(lead),
+  }).catch(() => {
+    void apiFetch('/api/crm/pipeline-leads', {
+      method: 'POST',
+      body: JSON.stringify(lead),
+    }).catch(() => {
+      /* El panel sigue con localStorage si el API no responde */
+    });
+  });
+}
+
 export function CrmPipelineProvider({ children }: { children: ReactNode }) {
   const { data: companySettings } = useCompanySettings();
   const usdToPenRate =
@@ -41,6 +63,8 @@ export function CrmPipelineProvider({ children }: { children: ReactNode }) {
 
   const [leads, setLeads] = useState<CrmPipelineLead[]>(() => loadCrmPipelineLeads());
   const skipNextPersistRef = useRef(false);
+  const leadsRef = useRef(leads);
+  leadsRef.current = leads;
 
   const reloadFromStorage = useCallback(() => {
     skipNextPersistRef.current = true;
@@ -61,6 +85,35 @@ export function CrmPipelineProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('storage', onStorage);
     };
   }, [reloadFromStorage]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const hydrateFromServer = async () => {
+      try {
+        const data = await apiFetch<{ leads: CrmPipelineLead[] }>('/api/crm/pipeline-leads');
+        if (cancelled) return;
+        const remote = (data.leads ?? []).filter(isPipelineLead).map(normalizePipelineLead);
+        const merged = mergePipelineLeads(leadsRef.current, remote);
+        if (JSON.stringify(merged) === JSON.stringify(leadsRef.current)) return;
+        skipNextPersistRef.current = true;
+        setLeads(merged);
+        saveCrmPipelineLeads(merged);
+      } catch {
+        /* CRM local sigue disponible */
+      }
+    };
+
+    void hydrateFromServer();
+    const timer = window.setInterval(() => {
+      void hydrateFromServer();
+    }, 10_000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, []);
 
   useEffect(() => {
     if (skipNextPersistRef.current) {
@@ -93,23 +146,34 @@ export function CrmPipelineProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, lead];
     });
+    persistLeadToServer(lead);
   }, []);
 
   const deleteLead = useCallback((lead: CrmPipelineLead) => {
     setLeads((prev) => prev.filter((item) => item.id !== lead.id));
+    void apiFetch(`/api/crm/pipeline-leads/${encodeURIComponent(lead.id)}`, {
+      method: 'DELETE',
+    }).catch(() => {
+      /* El panel sigue con localStorage si el API no responde */
+    });
   }, []);
 
   const duplicateLead = useCallback((lead: CrmPipelineLead) => {
-    setLeads((prev) => [...prev, duplicatePipelineLead(lead)]);
+    const copy = duplicatePipelineLead(lead);
+    setLeads((prev) => [...prev, copy]);
+    persistLeadToServer(copy);
   }, []);
 
   const moveLead = useCallback((leadId: string, stageId: CrmPipelineStageId) => {
-    setLeads((prev) =>
-      prev.map((lead) => {
+    setLeads((prev) => {
+      const next = prev.map((lead) => {
         if (lead.id !== leadId || lead.stageId === stageId) return lead;
         return { ...lead, ...applyLeadStageChange(lead, stageId) };
-      }),
-    );
+      });
+      const moved = next.find((lead) => lead.id === leadId);
+      if (moved) persistLeadToServer(moved);
+      return next;
+    });
   }, []);
 
   const value = useMemo(

@@ -17,6 +17,7 @@ import { calculateInstallmentPreview } from '@/lib/checkout-totals';
 import { ensureFullPrices } from '@/lib/roles';
 import { isColorPrinterEquipment } from '@/lib/build-product-detail';
 import { computeEquipmentExtrasUsd } from '@/lib/equipment-config-selection';
+import { resolvePublicDisplayUsd } from '@/lib/pen-pricing';
 import { cn, formatPenFromUsd, penToUsd } from '@/lib/utils';
 import { getCatalogProductById } from '@/lib/catalog-featured';
 import { ProductDetailRentalConfigurator,
@@ -124,7 +125,7 @@ export function ProductDetailPurchaseCard({
     () => ensureFullPrices(product.prices ? product.prices : { public: product.price }),
     [product.price, product.prices],
   );
-  const displayUsd = fullPrices.public;
+  const displayUsd = resolvePublicDisplayUsd(fullPrices.public, product.category);
   const publicUnitBaseUsd = displayUsd + preparationSurchargeUsd;
   const includesOnRequest = hasOnRequestQuantity(product, quantity);
   const orderHint = formatOrderQuantityHint(product, quantity);
@@ -164,13 +165,13 @@ export function ProductDetailPurchaseCard({
       variant="outline"
       onClick={onQuoteClick}
       className={cn(
-        'mt-3 h-11 min-h-11 w-full gap-1.5 rounded-full text-sm font-semibold',
+        'h-11 min-h-11 w-full gap-1.5 rounded-full text-sm font-semibold',
         isMockupLayout
-          ? 'border-[#E31B23] text-[#E31B23] hover:bg-[#E31B23] hover:text-white'
-          : 'border-neutral-300 text-[#0f1f3d] hover:bg-neutral-50',
+          ? 'border-[#E31B23] bg-white text-[#E31B23] hover:bg-[#E31B23] hover:text-white'
+          : 'mt-3 border-neutral-300 text-[#0f1f3d] hover:bg-neutral-50',
       )}
     >
-      {isRentMode ? 'Descargar propuesta PDF' : 'Solicitar cotización'}
+      {isRentMode ? 'Descargar propuesta PDF' : 'Generar Cotización'}
     </Button>
   ) : null;
 
@@ -254,7 +255,7 @@ export function ProductDetailPurchaseCard({
       title="Garantía"
       badge="Opcional"
       panelAriaLabel="Opciones de garantía"
-      className="mt-3"
+      className="mt-3 border-neutral-200 bg-white"
     >
       <ProductDetailHeroWarrantySelector
         baseLabel={warrantyBaseLabel ?? '1 año de garantía'}
@@ -321,7 +322,14 @@ export function ProductDetailPurchaseCard({
         Comprar {product.name}
       </h2>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
+      <div
+        className={cn(
+          'rounded-2xl p-5 shadow-sm sm:p-6',
+          isMockupLayout
+            ? 'border border-neutral-200 bg-neutral-100 text-neutral-900'
+            : 'border border-neutral-200 bg-white',
+        )}
+      >
         {purchaseMode != null && onPurchaseModeChange && !isMockupLayout ? (
           <ProductDetailPurchaseMode
             purchaseMode={purchaseMode}
@@ -356,16 +364,14 @@ export function ProductDetailPurchaseCard({
 
         {showMockupBuyLayout ? (
           <>
-            {!isMockupLayout ? (
-              <ProductDetailVolumePurchaseHint
-                quantity={quantity}
-                basePriceUsd={publicUnitBaseUsd}
-                bulkDiscountTiers={detail.bulkDiscountTiers}
-                floorPriceUsd={fullPrices.tecnico}
-                equipmentExtrasUsd={equipmentExtrasUsd}
-                className="mt-3.5"
-              />
-            ) : null}
+            <ProductDetailVolumePurchaseHint
+              quantity={quantity}
+              basePriceUsd={publicUnitBaseUsd}
+              bulkDiscountTiers={detail.bulkDiscountTiers}
+              floorPriceUsd={fullPrices.tecnico}
+              equipmentExtrasUsd={equipmentExtrasUsd}
+              className="mt-3.5"
+            />
 
             <div className="mt-5 flex w-full items-center gap-2">
               <ProductDetailPurchaseQuantity
@@ -373,19 +379,55 @@ export function ProductDetailPurchaseCard({
                 quantity={quantity}
                 onQuantityChange={onQuantityChange}
                 hideLabel
-                className="w-[7.5rem] shrink-0"
+                className="w-[6.25rem] shrink-0 sm:w-[7rem]"
               />
               <Button
                 type="button"
                 onClick={isMockupLayout ? handleAddToCart : handleBuyNow}
-                className="h-11 min-h-11 min-w-0 flex-1 gap-1.5 rounded-full border-0 bg-[#E31B23] text-sm font-semibold text-white hover:bg-[#c41820] focus-visible:ring-[#E31B23]"
+                className="h-11 min-h-11 min-w-0 flex-1 justify-center gap-1.5 rounded-full border-0 bg-[#E31B23] px-3 text-[0.8125rem] font-semibold leading-none text-white hover:bg-[#c41820] focus-visible:ring-[#E31B23] sm:gap-2 sm:px-4 sm:text-sm"
               >
-                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-                {isMockupLayout ? addToCartLabel : buyNowLabel}
+                <ShoppingCart className="size-3.5 shrink-0 sm:size-4" aria-hidden="true" />
+                <span className="min-w-0 whitespace-nowrap">
+                  {isMockupLayout ? addToCartLabel : buyNowLabel}
+                </span>
               </Button>
             </div>
 
-            {isMockupLayout ? quoteButton : (
+            {isMockupLayout ? (
+              <div className="mt-3 w-full space-y-2.5">
+                {quoteButton}
+                <ProductWhatsAppButton
+                  stopPropagation={false}
+                  accent="solid"
+                  label="Comprar por WhatsApp"
+                  skipDialogIfComplete
+                  defaultGenerateQuote
+                  quantity={quantity}
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    priceUsd: offerUnitUsd,
+                    category: product.category,
+                    brand: product.brand ?? null,
+                  }}
+                  quoteContext={{
+                    product,
+                    displayTitle: detail.displayTitle,
+                    sku: detail.sku,
+                    brandLabel: detail.brandLabel,
+                    categoryLabel: detail.categoryLabel,
+                    heroSpecBullets: detail.heroSpecBullets,
+                    heroLead: detail.heroLead,
+                    heroDescription: detail.heroDescription,
+                    quantity,
+                    unitUsd: offerUnitUsd,
+                    ...(equipmentConfiguration ? { equipmentConfiguration } : {}),
+                  }}
+                  {...(onQuoteGenerated ? { onQuoteGenerated } : {})}
+                  className="h-11 min-h-11 w-full gap-1.5 rounded-full border-0 bg-[#25D366] text-sm font-semibold normal-case tracking-normal text-white hover:bg-[#20bd5a] hover:text-white focus-visible:ring-[#25D366]"
+                />
+              </div>
+            ) : (
               <div className="mt-3 w-full">
                 <ProductWhatsAppButton
                   stopPropagation={false}
@@ -411,6 +453,7 @@ export function ProductDetailPurchaseCard({
                     heroLead: detail.heroLead,
                     heroDescription: detail.heroDescription,
                     quantity,
+                    unitUsd: offerUnitUsd,
                     ...(equipmentConfiguration ? { equipmentConfiguration } : {}),
                   }}
                   {...(onQuoteGenerated ? { onQuoteGenerated } : {})}
@@ -435,7 +478,7 @@ export function ProductDetailPurchaseCard({
             />
 
             {isMockupLayout ? (
-              <div className="mt-3.5 rounded-xl bg-neutral-50 px-3 py-2.5">
+              <div className="mt-3.5 rounded-xl border border-neutral-200 bg-white px-3 py-2.5">
                 <div className="flex items-start gap-2.5">
                   <Headphones className="mt-0.5 size-4 shrink-0 text-neutral-400" aria-hidden="true" />
                   <div className="min-w-0">
@@ -552,7 +595,7 @@ export function ProductDetailPurchaseCard({
               />
             </div>
 
-            {quoteButton}
+            <div className="mt-3 w-full">{quoteButton}</div>
 
             <ProductDetailPurchaseCardTrust className="mt-4" variant={isLaptopMockup ? 'laptop' : 'default'} />
           </>

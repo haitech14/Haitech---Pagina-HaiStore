@@ -52,6 +52,43 @@ function penToUsd(pen, rate) {
   return Math.round((pen / rate) * 100) / 100;
 }
 
+function roundUsdToNearestFortyNineOrNinetyNine(usd) {
+  if (!Number.isFinite(usd) || usd <= 0) return 0;
+  const n = Math.round(usd);
+  const base = Math.floor(n / 100);
+  const candidates = new Set();
+  for (const block of [base - 1, base, base + 1]) {
+    if (block < 0) continue;
+    const c49 = block * 100 + 49;
+    const c99 = block * 100 + 99;
+    if (c49 > 0) candidates.add(c49);
+    if (c99 > 0) candidates.add(c99);
+  }
+  if (n < 100) {
+    candidates.add(49);
+    candidates.add(99);
+  }
+  let best = [...candidates][0] ?? 99;
+  let bestDistance = Math.abs(n - best);
+  for (const candidate of candidates) {
+    const distance = Math.abs(n - candidate);
+    if (distance < bestDistance || (distance === bestDistance && candidate > best)) {
+      best = candidate;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
+function isEquipmentCategory(category) {
+  const normalized = String(category ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  if (/toner|repuesto/.test(normalized)) return false;
+  return /impresor|multifunc|escan|scanner|plotter|fotocop|laptop|monitor|equipo/.test(normalized);
+}
+
 /** Precio USD según rol de usuario (corporativo 2: USD fijo, PEN fijo o Corporativo). */
 export function resolveUserRolePriceUsd(prices = {}, userRole, options = {}) {
   const full = ensureFullPrices(prices);
@@ -65,8 +102,13 @@ export function resolveUserRolePriceUsd(prices = {}, userRole, options = {}) {
     if (fixedPen != null && fixedPen > 0 && options.saleRate > 0) {
       return penToUsd(fixedPen, options.saleRate);
     }
-    return full.public;
+    const rawPublic = full.public;
+    return options.isEquipment ? roundUsdToNearestFortyNineOrNinetyNine(rawPublic) : rawPublic;
   }
   const priceRole = resolvePriceRole(userRole);
-  return full[priceRole] ?? full.public;
+  const raw = full[priceRole] ?? full.public;
+  if (priceRole === 'tecnico') return raw;
+  return options.isEquipment ? roundUsdToNearestFortyNineOrNinetyNine(raw) : raw;
 }
+
+export { isEquipmentCategory };

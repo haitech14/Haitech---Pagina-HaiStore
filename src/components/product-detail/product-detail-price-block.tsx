@@ -2,6 +2,7 @@ import { AdminRolePricesTooltip } from '@/components/admin/admin-role-prices-too
 import { ON_REQUEST_STOCK_BADGE_CLASS } from '@/components/cart/add-to-cart-button';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { PRODUCT_ON_REQUEST_STOCK_DETAIL_LABEL } from '@/lib/product-on-request-label';
+import { resolvePublicDisplayUsd } from '@/lib/pen-pricing';
 import { cn, penToUsd } from '@/lib/utils';
 import type { ProductDetailViewModel } from '@/types/product-detail';
 import type { Product } from '@/types/product';
@@ -19,7 +20,7 @@ export function ProductDetailPriceBlock({
   className,
   showStock = false,
 }: ProductDetailPriceBlockProps) {
-  const displayUsd = product.price;
+  const displayUsd = resolvePublicDisplayUsd(product.price, product.category);
   const outOfStock = product.stock <= 0;
   const stockDisplay = outOfStock ? 0 : product.stock;
 

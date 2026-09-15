@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { AdditionalServices } from '@/components/rental-landing/solution-configurator/additional-services';
+import { useAuth } from '@/context/auth-context';
 import { ConfigurationForm } from '@/components/rental-landing/solution-configurator/configuration-form';
 import { QuoteSummary } from '@/components/rental-landing/solution-configurator/quote-summary';
 import { SolutionQuoteDialog } from '@/components/rental-landing/solution-configurator/solution-quote-dialog';
@@ -12,8 +13,11 @@ import {
 import {
   DEFAULT_SOLUTION_CONFIG,
   RENTAL_SOLUTION_CONFIGURATOR_ID,
+  balancedSplitForVolume,
   calculateSolutionQuote,
+  clampVolumePages,
   modalityForCondition,
+  modelById,
   normalizeTermForCondition,
   resolveSolutionLocationFromCity,
   type SolutionConfiguratorState,
@@ -22,11 +26,55 @@ import {
 import { cn } from '@/lib/utils';
 
 export function RentalSolutionConfigurator({ className }: { className?: string }) {
+  const { isAdmin } = useAuth();
   const [state, setState] = useState<SolutionConfiguratorState>(DEFAULT_SOLUTION_CONFIG);
+  const [tempMinBagSplitActive, setTempMinBagSplitActive] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [pdfPreview, setPdfPreview] = useState<QuotePdfPreview | null>(null);
 
   const quote = useMemo(() => calculateSolutionQuote(state), [state]);
+
+  const applyVolumeBalanced = useCallback(
+    (nextRaw: number) => {
+      const vol = clampVolumePages(nextRaw);
+      setState((prev) => {
+        if (vol === prev.volumePages) {
+          return prev;
+        }
+        const model = modelById(prev.modelId);
+        const next = { ...prev, volumePages: vol };
+        if (model.printType === 'color' && model.usesPrintVolume) {
+          if (tempMinBagSplitActive && isAdmin) {
+            const configured = Math.max(1, prev.blackPages + prev.colorPages);
+            const blackShare = prev.blackPages / configured;
+            next.blackPages = Math.round(vol * blackShare);
+            next.colorPages = Math.max(0, vol - next.blackPages);
+          } else {
+            const split = balancedSplitForVolume(vol);
+            next.blackPages = split.blackPages;
+            next.colorPages = split.colorPages;
+          }
+        }
+        return next;
+      });
+      if (!tempMinBagSplitActive || !isAdmin) {
+        setTempMinBagSplitActive(false);
+      }
+    },
+    [isAdmin, tempMinBagSplitActive],
+  );
+
+  const resetTempMinBagSplit = useCallback(() => {
+    setTempMinBagSplitActive(false);
+    setState((prev) => {
+      const split = balancedSplitForVolume(prev.volumePages);
+      return { ...prev, blackPages: split.blackPages, colorPages: split.colorPages };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isAdmin) setTempMinBagSplitActive(false);
+  }, [isAdmin]);
 
   useEffect(() => {
     const reveal = () => {
@@ -104,6 +152,11 @@ export function RentalSolutionConfigurator({ className }: { className?: string }
                 })
               }
               onDistrictChange={(district) => patch({ district })}
+              canEditMinBagSplit={isAdmin}
+              onVolumeBalanced={applyVolumeBalanced}
+              onMinBagSplitEdited={() => setTempMinBagSplitActive(true)}
+              tempMinBagSplitActive={tempMinBagSplitActive}
+              onResetTempMinBagSplit={resetTempMinBagSplit}
             />
             <AdditionalServices extras={state.extras} onToggle={toggleExtra} />
           </div>
@@ -112,9 +165,18 @@ export function RentalSolutionConfigurator({ className }: { className?: string }
             state={state}
             quote={quote}
             onRequestProposal={() => setQuoteOpen(true)}
-            onBlackPagesChange={(blackPages) => patch({ blackPages })}
-            onColorPagesChange={(colorPages) => patch({ colorPages })}
-            onVolumePagesChange={(volumePages) => patch({ volumePages })}
+            onBlackPagesChange={(blackPages) => {
+              if (!isAdmin) return;
+              setTempMinBagSplitActive(true);
+              patch({ blackPages });
+            }}
+            onColorPagesChange={(colorPages) => {
+              if (!isAdmin) return;
+              setTempMinBagSplitActive(true);
+              patch({ colorPages });
+            }}
+            onVolumePagesChange={(volumePages) => applyVolumeBalanced(volumePages)}
+            canEditMinBagSplit={isAdmin}
             onTermChange={(termMonths) => patch({ termMonths })}
           />
         </div>

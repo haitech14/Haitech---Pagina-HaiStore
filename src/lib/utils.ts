@@ -43,6 +43,15 @@ export function formatUsdInteger(usd: number): string {
   }).format(usd);
 }
 
+/** USD de vitrina: sin centavos cuando el monto es entero (p. ej. $1,099). */
+export function formatStorefrontUsd(usd: number): string {
+  const rounded = Math.round(usd * 100) / 100;
+  if (Math.abs(rounded - Math.round(rounded)) < 0.005) {
+    return formatUsdInteger(rounded);
+  }
+  return formatUsd(rounded);
+}
+
 /** USD de equipos: último dígito al 9 más cercano, sin centavos. */
 export function formatEquipmentUsd(usd: number): string {
   return formatUsdInteger(roundEquipmentDisplayUsd(usd));

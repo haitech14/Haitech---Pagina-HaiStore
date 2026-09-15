@@ -93,14 +93,38 @@ export function isPdfAttachment(
 ): boolean {
   if (mimeType?.toLowerCase().includes('pdf')) return true;
   if (fileName?.toLowerCase().endsWith('.pdf')) return true;
-  if (url.toLowerCase().startsWith('data:application/pdf')) return true;
+  const lowerUrl = url.toLowerCase();
+  if (lowerUrl.startsWith('data:application/pdf')) return true;
+  if (lowerUrl.includes('drive.google.com/file/')) return true;
+  if (lowerUrl.includes('docs.google.com/')) return true;
+  if (lowerUrl.includes('application/pdf')) return true;
   try {
     const path = new URL(url, 'https://local.invalid').pathname.toLowerCase();
     if (path.endsWith('.pdf')) return true;
   } catch {
-    if (url.toLowerCase().includes('.pdf')) return true;
+    if (lowerUrl.includes('.pdf')) return true;
   }
   return false;
+}
+
+/** URL adecuada para incrustar en el visor (p. ej. Drive → /preview). */
+export function resolveAttachmentPdfPreviewUrl(url: string): string {
+  const trimmed = url.trim();
+  if (!trimmed) return trimmed;
+
+  const driveFileMatch = trimmed.match(
+    /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/i,
+  );
+  if (driveFileMatch?.[1]) {
+    return `https://drive.google.com/file/d/${driveFileMatch[1]}/preview`;
+  }
+
+  const driveOpenMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/i);
+  if (/drive\.google\.com\/(?:open|uc)/i.test(trimmed) && driveOpenMatch?.[1]) {
+    return `https://drive.google.com/file/d/${driveOpenMatch[1]}/preview`;
+  }
+
+  return trimmed;
 }
 
 export async function downloadProductAttachment(url: string, fileName: string): Promise<void> {

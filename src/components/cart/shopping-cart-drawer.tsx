@@ -22,7 +22,7 @@ import { SEMINUEVA_PREPARATION_LABELS } from '@/lib/seminueva-preparation';
 import { resolveCartItemDetailPath } from '@/lib/service-to-cart';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { CONSULTAR_PRECIO_LABEL, isPriceOnRequest } from '@/lib/display-price';
-import { cn, formatUsd } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 export function ShoppingCartDrawer() {
   const {
@@ -42,7 +42,7 @@ export function ShoppingCartDrawer() {
     <Sheet open={isOpen} onOpenChange={setCartOpen}>
       <SheetContent
         side="right"
-        className="flex w-full max-w-[21.5rem] flex-col gap-0 p-0 sm:max-w-[22.5rem]"
+        className="flex w-full max-w-none flex-col gap-0 p-0 sm:max-w-[22.5rem]"
         aria-describedby={undefined}
       >
         <SheetHeader className="shrink-0 border-b border-border px-4 py-3 text-left">
@@ -117,13 +117,13 @@ export function ShoppingCartDrawer() {
                           <div className="mt-1 flex items-end justify-between gap-2">
                             <div className="min-w-0">
                               <p className="text-sm font-bold leading-none">
-                                <DualPrice usd={lineUnitUsd * quantity} />
+                                <DualPrice usd={lineUnitUsd * quantity} compact />
                               </p>
-                              <p className="mt-0.5 text-[0.6875rem] text-muted-foreground">
-                                {isPriceOnRequest(lineUnitUsd)
-                                  ? CONSULTAR_PRECIO_LABEL
-                                  : `${formatUsd(lineUnitUsd)} c/u`}
-                              </p>
+                              {quantity > 1 && !isPriceOnRequest(lineUnitUsd) ? (
+                                <p className="mt-0.5 text-[0.6875rem] text-muted-foreground">
+                                  {quantity} × <DualPrice usd={lineUnitUsd} compact />
+                                </p>
+                              ) : null}
                             </div>
 
                             <div className="flex shrink-0 items-center gap-1">
@@ -132,7 +132,7 @@ export function ShoppingCartDrawer() {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  className="size-7 shrink-0 rounded-none"
+                                  className="size-11 shrink-0 rounded-none"
                                   aria-label={`Quitar una unidad de ${product.name}`}
                                   onClick={() => updateQuantity(lineId, quantity - 1)}
                                 >
@@ -151,7 +151,7 @@ export function ShoppingCartDrawer() {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  className="size-7 shrink-0 rounded-none"
+                                  className="size-11 shrink-0 rounded-none"
                                   aria-label={`Añadir una unidad de ${product.name}`}
                                   onClick={() => updateQuantity(lineId, quantity + 1)}
                                 >
@@ -163,7 +163,7 @@ export function ShoppingCartDrawer() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
+                                className="size-11 shrink-0 text-muted-foreground hover:text-destructive"
                                 aria-label={`Eliminar ${product.name} del carrito`}
                                 onClick={() => removeItem(lineId)}
                               >
@@ -213,7 +213,7 @@ export function ShoppingCartDrawer() {
               <div className="mb-2.5 flex items-center justify-between gap-2">
                 <span className="text-xs font-medium text-muted-foreground">Subtotal</span>
                 <span className="text-base font-bold">
-                  <DualPrice usd={totalPrice} allowZero />
+                  <DualPrice usd={totalPrice} allowZero compact />
                 </span>
               </div>
               <div className="flex flex-col gap-1.5">

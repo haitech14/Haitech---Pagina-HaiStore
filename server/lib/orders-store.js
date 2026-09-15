@@ -4,6 +4,12 @@ import { redeemCoupon, validateCouponCode } from './coupons-store.js';
 import { ensureStoreCustomerFromHaitechClient } from './haisupport-bridge.js';
 import { notifyHaiSupportChange } from './haisupport-sync.js';
 import { inboundPayloadToHaitechClient } from './haitech-mappers.js';
+import {
+  getStoreOrderFileById,
+  getStoreOrderFileByNumber,
+  nextFileOrderNumber,
+  saveStoreOrderFile,
+} from './store-orders-file-store.js';
 import { getSupabaseAdmin } from './supabase-auth.js';
 
 const VALID_ORDER_STATUS = new Set([
@@ -35,17 +41,99 @@ async function resolveKnownProductIds(supabase, lineItems) {
   return new Set((data ?? []).map((row) => row.id));
 }
 
+function shouldFallbackToFile(error) {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  return (
+    message.includes('Supabase no configurado') ||
+    /egress|quota|restricted|schema cache|store_orders|PGRST/i.test(message)
+  );
+}
+
+function buildFileOrderPayload({
+  customer,
+  clientId,
+  items,
+  userId,
+  status,
+  paymentStatus,
+  paymentProvider,
+  currency,
+  totalUsdBeforeDiscount,
+  totalUsd,
+  discountUsd,
+  couponId,
+  couponCode,
+  totalPen,
+  exchangeRate,
+  addressSnapshot,
+  shippingAddress,
+  orderNotes,
+  paymentMethod,
+}) {
+  const now = new Date().toISOString();
+  const orderId = randomUUID();
+  const orderItems = items.map((item) => ({
+    id: randomUUID(),
+    order_id: orderId,
+    ...item,
+  }));
+
+  return {
+    id: orderId,
+    order_number: nextFileOrderNumber(),
+    customer_id: clientId,
+    user_id: userId,
+    status,
+    payment_status: paymentStatus,
+    payment_method: paymentMethod,
+    payment_provider: paymentProvider,
+    currency,
+    subtotal_usd: totalUsdBeforeDiscount,
+    tax_usd: 0,
+    total_usd: totalUsd,
+    discount_usd: discountUsd,
+    coupon_id: couponId,
+    coupon_code: couponCode,
+    total_pen: totalPen,
+    exchange_rate: exchangeRate,
+    billing_address: addressSnapshot,
+    shipping_address: shippingAddress ?? addressSnapshot,
+    notes: orderNotes,
+    payment_metadata: {},
+    created_at: now,
+    updated_at: now,
+    items: orderItems,
+    customerSnapshot: customer,
+    source: 'file',
+  };
+}
+
 export async function createStoreOrderFromBody(body) {
   const supabase = getSupabaseAdmin();
-  if (!supabase) throw new Error('Supabase no configurado');
-
   const customer = inboundPayloadToHaitechClient(body.customer ?? {});
-  const { clientId } = await ensureStoreCustomerFromHaitechClient(customer);
+  let clientId = null;
+  let useFileOnly = !supabase;
+
+  if (supabase) {
+    try {
+      const result = await ensureStoreCustomerFromHaitechClient(customer);
+      clientId = result.clientId ?? null;
+    } catch (error) {
+      if (!shouldFallbackToFile(error)) throw error;
+      useFileOnly = true;
+      console.warn(
+        '[orders-store] cliente:',
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
 
   const lineItems = Array.isArray(body.lineItems) ? body.lineItems : [];
   if (lineItems.length === 0) throw new Error('Se requiere al menos un producto');
 
-  const knownProductIds = await resolveKnownProductIds(supabase, lineItems);
+  const knownProductIds = supabase && !useFileOnly
+    ? await resolveKnownProductIds(supabase, lineItems)
+    : new Set();
 
   const exchangeRate = Number(body.exchangeRate) || 3.75;
   const currency = body.currency === 'PEN' ? 'PEN' : 'USD';
@@ -139,92 +227,131 @@ export async function createStoreOrderFromBody(body) {
   const userId =
     typeof body.userId === 'string' && body.userId.trim() ? body.userId.trim() : null;
 
-  const { data: order, error: orderError } = await supabase
-    .from('store_orders')
-    .insert({
-      customer_id: clientId,
-      user_id: userId,
+  const persistFileOrder = async () => {
+    const fileOrder = buildFileOrderPayload({
+      customer,
+      clientId,
+      items,
+      userId,
       status,
-      payment_status: paymentStatus,
-      payment_method: body.paymentMethod ?? 'TPV',
-      payment_provider: paymentProvider,
+      paymentStatus,
+      paymentProvider,
       currency,
-      subtotal_usd: totalUsdBeforeDiscount,
-      tax_usd: 0,
-      total_usd: totalUsd,
-      discount_usd: discountUsd,
-      coupon_id: couponId,
-      coupon_code: couponCode,
-      total_pen: totalPen,
-      exchange_rate: exchangeRate,
-      billing_address: addressSnapshot,
-      shipping_address: body.shippingAddress ?? addressSnapshot,
-      notes: orderNotes,
-    })
-    .select('*')
-    .single();
-
-  if (orderError) {
-    console.error('[orders-store] create:', orderError.message);
-    throw new Error(`No se pudo crear el pedido: ${orderError.message}`);
-  }
-
-  const orderItems = items.map((item) => ({
-    id: randomUUID(),
-    order_id: order.id,
-    ...item,
-  }));
-
-  const { error: itemsError } = await supabase.from('store_order_items').insert(orderItems);
-  if (itemsError) {
-    await supabase.from('store_orders').delete().eq('id', order.id);
-    console.error('[orders-store] items:', itemsError.message);
-    throw new Error(`No se pudieron guardar los ítems del pedido: ${itemsError.message}`);
-  }
-
-  if (couponId && !deferCouponRedemption) {
-    try {
-      await redeemCoupon(couponId, order.id);
-    } catch (error) {
-      await supabase.from('store_order_items').delete().eq('order_id', order.id);
-      await supabase.from('store_orders').delete().eq('id', order.id);
-      throw error instanceof Error ? error : new Error('No se pudo canjear el cupón');
-    }
-  }
-
-  const payload = {
-    ...order,
-    items: orderItems,
-    customerSnapshot: customer,
+      totalUsdBeforeDiscount,
+      totalUsd,
+      discountUsd,
+      couponId,
+      couponCode,
+      totalPen,
+      exchangeRate,
+      addressSnapshot,
+      shippingAddress: body.shippingAddress,
+      orderNotes,
+      paymentMethod: body.paymentMethod ?? 'Checkout web',
+    });
+    await saveStoreOrderFile(fileOrder);
+    return fileOrder;
   };
 
-  notifyHaiSupportChange('orders', 'create', payload);
-
-  if (deductStock) {
-    try {
-      const { applySaleStockDeduction } = await import('./inventory-stock-sale.js');
-      await applySaleStockDeduction(
-        lineItems.map((line) => ({
-          productId: line.productId,
-          quantity: line.quantity,
-        })),
-      );
-    } catch (error) {
-      console.error('[orders-store] stock deduction:', error);
-    }
+  if (!supabase || useFileOnly) {
+    return persistFileOrder();
   }
 
-  return payload;
+  try {
+    const { data: order, error: orderError } = await supabase
+      .from('store_orders')
+      .insert({
+        customer_id: clientId,
+        user_id: userId,
+        status,
+        payment_status: paymentStatus,
+        payment_method: body.paymentMethod ?? 'TPV',
+        payment_provider: paymentProvider,
+        currency,
+        subtotal_usd: totalUsdBeforeDiscount,
+        tax_usd: 0,
+        total_usd: totalUsd,
+        discount_usd: discountUsd,
+        coupon_id: couponId,
+        coupon_code: couponCode,
+        total_pen: totalPen,
+        exchange_rate: exchangeRate,
+        billing_address: addressSnapshot,
+        shipping_address: body.shippingAddress ?? addressSnapshot,
+        notes: orderNotes,
+      })
+      .select('*')
+      .single();
+
+    if (orderError) {
+      throw new Error(`No se pudo crear el pedido: ${orderError.message}`);
+    }
+
+    const orderItems = items.map((item) => ({
+      id: randomUUID(),
+      order_id: order.id,
+      ...item,
+    }));
+
+    const { error: itemsError } = await supabase.from('store_order_items').insert(orderItems);
+    if (itemsError) {
+      await supabase.from('store_orders').delete().eq('id', order.id);
+      throw new Error(`No se pudieron guardar los ítems del pedido: ${itemsError.message}`);
+    }
+
+    if (couponId && !deferCouponRedemption) {
+      try {
+        await redeemCoupon(couponId, order.id);
+      } catch (error) {
+        await supabase.from('store_order_items').delete().eq('order_id', order.id);
+        await supabase.from('store_orders').delete().eq('id', order.id);
+        throw error instanceof Error ? error : new Error('No se pudo canjear el cupón');
+      }
+    }
+
+    const payload = {
+      ...order,
+      items: orderItems,
+      customerSnapshot: customer,
+    };
+
+    notifyHaiSupportChange('orders', 'create', payload);
+    void saveStoreOrderFile(payload).catch(() => {});
+
+    if (deductStock) {
+      void import('./inventory-stock-sale.js')
+        .then(({ applySaleStockDeduction }) =>
+          applySaleStockDeduction(
+            lineItems.map((line) => ({
+              productId: line.productId,
+              quantity: line.quantity,
+            })),
+          ),
+        )
+        .catch((error) => {
+          console.error('[orders-store] stock deduction:', error);
+        });
+    }
+
+    return payload;
+  } catch (error) {
+    if (!shouldFallbackToFile(error)) throw error;
+    console.warn(
+      '[orders-store] fallback archivo:',
+      error instanceof Error ? error.message : error,
+    );
+    return persistFileOrder();
+  }
 }
 
 export async function getStoreOrderById(orderId) {
   const supabase = getSupabaseAdmin();
-  if (!supabase) throw new Error('Supabase no configurado');
-
-  const { data, error } = await supabase
-    .from('store_orders')
-    .select(
-      `
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('store_orders')
+        .select(
+          `
       *,
       items:store_order_items (
         id,
@@ -235,22 +362,28 @@ export async function getStoreOrderById(orderId) {
         product_snapshot
       )
     `,
-    )
-    .eq('id', orderId)
-    .maybeSingle();
-
-  if (error) throw new Error(error.message);
-  return data;
+        )
+        .eq('id', orderId)
+        .maybeSingle();
+      if (!error && data) return data;
+    } catch (error) {
+      console.warn(
+        '[orders-store] getById:',
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
+  return getStoreOrderFileById(orderId);
 }
 
 export async function getStoreOrderByNumber(orderNumber) {
   const supabase = getSupabaseAdmin();
-  if (!supabase) throw new Error('Supabase no configurado');
-
-  const { data, error } = await supabase
-    .from('store_orders')
-    .select(
-      `
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('store_orders')
+        .select(
+          `
       id,
       order_number,
       status,
@@ -262,12 +395,18 @@ export async function getStoreOrderByNumber(orderNumber) {
       currency,
       created_at
     `,
-    )
-    .eq('order_number', orderNumber)
-    .maybeSingle();
-
-  if (error) throw new Error(error.message);
-  return data;
+        )
+        .eq('order_number', orderNumber)
+        .maybeSingle();
+      if (!error && data) return data;
+    } catch (error) {
+      console.warn(
+        '[orders-store] getByNumber:',
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
+  return getStoreOrderFileByNumber(orderNumber);
 }
 
 export async function upsertStoreOrderFromInbound(payload) {
