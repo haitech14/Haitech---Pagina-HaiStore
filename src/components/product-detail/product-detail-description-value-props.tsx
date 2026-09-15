@@ -93,7 +93,7 @@ export function ProductDetailDescriptionValueProps({
   return (
     <div
       className={cn(
-        'grid gap-3 rounded-xl bg-neutral-50 p-3 sm:grid-cols-3 sm:gap-4 sm:p-4',
+        'grid w-full min-w-0 grid-cols-1 gap-3 rounded-xl bg-neutral-50 p-3 lg:grid-cols-3 lg:gap-4 lg:p-4',
         className,
       )}
     >
@@ -102,7 +102,7 @@ export function ProductDetailDescriptionValueProps({
         return (
           <article
             key={item.id}
-            className="flex min-w-0 flex-col items-center rounded-lg bg-white px-3 py-4 text-center shadow-sm"
+            className="flex min-w-0 w-full flex-col items-center overflow-hidden rounded-lg bg-white px-3 py-4 text-center shadow-sm"
           >
             <span className="mb-2.5 inline-flex size-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-600">
               <Icon className="size-5" strokeWidth={1.75} aria-hidden="true" />

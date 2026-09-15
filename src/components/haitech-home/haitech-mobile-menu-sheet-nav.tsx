@@ -20,7 +20,7 @@ const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
   {
     id: 'comprar',
     to: '/tienda',
-    label: 'Comprar',
+    label: 'Tienda',
     prefetch: true,
     matchActive: ({ pathname }) =>
       pathname === '/tienda' ||
@@ -31,18 +31,11 @@ const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
   {
     id: 'alquilar',
     to: serviceHubPath('alquiler'),
-    label: 'Alquilar',
+    label: 'Alquiler',
     matchActive: ({ pathname }) =>
       pathname.startsWith('/servicios/alquiler') ||
       pathname === '/alquiler' ||
       pathname.startsWith('/categoria/alquiler'),
-  },
-  {
-    id: 'servicio-tecnico',
-    to: serviceHubPath('servicio-tecnico'),
-    label: 'Servicio Técnico',
-    matchActive: ({ pathname, search }) =>
-      pathname.startsWith('/servicios') && search.includes('seccion=servicio-tecnico'),
   },
   {
     id: 'soluciones',
@@ -50,6 +43,13 @@ const HAITECH_MOBILE_NAV_LINKS: NavItem[] = [
     label: 'Soluciones',
     matchActive: ({ pathname }) =>
       pathname.includes('soluciones') || pathname.startsWith('/software'),
+  },
+  {
+    id: 'servicio-tecnico',
+    to: serviceHubPath('servicio-tecnico'),
+    label: 'Servicio Técnico',
+    matchActive: ({ pathname, search }) =>
+      pathname.startsWith('/servicios') && search.includes('seccion=servicio-tecnico'),
   },
   ...HAITECH_BLACK_NAV_LINKS.filter(
     (item) => item.id !== 'servicio-tecnico' && item.id !== 'alquiler',

@@ -13,6 +13,7 @@ import {
   resolveCartLineVolumeDiscountSummary,
   resolveCartLineVolumeUnitUsd,
 } from '@/lib/checkout-cart-bulk-discount';
+import { resolveProductBulkDiscountTiers } from '@/lib/product-bulk-discount';
 import { ProductCardImage } from '@/components/product/product-card-image';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { cn } from '@/lib/utils';
@@ -37,7 +38,10 @@ export function CheckoutCartLine({
 }: CheckoutCartLineProps) {
   const { updateQuantity } = useCart();
   const settingsQuery = useCompanySettings();
-  const tiers = settingsQuery.data?.bulkDiscountTiers ?? [];
+  const tiers = resolveProductBulkDiscountTiers(
+    item.product,
+    settingsQuery.data?.bulkDiscountTiers ?? [],
+  );
 
   const imageUrl = resolveProductImageUrl(item.product);
   const unitUsd = cartLineUnitUsd(item);

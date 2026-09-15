@@ -77,7 +77,7 @@ export function MaintenanceHero({ className, onSelectMode }: MaintenanceHeroProp
             type="button"
             onClick={() => selectMode('plan')}
             className="pointer-events-auto h-full w-full rounded-xl bg-transparent"
-            aria-label="Elegir plan mensual desde S/ 99"
+            aria-label="Elegir plan desde S/ 1,299 + IGV al año"
           />
         </div>
       </div>

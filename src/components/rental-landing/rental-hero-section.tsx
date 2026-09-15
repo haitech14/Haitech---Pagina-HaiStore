@@ -23,13 +23,13 @@ export function RentalHeroSection() {
   return (
     <section
       aria-labelledby="rental-hero-title"
-      className="relative isolate overflow-hidden bg-[#F4F5F7]"
+      className="relative isolate bg-[#F4F5F7] px-3 pb-3 pt-2 sm:px-4 sm:pb-4 lg:px-5"
     >
       <h1 id="rental-hero-title" className="sr-only">
         Alquiler de equipos Ricoh
       </h1>
 
-      <div className="relative mx-auto w-full max-w-[1400px]">
+      <div className="relative mx-auto w-full max-w-[1400px] overflow-hidden rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.10)]">
         <img
           src={HERO_BG}
           alt="Alquiler de equipos Ricoh — equipos seminuevos con servicio integral incluido"

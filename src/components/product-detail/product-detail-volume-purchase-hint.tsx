@@ -4,6 +4,7 @@ import { ChevronDown, Tag } from 'lucide-react';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { formatDisplayPriceFromUsd } from '@/lib/display-price';
 import {
+  formatUsdLessPerUnit,
   parseBulkDiscountRange,
   resolveBulkDiscountPricing,
 } from '@/lib/bulk-discount-tiers';
@@ -75,10 +76,15 @@ function buildVolumeRows(
           ? `${bounds.min}+ unidades`
           : `${bounds.min} a ${bounds.max} unidades`;
 
+    const savingsUsd = Math.max(0, Math.round((basePriceUsd - pricing.unitUsd) * 100) / 100);
+    const savingsLabel = savingsUsd > 0.001 ? formatUsdLessPerUnit(savingsUsd) : null;
+
     rows.push({
       key: tier.range,
       label,
-      priceLabel: `${formatPrice(unitUsd)} c/u`,
+      priceLabel: savingsLabel
+        ? `${savingsLabel} · ${formatPrice(unitUsd)} c/u`
+        : `${formatPrice(unitUsd)} c/u`,
       isQuote: false,
     });
   }

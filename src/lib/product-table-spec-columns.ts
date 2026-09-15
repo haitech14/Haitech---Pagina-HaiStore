@@ -1,11 +1,15 @@
 import {
+  COMPATIBILIDAD_ATTR,
   inferAdf,
   inferProduccionTier,
+  MODELO_EQUIPO_ATTR,
   PRODUCCION_ATTR,
   PRODUCTION_FILTER_OPTIONS,
+  RENDIMIENTO_ATTR,
 } from '@/lib/category-catalog-filters';
 import { parseInventoryTagList } from '@/lib/inventory-tags';
 import { buildProductDetailBadges } from '@/lib/product-detail-badges';
+import { extractProductYield, formatYieldLabel } from '@/lib/product-cost-per-copy';
 import type { Product } from '@/types/product';
 
 export const PRODUCT_TABLE_SPEC_COLUMNS = [
@@ -13,6 +17,8 @@ export const PRODUCT_TABLE_SPEC_COLUMNS = [
   { id: 'adf', label: 'ADF' },
   { id: 'produccion', label: 'Producción' },
   { id: 'anio', label: 'Año fab.' },
+  { id: 'compatibilidad', label: 'Compatibilidad' },
+  { id: 'rendimiento', label: 'Rendimiento' },
 ] as const;
 
 const PRODUCTION_TABLE_LABELS: Record<string, string> = {
@@ -215,6 +221,26 @@ function resolveAnioFabricacion(product: Product): string {
   return fromDescription ?? '—';
 }
 
+function resolveCompatibilidad(product: Product): string {
+  const stored = findAttributeValue(product, [
+    COMPATIBILIDAD_ATTR,
+    'compatibilidad',
+    MODELO_EQUIPO_ATTR,
+    'modelo de equipo',
+    'compatible con',
+  ]);
+  return stored?.trim() || '—';
+}
+
+function resolveRendimiento(product: Product): string {
+  const stored = findAttributeValue(product, [RENDIMIENTO_ATTR, 'rendimiento']);
+  if (stored) return stored;
+
+  const yieldInfo = extractProductYield(product);
+  const label = formatYieldLabel(yieldInfo.pages, yieldInfo.label);
+  return label === '—' ? '—' : label;
+}
+
 export function getProductTableSpecDisplay(
   product: Product,
   columnId: ProductTableSpecColumnId,
@@ -228,6 +254,10 @@ export function getProductTableSpecDisplay(
       return resolveProduccion(product, true);
     case 'anio':
       return resolveAnioFabricacion(product);
+    case 'compatibilidad':
+      return resolveCompatibilidad(product);
+    case 'rendimiento':
+      return resolveRendimiento(product);
     default:
       return '—';
   }

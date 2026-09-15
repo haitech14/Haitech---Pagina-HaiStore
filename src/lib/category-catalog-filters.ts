@@ -25,6 +25,7 @@ import {
 } from '../../shared/catalog-most-viewed-offers.js';
 // @ts-ignore módulo JS compartido sin declaración de tipos
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
+import { isIm550fChildVariantSku } from '../../shared/equipment-search-variants.js';
 import { compareCatalogProductsBySort } from '../../shared/catalog-price-sort.js';
 import type { Product } from '@/types/product';
 
@@ -46,6 +47,7 @@ export {
   resolveProductCatalogAttributeKeys,
 };
 export const MODELO_EQUIPO_ATTR = 'Modelo de equipo';
+export const COMPATIBILIDAD_ATTR = 'Compatibilidad';
 export const RENDIMIENTO_ATTR = 'Rendimiento (5%)';
 
 export const ADF_ESTANDAR_KEY = `${ADF_ATTR}::Estándar`;
@@ -298,7 +300,9 @@ function splitProductsByPaperFormat(products: readonly Product[]): {
 export function buildCatalogFormatSections(
   products: readonly Product[],
 ): CatalogFormatSectionGroup[] {
-  const visibleProducts = products.filter((product) => !isHomeCarouselExcludedProduct(product));
+  const visibleProducts = products.filter(
+    (product) => !isHomeCarouselExcludedProduct(product) && !isIm550fChildVariantSku(product),
+  );
   const { bn, color } = splitProductsByCatalogColor(visibleProducts);
   const bnByPaper = splitProductsByPaperFormat(bn);
   const colorByPaper = splitProductsByPaperFormat(color);

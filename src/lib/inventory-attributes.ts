@@ -8,6 +8,9 @@ export const COMMON_ATTRIBUTE_NAMES = [
   'Formato',
   'Condición',
   'ADF',
+  'Modelo de equipo',
+  'Compatibilidad',
+  'Rendimiento (5%)',
 ] as const;
 
 /** Valores sugeridos por nombre de atributo (listas desplegables). */

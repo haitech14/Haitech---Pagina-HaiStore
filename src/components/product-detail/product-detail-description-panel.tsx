@@ -92,7 +92,7 @@ export function ProductDetailDescriptionPanel({
         <div
           className={cn(
             'leading-relaxed text-muted-foreground',
-            compact ? 'space-y-2 text-xs sm:text-sm' : 'space-y-3 text-sm sm:text-[0.9375rem]',
+            compact ? 'space-y-2 text-xs sm:text-[0.8125rem]' : 'space-y-3 text-sm sm:text-[0.9375rem]',
           )}
         >
           {overviewParagraphs.map((paragraph) => (
@@ -105,14 +105,14 @@ export function ProductDetailDescriptionPanel({
             className={cn(
               'grid grid-cols-2 border-t border-border/60',
               compact
-                ? 'gap-2 pt-3 sm:grid-cols-4 sm:gap-3'
-                : 'gap-3 pt-5 sm:grid-cols-4 sm:gap-4',
+                ? 'gap-2 pt-3 lg:grid-cols-4 lg:gap-3'
+                : 'gap-3 pt-5 lg:grid-cols-4 lg:gap-4',
             )}
           >
             {highlights.map((highlight) => {
               const Icon = highlight.icon;
               return (
-                <li key={highlight.title} className="flex flex-col items-center text-center">
+                <li key={highlight.title} className="flex min-w-0 flex-col items-center overflow-hidden text-center">
                   <span
                     className={cn(
                       'flex items-center justify-center rounded-full border border-border/70 bg-muted/20 text-muted-foreground',

@@ -372,7 +372,11 @@ export function extractEquipmentConsumableSearchKeys(equipment: Product): string
     for (const match of name.matchAll(pattern)) {
       const raw = match[0].trim();
       keys.add(normalizeText(raw));
-      keys.add(raw.replace(/\s+/g, '').toLowerCase());
+      const compact = raw.replace(/\s+/g, '').toLowerCase();
+      keys.add(compact);
+      if (compact.length > 5 && /f$/.test(compact)) {
+        keys.add(compact.slice(0, -1));
+      }
     }
   }
 
@@ -406,10 +410,8 @@ function isRepuestosCategory(product: Product): boolean {
 }
 
 function isEquipmentConsumable(product: Product): boolean {
+  if (/impresora multifuncional/i.test(product.name)) return false;
   const haystack = productHaystack(product);
-  if (haystack.includes('impresora') || haystack.includes('multifuncional')) {
-    return false;
-  }
   if (isRepuestosCategory(product)) return true;
   return CATEGORY_RULES.some((rule) =>
     rule.keywords.some((keyword) => haystack.includes(normalizeText(keyword))),
@@ -502,6 +504,21 @@ function buildSubgroups(items: ConsumableItem[]): ConsumableSubgroup[] {
     .map(([label, subgroupItems]) => ({ label, items: subgroupItems }));
 }
 
+export function sanitizeConsumableGroups(groups: ConsumableGroup[]): ConsumableGroup[] {
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => !/impresora multifuncional/i.test(item.name)),
+      subgroups: group.subgroups
+        .map((subgroup) => ({
+          ...subgroup,
+          items: subgroup.items.filter((item) => !/impresora multifuncional/i.test(item.name)),
+        }))
+        .filter((subgroup) => subgroup.items.length > 0),
+    }))
+    .filter((group) => group.items.length > 0 || group.subgroups.length > 0);
+}
+
 export function flattenConsumableGroupItems(groups: ConsumableGroup[]): ConsumableItem[] {
   const items: ConsumableItem[] = [];
   for (const group of groups) {
@@ -578,6 +595,50 @@ export function splitTonerItemsBySupplyType(items: ConsumableItem[]): {
   };
 }
 
+function resolveKnownConsumablesForEquipment(equipment: Product): {
+  id: string;
+  categoryId: ConsumableCategoryId;
+  fallback: {
+    name: string;
+    priceUsd: number;
+    yieldPages: number;
+    sku: string;
+    image: string | null;
+  };
+}[] {
+  if (
+    equipment.id === 'ricoh-im-430f' ||
+    equipment.id === '418491' ||
+    /\bim\s*430\s*f\b/i.test(equipment.name)
+  ) {
+    return [
+      {
+        id: '419078',
+        categoryId: 'toner',
+        fallback: {
+          name: 'Toner Original RICOH IM 430F',
+          priceUsd: 82.9,
+          yieldPages: 14_500,
+          sku: '419078',
+          image: '/products/toner-419078.webp',
+        },
+      },
+      {
+        id: '419095',
+        categoryId: 'imaging-unit',
+        fallback: {
+          name: 'Unidad de imagen Original RICOH P 502 / IM 430F',
+          priceUsd: 180,
+          yieldPages: 40_000,
+          sku: '419095',
+          image: '/categories/repuestos.png',
+        },
+      },
+    ];
+  }
+  return [];
+}
+
 export function resolveEquipmentConsumables(
   equipment: Product,
   catalog: Product[],
@@ -585,28 +646,61 @@ export function resolveEquipmentConsumables(
   if (!isPrinterEquipment(equipment)) return [];
 
   const keys = extractEquipmentConsumableSearchKeys(equipment);
+  const knownConsumables = resolveKnownConsumablesForEquipment(equipment);
+  const knownTonerIds = knownConsumables
+    .filter((entry) => entry.categoryId === 'toner')
+    .map((entry) => entry.id);
   const matched = catalog
     .filter((row) => row.id !== equipment.id)
+    .filter((row) => !/impresora multifuncional/i.test(row.name))
     .filter(isEquipmentConsumable)
     .filter((row) => !isTonerPackProduct(row))
     .filter((row) => {
       const categoryId = classifyConsumable(row);
-      // Tóner: matching estricto por modelo (evita 418480 en IM 550F por texto “IM-550F” en descripción).
       if (categoryId === 'toner') {
-        return tonerProductMatchesEquipment(row, equipment);
+        return tonerProductMatchesEquipment(row, equipment, {
+          allowKnownTonerId: true,
+          knownTonerIds,
+        });
       }
       return consumableMatchesEquipment(row, keys);
     });
 
   const byCategory = new Map<ConsumableCategoryId, ConsumableItem[]>();
 
+  const addItem = (product: Product, categoryId: ConsumableCategoryId) => {
+    const list = byCategory.get(categoryId) ?? [];
+    if (list.some((item) => item.productId === product.id)) return;
+    list.push(toConsumableItem(product));
+    byCategory.set(categoryId, list);
+  };
+
   for (const product of matched) {
     const categoryId = classifyConsumable(product);
     if (!categoryId) continue;
-    const item = toConsumableItem(product);
-    const list = byCategory.get(categoryId) ?? [];
-    list.push(item);
-    byCategory.set(categoryId, list);
+    addItem(product, categoryId);
+  }
+
+  for (const known of knownConsumables) {
+    const row = catalog.find((entry) => entry.id === known.id);
+    if (row) {
+      addItem(row, known.categoryId);
+      continue;
+    }
+    const list = byCategory.get(known.categoryId) ?? [];
+    if (list.some((item) => item.productId === known.id)) continue;
+    const { fallback } = known;
+    list.push({
+      productId: known.id,
+      name: fallback.name,
+      image: fallback.image,
+      priceUsd: fallback.priceUsd,
+      sku: fallback.sku,
+      yieldPages: fallback.yieldPages,
+      yieldLabel: `${fallback.yieldPages.toLocaleString('es-PE')} páginas`,
+      costPerCopyPen: computeCostPerCopyPen(fallback.priceUsd, fallback.yieldPages),
+    });
+    byCategory.set(known.categoryId, list);
   }
 
   const groupOrder: { id: ConsumableCategoryId; label: string }[] = [

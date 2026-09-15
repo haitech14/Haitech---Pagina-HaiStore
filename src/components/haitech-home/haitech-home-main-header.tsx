@@ -130,7 +130,7 @@ export function HaitechHomeMainHeader({ className }: { className?: string }) {
             className="shrink-0"
           />
 
-          <nav aria-label="Menú principal" className="hidden min-w-0 self-stretch lg:flex">
+          <nav aria-label="Menú principal" className="hidden min-w-0 items-center lg:flex">
             <HaitechHomePrimaryNavLinks />
           </nav>
 

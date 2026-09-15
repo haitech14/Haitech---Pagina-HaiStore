@@ -4,9 +4,11 @@ import { useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { DualPrice } from '@/components/product/product-dual-price';
 import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail/product-detail-hero-collapsible-section';
-import { ProductDetailHeroWarrantySelector } from '@/components/product-detail/product-detail-hero-warranty-selector';
+import { ProductDetailSkuVariantRail } from '@/components/product-detail/product-detail-merch-rails';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import type { EquipmentSelectionState } from '@/lib/equipment-config-selection';
+import { formatPenUsdParenthetical } from '@/lib/display-price';
+import type { EquipmentSkuVariant, EquipmentSkuVariantId } from '@/lib/equipment-sku-variants';
 import {
   HERO_WARRANTY_BASE_OPTION_ID,
   type ConfigureHeroAccessoryCard,
@@ -22,6 +24,7 @@ import {
 import { resolveStorefrontUi } from '@/lib/product-storefront-detail';
 import { cn, penToUsd } from '@/lib/utils';
 import type { ResolvedStorefrontUi, StoredStorefrontUi } from '@/types/product-storefront';
+import type { Product } from '@/types/product';
 
 interface ProductDetailComplementaCompraProps {
   tonerCards?: ConfigureTonerCard[];
@@ -41,9 +44,25 @@ interface ProductDetailComplementaCompraProps {
   maintenanceSlot?: ReactNode;
   storefrontUi?: StoredStorefrontUi | null;
   className?: string;
-  /** Sidebar mockup: lista compacta sin tabs de tóner. */
-  variant?: 'default' | 'sidebar';
+  /** Sidebar mockup: lista compacta sin tabs de tóner. Hero: un solo desplegable de configuración. */
+  variant?: 'default' | 'sidebar' | 'hero';
+  includedToner?: { name: string; code?: string; image?: string } | null;
+  addableToner?: {
+    optionId: string;
+    name: string;
+    code?: string;
+    image?: string;
+    yieldLabel?: string;
+    priceUsd?: number;
+  } | null;
+  onAddableTonerToggle?: (optionId: string) => void;
+  skuProduct?: Product;
+  skuVariants?: EquipmentSkuVariant[];
+  selectedSkuVariantId?: EquipmentSkuVariantId;
+  onSkuVariantSelect?: (variantId: EquipmentSkuVariantId) => void;
 }
+
+type ComplementaHeroAccordionId = 'toner' | 'accessories' | 'stabilizer';
 
 function ComplementaCardNoImage() {
   return (
@@ -76,6 +95,9 @@ function extractTonerYieldPagesLabel(card: ConfigureTonerCard): string | null {
     /\bim\s*430\s*f\b/i.test(`${card.name} ${card.title}`)
   ) {
     return '15,500';
+  }
+  if (/\bim\s*460\b/i.test(`${card.name} ${card.title} ${card.code}`)) {
+    return '22,000';
   }
 
   const fromDescription = card.description?.trim();
@@ -323,6 +345,14 @@ function ComplementaTonerCards({
   );
 }
 
+function HeroPenUsdPrice({ usd, className }: { usd: number; className?: string }) {
+  return (
+    <span className={cn('tabular-nums', className)}>
+      {formatPenUsdParenthetical(usd)}
+    </span>
+  );
+}
+
 function ComplementaAccessoryCards({
   cards,
   equipmentSelection,
@@ -350,13 +380,15 @@ function ComplementaAccessoryCards({
             >
               <div className="flex min-w-0 items-start gap-2">
                 <div className="flex aspect-square size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 p-0.5 sm:size-14">
-                  <ProductCardHoverImage
-                    candidates={card.imageCandidates}
-                    alt=""
-                    className="size-full"
-                    imageClassName="size-full object-contain"
-                    placeholder={<ComplementaCardNoImage />}
-                  />
+                  {card.imageCandidates[0] ? (
+                    <img
+                      src={card.imageCandidates[0]}
+                      alt=""
+                      className="size-full object-contain"
+                    />
+                  ) : (
+                    <ComplementaCardNoImage />
+                  )}
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -369,7 +401,11 @@ function ComplementaAccessoryCards({
                     </p>
                   ) : null}
                   <p className="mt-0.5 text-[0.6875rem] font-semibold text-red-600">
-                    <DualPrice usd={card.prices.public} />
+                    {card.prices.public > 0.001 ? (
+                      <HeroPenUsdPrice usd={card.prices.public} />
+                    ) : (
+                      'Consultar precio'
+                    )}
                   </p>
                 </div>
               </div>
@@ -578,6 +614,72 @@ function ComplementaSidebarRows({
   );
 }
 
+function ComplementaAddableTonerRow({
+  toner,
+  selected,
+  onToggle,
+}: {
+  toner: {
+    optionId: string;
+    name: string;
+    code?: string;
+    image?: string;
+    yieldLabel?: string;
+    priceUsd?: number;
+  };
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const inputId = `complementa-addable-toner-${toner.optionId}`;
+  const priceUsd = toner.priceUsd ?? 0;
+
+  return (
+    <label
+      htmlFor={inputId}
+      className={cn(
+        'flex cursor-pointer flex-col gap-2 rounded-md border px-2 py-2 transition-colors',
+        selected ? 'border-red-600/40 bg-white' : 'border-neutral-200 bg-white hover:border-neutral-300',
+      )}
+    >
+      <div className="flex min-w-0 items-start gap-2">
+        <div className="flex aspect-square size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-white p-0.5">
+          {toner.image ? (
+            <img src={toner.image} alt="" className="size-full object-contain" />
+          ) : (
+            <ComplementaCardNoImage />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[0.6875rem] font-semibold leading-snug text-[#0f1f3d] sm:text-xs">
+            {toner.name}
+          </p>
+          {toner.code ? (
+            <p className="mt-0.5 text-[0.625rem] text-neutral-500">SKU: {toner.code}</p>
+          ) : null}
+          {toner.yieldLabel ? (
+            <p className="mt-0.5 text-[0.625rem] text-neutral-500">{toner.yieldLabel}</p>
+          ) : null}
+          <p className="mt-0.5 text-[0.6875rem] font-semibold text-red-600">
+            {priceUsd > 0.001 ? <HeroPenUsdPrice usd={priceUsd} /> : 'Consultar precio'}
+          </p>
+        </div>
+      </div>
+      <span className="flex items-center gap-1.5 border-t border-neutral-100 pt-2">
+        <input
+          id={inputId}
+          type="checkbox"
+          checked={selected}
+          onChange={onToggle}
+          className="size-4 shrink-0 accent-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+        />
+        <span className="text-[0.625rem] font-medium leading-tight text-neutral-600 sm:text-[0.6875rem]">
+          Agregar a mi compra
+        </span>
+      </span>
+    </label>
+  );
+}
+
 export function ProductDetailComplementaCompra({
   tonerCards = [],
   defaultTonerSupplyType = 'original',
@@ -597,19 +699,34 @@ export function ProductDetailComplementaCompra({
   storefrontUi,
   className,
   variant = 'default',
+  addableToner = null,
+  onAddableTonerToggle,
+  skuProduct,
+  skuVariants = [],
+  selectedSkuVariantId = 'base',
+  onSkuVariantSelect,
 }: ProductDetailComplementaCompraProps) {
   const resolvedUi = useMemo(() => resolveStorefrontUi(storefrontUi), [storefrontUi]);
   const isDesktopLayout = useMediaQuery('(min-width: 1024px)');
   const isSidebarVariant = variant === 'sidebar';
+  const [heroAccordion, setHeroAccordion] = useState<ComplementaHeroAccordionId | null>(null);
+  const heroAccordionProps = (id: ComplementaHeroAccordionId) => ({
+    expanded: heroAccordion === id,
+    onExpandedChange: (next: boolean) => {
+      setHeroAccordion(next ? id : null);
+    },
+  });
   const hasToner = tonerCards.length > 0;
   const hasAccessories = accessoryCards.length > 0;
-  const hasWarranty =
-    warrantyUpgrades.length > 0 &&
-    warrantyBaseLabel != null &&
-    selectedWarrantyOptionId != null &&
-    onWarrantySelect != null;
   const hasStabilizer = stabilizerCard != null;
-  const hasConfig = hasAccessories || hasWarranty || hasStabilizer || Boolean(maintenanceSlot);
+  const hasAddableToner = Boolean(addableToner?.name?.trim());
+  const hasSkuVariants = skuVariants.length > 0 && skuProduct != null && onSkuVariantSelect != null;
+  const hasConfig =
+    hasAccessories ||
+    hasStabilizer ||
+    Boolean(maintenanceSlot) ||
+    hasAddableToner ||
+    hasSkuVariants;
 
   if (!hasToner && !hasConfig) return null;
 
@@ -631,6 +748,91 @@ export function ProductDetailComplementaCompra({
           {...(onWarrantySelect != null ? { onWarrantySelect } : {})}
         />
       </section>
+    );
+  }
+
+  if (variant === 'hero') {
+    const addableTonerSelected =
+      addableToner != null &&
+      (equipmentSelection.toner ?? new Set<string>()).has(addableToner.optionId);
+
+    return (
+      <div className={cn('space-y-2', className)}>
+        {hasSkuVariants && skuProduct && onSkuVariantSelect ? (
+          <ProductDetailSkuVariantRail
+            product={skuProduct}
+            skuVariants={skuVariants}
+            selectedSkuVariantId={selectedSkuVariantId}
+            onSkuVariantSelect={onSkuVariantSelect}
+            compact
+          />
+        ) : null}
+
+        {hasAddableToner && addableToner ? (
+          <ProductDetailHeroCollapsibleSection
+            title="Tóner"
+            badge="Opcional"
+            panelAriaLabel="Agregar tóner"
+            {...heroAccordionProps('toner')}
+          >
+            <div className="space-y-1.5">
+              <p className="text-[0.625rem] text-neutral-500">
+                Agrega un tóner adicional
+              </p>
+              <ComplementaAddableTonerRow
+                toner={addableToner}
+                selected={addableTonerSelected}
+                onToggle={() => onAddableTonerToggle?.(addableToner.optionId)}
+              />
+            </div>
+          </ProductDetailHeroCollapsibleSection>
+        ) : hasToner ? (
+          <ProductDetailHeroCollapsibleSection
+            title="Tóner"
+            badge="Opcional"
+            panelAriaLabel="Tóner original"
+            {...heroAccordionProps('toner')}
+          >
+            <ComplementaTonerCards
+              cards={tonerCards}
+              selectedTonerOptionIds={selectedTonerOptionIds}
+              onTonerToggle={onTonerToggle}
+              defaultSupplyType={defaultTonerSupplyType}
+              storefrontUi={resolvedUi}
+            />
+          </ProductDetailHeroCollapsibleSection>
+        ) : null}
+
+        {hasAccessories ? (
+          <ProductDetailHeroCollapsibleSection
+            title="Accesorios"
+            badge="Opcional"
+            panelAriaLabel="Accesorios del equipo"
+            {...heroAccordionProps('accessories')}
+          >
+            <ComplementaAccessoryCards
+              cards={accessoryCards}
+              equipmentSelection={equipmentSelection}
+              onAccessoryToggle={onAccessoryToggle}
+            />
+          </ProductDetailHeroCollapsibleSection>
+        ) : null}
+
+        {hasStabilizer && stabilizerCard ? (
+          <ProductDetailHeroCollapsibleSection
+            title="Estabilizador"
+            badge="Opcional"
+            panelAriaLabel="Estabilizador de voltaje"
+            {...heroAccordionProps('stabilizer')}
+          >
+            <ComplementaAccessoryCards
+              cards={[stabilizerCard]}
+              equipmentSelection={equipmentSelection}
+              onAccessoryToggle={onAccessoryToggle}
+            />
+          </ProductDetailHeroCollapsibleSection>
+        ) : null}
+      </div>
     );
   }
 
@@ -668,15 +870,6 @@ export function ProductDetailComplementaCompra({
                 onAccessoryToggle={onAccessoryToggle}
               />
             </ProductDetailHeroCollapsibleSection>
-          ) : null}
-
-          {hasWarranty ? (
-            <ProductDetailHeroWarrantySelector
-              baseLabel={warrantyBaseLabel}
-              upgrades={warrantyUpgrades}
-              selectedOptionId={selectedWarrantyOptionId}
-              onSelectOption={onWarrantySelect}
-            />
           ) : null}
 
           {maintenanceSlot}

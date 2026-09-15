@@ -32,7 +32,7 @@ const CATALOG_BOXES = [
 export function HaitechHomeBrandIntro({ className }: { className?: string }) {
   return (
     <section
-      className={cn('w-full bg-white px-4 pb-2 pt-2 sm:px-6 sm:pb-2.5 sm:pt-3 lg:px-10', className)}
+      className={cn('w-full bg-white px-4 pb-1.5 pt-1.5 sm:px-6 sm:pb-2 sm:pt-2 lg:px-10', className)}
       aria-labelledby="haitech-brand-intro-title"
     >
       <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.maxWidth }}>

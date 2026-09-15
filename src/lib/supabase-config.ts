@@ -11,3 +11,11 @@ export function isSupabaseConfigured(): boolean {
     return false;
   }
 }
+
+/** Realtime es opcional: `VITE_SUPABASE_REALTIME=false` lo desactiva sin tocar el resto. */
+export function isSupabaseRealtimeEnabled(): boolean {
+  if (!isSupabaseConfigured()) return false;
+  const flag = import.meta.env.VITE_SUPABASE_REALTIME?.trim().toLowerCase();
+  if (flag === '0' || flag === 'false' || flag === 'off') return false;
+  return true;
+}

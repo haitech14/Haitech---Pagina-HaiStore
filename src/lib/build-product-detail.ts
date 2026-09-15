@@ -7,11 +7,9 @@ import {
   Gauge,
   Inbox,
   Layers,
-  Leaf,
   Monitor,
   Cpu,
   HardDrive,
-  Lock,
   Network,
   Printer,
   ScanLine,
@@ -30,7 +28,9 @@ import {
   inferPpmLabelFromRicohModelName,
   resolveRicohMonthlyProductionFromModel,
 } from '@/lib/ricoh-model-ppm';
+import { IM430F_DESCRIPTION } from '@/lib/im430f-description-story';
 import { M320F_DESCRIPTION } from '@/lib/m320f-description-story';
+import { enrichDescriptionContent } from '@/lib/product-description-media';
 import {
   applyTitlePredominanceToSpecs,
   resolveTitlePredominantPrinterFields,
@@ -46,7 +46,16 @@ import {
   CASETERA_500_PB1160_PRODUCT_ID,
   ESTABILIZADOR_2KVA_PRODUCT_ID,
   GABINETE_ALTO_TIPO_I_PRODUCT_ID,
+  IM460F_CABINET_IMAGE,
+  IM460F_CASETERA_IMAGE,
+  IM460F_EQUIPMENT_PRODUCT_ID,
+  IM460F_OCR_IMAGE,
+  IM460F_POSTSCRIPT_IMAGE,
+  IM460F_TONER_IMAGE,
+  IM460F_TONER_OPTION_ID,
+  IM460F_TONER_YIELD_LABEL,
   IM550F_COMPATIBLE_TONER_PRODUCT_ID,
+  IM430F_ORIGINAL_TONER_PRODUCT_ID,
   IM600F_ORIGINAL_TONER_PRODUCT_ID,
   IM_C320F_EQUIPMENT_PRODUCT_ID,
   M320F_COMPATIBLE_TONER_PRODUCT_ID,
@@ -65,7 +74,6 @@ import type {
   ProductDescriptionHighlight,
   ProductDescriptionVisual,
   ProductDetailViewModel,
-  ProductFeatureCard,
   ProductFeatureIcon,
   ProductGalleryItem,
   ProductHeroSpecBullet,
@@ -137,9 +145,6 @@ const IM_BN_A4_MONTHLY_PRODUCTION_BULLET: ProductHeroSpecBullet = {
   label: 'Producción mensual',
   value: '50,000 páginas',
 };
-
-const IM430F_HERO_LEAD =
-  'Multifuncional de alto rendimiento diseñada para optimizar los flujos de trabajo documentales de oficinas exigentes. Combina velocidad, seguridad avanzada y conectividad inteligente.';
 
 const IM430F_HERO_DESCRIPTION = '';
 
@@ -407,11 +412,12 @@ function postProcessHeroSpecBullets(
 ): ProductHeroSpecBullet[] {
   const adf = resolveAdfPillLabel(product, specs);
 
-  const cleaned = bullets.filter((bullet) => {
+              const cleaned = bullets.filter((bullet) => {
     const line = heroBulletLine(bullet);
     if (/regalo/i.test(line)) return false;
     if (/alimentador de originales/i.test(line) && !/ppm/i.test(line)) return false;
     if (/\bspdf\b/i.test(line) && !/ppm|velocidad/i.test(line)) return false;
+    if (/doble\s*scan/i.test(line) && !/ppm|velocidad/i.test(line)) return false;
     if (/rendimiento de t[oó]ner/i.test(line)) return false;
     return true;
   });
@@ -435,10 +441,11 @@ function postProcessHeroSpecBullets(
 
     const speed = raw.split('/')[0]?.trim() ?? raw;
     const { text: _omitText, ...rest } = next;
+    const adfSuffix = /doble\s*scan/i.test(adf) ? '' : ` / ${adf}`;
     return {
       ...rest,
       label: 'Velocidad',
-      value: `${speed} / ${adf}`,
+      value: `${speed}${adfSuffix}`,
     };
   });
 
@@ -585,7 +592,7 @@ function resolveHeroLead(product: Product, isPrinter: boolean, isSupply: boolean
     const firstLine = description.split(/\r?\n/)[0]?.trim() ?? description;
     return firstLine.length > 220 ? `${firstLine.slice(0, 217).trim()}…` : firstLine;
   }
-  if (isIm430f(product)) return IM430F_HERO_LEAD;
+  if (isIm430f(product)) return '';
   if (isPrinter) {
     const description = product.description?.trim() ?? '';
     if (description.includes('\n')) return '';
@@ -788,6 +795,17 @@ function mergeCardSpecRowsIntoSpecs(
   return extras.length > 0 ? [...extras, ...specs] : specs;
 }
 
+/** Entero 10–99 estable por producto: no cambia al recargar. */
+export function stableProductTwoDigitCount(productId: string, salt: string): number {
+  const source = `${productId}:${salt}`;
+  let hash = 2166136261;
+  for (let i = 0; i < source.length; i += 1) {
+    hash ^= source.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return 10 + ((hash >>> 0) % 90);
+}
+
 export const TRUST_WARRANTY_CHIP_LABEL =
   'Garantía de Fábrica 1 año y/o 20,000 páginas';
 
@@ -924,62 +942,6 @@ function buildDescriptionVisual(
 
   return buildPrinterDescriptionVisual(product, specs);
 }
-
-const IM430F_FEATURE_CARDS: ProductFeatureCard[] = [
-  {
-    icon: Printer,
-    title: 'Alto rendimiento',
-    description:
-      'Imprime hasta 43 páginas por minuto para mantener la productividad de tu equipo.',
-  },
-  {
-    icon: Copy,
-    title: 'Multifunción 5 en 1',
-    description:
-      'Imprime, copia, escanea, faxea y almacena documentos desde un solo dispositivo.',
-  },
-  {
-    icon: Monitor,
-    title: 'Experiencia intuitiva',
-    description: 'Pantalla táctil inteligente de 4.3 pulgadas para una operación rápida y sencilla.',
-  },
-  {
-    icon: Network,
-    title: 'Conectividad flexible',
-    description: 'Compatible con dispositivos móviles, servicios en la nube y diversas soluciones.',
-  },
-  {
-    icon: Shield,
-    title: 'Seguridad avanzada',
-    description: 'Protege tu información con funciones de seguridad líderes en la industria.',
-  },
-  {
-    icon: Leaf,
-    title: 'Eficiencia sostenible',
-    description:
-      'Diseñada para reducir el consumo de energía y el impacto ambiental sin comprometer el rendimiento.',
-  },
-];
-
-const IM430F_DESCRIPTION: ProductDescriptionContent = {
-  overviewTitle: 'Diseñada para la productividad',
-  overviewParagraphs: [
-    'La RICOH IM 430F mejora los flujos de trabajo documentales y optimiza la eficiencia de tu negocio con funciones inteligentes y una alta confiabilidad.',
-  ],
-  overviewLink: {
-    label: 'Más información sobre la serie IM 430',
-    href: '/tienda',
-  },
-  featureCards: IM430F_FEATURE_CARDS,
-  paragraphs: [],
-  highlights: [
-    { icon: Gauge, title: 'Alta velocidad', subtitle: 'Hasta 40 ppm color y B/N' },
-    { icon: Inbox, title: 'Gran capacidad', subtitle: 'Hasta 4,700 hojas' },
-    { icon: Smartphone, title: 'Pantalla inteligente', subtitle: 'Pantalla táctil de 10.1"' },
-    { icon: Cloud, title: 'Conectividad', subtitle: 'Impresión móvil y en la nube' },
-    { icon: Lock, title: 'Seguridad', subtitle: 'Seguridad avanzada y confiable' },
-  ],
-};
 
 function buildDescriptionContent(product: Product, isPrinter: boolean): ProductDescriptionContent | null {
   if (isIm430f(product)) return IM430F_DESCRIPTION;
@@ -1142,6 +1104,12 @@ function isIm430f(product: Product): boolean {
   return /\bim\s*430\s*f\b/i.test(product.name);
 }
 
+function isIm460f(product: Product): boolean {
+  if (isSupplyProduct(product)) return false;
+  if (product.id === IM460F_EQUIPMENT_PRODUCT_ID) return true;
+  return /\bim\s*460\s*f\b/i.test(product.name);
+}
+
 function isIm550f(product: Product): boolean {
   if (isSupplyProduct(product)) return false;
   if (product.id === '328f41ef-d935-4807-85d0-e1db5bdf73fb') return true;
@@ -1234,7 +1202,7 @@ function resolveDetailDisplayTitle(product: Product): string {
 
 function resolveDisplaySubtitle(product: Product, isPrinter: boolean, isSupply: boolean): string {
   if (isIm430f(product)) {
-    return IM430F_HERO_LEAD;
+    return '';
   }
   if (isPrinter) {
     return (
@@ -1278,16 +1246,19 @@ const IM430F_GALLERY_URLS = [
 ] as const;
 
 function buildGallery(product: Product): ProductGalleryItem[] {
+  const mediaItems = buildProductGalleryItems(product);
+  const videos = mediaItems.filter((item) => item.type !== 'image');
+
   if (isIm430f(product)) {
-    return IM430F_GALLERY_URLS.map((src) => ({
+    const images = IM430F_GALLERY_URLS.map((src) => ({
       type: 'image' as const,
       src,
       alt: product.name,
     }));
+    return [...images, ...videos];
   }
 
-  const items = buildProductGalleryItems(product);
-  if (items.length > 0) return items;
+  if (mediaItems.length > 0) return mediaItems;
   return [];
 }
 
@@ -1455,6 +1426,39 @@ function buildComboItems(product: Product, isPrinter: boolean, isSupply: boolean
 }
 
 function buildAccessoryConfigOptions(product: Product): EquipmentConfigStep['options'] {
+  if (isIm460f(product)) {
+    return [
+      {
+        id: 'casetera-adicional-423525',
+        name: 'Agregar Casetera Adicional',
+        sku: '423525',
+        image: IM460F_CASETERA_IMAGE,
+        pricePen: 0,
+      },
+      {
+        id: 'high-cabinet-a8',
+        name: 'High Cabinet Type A8',
+        sku: '52900',
+        image: IM460F_CABINET_IMAGE,
+        pricePen: 0,
+      },
+      {
+        id: 'postscript-m54',
+        name: 'PostScript3 Unit Type M54',
+        sku: '423511',
+        image: IM460F_POSTSCRIPT_IMAGE,
+        pricePen: 0,
+      },
+      {
+        id: 'ocr-m54',
+        name: 'OCR Unit Type M54',
+        sku: '423515',
+        image: IM460F_OCR_IMAGE,
+        pricePen: 0,
+      },
+    ];
+  }
+
   const options: EquipmentConfigStep['options'] = [];
 
   if (!isImBnA4Sibling(product)) {
@@ -1543,6 +1547,15 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
           pricePen: 0,
           included: true,
         },
+        {
+          id: 'toner-ricoh-im-430f',
+          productId: IM430F_ORIGINAL_TONER_PRODUCT_ID,
+          name: 'Toner Original RICOH IM 430F',
+          description: 'Cartucho original — 15,500 páginas al 5%',
+          sku: '419078',
+          image: '/products/toner-419078.webp',
+          pricePen: 0,
+        },
       ]
       : isM320f(product)
       ? [
@@ -1578,6 +1591,26 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
               included: true,
             },
           ]
+      : isIm460f(product)
+      ? [
+          {
+            id: 'toner-inicio',
+            name: 'Print Cartridge IM 460',
+            description: 'Tóner original incluido con el equipo',
+            sku: '842801',
+            image: IM460F_TONER_IMAGE,
+            pricePen: 0,
+            included: true,
+          },
+          {
+            id: IM460F_TONER_OPTION_ID,
+            name: 'Print Cartridge IM 460',
+            description: `Tóner original — ${IM460F_TONER_YIELD_LABEL}`,
+            sku: '842801',
+            image: IM460F_TONER_IMAGE,
+            pricePen: 0,
+          },
+        ]
       : isIm600f(product)
       ? [
           {
@@ -1680,21 +1713,27 @@ function buildEquipmentConfigSteps(product: Product, isPrinter: boolean, isSuppl
       options: [
         {
           id: 'garantia-base',
-          name: '1 año y/o 20,000 páginas incluido',
+          name: isIm460f(product)
+            ? '1 año de garantía'
+            : '1 año y/o 20,000 páginas incluido',
           description: 'Incluido',
           pricePen: 0,
           included: true,
         },
         {
           id: 'garantia-2y',
-          name: '2 años y/o 50,000 páginas',
+          name: isIm460f(product)
+            ? '2 años y/o 40,000 páginas'
+            : '2 años y/o 50,000 páginas',
           description: `$150 o S/ ${usdToPen(150)} adicional`,
           priceUsd: 150,
           pricePen: usdToPen(150),
         },
         {
           id: 'garantia-3y',
-          name: '3 años y/o 80,000 páginas',
+          name: isIm460f(product)
+            ? '3 años y/o 60,000 páginas'
+            : '3 años y/o 80,000 páginas',
           description: `$250 o S/ ${usdToPen(250)} adicional`,
           priceUsd: 250,
           pricePen: usdToPen(250),
@@ -1865,6 +1904,13 @@ export function buildProductDetail(
 
   const breadcrumbs = buildProductBreadcrumbs(product, displayTitle, []);
 
+  const gallery = buildGallery(product);
+  const descriptionContent = enrichDescriptionContent(
+    buildDescriptionContent(product, isPrinter),
+    gallery,
+    product.name,
+  );
+
   const fullPrices = ensureFullPrices(product.prices ?? { public: product.price });
   const technicalSheet = findTechnicalSheetAttachment(product);
   const technicalSheetUrl = technicalSheet?.url ?? null;
@@ -1891,16 +1937,19 @@ export function buildProductDetail(
     giftTrustSubtitle: isPrinter ? resolveGiftTrustSubtitle(product) : '',
     categoryLabel,
     rating: featuredMeta?.rating ?? 0,
-    reviews: featuredMeta?.reviews ?? 0,
-    soldCount: 0,
+    reviews:
+      featuredMeta?.reviews && featuredMeta.reviews > 0
+        ? featuredMeta.reviews
+        : stableProductTwoDigitCount(product.id, 'reviews'),
+    soldCount: stableProductTwoDigitCount(product.id, 'sold'),
     bullets,
-    descriptionContent: buildDescriptionContent(product, isPrinter),
+    descriptionContent,
     descriptionVisual,
     featureBar,
     specPills,
     specs: specsWithCardHighlights,
     warrantyBullets: WARRANTY_BULLETS,
-    gallery: buildGallery(product),
+    gallery,
     features: isSupply ? SUPPLY_FEATURES : isPrinter ? PRINTER_FEATURES : SUPPLY_FEATURES,
     resourceLinks: [
       ...(technicalSheetUrl

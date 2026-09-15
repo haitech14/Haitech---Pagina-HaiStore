@@ -17,7 +17,7 @@ const SLIDE =
   'min-w-0 shrink-0 flex-[0_0_calc((100%-0.75rem)/2)] sm:flex-[0_0_calc((100%-2.25rem)/4)] lg:flex-[0_0_calc((100%-7rem)/8)]';
 
 const ARROW_CLASS =
-  'absolute top-[42%] z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#16325C] text-white shadow-[0_4px_14px_rgba(15,31,61,0.22)] transition hover:bg-[#0F2444] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16325C]/50 disabled:pointer-events-none disabled:opacity-35 sm:size-11';
+  'absolute top-[42%] z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#E30613] text-white shadow-[0_4px_14px_rgba(227,6,19,0.28)] transition hover:bg-[#c90511] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/50 disabled:pointer-events-none disabled:opacity-35 sm:size-11';
 
 function CategoryChipCard({
   chip,
@@ -33,7 +33,7 @@ function CategoryChipCard({
   return (
     <Link
       to={chip.href}
-      className="group/chip flex w-full flex-col items-center gap-2.5 px-1 py-1 outline-none focus-visible:rounded-2xl focus-visible:ring-2 focus-visible:ring-[#16325C]/35"
+      className="group/chip flex w-full flex-col items-center gap-2.5 px-1 py-1 outline-none focus-visible:rounded-2xl focus-visible:ring-2 focus-visible:ring-[#E30613]/35"
       aria-label={chip.label}
     >
       <span className="flex aspect-square w-[min(92%,8.25rem)] items-center justify-center overflow-hidden rounded-full bg-[#F3F3F3] ring-1 ring-black/5 sm:w-[min(90%,8.75rem)]">
@@ -148,13 +148,13 @@ export function HaitechHomeCategoryChipsCarousel({ className }: { className?: st
 export function HaitechHomeCategoryChipsSection({ className }: { className?: string }) {
   return (
     <section
-      className={cn('w-full bg-white px-3 pb-2 pt-5 sm:px-4 sm:pb-2.5 sm:pt-6 lg:px-5', className)}
+      className={cn('w-full bg-white px-3 pb-1.5 pt-2 sm:px-4 sm:pb-2 sm:pt-2.5 lg:px-5', className)}
       aria-labelledby="haitech-home-categories-title"
     >
       <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}>
         <h2
           id="haitech-home-categories-title"
-          className="mb-4 text-center text-[22px] font-bold leading-tight text-[#222222] sm:mb-5 sm:text-[26px] lg:text-[28px]"
+          className="mb-2 text-center text-[22px] font-bold leading-tight text-[#222222] sm:mb-2.5 sm:text-[26px] lg:text-[28px]"
         >
           Expertos en Equipamiento de Oficina
         </h2>

@@ -121,6 +121,8 @@ const SPEC_COLUMN_MIN_WIDTH: Partial<Record<ProductTableSpecColumnId, string>> =
   adf: 'min-w-[5.25rem]',
   produccion: 'min-w-[6rem]',
   anio: 'min-w-[4.25rem]',
+  compatibilidad: 'min-w-[8.5rem]',
+  rendimiento: 'min-w-[5.75rem]',
 };
 
 type ProductTableImageSource = Pick<
@@ -184,7 +186,8 @@ function ProductTableSpecCell({
   columnId: ProductTableSpecColumnId;
 }) {
   const value = getProductTableSpecDisplay(product, columnId);
-  const compact = columnId === 'velocidad' || columnId === 'adf' || columnId === 'anio';
+  const compact =
+    columnId === 'velocidad' || columnId === 'adf' || columnId === 'anio' || columnId === 'rendimiento';
   return (
     <span
       className={cn(
@@ -524,7 +527,7 @@ export function CategoryProductsTable({
     useState<InventoryProductFormFocusSection | null>(null);
   const { deleteProduct } = useInventoryMutations();
 
-  const tableMinWidth = isAdmin ? '96rem' : '52rem';
+  const tableMinWidth = isAdmin ? '110rem' : '64rem';
   const tableColSpan = useMemo(
     () =>
       countCategoryTableColumns(

@@ -23,9 +23,9 @@ import {
   SOLUTION_COPY_COSTS,
   SOLUTION_EQUIPMENT,
   SOLUTION_LIMA_DISTRICT_SUGGESTIONS,
-  SOLUTION_NEW_TERM_OPTIONS,
+  SOLUTION_MIN_MONTHLY_PEN,
   SOLUTION_PRINT_TYPES,
-  SOLUTION_USED_TERM_OPTIONS,
+  SOLUTION_TERM_OPTIONS,
   SOLUTION_VOLUME_PRESETS,
   OPERATIONAL_MACHINE_MONTHLY_PEN,
   OPERATIONAL_SERVICE_EVERY_PAGES,
@@ -144,9 +144,7 @@ export function ConfigurationForm({
   const availableModels = modelsForEquipmentAndPrintType(equipment, printType);
   const showPrintConfig = model.usesPrintVolume;
   const isColor = model.printType === 'color';
-  const isNueva = condition === 'nueva';
   const isOperativo = condition === 'operativo';
-  const termOptions = isNueva ? SOLUTION_NEW_TERM_OPTIONS : SOLUTION_USED_TERM_OPTIONS;
   const volume = clampVolumePages(volumePages);
   const volumePct = Math.min(100, Math.max(0, ((volume - 500) / (50_000 - 500)) * 100));
 
@@ -181,11 +179,6 @@ export function ConfigurationForm({
 
   const handleConditionChange = (next: SolutionConditionId) => {
     onConditionChange(next);
-    if (next === 'nueva') {
-      onTermChange(termMonths === 24 ? 24 : 36);
-    } else if (termMonths !== 6 && termMonths !== 12 && termMonths !== 24 && termMonths !== 36) {
-      onTermChange(12);
-    }
   };
 
   const setVolumeBalanced = (nextRaw: number) => {
@@ -424,29 +417,41 @@ export function ConfigurationForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="solution-term" className="text-sm font-semibold text-[#111111]">
-              Plazo de alquiler
-            </Label>
-            <Select
-              value={String(termMonths)}
-              onValueChange={(value) => onTermChange(Number(value) as SolutionTermMonths)}
+            <Label className="text-sm font-semibold text-[#111111]">Plazo de alquiler</Label>
+            <div
+              className="grid grid-cols-3 gap-2"
+              role="radiogroup"
+              aria-label="Plazo de alquiler"
             >
-              <SelectTrigger id="solution-term" className={FIELD}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {termOptions.map((option) => (
-                  <SelectItem key={option.months} value={String(option.months)}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {isNueva ? (
-              <p className="text-[11px] text-[#6B7280]">
-                En equipo nuevo el plazo es 24 o 36 meses (cuota del equipo).
-              </p>
-            ) : null}
+              {SOLUTION_TERM_OPTIONS.map((option) => {
+                const selected = termMonths === option.months;
+                return (
+                  <button
+                    key={option.months}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => onTermChange(option.months)}
+                    className={cn(
+                      'rounded-xl border px-2 py-2.5 text-center transition',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]',
+                      selected
+                        ? 'border-[#E30613] bg-[#FFF1F1] text-[#E30613] ring-1 ring-[#E30613]/20'
+                        : 'border-[#E5E7EB] bg-white text-[#111111] hover:border-[#E30613]/40',
+                    )}
+                  >
+                    <span className="block text-sm font-bold leading-tight">{option.label}</span>
+                    {option.recommended ? (
+                      <span className="mt-0.5 block text-[10px] font-semibold text-[#1B7A3D]">
+                        Recomendado
+                      </span>
+                    ) : (
+                      <span className="mt-0.5 block text-[10px] text-[#9CA3AF]">&nbsp;</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
@@ -569,6 +574,10 @@ export function ConfigurationForm({
                 </button>
               ))}
             </div>
+            <p className="text-[11px] leading-snug text-[#6B7280]">
+              Mínimo {formatSolutionPen(SOLUTION_MIN_MONTHLY_PEN)}/mes. Con 3 000 páginas el precio no
+              baja de ese piso.
+            </p>
 
             {isOperativo ? (
               <div className="space-y-3 border-t border-[#ECECEC] pt-3">

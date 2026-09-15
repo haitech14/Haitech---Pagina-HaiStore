@@ -3,6 +3,7 @@ import { productQualifiesAsSeminuevaEquipment } from '@/lib/inventory-product-na
 import { buildEquipmentCartLineId, type SelectedEquipmentOption } from '@/lib/equipment-config-selection';
 import {
   ensureFullPrices,
+  resolvePriceRole,
   type PriceRole,
   type ProductRolePrices,
   type UserRole,
@@ -38,9 +39,9 @@ export const SEMINUEVA_PREPARATION_OPTIONS: readonly SeminuevaPreparationType[] 
 ] as const;
 
 export const SEMINUEVA_PREPARATION_LABELS: Record<SeminuevaPreparationType, string> = {
-  acondicionado: 'Acondicionado',
-  semirepotenciado: 'Semi repotenciado',
-  remanufacturado: 'Remanufacturado',
+  acondicionado: 'Acondicionada',
+  semirepotenciado: 'Repotenciada',
+  remanufacturado: 'Remanufacturada',
 };
 
 const SEMIREPOTENCIADO_SURCHARGE_USD = {
@@ -82,11 +83,22 @@ export function productQualifiesForSeminuevaPreparation(
 
 export function shouldShowSeminuevaPreparationSelector(
   product: Product,
-  role: UserRole | 'public',
-  viewAsRoles: readonly UserRole[],
+  _role?: UserRole | 'public',
+  _viewAsRoles?: readonly UserRole[],
 ): boolean {
-  if (role !== 'public' || viewAsRoles.length > 0) return false;
   return productQualifiesForSeminuevaPreparation(product);
+}
+
+/** Rol de precio de vitrina para variantes de preparado (público, técnico, ver como…). */
+export function resolvePreparationPriceRoleForViewer(
+  role: UserRole | 'public',
+  viewAsRoles: readonly UserRole[] = [],
+): PriceRole {
+  if (viewAsRoles.length > 0) {
+    const primary = viewAsRoles[0]!;
+    return primary === 'corporativo2' ? 'public' : resolvePriceRole(primary);
+  }
+  return role === 'public' ? 'public' : resolvePriceRole(role);
 }
 
 function defaultPreparationSurchargeUsd(
@@ -128,11 +140,7 @@ export function resolvePreparationRolePriceUsd(
   }
 
   const surcharge = defaultPreparationSurchargeUsd(preparationType, product);
-  // Compat: sin precios guardados, el recargo solo aplica al público.
-  if (role === 'public') {
-    return (Number(base.public) || 0) + surcharge;
-  }
-  return Number(base[role]) || 0;
+  return (Number(base[role]) || 0) + surcharge;
 }
 
 /** Precios por rol efectivos (absolutos) para un tipo de preparado. */
@@ -150,8 +158,10 @@ export function resolvePreparationRolePrices(
   const base = baseRolePrices(product);
   const surcharge = defaultPreparationSurchargeUsd(preparationType, product);
   return ensureFullPrices({
-    ...base,
     public: (Number(base.public) || 0) + surcharge,
+    tecnico: (Number(base.tecnico) || 0) + surcharge,
+    mayorista: (Number(base.mayorista) || 0) + surcharge,
+    distribuidor: (Number(base.distribuidor) || 0) + surcharge,
   });
 }
 

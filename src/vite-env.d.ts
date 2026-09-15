@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL: string;
   readonly VITE_SUPABASE_ANON_KEY: string;
+  /** `false` desactiva el WebSocket de Realtime (el catálogo local sigue funcionando). */
+  readonly VITE_SUPABASE_REALTIME?: string;
   /** Vacío en Vercel (mismo origen). En dev opcional si la API está en otro host. */
   readonly VITE_API_BASE_URL?: string;
   /** URL del panel web HaiSupport (enlace opcional en flujo Soporte de Haibot). */

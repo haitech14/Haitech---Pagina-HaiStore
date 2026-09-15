@@ -19,6 +19,8 @@ import {
 interface InventoryPricesGridProps {
   purchasePriceUsd?: number;
   onPurchaseChange?: (value: string) => void;
+  specialPurchasePriceUsd?: number;
+  onSpecialPurchaseChange?: (value: string) => void;
   prices: ProductRolePrices;
   onPriceChange: (role: PriceRole, value: string) => void;
   purchaseFromSuppliers?: boolean;
@@ -128,9 +130,16 @@ function PenPriceInput({
   );
 }
 
+const PURCHASE_PRICE_COLUMNS = [
+  { key: 'compra', label: 'Compra' },
+  { key: 'especial', label: 'Precio especial' },
+] as const;
+
 export function InventoryPricesGrid({
   purchasePriceUsd = 0,
   onPurchaseChange,
+  specialPurchasePriceUsd = 0,
+  onSpecialPurchaseChange,
   prices,
   onPriceChange,
   purchaseFromSuppliers = false,
@@ -148,7 +157,9 @@ export function InventoryPricesGrid({
       getUsdToPenPurchaseRate(),
   );
   const purchaseUsd = Number(purchasePriceUsd) || 0;
+  const specialPurchaseUsd = Number(specialPurchasePriceUsd) || 0;
   const saleColumnTemplate = `3.25rem repeat(${SALE_PRICE_COLUMNS.length}, minmax(0, 1fr))`;
+  const purchaseColumnTemplate = `3.25rem repeat(${PURCHASE_PRICE_COLUMNS.length}, minmax(0, 1fr))`;
 
   const saleGrid = (
     <div className="space-y-2">
@@ -205,33 +216,65 @@ export function InventoryPricesGrid({
     <div className="space-y-4">
       <div className="space-y-2">
         <Label className="text-sm font-medium">Precio de compra</Label>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground">USD</p>
-            <UsdPriceInput
-              id={`${idPrefix}-purchase-usd`}
-              value={purchaseUsd}
-              onChange={onPurchaseChange ?? (() => undefined)}
-              readOnly={purchaseFromSuppliers}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground">PEN</p>
-            <PenPriceInput
-              id={`${idPrefix}-purchase-pen`}
-              usdValue={purchaseUsd}
-              onUsdChange={onPurchaseChange ?? (() => undefined)}
-              exchangeRate={purchaseRate}
-              readOnly={purchaseFromSuppliers}
-              useCharm={false}
-            />
+        <div className="overflow-x-auto rounded-md border border-border/60 bg-muted/10 p-3">
+          <div className="min-w-[22rem] space-y-2.5">
+            <div className="grid gap-2" style={{ gridTemplateColumns: purchaseColumnTemplate }}>
+              <p className="flex items-center text-xs font-medium text-muted-foreground">Rol</p>
+              {PURCHASE_PRICE_COLUMNS.map((column) => (
+                <p
+                  key={column.key}
+                  className="px-0.5 text-center text-xs font-medium text-muted-foreground"
+                >
+                  {column.label}
+                </p>
+              ))}
+            </div>
+
+            <div className="grid gap-2" style={{ gridTemplateColumns: purchaseColumnTemplate }}>
+              <p className="flex items-center text-xs font-semibold text-muted-foreground">USD</p>
+              <UsdPriceInput
+                id={`${idPrefix}-purchase-usd`}
+                value={purchaseUsd}
+                onChange={onPurchaseChange ?? (() => undefined)}
+                readOnly={purchaseFromSuppliers}
+              />
+              <UsdPriceInput
+                id={`${idPrefix}-purchase-special-usd`}
+                value={specialPurchaseUsd}
+                onChange={onSpecialPurchaseChange ?? (() => undefined)}
+              />
+            </div>
+
+            <div className="grid gap-2" style={{ gridTemplateColumns: purchaseColumnTemplate }}>
+              <p className="flex items-center text-xs font-semibold text-muted-foreground">PEN</p>
+              <PenPriceInput
+                id={`${idPrefix}-purchase-pen`}
+                usdValue={purchaseUsd}
+                onUsdChange={onPurchaseChange ?? (() => undefined)}
+                exchangeRate={purchaseRate}
+                readOnly={purchaseFromSuppliers}
+                useCharm={false}
+              />
+              <PenPriceInput
+                id={`${idPrefix}-purchase-special-pen`}
+                usdValue={specialPurchaseUsd}
+                onUsdChange={onSpecialPurchaseChange ?? (() => undefined)}
+                exchangeRate={purchaseRate}
+                useCharm={false}
+              />
+            </div>
           </div>
         </div>
         {purchaseFromSuppliers ? (
           <p className="text-xs text-muted-foreground">
-            El costo de compra se calcula del menor valor entre proveedores.
+            El costo de compra se calcula del menor valor entre proveedores. El precio especial
+            de compra se edita aparte y no entra en ese mínimo.
           </p>
-        ) : null}
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Precio especial de compra es una variante opcional; no reemplaza el costo de referencia.
+          </p>
+        )}
       </div>
 
       {saleGrid}

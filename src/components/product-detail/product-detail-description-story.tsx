@@ -57,7 +57,7 @@ function StoryVisual({ block }: { block: ProductDescriptionStoryBlock }) {
       <img
         src={block.imageSrc}
         alt={block.imageAlt ?? ''}
-        className="aspect-[4/3] w-full object-cover sm:aspect-[5/4]"
+        className="aspect-[4/3] w-full object-contain sm:aspect-[5/4]"
         loading="lazy"
         decoding="async"
       />

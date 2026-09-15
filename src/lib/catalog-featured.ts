@@ -107,30 +107,20 @@ async function fetchCatalogIndexFromNetwork(): Promise<CatalogRow[]> {
   return normalizeCatalogRows(payload.products ?? []);
 }
 
-function mediaFreshness(product: {
-  image_url?: string | null;
-  updated_at?: string | null;
-}): number {
-  const url = typeof product.image_url === 'string' ? product.image_url : '';
-  const match = url.match(/[?&]v=([^&#]+)/);
-  if (match?.[1]) {
-    const fromQuery = Number(match[1]);
-    if (Number.isFinite(fromQuery)) return fromQuery;
-  }
-  if (product.updated_at) {
-    const fromDate = Date.parse(product.updated_at);
-    if (!Number.isNaN(fromDate)) return fromDate;
-  }
-  return 0;
+function catalogRowUpdatedAtMs(product: { updated_at?: string | null }): number {
+  if (!product.updated_at) return 0;
+  const fromDate = Date.parse(product.updated_at);
+  return Number.isNaN(fromDate) ? 0 : fromDate;
 }
 
 function mergeCatalogRowWithPending(row: CatalogRow): CatalogRow {
   const pending = pendingCatalogProductPatches.get(row.id);
   if (!pending) return row;
 
-  const pendingFreshness = mediaFreshness(pending);
-  const rowFreshness = mediaFreshness(row);
-  if (rowFreshness && pendingFreshness && rowFreshness >= pendingFreshness) {
+  // No tirar un parche de stock/precio porque la foto del snapshot sea más nueva.
+  const pendingAt = catalogRowUpdatedAtMs(pending);
+  const rowAt = catalogRowUpdatedAtMs(row);
+  if (pendingAt > 0 && rowAt > pendingAt) {
     pendingCatalogProductPatches.delete(row.id);
     return row;
   }

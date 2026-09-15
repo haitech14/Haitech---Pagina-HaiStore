@@ -585,6 +585,7 @@ export const router = createBrowserRouter([
         },
       },
       /* Vitrina en /tienda/:slug o ficha de producto si el slug no es categoría de vitrina */
+      { path: 'tienda/software', element: <Navigate to="/tienda" replace /> },
       { path: 'tienda/:slug', element: withSuspense(<TiendaSlugRoutePage />) },
       { path: 'checkout', element: withSuspense(<CheckoutPage />) },
       { path: 'checkout/exito/:orderNumber', element: withSuspense(<CheckoutSuccessPage />) },

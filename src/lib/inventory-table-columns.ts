@@ -76,7 +76,7 @@ const COLUMN_CELL_CLASS: Record<InventoryReorderableColumnId, string> = {
   attributes: 'w-[9.5rem] min-w-[9.5rem] max-w-[11rem]',
   category: 'w-[8rem] min-w-[8rem] max-w-[9.5rem]',
   stock: 'w-[4.5rem] min-w-[4.5rem] text-center',
-  purchase: 'w-[6.5rem] min-w-[6.5rem] text-right',
+  purchase: 'w-[7.25rem] min-w-[7.25rem] text-right',
   price_mayorista: 'w-[6.5rem] min-w-[6.5rem] text-right',
   price_tecnico: 'w-[6.5rem] min-w-[6.5rem] text-right',
   price_distribuidor: 'w-[6.5rem] min-w-[6.5rem] text-right',

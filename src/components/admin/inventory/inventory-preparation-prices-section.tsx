@@ -52,8 +52,8 @@ export function InventoryPreparationPricesSection({
             Precios de variantes (tipo de preparado)
           </p>
           <p className="text-xs text-muted-foreground">
-            Acondicionado usa los precios de venta de arriba. Define Semi repotenciado y
-            Remanufacturado con la misma grilla por rol.
+            Acondicionada usa los precios de venta de arriba. Define Repotenciada y
+            Remanufacturada con la misma grilla por rol.
           </p>
         </div>
       </div>

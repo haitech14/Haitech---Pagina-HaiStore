@@ -9,12 +9,18 @@ import {
 import { resolveEquipmentShowcaseCode } from '@/data/haitech-equipment-part-codes';
 import { HAITECH_SHOWCASE_SEMINUEVAS } from '@/data/haitech-showcase-seminuevas-lista';
 import { HAITECH_SHOWCASE_ESCANERES } from '@/data/haitech-showcase-escaneres';
-import {
-  HAITECH_SHOWCASE_SOFTWARE,
-  HAITECH_SHOWCASE_SOFTWARE_CATEGORY_IMAGE,
-} from '@/data/haitech-showcase-software';
+import { HAITECH_SHOWCASE_SOFTWARE } from '@/data/haitech-showcase-software';
 import { HAITECH_SHOWCASE_COLABORACION } from '@/data/haitech-showcase-colaboracion';
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
+import { isIm550fChildVariantSku } from '../../shared/equipment-search-variants.js';
+import { inferAdf } from '../../shared/catalog-attribute-filters.js';
+import { resolveProductSpeedPpm } from '../../shared/catalog-speed-filter.js';
+import {
+  formatMonthlyProductionLabel,
+  formatPpmLabel,
+  inferPpmDigitsFromRicohModelName,
+  resolveRicohMonthlyProductionFromModel,
+} from '../../shared/ricoh-model-ppm.js';
 
 export type HaitechEquipmentShowcaseCategoryId =
   | 'multifuncionales'
@@ -161,14 +167,6 @@ export const HAITECH_EQUIPMENT_SHOWCASE_CATEGORIES: readonly HaitechEquipmentSho
     filterMode: 'none',
     shopTabId: 'accesorios',
   },
-  {
-    id: 'software',
-    label: 'Software',
-    image: HAITECH_SHOWCASE_SOFTWARE_CATEGORY_IMAGE,
-    to: '/software',
-    filterMode: 'none',
-    shopTabId: null,
-  },
 ] as const;
 
 export const HAITECH_EQUIPMENT_SPEC_FILTERS: readonly {
@@ -234,7 +232,7 @@ export const HAITECH_FORMATO_ANCHO_DEVICE_FILTERS: readonly {
   label: string;
 }[] = [
   { id: 'plotter', label: 'Plotter' },
-  { id: 'multifuncional', label: 'Multifuncional' },
+  { id: 'multifuncional', label: 'Multifuncional de planos' },
 ] as const;
 
 export const HAITECH_FORMATO_ANCHO_FILTERS: readonly {
@@ -311,7 +309,7 @@ export function resolveFormatoAnchoDeviceClass(
   product: HaitechShopProduct,
 ): 'plotter' | 'multifuncional' | null {
   const name = product.name.toLowerCase();
-  if (/multifuncional de planos|mp cw2201\b/i.test(name)) return 'multifuncional';
+  if (/multifuncional de planos|mp cw2201\b|mp cw2200\b/i.test(name)) return 'multifuncional';
   if (/plotter|designjet|im cw2200\b/i.test(name)) return 'plotter';
   if (/multifuncional/i.test(name) && /planos|formato ancho|cw220/i.test(name)) {
     return 'multifuncional';
@@ -552,7 +550,7 @@ export const HAITECH_SCANNER_CONDITIONS: readonly {
 ] as const;
 
 export const HAITECH_EQUIPMENT_SHOWCASE_VISIBLE = 12;
-/** Productos por página al pulsar «Ver más» (2 filas × 4 columnas). */
+/** Productos extra al llegar al final de la vitrina (scroll infinito). */
 export const HAITECH_EQUIPMENT_SHOWCASE_PAGE_SIZE = 8;
 
 const SHOWCASE_EQUIPMENT_FEATURES = ['copia', 'escanea', 'imprime', 'rendimiento'] as const;
@@ -607,7 +605,8 @@ const SHOWCASE_TECNICO_PRICE_USD: Readonly<Record<string, number>> = {
   'ab878d89-61e0-4e51-a941-03455e1da407': 859,
   'm-320f': 399,
   'im-460f': 999,
-  'im-550f': 1499,
+  'im-550f': 1519,
+  '328f41ef-d935-4807-85d0-e1db5bdf73fb': 1519,
   'im-600f': 1819,
   'b32a43a1-09e4-49f6-8950-3639c9534700': 1819,
   'im-2500': 3549,
@@ -638,6 +637,11 @@ const SHOWCASE_TECNICO_PRICE_USD: Readonly<Record<string, number>> = {
   'im-c400f-reman': 1299,
   'mp-401-reman': 599,
   'mp-301-reman': 499,
+  'a0c22000-7c3e-4a91-8b12-1d2e3f4a2200': 2999,
+  'a0d0e185-7c3e-4a91-8b12-1d2e3f4a0d18': 49,
+  '077f6dc135-monitor-dell-185': 49,
+  'lg-monitor-49uh5n-e': 549,
+  'semi-fujitsu-fi-7160z': 299,
 };
 
 export function resolveShowcaseEquipmentTecnicoUsd(product: HaitechShopProduct): number | null {
@@ -899,25 +903,6 @@ const HAITECH_SHOWCASE_REMANUFACTURADAS: readonly HaitechShopProduct[] = [
 
 /** Pool vitrina Formato Ancho (plotters + multifuncionales de planos). */
 const HAITECH_SHOWCASE_FORMATO_ANCHO: readonly HaitechShopProduct[] = [
-  {
-    id: 'ricoh-mp-cw2201-n',
-    name: 'Multifuncional de Planos RICOH MP CW2201',
-    brand: 'RICOH',
-    code: 'CW2201',
-    stock: 0,
-    image: '/products/plotter-laser-color-ricoh-im-cw2200.webp',
-    price: 0,
-    condition: 'nuevo',
-    features: SHOWCASE_EQUIPMENT_FEATURES,
-    equipment: {
-      speedPpm: '70 ppm',
-      paperSize: 'A1',
-      scannerType: 'SPDF',
-      monthlyYield: '50.000 pág/mes',
-    },
-    tabIds: ['multifuncionales'],
-    showcaseCategoryIds: ['formato-ancho'],
-  },
   {
     id: '4f977d63-4903-4b1d-aff0-b2a39e7242d8',
     name: 'Plotter Multifuncional color RICOH IM CW2200',
@@ -1353,12 +1338,42 @@ const HAITECH_SHOWCASE_EXTRA_PRODUCTS: readonly HaitechShopProduct[] = [
     featuredTitle: 'Dell OptiPlex 7010 i5 13ª',
   },
   {
+    id: 'a0d0e185-7c3e-4a91-8b12-1d2e3f4a0d18',
+    name: 'Monitor Seminuevo DELL 18.5',
+    brand: 'DELL',
+    code: 'MON-DELL-185-SN',
+    stock: 38,
+    image: '/categories/monitores.png',
+    ...showcasePricesFromPublicUsd(149),
+    condition: 'seminuevo',
+    tabIds: ['ofertas'],
+    showcaseCategoryIds: ['monitores'],
+    href: productPath('monitor-seminuevo-dell-18-5-a0d0e185-7c3'),
+    productTypeLabel: 'Monitor',
+    featuredTitle: 'Monitor Seminuevo DELL 18.5',
+  },
+  {
+    id: '077f6dc135-monitor-dell-185',
+    name: 'Monitor Seminuevo DELL 18.5',
+    brand: 'DELL',
+    code: '077F6DC135',
+    stock: 0,
+    image: '/categories/monitores.png',
+    ...showcasePricesFromPublicUsd(349),
+    condition: 'seminuevo',
+    tabIds: ['ofertas'],
+    showcaseCategoryIds: ['monitores'],
+    href: productPath('monitor-seminuevo-dell-18-5-077f6dc135'),
+    productTypeLabel: 'Monitor',
+    featuredTitle: 'Monitor Seminuevo DELL 18.5',
+  },
+  {
     id: 'lg-monitor-49uh5n-e',
     name: 'Monitor publicitario LG 49" 49UH5N-E UHD',
     brand: 'LG',
     code: '49UH5N-E',
     stock: 10,
-    image: '/home/category-circles/cat-monitores.png',
+    image: '/products/videoconf-lg-monitor-49-uhd.webp',
     ...showcasePricesFromPublicUsd(649),
     condition: 'nuevo',
     tabIds: ['ofertas'],
@@ -1374,6 +1389,7 @@ export type HaitechEquipmentCardSpecs = {
   speedPpm: string;
   paperSize: 'A4' | 'A3' | 'A4 / A3' | 'A0' | 'A1';
   monthlyYield: string;
+  scannerLabel: 'Doble Scan' | 'ADF Estándar' | null;
 };
 
 function equipmentMatchesPaperFormat(
@@ -1415,13 +1431,14 @@ export function resolveEquipmentScannerSuffix(
   if (!isMultifunction) return null;
 
   const explicit = product.equipment?.scannerType;
-  if (explicit === 'ARDF' || explicit === 'SPDF') return explicit;
+  if (explicit === 'SPDF') return 'SPDF';
+  if (explicit === 'ARDF' || explicit === 'Estándar') return 'ARDF';
 
   const name = `${product.name} ${product.code ?? ''}`;
   if (/\bspdf\b/i.test(name)) return 'SPDF';
   if (/\bardf\b/i.test(name)) return 'ARDF';
 
-  return 'SPDF';
+  return 'ARDF';
 }
 
 export { resolveEquipmentShowcaseCode };
@@ -1448,7 +1465,7 @@ function formatShowcaseTitleSuffix(
 }
 
 /**
- * Título vitrina: «Impresora Multifuncional Nueva RICOH IM 460F (SPDF)»
+ * Título vitrina: «Impresora Multifuncional Seminueva RICOH MP 301 (ARDF)»
  * (B/N o Color se indica en los specs de la card, no en el título).
  */
 export function formatEquipmentShowcaseFullTitle(product: HaitechShopProduct): string {
@@ -1471,34 +1488,45 @@ export function formatEquipmentShowcaseFullTitle(product: HaitechShopProduct): s
     return product.name.replace(/\s+/g, ' ').trim();
   }
 
+  if (
+    product.showcaseCategoryIds?.some((id) =>
+      ['laptops', 'monitores', 'accesorios'].includes(id),
+    ) ||
+    product.productTypeLabel === 'Monitor' ||
+    product.productTypeLabel === 'Mini PC' ||
+    /\bmonitor\b/i.test(product.name)
+  ) {
+    return product.name
+      .replace(/\s+/g, ' ')
+      .replace(/\b(monitor)\s+(seminuev[oa])\s+\1\b/gi, '$1 $2')
+      .trim();
+  }
+
   const brand = (product.brand ?? 'RICOH').trim().toUpperCase();
 
   if (product.showcaseCategoryIds?.includes('formato-ancho')) {
     const conditionLabel = product.condition === 'seminuevo' ? 'Seminuevo' : 'Nuevo';
     const plain = product.name.replace(/\s+/g, ' ').trim();
-    const model = plain
-      .replace(/\b(multifuncional de planos|plotter|formato ancho)\b/gi, '')
-      .replace(new RegExp(`\\b${brand}\\b`, 'gi'), '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    const isPlanos = /multifuncional de planos|cw2201|planos/i.test(product.name);
-    const scannerSuffix = resolveEquipmentScannerSuffix(product);
+    const model = stripScannerTokensFromModel(
+      plain
+        .replace(/\b(impresora|multifuncional de planos|plotter|formato ancho)\b/gi, '')
+        .replace(new RegExp(`\\b${brand}\\b`, 'gi'), '')
+        .replace(/\b(seminuev[oa]s?|nuev[oa]s?)\b/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim(),
+    );
+    const isPlanos = /multifuncional de planos|mp cw2201\b|mp cw2200\b|planos/i.test(product.name);
+    const scannerSuffix =
+      product.equipment?.scannerType === 'SPDF' || /\bspdf\b/i.test(plain)
+        ? 'SPDF'
+        : product.equipment?.scannerType === 'ARDF' || /\bardf\b/i.test(plain)
+          ? 'ARDF'
+          : null;
     const titleBase = isPlanos
       ? `Multifuncional de Planos ${conditionLabel} ${brand} ${model || plain}`.trim()
       : `Plotter ${conditionLabel} ${brand} ${model || plain}`.trim();
     const suffix = formatShowcaseTitleSuffix(scannerSuffix, product.showcaseVariantLabel);
     return suffix ? `${titleBase} ${suffix}` : titleBase;
-  }
-
-  if (product.condition === 'seminuevo' && product.showcaseCategoryIds?.length) {
-    const plain = product.name.replace(/\s+/g, ' ').trim();
-    if (
-      product.showcaseCategoryIds.some((id) =>
-        ['laptops', 'monitores', 'accesorios', 'escaneres'].includes(id),
-      )
-    ) {
-      return plain;
-    }
   }
 
   const scannerSuffix = resolveEquipmentScannerSuffix(product);
@@ -1520,7 +1548,7 @@ export function formatEquipmentShowcaseFullTitle(product: HaitechShopProduct): s
         !product.equipment?.scannerType);
 
     const titleBase = (isPrinterReman
-      ? `Impresora Remanufacturada ${brand} ${model || product.name}`
+      ? `Impresora Laser Remanufacturada ${brand} ${model || product.name}`
       : `Multifuncional Remanufacturada ${brand} ${model || product.name}`)
       .replace(/\s+/g, ' ')
       .trim();
@@ -1536,7 +1564,8 @@ export function formatEquipmentShowcaseFullTitle(product: HaitechShopProduct): s
       .replace(new RegExp(`\\b${brand}\\b`, 'gi'), '')
       .replace(/\b(impresora|multifuncional|multifunción|láser|laser)\b/gi, '')
       .replace(/\b(nuevo|nueva|seminuevo|seminueva)\b/gi, '')
-      .replace(/\b(color|b\/n|bn|blanco\s*y\s*negro)\b/gi, ''),
+      .replace(/\b(color|b\/n|bn|blanco\s*y\s*negro)\b/gi, '')
+      .replace(/\bm\s*c251fw\s*\/\s*m\s*c250fw\b/gi, 'M C250FW'),
   );
 
   const isPrinterOnly =
@@ -1546,7 +1575,7 @@ export function formatEquipmentShowcaseFullTitle(product: HaitechShopProduct): s
     !product.equipment?.scannerType;
 
   const titleBase = (isPrinterOnly
-    ? `Impresora ${conditionLabel} ${brand} ${model || product.name}`
+    ? `Impresora Laser ${conditionLabel} ${brand} ${model || product.name}`
     : `Impresora Multifuncional ${conditionLabel} ${brand} ${model || product.name}`)
     .replace(/\s+/g, ' ')
     .trim();
@@ -1563,7 +1592,8 @@ export function resolveEquipmentCardSpecs(product: HaitechShopProduct): HaitechE
     /\bm\s*c\d/i.test(product.name) ||
     /\bp\s*c\d/i.test(product.name) ||
     /\bsp\s*c\d/i.test(product.name) ||
-    /\bc\d{3,}/i.test(product.name);
+    /\bc\d{3,}/i.test(product.name) ||
+    /\b(?:mp|im)\s*cw\s*220[01]\b/i.test(product.name);
 
   const paperSize: HaitechEquipmentCardSpecs['paperSize'] =
     product.equipment?.paperSize ??
@@ -1577,18 +1607,61 @@ export function resolveEquipmentCardSpecs(product: HaitechShopProduct): HaitechE
             ? 'A3'
             : 'A4');
 
-  const speedPpm = product.equipment?.speedPpm ?? '—';
-  const monthlyYieldRaw = product.equipment?.monthlyYield ?? '—';
+  const storedSpeed = product.equipment?.speedPpm?.trim();
+  const inferredPpm = resolveProductSpeedPpm({ name: product.name, code: product.code });
+  const inferredSpeed =
+    inferredPpm != null && Number.isFinite(inferredPpm) && inferredPpm > 0
+      ? `${inferredPpm} ppm`
+      : formatPpmLabel(inferPpmDigitsFromRicohModelName(product.name)) ??
+        (() => {
+          const sp = product.name.match(/\bSP\s*(\d{3,4})/i);
+          if (sp?.[1]) return formatPpmLabel(sp[1].slice(0, 2));
+          const compact = product.name.match(/\bM\s+(\d{3})(?!\d)/i);
+          if (compact?.[1]) return formatPpmLabel(compact[1].slice(0, 2));
+          return null;
+        })();
+  const speedPpm =
+    storedSpeed && storedSpeed !== '—' ? storedSpeed : inferredSpeed?.trim() || '—';
+
+  const storedYield = product.equipment?.monthlyYield?.trim();
+  const inferredYield =
+    resolveRicohMonthlyProductionFromModel({ name: product.name }) ??
+    (() => {
+      const sp = product.name.match(/\bSP\s*(\d{3,4})/i);
+      const compact = product.name.match(/\bM\s+(\d{3})(?!\d)/i);
+      const block = sp?.[1] ?? compact?.[1];
+      if (!block) return null;
+      const firstDigit = Number(block[0]);
+      if (!Number.isFinite(firstDigit) || firstDigit <= 0) return null;
+      return formatMonthlyProductionLabel(firstDigit * 10_000);
+    })();
+  const monthlyYieldRaw =
+    storedYield && storedYield !== '—' ? storedYield : inferredYield?.trim() || '—';
   const monthlyYield =
     monthlyYieldRaw === '—'
       ? '—'
       : monthlyYieldRaw.replace(/\s*p[aá]g(?:inas)?(?:\s*\/\s*mes)?\.?/gi, ' pags').replace(/\s+/g, ' ').trim();
+
+  const scannerType = product.equipment?.scannerType;
+  const inferredAdf = inferAdf({ name: product.name });
+  const scannerLabel: HaitechEquipmentCardSpecs['scannerLabel'] = (() => {
+    if (scannerType === 'SPDF') return 'Doble Scan';
+    if (scannerType === 'ARDF' || scannerType === 'Estándar') return 'ADF Estándar';
+    if (inferredAdf === 'Doble Scan' || /\bspdf\b|doble\s*scan/i.test(product.name)) {
+      return 'Doble Scan';
+    }
+    if (inferredAdf === 'Estándar' || /multifuncional|impresora/i.test(product.name)) {
+      return 'ADF Estándar';
+    }
+    return null;
+  })();
 
   return {
     printMode: isColor ? 'Color' : 'B/N',
     speedPpm,
     paperSize,
     monthlyYield,
+    scannerLabel,
   };
 }
 
@@ -1650,15 +1723,51 @@ function matchesCondition(
   return product.condition === 'seminuevo';
 }
 
-/** Duplicado de IM C320F; la ficha principal (`481dbc77-…`) sí se muestra. */
+/** Duplicados; la ficha principal de cada modelo sí se muestra. */
 const SHOWCASE_HIDDEN_EQUIPMENT_IDS = new Set([
   'ricoh-im-c320f-a4',
   '7459b432-72a0-420a-8bff-015a0072f5ac',
+  'ffbec10e-aaf3-4a6f-995c-9bcbfb9d39e2',
+  'e392ea82-ebec-461f-8361-a81359bace28',
+  '0f073d45-5785-4b43-8c22-bba5faeedc6d',
+  'ee249761-a942-4397-8170-ee156acd06cf',
+  '07452fe5-4610-49a6-a73f-980107810f9b',
+  '22adb983-c986-4b33-ad5e-4ff9fbd1fb17',
+  'ee76352f-8494-4070-b64b-db50a0f43dac',
+  '03b408ff-0b06-4ec5-90ed-94dcb40fd67c',
+  '4950b07c-50aa-4884-9e40-e7c9cd1362cb',
+  'dd5efa36-73f6-4241-b2ad-6e74ef058733',
+  'b0811a6f-0f94-4bea-8804-3f7dd0d28a1c',
+  'a853cd99-17e7-445a-a6b2-4f527753db6f',
+  'im-c400f-reman',
+  '9a2b429a-0be0-46de-8320-ce57ee9a9f83',
+  'a334ef53-4cb1-4207-9df8-7492c3123290',
+  '1f34bfe4-95be-45c4-be3e-37a740fee9b9',
+  '9a955212-f712-4a2e-acf7-f03b059f7c98',
+  '2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2',
+  'a4be1850-48ac-40fd-8962-14c00bec5e59',
+  'fd51b686-5191-4fa0-8d41-9f13527467cd',
+  'ae1904f7-4a13-4076-802a-4d917a8471aa',
+  'im-600f',
+  'e8f574f7-c70c-44b6-8d28-95023f47f72d',
+  // MP C2504 (cilindro mg, cuchilla) retirada de vitrina.
+  '2ae814f0-ec1e-41cb-b557-20ebe3a31094',
+  // Stub agotado sin precio (CW2201 nuevo); no va en vitrina.
+  'ricoh-mp-cw2201-n',
 ]);
 
 function isHiddenShowcaseEquipment(product: HaitechShopProduct): boolean {
   if (SHOWCASE_HIDDEN_EQUIPMENT_IDS.has(product.id)) return true;
+  if (isIm550fChildVariantSku(product)) return true;
+  if (product.condition === 'seminuevo' && /im\s*600f/i.test(product.name)) return true;
   return isHomeCarouselExcludedProduct(product);
+}
+
+function hasShowcaseEquipmentPhoto(product: HaitechShopProduct): boolean {
+  const image = product.image?.trim() ?? '';
+  if (!image) return false;
+  if (image.startsWith('/categories/') || image.startsWith('/promotions/')) return false;
+  return true;
 }
 
 function showcaseProductDedupeKey(product: HaitechShopProduct): string {
@@ -1797,6 +1906,16 @@ function matchesShowcaseCategory(
   if (category.id === 'videoconferencia') {
     return isVideoconferenciaShowcaseProduct(product);
   }
+  if (
+    product.showcaseCategoryIds?.includes('formato-ancho') ||
+    product.showcaseCategoryIds?.includes('plotter') ||
+    product.showcaseCategoryIds?.includes('multifuncional-planos') ||
+    /multifuncional de planos|mp\s*cw2201\b|mp\s*cw2200\b|formato ancho|plotter/i.test(
+      product.name,
+    )
+  ) {
+    return false;
+  }
   if (!category.shopTabId) return false;
   if (product.tabIds.includes(category.shopTabId)) return true;
   if (category.shopTabId === 'multifuncionales' && /multifuncional/i.test(product.name)) {
@@ -1902,6 +2021,15 @@ export function filterEquipmentShowcaseProducts(options: {
     .filter((product) => {
       if (isHiddenShowcaseEquipment(product)) return false;
       if (!matchesShowcaseCategory(product, category)) return false;
+      if (
+        !isConsumable &&
+        Boolean(product.equipment) &&
+        !product.showcaseCategoryIds?.includes('laptops') &&
+        !product.showcaseCategoryIds?.includes('monitores') &&
+        !hasShowcaseEquipmentPhoto(product)
+      ) {
+        return false;
+      }
 
       if (isConsumable) {
         if (!isTonerOrRepuestoProduct(product)) return false;
@@ -1933,6 +2061,12 @@ export function filterEquipmentShowcaseProducts(options: {
         (category.id === 'accesorios' &&
           Boolean(product.showcaseCategoryIds?.includes('accesorios')));
       if (!skipConditionFilter && !matchesCondition(product, options.condition)) return false;
+      if (
+        options.condition === 'seminuevas' &&
+        Math.max(0, Math.floor(Number(product.stock) || 0)) <= 0
+      ) {
+        return false;
+      }
       if (category.id === 'laptops') {
         if (
           options.laptopSpecFilters &&

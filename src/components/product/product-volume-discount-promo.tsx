@@ -4,10 +4,11 @@ import { ChevronDown, Percent } from 'lucide-react';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import {
-  resolveEffectiveBulkDiscountTier,
   DEFAULT_BULK_DISCOUNT_TIERS,
   parseBulkDiscountRange,
+  resolveEffectiveBulkDiscountTier,
 } from '@/lib/bulk-discount-tiers';
+import { resolveProductBulkDiscountTiers } from '@/lib/product-bulk-discount';
 import { resolveProductBulkDiscountHint } from '@/lib/checkout-cart-bulk-discount';
 import { formatDisplayPriceFromUsd } from '@/lib/display-price';
 import { ensureFullPrices } from '@/lib/roles';
@@ -43,7 +44,9 @@ export function ProductVolumeDiscountPromo({
   const panelId = useId();
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const settingsQuery = useCompanySettings();
-  const tiers = tiersProp ?? settingsQuery.data?.bulkDiscountTiers ?? DEFAULT_BULK_DISCOUNT_TIERS;
+  const tiers =
+    tiersProp ??
+    resolveProductBulkDiscountTiers(product, settingsQuery.data?.bulkDiscountTiers ?? DEFAULT_BULK_DISCOUNT_TIERS);
 
   const pricingOptions = useMemo(
     () => ({

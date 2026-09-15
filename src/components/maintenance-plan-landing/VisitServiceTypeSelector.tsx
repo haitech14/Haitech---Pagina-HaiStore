@@ -1,4 +1,4 @@
-import { Check, Settings, Shield, Wrench, type LucideIcon } from 'lucide-react';
+import { Check, Headset, Settings, Shield, Wrench, type LucideIcon } from 'lucide-react';
 
 import {
   VISIT_DEFECT_OPTIONS,
@@ -11,6 +11,7 @@ const SERVICE_ICONS: Record<VisitServiceIconId, LucideIcon> = {
   wrench: Wrench,
   shield: Shield,
   settings: Settings,
+  headset: Headset,
 };
 
 interface VisitServiceTypeSelectorProps {
@@ -21,7 +22,7 @@ interface VisitServiceTypeSelectorProps {
 export function VisitServiceTypeSelector({ value, onChange }: VisitServiceTypeSelectorProps) {
   return (
     <div
-      className="grid grid-cols-3 gap-2.5"
+      className="grid grid-cols-2 gap-2.5 sm:grid-cols-4"
       role="listbox"
       aria-label="Tipo de servicio"
     >

@@ -16,6 +16,8 @@ interface ProductStockHoverProps {
   showIcon?: boolean;
   /** Prefijo visible, p. ej. «Stock ». */
   prefix?: string;
+  /** Icono arriba y cantidad debajo. */
+  layout?: 'inline' | 'stack';
   /** Texto cuando no hay stock (por defecto etiqueta «A pedido»). */
   emptyLabel?: string;
 }
@@ -63,6 +65,7 @@ export function ProductStockHover({
   iconClassName = 'size-3.5 shrink-0',
   showIcon = true,
   prefix = '',
+  layout = 'inline',
   emptyLabel = PRODUCT_ON_REQUEST_STOCK_LABEL,
 }: ProductStockHoverProps) {
   const qty = Math.max(0, Math.floor(Number(stock) || 0));
@@ -73,7 +76,8 @@ export function ProductStockHover({
   const badge: ReactNode = (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 tabular-nums',
+        'inline-flex shrink-0 tabular-nums',
+        layout === 'stack' ? 'flex-col items-center gap-0.5' : 'items-center gap-1',
         outOfStock ? 'text-[#8a93a3]' : 'text-emerald-700',
         showWarehouseTooltip ? 'cursor-help' : null,
         className,

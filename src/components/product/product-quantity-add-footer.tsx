@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Minus, Plane, Plus, ShoppingCart } from 'lucide-react';
 
 import {
@@ -10,6 +10,9 @@ import {
   getAddToCartLabel,
   isAddOnRequestProduct,
 } from '@/components/cart/add-to-cart-button';
+import { useCompanySettings } from '@/hooks/use-company-settings';
+import { resolveProductVolumeUnitUsd } from '@/lib/checkout-cart-bulk-discount';
+import { resolveProductBulkDiscountTiers } from '@/lib/product-bulk-discount';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
@@ -65,12 +68,21 @@ export function ProductQuantityAddFooter({
   centeredActions = false,
 }: ProductQuantityAddFooterProps) {
   const [quantity, setQuantity] = useState(1);
+  const settingsQuery = useCompanySettings();
+  const volumeTiers = resolveProductBulkDiscountTiers(
+    product,
+    settingsQuery.data?.bulkDiscountTiers,
+  );
+  const volumeUnitPriceUsd = useMemo(
+    () => resolveProductVolumeUnitUsd(product, quantity, volumeTiers),
+    [product, quantity, volumeTiers],
+  );
   const orderHint = formatOrderQuantityHint(product, quantity);
   const onRequestOnly = isAddOnRequestProduct(product, quantity);
-  const cartLabel = onRequestOnly
-    ? ADD_ON_REQUEST_LABEL
-    : (addLabel ?? getAddToCartLabel(product, 'short', quantity));
-  const cartLabelHover = onRequestOnly ? null : addLabelHover ?? null;
+  const cartLabel =
+    addLabel ??
+    (onRequestOnly ? ADD_ON_REQUEST_LABEL : getAddToCartLabel(product, 'short', quantity));
+  const cartLabelHover = addLabel != null ? addLabelHover ?? null : onRequestOnly ? null : addLabelHover ?? null;
   const swapLabelOnHover = Boolean(cartLabelHover && revealQuantityOnHover && !hideQuantity);
   const hideEndAdornmentOnHover = Boolean(belowOnHover && endAdornment);
   const hoverRevealClass = belowAlways
@@ -177,7 +189,10 @@ export function ProductQuantityAddFooter({
   const addButton = (
     <AddToCartButton
       product={product}
-      addOptions={{ quantity }}
+      addOptions={{
+        quantity,
+        ...(volumeUnitPriceUsd != null ? { volumeUnitPriceUsd } : {}),
+      }}
       className={cn(
         addButtonClass,
         'border-[#E30613] bg-[#E30613] text-white shadow-none hover:bg-[#c90511] hover:text-white focus-visible:ring-[#E30613]',

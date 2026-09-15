@@ -288,6 +288,12 @@ function normalizeAttachments(value) {
     .filter(Boolean);
 }
 
+/** Variante de Compra: no entra en el mínimo entre proveedores. */
+function normalizeSpecialPurchasePriceUsd(value) {
+  const n = Math.round(Math.max(0, Number(value) || 0) * 100) / 100;
+  return Number.isFinite(n) ? n : 0;
+}
+
 function resolvePurchasePriceUsd(suppliers, fallbackUsd = 0) {
   const priced = suppliers
     .map((supplier) => Number(supplier.purchase_price_usd) || 0)
@@ -357,6 +363,9 @@ export function migrateInventoryProduct(product, warehouses = normalizeWarehouse
     attachments,
     attributes,
     purchase_price_usd: resolvePurchasePriceUsd(suppliers, fallbackPurchase),
+    special_purchase_price_usd: normalizeSpecialPurchasePriceUsd(
+      normalizedToner.special_purchase_price_usd,
+    ),
     image_url,
     gallery,
     stock_by_warehouse,
@@ -418,6 +427,8 @@ export function mergeCatalogProduct(seed, existing, warehouses) {
       attachments: existing.attachments,
       attributes: existing.attributes,
       purchase_price_usd: existing.purchase_price_usd,
+      special_purchase_price_usd:
+        existing.special_purchase_price_usd ?? seed.special_purchase_price_usd,
       prices: seed.prices ?? existing.prices,
       description: seed.description ?? existing.description,
       image_url: seed.image_url ?? existing.image_url,
@@ -1019,6 +1030,8 @@ export function normalizeProductInput(body, existing, warehouses) {
       image_url,
       gallery,
       purchase_price_usd: body.purchase_price_usd ?? existing?.purchase_price_usd,
+      special_purchase_price_usd:
+        body.special_purchase_price_usd ?? existing?.special_purchase_price_usd,
       suppliers: body.suppliers ?? existing?.suppliers,
       attachments: body.attachments ?? existing?.attachments,
       attributes: body.attributes ?? existing?.attributes,

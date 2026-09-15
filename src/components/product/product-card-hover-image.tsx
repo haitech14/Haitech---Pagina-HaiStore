@@ -26,6 +26,8 @@ interface ProductCardHoverImageProps {
   /** Eager solo para primeras tarjetas above-the-fold. */
   loading?: 'lazy' | 'eager';
   fetchPriority?: 'high' | 'low' | 'auto';
+  /** Zoom 1.05 al hover/focus de la tarjeta (`group`), no solo de la imagen. */
+  zoomOnCardHover?: boolean;
 }
 
 export function ProductCardHoverImage({
@@ -41,6 +43,7 @@ export function ProductCardHoverImage({
   loading = 'lazy',
   fetchPriority,
   imageVersion = null,
+  zoomOnCardHover = false,
 }: ProductCardHoverImageProps) {
   const [failedIndices, setFailedIndices] = useState<Set<number>>(() => new Set());
   const [hoverFailed, setHoverFailed] = useState(false);
@@ -98,7 +101,10 @@ export function ProductCardHoverImage({
   }
 
   const hasHoverSwap = Boolean(resolvedHoverSrc);
-  const hasHoverZoom = hoverCapable && !canHoverSwap;
+  const hasHoverZoom = hoverCapable && !canHoverSwap && !zoomOnCardHover;
+  const cardZoomClass = zoomOnCardHover
+    ? 'origin-center transition-transform duration-300 ease-out group-hover:scale-105 group-focus-within:scale-105 group-data-[expanded=true]:scale-105 motion-reduce:transform-none motion-reduce:transition-none'
+    : null;
 
   const imageLayers = (
     <>
@@ -107,6 +113,7 @@ export function ProductCardHoverImage({
           'absolute inset-0 flex items-center justify-center',
           hasHoverSwap &&
             'group-hover/image:invisible group-focus-within/image:invisible motion-reduce:group-hover/image:visible motion-reduce:group-focus-within/image:visible',
+          cardZoomClass,
         )}
       >
         <ProductCardImage
@@ -119,7 +126,7 @@ export function ProductCardHoverImage({
           className={cn(
             imageClassName,
             hasHoverZoom &&
-              'transition-transform duration-300 ease-out group-hover/image:scale-105 motion-reduce:transition-none motion-reduce:transform-none',
+              'origin-center transition-transform duration-300 ease-out group-hover/image:scale-105 motion-reduce:transition-none motion-reduce:transform-none',
           )}
           {...(overlayClassName ? { overlayClassName } : {})}
           {...(watermarkClassName ? { watermarkClassName } : {})}
@@ -131,6 +138,7 @@ export function ProductCardHoverImage({
           className={cn(
             'pointer-events-none absolute inset-0 flex items-center justify-center',
             'invisible group-hover/image:visible group-focus-within/image:visible',
+            cardZoomClass,
           )}
         >
           <ProductCardImage
@@ -161,7 +169,7 @@ export function ProductCardHoverImage({
     <div
       className={cn(
         'group/image relative size-full min-h-0 min-w-0',
-        hasHoverZoom && 'overflow-hidden',
+        (hasHoverZoom || zoomOnCardHover) && 'overflow-hidden',
         className,
       )}
       onPointerEnter={() => {

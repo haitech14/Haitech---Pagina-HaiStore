@@ -1,4 +1,4 @@
-import { ArrowRight, Check, MapPin, Package, Printer, Timer } from 'lucide-react';
+import { ArrowRight, Check, MapPin, Package, Printer } from 'lucide-react';
 
 import { PagesEditPopover } from '@/components/rental-landing/solution-configurator/pages-edit-popover';
 import { Button } from '@/components/ui/button';
@@ -6,16 +6,20 @@ import {
   OPERATIONAL_SERVICE_EVERY_PAGES,
   OPERATIONAL_SERVICE_FEE_PEN,
   OPERATIONAL_TONER_PARTS_PER_PAGE_PEN,
+  SOLUTION_MIN_MONTHLY_PEN,
+  SOLUTION_TERM_OPTIONS,
   clampVolumePages,
   conditionLabel,
   equipmentLabel,
   formatCopyCostPen,
   formatSolutionPen,
+  formatSolutionTermLabel,
   formatSolutionVolumeLabel,
   includesForCondition,
   modelById,
   type SolutionConfiguratorState,
   type SolutionQuoteBreakdown,
+  type SolutionTermMonths,
 } from '@/data/rental-solution-configurator';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +30,7 @@ interface QuoteSummaryProps {
   onBlackPagesChange?: (value: number) => void;
   onColorPagesChange?: (value: number) => void;
   onVolumePagesChange?: (value: number) => void;
+  onTermChange?: (value: SolutionTermMonths) => void;
   className?: string;
 }
 
@@ -36,6 +41,7 @@ export function QuoteSummary({
   onBlackPagesChange,
   onColorPagesChange,
   onVolumePagesChange,
+  onTermChange,
   className,
 }: QuoteSummaryProps) {
   const model = modelById(state.modelId);
@@ -77,6 +83,39 @@ export function QuoteSummary({
         </span>
       </div>
 
+      <div className="mt-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">Plazo</p>
+        <div
+          className="mt-1.5 grid grid-cols-3 gap-1.5"
+          role="radiogroup"
+          aria-label="Plazo de alquiler"
+        >
+          {SOLUTION_TERM_OPTIONS.map((option) => {
+            const selected = state.termMonths === option.months;
+            return (
+              <button
+                key={option.months}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                disabled={!onTermChange}
+                onClick={() => onTermChange?.(option.months)}
+                className={cn(
+                  'rounded-full border px-2 py-1.5 text-center text-[11px] font-bold transition',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]',
+                  selected
+                    ? 'border-[#E30613] bg-[#FFF1F1] text-[#E30613]'
+                    : 'border-[#E5E7EB] bg-white text-[#4B5563] hover:border-[#E30613]/40',
+                  !onTermChange && 'cursor-default',
+                )}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="mt-4 rounded-xl border border-[#E30613]/25 bg-[#FFF1F2] px-3.5 py-3">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-[#991B1B]">
           Total mensual
@@ -96,6 +135,12 @@ export function QuoteSummary({
           </span>
           <span className="text-sm font-semibold text-[#6B7280]">/mes</span>
         </p>
+        {quote.minMonthlyApplied > 0 ? (
+          <p className="mt-2 text-[11px] leading-snug text-[#991B1B]">
+            El alquiler no baja de {formatSolutionPen(SOLUTION_MIN_MONTHLY_PEN)} al mes, aunque el
+            volumen sea menor.
+          </p>
+        ) : null}
       </div>
 
       <dl className="mt-5 space-y-2 border-t border-[#F0F0F0] pt-4 text-[12px] sm:text-[13px]">
@@ -114,13 +159,6 @@ export function QuoteSummary({
           <div>
             <dt className="text-[#9CA3AF]">Condición</dt>
             <dd className="font-semibold text-[#111111]">{conditionLabel(state.condition)}</dd>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <Timer className="mt-0.5 size-3.5 shrink-0 text-[#E30613]" aria-hidden />
-          <div>
-            <dt className="text-[#9CA3AF]">Plazo</dt>
-            <dd className="font-semibold text-[#111111]">{state.termMonths} meses</dd>
           </div>
         </div>
         {model.usesPrintVolume ? (
@@ -183,7 +221,7 @@ export function QuoteSummary({
         {isNueva ? (
           <ul className="space-y-0.5">
             <li>
-              Cuota equipo (corp. + 20% / {state.termMonths} meses):{' '}
+              Cuota equipo (corp. + 20% / {formatSolutionTermLabel(state.termMonths)}):{' '}
               <span className="font-medium text-[#111111]">
                 {formatSolutionPen(quote.equipmentFinanceMonthly, 2)}
               </span>
@@ -313,7 +351,8 @@ export function QuoteSummary({
             <li>
               Costo de envío (
               {model.paperFormat}: S/ {quote.shippingLegPen} ida + S/ {quote.shippingLegPen} vuelta ={' '}
-              {formatSolutionPen(quote.shippingTotalPen)} / {state.termMonths} meses):{' '}
+              {formatSolutionPen(quote.shippingTotalPen)} / {formatSolutionTermLabel(state.termMonths)}
+              ):{' '}
               <span className="font-medium text-[#111111]">
                 {formatSolutionPen(quote.shippingMonthly, 2)}
               </span>
@@ -323,7 +362,7 @@ export function QuoteSummary({
           <ul className="space-y-0.5">
             <li>
               Costo de envío (S/ {quote.shippingLegPen} ida + S/ {quote.shippingLegPen} vuelta /{' '}
-              {state.termMonths} meses):{' '}
+              {formatSolutionTermLabel(state.termMonths)}):{' '}
               <span className="font-medium text-[#111111]">
                 {formatSolutionPen(quote.shippingMonthly, 2)}
               </span>
@@ -344,6 +383,14 @@ export function QuoteSummary({
             Ajuste provincias:{' '}
             <span className="font-medium text-[#111111]">
               {formatSolutionPen(quote.locationMonthly, 2)}
+            </span>
+          </p>
+        ) : null}
+        {quote.minMonthlyApplied > 0 ? (
+          <p>
+            Mínimo mensual ({formatSolutionPen(SOLUTION_MIN_MONTHLY_PEN)}):{' '}
+            <span className="font-medium text-[#111111]">
+              {formatSolutionPen(quote.minMonthlyApplied, 2)}
             </span>
           </p>
         ) : null}

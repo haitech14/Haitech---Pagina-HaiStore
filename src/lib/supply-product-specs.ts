@@ -1,4 +1,4 @@
-import { MODELO_EQUIPO_ATTR } from '@/lib/category-catalog-filters';
+import { COMPATIBILIDAD_ATTR, MODELO_EQUIPO_ATTR } from '@/lib/category-catalog-filters';
 import { extractProductYield, formatYieldLabel } from '@/lib/product-cost-per-copy';
 import { resolveTonerColorLabel } from '@/lib/product-configure-toner';
 import { resolveProductHeroBrand, resolveProductHeroCode } from '@/lib/product-hero-meta';
@@ -59,6 +59,7 @@ export function resolveSupplyCompatibleModels(
   const raw =
     findAttributeValue(
       product.attributes,
+      COMPATIBILIDAD_ATTR,
       MODELO_EQUIPO_ATTR,
       'modelo de equipo',
       'compatibilidad',
@@ -139,6 +140,11 @@ export function resolveSupplyProductCardSpecRows(product: Product): SupplyProduc
     { id: 'sku', label: 'SKU', value: facts.sku || null },
     { id: 'color', label: 'Color', value: facts.color ?? 'Negro' },
     { id: 'rendimiento', label: 'Rendimiento', value: facts.yieldLabel },
+    {
+      id: 'compatibilidad',
+      label: 'Compatibilidad',
+      value: facts.compatibleModels.length > 0 ? facts.compatibleModels.join(', ') : null,
+    },
   ];
 
   return rows

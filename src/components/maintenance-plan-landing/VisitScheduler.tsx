@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, ImagePlus, Minus, Plus } from 'lucide-react';
 import { es } from 'date-fns/locale';
 import { startOfToday } from 'date-fns';
 
 import { EquipmentModelCombobox } from '@/components/maintenance-plan-landing/EquipmentModelCombobox';
 import { EquipmentSelector } from '@/components/maintenance-plan-landing/EquipmentSelector';
-import { MaintenanceStepHeader } from '@/components/maintenance-plan-landing/MaintenanceStepHeader';
+import { VisitSectionAccordion, type VisitFormStep } from '@/components/maintenance-plan-landing/VisitSectionAccordion';
 import { RegisteredEquipmentPanel } from '@/components/maintenance-plan-landing/RegisteredEquipmentPanel';
 import { VisitFaultCombobox } from '@/components/maintenance-plan-landing/VisitFaultCombobox';
 import { VisitServiceTypeSelector } from '@/components/maintenance-plan-landing/VisitServiceTypeSelector';
@@ -25,6 +25,7 @@ import {
   difficultyLabel,
   formatMaintenancePen,
   isLimaCity,
+  resolveMaintenanceModelLabel,
   maintenanceEquipmentById,
   maintenanceModelById,
   modelsForEquipment,
@@ -40,8 +41,10 @@ import {
   buildMaintenanceVisitWhatsAppMessage,
   calculateMaintenanceVisitQuote,
   dateToVisitKey,
+  formatVisitDateLabel,
   formatVisitHour,
   isVisitSlotAvailable,
+  visitDefectById,
   nextVisitBusinessDate,
   validateMaintenanceVisit,
   matchVisitModelFromLabel,
@@ -74,6 +77,27 @@ const optionCardClass = (selected: boolean) =>
       : 'border-[#E5E7EB] bg-white hover:border-[#E30613]/40',
   );
 
+function isCompanySectionComplete(state: MaintenanceVisitState): boolean {
+  return (
+    isCompleteRuc(state.ruc) &&
+    Boolean(state.razonSocial.trim()) &&
+    Boolean(state.atencion.trim()) &&
+    Boolean(state.celular.trim()) &&
+    Boolean(state.address.trim()) &&
+    Boolean(state.city.trim()) &&
+    Boolean(state.district.trim())
+  );
+}
+
+function isEquipmentSectionComplete(state: MaintenanceVisitState): boolean {
+  return Boolean(resolveMaintenanceModelLabel(state.modelId, state.customModel).trim());
+}
+
+function isServiceSectionComplete(state: MaintenanceVisitState): boolean {
+  if (state.defectId === 'correctivo' && !state.defectCustom.trim()) return false;
+  return Boolean(state.visitDate) && state.visitHour != null;
+}
+
 export function VisitScheduler({ className }: { className?: string | undefined }) {
   const [state, setState] = useState<MaintenanceVisitState>(() => ({
     ...DEFAULT_MAINTENANCE_VISIT_STATE,
@@ -84,8 +108,35 @@ export function VisitScheduler({ className }: { className?: string | undefined }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdTicket, setCreatedTicket] = useState<string | null>(null);
   const [selectedEquipmentKey, setSelectedEquipmentKey] = useState<string | null>(null);
+  const [openStep, setOpenStep] = useState<VisitFormStep | null>(1);
+  const [equipmentConfirmed, setEquipmentConfirmed] = useState(false);
+  const prevCompanyComplete = useRef(false);
+  const prevServiceComplete = useRef(false);
 
   const quote = useMemo(() => calculateMaintenanceVisitQuote(state), [state]);
+  const isRemote = state.defectId === 'remoto';
+  const companyComplete = isCompanySectionComplete(state);
+  const equipmentComplete = equipmentConfirmed && isEquipmentSectionComplete(state);
+  const serviceComplete = isServiceSectionComplete(state);
+
+  useEffect(() => {
+    if (companyComplete && !prevCompanyComplete.current) {
+      setOpenStep(2);
+    }
+    prevCompanyComplete.current = companyComplete;
+  }, [companyComplete]);
+
+  useEffect(() => {
+    if (serviceComplete && !prevServiceComplete.current) {
+      setOpenStep(null);
+    }
+    prevServiceComplete.current = serviceComplete;
+  }, [serviceComplete]);
+
+  const toggleStep = (step: VisitFormStep) => {
+    if (openStep === 2) setEquipmentConfirmed(true);
+    setOpenStep((current) => (current === step ? null : step));
+  };
   const model = maintenanceModelById(state.modelId);
   const usesPrintSpecs = maintenanceEquipmentById(state.equipmentId).usesPrintSpecs;
   const equipmentModels = modelsForEquipment(state.equipmentId);
@@ -196,6 +247,8 @@ export function VisitScheduler({ className }: { className?: string | undefined }
   const handleSelectEquipment = (item: HaiSupportRegisteredEquipment) => {
     const matched = matchVisitModelFromLabel(item.model);
     setSelectedEquipmentKey(`${item.model}|${item.serial}`);
+    setEquipmentConfirmed(true);
+    setOpenStep(3);
     if (matched) {
       patch({
         equipmentId: matched.equipmentId,
@@ -260,12 +313,21 @@ export function VisitScheduler({ className }: { className?: string | undefined }
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.8fr)] lg:items-start lg:gap-8">
           <div className="space-y-6">
-            <div className="rounded-2xl border border-[#E8E8E8] bg-white p-4 shadow-[0_10px_28px_-20px_rgba(15,23,42,0.35)] sm:p-6">
-              <MaintenanceStepHeader
-                step={1}
-                title="Empresa y contacto"
-                subtitle="Al ingresar el RUC se extraen SUNAT y HaiSupport."
-              />
+            <VisitSectionAccordion
+              step={1}
+              title="Empresa y contacto"
+              subtitle="Al ingresar el RUC se extraen SUNAT y HaiSupport."
+              summary={
+                companyComplete
+                  ? [state.razonSocial.trim() || state.ruc, state.district.trim() || state.city.trim()]
+                      .filter(Boolean)
+                      .join(' · ')
+                  : 'Completa RUC, contacto y dirección.'
+              }
+              complete={companyComplete}
+              open={openStep === 1}
+              onToggle={() => toggleStep(1)}
+            >
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <SunatRucField
                   id="visit-ruc"
@@ -405,14 +467,23 @@ export function VisitScheduler({ className }: { className?: string | undefined }
                 </div>
               </div>
               <p className="mt-3 text-xs text-[#6B7280]">{quote.coverageNote}</p>
-            </div>
+            </VisitSectionAccordion>
 
-            <div className="rounded-2xl border border-[#E8E8E8] bg-white p-4 shadow-[0_10px_28px_-20px_rgba(15,23,42,0.35)] sm:p-6">
-              <MaintenanceStepHeader
-                step={2}
-                title="Equipo"
-                subtitle="Elige un equipo registrado o completa el modelo."
-              />
+            <VisitSectionAccordion
+              step={2}
+              title="Equipo"
+              subtitle="Elige un equipo registrado o completa el modelo."
+              summary={
+                equipmentComplete
+                  ? `${quote.modelLabel} · ${quote.paperFormat} · ${quote.printType === 'bw' ? 'B/N' : 'Color'}${
+                      state.quantity > 1 ? ` · ×${state.quantity}` : ''
+                    }`
+                  : 'Selecciona modelo y formato.'
+              }
+              complete={equipmentComplete}
+              open={openStep === 2}
+              onToggle={() => toggleStep(2)}
+            >
               <div className="mt-5 space-y-5">
                 <EquipmentSelector value={state.equipmentId} onChange={handleEquipmentChange} />
 
@@ -566,14 +637,21 @@ export function VisitScheduler({ className }: { className?: string | undefined }
                   </div>
                 </div>
               </div>
-            </div>
+            </VisitSectionAccordion>
 
-            <div className="rounded-2xl border border-[#E8E8E8] bg-white p-4 shadow-[0_10px_28px_-20px_rgba(15,23,42,0.35)] sm:p-6">
-              <MaintenanceStepHeader
-                step={3}
-                title="Servicio y cita"
-                subtitle="Tipo de servicio y horario de la visita."
-              />
+            <VisitSectionAccordion
+              step={3}
+              title="Servicio y cita"
+              subtitle="Tipo de servicio y horario de la visita."
+              summary={
+                serviceComplete
+                  ? `${visitDefectById(state.defectId).label} · ${formatVisitDateLabel(state.visitDate)} · ${formatVisitHour(state.visitHour ?? 0)}`
+                  : 'Elige tipo de servicio, fecha y hora.'
+              }
+              complete={serviceComplete}
+              open={openStep === 3}
+              onToggle={() => toggleStep(3)}
+            >
               <div className="mt-5 space-y-4">
                 <VisitServiceTypeSelector
                   value={state.defectId}
@@ -596,7 +674,9 @@ export function VisitScheduler({ className }: { className?: string | undefined }
                     placeholder={
                       state.defectId === 'correctivo'
                         ? 'Ej. Error SC542, atasco, no enciende…'
-                        : 'Síntoma o detalle adicional'
+                        : state.defectId === 'remoto'
+                          ? 'Ej. No imprime por red, drivers, error en pantalla…'
+                          : 'Síntoma o detalle adicional'
                     }
                   />
                 </div>
@@ -748,7 +828,7 @@ export function VisitScheduler({ className }: { className?: string | undefined }
                 </div>
               </div>
               </div>
-            </div>
+            </VisitSectionAccordion>
           </div>
 
           <div className="space-y-4 lg:sticky lg:top-24">
@@ -764,7 +844,9 @@ export function VisitScheduler({ className }: { className?: string | undefined }
             className="rounded-2xl border border-[#E8E8E8] bg-white p-5 shadow-[0_16px_36px_-22px_rgba(15,23,42,0.45)]"
             aria-live="polite"
           >
-            <p className="text-sm font-bold text-[#111111]">Tu visita técnica</p>
+            <p className="text-sm font-bold text-[#111111]">
+              {isRemote ? 'Tu soporte remoto' : 'Tu visita técnica'}
+            </p>
             <p className="mt-3 flex flex-wrap items-baseline gap-1.5">
               <span className="text-4xl font-black tracking-tight text-[#111111]">
                 {formatMaintenancePen(quote.visitPen)}
@@ -830,7 +912,11 @@ export function VisitScheduler({ className }: { className?: string | undefined }
 
             <div className="mt-5 rounded-xl bg-[#FFF1F2] p-3.5">
               <p className="text-xs font-bold text-[#991B1B]">
-                {quote.includesPackage ? 'El paquete incluye' : 'La visita incluye'}
+                {isRemote
+                  ? 'La sesión incluye'
+                  : quote.includesPackage
+                    ? 'El paquete incluye'
+                    : 'La visita incluye'}
               </p>
               <ul className="mt-2.5 space-y-1.5">
                 {quote.includes.map((item) => (
@@ -871,7 +957,9 @@ export function VisitScheduler({ className }: { className?: string | undefined }
                 ? 'Visita registrada'
                 : isSubmitting
                   ? 'Registrando en HaiSupport…'
-                  : 'Agendar visita'}
+                  : isRemote
+                    ? 'Agendar soporte remoto'
+                    : 'Agendar visita'}
             </Button>
             <p className="mt-3 text-[11px] leading-snug text-[#9CA3AF]">
               Se crea el registro de servicio técnico en HaiSupport. No incluye repuestos.

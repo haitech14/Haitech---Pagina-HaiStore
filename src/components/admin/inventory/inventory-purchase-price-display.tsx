@@ -19,14 +19,24 @@ export function InventoryPurchasePriceDisplay({
     (row) => row.name?.trim() || Number(row.purchase_price_usd) > 0,
   );
 
+  const purchaseUsd = Number(product.purchase_price_usd) || 0;
+  const specialPurchaseUsd = Number(product.special_purchase_price_usd) || 0;
+
   const priceDisplay = (
-    <InventoryDualPrice
-      usd={product.purchase_price_usd}
-      exchangeRate={exchangeRate}
-      useCharm={false}
-      category={product.category}
-      compact={compact}
-    />
+    <span className="inline-flex flex-col items-end gap-0.5">
+      <InventoryDualPrice
+        usd={purchaseUsd}
+        exchangeRate={exchangeRate}
+        useCharm={false}
+        category={product.category}
+        compact={compact}
+      />
+      {specialPurchaseUsd > 0 ? (
+        <span className="text-[0.65rem] font-medium leading-none text-amber-700 dark:text-amber-400">
+          Esp. ${specialPurchaseUsd.toFixed(2)}
+        </span>
+      ) : null}
+    </span>
   );
 
   if (!hasSuppliers) {

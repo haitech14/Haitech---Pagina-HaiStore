@@ -18,6 +18,8 @@ import {
 interface InventoryRolePricesFieldsetProps {
   purchasePriceUsd: number;
   onPurchaseChange: (value: string) => void;
+  specialPurchasePriceUsd?: number;
+  onSpecialPurchaseChange?: (value: string) => void;
   prices: ProductRolePrices;
   onPriceChange: (role: PriceRole, value: string) => void;
   idPrefix?: string;
@@ -134,6 +136,8 @@ function PriceField({
 export function InventoryRolePricesFieldset({
   purchasePriceUsd,
   onPurchaseChange,
+  specialPurchasePriceUsd = 0,
+  onSpecialPurchaseChange,
   prices,
   onPriceChange,
   idPrefix = 'price',
@@ -158,7 +162,7 @@ export function InventoryRolePricesFieldset({
         Los precios de venta en soles se redondean a la centésima terminada en 9 al salir del
         campo (ej. 10.04 → 10.09). El precio de compra conserva el tipo de cambio exacto.
       </p>
-      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         <PriceField
           id={`${idPrefix}-purchase`}
           label="Compra"
@@ -167,6 +171,15 @@ export function InventoryRolePricesFieldset({
           onUsdChange={onPurchaseChange}
           exchangeRate={purchaseRate}
           readOnly={purchaseFromSuppliers}
+          useCharm={false}
+        />
+        <PriceField
+          id={`${idPrefix}-purchase-special`}
+          label="Precio especial"
+          hint="Variante de compra"
+          usdValue={Number(specialPurchasePriceUsd) || 0}
+          onUsdChange={onSpecialPurchaseChange ?? (() => undefined)}
+          exchangeRate={purchaseRate}
           useCharm={false}
         />
         {PRICE_ROLES_EDIT_ORDER.map((priceRole) => {

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { HAITECH_HOME_HERO_SLIDES } from '@/data/haitech-home-shell';
+import { CarouselDots } from '@/components/ui/carousel-dots';
+import { HAITECH_HOME, HAITECH_HOME_HERO_SLIDES } from '@/data/haitech-home-shell';
 import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
 import { cn } from '@/lib/utils';
 
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 9000;
+const FADE_MS_CLASS = 'duration-1000';
 
 type HeroSlide = (typeof HAITECH_HOME_HERO_SLIDES)[number];
 
@@ -13,8 +14,8 @@ const HERO_IMAGE_CLASS = cn(
   'absolute inset-0 h-full object-cover',
   // Móvil: un poco de recorte para encuadrar el titular, sin acercar tanto las impresoras.
   'w-[165%] max-w-none',
-  // Desktop: llena el recuadro más bajo (recorta un poco arriba/abajo, no los lados).
-  'sm:w-full sm:max-w-full sm:object-cover sm:object-center',
+  // Desktop: mismo recuadro; acerca la foto y recorta piso/bordes, no el titular.
+  'sm:left-0 sm:w-full sm:max-w-full sm:origin-[center_30%] sm:object-cover sm:object-center sm:scale-[1.1]',
 );
 
 function heroSlideImageStyle(slide: HeroSlide): CSSProperties {
@@ -74,7 +75,6 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
   const total = HAITECH_HOME_HERO_SLIDES.length;
   const showControls = total > 1;
   const { requestQuote } = useHaitechWhatsAppQuoteContext();
-  const slide = HAITECH_HOME_HERO_SLIDES[index]!;
 
   const handleHeroClick = useCallback(() => {
     requestQuote({ campaign: 'hero-home' });
@@ -98,46 +98,55 @@ export function HaitechHomeHeroCarousel({ className }: { className?: string }) {
     <section
       aria-roledescription={showControls ? 'carrusel' : undefined}
       aria-label="Promociones HAITECH"
-      className={cn('w-full bg-white', className)}
+      className={cn('w-full bg-white px-3 pb-0 pt-0 sm:px-4 lg:px-5', className)}
     >
       <div
-        className={cn(
-          'relative w-full overflow-hidden bg-white',
-          'aspect-[16/11] min-h-[220px] max-h-[min(340px,88vw)]',
-          'sm:aspect-[3.5/1] sm:min-h-[140px] sm:max-h-[min(420px,28vw)]',
-        )}
+        className="mx-auto w-full"
+        style={{ maxWidth: HAITECH_HOME.maxWidth }}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        <button
-          type="button"
-          onClick={handleHeroClick}
-          className="absolute inset-0 block cursor-pointer border-0 bg-transparent p-0"
-          aria-label="Abrir WhatsApp para comprar o cotizar"
+        <div
+          className={cn(
+            'relative w-full overflow-hidden rounded-2xl bg-white',
+            'aspect-[16/11] min-h-[236px] max-h-[min(360px,90vw)]',
+            'sm:aspect-[3.15/1] sm:min-h-[160px] sm:max-h-[min(480px,32vw)]',
+          )}
         >
-          <HeroSlidePicture slide={slide} index={index} />
-        </button>
+          {HAITECH_HOME_HERO_SLIDES.map((heroSlide, slideIndex) => (
+            <div
+              key={heroSlide.id}
+              className={cn(
+                'absolute inset-0 transition-opacity ease-in-out',
+                FADE_MS_CLASS,
+                slideIndex === index ? 'opacity-100' : 'pointer-events-none opacity-0',
+              )}
+              aria-hidden={slideIndex !== index}
+            >
+              <HeroSlidePicture slide={heroSlide} index={slideIndex} />
+            </div>
+          ))}
 
-        {showControls ? (
-          <>
-            <button
-              type="button"
-              aria-label="Banner anterior"
-              onClick={() => goTo(index - 1)}
-              className="absolute left-1.5 top-1/2 z-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white text-[#333] shadow-[0_2px_10px_rgba(0,0,0,0.14)] transition-all duration-200 hover:scale-105 hover:text-[#E30613] hover:shadow-[0_4px_14px_rgba(0,0,0,0.2)] sm:left-2 sm:size-8"
-            >
-              <ChevronLeft className="size-4" strokeWidth={2} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              aria-label="Banner siguiente"
-              onClick={() => goTo(index + 1)}
-              className="absolute right-1.5 top-1/2 z-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white text-[#333] shadow-[0_2px_10px_rgba(0,0,0,0.14)] transition-all duration-200 hover:scale-105 hover:text-[#E30613] hover:shadow-[0_4px_14px_rgba(0,0,0,0.2)] sm:right-2 sm:size-8"
-            >
-              <ChevronRight className="size-4" strokeWidth={2} aria-hidden="true" />
-            </button>
-          </>
-        ) : null}
+          <button
+            type="button"
+            onClick={handleHeroClick}
+            className="absolute inset-0 z-[1] block cursor-pointer border-0 bg-transparent p-0"
+            aria-label="Abrir WhatsApp para comprar o cotizar"
+          />
+
+          {showControls ? (
+            <CarouselDots
+              count={total}
+              selectedIndex={index}
+              onSelect={goTo}
+              ariaLabel="Seleccionar banner"
+              size="lg"
+              inactiveClassName="border-neutral-500 bg-white"
+              activeClassName="border-red-600 bg-red-600"
+              className="pointer-events-none absolute bottom-2.5 left-1/2 z-[2] w-max -translate-x-1/2 gap-0 rounded-full bg-black/35 px-1 py-0.5 backdrop-blur-[2px] sm:bottom-3 [&_button]:pointer-events-auto [&_button]:size-5"
+            />
+          ) : null}
+        </div>
       </div>
     </section>
   );

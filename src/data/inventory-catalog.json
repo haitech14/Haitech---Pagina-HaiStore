@@ -564,7 +564,7 @@
         }
       ],
       "purchase_price_usd": 539.28,
-      "status": "activa",
+      "status": "inactiva",
       "variant_product_ids": [
         "b0811a6f-0f94-4bea-8804-3f7dd0d28a1c",
         "a853cd99-17e7-445a-a6b2-4f527753db6f"
@@ -706,7 +706,7 @@
       ],
       "purchase_price_usd": 503.28,
       "updated_at": "2026-09-12T17:40:41.978Z",
-      "status": "activa",
+      "status": "inactiva",
       "variant_product_ids": [
         "4950b07c-50aa-4884-9e40-e7c9cd1362cb"
       ]
@@ -1537,7 +1537,7 @@
       "name": "Impresora Multifuncional Seminueva RICOH IM 4000 (120V) 220V",
       "description": "Impresora Multifuncional Seminueva RICOH IM 4000 (120V) 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ricoh-im-4000-120v-220v.webp?v=1785174116986",
@@ -1601,7 +1601,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "santa-catalina",
@@ -1934,8 +1934,8 @@
     {
       "id": "ricoh-842831",
       "code": "842831",
-      "name": "Toner Original RICOH Negro IM 2510-IM 3510 (30,100 págs al 5%)",
-      "description": "El Print Cartridge Black Original Ricoh IM 3510 N.º de Parte 842831 es un cartucho de tóner negro diseñado para ofrecer impresiones de alta calidad con textos nítidos, negros intensos y una excelente definición en cada página. Desarrollado específicamente para los equipos multifuncionales Ricoh de la serie IM 3010 e IM 3510, este consumible original garantiza compatibilidad total, rendimiento confiable y resultados consistentes durante todo su ciclo de vida. Su formulación OEM ayuda a optimizar el funcionamiento del equipo, reducir el desgaste de los componentes internos y mantener la productividad en entornos empresariales con altos volúmenes de impresión.\nCompatible: IM 3010 / IM 3510\nEDP: 842831\nColor: Black\nPeso neto caja: 575 g",
+      "name": "Toner Cartucho Original RICOH IM 3510 - IM 2510 / IM 3510 - (30,100 págs)",
+      "description": "Toner Cartucho Original RICOH IM 3510 - IM 2510 / IM 3510 - (30,100 págs)",
       "currency": "USD",
       "stock": 0,
       "stock_by_warehouse": [
@@ -1976,9 +1976,9 @@
           "quantity": 0
         }
       ],
-      "category": "Toner Original",
+      "category": "Toner, Toner Originales",
       "brand": "Ricoh",
-      "image_url": "/products/ricoh-negro-im-2510-im-3510-30-100-p-gs-al-5.webp?v=1784305409809",
+      "image_url": "/products/ricoh-negro-im-2510-im-3510-30-100-p-gs-al-5.webp?v=1789234856300",
       "gallery": [
         "/products/ricoh-negro-im-2510-im-3510-30-100-p-gs-al-5-2.webp",
         "/products/ricoh-negro-im-2510-im-3510-30-100-p-gs-al-5-3.webp",
@@ -2001,33 +2001,45 @@
       "attachments": [],
       "attributes": [
         {
-          "id": "57e4051b-043d-487c-9419-d99e95b8bb41",
+          "id": "32c32a28-4421-42e3-9614-21d1a7ed9168",
           "name": "Modelo de equipo",
-          "value": "IM 2510-IM 3510"
+          "value": "IM 2510 / IM 3510"
         },
         {
-          "id": "0f2087cd-1772-4cd1-8851-6e472615ee4b",
+          "id": "8a6d1c13-08a7-4dd4-bc55-ad776d7ff335",
           "name": "Rendimiento (5%)",
-          "value": "30,100"
+          "value": "30,100 págs"
         },
         {
-          "id": "93a33a5d-947f-4d95-b3ff-c3bf3eec5525",
+          "id": "e39d7f21-7b27-41a2-8f7c-72a8edc7fedb",
           "name": "Color",
           "value": "Negro"
+        },
+        {
+          "id": "cc14974c-5750-4192-bc3a-1bb830aa0328",
+          "name": "Compatibilidad",
+          "value": "IM 2510 / IM 3510"
+        },
+        {
+          "id": "d6df902d-2334-4b1d-8e20-5a78eaa9058b",
+          "name": "Tipo",
+          "value": "Tóner"
         }
       ],
       "bundle_components": [],
       "volume_role_prices": [],
       "created_at": "2026-06-26T05:56:07.268Z",
-      "sort_order": 18,
+      "sort_order": 732,
       "prices": {
-        "public": 10.8,
-        "tecnico": 10.8,
-        "mayorista": 10.8,
-        "distribuidor": 10.8
+        "public": 85,
+        "tecnico": 77.27,
+        "mayorista": 72.9,
+        "distribuidor": 77.27
       },
       "status": "activa",
-      "price": 10.8
+      "price": 10.8,
+      "special_purchase_price_usd": 0,
+      "slug": "toner-cartucho-original-ricoh-im-3510-im-2510-im-3510-30-100-pags-ricoh-842831"
     },
     {
       "id": "compat-tc-im-550-intercopy",
@@ -2128,7 +2140,7 @@
       ],
       "prices": {
         "public": 1749,
-        "tecnico": 1499,
+        "tecnico": 1519,
         "mayorista": 1499,
         "distribuidor": 1549
       },
@@ -6282,6 +6294,11 @@
           "id": "5cc63868-ae92-4b39-954f-4c092964ea3e",
           "name": "Alimentador (ADF)",
           "value": "Estándar"
+        },
+        {
+          "id": "mp7503-oferta",
+          "name": "Oferta",
+          "value": "Sí"
         }
       ],
       "sort_order": 59,
@@ -8561,7 +8578,7 @@
       ],
       "purchase_price_usd": 503.28,
       "updated_at": "2026-09-12T17:40:41.978Z",
-      "status": "activa",
+      "status": "inactiva",
       "variant_product_ids": [
         "03b408ff-0b06-4ec5-90ed-94dcb40fd67c"
       ]
@@ -8884,7 +8901,7 @@
         }
       ],
       "purchase_price_usd": 596.88,
-      "status": "activa",
+      "status": "inactiva",
       "variant_product_ids": [
         "a853cd99-17e7-445a-a6b2-4f527753db6f",
         "dd5efa36-73f6-4241-b2ad-6e74ef058733"
@@ -8971,7 +8988,7 @@
     },
     {
       "id": "58763abe-b3ad-4d63-8798-d116c1fb1dcb",
-      "name": "Impresora Multifuncional Color Seminueva RICOH M C251FW / M C250FW",
+      "name": "Impresora Multifuncional Color Seminueva RICOH M C250FW",
       "currency": "USD",
       "stock": 4,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
@@ -10191,7 +10208,7 @@
         }
       ],
       "purchase_price_usd": 503.28,
-      "status": "activa",
+      "status": "inactiva",
       "variant_product_ids": [
         "b0811a6f-0f94-4bea-8804-3f7dd0d28a1c",
         "dd5efa36-73f6-4241-b2ad-6e74ef058733"
@@ -10295,7 +10312,7 @@
       "id": "06fdba17-ae3d-4bd0-8206-1de6b868a8b9",
       "name": "Impresora Multifuncional Seminueva Ricoh SP 5210F 220V",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/06fdba17-ae3d-4bd0-8206-1de6b868a8b9.webp?v=1784112813944",
@@ -10333,7 +10350,7 @@
         },
         {
           "warehouse_id": "principal",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "san-juan-lurigancho",
@@ -70590,21 +70607,21 @@
     {
       "id": "419078",
       "code": "419078",
-      "name": "Toner Cartucho Original RICOH IM 430F (Rend 14,500)",
-      "description": "Cartucho original negro — Rend 14,500 páginas al 5% — IM-430F / P-502 / IM-430F TL",
+      "name": "Toner Cartucho Original RICOH IM 430 - IM 430 / P502 - (14,500 págs)",
+      "description": "Toner Cartucho Original RICOH IM 430 - IM 430 / P502 - (14,500 págs)",
       "currency": "USD",
       "stock": 28,
-      "category": "Toner Original",
+      "category": "Toner, Toner Originales",
       "brand": "Ricoh",
-      "image_url": "/products/ricoh-im-430f-rend-14-500.webp?v=1784918537142",
+      "image_url": "/products/ricoh-im-430-p502-14-500-p-gs-al-5.webp?v=1789234856306",
       "gallery": [],
       "purchase_price_usd": 47.9,
       "created_at": "2026-06-24T00:00:00.000Z",
       "prices": {
-        "public": 82.9,
-        "tecnico": 69.9,
-        "mayorista": 66.9,
-        "distribuidor": 61.9
+        "public": 66,
+        "tecnico": 60,
+        "mayorista": 56.6,
+        "distribuidor": 60
       },
       "slug": "419078",
       "stock_by_warehouse": [
@@ -70647,22 +70664,32 @@
       ],
       "attributes": [
         {
-          "id": "1615b16f-01e0-4aad-8481-5999e5f8c39e",
+          "id": "25ab759e-79c2-49ea-949e-8daa2f8bd088",
           "name": "Modelo de equipo",
-          "value": "IM-430F / P-502"
+          "value": "IM 430 / P502"
         },
         {
-          "id": "17936cac-a340-49a1-9713-68518c44c08b",
+          "id": "6f3874ea-2526-48d6-8623-7eb40dd5fdee",
           "name": "Rendimiento (5%)",
-          "value": "14,500"
+          "value": "14,500 págs"
         },
         {
-          "id": "2877aee8-4693-4e11-8744-2584de8d5494",
+          "id": "b4a973a4-7511-4d22-a20c-213374ed2fcc",
+          "name": "Compatibilidad",
+          "value": "IM 430 / P502"
+        },
+        {
+          "id": "16d147cc-6bf7-4a51-a595-c17cac91781e",
           "name": "Color",
           "value": "Negro"
+        },
+        {
+          "id": "fabcf584-8f6b-4773-8ec5-cdfae4d5434f",
+          "name": "Tipo",
+          "value": "Tóner"
         }
       ],
-      "sort_order": 765,
+      "sort_order": 751,
       "suppliers": [
         {
           "id": "b8c4f4f3-5d14-4aa9-9e40-9cedae2075c5",
@@ -70675,29 +70702,33 @@
           "purchase_price_usd": 52.69
         }
       ],
-      "status": "inactiva"
+      "status": "activa",
+      "special_purchase_price_usd": 0,
+      "attachments": [],
+      "bundle_components": [],
+      "volume_role_prices": []
     },
     {
       "id": "418480",
       "code": "418480",
-      "name": "Toner Original RICOH IM 600F (40,000 págs al 5%)",
-      "description": "Cartucho original negro alto rendimiento — Rend 40,000 páginas al 5% — IM 600F / P-800 / P-801",
+      "name": "Toner Cartucho Original RICOH IM-600H - IM 600F - (40,000 págs)",
+      "description": "Toner Cartucho Original RICOH IM-600H - IM 600F - (40,000 págs)",
       "currency": "USD",
       "stock": 0,
-      "category": "Toner Original",
+      "category": "Toner, Toner Originales",
       "brand": "Ricoh",
-      "image_url": "/products/ricoh-im-550f-im-600f-rend-40-000.webp?v=1784918537143",
+      "image_url": "/products/ricoh-im-600f-40-000-p-gs-al-5.webp?v=1789234856307",
       "gallery": [
-        "/products/ricoh-im-550f-im-600f-rend-40-000-2.webp",
-        "/products/ricoh-im-550f-im-600f-rend-40-000-3.webp"
+        "/products/ricoh-im-600f-40-000-p-gs-al-5-2.webp",
+        "/products/ricoh-im-600f-40-000-p-gs-al-5-3.webp"
       ],
       "purchase_price_usd": 149.48,
       "created_at": "2026-06-24T00:00:00.000Z",
       "prices": {
-        "public": 160,
-        "tecnico": 135.9,
-        "mayorista": 129.9,
-        "distribuidor": 120.3
+        "public": 220,
+        "tecnico": 200,
+        "mayorista": 188.68,
+        "distribuidor": 200
       },
       "slug": "418480",
       "stock_by_warehouse": [
@@ -70740,22 +70771,32 @@
       ],
       "attributes": [
         {
-          "id": "712ecba1-0972-4003-b9e0-e26ad2e3e98c",
+          "id": "96f3c9de-c407-4913-9435-69e2671e7a49",
           "name": "Modelo de equipo",
-          "value": "IM-550F / IM-600F / P-800 / P-801"
+          "value": "IM 600F"
         },
         {
-          "id": "da88257b-8422-4bf4-aefc-b830d997f4f4",
+          "id": "89636d1f-e059-482b-8eab-87447756b1c1",
           "name": "Rendimiento (5%)",
-          "value": "40,000"
+          "value": "40,000 págs"
         },
         {
-          "id": "471cc950-4ac6-4157-bcd5-993220368531",
+          "id": "9d13a6f7-aa9b-4158-971c-dcf59b50c301",
+          "name": "Compatibilidad",
+          "value": "IM 600F"
+        },
+        {
+          "id": "1482ce21-0042-4a36-b214-fdc00279f3c4",
           "name": "Color",
           "value": "Negro"
+        },
+        {
+          "id": "6694ee06-5375-4d8e-980b-b17d2e00657a",
+          "name": "Tipo",
+          "value": "Tóner"
         }
       ],
-      "sort_order": 766,
+      "sort_order": 752,
       "suppliers": [
         {
           "id": "6a83e669-4933-4178-940d-1a320f903e0c",
@@ -70768,7 +70809,12 @@
           "purchase_price_usd": 164.43
         }
       ],
-      "price": 160
+      "price": 160,
+      "special_purchase_price_usd": 0,
+      "attachments": [],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "status": "activa"
     },
     {
       "id": "8f3c2a1b-6d4e-4f9a-b2c1-ricoh-theta-z1",
@@ -74332,7 +74378,7 @@
       "name": "Impresora Multifuncional B/N Seminueva RICOH MP 305+",
       "description": "Impresora Multifuncional B/N Seminueva RICOH MP 305+",
       "currency": "USD",
-      "stock": 1,
+      "stock": 0,
       "category": "Multifuncionales, Multifuncionales Seminuevas",
       "brand": "Ricoh",
       "image_url": "/products/ab878d89-61e0-4e51-a941-03455e1da407.webp?v=1784112813940",
@@ -74402,7 +74448,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 1
+          "quantity": 0
         },
         {
           "warehouse_id": "santa-catalina",
@@ -74452,10 +74498,10 @@
     {
       "id": "a0c22000-7c3e-4a91-8b12-1d2e3f4a2200",
       "code": "SEMI-MP-CW2200-120V",
-      "name": "Plotter Seminuevo RICOH MP CW2200 120V",
-      "description": "Plotter Seminuevo RICOH MP CW2200 120V",
+      "name": "Multifuncional de Planos Seminuevo RICOH MP CW2200 120V",
+      "description": "Multifuncional de planos Ricoh MP CW2200 seminuevo.\nFormato ancho · 120V",
       "currency": "USD",
-      "category": "Formato Ancho, Formato Ancho Seminuevos",
+      "category": "Formato Ancho Seminuevos",
       "brand": "Ricoh",
       "image_url": "/products/plotter-laser-color-ricoh-im-cw2200.webp",
       "gallery": [],
@@ -74464,16 +74510,21 @@
       "slug": "plotter-seminuevo-ricoh-mp-cw2200-120v-a0c22000-7c3",
       "status": "activa",
       "prices": {
-        "tecnico": 1990,
+        "tecnico": 2999,
         "mayorista": 1950,
         "distribuidor": 1996,
-        "public": 2149
+        "public": 2999
       },
       "attributes": [
         {
           "id": "5bb32fac-9ef7-441f-8391-2ae13c82ee5e",
           "name": "Modelo de equipo",
           "value": "MP CW2200"
+        },
+        {
+          "id": "cw2200-sn-color",
+          "name": "Color",
+          "value": "Color"
         },
         {
           "id": "0d47739a-fced-4a04-b6e2-78138d2de4b7",
@@ -74489,7 +74540,7 @@
       "stock_by_warehouse": [
         {
           "warehouse_id": "operativo",
-          "quantity": 1
+          "quantity": 2
         },
         {
           "warehouse_id": "santa-catalina",
@@ -74524,7 +74575,7 @@
           "quantity": 0
         }
       ],
-      "stock": 1,
+      "stock": 2,
       "suppliers": [
         {
           "id": "8f934279-dde7-44ba-bdd9-a3ab5e06e3f3",
@@ -74544,7 +74595,7 @@
       "stock": 5,
       "category": "Accesorios, Accesorios Seminuevos",
       "brand": "Ricoh",
-      "image_url": "/products/371c5e40-c823-4db1-b36c-895ae1fb53e1.webp?v=1784112813941",
+      "image_url": "/products/a0acc501-7c3e-4a91-8b12-1d2e3f4a0501.webp?v=1789320000001",
       "gallery": [],
       "prices": {
         "tecnico": 20,
@@ -74622,7 +74673,7 @@
       "stock": 15,
       "category": "Accesorios, Accesorios Seminuevos",
       "brand": "Ricoh",
-      "image_url": "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp?v=1785181086863",
+      "image_url": "/products/a0acc550-7c3e-4a91-8b12-1d2e3f4a0550.webp?v=1789320000002",
       "gallery": [],
       "prices": {
         "tecnico": 25,
@@ -74700,7 +74751,7 @@
       "stock": 21,
       "category": "Accesorios, Accesorios Seminuevos",
       "brand": "Ricoh",
-      "image_url": "/products/2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2.webp?v=1785181086863",
+      "image_url": "/products/a0acc552-7c3e-4a91-8b12-1d2e3f4a0c55.webp?v=1789320000003",
       "gallery": [],
       "prices": {
         "tecnico": 15,
@@ -74852,6 +74903,1682 @@
       ],
       "updated_at": "2026-09-12T17:40:41.977Z",
       "variant_product_ids": []
+    },
+    {
+      "id": "25b3494",
+      "code": "25B3494",
+      "name": "Drum Unit Original RICOH M 400 - M-400-FW - (30,000 págs)",
+      "description": "Drum Unit Original RICOH M 400 - M-400-FW - (30,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 40.65,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "28f9add6-127e-44eb-a292-48a1d5652c3c",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 40.65
+        },
+        {
+          "id": "fc5627b1-ed39-4873-b524-3a1fc1f479d6",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 44.72
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "435e469b-657e-4d63-8255-a67d515d8442",
+          "name": "Modelo de equipo",
+          "value": "M-400-FW"
+        },
+        {
+          "id": "701e3a64-f8f7-4e35-8d0c-027d7f006449",
+          "name": "Rendimiento (5%)",
+          "value": "30,000 págs"
+        },
+        {
+          "id": "b7707f85-39a1-4852-954b-05509936bce8",
+          "name": "Compatibilidad",
+          "value": "M-400-FW"
+        },
+        {
+          "id": "a679a8ba-30bc-4c3c-92da-63e7ee05e036",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "ce9d154b-9852-4267-b3d2-a493a4345179",
+          "name": "Tipo",
+          "value": "Unidad de imagen"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.038Z",
+      "sort_order": 772,
+      "slug": "25b3494",
+      "status": "activa",
+      "prices": {
+        "public": 85,
+        "tecnico": 77.27,
+        "mayorista": 72.9,
+        "distribuidor": 77.27
+      }
+    },
+    {
+      "id": "40s0166",
+      "code": "40S0166",
+      "name": "Drum Unit Original RICOH M 440 - M-440F - (75,000 págs)",
+      "description": "Drum Unit Original RICOH M 440 - M-440F - (75,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 69.26,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "17a2abc4-f062-4b9b-ac73-1550a8e13b28",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 69.26
+        },
+        {
+          "id": "8aa82ed8-fc1c-4f32-a40b-bf20babd5ac8",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 76.19
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "4aa160c5-1fc5-4051-b6f9-91d5df87a7f0",
+          "name": "Modelo de equipo",
+          "value": "M-440F"
+        },
+        {
+          "id": "ae72bd7e-122f-4653-b721-5c10634efc6d",
+          "name": "Rendimiento (5%)",
+          "value": "75,000 págs"
+        },
+        {
+          "id": "76b29a8a-f0af-4d89-802b-92808d4b1721",
+          "name": "Compatibilidad",
+          "value": "M-440F"
+        },
+        {
+          "id": "57c4ace5-1303-4ef2-9fd9-910aeece1b7a",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "507a590e-239c-47b3-8c69-021a08dc82f5",
+          "name": "Tipo",
+          "value": "Unidad de imagen"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.039Z",
+      "sort_order": 773,
+      "slug": "40s0166",
+      "status": "activa",
+      "prices": {
+        "public": 115,
+        "tecnico": 104.55,
+        "mayorista": 98.63,
+        "distribuidor": 104.55
+      }
+    },
+    {
+      "id": "828553",
+      "code": "828553",
+      "name": "Toner Cartucho Original RICOH PRO TONER 8300s - PRO 8300/8310/8320 - (82,000 págs)",
+      "description": "Toner Cartucho Original RICOH PRO TONER 8300s - PRO 8300/8310/8320 - (82,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 78.38,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "544ccd24-4ce8-4c57-8949-897582da0936",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 78.38
+        },
+        {
+          "id": "8e806413-3b99-45b4-9ead-96aafa158b86",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 86.22
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "f34918df-2820-49fe-8afb-ed8a195cc03a",
+          "name": "Modelo de equipo",
+          "value": "PRO 8300/8310/8320"
+        },
+        {
+          "id": "6ab276a2-0a91-44fc-9b70-86fb4436f01c",
+          "name": "Rendimiento (5%)",
+          "value": "82,000 págs"
+        },
+        {
+          "id": "0c72e168-5160-40fd-abee-94d5a37e1d6f",
+          "name": "Compatibilidad",
+          "value": "PRO 8300/8310/8320"
+        },
+        {
+          "id": "e1c2cc5d-77ec-4248-9ec0-dd4f6b650ea0",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "3430eac0-977b-46fc-a2b2-47c2d738f309",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.040Z",
+      "sort_order": 791,
+      "slug": "828553",
+      "status": "activa",
+      "prices": {
+        "public": 110,
+        "tecnico": 100,
+        "mayorista": 94.34,
+        "distribuidor": 100
+      }
+    },
+    {
+      "id": "828711",
+      "code": "828711",
+      "name": "Toner Cartucho Original RICOH PRO TONER 8400S - PRO 8400/8410/8420 - (82,000 págs)",
+      "description": "Toner Cartucho Original RICOH PRO TONER 8400S - PRO 8400/8410/8420 - (82,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 78.41,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "556c67a8-31e3-4e1e-9b4c-7012a67dc50f",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 78.41
+        },
+        {
+          "id": "554cc16f-49b2-484b-8826-cfdccc2c5512",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 86.25
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "d051a32c-719b-490b-99bf-2475914bb239",
+          "name": "Modelo de equipo",
+          "value": "PRO 8400/8410/8420"
+        },
+        {
+          "id": "706f702b-3835-4d76-8c2d-523d0c667a6a",
+          "name": "Rendimiento (5%)",
+          "value": "82,000 págs"
+        },
+        {
+          "id": "4d99a78b-903f-4d0b-a8c3-51d3eb03f9c4",
+          "name": "Compatibilidad",
+          "value": "PRO 8400/8410/8420"
+        },
+        {
+          "id": "e0a2008d-d086-41ef-bb1c-32ee52b59e2c",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "de9e2ede-e09c-4733-9148-20b739201097",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.040Z",
+      "sort_order": 792,
+      "slug": "828711",
+      "status": "activa",
+      "prices": {
+        "public": 110,
+        "tecnico": 100,
+        "mayorista": 94.34,
+        "distribuidor": 100
+      }
+    },
+    {
+      "id": "888029",
+      "code": "888029",
+      "name": "Toner Cartucho Original RICOH BLACK TONER TYPE 1160W - MP W2400 / W3600 / W3601 / W6700 - (1,430 págs)",
+      "description": "Toner Cartucho Original RICOH BLACK TONER TYPE 1160W - MP W2400 / W3600 / W3601 / W6700 - (1,430 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 165.64,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "715b8959-8613-43d7-8d5e-e335b03e3d8c",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 165.64
+        },
+        {
+          "id": "3f6c38d1-d3ba-4c4a-960c-5530fb4964b9",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 182.2
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "44f86e86-75f6-4a15-8777-8eaa33707c7f",
+          "name": "Modelo de equipo",
+          "value": "MP W2400 / W3600 / W3601 / W6700"
+        },
+        {
+          "id": "aa4421f9-f357-483e-b655-3f084d3c25e7",
+          "name": "Rendimiento (5%)",
+          "value": "1,430 págs"
+        },
+        {
+          "id": "b9899b36-4cd8-46bd-b367-291ee132b158",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "e568d400-b754-4026-b940-f2a7ed9b8a6d",
+          "name": "Compatibilidad",
+          "value": "MP W2400 / W3600 / W3601 / W6700"
+        },
+        {
+          "id": "2f7224a8-1c66-4241-8e30-2586d4f15895",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.041Z",
+      "sort_order": 806,
+      "slug": "888029",
+      "status": "activa",
+      "prices": {
+        "public": 225,
+        "tecnico": 204.55,
+        "mayorista": 192.97,
+        "distribuidor": 204.55
+      }
+    },
+    {
+      "id": "841332",
+      "code": "841332",
+      "name": "Toner Cartucho Original RICOH 6110D AFICIO 1060/1075/MP7500 - MP 5500/6000/6001/6002/6500/6503/7000/7001/7500/7502/7503/8000/8001/9001/9002/9003/IM 7000/8000/9000 - (43,000 págs)",
+      "description": "Toner Cartucho Original RICOH 6110D AFICIO 1060/1075/MP7500 - MP 5500/6000/6001/6002/6500/6503/7000/7001/7500/7502/7503/8000/8001/9001/9002/9003/IM 7000/8000/9000 - (43,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 61.32,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "9d318bfc-37de-470b-9d14-5becc9abec08",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 61.32
+        },
+        {
+          "id": "902a8bcf-e753-447e-8c83-93a9b5328499",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 67.45
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "8d9628af-f96f-4d9e-89c9-549febe19681",
+          "name": "Modelo de equipo",
+          "value": "MP 5500/6000/6001/6002/6500/6503/7000/7001/7500/7502/7503/8000/8001/9001/9002/9003/IM 7000/8000/9000"
+        },
+        {
+          "id": "2dc74c48-f721-4809-bb50-0c6e42a8c780",
+          "name": "Rendimiento (5%)",
+          "value": "43,000 págs"
+        },
+        {
+          "id": "dee29945-7e29-493a-a112-9cfdfcedf843",
+          "name": "Compatibilidad",
+          "value": "MP 5500/6000/6001/6002/6500/6503/7000/7001/7500/7502/7503/8000/8001/9001/9002/9003/IM 7000/8000/9000"
+        },
+        {
+          "id": "3bbeba24-941e-40fc-afaf-8c6b0a88113f",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "93d225fd-54ae-4969-9c14-36095f76d656",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.034Z",
+      "sort_order": 813,
+      "slug": "841332",
+      "status": "activa",
+      "prices": {
+        "public": 85,
+        "tecnico": 77.27,
+        "mayorista": 72.9,
+        "distribuidor": 77.27
+      }
+    },
+    {
+      "id": "842832",
+      "code": "842832",
+      "name": "Toner Cartucho Original RICOH IM 6010 - IM 4510 / IM 6010 / IM 7010 - (42,900 págs)",
+      "description": "Toner Cartucho Original RICOH IM 6010 - IM 4510 / IM 6010 / IM 7010 - (42,900 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 77.53,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "491f1d8d-542a-4f65-b4b6-38451b44f530",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 77.53
+        },
+        {
+          "id": "c0cf4817-73ca-4443-8d88-b44de840bec4",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 85.28
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "908ab1f4-307a-4a0d-8546-262398d60aa2",
+          "name": "Modelo de equipo",
+          "value": "IM 4510 / IM 6010 / IM 7010"
+        },
+        {
+          "id": "75b55570-76a5-4227-88fa-f91e16acb62e",
+          "name": "Rendimiento (5%)",
+          "value": "42,900 págs"
+        },
+        {
+          "id": "370346fe-d332-40d9-9ce9-2eb0c6bfd576",
+          "name": "Compatibilidad",
+          "value": "IM 4510 / IM 6010 / IM 7010"
+        },
+        {
+          "id": "5f355c47-5242-4877-85df-6d6b4e1528fa",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "ab2e467e-2cf3-40fc-92cb-06d85191eea4",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.040Z",
+      "sort_order": 864,
+      "slug": "842832",
+      "status": "activa",
+      "prices": {
+        "public": 110,
+        "tecnico": 100,
+        "mayorista": 94.34,
+        "distribuidor": 100
+      }
+    },
+    {
+      "id": "842616",
+      "code": "842616",
+      "name": "Toner Cartucho Original RICOH IM 460H - IM 460F - (22,000 págs)",
+      "description": "Toner Cartucho Original RICOH IM 460H - IM 460F - (22,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 42.85,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "5ed6cadf-9f3c-4387-a870-1b64941c633b",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 42.85
+        },
+        {
+          "id": "161ded39-e934-4643-8cb7-b00675d8fd00",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 47.14
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "1fccd099-aca8-46a6-a556-50b8e1737b90",
+          "name": "Modelo de equipo",
+          "value": "IM 460F"
+        },
+        {
+          "id": "54d9ee97-ef38-4e96-9ef7-ed4e6dafd6bb",
+          "name": "Rendimiento (5%)",
+          "value": "22,000 págs"
+        },
+        {
+          "id": "f1a1edd6-9bce-4528-ba32-c6e1e0063c01",
+          "name": "Compatibilidad",
+          "value": "IM 460F"
+        },
+        {
+          "id": "fe00765a-732a-4e9d-9906-fa8138f8572b",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "d9636d3d-ade8-48ab-ae02-e1d826f9d44e",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.037Z",
+      "sort_order": 865,
+      "slug": "842616",
+      "status": "activa",
+      "prices": {
+        "public": 65,
+        "tecnico": 59.09,
+        "mayorista": 55.75,
+        "distribuidor": 59.09
+      }
+    },
+    {
+      "id": "418477",
+      "code": "418477",
+      "name": "Toner Cartucho Original RICOH IM-600F - IM 550F / IM 600F / P800 / P801 - (25,500 págs)",
+      "description": "Toner Cartucho Original RICOH IM-600F - IM 550F / IM 600F / P800 / P801 - (25,500 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 111.08,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "3b64eed7-5ee1-4acb-88ca-4b3541f6d347",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 111.08
+        },
+        {
+          "id": "e09ca493-e0dc-428c-9a67-0f36036f2818",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 122.19
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "d048bf2b-5b49-4b0c-87d2-1ef51b11ee27",
+          "name": "Modelo de equipo",
+          "value": "IM 550F / IM 600F / P800 / P801"
+        },
+        {
+          "id": "6c7e01cb-2830-42db-acbc-f5a7ac46087f",
+          "name": "Rendimiento (5%)",
+          "value": "25,500 págs"
+        },
+        {
+          "id": "7a393249-4667-4dcd-98d1-deccdbbf1cf8",
+          "name": "Compatibilidad",
+          "value": "IM 550F / IM 600F / P800 / P801"
+        },
+        {
+          "id": "ec0850be-2cf1-4f7d-9f92-1c9239471a9f",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "1b88453f-6728-437f-b8a4-943b2cbfa10f",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.037Z",
+      "sort_order": 866,
+      "slug": "418477",
+      "status": "activa",
+      "prices": {
+        "public": 150,
+        "tecnico": 135,
+        "mayorista": 127.36,
+        "distribuidor": 135
+      }
+    },
+    {
+      "id": "842124",
+      "code": "842124",
+      "name": "Toner Cartucho Original RICOH MP 3554 SP - MP 2554/2555/3054/3055/3554/3555/IM 2500/3000 - (24,000 págs)",
+      "description": "Toner Cartucho Original RICOH MP 3554 SP - MP 2554/2555/3054/3055/3554/3555/IM 2500/3000 - (24,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 66.19,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "fa0b7c65-e670-472d-b12d-a991734e9ed1",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 66.19
+        },
+        {
+          "id": "1e6b542b-8fca-4dba-b7cb-180f84fa2e67",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 72.81
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "813b53c9-17b6-4ebe-8bdc-d84876e10a93",
+          "name": "Modelo de equipo",
+          "value": "MP 2554/2555/3054/3055/3554/3555/IM 2500/3000"
+        },
+        {
+          "id": "76d2e6d2-1475-4c81-a835-c37c52de4e48",
+          "name": "Rendimiento (5%)",
+          "value": "24,000 págs"
+        },
+        {
+          "id": "5f4b2f0b-da1a-42c0-9385-5295b587ba83",
+          "name": "Compatibilidad",
+          "value": "MP 2554/2555/3054/3055/3554/3555/IM 2500/3000"
+        },
+        {
+          "id": "9efd08c7-a304-48bc-b384-3cedd2372990",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "d2c682c9-8479-4ead-b3d4-13d7b4ad765b",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.039Z",
+      "sort_order": 892,
+      "slug": "842124",
+      "status": "activa",
+      "prices": {
+        "public": 88.96,
+        "tecnico": 80.87,
+        "mayorista": 76.3,
+        "distribuidor": 80.87
+      }
+    },
+    {
+      "id": "842126",
+      "code": "842126",
+      "name": "Toner Cartucho Original RICOH MP 6054 - MP 4054/4055/5054/5055/6054/6055/IM 4000/5000/6000 - (37,000 págs)",
+      "description": "Toner Cartucho Original RICOH MP 6054 - MP 4054/4055/5054/5055/6054/6055/IM 4000/5000/6000 - (37,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 73.88,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "6d6451e2-4497-43a8-9a3a-b73b1f5d7621",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 73.88
+        },
+        {
+          "id": "22d81a86-572d-4170-b64d-e67fa9e76536",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 81.27
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "f6465153-8ca6-4a70-b466-e62440189c69",
+          "name": "Modelo de equipo",
+          "value": "MP 4054/4055/5054/5055/6054/6055/IM 4000/5000/6000"
+        },
+        {
+          "id": "fcd45533-98c0-4fcf-b39d-78b479504099",
+          "name": "Rendimiento (5%)",
+          "value": "37,000 págs"
+        },
+        {
+          "id": "603aaab2-6e48-47a8-bb2c-896be3701033",
+          "name": "Compatibilidad",
+          "value": "MP 4054/4055/5054/5055/6054/6055/IM 4000/5000/6000"
+        },
+        {
+          "id": "87b04c7f-896f-44bc-847d-bdf5b72e87d2",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "211c1208-ea83-4ef9-aa45-4f3536527871",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.039Z",
+      "sort_order": 893,
+      "slug": "842126",
+      "status": "activa",
+      "prices": {
+        "public": 99,
+        "tecnico": 90,
+        "mayorista": 84.91,
+        "distribuidor": 90
+      }
+    },
+    {
+      "id": "25b3492",
+      "code": "25B3492",
+      "name": "Toner Cartucho Original RICOH M 400 - M-400-FW - (20,000 págs)",
+      "description": "Toner Cartucho Original RICOH M 400 - M-400-FW - (20,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 143.69,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "4182ed6f-d257-4bb9-9a84-236a2dd224bc",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 143.69
+        },
+        {
+          "id": "59fae80b-0fa1-4900-81fc-33462760564c",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 158.06
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "cbfc109d-69c9-43ba-aec9-ed4807e0ba4f",
+          "name": "Modelo de equipo",
+          "value": "M-400-FW"
+        },
+        {
+          "id": "8a347e19-b1a0-4815-8495-6d7aa635aa31",
+          "name": "Rendimiento (5%)",
+          "value": "20,000 págs"
+        },
+        {
+          "id": "62cba1de-3572-4f3f-a846-bd929d208900",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "5ef53603-4383-425b-ae38-63b728deb056",
+          "name": "Compatibilidad",
+          "value": "M-400-FW"
+        },
+        {
+          "id": "d4e01d60-25f5-48a9-91db-46f3671e9591",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.038Z",
+      "sort_order": 906,
+      "slug": "25b3492",
+      "status": "activa",
+      "prices": {
+        "public": 195,
+        "tecnico": 177.27,
+        "mayorista": 167.24,
+        "distribuidor": 177.27
+      }
+    },
+    {
+      "id": "40s0165",
+      "code": "40S0165",
+      "name": "Toner Cartucho Original RICOH M 440 - M-440F - (41,000 págs)",
+      "description": "Toner Cartucho Original RICOH M 440 - M-440F - (41,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 133.11,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "93029aad-d360-4517-ae04-53ad2793f4b9",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 133.11
+        },
+        {
+          "id": "d4caeb81-043d-470c-a8b0-bfa903d707ec",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 146.42
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "9e446c4b-376d-4d6f-939e-e5a6475a256d",
+          "name": "Modelo de equipo",
+          "value": "M-440F"
+        },
+        {
+          "id": "0e535a10-8c92-4f51-9b5b-29eaa0a49942",
+          "name": "Rendimiento (5%)",
+          "value": "41,000 págs"
+        },
+        {
+          "id": "11bb630f-f666-4978-b9c2-0bf1bbbd7128",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "455be813-fa7d-4e2d-b9b3-ad6fd325f1ff",
+          "name": "Compatibilidad",
+          "value": "M-440F"
+        },
+        {
+          "id": "b6f3c428-036f-43e1-9ed1-04a29bd9b469",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.038Z",
+      "sort_order": 907,
+      "slug": "40s0165",
+      "status": "activa",
+      "prices": {
+        "public": 185,
+        "tecnico": 168.18,
+        "mayorista": 158.66,
+        "distribuidor": 168.18
+      }
+    },
+    {
+      "id": "842141",
+      "code": "842141",
+      "name": "Toner Cartucho Original RICOH MP 305 - MP 305 - (9,000 págs)",
+      "description": "Toner Cartucho Original RICOH MP 305 - MP 305 - (9,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 33.98,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "2f51a5bd-77f7-4d8f-ae4a-e560b31939b7",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 33.98
+        },
+        {
+          "id": "689f947d-6c8a-4193-a6ec-830e115b2779",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 37.38
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "1730dfba-e037-4d80-aad1-92541f4d93ad",
+          "name": "Modelo de equipo",
+          "value": "MP 305"
+        },
+        {
+          "id": "e846bd2c-e659-49a5-8e93-724cab7446d1",
+          "name": "Rendimiento (5%)",
+          "value": "9,000 págs"
+        },
+        {
+          "id": "0950869a-3cdf-4295-86eb-2bcd9dfdb5af",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "b6a18046-9659-4df6-a15e-df0fc1d82b13",
+          "name": "Compatibilidad",
+          "value": "MP 305"
+        },
+        {
+          "id": "c1f9c7ff-f02c-43bc-98f3-ed98bb743a69",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.036Z",
+      "sort_order": 908,
+      "slug": "842141",
+      "status": "activa",
+      "prices": {
+        "public": 46,
+        "tecnico": 41.82,
+        "mayorista": 39.45,
+        "distribuidor": 41.82
+      }
+    },
+    {
+      "id": "407823",
+      "code": "407823",
+      "name": "Toner Cartucho Original RICOH MP 501 / MP 601 - MP 501 / MP 601 / 5300 / 5310 - (20,000 págs)",
+      "description": "Toner Cartucho Original RICOH MP 501 / MP 601 - MP 501 / MP 601 / 5300 / 5310 - (20,000 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": null,
+      "gallery": [],
+      "purchase_price_usd": 120.71,
+      "special_purchase_price_usd": 106.2,
+      "suppliers": [
+        {
+          "id": "2da79a96-b319-4da2-b239-d978d6076774",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 120.71
+        },
+        {
+          "id": "2d315bf6-592b-46b3-8215-6e8fb9f35348",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 132.78
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "b9ffe1e3-3335-459c-8c21-766017084c82",
+          "name": "Modelo de equipo",
+          "value": "MP 501 / MP 601 / 5300 / 5310"
+        },
+        {
+          "id": "7c472b7d-52ff-472f-ad0b-0141e8a25aed",
+          "name": "Rendimiento (5%)",
+          "value": "20,000 págs"
+        },
+        {
+          "id": "8c3a11fe-eaa6-4a2c-bf0a-8132c0fd5549",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "04455050-7bc8-48d7-87cc-37b86e04a517",
+          "name": "Observaciones",
+          "value": "PRECIO ESPECIAL SOLO APLICA A COMPRAS MAYORES DE 6 UNIDADES"
+        },
+        {
+          "id": "66f75ffc-f529-4d2d-9e8c-684f5f2e4355",
+          "name": "Compatibilidad",
+          "value": "MP 501 / MP 601 / 5300 / 5310"
+        },
+        {
+          "id": "b3cafbc9-0896-483a-9c7d-3f1a6a32213d",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "bundle_components": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.039Z",
+      "sort_order": 909,
+      "slug": "407823",
+      "status": "activa",
+      "prices": {
+        "public": 160,
+        "tecnico": 130,
+        "mayorista": 122.64,
+        "distribuidor": 130
+      }
+    },
+    {
+      "id": "408284",
+      "code": "408284",
+      "name": "Toner Cartucho Original RICOH SP 3710 - SP-3710SF / SP-3710DN / M 320F / P-311 220V - (5,600 págs)",
+      "description": "Toner Cartucho Original RICOH SP 3710 - SP-3710SF / SP-3710DN / M 320F / P-311 220V - (5,600 págs)",
+      "currency": "USD",
+      "stock": 0,
+      "stock_by_warehouse": [
+        {
+          "warehouse_id": "operativo",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "santa-catalina",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "partes-scrap",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "otros-estados",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "1931",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "principal",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "san-juan-lurigancho",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "lince",
+          "quantity": 0
+        },
+        {
+          "warehouse_id": "chiclayo",
+          "quantity": 0
+        }
+      ],
+      "category": "Toner, Toner Originales",
+      "brand": "Ricoh",
+      "image_url": "/products/ricoh-sp-3710sf-sp-3710dn-m-320f-p-311-220v-5-600-p-gs-al-5.webp?v=1789234856306",
+      "gallery": [],
+      "purchase_price_usd": 73.97,
+      "special_purchase_price_usd": 0,
+      "suppliers": [
+        {
+          "id": "0f1fd8aa-0a14-499e-bb2c-5955baec722f",
+          "name": "Proveedor Ricoh del Peru",
+          "purchase_price_usd": 73.97
+        },
+        {
+          "id": "a80c8060-0c6e-457b-baa2-73f058bab735",
+          "name": "Corporacion Ross",
+          "purchase_price_usd": 81.37
+        }
+      ],
+      "attachments": [],
+      "attributes": [
+        {
+          "id": "0b02a485-8c88-417a-a265-65910c866421",
+          "name": "Modelo de equipo",
+          "value": "SP-3710SF / SP-3710DN / M 320F / P-311 220V"
+        },
+        {
+          "id": "d3557fda-0a12-4e4b-aca2-fbf38bca8c53",
+          "name": "Rendimiento (5%)",
+          "value": "5,600 págs"
+        },
+        {
+          "id": "baa71258-3e84-4421-994a-a3324c185944",
+          "name": "Compatibilidad",
+          "value": "SP-3710SF / SP-3710DN / M 320F / P-311 220V"
+        },
+        {
+          "id": "707c317c-c11a-4fa8-b1bb-a9bd272f94df",
+          "name": "Color",
+          "value": "Negro"
+        },
+        {
+          "id": "767c8c7f-c982-4c84-be6d-f08d71682cf5",
+          "name": "Tipo",
+          "value": "Tóner"
+        }
+      ],
+      "storefront_feature_bar": [],
+      "bundle_components": [],
+      "cross_sell_product_ids": [],
+      "upsell_product_ids": [],
+      "variant_product_ids": [],
+      "cross_sell_optional_products": [],
+      "upsell_optional_products": [],
+      "volume_role_prices": [],
+      "created_at": "2026-07-10T18:02:49.040Z",
+      "sort_order": 928,
+      "slug": "408284",
+      "status": "activa",
+      "is_featured": false,
+      "prices": {
+        "public": 99,
+        "tecnico": 90,
+        "mayorista": 84.91,
+        "distribuidor": 90
+      }
     }
   ],
   "warehouses": [

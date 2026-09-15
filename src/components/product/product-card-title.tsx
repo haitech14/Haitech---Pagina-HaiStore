@@ -64,7 +64,7 @@ export function ProductCardBrandLine({
 }
 
 const DESCRIPTOR_KEEP_TOGETHER_PATTERN =
-  /^(Impresora(?:\s+Multifuncional)?|Multifuncional)(?:\s+(?:B\/N|Color))?\s+(?:Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo)$/i;
+  /^(Impresora(?:\s+Multifuncional)?|Multifuncional)(?:\s+L[aá]ser)?(?:\s+(?:B\/N|Color))?\s+(?:Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo)$/i;
 
 /** Mantiene junto «Impresora Multifuncional Nueva» (u homólogos) en una sola línea. */
 export function ProductCardDescriptorLine({ text }: { text: string }) {

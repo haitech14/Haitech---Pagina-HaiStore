@@ -3,6 +3,15 @@
  * Ligero Punto). No deben listarse en el buscador: se eligen en la ficha del equipo.
  */
 
+/** Hijos de IM 550F seminueva: se venden desde la ficha Estándar 220V. */
+export const IM550F_CHILD_VARIANT_IDS = new Set([
+  '2fcc5ac8-cdb3-47f4-b5eb-51b4c98fe9d2',
+  'a4be1850-48ac-40fd-8962-14c00bec5e59',
+  '1f34bfe4-95be-45c4-be3e-37a740fee9b9',
+  '9a955212-f712-4a2e-acf7-f03b059f7c98',
+  'a334ef53-4cb1-4207-9df8-7492c3123290',
+]);
+
 function readAttribute(product, name) {
   const attrs = product?.attributes;
   if (!Array.isArray(attrs)) return null;
@@ -21,7 +30,15 @@ function normalizeVariantKey(value) {
 }
 
 /** True si el producto es una opción de variante (no el SKU base Estándar). */
+export function isIm550fChildVariantSku(product) {
+  const id = String(product?.id ?? '').trim();
+  if (id && IM550F_CHILD_VARIANT_IDS.has(id)) return true;
+  const name = String(product?.name ?? '');
+  return /\bim\s*550f\b/i.test(name) && /(ligero\s*punto|cilindro)/i.test(name);
+}
+
 export function isEquipmentVariantSkuForSearch(product) {
+  if (isIm550fChildVariantSku(product)) return true;
   const fromAttr = readAttribute(product, 'Variante');
   if (!fromAttr) return false;
   const key = normalizeVariantKey(fromAttr);

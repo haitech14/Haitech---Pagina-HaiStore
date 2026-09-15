@@ -118,8 +118,23 @@ export async function downloadProductAttachment(url: string, fileName: string): 
     }
   };
 
-  if (url.startsWith('data:') || url.startsWith('blob:')) {
+  if (url.startsWith('blob:')) {
     triggerDownload(url);
+    return;
+  }
+
+  if (url.startsWith('data:')) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      const pdfBlob = blob.type.toLowerCase().includes('pdf')
+        ? blob
+        : new Blob([blob], { type: 'application/pdf' });
+      triggerDownload(URL.createObjectURL(pdfBlob), true);
+    } catch {
+      triggerDownload(url);
+    }
     return;
   }
 

@@ -45,20 +45,18 @@ function renderSpecItem(bullet: ProductHeroSpecBullet, index: number) {
   if (!copy) return null;
 
   return (
-    <li key={key} className="flex flex-row items-center gap-2.5">
+    <li key={key} className="flex flex-row items-center gap-2">
       <IconComponent
-        className="size-4 shrink-0 text-red-600"
-        strokeWidth={2}
+        className="size-3.5 shrink-0 text-neutral-400"
+        strokeWidth={1.75}
         aria-hidden="true"
       />
-      <p className="min-w-0 text-pretty text-sm leading-snug text-neutral-900">
-        <span className="font-semibold">{copy.label}:</span>
-        {copy.description ? (
-          <>
-            {' '}
-            <span className="font-normal">{copy.description}</span>
-          </>
-        ) : null}
+      <p className="min-w-0 text-pretty text-xs leading-snug text-neutral-700">
+        {copy.description
+          ? copy.label && !copy.description.toLowerCase().includes(copy.label.toLowerCase())
+            ? `${copy.label} ${copy.description}`
+            : copy.description
+          : copy.label}
       </p>
     </li>
   );

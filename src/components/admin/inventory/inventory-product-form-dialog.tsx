@@ -623,6 +623,10 @@ export function InventoryProductFormDialog({
                       onPurchaseChange={(value) =>
                         updateField('purchase_price_usd', Number(value) || 0)
                       }
+                      specialPurchasePriceUsd={form.special_purchase_price_usd ?? 0}
+                      onSpecialPurchaseChange={(value) =>
+                        updateField('special_purchase_price_usd', Number(value) || 0)
+                      }
                       prices={form.prices}
                       onPriceChange={updatePrice}
                       purchaseFromSuppliers={supplierCount > 0}
@@ -818,6 +822,10 @@ export function InventoryProductFormDialog({
                     purchasePriceUsd={form.purchase_price_usd}
                     onPurchaseChange={(value) =>
                       updateField('purchase_price_usd', Number(value) || 0)
+                    }
+                    specialPurchasePriceUsd={form.special_purchase_price_usd ?? 0}
+                    onSpecialPurchaseChange={(value) =>
+                      updateField('special_purchase_price_usd', Number(value) || 0)
                     }
                     prices={form.prices}
                     onPriceChange={updatePrice}

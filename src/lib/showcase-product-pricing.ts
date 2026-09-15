@@ -34,10 +34,15 @@ export function resolveShowcaseProductPricesUsd(
 
   if (catalogRow?.prices) {
     const prices = ensureFullPrices(catalogRow.prices);
-    if (overlayTecnico != null && overlayTecnico > 0) {
-      return { ...prices, tecnico: overlayTecnico };
+    const next = { ...prices };
+    if (overlayTecnico != null && overlayTecnico > 0) next.tecnico = overlayTecnico;
+    if (next.public <= 0 && product.price > 0) {
+      const fromPen = options.isConsumable
+        ? penToUsd(product.price, rate)
+        : roundEquipmentDisplayUsd(penToUsd(product.price, rate));
+      if (fromPen > 0) next.public = fromPen;
     }
-    return prices;
+    return next;
   }
 
   const publicUsdRaw = penToUsd(product.price, rate);
@@ -117,4 +122,37 @@ export function resolveShowcaseActivePriceRole(
     return resolvePriceRole(effectiveRole);
   }
   return 'public';
+}
+
+/** USD de vitrina para ordenar (el mismo criterio que ve la card). */
+export function getShowcaseDisplaySortUsd(
+  product: HaitechShopProduct,
+  options: {
+    saleRate?: number | undefined;
+    isConsumable: boolean;
+    viewAsRoles: readonly UserRole[];
+    effectiveRole: UserRole | 'public';
+  },
+): number {
+  const pricesUsd = resolveShowcaseProductPricesUsd(product, {
+    saleRate: options.saleRate,
+    isConsumable: options.isConsumable,
+  });
+  const activePriceRole = resolveShowcaseActivePriceRole(options.viewAsRoles, options.effectiveRole);
+  const pricingContext = {
+    isEquipment: !options.isConsumable,
+    saleRate: options.saleRate,
+    productKeys: [product.id, product.code],
+  };
+
+  const activeUsdRaw =
+    options.viewAsRoles.length === 1
+      ? resolveUserRolePriceUsd(pricesUsd, options.viewAsRoles[0]!, pricingContext)
+      : pricesUsd[activePriceRole] ?? pricesUsd.public;
+
+  const overlayTecnicoUsd = resolveShowcaseEquipmentTecnicoUsd(product);
+  if (options.isConsumable || activePriceRole === 'tecnico') {
+    return Math.max(0, overlayTecnicoUsd ?? activeUsdRaw);
+  }
+  return showcaseDisplayUsd(activeUsdRaw, { isConsumable: options.isConsumable });
 }

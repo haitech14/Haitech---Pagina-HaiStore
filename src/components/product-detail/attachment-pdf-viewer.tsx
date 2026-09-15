@@ -1,4 +1,5 @@
-import { Download, FileText } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Download, FileText, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,17 +20,111 @@ interface AttachmentPdfViewerProps {
   description?: string;
 }
 
+function withPdfToolbar(src: string): string {
+  if (!src || src.startsWith('data:') || src.includes('#')) return src;
+  return `${src}#toolbar=1&navpanes=0`;
+}
+
+function ensurePdfBlob(blob: Blob): Blob {
+  return blob.type.toLowerCase().includes('pdf')
+    ? blob
+    : new Blob([blob], { type: 'application/pdf' });
+}
+
+function decodeDataUrlToPdfBlob(dataUrl: string): Blob {
+  const comma = dataUrl.indexOf(',');
+  if (comma < 0) throw new Error('URL de datos inválida');
+  const header = dataUrl.slice(0, comma);
+  const payload = dataUrl.slice(comma + 1);
+  if (/;base64/i.test(header)) {
+    const binary = atob(payload);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return new Blob([bytes], { type: 'application/pdf' });
+  }
+  return new Blob([decodeURIComponent(payload)], { type: 'application/pdf' });
+}
+
+async function toPdfPreviewBlob(sourceUrl: string): Promise<Blob> {
+  if (sourceUrl.startsWith('data:')) {
+    try {
+      const response = await fetch(sourceUrl);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return ensurePdfBlob(await response.blob());
+    } catch {
+      return decodeDataUrlToPdfBlob(sourceUrl);
+    }
+  }
+
+  const response = await fetch(sourceUrl);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return ensurePdfBlob(await response.blob());
+}
+
 export function AttachmentPdfViewer({
   open,
   onOpenChange,
   url,
   filename,
-  title = 'Especificaciones técnicas',
-  description = 'Vista previa del documento. Puede descargarlo cuando lo necesite.',
+  title = 'Ficha técnica',
+  description = 'Revise el PDF en el visor o descárguelo cuando lo necesite.',
 }: AttachmentPdfViewerProps) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!open || !url) {
+      setPreviewUrl(null);
+      setLoading(false);
+      setError(false);
+      return;
+    }
+
+    let cancelled = false;
+    let objectUrl: string | null = null;
+
+    const resolvePreview = async () => {
+      if (url.startsWith('blob:')) {
+        if (!cancelled) {
+          setPreviewUrl(url);
+          setError(false);
+          setLoading(false);
+        }
+        return;
+      }
+
+      setLoading(true);
+      setError(false);
+      try {
+        const pdfBlob = await toPdfPreviewBlob(url);
+        objectUrl = URL.createObjectURL(pdfBlob);
+        if (!cancelled) setPreviewUrl(objectUrl);
+      } catch {
+        if (!cancelled) {
+          setPreviewUrl(null);
+          setError(true);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void resolvePreview();
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [open, url]);
+
   const handleDownload = () => {
-    downloadProductAttachment(url, filename);
+    void downloadProductAttachment(url, filename);
   };
+
+  const iframeSrc = previewUrl ? withPdfToolbar(previewUrl) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,12 +147,35 @@ export function AttachmentPdfViewer({
           </Button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-hidden bg-neutral-100 px-3 py-3 sm:px-4">
-          <iframe
-            src={url}
-            title={`Vista previa ${filename}`}
-            className="size-full min-h-[72vh] rounded-lg border border-neutral-200 bg-white shadow-sm"
-          />
+        <div className="relative min-h-0 flex-1 overflow-hidden bg-neutral-100 px-3 py-3 sm:px-4">
+          {loading ? (
+            <div className="flex size-full min-h-[72vh] items-center justify-center rounded-lg border border-neutral-200 bg-white">
+              <p className="inline-flex items-center gap-2 text-sm text-neutral-500">
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                Cargando PDF…
+              </p>
+            </div>
+          ) : error || !iframeSrc ? (
+            <div className="flex size-full min-h-[72vh] flex-col items-center justify-center gap-3 rounded-lg border border-neutral-200 bg-white px-6 text-center">
+              <p className="text-sm text-neutral-600">
+                No se pudo mostrar el PDF en el visor. Puede descargarlo para abrirlo.
+              </p>
+              <Button
+                type="button"
+                onClick={handleDownload}
+                className="gap-2 bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600"
+              >
+                <Download className="size-4" aria-hidden="true" />
+                Descargar PDF
+              </Button>
+            </div>
+          ) : (
+            <iframe
+              src={iframeSrc}
+              title={`Vista previa ${filename}`}
+              className="size-full min-h-[72vh] rounded-lg border border-neutral-200 bg-white shadow-sm"
+            />
+          )}
         </div>
 
         <div className="flex shrink-0 flex-col gap-2 border-t border-neutral-200 bg-white px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
@@ -79,7 +197,7 @@ export function AttachmentPdfViewer({
               className="gap-2 bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600 sm:min-w-36"
             >
               <Download className="size-4" aria-hidden="true" />
-              Descargar
+              Descargar PDF
             </Button>
           </div>
         </div>

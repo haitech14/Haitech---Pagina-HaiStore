@@ -136,6 +136,8 @@ export type HaitechShopProduct = {
   )[];
   /** Precio mínimo de un grupo con variantes (muestra «Desde» en vitrina). */
   hasVariants?: boolean;
+  /** IDs de inventario enlazados como variantes de la misma ficha. */
+  variantProductIds?: readonly string[];
   /** Variante usada para el precio en vitrina (p. ej. cilindro nuevo). */
   showcaseVariantLabel?: string;
   /** Subtítulo en card destacada del home, p. ej. Impresora Multifuncional. */

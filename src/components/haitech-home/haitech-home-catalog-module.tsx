@@ -38,7 +38,7 @@ export function HaitechHomeCatalogModule() {
   }, []);
 
   return (
-    <div className="home-landing-sans w-full bg-white py-3 sm:py-4">
+    <div className="home-landing-sans w-full bg-white py-1.5 sm:py-2">
       <HomeStorefrontFeaturedSection />
 
       <LazyHomeSection mountOnIdle idleTimeoutMs={800} minHeight="160px">

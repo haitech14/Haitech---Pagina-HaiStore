@@ -209,7 +209,12 @@ export function inferColor(product) {
   }
 
   const haystack = `${product?.name ?? ''} ${product?.category ?? ''}`.toLowerCase();
-  if (/\bcolor\b|a color|\bc\d{3,4}\b|\bim\s*c/i.test(haystack)) return 'Color';
+  if (
+    /\bcolor\b|a color|\bc\d{3,4}\b|\bim\s*c/i.test(haystack) ||
+    /\b(?:mp|im)\s*cw\s*220[01]\b/i.test(haystack)
+  ) {
+    return 'Color';
+  }
   return 'B/N';
 }
 

@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/cart-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { DEFAULT_BULK_DISCOUNT_TIERS, resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
+import { resolveProductBulkDiscountTiers } from '@/lib/product-bulk-discount';
 import { ensureFullPrices } from '@/lib/roles';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
@@ -41,7 +42,10 @@ export function ProductQuickViewActions({
   const navigate = useNavigate();
   const { addItem } = useCart();
   const settingsQuery = useCompanySettings();
-  const tiers = settingsQuery.data?.bulkDiscountTiers ?? DEFAULT_BULK_DISCOUNT_TIERS;
+  const tiers = resolveProductBulkDiscountTiers(
+    product,
+    settingsQuery.data?.bulkDiscountTiers ?? DEFAULT_BULK_DISCOUNT_TIERS,
+  );
   const [internalQuantity, setInternalQuantity] = useState(1);
   const quantity = quantityProp ?? internalQuantity;
   const setQuantity = onQuantityChange ?? setInternalQuantity;

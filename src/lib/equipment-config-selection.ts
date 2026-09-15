@@ -91,7 +91,9 @@ export function resolveSelectedEquipmentOptions(
 }
 
 export function getPaidEquipmentOptions(options: SelectedEquipmentOption[]): SelectedEquipmentOption[] {
-  return options.filter((option) => option.pricePen > 0);
+  return options.filter(
+    (option) => option.pricePen > 0 || (option.priceUsd != null && option.priceUsd > 0),
+  );
 }
 
 export function computeEquipmentExtrasPen(options: SelectedEquipmentOption[]): number {

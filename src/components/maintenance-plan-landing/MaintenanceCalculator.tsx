@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
 
 import { EquipmentModelCombobox } from '@/components/maintenance-plan-landing/EquipmentModelCombobox';
@@ -36,6 +36,11 @@ import {
   type MaintenancePrintType,
   type MaintenanceServiceModeId,
 } from '@/data/maintenance-plan';
+import {
+  CATALOG_INDEX_UPDATED_EVENT,
+  getCatalogActiveRows,
+  loadCatalogIndex,
+} from '@/lib/catalog-featured';
 import { buildHaitechWhatsAppUrl } from '@/lib/whatsapp-sales';
 import { cn } from '@/lib/utils';
 
@@ -59,8 +64,16 @@ export function MaintenanceCalculator({
   serviceMode?: MaintenanceServiceModeId;
 }) {
   const [state, setState] = useState<MaintenancePlanState>(DEFAULT_MAINTENANCE_PLAN_STATE);
+  const [catalogTick, setCatalogTick] = useState(0);
+  const catalog = useMemo(() => {
+    void catalogTick;
+    return getCatalogActiveRows();
+  }, [catalogTick]);
   const mergedState = useMemo(() => ({ ...state, serviceMode }), [state, serviceMode]);
-  const quote = useMemo(() => calculateMaintenancePlanQuote(mergedState), [mergedState]);
+  const quote = useMemo(
+    () => calculateMaintenancePlanQuote(mergedState, catalog),
+    [catalog, mergedState],
+  );
   const equipment = maintenanceEquipmentById(mergedState.equipmentId);
   const model = maintenanceModelById(mergedState.modelId);
   const showPrintSpecs = equipment.usesPrintSpecs;
@@ -87,6 +100,13 @@ export function MaintenanceCalculator({
     setState((prev) => ({ ...prev, ...partial }));
   };
 
+  useEffect(() => {
+    void loadCatalogIndex().then(() => setCatalogTick((value) => value + 1));
+    const onUpdated = () => setCatalogTick((value) => value + 1);
+    window.addEventListener(CATALOG_INDEX_UPDATED_EVENT, onUpdated);
+    return () => window.removeEventListener(CATALOG_INDEX_UPDATED_EVENT, onUpdated);
+  }, []);
+
   const volumePct = Math.min(
     100,
     Math.max(
@@ -106,6 +126,7 @@ export function MaintenanceCalculator({
       printType: nextModel.printType,
       modelId: nextModel.id,
       customModel: '',
+      planKind: nextModel.usesPrintVolume ? state.planKind : 'maintenance',
     });
   };
 
@@ -359,7 +380,7 @@ export function MaintenanceCalculator({
                 <MaintenanceStepHeader
                   step={2}
                   title="Volumen mensual"
-                  subtitle="Elige un rango o personaliza las páginas por mes."
+                  subtitle="Se usa para proyectar cuántos tóner harán falta en el plazo del plan."
                 />
 
                 <div className="mt-5 space-y-5">
@@ -445,8 +466,9 @@ export function MaintenanceCalculator({
                   </div>
 
                   <p className="text-[11px] text-[#9CA3AF]">
-                    Referencia A4 B/N: S/ 304 + IGV al mes por 55,000 páginas en plan anual. Color y
-                    A3 se aproximan desde esa tarifa.
+                    El precio del mantenimiento es fijo por plazo (S/ 1,299 / 799 / 169 + IGV). Si
+                    el equipo es a color se suman S/ 50. El volumen solo proyecta el tóner del plan
+                    de suministros.
                   </p>
                 </div>
               </div>
@@ -457,6 +479,7 @@ export function MaintenanceCalculator({
             quote={quote}
             onRequestPlan={handleRequestPlan}
             onTermChange={(termMonths) => patch({ termMonths })}
+            onPlanKindChange={(planKind) => patch({ planKind })}
           />
         </div>
       </div>

@@ -7,6 +7,14 @@ import { ProductCardCopyImageButton } from '@/components/product/product-card-co
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
 import { ProductCardFeaturedStar } from '@/components/product/product-card-featured-star';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
+import {
+  ProductCardDefault,
+  ProductCardHover,
+  ProductCardHoverToggle,
+  PRODUCT_CARD_PREMIUM_ADD_BUTTON_CLASS,
+  PRODUCT_CARD_PREMIUM_SHELL_CLASS,
+  useProductCardHoverReveal,
+} from '@/components/product/product-card-premium-hover';
 import { ProductCardPromoBadges } from '@/components/product/product-card-promo-badges';
 import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
@@ -29,6 +37,7 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
+import { buildProductCardHoverFeatures } from '@/lib/product-card-hover-features';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { ProductCardBrandLine, ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { inferColor } from '@/lib/category-catalog-filters';
@@ -57,6 +66,7 @@ export function HomeLandingProductCard({
   const { addItem } = useCart();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const hoverReveal = useProductCardHoverReveal();
   const { catalogProduct, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
     useLiveProductCardMedia(product.id, {
       image: product.image,
@@ -92,6 +102,10 @@ export function HomeLandingProductCard({
   const clipboardCondition = resolveProductCardBadgeLabel(productSource);
   const clipboardIsColor = inferColor(productSource) === 'Color';
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(productSource);
+  const hoverFeatures = useMemo(
+    () => buildProductCardHoverFeatures(productSource),
+    [productSource],
+  );
   const clipboardCategory = product.category ?? catalogProduct?.category ?? null;
   const outOfStock = stockCount <= 0;
   const buyNowLabel = 'Agregar al carrito';
@@ -166,7 +180,14 @@ export function HomeLandingProductCard({
   };
 
   return (
-    <article className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[#e6e8ee] bg-white shadow-[0_2px_14px_rgba(15,31,61,0.06)]">
+    <article
+      className={cn(
+        'group flex h-full w-full flex-col overflow-hidden border border-[#e6e8ee] bg-white',
+        PRODUCT_CARD_PREMIUM_SHELL_CLASS,
+        'shadow-[0_2px_14px_rgba(15,31,61,0.06)]',
+      )}
+      {...hoverReveal.cardProps}
+    >
       <div className="relative px-3 pt-3 sm:px-3.5 sm:pt-3.5">
         <div className="relative mx-auto w-full max-w-[220px]">
           <Link
@@ -190,6 +211,7 @@ export function HomeLandingProductCard({
                 alt={product.name}
                 loading={priority ? 'eager' : 'lazy'}
                 imageVersion={imageVersion}
+                zoomOnCardHover
                 className="size-full max-h-[196px] max-w-[196px]"
                 imageClassName="size-full max-h-[196px] max-w-[196px] object-contain object-center"
               />
@@ -261,8 +283,8 @@ export function HomeLandingProductCard({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col px-3 pb-3 pt-1.5 sm:px-3.5 sm:pb-3.5 sm:pt-2">
-        <ProductCardBrandLine brand={brand} />
+      <ProductCardDefault className="px-3 pb-3 pt-1.5 sm:px-3.5 sm:pb-3.5 sm:pt-2">
+        <ProductCardBrandLine brand={brand} brandClassName="font-bold uppercase tracking-wide text-[#E30613]" />
         <ProductCardPromoBadges product={productSource} className="mt-1" />
 
         <Link
@@ -271,7 +293,7 @@ export function HomeLandingProductCard({
             'mt-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
           )}
         >
-          <h3 className="text-pretty break-words text-left text-sm font-normal leading-snug text-[#111111] sm:text-[0.9375rem]">
+          <h3 className="text-pretty break-words text-left text-sm font-bold leading-snug text-[#111111] sm:text-[0.9375rem]">
             <ProductCardSplitBrandTitle title={productTitle} brand={brand} />
           </h3>
         </Link>
@@ -295,11 +317,24 @@ export function HomeLandingProductCard({
               currentUsd={pricing.currentUsd}
               compareUsd={pricing.compareUsd}
               showAccentBar={false}
-              category={product.category}
-              wholesaleUsd={product.prices?.mayorista}
+              accentUsd
             />
           )}
         </div>
+
+        <ProductCardHoverToggle
+          expanded={hoverReveal.expanded}
+          productName={product.name}
+          onToggle={hoverReveal.toggleExpanded}
+        />
+
+        <ProductCardHover
+          features={hoverFeatures}
+          detailHref={detailPath}
+          productName={product.name}
+          onAddToCart={() => addItem(cartProduct, { quantity })}
+          addLabel={buyNowLabel}
+        />
 
         <div className="relative z-[2] mt-auto pt-2.5">
           <ProductQuantityAddFooter
@@ -311,6 +346,7 @@ export function HomeLandingProductCard({
             quantityPlacement="inline"
             quantityClassName="h-10 rounded-lg"
             addButtonClassName={cn(
+              PRODUCT_CARD_PREMIUM_ADD_BUTTON_CLASS,
               'h-10 min-h-10 max-h-10 min-w-0 flex-1 rounded-lg px-3 text-xs font-semibold text-white shadow-none sm:text-sm',
               'bg-[#E30613] hover:bg-[#c90511]',
             )}
@@ -348,7 +384,7 @@ export function HomeLandingProductCard({
             }
           />
         </div>
-      </div>
+      </ProductCardDefault>
 
       <ProductQuickViewDialog
         snapshot={product}

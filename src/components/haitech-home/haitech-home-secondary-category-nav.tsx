@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 const SECONDARY_NAV_ROW = 'haitech-white' as const;
 const NAV_LINK_CLASS =
-  'relative inline-flex h-full items-center whitespace-nowrap px-2.5 text-[14px] font-medium text-[#111] transition-colors hover:text-[#E30613] after:absolute after:inset-x-2.5 after:bottom-0 after:h-0.5 after:bg-[#E30613] after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35';
+  'relative inline-flex items-center whitespace-nowrap px-2.5 py-1 text-[14px] font-medium text-[#111] transition-colors hover:text-[#E30613] after:absolute after:inset-x-2.5 after:bottom-0 after:h-0.5 after:bg-[#E30613] after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/35';
 
 function SecondaryNavPlainLink({ item }: { item: HaitechHomeSecondaryNavLink }) {
   return (
@@ -49,9 +49,9 @@ function SecondaryNavDropdown({ item }: { item: HaitechHomeSecondaryNavLink }) {
 
 export function HaitechHomePrimaryNavLinks({ className }: { className?: string }) {
   return (
-    <ul className={cn('flex h-full min-w-0 items-stretch gap-2 lg:gap-3', className)} role="list">
+    <ul className={cn('flex h-full min-w-0 items-center gap-2 lg:gap-3', className)} role="list">
       {HAITECH_HOME_SECONDARY_NAV_LINKS.filter((item) => item.id !== 'mas').map((item) => (
-        <li key={item.id} className="flex shrink-0 items-stretch">
+        <li key={item.id} className="flex shrink-0 items-center">
           {'menu' in item && item.menu ? (
             <SecondaryNavDropdown item={item} />
           ) : (

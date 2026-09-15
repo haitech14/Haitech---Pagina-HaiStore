@@ -14,7 +14,6 @@ import { ProductCardCopyButton } from '@/components/product/product-card-copy-bu
 import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductStockHover } from '@/components/product/product-stock-hover';
-import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/context/cart-context';
 import { useDisplayCurrency } from '@/context/display-currency-context';
 import { useWishlist } from '@/context/wishlist-context';
@@ -27,7 +26,6 @@ import {
   type HaitechShopProduct,
 } from '@/data/haitech-home-shop';
 import { useCompanySettings } from '@/hooks/use-company-settings';
-import { ProductVolumeBuyIncentive } from '@/components/product/product-volume-buy-incentive';
 import { getDisplayPriceVisibility } from '@/lib/display-price';
 import { roundEquipmentDisplayUsd } from '@/lib/pen-pricing';
 import { penToUsd, cn } from '@/lib/utils';
@@ -184,12 +182,6 @@ export function HaitechHomeProductCard({
       {...(saleRate != null ? { saleRate } : {})}
     />
   );
-  const featuredHeader = isFeaturedVariant ? (
-    <div className="mb-1 flex items-center justify-between gap-2">
-      <CardBrand brand={product.brand ?? 'RICOH'} />
-      <ConditionPillBadge condition={product.condition} isOffer={product.isOffer === true} />
-    </div>
-  ) : null;
   const mediaBlock = (
     <div className="relative">
       <CardMedia
@@ -228,13 +220,11 @@ export function HaitechHomeProductCard({
           to={product.href}
           className="flex flex-col outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/30"
         >
-          {featuredHeader}
           {mediaBlock}
           {cardInfo}
         </Link>
       ) : (
         <div className="flex flex-col">
-          {featuredHeader}
           {mediaBlock}
           {cardInfo}
         </div>
@@ -363,85 +353,6 @@ function CardImageOverlayActions({
   );
 }
 
-function CardBrand({ brand }: { brand?: string }) {
-  if (!brand) return null;
-
-  return (
-    <p className="min-w-0 truncate text-[0.6875rem] font-bold uppercase tracking-wide text-[#E30613] sm:text-xs">
-      {brand}
-    </p>
-  );
-}
-
-function OfferPillBadge() {
-  return (
-    <span
-      className={cn(
-        'inline-flex h-[18px] w-fit shrink-0 items-center justify-center rounded-full px-2.5',
-        'bg-[#E30613] text-[9px] font-bold uppercase leading-none tracking-[0.08em] text-white',
-      )}
-    >
-      Oferta
-    </span>
-  );
-}
-
-/** Badge NUEVO / SEMINUEVO — píldora negra del mockup. */
-function ConditionPillBadge({
-  condition,
-  isOffer,
-}: {
-  condition?: HaitechShopProduct['condition'];
-  isOffer?: boolean;
-}) {
-  const showCondition = condition === 'nuevo' || condition === 'seminuevo';
-  if (!showCondition && !isOffer) return null;
-  const isNuevo = condition === 'nuevo';
-
-  return (
-    <span className="inline-flex shrink-0 items-center gap-1">
-      {isOffer ? <OfferPillBadge /> : null}
-      {showCondition ? (
-        <span
-          className={cn(
-            'inline-flex h-[18px] w-fit shrink-0 items-center justify-center rounded-full px-2.5',
-            'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
-            isNuevo
-              ? 'bg-[#111111] text-white'
-              : 'border border-[#555] bg-white text-[#555]',
-          )}
-        >
-          {isNuevo ? 'NUEVO' : 'SEMINUEVO'}
-        </span>
-      ) : null}
-    </span>
-  );
-}
-
-function isOriginalConsumable(product: HaitechShopProduct): boolean {
-  if (product.toner?.original === true) return true;
-  if (product.toner?.original === false) return false;
-  return /\boriginal\b/i.test(product.name);
-}
-
-function CardProductBadges({ product }: { product: HaitechShopProduct }) {
-  const showOriginal = isOriginalConsumable(product);
-  if (!showOriginal) return null;
-
-  return (
-    <Badge
-      variant="outline"
-      className={cn(
-        'inline-flex h-[18px] w-fit items-center justify-center rounded-full px-2.5 py-0 shadow-none',
-        'border-transparent bg-[#0f1f3d] text-white hover:bg-[#0f1f3d]',
-        'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
-      )}
-    >
-      Original
-    </Badge>
-  );
-}
-
 function CardMedia({
   product,
   imgError,
@@ -515,34 +426,26 @@ function CardPriceBlock({
           ? formatHaitechUsd(compareUsd)
           : formatHaitechPen(product.compareAt);
 
-  const primaryClass = cn(
-    'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]',
+  const primaryWrapClass = cn(
+    isFeaturedVariant && 'text-center',
     (product.compareAt != null || product.discountLabel) && (isFeaturedVariant ? 'mt-1' : 'mt-1.5'),
   );
-  const usdPrimaryClass = cn(
-    'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]',
-    (product.compareAt != null || product.discountLabel) && (isFeaturedVariant ? 'mt-1' : 'mt-1.5'),
-  );
+  const primaryTextClass =
+    'text-sm font-semibold tabular-nums leading-tight text-[#E30613] sm:text-[0.9375rem]';
 
-  const penPrimary = <p className={primaryClass}>{formatHaitechPen(product.price)}</p>;
+  const penPrimary = (
+    <p className={cn(primaryTextClass, primaryWrapClass)}>{formatHaitechPen(product.price)}</p>
+  );
   const usdPrimary = (
-    <p className={usdPrimaryClass}>{formatHaitechUsd(priceUsd)}</p>
+    <p className={cn(primaryTextClass, primaryWrapClass)}>{formatHaitechUsd(priceUsd)}</p>
   );
   const penSecondary = (
-    <p
-      className={cn(
-        'mt-1 text-xs font-medium tabular-nums text-[#6B7280] sm:text-sm',
-      )}
-    >
+    <p className="mt-1 text-xs font-medium tabular-nums text-[#6B7280] sm:text-sm">
       {formatHaitechPen(product.price)}
     </p>
   );
   const usdSecondary = (
-    <p
-      className={cn(
-        'mt-1 text-xs font-medium tabular-nums text-[#6B7280] sm:text-sm',
-      )}
-    >
+    <p className="mt-1 text-xs font-medium tabular-nums text-[#6B7280] sm:text-sm">
       {formatHaitechUsd(priceUsd)}
     </p>
   );
@@ -590,13 +493,6 @@ function CardPriceBlock({
         </>
       )}
       {displayCurrency === 'BOTH' && priceUsd <= 0 && penPrimary}
-      {priceUsd > 0 ? (
-        <ProductVolumeBuyIncentive
-          unitPriceUsd={priceUsd}
-          isToner={isConsumableProduct}
-          align={isFeaturedVariant ? 'center' : 'start'}
-        />
-      ) : null}
     </div>
   );
 }
@@ -623,16 +519,6 @@ function CardInfo({
 
   return (
     <div className={cn('mt-2 flex flex-col', isFeaturedVariant && 'items-center text-center')}>
-      {isFeaturedVariant ? null : (
-        <div className="mb-1.5 flex min-w-0 items-center justify-between gap-2">
-          <CardBrand brand={product.brand ?? 'RICOH'} />
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
-            <ConditionPillBadge condition={product.condition} isOffer={product.isOffer === true} />
-            <CardProductBadges product={product} />
-          </div>
-        </div>
-      )}
-
       {featuredTypeLabel ? (
         <p className="text-pretty break-words text-[0.75rem] font-bold leading-snug text-[#111111] sm:text-sm">
           {featuredTypeLabel}
@@ -651,43 +537,32 @@ function CardInfo({
 
       {isFeaturedVariant ? null : codeLabel || hasStock ? (
         <div
-          className={cn(
-            'grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,margin,opacity] duration-200 ease-out',
-            'group-hover/card:mt-1.5 group-hover/card:grid-rows-[1fr] group-hover/card:opacity-100',
-            'group-focus-within/card:mt-1.5 group-focus-within/card:grid-rows-[1fr] group-focus-within/card:opacity-100',
-            'motion-reduce:mt-1.5 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100',
-          )}
+          className="mt-1.5 grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-left text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
+          aria-label={[
+            codeLabel ? `Código ${codeLabel}` : null,
+            hasStock ? (outOfStock ? 'Sin stock' : `Stock ${stockCount}`) : null,
+          ]
+            .filter(Boolean)
+            .join(', ')}
         >
-          <div className="min-h-0 overflow-hidden">
-            <div
-              className="flex min-w-0 items-center gap-1.5 text-[10px] font-medium leading-none text-[#8a93a3] sm:text-[11px]"
-              aria-label={[
-                codeLabel ? `Código ${codeLabel}` : null,
-                hasStock ? (outOfStock ? 'Sin stock' : `Stock ${stockCount}`) : null,
-              ]
-                .filter(Boolean)
-                .join(', ')}
-            >
-              {codeLabel ? (
-                <span className="min-w-0 truncate tabular-nums" title={codeLabel}>
-                  {codeLabel}
-                </span>
-              ) : (
-                <span className="min-w-0" aria-hidden="true" />
-              )}
-              {hasStock ? (
-                <ProductStockHover
-                  stock={stockCount}
-                  outOfStock={outOfStock}
-                  stockLocations={resolveHaitechShopStockLocations(product)}
-                  prefix="Stock "
-                  emptyLabel="Sin stock"
-                  className="ml-auto text-[10px] font-medium sm:text-[11px]"
-                  iconClassName="size-3 shrink-0"
-                />
-              ) : null}
-            </div>
-          </div>
+          {codeLabel ? (
+            <span className="min-w-0 truncate text-left tabular-nums" title={codeLabel}>
+              Cód. {codeLabel}
+            </span>
+          ) : (
+            <span className="min-w-0" aria-hidden="true" />
+          )}
+          {hasStock ? (
+            <ProductStockHover
+              stock={stockCount}
+              outOfStock={outOfStock}
+              stockLocations={resolveHaitechShopStockLocations(product)}
+              prefix="Stock "
+              emptyLabel="Sin stock"
+              className="shrink-0 justify-end text-right text-[10px] font-medium sm:text-[11px]"
+              iconClassName="size-3 shrink-0"
+            />
+          ) : null}
         </div>
       ) : null}
 

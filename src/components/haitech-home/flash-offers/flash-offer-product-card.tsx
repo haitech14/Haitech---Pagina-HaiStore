@@ -47,42 +47,30 @@ export function FlashOfferProductCard({
   return (
     <article
       className={cn(
-        'group relative flex h-[420px] w-full max-w-[228px] min-w-0 flex-col overflow-hidden rounded-[14px] bg-white',
+        'group relative flex h-[420px] w-full max-w-[240px] min-w-0 flex-col overflow-hidden rounded-[14px] bg-white',
         'shadow-[0_6px_16px_rgba(100,0,10,0.12)] transition-shadow duration-200',
         'hover:shadow-[0_10px_22px_rgba(100,0,10,0.16)]',
       )}
     >
-      <div className="flex items-start justify-between px-3 pb-0.5 pt-3">
-        <p className="font-[family-name:var(--font-infobox)] text-[15px] font-bold leading-none tracking-tight text-[#e60012]">
-          {product.brand}
-        </p>
-        <div className="flex flex-col items-end gap-1.5">
-          {product.offer ? (
-            <span className="inline-flex h-6 items-center rounded-full bg-[#e60012] px-3.5 text-[11px] font-bold uppercase leading-none text-white">
-              OFERTA
-            </span>
-          ) : null}
-          <button
-            type="button"
-            aria-label={favorited ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-            aria-pressed={favorited}
-            onClick={() => onToggleFavorite(product.id)}
-            className="text-[#ed0016] transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ed0016]/40"
-          >
-            <Star
-              className="size-[18px]"
-              strokeWidth={2}
-              fill={favorited ? '#ed0016' : 'none'}
-              aria-hidden="true"
-            />
-          </button>
-        </div>
-      </div>
-
-      <Link
-        to={href}
-        className="relative mx-auto flex h-[210px] w-full items-center justify-center px-2.5 outline-none focus-visible:ring-2 focus-visible:ring-[#ed0016]/35"
-      >
+      <div className="relative">
+        <button
+          type="button"
+          aria-label={favorited ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+          aria-pressed={favorited}
+          onClick={() => onToggleFavorite(product.id)}
+          className="absolute right-3 top-3 z-[2] text-[#ed0016] transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ed0016]/40"
+        >
+          <Star
+            className="size-[18px]"
+            strokeWidth={2}
+            fill={favorited ? '#ed0016' : 'none'}
+            aria-hidden="true"
+          />
+        </button>
+        <Link
+          to={href}
+          className="relative mx-auto flex h-[210px] w-full items-center justify-center px-2.5 outline-none focus-visible:ring-2 focus-visible:ring-[#ed0016]/35"
+        >
         {imgError ? (
           <div className="flex size-full items-center justify-center bg-[#F7F7F7] text-xs font-bold text-[#999]">
             {product.model}
@@ -98,6 +86,7 @@ export function FlashOfferProductCard({
           />
         )}
       </Link>
+      </div>
 
       <div className="flex flex-1 flex-col px-3 pb-3 pt-0.5">
         <Link to={href} className="outline-none focus-visible:ring-2 focus-visible:ring-[#ed0016]/35">

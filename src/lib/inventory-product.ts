@@ -10,7 +10,11 @@ import {
 } from '@/lib/product-media';
 import { normalizeAttachments } from '@/lib/inventory-attachments';
 import { normalizeBundleComponents } from '@/lib/product-bundle';
-import { normalizeSuppliers, resolvePurchasePriceUsd } from '@/lib/inventory-suppliers';
+import {
+  normalizeSpecialPurchasePriceUsd,
+  normalizeSuppliers,
+  resolvePurchasePriceUsd,
+} from '@/lib/inventory-suppliers';
 import { applyStockFields, DEFAULT_WAREHOUSES } from '@/lib/inventory-stock';
 import { normalizeVolumeRolePrices } from '@/lib/product-volume-role-prices';
 import { normalizePreparationPrices } from '@/lib/seminueva-preparation';
@@ -87,6 +91,9 @@ export async function prepareInventoryPayloadForApi(
           : {}),
       description,
       purchase_price_usd: resolvePurchasePriceUsd(suppliers, product.purchase_price_usd),
+      special_purchase_price_usd: normalizeSpecialPurchasePriceUsd(
+        product.special_purchase_price_usd,
+      ),
       code: product.code?.trim() || generateInventoryProductCode(id),
       gallery: product.gallery ?? [],
     },
@@ -118,6 +125,7 @@ export function createEmptyInventoryProduct(): InventoryProduct {
     image_url: null,
     gallery: [],
     purchase_price_usd: 0,
+    special_purchase_price_usd: 0,
     suppliers: [],
     attachments: [],
     attributes: [],
@@ -177,6 +185,9 @@ export function normalizeInventoryProduct(
         raw.upsell_optional_products,
       ),
       purchase_price_usd: resolvePurchasePriceUsd(suppliers, fallbackPurchase),
+      special_purchase_price_usd: normalizeSpecialPurchasePriceUsd(
+        raw.special_purchase_price_usd,
+      ),
       created_at: raw.created_at ?? new Date().toISOString(),
       sort_order: Number.isFinite(Number(raw.sort_order)) ? Number(raw.sort_order) : 0,
       is_featured: raw.is_featured === true,
@@ -252,6 +263,9 @@ export function normalizeInventoryProductForAdminList(
       raw.upsell_optional_products,
     ),
     purchase_price_usd: resolvePurchasePriceUsd(suppliers, fallbackPurchase),
+    special_purchase_price_usd: normalizeSpecialPurchasePriceUsd(
+      raw.special_purchase_price_usd,
+    ),
     created_at: raw.created_at ?? new Date().toISOString(),
     sort_order: Number.isFinite(Number(raw.sort_order)) ? Number(raw.sort_order) : 0,
     is_featured: raw.is_featured === true,

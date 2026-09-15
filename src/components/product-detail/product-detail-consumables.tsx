@@ -36,7 +36,7 @@ function SparePartsRow({
 
   return (
     <tr className="border-b border-border/50 last:border-b-0">
-      <td className="py-1.5 pr-2 align-middle">
+      <td className="px-2 py-1.5 align-middle">
         <div className="flex min-w-0 items-center gap-2">
           <Link
             to={productPath(item.productId)}
@@ -71,13 +71,13 @@ function SparePartsRow({
           </div>
         </div>
       </td>
-      <td className="whitespace-nowrap py-1.5 pr-2 align-middle text-sm font-semibold text-[#0f1f3d]">
-        <DualPrice usd={item.priceUsd} />
+      <td className="px-2 py-1.5 align-middle text-sm font-semibold text-[#0f1f3d]">
+        <DualPrice usd={item.priceUsd} stacked />
       </td>
-      <td className="py-1.5 pr-2 align-middle text-sm text-muted-foreground">
+      <td className="px-2 py-1.5 align-middle text-xs leading-snug text-muted-foreground sm:text-sm">
         {formatYieldLabel(item.yieldPages ?? null, item.yieldLabel ?? null)}
       </td>
-      <td className="whitespace-nowrap py-1.5 align-middle text-sm font-semibold text-red-600">
+      <td className="whitespace-nowrap px-2 py-1.5 align-middle text-sm font-semibold text-red-600">
         {formatCostPerCopyPen(item.costPerCopyPen)}
       </td>
     </tr>
@@ -95,9 +95,15 @@ function SparePartsTable({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border/60">
-      <table className="w-full min-w-[36rem] border-collapse text-left">
+      <table className="w-full table-fixed border-collapse text-left">
+        <colgroup>
+          <col className="w-[42%]" />
+          <col className="w-[18%]" />
+          <col className="w-[20%]" />
+          <col className="w-[20%]" />
+        </colgroup>
         <thead>
-          <tr className="border-b border-border/60 bg-muted/20 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+          <tr className="border-b border-border/60 bg-muted/20 text-[0.625rem] font-semibold uppercase tracking-wide text-muted-foreground sm:text-[0.6875rem]">
             <th scope="col" className="px-2 py-2">
               Producto
             </th>
@@ -108,7 +114,7 @@ function SparePartsTable({
               Rendimiento
             </th>
             <th scope="col" className="px-2 py-2">
-              Costo por copia
+              Costo / hoja
             </th>
           </tr>
         </thead>
@@ -221,7 +227,7 @@ export function ProductDetailConsumables({ groups, className }: ProductDetailCon
   return (
     <div className={cn('space-y-8', className)}>
       <p className="text-sm leading-relaxed text-muted-foreground">
-        Costo por copia = precio del producto ÷ rendimiento (páginas). La sumatoria incluye solo
+        Cada fila divide el precio de venta entre el rendimiento en páginas. La sumatoria incluye solo
         ítems con rendimiento conocido.
       </p>
 
@@ -248,13 +254,13 @@ export function ProductDetailConsumables({ groups, className }: ProductDetailCon
         <div className="rounded-lg border border-border/60 bg-muted/15 px-4 py-4 sm:px-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-bold text-[#0f1f3d]">
-              Sumatoria costo por copia ({itemsWithCost.length}{' '}
+              Costo total por hoja ({itemsWithCost.length}{' '}
               {itemsWithCost.length === 1 ? 'producto' : 'productos'})
             </p>
             <p className="text-lg font-bold text-red-600">{formatCostPerCopyPen(totalCostPerCopy)}</p>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Suma de los costos por copia de tóner y repuestos listados con rendimiento definido.
+            Suma de los costos por hoja de tóner y repuestos listados con rendimiento definido.
           </p>
         </div>
       ) : null}

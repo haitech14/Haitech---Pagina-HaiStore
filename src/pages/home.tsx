@@ -70,7 +70,7 @@ export function HomePage() {
 
       <HaitechHomeBrandIntro />
       <LazyHomeSection mountOnIdle idleTimeoutMs={400} minHeight="260px">
-        <div className="bg-white py-2 sm:py-2.5">
+        <div className="bg-white py-1 sm:py-1.5">
           <HomePromoBannersCarousel />
         </div>
       </LazyHomeSection>

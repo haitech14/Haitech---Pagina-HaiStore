@@ -20,6 +20,13 @@ import {
 import { PRODUCT_CARD_DISCOUNT_CLASS } from '@/lib/product-card-title';
 import { PRODUCT_ON_REQUEST_STOCK_LABEL } from '@/lib/product-on-request-label';
 import { ProductCardHoverImage, PRODUCT_CARD_IMAGE_CLASS } from '@/components/product/product-card-hover-image';
+import {
+  ProductCardHover,
+  ProductCardHoverToggle,
+  PRODUCT_CARD_PREMIUM_ADD_BUTTON_CLASS,
+  PRODUCT_CARD_PREMIUM_SHELL_CLASS,
+  useProductCardHoverReveal,
+} from '@/components/product/product-card-premium-hover';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ViewAsRoleBadge } from '@/components/product/view-as-role-badge';
 import { ViewAsRolePrices } from '@/components/product/view-as-role-prices';
@@ -31,6 +38,7 @@ import {
   resolveProductCardHoverImageFromProduct,
 } from '@/lib/product-card-images';
 import { formatProductCardTitle } from '@/lib/product-card-title';
+import { buildProductCardHoverFeatures } from '@/lib/product-card-hover-features';
 import { productPath } from '@/lib/product-path';
 import { productToWishlistItem } from '@/lib/wishlist-product';
 import { cn, formatPenFromUsd, formatUsd } from '@/lib/utils';
@@ -214,6 +222,7 @@ interface ProductCatalogCardProps {
 
 export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
+  const hoverReveal = useProductCardHoverReveal();
   const outOfStock = isProductOutOfStock(product);
   const detailHref = productPath(product);
   const { image_url: liveImageUrl, gallery: liveGallery, imageVersion } = useLiveProductCardMedia(
@@ -241,10 +250,18 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
   const displayTitle = formatProductCardTitle(product);
   const rating = getCatalogCardRating(product);
   const specLines = getCatalogCardSpecLines(product);
+  const hoverFeatures = useMemo(() => buildProductCardHoverFeatures(product), [product]);
   const displayPrice = useCatalogDisplayPrice(product);
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm transition-shadow duration-200 hover:shadow-md">
+    <article
+      className={cn(
+        'group flex h-full flex-col overflow-hidden border border-border/60 bg-card',
+        PRODUCT_CARD_PREMIUM_SHELL_CLASS,
+        'shadow-sm',
+      )}
+      {...hoverReveal.cardProps}
+    >
       <div className="relative px-2 pb-1.5 pt-2">
         <button
           type="button"
@@ -286,6 +303,7 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
             className="size-full"
             imageClassName={PRODUCT_CARD_IMAGE_CLASS}
             imageVersion={imageVersion}
+            zoomOnCardHover
           />
         </Link>
       </div>
@@ -306,18 +324,33 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
 
         <CatalogCardStockLine outOfStock={outOfStock} stock={product.stock} />
 
-        <div
-          className={cn(
-            'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200',
-            'group-hover:grid-rows-[1fr] group-hover:opacity-100',
-            'group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
-            'motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none',
-          )}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <CatalogCardSpecList lines={specLines} />
+        <ProductCardHoverToggle
+          expanded={hoverReveal.expanded}
+          productName={product.name}
+          onToggle={hoverReveal.toggleExpanded}
+        />
+
+        {hoverFeatures.length > 0 ? (
+          <ProductCardHover
+            features={hoverFeatures}
+            detailHref={detailHref}
+            productName={product.name}
+          />
+        ) : (
+          <div
+            className={cn(
+              'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-300 ease-out',
+              'group-hover:grid-rows-[1fr] group-hover:opacity-100',
+              'group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
+              'group-data-[expanded=true]:grid-rows-[1fr] group-data-[expanded=true]:opacity-100',
+              'motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none',
+            )}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <CatalogCardSpecList lines={specLines} />
+            </div>
           </div>
-        </div>
+        )}
 
         <CatalogCardPricing product={product} />
 
@@ -326,6 +359,7 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
             'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200',
             'group-hover:grid-rows-[1fr] group-hover:opacity-100',
             'group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
+            'group-data-[expanded=true]:grid-rows-[1fr] group-data-[expanded=true]:opacity-100',
             'motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none',
           )}
         >
@@ -337,7 +371,11 @@ export function ProductCatalogCard({ product }: ProductCatalogCardProps) {
         </div>
 
         <div className="mt-auto border-t border-border/50 pt-2">
-          <ProductQuantityAddFooter product={product} size="sm" />
+          <ProductQuantityAddFooter
+            product={product}
+            size="sm"
+            addButtonClassName={PRODUCT_CARD_PREMIUM_ADD_BUTTON_CLASS}
+          />
         </div>
       </div>
     </article>

@@ -4,6 +4,7 @@ import { resolveCatalogStock } from '@/lib/catalog-row-lookup';
 import { isTonerOrRepuestosCategory } from '@/lib/pen-pricing';
 import { productPath } from '@/lib/product-path';
 import { findProductBySlugOrId } from '@/lib/product-slug';
+import { productHasOfferAttribute } from '@/lib/product-detail-badges';
 
 /** IDs de vitrina (stubs) → UUID de inventario. */
 const SHOWCASE_STUB_TO_CATALOG_ID: Readonly<Record<string, string>> = {
@@ -197,7 +198,10 @@ function findCatalogRowForShowcaseProduct(
   const code = normalizeCatalogCode(product.code);
   if (code) {
     const byCode = findCatalogRowByUniqueCode(code, rows);
-    if (byCode) return byCode;
+    const stubModel = extractShowcaseEquipmentModel(product);
+    if (byCode && (!stubModel || catalogRowMatchesModel(byCode, stubModel))) {
+      return byCode;
+    }
   }
 
   return findProductBySlugOrId(rows, product.name);
@@ -253,14 +257,51 @@ export function hydrateShowcaseProductFromCatalog(product: HaitechShopProduct): 
     stock,
   };
   if (row.code) next.code = row.code;
-  if (row.name?.trim()) next.name = row.name.trim();
+  const catalogName = row.name?.trim();
+  const stubModel = extractShowcaseEquipmentModel(product);
+  if (catalogName && (!stubModel || catalogRowMatchesModel(row, stubModel))) {
+    next.name = catalogName;
+  }
   const catalogImage = typeof row.image_url === 'string' ? row.image_url.trim() : '';
   if (catalogImage) next.image = catalogImage;
   if (stockLocations.length > 0) next.stockLocations = stockLocations;
+  const linkedVariantIds = (row.variant_product_ids ?? []).filter(
+    (id): id is string => typeof id === 'string' && id.trim().length > 0,
+  );
+  if (linkedVariantIds.length > 0) {
+    next.variantProductIds = linkedVariantIds;
+  }
+  if (productHasOfferAttribute(row)) next.isOffer = true;
   delete next.compareAt;
   delete next.discountLabel;
 
   return next;
+}
+
+/** Hidrata y deja una sola card por id de catálogo (prioriza la ficha canónica). */
+export function hydrateShowcaseProductsFromCatalog(
+  products: readonly HaitechShopProduct[],
+): HaitechShopProduct[] {
+  const preferredIndex = new Map<string, number>();
+  const hydrated = products.map((product, index) => {
+    const next = hydrateShowcaseProductFromCatalog(product);
+    const current = preferredIndex.get(next.id);
+    if (current == null || product.id === next.id) {
+      preferredIndex.set(next.id, index);
+    }
+    return next;
+  });
+
+  const seen = new Set<string>();
+  const result: HaitechShopProduct[] = [];
+  for (let index = 0; index < hydrated.length; index += 1) {
+    const product = hydrated[index]!;
+    if (preferredIndex.get(product.id) !== index) continue;
+    if (seen.has(product.id)) continue;
+    seen.add(product.id);
+    result.push(product);
+  }
+  return result;
 }
 
 /** Ruta de ficha para cards de vitrina: catálogo → slug generado. */

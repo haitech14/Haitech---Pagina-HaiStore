@@ -30,7 +30,7 @@ export function MaintenancePlanLandingPage({
   seoDescription = DEFAULT_DESCRIPTION,
   canonicalPath = '/servicios?seccion=servicio-tecnico',
 }: MaintenancePlanLandingPageProps) {
-  const [serviceMode, setServiceMode] = useState<MaintenanceServiceModeId>('plan');
+  const [serviceMode, setServiceMode] = useState<MaintenanceServiceModeId>('individual');
 
   useSeo({
     title: seoTitle,

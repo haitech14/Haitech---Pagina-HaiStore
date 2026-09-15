@@ -82,7 +82,7 @@ export function splitProductCardTitleAtBrand(
   if (!normalized) return { firstLine: '', secondLine: null };
 
   const equipmentPrefix = normalized.match(
-    /^(Impresora(?:\s+Multifuncional)?|Multifuncional|Plotter)(?:\s+de\s+Planos)?(?:\s+(?:B\/N|Color))?\s+(Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo)\s+/i,
+    /^(Impresora(?:\s+Multifuncional)?|Multifuncional|Plotter)(?:\s+de\s+Planos)?(?:\s+L[aá]ser)?(?:\s+(?:B\/N|Color))?\s+(Nueva|Seminueva|Remanufacturada|Nuevo|Seminuevo)\s+/i,
   );
   if (equipmentPrefix) {
     const firstLine = equipmentPrefix[0].trim();

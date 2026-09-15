@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Pencil } from 'lucide-react';
+import { Heart, Pencil, Share2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -8,9 +8,11 @@ import { InventoryProductFormDialog } from '@/components/admin/inventory/invento
 import { ProductDetailBreadcrumbs } from '@/components/product-detail/product-detail-breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
+import { useWishlist } from '@/context/wishlist-context';
 import { fetchAdminInventoryProductById } from '@/hooks/use-products';
 import { isApiConnectionError } from '@/lib/api';
 import { notifyProductCatalogChanged } from '@/lib/invalidate-product-queries';
+import { productToWishlistItem } from '@/lib/wishlist-product';
 import { cn } from '@/lib/utils';
 import type { InventoryProduct, Product } from '@/types/product';
 import type { ProductBreadcrumb } from '@/types/product-detail';
@@ -18,6 +20,7 @@ import type { ProductBreadcrumb } from '@/types/product-detail';
 interface ProductDetailBreadcrumbsBarProps {
   items: ProductBreadcrumb[];
   product: Product;
+  onShareClick?: () => void;
   className?: string;
 }
 
@@ -28,17 +31,20 @@ function isSessionAuthError(message: string): boolean {
 export function ProductDetailBreadcrumbsBar({
   items,
   product,
+  onShareClick,
   className,
 }: ProductDetailBreadcrumbsBarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin } = useAuth();
+  const { isSelected, toggle } = useWishlist();
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<InventoryProduct | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
 
   const showEditButton = isAdmin;
+  const wishlisted = isSelected(product.id);
 
   const returnPath = `${location.pathname}${location.search}${location.hash}`;
 
@@ -91,40 +97,55 @@ export function ProductDetailBreadcrumbsBar({
 
   return (
     <>
-      <div className={cn('flex flex-wrap items-center justify-between gap-x-4 gap-y-2', className)}>
-        <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-9 shrink-0 gap-0.5 px-2 text-neutral-500 hover:bg-muted/50 hover:text-neutral-700 focus-visible:ring-blue-600"
-            onClick={() => {
-              void navigate('/tienda');
-            }}
-          >
-            <ChevronLeft className="size-4" aria-hidden="true" />
-            Volver a Tienda
-          </Button>
+      <div className={cn('border-b border-neutral-100 bg-white text-neutral-700', className)}>
+        <div className="container flex items-center justify-between gap-x-2 py-1">
           <ProductDetailBreadcrumbs items={items} className="mb-0 min-w-0 flex-1" />
-        </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          {showEditButton ? (
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="h-9 shrink-0 gap-1.5 border-border text-foreground hover:bg-muted/50 focus-visible:ring-red-600"
-              disabled={loadingEdit}
-              onClick={() => {
-                void openEdit();
-              }}
-              title="Editar producto en inventario"
-              aria-label="Editar producto"
+              className="h-7 gap-1 px-2 text-xs font-medium text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
+              onClick={() => toggle(productToWishlistItem(product))}
+              aria-pressed={wishlisted}
+              aria-label={wishlisted ? 'Quitar de favoritos' : 'Añadir a favoritos'}
             >
-              <Pencil className="size-3.5" aria-hidden="true" />
-              {loadingEdit ? 'Cargando…' : 'Editar'}
+              <Heart
+                className={cn('size-3.5', wishlisted ? 'fill-[#E31B23] text-[#E31B23]' : '')}
+                aria-hidden="true"
+              />
+              Favoritos
             </Button>
-          ) : null}
+            {onShareClick ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1 px-2 text-xs font-medium text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
+                onClick={onShareClick}
+              >
+                <Share2 className="size-3.5" aria-hidden="true" />
+                Compartir
+              </Button>
+            ) : null}
+            {showEditButton ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 shrink-0 gap-1 border-border px-2 text-xs text-foreground hover:bg-muted/50 focus-visible:ring-[#E31B23]"
+                disabled={loadingEdit}
+                onClick={() => {
+                  void openEdit();
+                }}
+                title="Editar producto en inventario"
+                aria-label="Editar producto"
+              >
+                <Pencil className="size-3" aria-hidden="true" />
+                {loadingEdit ? 'Cargando…' : 'Editar'}
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
 

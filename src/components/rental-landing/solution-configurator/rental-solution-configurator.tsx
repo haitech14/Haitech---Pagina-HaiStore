@@ -115,6 +115,7 @@ export function RentalSolutionConfigurator({ className }: { className?: string }
             onBlackPagesChange={(blackPages) => patch({ blackPages })}
             onColorPagesChange={(colorPages) => patch({ colorPages })}
             onVolumePagesChange={(volumePages) => patch({ volumePages })}
+            onTermChange={(termMonths) => patch({ termMonths })}
           />
         </div>
       </div>

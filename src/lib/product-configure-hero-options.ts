@@ -1,7 +1,5 @@
 import { ensureFullPrices } from '@/lib/roles';
 
-import { buildProductImageCandidates } from '@/lib/product-image-url';
-
 import { penToUsd } from '@/lib/utils';
 
 import type { EquipmentConfigOption, EquipmentConfigStep } from '@/types/product-detail';
@@ -36,6 +34,10 @@ const COMPLEMENTA_ACCESSORY_LABELS: Partial<Record<string, string>> = {
   'casetera-500': 'Casetera Adicional',
   gabinete: 'Gabinete',
   'estabilizador-2000w': 'Estabilizador Sólido 2000 watts',
+  'casetera-adicional-423525': 'Agregar Casetera Adicional',
+  'high-cabinet-a8': 'High Cabinet Type A8',
+  'postscript-m54': 'PostScript3 Unit Type M54',
+  'ocr-m54': 'OCR Unit Type M54',
 };
 
 
@@ -119,11 +121,9 @@ function resolveOptionPrices(option: EquipmentConfigOption): ProductRolePrices {
 
 
 function resolveAccessoryImageCandidates(option: EquipmentConfigOption): string[] {
-
-  if (!option.image?.trim()) return [];
-
-  return buildProductImageCandidates({ image_url: option.image });
-
+  const explicit = option.image?.trim();
+  if (explicit) return [explicit];
+  return [];
 }
 
 
@@ -254,7 +254,7 @@ export function resolveHeroWarrantyUpgrades(
 
       optionId,
 
-      label: HERO_WARRANTY_UPGRADE_LABELS[optionId],
+      label: option.name.trim() || HERO_WARRANTY_UPGRADE_LABELS[optionId],
 
       pricePen: option.pricePen,
 
@@ -280,8 +280,7 @@ export function resolveHeroWarrantyBaseLabel(
 
   const baseOption = garantiaStep?.options.find((entry) => entry.id === HERO_WARRANTY_BASE_OPTION_ID);
 
-  if (!baseOption) return HERO_WARRANTY_BASE_LABEL;
-
+  if (baseOption?.name?.trim()) return baseOption.name.trim();
   return HERO_WARRANTY_BASE_LABEL;
 
 }

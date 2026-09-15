@@ -6,8 +6,15 @@ import { ProductCardFeaturedPricing } from '@/components/product/product-card-fe
 import { ProductCardFeaturedStar } from '@/components/product/product-card-featured-star';
 import { ProductCardOverlayActions } from '@/components/product/product-card-overlay-actions';
 import { ProductCardPromoBadges } from '@/components/product/product-card-promo-badges';
-import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
+import {
+  ProductCardDefault,
+  ProductCardHover,
+  ProductCardHoverToggle,
+  PRODUCT_CARD_PREMIUM_ADD_BUTTON_CLASS,
+  PRODUCT_CARD_PREMIUM_SHELL_CLASS,
+  useProductCardHoverReveal,
+} from '@/components/product/product-card-premium-hover';
 import { ProductQuickViewDialog } from '@/components/product/product-quick-view-dialog';
 import { ProductQuantityAddFooter } from '@/components/product/product-quantity-add-footer';
 import { ProductWhatsAppButton } from '@/components/product-whatsapp-button';
@@ -26,9 +33,12 @@ import {
 } from '@/lib/product-card-images';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
 import { inferColor } from '@/lib/category-catalog-filters';
+import { isDesktopTablePrinter } from '@/lib/nuevo-equipment-variants';
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
+import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
+import { buildProductCardHoverFeatures } from '@/lib/product-card-hover-features';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { productHasOfferAttribute } from '@/lib/product-detail-badges';
 import { productPath } from '@/lib/product-path';
@@ -41,63 +51,10 @@ interface StoreCatalogProductCardProps {
   product: Product;
   imageLoading?: 'lazy' | 'eager';
   imagePriority?: boolean;
-  /** Carrusel home: marca/condición arriba, CTA Agregar al carrito + WhatsApp debajo. */
+  /** Carrusel home: CTA Agregar al carrito + WhatsApp debajo. */
   variant?: 'catalog' | 'carousel';
   /** Reduce padding e imagen (p. ej. franja «Solo por horas»). */
   density?: 'default' | 'compact';
-}
-
-function formatCardConditionBadge(label: string): string {
-  if (/oferta/i.test(label)) return 'OFERTA';
-  if (/nuev/i.test(label) && !/semi/i.test(label)) return 'NUEVO';
-  return label.toUpperCase();
-}
-
-function isNewConditionBadge(label: string): boolean {
-  return /nuev/i.test(label) && !/semi/i.test(label);
-}
-
-function isOfferConditionBadge(label: string): boolean {
-  return /oferta/i.test(label);
-}
-
-function ProductCardBrandConditionRow({
-  brand,
-  condition,
-  className,
-}: {
-  brand?: string | null;
-  condition?: string | null;
-  className?: string;
-}) {
-  if (!brand && !condition) return null;
-
-  return (
-    <div className={cn('flex min-w-0 items-center justify-between gap-2', className)}>
-      {brand ? (
-        <p className="min-w-0 truncate text-[0.6875rem] font-bold uppercase tracking-wide text-[#E30613] sm:text-xs">
-          {brand}
-        </p>
-      ) : (
-        <span className="min-w-0" aria-hidden="true" />
-      )}
-      {condition ? (
-        <span
-          className={cn(
-            'inline-flex h-[18px] shrink-0 items-center justify-center rounded-full px-2.5',
-            'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
-            isOfferConditionBadge(condition)
-              ? 'bg-[#E30613] text-white'
-              : isNewConditionBadge(condition) || /original/i.test(condition)
-                ? 'bg-[#111111] text-white'
-                : 'border border-[#555] bg-white text-[#555]',
-          )}
-        >
-          {formatCardConditionBadge(condition)}
-        </span>
-      ) : null}
-    </div>
-  );
 }
 
 export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
@@ -113,6 +70,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const hoverReveal = useProductCardHoverReveal();
   const { catalogProduct, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
     useLiveProductCardMedia(product.id, {
       image_url: product.image_url,
@@ -144,17 +102,24 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
     ...(catalogFeatured?.discount != null ? { discount: catalogFeatured.discount } : {}),
   });
 
-  const titleProduct = {
-    id: product.id,
-    name: product.name,
-    category: product.category,
-    brand: product.brand ?? catalogProduct?.brand ?? null,
-    code: product.code ?? catalogProduct?.code ?? null,
-    attributes: product.attributes?.length
-      ? product.attributes
-      : (catalogProduct?.attributes ?? []),
-  };
+  const titleProduct = useMemo(
+    () => ({
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      brand: product.brand ?? catalogProduct?.brand ?? null,
+      code: product.code ?? catalogProduct?.code ?? null,
+      attributes: product.attributes?.length
+        ? product.attributes
+        : (catalogProduct?.attributes ?? []),
+    }),
+    [catalogProduct, product],
+  );
   const { brand, code, title } = getProductCardTitleContent(titleProduct);
+  const hoverFeatures = useMemo(
+    () => buildProductCardHoverFeatures(titleProduct),
+    [titleProduct],
+  );
   const isCarousel = variant === 'carousel';
   const isCompact = density === 'compact';
   const buyNowLabel = 'Agregar al carrito';
@@ -165,7 +130,10 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   const clipboardIsColor = inferColor(titleProduct) === 'Color';
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(titleProduct);
   const clipboardImageUrl = imageCandidates[0] ?? product.image_url ?? null;
-  const stockCount = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const stockCount = Math.max(
+    0,
+    Math.floor(Number(catalogProduct?.stock ?? product.stock) || 0),
+  );
   const isFeatured = product.is_featured === true || catalogProduct?.is_featured === true;
   const whatsappProduct = {
     id: product.id,
@@ -194,8 +162,9 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
   return (
     <article
       className={cn(
-        'group flex h-full w-full flex-col overflow-hidden transition-shadow',
-        isCompact ? 'rounded-xl' : 'rounded-2xl',
+        'group flex w-full flex-col overflow-hidden',
+        PRODUCT_CARD_PREMIUM_SHELL_CLASS,
+        isCompact && 'rounded-xl',
         isCarousel
           ? cn(
               'border border-[#E8E8E8] bg-white',
@@ -205,17 +174,10 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             )
           : isFeatured
             ? 'border border-[#E30613] bg-white shadow-[0_2px_14px_rgba(227,6,19,0.08)]'
-            : 'border border-[#e6e8ee] bg-white shadow-[0_2px_14px_rgba(15,31,61,0.06)] hover:shadow-md',
+            : 'border border-[#e6e8ee] bg-white shadow-[0_2px_14px_rgba(15,31,61,0.06)]',
       )}
+      {...hoverReveal.cardProps}
     >
-      {isCarousel ? (
-        <ProductCardBrandConditionRow
-          brand={brand}
-          condition={clipboardCondition}
-          className={isCompact ? 'px-2 pt-2' : 'px-2.5 pt-2.5 md:px-3 md:pt-3'}
-        />
-      ) : null}
-
       <div className="relative">
         <Link
           to={detailHref}
@@ -231,7 +193,13 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
         >
           {isFeatured ? <ProductCardFeaturedStar /> : null}
 
-          <div className={cn('size-full', isCarousel && 'scale-[1.08]')}>
+          <div
+            className={cn(
+              'size-full origin-center',
+              isCarousel &&
+                (isDesktopTablePrinter(product) ? 'scale-[0.92]' : 'scale-[1.08]'),
+            )}
+          >
             <ProductCardHoverImage
               candidates={imageCandidates}
               storedCandidates={storedImageCandidates}
@@ -242,6 +210,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
               overlayClassName="size-full bg-white"
               loading={imageLoading}
               imageVersion={imageVersion}
+              zoomOnCardHover
               {...(imagePriority ? { fetchPriority: 'high' as const } : {})}
             />
           </div>
@@ -282,22 +251,15 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
         />
       </div>
 
-      <div
+      <ProductCardDefault
         className={cn(
-          'flex min-h-0 flex-1 flex-col',
-          isCompact ? 'px-2 pb-2 pt-1' : 'px-2 pb-2 pt-1.5 md:px-3 md:pb-3 md:pt-2',
+          'w-full min-w-0',
+          isCompact ? 'px-2 pb-2 pt-0.5' : 'px-2 pb-2 pt-1 md:px-3 md:pb-3 md:pt-1',
         )}
       >
-        {isCarousel ? null : (
-          <ProductCardBrandConditionRow brand={brand} condition={clipboardCondition} />
-        )}
-
         <Link
           to={detailHref}
-          className={cn(
-            'rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2',
-            !isCarousel && (brand || clipboardCondition) ? 'mt-1.5' : null,
-          )}
+          className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-2"
         >
           <h3
             className={cn(
@@ -316,29 +278,19 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
           </h3>
         </Link>
 
-        {isCarousel ? null : (
-          <>
-            <ProductCardPromoBadges product={titleProduct} className="mt-2 max-md:hidden" />
+        <ProductCardStatsLine
+          product={titleProduct}
+          stock={stockCount}
+          outOfStock={outOfStock}
+          code={code}
+          className={cn(
+            'mt-1 w-full text-left',
+            isCompact ? 'text-[0.5625rem] sm:text-[0.625rem]' : 'text-[0.625rem] sm:text-[0.6875rem]',
+          )}
+        />
 
-            <div
-              className={cn(
-                'grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,margin,opacity] duration-200 ease-out',
-                'group-hover:mt-2.5 group-hover:grid-rows-[1fr] group-hover:opacity-100',
-                'group-focus-within:mt-2.5 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100',
-                'motion-reduce:mt-2.5 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100',
-                'max-md:hidden',
-              )}
-            >
-              <div className="min-h-0 overflow-hidden">
-                <ProductCardStatsLine
-                  product={titleProduct}
-                  stock={stockCount}
-                  outOfStock={outOfStock}
-                  code={code}
-                />
-              </div>
-            </div>
-          </>
+        {isCarousel ? null : (
+          <ProductCardPromoBadges product={titleProduct} className="mt-2 max-md:hidden" />
         )}
 
         <div className={cn(isCompact ? 'mt-1' : 'mt-1.5 md:mt-2')}>
@@ -351,15 +303,29 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             showOfferLabel={productHasOfferAttribute(titleProduct)}
             size={isCarousel && !isCompact ? 'lg' : 'default'}
             align={isCarousel ? 'center' : 'start'}
-            category={product.category}
-            wholesaleUsd={product.prices?.mayorista}
           />
         </div>
 
+        <ProductCardHoverToggle
+          expanded={hoverReveal.expanded}
+          productName={product.name}
+          onToggle={hoverReveal.toggleExpanded}
+        />
+
+        <ProductCardHover
+          features={hoverFeatures}
+          detailHref={detailHref}
+          productName={product.name}
+          stock={stockCount}
+          outOfStock={outOfStock}
+          onAddToCart={() => addItem(product, { quantity })}
+          addLabel={buyNowLabel}
+        />
+
         <div
           className={cn(
-            'relative z-[2] mt-auto',
-            isCompact ? 'pt-1.5' : 'pt-2 md:pt-2.5',
+            'relative z-[2]',
+            isCompact ? 'pt-1.5' : isCarousel ? 'pt-1.5 md:pt-2' : 'pt-2 md:pt-2.5',
             isCarousel && 'flex justify-center',
           )}
         >
@@ -373,6 +339,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
             onQuantityChange={setQuantity}
             quantityClassName={isCompact ? 'h-8 rounded-md' : 'h-9 rounded-lg md:h-10'}
             addButtonClassName={cn(
+              PRODUCT_CARD_PREMIUM_ADD_BUTTON_CLASS,
               isCarousel
                 ? isCompact
                   ? 'h-8 min-h-8 max-h-8 w-auto min-w-0 flex-none justify-center whitespace-nowrap rounded-md px-2.5 text-[0.625rem] font-semibold text-white shadow-none sm:text-[0.6875rem]'
@@ -398,7 +365,7 @@ export const StoreCatalogProductCard = memo(function StoreCatalogProductCard({
                 })}
           />
         </div>
-      </div>
+      </ProductCardDefault>
 
       <ProductQuickViewDialog
         snapshot={quickViewSnapshot}

@@ -90,31 +90,31 @@ export const HAITECH_NAV_QUOTE_HREF = buildHaitechWhatsAppUrl(
   'Hola HAITECH, quiero comprar por WhatsApp.',
 );
 
-/** Menú principal del header: Comprar · Alquilar · Servicio Técnico · Soluciones. */
+/** Menú principal del header: Tienda · Alquiler · Soluciones · Servicio Técnico. */
 export const HAITECH_HOME_SECONDARY_NAV_LINKS = [
   {
     id: 'comprar',
-    label: 'Comprar',
+    label: 'Tienda',
     href: '/tienda',
     menu: 'equipos',
   },
   {
     id: 'alquilar',
-    label: 'Alquilar',
+    label: 'Alquiler',
     href: serviceHubPath('alquiler'),
     menu: 'alquiler',
-  },
-  {
-    id: 'servicio-tecnico',
-    label: 'Servicio Técnico',
-    href: serviceHubPath('servicio-tecnico'),
-    menu: 'servicio-tecnico',
   },
   {
     id: 'soluciones',
     label: 'Soluciones',
     href: '/software?seccion=gestion-documental',
     menu: 'soluciones',
+  },
+  {
+    id: 'servicio-tecnico',
+    label: 'Servicio Técnico',
+    href: serviceHubPath('servicio-tecnico'),
+    menu: 'servicio-tecnico',
   },
   {
     id: 'mas',
@@ -204,13 +204,6 @@ export const HAITECH_HOME_CATEGORY_CAROUSEL = [
     description: 'Complementos de impresión',
     image: homeCategoryImage('accesorios'),
     to: storeShowcasePath({ categoryId: 'accesorios' }),
-  },
-  {
-    id: 'software',
-    name: 'Software',
-    description: 'Licencias y soluciones',
-    image: homeCategoryImage('software'),
-    to: '/software',
   },
 ] as const;
 

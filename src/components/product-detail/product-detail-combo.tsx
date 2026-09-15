@@ -167,7 +167,7 @@ function ComplementSelectableCard({
     <label
       htmlFor={inputId}
       className={cn(
-        'flex h-full w-full min-w-0 cursor-pointer flex-row items-center gap-2 rounded-lg border bg-white p-2 text-left transition-colors sm:gap-2.5 sm:p-2.5',
+        'relative flex h-full w-full min-w-0 cursor-pointer flex-col gap-2 rounded-lg border bg-white p-2.5 text-left transition-colors sm:p-3',
         selected ? 'border-red-600 ring-1 ring-red-600/25' : 'border-border/60 hover:border-border',
       )}
     >
@@ -175,15 +175,15 @@ function ComplementSelectableCard({
         id={inputId}
         checked={selected}
         onCheckedChange={(checked) => onToggle(checked === true)}
-        className="size-3.5 shrink-0 border-border data-[state=checked]:border-red-600 data-[state=checked]:bg-red-600 sm:size-4"
+        className="absolute left-2 top-2 z-10 size-3.5 shrink-0 border-border bg-white data-[state=checked]:border-red-600 data-[state=checked]:bg-red-600 sm:size-4"
         aria-label={`Incluir ${item.name}`}
       />
 
-      <span className="relative size-11 shrink-0 overflow-hidden rounded-md border border-border/40 bg-muted/25 sm:size-12">
+      <span className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-md border border-border/40 bg-muted/25 p-2 pt-6">
         <img
           src={item.image}
           alt=""
-          className="size-full object-contain p-0.5"
+          className="max-h-full max-w-full object-contain"
           loading="lazy"
         />
       </span>
@@ -330,7 +330,7 @@ export function ProductDetailCombo({
               </span>
               <span className="mt-0.5 block text-xs text-muted-foreground sm:text-sm">
                 {open
-                  ? 'Selecciona los complementos que deseas incluir (una opción por columna).'
+                  ? 'Selecciona los complementos que deseas incluir.'
                   : selectedCount > 0
                     ? `${selectedCount} seleccionado${selectedCount !== 1 ? 's' : ''} · + `
                     : 'Toca para ver complementos opcionales para tu equipo.'}
@@ -360,7 +360,7 @@ export function ProductDetailCombo({
               <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{subtitle}</p>
             ) : (
               <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
-                Selecciona los complementos que deseas incluir (una opción por columna).
+                Selecciona los complementos que deseas incluir.
               </p>
             )}
           </div>
@@ -374,22 +374,13 @@ export function ProductDetailCombo({
               collapsible && 'border-t border-border/40',
             )}
           >
-            <ul
-              className="mt-3 grid list-none gap-2 p-0 sm:mt-4 sm:gap-2.5 sm:grid-cols-2"
-            >
-              {items.map((item, index) => (
-                <li
-                  key={item.id}
-                  className={cn(
-                    'min-w-0',
-                    // Tercera tarjeta: no ocupar el ancho completo de la fila.
-                    index === 2 && 'sm:max-w-[calc(50%-0.3125rem)]',
-                  )}
-                >
+            <ul className="mt-3 grid list-none grid-cols-1 gap-2 p-0 sm:mt-4 lg:gap-2.5">
+              {items.map((item) => (
+                <li key={item.id} className="min-w-0">
                   <ComplementSelectableCard
                     item={item}
                     selected={Boolean(selected[item.id])}
-                    stackedPrice={index < 2}
+                    stackedPrice
                     onToggle={(checked) =>
                       setSelected((prev) => ({ ...prev, [item.id]: checked }))
                     }

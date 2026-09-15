@@ -26,8 +26,9 @@ export type SolutionEquipmentId =
 export type SolutionConditionId = 'nueva' | 'seminueva' | 'operativo';
 export type SolutionPaperFormat = 'A4' | 'A3';
 export type SolutionPrintType = 'bw' | 'color';
-export type SolutionNewTermMonths = 24 | 36;
-export type SolutionTermMonths = 6 | 12 | 24 | 36;
+export type SolutionTermMonths = 1 | 6 | 12;
+/** @deprecated Usar SolutionTermMonths (1, 6 o 12 meses). */
+export type SolutionNewTermMonths = SolutionTermMonths;
 export type SolutionLocationId = 'lima' | 'provincias';
 
 export const SOLUTION_LOCATIONS: readonly { id: SolutionLocationId; label: string }[] = [
@@ -430,28 +431,24 @@ export const SOLUTION_MODELS: readonly SolutionModelOption[] = [
 
 export const SOLUTION_VOLUME_PRESETS = [3000, 5000, 10000, 30000] as const;
 
-export const SOLUTION_NEW_TERM_OPTIONS: readonly {
-  months: SolutionNewTermMonths;
-  label: string;
-  recommended?: boolean;
-}[] = [
-  { months: 24, label: '24 meses' },
-  { months: 36, label: '36 meses (recomendado)', recommended: true },
-];
+/** Cuota mínima mensual (sin IGV) por equipo. El volumen no baja de este piso. */
+export const SOLUTION_MIN_MONTHLY_PEN = 399;
 
-export const SOLUTION_USED_TERM_OPTIONS: readonly {
+export const SOLUTION_TERM_OPTIONS: readonly {
   months: SolutionTermMonths;
   label: string;
   recommended?: boolean;
 }[] = [
+  { months: 12, label: '12 meses', recommended: true },
   { months: 6, label: '6 meses' },
-  { months: 12, label: '12 meses (recomendado)', recommended: true },
-  { months: 24, label: '24 meses' },
-  { months: 36, label: '36 meses' },
+  { months: 1, label: '1 mes' },
 ];
 
-/** @deprecated Usar SOLUTION_USED_TERM_OPTIONS / SOLUTION_NEW_TERM_OPTIONS */
-export const SOLUTION_TERM_OPTIONS = SOLUTION_USED_TERM_OPTIONS;
+/** @deprecated Usar SOLUTION_TERM_OPTIONS */
+export const SOLUTION_USED_TERM_OPTIONS = SOLUTION_TERM_OPTIONS;
+
+/** @deprecated Usar SOLUTION_TERM_OPTIONS */
+export const SOLUTION_NEW_TERM_OPTIONS = SOLUTION_TERM_OPTIONS;
 
 export const SOLUTION_EXTRA_SERVICES: readonly SolutionExtraService[] = [
   {
@@ -638,6 +635,8 @@ export interface SolutionQuoteBreakdown {
   shippingLegPen: number;
   extrasMonthly: number;
   locationMonthly: number;
+  /** Complemento para no bajar de SOLUTION_MIN_MONTHLY_PEN por equipo. */
+  minMonthlyApplied: number;
   /** Subtotal mensual sin IGV. */
   subtotalMonthly: number;
   igvMonthly: number;
@@ -717,16 +716,17 @@ export function modelById(id: SolutionModelId): SolutionModelOption {
 }
 
 export function normalizeTermForCondition(
-  condition: SolutionConditionId,
+  _condition: SolutionConditionId,
   termMonths: number,
 ): SolutionTermMonths {
-  if (condition === 'nueva') {
-    return termMonths === 24 ? 24 : 36;
-  }
-  const allowed: SolutionTermMonths[] = [6, 12, 24, 36];
+  const allowed: SolutionTermMonths[] = [1, 6, 12];
   return allowed.includes(termMonths as SolutionTermMonths)
     ? (termMonths as SolutionTermMonths)
     : 12;
+}
+
+export function formatSolutionTermLabel(months: number): string {
+  return months === 1 ? '1 mes' : `${months} meses`;
 }
 
 export function modalityForCondition(condition: SolutionConditionId): SolutionModalityId {
@@ -924,7 +924,7 @@ export function calculateSolutionQuote(state: SolutionConfiguratorState): Soluti
   }
   extrasMonthly = moneyPen(extrasMonthly);
 
-  const subtotalMonthly = roundPen(
+  const rawSubtotalMonthly = roundPen(
     equipmentFinanceMonthly +
       printBundleMonthly +
       operationalMachineMonthly +
@@ -935,6 +935,9 @@ export function calculateSolutionQuote(state: SolutionConfiguratorState): Soluti
       locationMonthly +
       extrasMonthly,
   );
+  const minMonthly = SOLUTION_MIN_MONTHLY_PEN * quantity;
+  const minMonthlyApplied = roundPen(Math.max(0, minMonthly - rawSubtotalMonthly));
+  const subtotalMonthly = roundPen(rawSubtotalMonthly + minMonthlyApplied);
   const igvMonthly = roundPen(subtotalMonthly * RENTAL_IGV_RATE);
   const totalMonthly = roundPen(subtotalMonthly + igvMonthly);
 
@@ -959,6 +962,7 @@ export function calculateSolutionQuote(state: SolutionConfiguratorState): Soluti
     shippingLegPen,
     extrasMonthly,
     locationMonthly,
+    minMonthlyApplied,
     subtotalMonthly,
     igvMonthly,
     totalMonthly,

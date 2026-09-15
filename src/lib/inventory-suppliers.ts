@@ -38,6 +38,12 @@ export function normalizeSuppliers(
   return [];
 }
 
+/** Precio especial de compra (centavos USD). 0 = sin variante. */
+export function normalizeSpecialPurchasePriceUsd(value: unknown): number {
+  const n = Math.round(Math.max(0, Number(value) || 0) * 100) / 100;
+  return Number.isFinite(n) ? n : 0;
+}
+
 /** Precio de compra de referencia: el menor entre proveedores o el valor manual. */
 export function resolvePurchasePriceUsd(
   suppliers: InventorySupplier[],

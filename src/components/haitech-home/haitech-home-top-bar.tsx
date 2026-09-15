@@ -10,7 +10,6 @@ import {
   HEADER_SUPPORT_PHONE_DISPLAY,
 } from '@/data/site-header';
 import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
-import { SITE_RICOH_PARTNER_BADGE_ARIA_LABEL } from '@/lib/site-logo-asset';
 import { cn } from '@/lib/utils';
 
 const topBarContactLinkClass =
@@ -90,25 +89,10 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
     >
       <HaitechTopBarMobileContacts />
       <div
-        className="mx-auto grid min-h-7 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1 px-3 py-1 text-[10px] leading-none sm:min-h-7 sm:px-4 sm:py-0.5 sm:text-[10.5px] xl:px-6"
+        className="mx-auto grid min-h-7 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-3 py-1 text-[10px] leading-none sm:min-h-7 sm:px-4 sm:py-0.5 sm:text-[10.5px] xl:px-6"
         style={{ maxWidth: HAITECH_HOME.maxWidth }}
       >
-        <p className="min-w-0 truncate font-medium text-white/95 sm:font-semibold">
-          {SITE_RICOH_PARTNER_BADGE_ARIA_LABEL}
-        </p>
-
-        <div className="hidden items-center justify-center gap-4 text-white/95 md:flex lg:gap-6">
-          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-            <Truck className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            {promo}
-          </span>
-          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-            <ShieldCheck className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-            Compra segura y garantizada
-          </span>
-        </div>
-
-        <div className="flex shrink-0 items-center justify-end justify-self-end">
+        <div className="flex shrink-0 items-center justify-self-start">
           <div
             ref={sedesRef}
             className="relative"
@@ -117,7 +101,7 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
           >
             <button
               type="button"
-              className="inline-flex items-center gap-1 px-1.5 py-0 transition-opacity hover:opacity-90 sm:px-2"
+              className="inline-flex items-center gap-1 px-0 py-0 transition-opacity hover:opacity-90 sm:px-0"
               aria-haspopup="menu"
               aria-expanded={sedesOpen}
               aria-controls="haitech-sedes-dropdown"
@@ -141,7 +125,7 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
                 role="menu"
                 aria-label="Direcciones de nuestras sedes"
                 className={cn(
-                  'absolute right-0 top-full z-50 mt-1 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-white/15',
+                  'absolute left-0 top-full z-50 mt-1 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-white/15',
                   'bg-[#1A1A1A] py-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.45)]',
                 )}
               >
@@ -169,8 +153,20 @@ export function HaitechHomeTopBar({ className }: { className?: string }) {
               </div>
             ) : null}
           </div>
+        </div>
 
-          <span className="hidden h-3 w-px bg-white/35 lg:block" aria-hidden="true" />
+        <div className="hidden items-center justify-center gap-4 text-white/95 md:flex lg:gap-6">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <Truck className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            {promo}
+          </span>
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <ShieldCheck className="size-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+            Compra segura y garantizada
+          </span>
+        </div>
+
+        <div className="flex shrink-0 items-center justify-end justify-self-end">
           <Link
             to="/contacto"
             className="hidden items-center gap-1 px-2 py-0 transition-opacity hover:opacity-90 lg:inline-flex"

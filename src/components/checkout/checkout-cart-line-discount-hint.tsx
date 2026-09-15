@@ -9,6 +9,7 @@ import {
   resolveCartLineBulkDiscountHint,
   resolveCartLineVolumeUnitUsd,
 } from '@/lib/checkout-cart-bulk-discount';
+import { resolveProductBulkDiscountTiers } from '@/lib/product-bulk-discount';
 import { formatDisplayPriceFromUsd } from '@/lib/display-price';
 import { cn } from '@/lib/utils';
 import type { CartItem } from '@/types/product';
@@ -27,7 +28,10 @@ export function CheckoutCartLineDiscountHint({
   const { updateQuantity } = useCart();
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const settingsQuery = useCompanySettings();
-  const tiers = settingsQuery.data?.bulkDiscountTiers ?? [];
+  const tiers = resolveProductBulkDiscountTiers(
+    item.product,
+    settingsQuery.data?.bulkDiscountTiers ?? [],
+  );
 
   const hint = useMemo(
     () => resolveCartLineBulkDiscountHint(item, tiers),

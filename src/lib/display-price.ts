@@ -56,6 +56,13 @@ export function formatDisplayPriceFromPen(
   return formatDisplayPriceFromUsd(penToUsd(pen), displayCurrency, dualPriceOrder);
 }
 
+/** Precio fijo de configuración: «S/ 513 ($150)». */
+export function formatPenUsdParenthetical(usd: number): string {
+  if (isPriceOnRequest(usd)) return CONSULTAR_PRECIO_LABEL;
+  const usdLabel = Number.isInteger(usd) ? formatUsd(usd).replace(/\.00$/, '') : formatUsd(usd);
+  return `${formatPenFromUsd(usd)} (${usdLabel})`;
+}
+
 export function formatPenInteger(pen: number): string {
   return new Intl.NumberFormat('es-PE', {
     style: 'currency',

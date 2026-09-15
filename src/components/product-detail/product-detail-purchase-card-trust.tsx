@@ -1,11 +1,11 @@
-import { Headphones, ShieldCheck, Store, Truck } from 'lucide-react';
+import { Headphones, Settings2, ShieldCheck, Store, Truck } from 'lucide-react';
 
 import { STOREFRONT_PURCHASE_TRUST_ITEMS } from '@/data/storefront-trust';
 import { cn } from '@/lib/utils';
 
 interface ProductDetailPurchaseCardTrustProps {
   className?: string;
-  variant?: 'default' | 'laptop';
+  variant?: 'default' | 'laptop' | 'premium';
 }
 
 const TRUST_ICONS = {
@@ -21,10 +21,50 @@ const LAPTOP_TRUST_ITEMS = [
   { id: 'soporte', icon: Headphones, label: 'Soporte técnico' },
 ] as const;
 
+const PREMIUM_TRUST_ITEMS = [
+  {
+    id: 'envio',
+    icon: Truck,
+    title: 'Envío a todo el país',
+    subtitle: 'Recibe en 1-5 días hábiles',
+  },
+  {
+    id: 'instalacion',
+    icon: Settings2,
+    title: 'Instalación y configuración (opcional)',
+    subtitle: 'Por nuestro equipo especializado',
+  },
+  {
+    id: 'garantia',
+    icon: ShieldCheck,
+    title: 'Garantía estándar de 1 año',
+    subtitle: 'Con opción de extensión',
+  },
+] as const;
+
 export function ProductDetailPurchaseCardTrust({
   className,
   variant = 'default',
 }: ProductDetailPurchaseCardTrustProps) {
+  if (variant === 'premium') {
+    return (
+      <ul className={cn('space-y-2 border-t border-neutral-100 pt-3', className)} aria-label="Beneficios de compra">
+        {PREMIUM_TRUST_ITEMS.map((item) => {
+          const Icon = item.icon;
+          return (
+            <li key={item.id} className="flex items-start gap-2.5">
+              <Icon className="mt-0.5 size-4 shrink-0 text-neutral-400" strokeWidth={1.75} aria-hidden="true" />
+              <span className="min-w-0">
+                <span className="block text-xs font-semibold leading-snug text-neutral-800">{item.title}</span>
+                <span className="block text-[11px] leading-snug text-neutral-500">{item.subtitle}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
+
   if (variant === 'laptop') {
     return (
       <ul

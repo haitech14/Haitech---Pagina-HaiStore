@@ -1,5 +1,8 @@
 /** Imágenes curadas por modelo (nombre/código). Compartido cliente + servidor. */
 export const PRODUCT_MODEL_STOCK_IMAGES = [
+  { pattern: /cass-im550-sn|2da\s*casetera.*im\s*550/i, image: '/products/a0acc552-7c3e-4a91-8b12-1d2e3f4a0c55.webp' },
+  { pattern: /mueble-mp501-sn|mueble.*mp\s*501/i, image: '/products/a0acc501-7c3e-4a91-8b12-1d2e3f4a0501.webp' },
+  { pattern: /mueble-im550-sn|mueble.*im\s*550/i, image: '/products/a0acc550-7c3e-4a91-8b12-1d2e3f4a0550.webp' },
   { pattern: /\bim\s*430\s*f\b/i, image: '/products/ricoh-im-430f.webp' },
   {
     pattern: /\bim\s*460\s*f\b/i,

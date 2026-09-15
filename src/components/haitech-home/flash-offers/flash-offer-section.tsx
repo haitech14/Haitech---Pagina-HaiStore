@@ -16,9 +16,9 @@ import { useCart } from '@/context/cart-context';
 import { emblaShouldWatchDrag } from '@/lib/embla-interaction';
 import { cn, uniqueById } from '@/lib/utils';
 
-/** 1 en móvil; desde sm el slide deja un hueco visible entre tarjetas. */
+/** 1 en móvil; 2 desde sm; 4 en desktop para que no asome un quinto. */
 const FLASH_SLIDE_CLASS =
-  'flex min-w-0 shrink-0 justify-center flex-[0_0_100%] sm:flex-[0_0_236px]';
+  'flex min-w-0 shrink-0 justify-center flex-[0_0_100%] sm:flex-[0_0_calc((100%-1rem)/2)] lg:flex-[0_0_calc((100%-3rem)/4)]';
 
 const AUTOPLAY_MS = 3200;
 
@@ -111,16 +111,10 @@ function ProductCarousel({
   onToggleFavorite: (id: string) => void;
   onAddToCart: (product: RicohFlashOfferProduct) => void;
 }) {
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
-  const slides = useMemo(() => uniqueById(products), [products]);
-  const loopSlides = useMemo(() => {
-    if (slides.length < 2) return slides;
-    return [...slides, ...slides];
-  }, [slides]);
+  const slides = useMemo(() => uniqueById(products).slice(0, 4), [products]);
   const [fitsInView, setFitsInView] = useState(false);
-  const canLoop = slides.length >= 2;
+  const canLoop = slides.length >= 2 && !fitsInView;
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
@@ -143,44 +137,28 @@ function ProductCarousel({
   useEffect(() => {
     if (!emblaApi) return;
 
-    const onSelect = () => {
-      if (fitsInView) {
-        setCanPrev(false);
-        setCanNext(false);
-        return;
-      }
-      setCanPrev(emblaApi.canScrollPrev() || canLoop);
-      setCanNext(emblaApi.canScrollNext() || canLoop || slides.length > 1);
-    };
-
     const updateFit = () => {
       const viewport = emblaApi.rootNode();
       const firstSlide = emblaApi.containerNode().children[0] as HTMLElement | undefined;
-      if (!firstSlide || loopSlides.length === 0) {
+      if (!firstSlide || slides.length === 0 || firstSlide.offsetWidth < 8) {
         setFitsInView(false);
         return;
       }
       const styles = window.getComputedStyle(emblaApi.containerNode());
       const gap = Number.parseFloat(styles.columnGap || styles.gap) || 0;
-      const uniqueCount = slides.length;
-      const total = uniqueCount * firstSlide.offsetWidth + Math.max(0, uniqueCount - 1) * gap;
-      setFitsInView(!canLoop && total <= viewport.clientWidth + 1);
+      const total = slides.length * firstSlide.offsetWidth + Math.max(0, slides.length - 1) * gap;
+      setFitsInView(total <= viewport.clientWidth + 1);
     };
 
-    onSelect();
     updateFit();
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
     emblaApi.on('reInit', updateFit);
     emblaApi.on('resize', updateFit);
 
     return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onSelect);
       emblaApi.off('reInit', updateFit);
       emblaApi.off('resize', updateFit);
     };
-  }, [canLoop, emblaApi, fitsInView, loopSlides.length, slides.length]);
+  }, [emblaApi, slides.length]);
 
   useEffect(() => {
     emblaApi?.reInit({
@@ -193,7 +171,7 @@ function ProductCarousel({
   }, [canLoop, emblaApi]);
 
   useEffect(() => {
-    if (!emblaApi || autoplayPaused || slides.length < 2) return;
+    if (!emblaApi || autoplayPaused || fitsInView || slides.length < 2) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const timer = window.setInterval(() => {
@@ -202,7 +180,7 @@ function ProductCarousel({
     }, AUTOPLAY_MS);
 
     return () => window.clearInterval(timer);
-  }, [autoplayPaused, emblaApi, slides.length]);
+  }, [autoplayPaused, emblaApi, fitsInView, slides.length]);
 
   return (
     <div
@@ -212,19 +190,16 @@ function ProductCarousel({
       onFocusCapture={pauseAutoplay}
       onBlurCapture={resumeAutoplay}
     >
-      {!fitsInView ? (
-        <>
       <button
         type="button"
         aria-label="Productos anteriores"
-        disabled={!canPrev}
+        disabled={slides.length < 2}
         onClick={scrollPrev}
         className={cn(
-          'absolute left-0 top-1/2 z-20 flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center',
+          'absolute left-3 top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center',
           'rounded-full bg-white text-[#ed0016] shadow-[0_4px_12px_rgba(0,0,0,0.15)]',
           'transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
           'disabled:pointer-events-none disabled:opacity-35',
-          'max-lg:left-2 max-lg:translate-x-0',
         )}
       >
         <ChevronLeft className="size-5" strokeWidth={2.5} aria-hidden="true" />
@@ -232,25 +207,22 @@ function ProductCarousel({
       <button
         type="button"
         aria-label="Productos siguientes"
-        disabled={!canNext}
+        disabled={slides.length < 2}
         onClick={scrollNext}
         className={cn(
-          'absolute right-0 top-1/2 z-20 flex size-10 -translate-y-1/2 translate-x-1/2 items-center justify-center',
+          'absolute right-3 top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center',
           'rounded-full bg-white text-[#ed0016] shadow-[0_4px_12px_rgba(0,0,0,0.15)]',
           'transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
           'disabled:pointer-events-none disabled:opacity-35',
-          'max-lg:right-2 max-lg:translate-x-0',
         )}
       >
         <ChevronRight className="size-5" strokeWidth={2.5} aria-hidden="true" />
       </button>
-        </>
-      ) : null}
 
-      <div ref={emblaRef} className="w-full overflow-hidden px-3 pb-1 sm:px-4">
-        <div className={cn('flex gap-3 sm:gap-4', fitsInView && 'justify-center')}>
-          {loopSlides.map((product, index) => (
-            <div key={`${product.id}-${index}`} data-flash-card className={FLASH_SLIDE_CLASS}>
+      <div ref={emblaRef} className="w-full overflow-hidden px-12 pb-1 sm:px-14">
+        <div className={cn('flex gap-2 sm:gap-3', fitsInView && 'justify-center')}>
+          {slides.map((product) => (
+            <div key={product.id} data-flash-card className={FLASH_SLIDE_CLASS}>
               <FlashOfferProductCard
                 product={product}
                 favorited={favorites.has(product.id)}
@@ -290,9 +262,9 @@ export function FlashOfferSection({ className }: { className?: string }) {
     >
       <div
         className={cn(
-          'mx-auto mt-5 overflow-hidden rounded-[16px] bg-[#ed0016]',
+          'mx-auto mt-2 overflow-hidden rounded-[16px] bg-[#ed0016]',
           'w-[calc(100%-24px)] shadow-[0_10px_28px_rgba(180,0,20,0.2)]',
-          'sm:mt-6 sm:w-[calc(100%-40px)] lg:mt-8 lg:w-[calc(100%-48px)]',
+          'sm:mt-2.5 sm:w-[calc(100%-40px)] lg:mt-3 lg:w-[calc(100%-48px)]',
           'min-h-[400px] lg:min-h-[440px]',
         )}
         style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}

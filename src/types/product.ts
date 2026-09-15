@@ -70,7 +70,7 @@ export interface Product {
   volume_role_prices?: ProductVolumeRolePriceTier[];
   /**
    * Precios absolutos por tipo de preparado (seminuevas).
-   * Acondicionado usa `prices`; aquí van Semi repotenciado / Remanufacturado.
+   * Acondicionada usa `prices`; aquí van Repotenciada / Remanufacturada.
    */
   preparation_prices?: SeminuevaPreparationPrices;
   /** Barra de características personalizada en ficha de tienda (6 ítems). */
@@ -177,6 +177,11 @@ export interface InventoryProduct extends Omit<Product, 'price' | 'price_role' |
   code: string;
   /** Costo de adquisición en USD (referencia; suele ser el menor entre proveedores). */
   purchase_price_usd: number;
+  /**
+   * Precio especial de compra en USD (variante de Compra).
+   * No sustituye el costo de referencia ni entra en el mínimo entre proveedores.
+   */
+  special_purchase_price_usd?: number;
   /** Proveedores con precio de compra propio. */
   suppliers?: InventorySupplier[];
   /** Documentos adjuntos (ficha técnica, manual, etc.). */

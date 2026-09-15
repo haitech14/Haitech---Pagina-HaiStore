@@ -133,6 +133,8 @@ export interface ProductDescriptionContent {
   paragraphs: string[];
   youtubeVideoId?: string;
   youtubeTitle?: string;
+  /** Vídeo MP4/WebM de inventario cuando no hay YouTube. */
+  videoSrc?: string;
   highlights: ProductDescriptionHighlight[];
   overviewTitle?: string;
   overviewParagraphs?: string[];

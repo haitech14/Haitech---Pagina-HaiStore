@@ -12,7 +12,6 @@ export type HaitechHomeFeaturedCategoryChipId =
   | 'laptops'
   | 'escaneres'
   | 'accesorios'
-  | 'software'
   | 'monitores'
   | 'pantallas-interactivas'
   | 'videoconferencia';
@@ -79,12 +78,6 @@ export const HAITECH_HOME_FEATURED_CATEGORY_CHIPS: readonly HaitechHomeFeaturedC
     label: 'Accesorios',
     image: `${CHIP}/cat-accesorios.png`,
     href: storeShowcasePath({ categoryId: 'accesorios' }),
-  },
-  {
-    id: 'software',
-    label: 'Software',
-    image: `${CHIP}/cat-software.png`,
-    href: storeShowcasePath({ categoryId: 'software' }),
   },
   {
     id: 'monitores',

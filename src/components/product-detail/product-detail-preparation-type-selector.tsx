@@ -1,7 +1,10 @@
+import { DualPrice } from '@/components/product/product-dual-price';
+import { useAuth } from '@/context/auth-context';
 import {
   SEMINUEVA_PREPARATION_LABELS,
   SEMINUEVA_PREPARATION_OPTIONS,
-  resolveSeminuevaPreparationSurchargeUsd,
+  resolvePreparationPriceRoleForViewer,
+  resolvePreparationRolePriceUsd,
   type SeminuevaPreparationType,
 } from '@/lib/seminueva-preparation';
 import { cn } from '@/lib/utils';
@@ -14,30 +17,23 @@ interface ProductDetailPreparationTypeSelectorProps {
   className?: string;
 }
 
-function resolvePreparationHint(
-  option: SeminuevaPreparationType,
-  product: Product,
-): string {
-  if (option === 'acondicionado') {
-    return 'Precio público estándar';
-  }
-  const surchargeUsd = resolveSeminuevaPreparationSurchargeUsd(option, product);
-  return `Recargo +USD ${surchargeUsd}`;
-}
-
 export function ProductDetailPreparationTypeSelector({
   product,
   value,
   onChange,
   className,
 }: ProductDetailPreparationTypeSelectorProps) {
+  const { role, viewAsRoles } = useAuth();
+  const priceRole = resolvePreparationPriceRoleForViewer(role, viewAsRoles);
+
   return (
     <fieldset className={cn('space-y-2.5', className)}>
-      <legend className="text-sm font-semibold text-[#0f1f3d]">Tipo de Preparado:</legend>
+      <legend className="text-sm font-semibold text-[#0f1f3d]">Variantes:</legend>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {SEMINUEVA_PREPARATION_OPTIONS.map((option) => {
           const id = `preparation-type-${option}`;
           const isActive = value === option;
+          const optionUsd = resolvePreparationRolePriceUsd(option, product, priceRole);
           return (
             <label
               key={option}
@@ -63,9 +59,10 @@ export function ProductDetailPreparationTypeSelector({
                 <span className="block text-[0.8125rem] font-semibold leading-snug text-foreground">
                   {SEMINUEVA_PREPARATION_LABELS[option]}
                 </span>
-                <span className="mt-0.5 block text-[0.6875rem] leading-snug text-muted-foreground">
-                  {resolvePreparationHint(option, product)}
-                </span>
+                <DualPrice
+                  usd={optionUsd}
+                  className="mt-0.5 text-[0.6875rem] font-semibold leading-snug text-muted-foreground"
+                />
               </span>
             </label>
           );

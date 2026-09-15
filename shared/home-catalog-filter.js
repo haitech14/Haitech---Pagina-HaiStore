@@ -6,6 +6,7 @@ import {
   productQualifiesAsSeminuevaEquipment,
 } from './inventory-product-name.js';
 import { isHomeCarouselExcludedProduct } from './home-excluded-products.js';
+import { isIm550fChildVariantSku } from './equipment-search-variants.js';
 import { resolveStaticCategoryLabels, catalogFamilyForSlug } from './category-inventory-labels.js';
 
 export const PRODUCT_CONDITIONS = ['originales', 'compatibles', 'remanufacturados', 'partes'];
@@ -404,6 +405,7 @@ export function filterStoreProductsForHomeSection(
   const matched = [...products]
     .filter((product) => {
       if (isHomeCarouselExcludedProduct(product)) return false;
+      if (isIm550fChildVariantSku(product)) return false;
       if (family === 'repuestos' && isPrinterEquipmentProduct(product)) {
         return false;
       }

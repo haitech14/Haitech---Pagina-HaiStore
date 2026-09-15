@@ -1,8 +1,12 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { isSupabaseConfigured } from '@/lib/supabase-config';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseRealtimeEnabled } from '@/lib/supabase-config';
+import {
+  isSupabaseRealtimeStopped,
+  stopSupabaseRealtime,
+  supabase,
+} from '@/lib/supabase';
 
 const TABLE_QUERY_KEYS: Record<string, string[][]> = {
   products: [['products'], ['product']],
@@ -24,33 +28,31 @@ export function SupabaseRealtimeSync() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!isSupabaseConfigured()) return;
+    if (!isSupabaseRealtimeEnabled() || isSupabaseRealtimeStopped()) return;
 
-    const tables = Object.keys(TABLE_QUERY_KEYS);
-    const channels = tables.map((table) => {
-      const channel = supabase
-        .channel(`haistore-realtime-${table}`)
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table },
-          () => {
-            for (const queryKey of TABLE_QUERY_KEYS[table] ?? []) {
-              void queryClient.invalidateQueries({
-                queryKey,
-                refetchType: 'active',
-              });
-            }
-          },
-        )
-        .subscribe();
-
-      return channel;
-    });
+    const channel = supabase
+      .channel('haistore-postgres-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public' },
+        (payload) => {
+          const table = payload.table;
+          for (const queryKey of TABLE_QUERY_KEYS[table] ?? []) {
+            void queryClient.invalidateQueries({
+              queryKey,
+              refetchType: 'active',
+            });
+          }
+        },
+      )
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          stopSupabaseRealtime();
+        }
+      });
 
     return () => {
-      for (const channel of channels) {
-        void supabase.removeChannel(channel);
-      }
+      void supabase.removeChannel(channel);
     };
   }, [queryClient]);
 

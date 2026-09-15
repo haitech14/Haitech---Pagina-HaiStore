@@ -27,6 +27,7 @@ import type { EquipmentRentalEstimate } from '@/components/product-detail/produc
 import { computeEquipmentRentalEstimate } from '@/components/product-detail/product-detail-rental-configurator';
 import { ProductDetailGallery } from '@/components/product-detail/product-detail-gallery';
 import { ProductDetailHeroInfo } from '@/components/product-detail/product-detail-hero-info';
+import { ProductDetailMerchRails } from '@/components/product-detail/product-detail-merch-rails';
 import { ProductDetailMobilePurchaseBar } from '@/components/product-detail/product-detail-mobile-purchase-bar';
 import { ProductDetailMockupTabs } from '@/components/product-detail/product-detail-mockup-tabs';
 import { ProductDetailSocialProofToast } from '@/components/product-detail/product-detail-social-proof-toast';
@@ -35,6 +36,7 @@ import { ProductDetailShippingRows } from '@/components/product-detail/product-d
 import { ProductEquipmentRentalQuoteDialog } from '@/components/product-detail/product-equipment-rental-quote-dialog';
 import { ProductRentalQuoteDialog } from '@/components/product-detail/product-rental-quote-dialog';
 import { ProductDetailResources } from '@/components/product-detail/product-detail-resources';
+import { AttachmentPdfViewer } from '@/components/product-detail/attachment-pdf-viewer';
 import { buildProductDetail, isColorPrinterEquipment } from '@/lib/build-product-detail';
 import { copyProductTextToClipboard } from '@/lib/copy-product-to-clipboard';
 import { clipboardPriceFieldsFromDisplay, useCatalogDisplayPrice } from '@/hooks/use-catalog-display-price';
@@ -44,9 +46,6 @@ import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
 import { buildProductClipboardPayload } from '@/lib/product-clipboard-text';
 import { productPath } from '@/lib/product-path';
-import {
-  downloadProductAttachment,
-} from '@/lib/inventory-attachments';
 import { DEFAULT_BULK_DISCOUNT_TIERS, resolveBulkDiscountPricing } from '@/lib/bulk-discount-tiers';
 import { ensureFullPrices } from '@/lib/roles';
 import {
@@ -56,7 +55,6 @@ import {
   type SeminuevaPreparationType,
 } from '@/lib/seminueva-preparation';
 import { useAuth } from '@/context/auth-context';
-import { useProductInventoryVariants } from '@/hooks/use-product-inventory-variants';
 import { buildProductBreadcrumbs } from '@/lib/build-product-breadcrumbs';
 import {
   productQualifiesForMaintenancePlanCta,
@@ -71,6 +69,16 @@ import { serviceHubPath } from '@/lib/service-hub';
 import {
   resolveEquipmentConfigSteps,
 } from '@/lib/equipment-config-catalog';
+import {
+  applyEquipmentSkuVariant,
+  buildEquipmentSkuVariants,
+  PACK_EMPRENDEDOR_CART_OPTIONS,
+  type EquipmentSkuVariantId,
+} from '@/lib/equipment-sku-variants';
+import {
+  COMPLEMENT_MERCH_CATALOG_IDS,
+  resolveComplementMerchProducts,
+} from '@/lib/product-detail-complement-merch';
 import {
   mergeConsumableTonerOptions,
   mergeCrossSellTonerOptions,
@@ -103,13 +111,8 @@ import { hasCrossSellConfigureCards, mergeMerchandisingEquipmentSteps } from '@/
 import { resolveEquipmentComparison } from '@/lib/product-equipment-comparison';
 import {
   resolveEquipmentConsumables,
+  sanitizeConsumableGroups,
 } from '@/lib/product-equipment-consumables';
-import {
-  buildMaintenanceSupplyPlanCartOption,
-  MAINTENANCE_SUPPLY_PLAN_NONE,
-  resolveMaintenanceSupplyPlanQuote,
-  type MaintenanceSupplyPlanSelection,
-} from '@/lib/maintenance-supply-plan-calculator';
 import { useRentalPlans } from '@/hooks/use-rental-plans';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useProductConsumables } from '@/hooks/use-product-consumables';
@@ -124,13 +127,13 @@ import type { Product } from '@/types/product';
 type DetailTab =
   | 'combo'
   | 'description'
+  | 'specs'
   | 'configuration'
   | 'consumables'
   | 'shipping'
   | 'options'
   | 'resources'
-  | 'warranty'
-  | 'reviews';
+  | 'warranty';
 
 interface ProductDetailViewProps {
   product: Product;
@@ -206,7 +209,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     () => buildProductDetail(product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers),
     [product, featuredMeta, rentalPlansFromApi, bulkDiscountTiers],
   );
-  const { options: inventoryVariantOptions } = useProductInventoryVariants(product);
   const { ref: relatedDeferRef, near: relatedNearViewport } = useNearViewport(true);
   const { data: catalogProducts = [], isLoading: catalogLoading } = useProducts({
     enabled:
@@ -244,6 +246,10 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     () => resolveFrequentlyBoughtItems(product, catalogProducts),
     [product, catalogProducts],
   );
+  const { data: complementCatalogProducts = [] } = useProductsByIds(
+    COMPLEMENT_MERCH_CATALOG_IDS,
+    detail.isPrinterEquipment,
+  );
   const { data: categoryTree = [] } = useStoreCategoriesTree();
   const breadcrumbs = useMemo(
     () => buildProductBreadcrumbs(product, detail.displayTitle, categoryTree),
@@ -254,9 +260,12 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [maintenanceQuoteOpen, setMaintenanceQuoteOpen] = useState(false);
-  const [maintenanceSupplyPlan, setMaintenanceSupplyPlan] =
-    useState<MaintenanceSupplyPlanSelection>(MAINTENANCE_SUPPLY_PLAN_NONE);
   const [quotePdfPreview, setQuotePdfPreview] = useState<QuotePdfPreview | null>(null);
+  const [attachmentPdfPreview, setAttachmentPdfPreview] = useState<{
+    url: string;
+    filename: string;
+    title: string;
+  } | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [preparationType, setPreparationType] = useState<SeminuevaPreparationType>('acondicionado');
   const purchaseActionsRef = useRef<HTMLDivElement>(null);
@@ -294,7 +303,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   useEffect(() => {
     setQuantity(1);
     setPreparationType('acondicionado');
-    setMaintenanceSupplyPlan(MAINTENANCE_SUPPLY_PLAN_NONE);
   }, [product.id]);
 
   const handleQuotePdfPreviewClose = useCallback((open: boolean) => {
@@ -310,15 +318,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     detail.descriptionContent?.paragraphs.join(' ') ??
     detail.bullets.slice(0, 2).join(' ');
 
-  const consumableGroups = useMemo(
-    () =>
-      catalogForEquipment.length > 0
-        ? resolveEquipmentConsumables(product, catalogForEquipment)
-        : consumableGroupsFromApi.length > 0
-          ? consumableGroupsFromApi
-          : resolveEquipmentConsumables(product, catalogForEquipment),
-    [catalogForEquipment, product, consumableGroupsFromApi],
-  );
+  const consumableGroups = useMemo(() => {
+    const localGroups = sanitizeConsumableGroups(
+      resolveEquipmentConsumables(product, catalogForEquipment),
+    );
+    if (localGroups.length > 0) return localGroups;
+    return sanitizeConsumableGroups(consumableGroupsFromApi);
+  }, [catalogForEquipment, product, consumableGroupsFromApi]);
 
   const equipmentSteps = useMemo(
     () =>
@@ -345,14 +351,13 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [detail.isPrinterEquipment, product, catalogProducts, detail.specs],
   );
 
-  const useRicohTabs = detail.isPrinterEquipment;
   const mockupLayout = detail.useMockupLayout;
 
   const tabs = useMemo((): { id: DetailTab; label: string }[] => {
     if (!mockupLayout) {
       return [
         { id: 'description', label: 'Descripción' },
-        { id: 'consumables', label: 'Consumibles' },
+        { id: 'consumables', label: 'Costo por Copia' },
         { id: 'shipping', label: 'Envíos' },
         { id: 'warranty', label: 'Garantía' },
       ];
@@ -366,38 +371,23 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
     mockupTabs.push({ id: 'description', label: 'Descripción' });
 
-    if (
-      detail.isPrinterEquipment ||
-      (detail.isLaptopProduct &&
-        ((product.upsell_product_ids?.length ?? 0) > 0 ||
-          (product.upsell_optional_products?.length ?? 0) > 0))
-    ) {
-      mockupTabs.push({ id: 'configuration', label: 'Accesorios' });
+    if (detail.specs.length > 0) {
+      mockupTabs.push({ id: 'specs', label: 'Especificaciones' });
     }
 
-    mockupTabs.push(
-      { id: 'resources', label: 'Descargas' },
-      { id: 'warranty', label: 'Garantía' },
-      {
-        id: 'reviews',
-        label:
-          detail.reviews > 0
-            ? `Valoraciones (${detail.reviews})`
-            : 'Valoraciones',
-      },
-    );
+    if (detail.isPrinterEquipment) {
+      mockupTabs.push({ id: 'consumables', label: 'Costo por Copia' });
+    }
+
+    mockupTabs.push({ id: 'warranty', label: 'Garantía' });
 
     return mockupTabs;
   }, [
     mockupLayout,
-    detail.isPrinterEquipment,
     detail.isLaptopProduct,
-    product.upsell_product_ids,
-    product.upsell_optional_products,
-    detail.reviews,
     detail.comboItems.length,
-    catalogProducts,
-    product,
+    detail.isPrinterEquipment,
+    detail.specs.length,
   ]);
 
   useEffect(() => {
@@ -420,6 +410,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const [equipmentSelection, setEquipmentSelection] = useState(() =>
     buildInitialEquipmentSelection(equipmentSteps),
   );
+  const [skuVariantId, setSkuVariantId] = useState<EquipmentSkuVariantId>('base');
 
   const equipmentStepsSignature = useMemo(
     () =>
@@ -433,6 +424,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
   useEffect(() => {
     setEquipmentSelection(buildInitialEquipmentSelection(equipmentSteps));
+    setSkuVariantId('base');
   }, [product.id, equipmentStepsSignature]);
 
   const selectedEquipmentOptions = useMemo(
@@ -455,6 +447,11 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [equipmentSteps, detail.isPrinterEquipment],
   );
 
+  const stabilizerCard = useMemo(
+    () => (detail.isPrinterEquipment ? resolveComplementaStabilizerCard(equipmentSteps) : null),
+    [detail.isPrinterEquipment, equipmentSteps],
+  );
+
   const heroWarrantyUpgrades = useMemo(
     () => (detail.isPrinterEquipment ? resolveHeroWarrantyUpgrades(garantiaStep) : []),
     [detail.isPrinterEquipment, garantiaStep],
@@ -465,9 +462,14 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [garantiaStep],
   );
 
-  const includedToner = useMemo(
-    () => tonerStep?.options.find((option) => option.included) ?? tonerStep?.options[0] ?? null,
+  const includedTonerOption = useMemo(
+    () => tonerStep?.options.find((option) => option.included) ?? null,
     [tonerStep],
+  );
+
+  const includedToner = useMemo(
+    () => includedTonerOption ?? tonerStep?.options[0] ?? null,
+    [includedTonerOption, tonerStep],
   );
 
   const purchasableTonerCards = useMemo(
@@ -482,12 +484,34 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [catalogForEquipment, consumableGroups, includedToner?.image, product, tonerStep],
   );
 
+  const heroAddableToner = useMemo(() => {
+    if (purchasableTonerCards.length > 0) return null;
+    const option = tonerStep?.options.find((entry) => !entry.included);
+    if (!option?.name?.trim()) return null;
+    return {
+      optionId: option.id,
+      name: option.name.trim(),
+      ...(option.sku ? { code: option.sku } : {}),
+      ...(option.image ? { image: option.image } : {}),
+      ...(option.description ? { yieldLabel: option.description } : {}),
+      ...(option.priceUsd != null ? { priceUsd: option.priceUsd } : {}),
+    };
+  }, [purchasableTonerCards.length, tonerStep]);
+
   const handleHeroTonerToggle = useCallback(
     (card: ConfigureTonerCard) => {
       if (!tonerStep) return;
       setEquipmentSelection((current) =>
         selectHeroTonerCard(current, tonerStep, card.optionId),
       );
+    },
+    [tonerStep],
+  );
+
+  const handleAddableTonerToggle = useCallback(
+    (optionId: string) => {
+      if (!tonerStep) return;
+      setEquipmentSelection((current) => selectHeroTonerCard(current, tonerStep, optionId));
     },
     [tonerStep],
   );
@@ -523,12 +547,30 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     [garantiaStep],
   );
 
+  const handleSkuVariantSelect = useCallback(
+    (variantId: EquipmentSkuVariantId) => {
+      setSkuVariantId(variantId);
+      const applied = applyEquipmentSkuVariant({
+        variantId,
+        selection: equipmentSelection,
+        steps: equipmentSteps,
+        showNuevoVariantSelector: false,
+      });
+      setEquipmentSelection(applied.selection);
+    },
+    [equipmentSelection, equipmentSteps],
+  );
+
   const handleHeroTechnicalSheet = useCallback(() => {
     const fichaLink = detail.resourceLinks.find((link) => link.action === 'technical_sheet');
     const fichaFileName = fichaLink?.fileName ?? 'ficha-tecnica.pdf';
 
     if (fichaLink?.href) {
-      void downloadProductAttachment(fichaLink.href, fichaFileName);
+      setAttachmentPdfPreview({
+        url: fichaLink.href,
+        filename: fichaFileName,
+        title: 'Ficha técnica',
+      });
       return;
     }
 
@@ -585,7 +627,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
   /** Cuadro «Complementa tu compra» encima de Descripción (no en el sidebar). */
   const complementaAboveDescription = useMemo(() => {
-    if (purchaseMode === 'rent' || detail.isSupplyProduct) return null;
+    if (purchaseMode === 'rent' || detail.isSupplyProduct || detail.isPrinterEquipment) return null;
 
     if (detail.comboItems.length > 0) {
       return (
@@ -605,8 +647,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     const sidebarAccessoryCards = resolveComplementaSidebarAccessoryCards(equipmentSteps);
     const stabilizerCard = resolveComplementaStabilizerCard(equipmentSteps);
     const hasAccessories = sidebarAccessoryCards.length > 0 || heroAccessoryCards.length > 0;
-    const hasWarranty = heroWarrantyUpgrades.length > 0;
-    if (!hasToner && !hasAccessories && !hasWarranty && !stabilizerCard) return null;
+    if (!hasToner && !hasAccessories && !stabilizerCard) return null;
 
     return (
       <ProductDetailComplementaCompra
@@ -620,10 +661,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         equipmentSelection={equipmentSelection}
         onTonerToggle={handleHeroTonerToggle}
         onAccessoryToggle={handleHeroAccessoryToggle}
-        {...(heroWarrantyBaseLabel ? { warrantyBaseLabel: heroWarrantyBaseLabel } : {})}
-        warrantyUpgrades={heroWarrantyUpgrades}
-        selectedWarrantyOptionId={selectedWarrantyOptionId}
-        onWarrantySelect={handleHeroWarrantySelect}
         {...(product.storefront_ui != null ? { storefrontUi: product.storefront_ui } : {})}
         className="w-full rounded-xl border border-neutral-200 bg-white p-4 sm:p-5"
       />
@@ -636,45 +673,48 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     equipmentSteps,
     heroAccessoryCards,
     purchasableTonerCards,
-    heroWarrantyUpgrades,
-    heroWarrantyBaseLabel,
     equipmentSelection,
     handleHeroTonerToggle,
     handleHeroAccessoryToggle,
-    selectedWarrantyOptionId,
-    handleHeroWarrantySelect,
     product,
   ]);
 
-  const equipmentConfiguration = useMemo<CartConfigurationLine | undefined>(() => {
-    const maintenanceSupplyPlanQuote = resolveMaintenanceSupplyPlanQuote(
-      maintenanceSupplyPlan,
-      purchasableTonerCards,
-      catalogForEquipment,
-      consumableGroups,
-    );
-    const maintenanceSupplyPlanOption = maintenanceSupplyPlanQuote
-      ? buildMaintenanceSupplyPlanCartOption(maintenanceSupplyPlanQuote)
-      : null;
+  const skuVariants = useMemo(
+    () => (detail.isPrinterEquipment ? buildEquipmentSkuVariants(product) : []),
+    [detail.isPrinterEquipment, product],
+  );
 
-    const options = maintenanceSupplyPlanOption
-      ? [...selectedEquipmentOptions, maintenanceSupplyPlanOption]
-      : selectedEquipmentOptions;
+  const complementRailProducts = useMemo(() => {
+    if (purchaseMode === 'rent' || detail.isSupplyProduct || !detail.isPrinterEquipment) {
+      return [];
+    }
+
+    const merged = new Map(catalogForEquipment.map((row) => [row.id, row]));
+    for (const row of complementCatalogProducts) {
+      if (!merged.has(row.id)) merged.set(row.id, row);
+    }
+    return resolveComplementMerchProducts([...merged.values()], equipmentSteps);
+  }, [
+    catalogForEquipment,
+    complementCatalogProducts,
+    detail.isPrinterEquipment,
+    detail.isSupplyProduct,
+    equipmentSteps,
+    purchaseMode,
+  ]);
+
+  const equipmentConfiguration = useMemo<CartConfigurationLine | undefined>(() => {
+    const options =
+      skuVariantId === 'pack-emprendedor'
+        ? [...selectedEquipmentOptions, ...PACK_EMPRENDEDOR_CART_OPTIONS]
+        : selectedEquipmentOptions;
 
     if (options.length === 0) return undefined;
     return {
       options,
       extrasPen: computeEquipmentExtrasPen(options),
     };
-  }, [
-    catalogForEquipment,
-    consumableGroups,
-    maintenanceSupplyPlan,
-    purchasableTonerCards,
-    selectedEquipmentOptions,
-  ]);
-
-  const showMaintenanceSupplyPlans = detail.isPrinterEquipment;
+  }, [selectedEquipmentOptions, skuVariantId]);
 
   const maintenancePlans =
     detail.rentalPlans.length > 0 ? detail.rentalPlans : rentalPlansFromApi;
@@ -699,8 +739,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
     setPurchaseMode(mode);
     if (mode === 'buy') {
       setRentalEstimate(null);
-    } else if (mode === 'rent') {
-      setMaintenanceSupplyPlan(MAINTENANCE_SUPPLY_PLAN_NONE);
     }
   }, []);
 
@@ -750,9 +788,8 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
   const heroGridClass =
     'grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start lg:gap-6';
 
-  const detailLayoutGridClass = mockupLayout
-    ? 'lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)_minmax(280px,340px)] lg:items-start lg:gap-6 xl:gap-8'
-    : 'lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)_minmax(280px,340px)] lg:items-start lg:gap-6 xl:gap-8';
+  const detailLayoutGridClass =
+    'lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-start lg:gap-6 xl:gap-8';
 
   const showOriginalBadge =
     /ricoh/i.test(detail.brandLabel) &&
@@ -796,7 +833,7 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
 
         <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
           <div className={detailLayoutGridClass}>
-            <div className="min-w-0 space-y-5 sm:space-y-6 lg:col-span-2">
+            <div className="min-w-0 space-y-5 sm:space-y-6">
               <div className={heroGridClass}>
                 <div className="min-w-0">
                   <ProductDetailGallery
@@ -817,29 +854,25 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   selectedTonerOptionIds={equipmentSelection.toner ?? new Set<string>()}
                   onTonerToggle={handleHeroTonerToggle}
                   accessoryCards={heroAccessoryCards}
+                  stabilizerCard={stabilizerCard}
                   equipmentSelection={equipmentSelection}
                   onAccessoryToggle={handleHeroAccessoryToggle}
-                  warrantyBaseLabel={heroWarrantyBaseLabel}
-                  warrantyUpgrades={heroWarrantyUpgrades}
-                  selectedWarrantyOptionId={selectedWarrantyOptionId}
-                  onWarrantySelect={handleHeroWarrantySelect}
                   showPreparationTypeSelector={showPreparationTypeSelector}
                   preparationType={preparationType}
                   onPreparationTypeChange={setPreparationType}
                   purchaseMode={purchaseMode}
-                  showMaintenanceSupplyPlans={showMaintenanceSupplyPlans}
-                  maintenanceSupplyPlan={maintenanceSupplyPlan}
-                  onMaintenanceSupplyPlanChange={setMaintenanceSupplyPlan}
-                  tonerCatalog={catalogForEquipment}
-                  consumableGroups={consumableGroups}
-                  inventoryVariantOptions={inventoryVariantOptions}
                   layout={mockupLayout ? 'mockup' : 'default'}
-                  hideComplementaCompra
+                  hideComplementaCompra={!detail.isPrinterEquipment}
+                  addableToner={heroAddableToner}
+                  onAddableTonerToggle={handleAddableTonerToggle}
                   onQuoteClick={() => setQuoteOpen(true)}
                   onTechnicalSheetClick={handleHeroTechnicalSheet}
                   onShareClick={() => {
                     void handleHeroShare();
                   }}
+                  skuVariants={skuVariants}
+                  selectedSkuVariantId={skuVariantId}
+                  onSkuVariantSelect={handleSkuVariantSelect}
                   mobilePurchaseSlot={
                     <div ref={mobilePurchaseVisibilityRef} className="mt-3 lg:hidden">
                       <ProductDetailPurchaseCard
@@ -856,7 +889,6 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                           maintenanceQuoteBreakdown.monthlySubtotalPen ?? null
                         }
                         preparationSurchargeUsd={preparationSurchargeUsd}
-                        showSeminuevaPreparationPrices={showPreparationTypeSelector}
                         showRentalTab={detail.isPrinterEquipment}
                         equipmentBasePriceUsd={equipmentBasePriceUsd}
                         onRentalEstimateChange={setRentalEstimate}
@@ -868,51 +900,34 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                         onQuoteGenerated={setQuotePdfPreview}
                         layout={mockupLayout ? 'mockup' : 'default'}
                         outOfStock={outOfStock}
+                        {...(heroWarrantyBaseLabel ? { warrantyBaseLabel: heroWarrantyBaseLabel } : {})}
+                        warrantyUpgrades={heroWarrantyUpgrades}
+                        selectedWarrantyOptionId={selectedWarrantyOptionId}
+                        onWarrantySelect={handleHeroWarrantySelect}
+                        warrantyIdPrefix="mobile-"
                       />
                     </div>
                   }
                 />
               </div>
-            </div>
 
-            <div className="hidden lg:block">
-              <ProductDetailPurchaseCard
+              <ProductDetailMerchRails
                 product={product}
-                detail={detail}
-                quantity={quantity}
-                onQuantityChange={setQuantity}
-                volumePricing={volumePricing}
-                purchaseActionsRef={purchaseActionsRef}
-                purchaseMode={purchaseMode}
-                onPurchaseModeChange={handlePurchaseModeChange}
-                rentalEstimate={rentalEstimate}
-                maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen ?? null}
-                preparationSurchargeUsd={preparationSurchargeUsd}
-                showSeminuevaPreparationPrices={showPreparationTypeSelector}
-                showRentalTab={detail.isPrinterEquipment}
-                equipmentBasePriceUsd={equipmentBasePriceUsd}
-                onRentalEstimateChange={setRentalEstimate}
-                rentalConfiguratorRef={rentalConfiguratorRef}
-                onQuoteClick={() => setQuoteOpen(true)}
-                {...secondaryPurchaseActionProps}
-                {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
-                {...(showPreparationTypeSelector ? { preparationType } : {})}
-                onQuoteGenerated={setQuotePdfPreview}
-                layout={mockupLayout ? 'mockup' : 'default'}
-                outOfStock={outOfStock}
+                complementProducts={complementRailProducts}
+                className="border-t border-neutral-200 pt-4 sm:pt-5"
               />
-            </div>
-          </div>
 
-          {complementaAboveDescription ? (
-            <div className="mt-5 sm:mt-6">{complementaAboveDescription}</div>
-          ) : null}
+              {complementaAboveDescription ? (
+                <div className="border-t border-neutral-200 pt-4 sm:pt-5">
+                  {complementaAboveDescription}
+                </div>
+              ) : null}
 
-          <section
-            ref={productInfoSectionRef}
-            className="mt-5 border-t border-neutral-200 pt-5 sm:mt-6 sm:pt-6"
-            aria-label="Información del producto"
-          >
+              <section
+                ref={productInfoSectionRef}
+                className="mt-5 border-t border-neutral-200 pt-5 sm:mt-6 sm:pt-6"
+                aria-label="Información del producto"
+              >
             <ProductDetailMockupTabs
               tabs={tabs}
               activeTab={activeTab}
@@ -935,13 +950,20 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               ) : null}
 
               {activeTab === 'description' ? (
-                <div className="w-full space-y-4 sm:space-y-5">
-                  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,400px)] lg:items-start">
-                    <div className="min-w-0 space-y-4 sm:space-y-5">
+                <div className="w-full min-w-0 space-y-5 sm:space-y-6">
+                  {detail.descriptionContent ? (
+                    <div className="min-w-0 space-y-5 sm:space-y-6">
                       {!mockupLayout ? (
                         <h2 className="text-base font-bold text-neutral-900 sm:text-lg">Descripción</h2>
                       ) : null}
-                      {detail.descriptionContent?.storyBlocks &&
+                      <ProductDetailDescriptionPanel
+                        content={detail.descriptionContent}
+                        specs={detail.specs}
+                        sku={detail.sku}
+                        showSpecs={false}
+                        compact
+                      />
+                      {detail.descriptionContent.storyBlocks &&
                       detail.descriptionContent.storyBlocks.length > 0 ? (
                         <ProductDetailDescriptionStory
                           blocks={detail.descriptionContent.storyBlocks}
@@ -949,38 +971,26 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                             ? { cta: detail.descriptionContent.storyCta }
                             : {})}
                         />
-                      ) : useRicohTabs && detail.descriptionContent ? (
-                        <div className="space-y-4">
-                          <ProductDetailDescriptionPanel
-                            content={detail.descriptionContent}
-                            specs={detail.specs}
-                            sku={detail.sku}
-                            showSpecs={false}
-                            compact
-                          />
-                          <ProductDetailDescription
-                            content={detail.descriptionContent}
-                            omitPanelSummary
-                          />
-                        </div>
-                      ) : (
-                        <div className="space-y-2 text-xs leading-relaxed text-neutral-700 sm:text-sm">
-                          <p className={cn(!descriptionExpanded && 'line-clamp-6')}>{descriptionText}</p>
-                          {descriptionText.length > 280 ? (
-                            <button
-                              type="button"
-                              onClick={() => setDescriptionExpanded((value) => !value)}
-                              className="text-xs font-bold text-blue-600 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 sm:text-sm"
-                            >
-                              {descriptionExpanded ? 'Ver menos' : 'Ver más'}
-                            </button>
-                          ) : null}
-                        </div>
-                      )}
+                      ) : null}
+                      <ProductDetailDescription
+                        content={detail.descriptionContent}
+                        omitPanelSummary
+                      />
                     </div>
-
-                    <ProductDetailSpecsAside specs={detail.specs} />
-                  </div>
+                  ) : (
+                    <div className="space-y-2 text-xs leading-relaxed text-neutral-700 sm:text-sm">
+                      <p className={cn(!descriptionExpanded && 'line-clamp-6')}>{descriptionText}</p>
+                      {descriptionText.length > 280 ? (
+                        <button
+                          type="button"
+                          onClick={() => setDescriptionExpanded((value) => !value)}
+                          className="text-xs font-bold text-blue-600 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 sm:text-sm"
+                        >
+                          {descriptionExpanded ? 'Ver menos' : 'Ver más'}
+                        </button>
+                      ) : null}
+                    </div>
+                  )}
 
                   {mockupLayout ? (
                     <ProductDetailDescriptionValueProps
@@ -991,10 +1001,18 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                             ? 'laptop'
                             : 'equipment'
                       }
-                      className="mt-5"
                     />
                   ) : null}
                   {!mockupLayout ? <ProductDetailAdvisorBanner /> : null}
+                </div>
+              ) : null}
+
+              {activeTab === 'specs' ? (
+                <div className="w-full max-w-3xl">
+                  <ProductDetailSpecsAside
+                    specs={detail.specs}
+                    className="lg:static lg:top-auto"
+                  />
                 </div>
               ) : null}
 
@@ -1043,9 +1061,16 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
               ) : null}
 
               {activeTab === 'consumables' ? (
-                <div className="w-full space-y-6">
+                <div className="w-full space-y-5">
+                  <div className="space-y-1">
+                    <h2 className="text-base font-bold text-[#0f1f3d] sm:text-lg">Costo por Copia</h2>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Precio de venta ÷ rendimiento (páginas) = costo por hoja. El total suma tóner y
+                      repuestos con rendimiento conocido.
+                    </p>
+                  </div>
                   {catalogLoading ? (
-                    <div className="space-y-6" role="status" aria-live="polite" aria-label="Cargando consumibles">
+                    <div className="space-y-6" role="status" aria-live="polite" aria-label="Cargando costo por copia">
                       {Array.from({ length: 3 }).map((_, index) => (
                         <div key={index} className="space-y-3">
                           <div className="h-6 w-40 animate-pulse rounded bg-muted" />
@@ -1081,16 +1106,42 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
                   <ProductDetailAdvisorBanner />
                 </div>
               ) : null}
-
-              {activeTab === 'reviews' ? (
-                <div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    Aún no hay opiniones publicadas para este producto.
-                  </p>
-                </div>
-              ) : null}
             </div>
           </section>
+            </div>
+
+            <div className="hidden lg:sticky lg:top-6 lg:z-20 lg:block lg:max-h-[calc(100vh-1.5rem)] lg:self-start lg:overflow-y-auto">
+              <ProductDetailPurchaseCard
+                product={product}
+                detail={detail}
+                quantity={quantity}
+                onQuantityChange={setQuantity}
+                volumePricing={volumePricing}
+                purchaseActionsRef={purchaseActionsRef}
+                purchaseMode={purchaseMode}
+                onPurchaseModeChange={handlePurchaseModeChange}
+                rentalEstimate={rentalEstimate}
+                maintenancePlanMonthlyPen={maintenanceQuoteBreakdown.monthlySubtotalPen ?? null}
+                preparationSurchargeUsd={preparationSurchargeUsd}
+                showRentalTab={detail.isPrinterEquipment}
+                equipmentBasePriceUsd={equipmentBasePriceUsd}
+                onRentalEstimateChange={setRentalEstimate}
+                rentalConfiguratorRef={rentalConfiguratorRef}
+                onQuoteClick={() => setQuoteOpen(true)}
+                {...secondaryPurchaseActionProps}
+                {...(equipmentConfiguration ? { equipmentConfiguration } : {})}
+                {...(showPreparationTypeSelector ? { preparationType } : {})}
+                onQuoteGenerated={setQuotePdfPreview}
+                layout={mockupLayout ? 'mockup' : 'default'}
+                outOfStock={outOfStock}
+                {...(heroWarrantyBaseLabel ? { warrantyBaseLabel: heroWarrantyBaseLabel } : {})}
+                warrantyUpgrades={heroWarrantyUpgrades}
+                selectedWarrantyOptionId={selectedWarrantyOptionId}
+                onWarrantySelect={handleHeroWarrantySelect}
+                warrantyIdPrefix="desktop-"
+              />
+            </div>
+          </div>
         </div>
 
         {comparison ? (
@@ -1142,6 +1193,18 @@ export function ProductDetailView({ product, featuredMeta }: ProductDetailViewPr
         onOpenChange={handleQuotePdfPreviewClose}
         autoDownload
       />
+
+      {attachmentPdfPreview ? (
+        <AttachmentPdfViewer
+          open
+          url={attachmentPdfPreview.url}
+          filename={attachmentPdfPreview.filename}
+          title={attachmentPdfPreview.title}
+          onOpenChange={(open) => {
+            if (!open) setAttachmentPdfPreview(null);
+          }}
+        />
+      ) : null}
 
       {showMaintenancePlanAction ? (
         <ProductRentalQuoteDialog

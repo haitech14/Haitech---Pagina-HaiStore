@@ -56,7 +56,6 @@ export const HOME_CATEGORY_STRIP_SLUGS: readonly string[] = [
   'toner-compatibles',
   'toner-suministros',
   'repuestos',
-  'software',
 ] as const;
 
 export const HOME_CATEGORY_STRIP_GROUP_ORDER: readonly HomeCategoryStripGroupId[] = [
@@ -134,13 +133,6 @@ const HOME_CATEGORY_STRIP_CONFIG: Record<string, HomeCategoryStripConfig> = {
     order: 3,
     description: 'Repuestos y accesorios originales.',
     ctaLabel: 'Ver repuestos',
-  },
-  software: {
-    group: 'soluciones',
-    order: 1,
-    description: 'Gestión documental y soluciones digitales.',
-    ctaLabel: 'Ver software',
-    priceSubtext: 'Cotización personalizada',
   },
 };
 

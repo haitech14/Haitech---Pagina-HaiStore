@@ -37,7 +37,6 @@ const CATEGORY_IDS: readonly HaitechEquipmentShowcaseCategoryId[] = [
   'escaneres',
   'camaras',
   'accesorios',
-  'software',
 ] as const;
 
 const IMPRESORA_SUBTYPE_FILTERS = new Set<HaitechShowcaseFilterId>([

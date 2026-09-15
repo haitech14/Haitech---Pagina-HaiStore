@@ -1,4 +1,6 @@
 import type { HaitechShopProduct } from '@/data/haitech-home-shop';
+import { DEFAULT_USD_TO_PEN } from '@/lib/exchange-rate';
+import { roundPenToNearestNine } from '@/lib/pen-pricing';
 
 const SCANNER_FEATURES = ['escanea', 'rendimiento'] as const;
 
@@ -16,7 +18,17 @@ type ScannerShowcaseRow = {
   stock: number;
   /** Precio base público en soles (antes del recargo comercial). */
   basePen?: number;
+  /** Precio corporativo / público en USD (sin recargo MARKUP). */
+  publicUsd?: number;
 };
+
+function scannerShowcasePen(row: ScannerShowcaseRow): number {
+  if (row.publicUsd != null && row.publicUsd > 0) {
+    return roundPenToNearestNine(row.publicUsd * DEFAULT_USD_TO_PEN);
+  }
+  if (row.basePen != null) return row.basePen + MARKUP_PEN;
+  return 0;
+}
 
 function toShowcaseScanner(
   row: ScannerShowcaseRow,
@@ -29,7 +41,7 @@ function toShowcaseScanner(
     code: row.code,
     stock: row.stock,
     image: row.image,
-    price: row.basePen != null ? row.basePen + MARKUP_PEN : 0,
+    price: scannerShowcasePen(row),
     condition,
     features: SCANNER_FEATURES,
     equipment: {
@@ -283,6 +295,8 @@ const HAITECH_SHOWCASE_SCANNER_SEMINUEVO: ScannerShowcaseRow = {
   code: 'FI-7160Z',
   image: '/products/ricoh-fi-8040.webp',
   stock: 1,
+  /** Corporativo = técnico US$ 299 + US$ 300. */
+  publicUsd: 599,
 };
 
 /** Pool vitrina Escáneres (/tienda/escaneres). */

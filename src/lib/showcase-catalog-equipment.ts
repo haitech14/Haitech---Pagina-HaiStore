@@ -1,9 +1,19 @@
 import type { CatalogRow } from '@/lib/catalog-featured';
+import { resolveCatalogStock } from '@/lib/catalog-row-lookup';
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import { usdToPenCharm } from '@/lib/pen-pricing';
 import { productPath } from '@/lib/product-path';
 import { isPriceOnRequest } from '@/lib/display-price';
+import { productHasOfferAttribute } from '@/lib/product-detail-badges';
 import type { HaitechShopProduct } from '@/data/haitech-home-shop';
+import { inferAdf } from '../../shared/catalog-attribute-filters.js';
+import { resolveProductSpeedPpm } from '../../shared/catalog-speed-filter.js';
+import {
+  formatMonthlyProductionLabel,
+  formatPpmLabel,
+  inferPpmDigitsFromRicohModelName,
+  resolveRicohMonthlyProductionFromModel,
+} from '../../shared/ricoh-model-ppm.js';
 
 function attr(row: CatalogRow, name: string): string | null {
   const value = row.attributes?.find(
@@ -37,7 +47,52 @@ function scannerFromRow(row: CatalogRow): 'ARDF' | 'SPDF' | 'Estándar' | undefi
   if (/doble\s*scan|spdf/i.test(raw)) return 'SPDF';
   if (/ardf/i.test(raw)) return 'ARDF';
   if (raw) return 'Estándar';
+  const inferred = inferAdf(row);
+  if (inferred === 'Doble Scan') return 'SPDF';
+  if (inferred === 'Estándar') return 'Estándar';
   return undefined;
+}
+
+function speedPpmFromName(name: string): string | undefined {
+  const fromRicoh = formatPpmLabel(inferPpmDigitsFromRicohModelName(name));
+  if (fromRicoh) return fromRicoh;
+  const sp = name.match(/\bSP\s*(\d{3,4})/i);
+  if (sp?.[1]) return formatPpmLabel(sp[1].slice(0, 2)) ?? undefined;
+  const compact = name.match(/\bM\s+(\d{3})(?!\d)/i);
+  if (compact?.[1]) return formatPpmLabel(compact[1].slice(0, 2)) ?? undefined;
+  return undefined;
+}
+
+function speedFromRow(row: CatalogRow): string | undefined {
+  const stored = attr(row, 'Velocidad');
+  if (stored) return stored;
+  const ppm = resolveProductSpeedPpm(row);
+  if (ppm != null && Number.isFinite(ppm) && ppm > 0) return `${ppm} ppm`;
+  return speedPpmFromName(row.name ?? '');
+}
+
+function monthlyYieldFromName(name: string): string | undefined {
+  const sp = name.match(/\bSP\s*(\d{3,4})/i);
+  const compact = name.match(/\bM\s+(\d{3})(?!\d)/i);
+  const block = sp?.[1] ?? compact?.[1];
+  if (!block) return undefined;
+  const firstDigit = Number(block[0]);
+  if (!Number.isFinite(firstDigit) || firstDigit <= 0) return undefined;
+  return formatMonthlyProductionLabel(firstDigit * 10_000) ?? undefined;
+}
+
+function monthlyYieldFromRow(row: CatalogRow): string | undefined {
+  const raw = attr(row, 'Volumen mensual') ?? attr(row, 'Producción mensual');
+  if (raw && !/basico|mediano|alta\s*producci/i.test(raw)) {
+    const match = raw.match(/(\d[\d.]*)/);
+    if (match?.[1]) {
+      const pages = Number(match[1].replace(/\./g, ''));
+      if (Number.isFinite(pages) && pages > 0) {
+        return formatMonthlyProductionLabel(pages) ?? undefined;
+      }
+    }
+  }
+  return resolveRicohMonthlyProductionFromModel(row) ?? monthlyYieldFromName(row.name ?? '');
 }
 
 function classifyShowcase(row: CatalogRow): {
@@ -55,7 +110,7 @@ function classifyShowcase(row: CatalogRow): {
   if (/monitor/.test(haystack) || /monitores/.test(category)) {
     return {
       tabIds: ['ofertas'],
-      showcaseCategoryIds: ['laptops', 'monitores'],
+      showcaseCategoryIds: ['monitores'],
       kind: 'monitor',
     };
   }
@@ -95,22 +150,29 @@ function catalogRowToEquipmentShowcase(
   row: CatalogRow,
   exchangeRate: number,
 ): HaitechShopProduct | null {
-  if (!isSeminuevoCatalogRow(row)) return null;
   const classified = classifyShowcase(row);
   if (!classified) return null;
+  if (/^LISTA-/i.test(String(row.code ?? '').trim())) return null;
+
+  const isSeminuevo = isSeminuevoCatalogRow(row);
+  if (!isSeminuevo && classified.kind !== 'monitor') return null;
 
   const publicUsd = Number(row.prices?.public ?? 0);
   const pricePen = publicUsd > 0 ? usdToPenCharm(publicUsd, exchangeRate) : 0;
   const slug = String(row.slug ?? row.id ?? '').trim();
+  const declaredImage = String(row.image_url ?? '').trim();
+  const declaredGallery = (row.gallery ?? []).some((url) => String(url ?? '').trim().length > 0);
   const image = resolveProductImageUrl(row);
   const variantNote = attr(row, 'Variante');
-  const hasVariants = (row.variant_product_ids?.length ?? 0) > 0 || Boolean(variantNote && variantNote !== 'Estándar');
+  const isEquipmentKind =
+    classified.kind === 'equipment' || classified.kind === 'printer' || classified.kind === 'plotter';
+  if (isEquipmentKind && !declaredImage && !declaredGallery) return null;
 
   const product: HaitechShopProduct = {
     id: row.id,
     name: row.name,
     brand: (row.brand ?? 'RICOH').toUpperCase(),
-    stock: Math.max(0, Math.floor(Number(row.stock) || 0)),
+    stock: resolveCatalogStock(row, row.stock),
     image:
       image ||
       (classified.kind === 'monitor'
@@ -120,8 +182,9 @@ function catalogRowToEquipmentShowcase(
           : '/categories/multifuncionales.png'),
     price: isPriceOnRequest(publicUsd) ? 0 : pricePen,
     tabIds: classified.tabIds,
-    condition: 'seminuevo',
+    condition: isSeminuevo ? 'seminuevo' : 'nuevo',
   };
+  if (classified.kind === 'monitor') product.productTypeLabel = 'Monitor';
 
   if (row.code) product.code = String(row.code).trim();
   if (slug) product.href = productPath(slug);
@@ -130,28 +193,35 @@ function catalogRowToEquipmentShowcase(
   if (classified.kind === 'pc' || classified.kind === 'laptop') {
     product.showcaseLaptopCpu = /\bi7\b/i.test(row.name) ? 'i7' : 'i5';
   }
-  if (hasVariants) product.hasVariants = true;
+  const linkedVariantIds = (row.variant_product_ids ?? []).filter(
+    (id): id is string => typeof id === 'string' && id.trim().length > 0,
+  );
+  if (linkedVariantIds.length > 0) product.variantProductIds = linkedVariantIds;
+  if (linkedVariantIds.length > 0) product.hasVariants = true;
   if (variantNote && variantNote !== 'Estándar') product.showcaseVariantLabel = variantNote;
+  if (productHasOfferAttribute(row)) product.isOffer = true;
 
   if (classified.kind === 'equipment' || classified.kind === 'printer' || classified.kind === 'plotter') {
     product.features =
       classified.kind === 'printer'
         ? ['imprime', 'rendimiento']
         : ['copia', 'escanea', 'imprime', 'rendimiento'];
-    const speed = attr(row, 'Velocidad');
+    const speed = speedFromRow(row);
     const paperSize = paperSizeFromRow(row);
     const scannerType = scannerFromRow(row);
+    const monthlyYield = monthlyYieldFromRow(row);
     product.equipment = {
       ...(speed ? { speedPpm: speed } : {}),
       ...(paperSize ? { paperSize } : {}),
       ...(scannerType ? { scannerType } : {}),
+      ...(monthlyYield ? { monthlyYield } : {}),
     };
   }
 
   return product;
 }
 
-/** Equipos seminuevos del inventario → cards de vitrina (misma ficha que tienda). */
+/** Equipos seminuevos y monitores del inventario → cards de vitrina. */
 export function buildShowcaseEquipmentFromCatalog(
   rows: readonly CatalogRow[],
   exchangeRate: number,
@@ -169,4 +239,114 @@ export function buildShowcaseEquipmentFromCatalog(
   }
 
   return products;
+}
+
+function hasUsableShowcasePhoto(product: HaitechShopProduct): boolean {
+  const image = product.image?.trim() ?? '';
+  if (!image) return false;
+  if (image.startsWith('/categories/') || image.startsWith('/promotions/')) return false;
+  return true;
+}
+
+/** Familias que en vitrina deben verse como una sola card con «Desde». */
+function showcaseCollapseModelKey(product: HaitechShopProduct): string | null {
+  const name = product.name.toUpperCase();
+  if (/\bIM\s*430F\b/.test(name)) return 'IM 430F';
+  if (/\bIM\s*550F\b/.test(name)) return 'IM 550F';
+  return null;
+}
+
+function isIm550fCanonicalCard(product: HaitechShopProduct): boolean {
+  if (showcaseCollapseModelKey(product) !== 'IM 550F') return false;
+  const name = product.name;
+  return (
+    /\b220\s*V\b/i.test(name) &&
+    !/ligero\s*punto/i.test(name) &&
+    !/cilindro/i.test(name)
+  );
+}
+
+function showcaseVariantRepScore(product: HaitechShopProduct): number {
+  const stock = Math.max(0, Math.floor(Number(product.stock) || 0));
+  const variant = product.showcaseVariantLabel ?? '';
+  const isStandard = !variant || /^est[aá]ndar$/i.test(variant);
+  let score = 0;
+  if (hasUsableShowcasePhoto(product)) score += 1_000_000;
+  if (stock > 0) score += 100_000;
+  if (isIm550fCanonicalCard(product)) score += 500_000;
+  score -= Math.max(0, product.price);
+  if (isStandard) score += 50;
+  if (/\b220\s*V\b/i.test(product.name)) score += 10;
+  return score;
+}
+
+/**
+ * Una sola card por familia de variantes. El representante es el más barato
+ * con foto y stock; muestra «Desde» si hay más de una opción.
+ */
+export function collapseShowcaseEquipmentVariants(
+  products: readonly HaitechShopProduct[],
+): HaitechShopProduct[] {
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const parent = new Map<string, string>();
+
+  const find = (id: string): string => {
+    const current = parent.get(id) ?? id;
+    if (current === id) return id;
+    const root = find(current);
+    parent.set(id, root);
+    return root;
+  };
+
+  const union = (left: string, right: string) => {
+    const a = find(left);
+    const b = find(right);
+    if (a !== b) parent.set(a, b);
+  };
+
+  const byModel = new Map<string, string>();
+  for (const product of products) {
+    if (!parent.has(product.id)) parent.set(product.id, product.id);
+    for (const linkedId of product.variantProductIds ?? []) {
+      if (!byId.has(linkedId)) continue;
+      union(product.id, linkedId);
+    }
+    const modelKey = showcaseCollapseModelKey(product);
+    if (!modelKey || product.condition !== 'seminuevo') continue;
+    const family = `${product.condition}:${modelKey}`;
+    const seen = byModel.get(family);
+    if (seen) union(product.id, seen);
+    else byModel.set(family, product.id);
+  }
+
+  const groups = new Map<string, HaitechShopProduct[]>();
+  for (const product of products) {
+    const root = find(product.id);
+    const list = groups.get(root) ?? [];
+    list.push(product);
+    groups.set(root, list);
+  }
+
+  const collapsed: HaitechShopProduct[] = [];
+  for (const group of groups.values()) {
+    const ranked = [...group].sort(
+      (left, right) => showcaseVariantRepScore(right) - showcaseVariantRepScore(left),
+    );
+    const winner = ranked[0]!;
+    const linkedOutsideGrid = (winner.variantProductIds ?? []).some((id) => !byId.has(id));
+    const variantLabel = winner.showcaseVariantLabel?.trim();
+    const collapsedWinner: HaitechShopProduct = {
+      ...winner,
+      hasVariants: group.length > 1 || linkedOutsideGrid || isIm550fCanonicalCard(winner),
+    };
+    if (
+      variantLabel &&
+      winner.name.toLowerCase().includes(variantLabel.toLowerCase())
+    ) {
+      delete collapsedWinner.showcaseVariantLabel;
+    }
+    collapsed.push(collapsedWinner);
+  }
+
+  return collapsed;
 }

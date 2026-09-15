@@ -166,9 +166,6 @@ function isRepuestosCategory(product) {
 
 function isEquipmentConsumable(product) {
   const haystack = productHaystack(product);
-  if (haystack.includes('impresora') || haystack.includes('multifuncional')) {
-    return false;
-  }
   if (isRepuestosCategory(product)) return true;
   return CATEGORY_RULES.some((rule) =>
     rule.keywords.some((keyword) => haystack.includes(normalizeText(keyword))),

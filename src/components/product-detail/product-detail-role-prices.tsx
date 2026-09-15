@@ -32,10 +32,10 @@ function computeRoleTotalUsd(
   equipmentExtrasUsd: number,
   preparationSurchargeUsd = 0,
 ): number {
-  const baseUsd =
-    fullPrices[role] + (role === 'public' ? preparationSurchargeUsd : 0);
+  const floorPriceUsd = fullPrices.tecnico + preparationSurchargeUsd;
+  const baseUsd = fullPrices[role] + preparationSurchargeUsd;
   const volume = resolveBulkDiscountPricing(quantity, baseUsd, bulkDiscountTiers, {
-    floorPriceUsd: fullPrices.tecnico,
+    floorPriceUsd,
   });
   return volume.totalUsd + equipmentExtrasUsd * quantity;
 }
@@ -74,8 +74,15 @@ function useProductDetailRoleTotals({
 
   const tecnicoTotalUsd = useMemo(
     () =>
-      computeRoleTotalUsd('tecnico', quantity, fullPrices, bulkDiscountTiers, equipmentExtrasUsd),
-    [quantity, fullPrices, bulkDiscountTiers, equipmentExtrasUsd],
+      computeRoleTotalUsd(
+        'tecnico',
+        quantity,
+        fullPrices,
+        bulkDiscountTiers,
+        equipmentExtrasUsd,
+        preparationSurchargeUsd,
+      ),
+    [quantity, fullPrices, bulkDiscountTiers, equipmentExtrasUsd, preparationSurchargeUsd],
   );
 
   const displayPrice = resolveCatalogDisplayPrice(product, {
@@ -85,24 +92,18 @@ function useProductDetailRoleTotals({
   });
 
   const visitorTotalUsd = useMemo(() => {
-    const baseUsd = displayPrice.previewAsRole ? displayPrice.priceUsd : product.price;
-    const adjustedBase =
-      !displayPrice.previewAsRole && effectiveRole === 'public'
-        ? baseUsd + preparationSurchargeUsd
-        : baseUsd;
+    const priceRole = displayPrice.priceRole;
+    const adjustedBase = fullPrices[priceRole] + preparationSurchargeUsd;
     const volume = resolveBulkDiscountPricing(quantity, adjustedBase, bulkDiscountTiers, {
-      floorPriceUsd: fullPrices.tecnico,
+      floorPriceUsd: fullPrices.tecnico + preparationSurchargeUsd,
     });
     return volume.totalUsd + equipmentExtrasUsd * quantity;
   }, [
-    displayPrice.previewAsRole,
-    displayPrice.priceUsd,
-    product.price,
-    effectiveRole,
+    displayPrice.priceRole,
+    fullPrices,
     preparationSurchargeUsd,
     quantity,
     bulkDiscountTiers,
-    fullPrices.tecnico,
     equipmentExtrasUsd,
   ]);
 
@@ -112,9 +113,9 @@ function useProductDetailRoleTotals({
       const unitBase =
         line.role === 'corporativo2'
           ? line.priceUsd
-          : fullPrices[line.priceRole] + (line.priceRole === 'public' ? preparationSurchargeUsd : 0);
+          : fullPrices[line.priceRole] + preparationSurchargeUsd;
       const volume = resolveBulkDiscountPricing(quantity, unitBase, bulkDiscountTiers, {
-        floorPriceUsd: fullPrices.tecnico,
+        floorPriceUsd: fullPrices.tecnico + preparationSurchargeUsd,
       });
       return {
         ...line,
@@ -157,7 +158,7 @@ function BuySidebarInlineDualPrice({ usd, className }: { usd: number; className?
   if (isPriceOnRequest(usd)) {
     return (
       <div className={cn('flex flex-col items-start gap-0.5', className)}>
-        <span className="text-[1.625rem] font-bold leading-none text-red-600 sm:text-[1.75rem]">
+        <span className="text-[1.75rem] font-bold leading-none text-neutral-900 sm:text-[2rem]">
           {CONSULTAR_PRECIO_LABEL}
         </span>
       </div>
@@ -165,12 +166,12 @@ function BuySidebarInlineDualPrice({ usd, className }: { usd: number; className?
   }
 
   const penPrimary = (
-    <span className="text-[1.625rem] font-bold leading-none tabular-nums text-red-600 sm:text-[1.75rem]">
+    <span className="text-[1.75rem] font-bold leading-none tabular-nums text-neutral-900 sm:text-[2rem]">
       {formatPenFromUsd(usd)}
     </span>
   );
   const usdPrimary = (
-    <span className="text-[1.625rem] font-bold leading-none tabular-nums text-red-600 sm:text-[1.75rem]">
+    <span className="text-[1.75rem] font-bold leading-none tabular-nums text-neutral-900 sm:text-[2rem]">
       {formatUsd(usd)}
     </span>
   );
@@ -378,7 +379,7 @@ export function PurchaseSidebarRolePrices({
   const mainPriceClass = cn(
     'font-bold leading-none tabular-nums',
     compact ? 'text-base sm:text-lg' : 'text-[1.625rem] sm:text-[1.75rem]',
-    isBuySidebar && '[&_span]:text-red-600',
+    isBuySidebar && '[&_span]:text-neutral-900',
   );
   const secondaryPriceClass = cn(
     'font-semibold tabular-nums',

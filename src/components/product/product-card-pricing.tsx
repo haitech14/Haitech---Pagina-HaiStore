@@ -75,7 +75,6 @@ export function ProductCardPricing({
         currentUsd={pricing.currentUsd}
         compareUsd={pricing.compareUsd}
         showAccentBar={pricing.compareUsd > pricing.currentUsd}
-        category={category}
       />
     );
   }

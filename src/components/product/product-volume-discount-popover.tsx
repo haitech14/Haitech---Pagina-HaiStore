@@ -6,9 +6,11 @@ import { useDisplayCurrency } from '@/context/display-currency-context';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import {
   DEFAULT_BULK_DISCOUNT_TIERS,
+  formatUsdLessPerUnit,
   parseBulkDiscountRange,
   resolveEffectiveBulkDiscountTier,
 } from '@/lib/bulk-discount-tiers';
+import { resolveProductBulkDiscountTiers } from '@/lib/product-bulk-discount';
 import { formatDisplayPriceFromUsd } from '@/lib/display-price';
 import { ensureFullPrices } from '@/lib/roles';
 import { cn } from '@/lib/utils';
@@ -44,7 +46,9 @@ export function ProductVolumeDiscountPopover({
   const [open, setOpen] = useState(false);
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
   const settingsQuery = useCompanySettings();
-  const tiers = tiersProp ?? settingsQuery.data?.bulkDiscountTiers ?? DEFAULT_BULK_DISCOUNT_TIERS;
+  const tiers =
+    tiersProp ??
+    resolveProductBulkDiscountTiers(product, settingsQuery.data?.bulkDiscountTiers ?? DEFAULT_BULK_DISCOUNT_TIERS);
 
   const fullPrices = ensureFullPrices(
     product.prices ? product.prices : { public: product.price },
@@ -57,16 +61,17 @@ export function ProductVolumeDiscountPopover({
       id: '1',
       quantityLabel: '1 unidad',
       unitLabel: formatDisplayPriceFromUsd(basePriceUsd, displayCurrency, dualPriceOrder),
-      discountPercent: 0,
+      savingsLabel: null as string | null,
     };
 
     const tierRows = tiers.map((tier) => {
       const effective = resolveEffectiveBulkDiscountTier(tier, basePriceUsd, floorPriceUsd);
+      const savingsUsd = Math.max(0, Math.round((basePriceUsd - effective.unitUsd) * 100) / 100);
       return {
         id: tier.range,
         quantityLabel: formatQuantityLabel(tier.range),
         unitLabel: formatDisplayPriceFromUsd(effective.unitUsd, displayCurrency, dualPriceOrder),
-        discountPercent: effective.discountPercent,
+        savingsLabel: savingsUsd > 0.001 ? formatUsdLessPerUnit(savingsUsd) : null,
       };
     });
 
@@ -160,10 +165,8 @@ export function ProductVolumeDiscountPopover({
                       <span className="text-[13px] font-bold tabular-nums text-[#111]">
                         {row.unitLabel}
                       </span>
-                      {row.discountPercent > 0 ? (
-                        <span className="inline-flex rounded-full bg-[#E30613] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                          -{Math.round(row.discountPercent)}%
-                        </span>
+                      {row.savingsLabel ? (
+                        <span className="text-[10px] font-bold text-[#E30613]">{row.savingsLabel}</span>
                       ) : null}
                     </span>
                   </td>

@@ -1,12 +1,13 @@
 import { useCallback, useState } from 'react';
 import { FileText } from 'lucide-react';
 
+import { AttachmentPdfViewer } from '@/components/product-detail/attachment-pdf-viewer';
 import { ProductQuoteDialog } from '@/components/product-detail/product-quote-dialog';
 import {
   ProductQuotePdfViewer,
   type QuotePdfPreview,
 } from '@/components/product-detail/product-quote-pdf-viewer';
-import { downloadProductAttachment } from '@/lib/inventory-attachments';
+import { downloadProductAttachment, isPdfAttachment } from '@/lib/inventory-attachments';
 import type { ProductHeroSpecBullet, ProductResourceLink } from '@/types/product-detail';
 import type { Product } from '@/types/product';
 
@@ -69,6 +70,11 @@ export function ProductDetailResources({
 }: ProductDetailResourcesProps) {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [pdfPreview, setPdfPreview] = useState<QuotePdfPreview | null>(null);
+  const [attachmentPdfPreview, setAttachmentPdfPreview] = useState<{
+    url: string;
+    filename: string;
+    title: string;
+  } | null>(null);
 
   const handlePreviewClose = useCallback((open: boolean) => {
     if (!open) {
@@ -87,6 +93,14 @@ export function ProductDetailResources({
 
   const handleTechnicalSheetClick = () => {
     if (!fichaLink?.href) return;
+    if (isPdfAttachment(fichaLink.href, fichaLink.mimeType, fichaFileName)) {
+      setAttachmentPdfPreview({
+        url: fichaLink.href,
+        filename: fichaFileName,
+        title: 'Ficha técnica',
+      });
+      return;
+    }
     void downloadProductAttachment(fichaLink.href, fichaFileName);
   };
 
@@ -140,6 +154,18 @@ export function ProductDetailResources({
       />
 
       <ProductQuotePdfViewer preview={pdfPreview} onOpenChange={handlePreviewClose} autoDownload />
+
+      {attachmentPdfPreview ? (
+        <AttachmentPdfViewer
+          open
+          url={attachmentPdfPreview.url}
+          filename={attachmentPdfPreview.filename}
+          title={attachmentPdfPreview.title}
+          onOpenChange={(open) => {
+            if (!open) setAttachmentPdfPreview(null);
+          }}
+        />
+      ) : null}
     </>
   );
 }

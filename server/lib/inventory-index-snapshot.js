@@ -25,6 +25,7 @@ const SLIM_FIELDS = [
   'attributes',
   'cross_sell_product_ids',
   'upsell_product_ids',
+  'variant_product_ids',
   'sort_order',
   'created_at',
   'compare_at_price_usd',

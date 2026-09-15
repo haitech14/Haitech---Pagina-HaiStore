@@ -1,5 +1,20 @@
 /** Configuración y motor de cálculo — Plan de Mantenimiento Ricoh. */
 
+import {
+  MAINTENANCE_PLAN_KINDS,
+  projectMaintenanceSupplies,
+  type MaintenancePlanKindId,
+  type MaintenanceSupplyProjection,
+  type MaintenanceTonerCatalogItem,
+} from '@/data/maintenance-plan-supplies';
+
+export {
+  MAINTENANCE_PLAN_KINDS,
+  type MaintenancePlanKindId,
+  type MaintenanceSupplyProjection,
+  type MaintenanceTonerCatalogItem,
+};
+
 export const MAINTENANCE_PLAN_CALCULATOR_ID = 'configura-plan';
 
 export type MaintenanceServiceModeId = 'plan' | 'individual';
@@ -15,7 +30,7 @@ export type MaintenancePrintType = 'bw' | 'color';
 export type MaintenanceDifficulty = 'baja' | 'media' | 'alta' | 'pro';
 
 export type MaintenanceVolumePresetPages = 5000 | 15000 | 30000 | 60000;
-export type MaintenanceTermMonths = 12 | 24 | 36;
+export type MaintenanceTermMonths = 1 | 6 | 12;
 export type MaintenanceModelId = string;
 
 export interface MaintenanceServiceModeOption {
@@ -58,12 +73,13 @@ export interface MaintenanceTermOption {
   months: MaintenanceTermMonths;
   label: string;
   badge: string | null;
-  /** Descuento sobre el precio mensual (0–1). */
+  /** Descuento equivalente vs. plan de 1 mes (0–1). */
   discount: number;
 }
 
 export interface MaintenancePlanState {
   serviceMode: MaintenanceServiceModeId;
+  planKind: MaintenancePlanKindId;
   equipmentId: MaintenanceEquipmentId;
   paperFormat: MaintenancePaperFormat;
   printType: MaintenancePrintType;
@@ -79,20 +95,31 @@ export interface MaintenancePlanState {
 
 export interface MaintenancePlanQuote {
   serviceMode: MaintenanceServiceModeId;
+  planKind: MaintenancePlanKindId;
   baseMonthly: number;
   volumeFactor: number;
   discountRate: number;
   laborFactor: number;
   locationFactor: number;
   monthlyBeforeDiscount: number;
-  /** Mensual sin IGV. */
+  /** Mensual equivalente sin IGV (contrato ÷ meses). */
   monthlyPen: number;
   monthlyIgvPen: number;
   monthlyTotalPen: number;
   monthlyBeforeDiscountTotal: number;
+  /** Precio del plan por equipo, sin IGV (B/N o color). */
+  unitContractPen: number;
+  colorSurchargePen: number;
+  maintenanceContractPen: number;
+  suppliesPen: number;
+  /** Contrato del plan (mantenimiento + suministros si aplica), sin IGV. */
+  contractPen: number;
+  contractIgvPen: number;
+  contractTotalPen: number;
   /** Cotización por visita (modo individual). */
   visitPen: number;
   savingsPercent: number;
+  supplyProjection: MaintenanceSupplyProjection | null;
   equipmentLabel: string;
   modelLabel: string;
   difficultyLabel: string;
@@ -109,14 +136,26 @@ export interface MaintenancePlanQuote {
 export const MAINTENANCE_IGV_RATE = 0.18;
 
 /**
- * Referencia comercial: A4 · B/N · 55,000 págs/mes · plan 12 meses.
- * S/ 304 + IGV mensual.
+ * Precios comerciales del plan por equipo (sin IGV), plazos 12 / 6 / 1 mes.
+ * El contrato más corto tiene un costo mensual equivalente mayor.
  */
-export const MAINTENANCE_PLAN_REF_PAGES = 55_000;
-export const MAINTENANCE_PLAN_REF_MONTHLY_PEN = 304;
+export const MAINTENANCE_PLAN_TERM_PRICE_PEN: Record<MaintenanceTermMonths, number> = {
+  12: 1299,
+  6: 799,
+  1: 169,
+};
 
-/** Mínimo comercial del plan anual: S/ 99 + IGV /mes. */
-export const MAINTENANCE_PLAN_MIN_MONTHLY_PEN = 99;
+/** Recargo si el equipo es a color, sobre el precio del plan por equipo. */
+export const MAINTENANCE_PLAN_COLOR_SURCHARGE_PEN = 50;
+
+/** Referencia de volumen (solo para proyectar tóner; ya no escala el precio del plan). */
+export const MAINTENANCE_PLAN_REF_PAGES = 55_000;
+export const MAINTENANCE_PLAN_REF_MONTHLY_PEN = Math.round(
+  MAINTENANCE_PLAN_TERM_PRICE_PEN[12] / 12,
+);
+
+/** Equivalente mensual del plan de 1 mes (B/N). */
+export const MAINTENANCE_PLAN_MIN_MONTHLY_PEN = MAINTENANCE_PLAN_TERM_PRICE_PEN[1];
 
 export const MAINTENANCE_VOLUME_MIN = 1_000;
 export const MAINTENANCE_VOLUME_MAX = 150_000;
@@ -446,9 +485,9 @@ export const MAINTENANCE_VOLUME_OPTIONS: readonly MaintenanceVolumeOption[] = [
 ] as const;
 
 export const MAINTENANCE_TERM_OPTIONS: readonly MaintenanceTermOption[] = [
-  { months: 12, label: '12 meses', badge: 'Precio recomendado', discount: 0 },
-  { months: 24, label: '24 meses', badge: 'Ahorro 10%', discount: 0.1 },
-  { months: 36, label: '36 meses', badge: 'Ahorro 15%', discount: 0.15 },
+  { months: 12, label: '12 meses', badge: 'Precio recomendado', discount: 0.36 },
+  { months: 6, label: '6 meses', badge: null, discount: 0.21 },
+  { months: 1, label: '1 mes', badge: 'Mayor costo/mes', discount: 0 },
 ] as const;
 
 export const MAINTENANCE_CITY_SUGGESTIONS = [
@@ -503,6 +542,11 @@ export const MAINTENANCE_PLAN_INCLUDES = [
   'Soporte especializado',
   'Mantenimiento inicial',
   'Mantenimiento al término del servicio',
+] as const;
+
+export const MAINTENANCE_SUPPLY_PLAN_INCLUDES = [
+  ...MAINTENANCE_PLAN_INCLUDES,
+  'Tóner proyectado según modelo, rendimiento y plazo',
 ] as const;
 
 export const MAINTENANCE_INDIVIDUAL_INCLUDES = [
@@ -630,6 +674,7 @@ export function difficultyLabel(difficulty: MaintenanceDifficulty): string {
 
 export const DEFAULT_MAINTENANCE_PLAN_STATE: MaintenancePlanState = {
   serviceMode: 'plan',
+  planKind: 'maintenance',
   equipmentId: 'multifuncionales',
   paperFormat: 'A4',
   printType: 'bw',
@@ -690,45 +735,71 @@ function moneyPen(value: number): number {
   return Math.max(0, Math.round(value));
 }
 
+function money2(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function resolveTermMonths(value: number): MaintenanceTermMonths {
+  if (value === 1 || value === 6 || value === 12) return value;
+  return 12;
+}
+
 export function calculateMaintenancePlanQuote(
   state: MaintenancePlanState,
+  catalog: readonly MaintenanceTonerCatalogItem[] = [],
 ): MaintenancePlanQuote {
   const quantity = clampMaintenanceQuantity(state.quantity);
   const volumePages = clampMaintenanceVolume(state.volumePages);
   const equipment = maintenanceEquipmentById(state.equipmentId);
-  const model = maintenanceModelById(state.modelId);
-  const volumeFactor = volumePages / MAINTENANCE_PLAN_REF_PAGES;
+  const customMatch = findMaintenanceModelMatch(MAINTENANCE_MODELS, state.customModel);
+  const model = customMatch ?? maintenanceModelById(state.modelId);
+  const termMonths = resolveTermMonths(state.termMonths);
   const term =
-    MAINTENANCE_TERM_OPTIONS.find((item) => item.months === state.termMonths) ??
+    MAINTENANCE_TERM_OPTIONS.find((item) => item.months === termMonths) ??
     MAINTENANCE_TERM_OPTIONS[0]!;
-  const discountRate = state.serviceMode === 'plan' ? term.discount : 0;
   const laborFactor = model.laborFactor;
   const locationFactor = locationFactorForCity(state.city, state.district);
   const printFactor = PRINT_TYPE_FACTOR[state.printType] ?? 1;
   const formatFactor = PAPER_FORMAT_FACTOR[state.paperFormat] ?? 1;
+  const volumeFactor = volumePages / MAINTENANCE_PLAN_REF_PAGES;
 
-  const rawMonthly = moneyPen(
-    MAINTENANCE_PLAN_REF_MONTHLY_PEN *
-      volumeFactor *
-      quantity *
-      locationFactor *
-      printFactor *
-      formatFactor,
+  const colorSurchargePen = state.printType === 'color' ? MAINTENANCE_PLAN_COLOR_SURCHARGE_PEN : 0;
+  const unitContractPen = MAINTENANCE_PLAN_TERM_PRICE_PEN[termMonths] + colorSurchargePen;
+  const maintenanceContractPen = money2(unitContractPen * quantity);
+
+  const supplyProjection = projectMaintenanceSupplies({
+    modelId: model.id,
+    printType: state.printType,
+    usesPrintVolume: model.usesPrintVolume,
+    volumePages,
+    termMonths,
+    quantity,
+    catalog,
+  });
+
+  const includeSupplies = state.planKind === 'supplies' && supplyProjection != null;
+  const suppliesPen = includeSupplies ? supplyProjection.suppliesPen : 0;
+  const contractPen = money2(maintenanceContractPen + suppliesPen);
+  const contractIgvPen = money2(contractPen * MAINTENANCE_IGV_RATE);
+  const contractTotalPen = money2(contractPen + contractIgvPen);
+
+  const monthlyPen = money2(contractPen / termMonths);
+  const monthlyIgvPen = money2(monthlyPen * MAINTENANCE_IGV_RATE);
+  const monthlyTotalPen = money2(monthlyPen + monthlyIgvPen);
+
+  const monthlyVsOneMonth = money2(
+    ((MAINTENANCE_PLAN_TERM_PRICE_PEN[1] + colorSurchargePen) * quantity) / 1,
   );
-  const monthlyBeforeDiscount = moneyPen(
-    Math.max(MAINTENANCE_PLAN_MIN_MONTHLY_PEN, rawMonthly),
-  );
-  const monthlyPen = moneyPen(
-    Math.max(MAINTENANCE_PLAN_MIN_MONTHLY_PEN, monthlyBeforeDiscount * (1 - discountRate)),
-  );
-  const monthlyIgvPen = moneyPen(monthlyPen * MAINTENANCE_IGV_RATE);
-  const monthlyTotalPen = monthlyPen + monthlyIgvPen;
-  const monthlyBeforeDiscountTotal =
-    monthlyBeforeDiscount + moneyPen(monthlyBeforeDiscount * MAINTENANCE_IGV_RATE);
+  const monthlyMaintenance = money2(maintenanceContractPen / termMonths);
+  const discountRate = term.discount;
   const savingsPercent =
-    monthlyBeforeDiscount > 0
-      ? Math.round((1 - monthlyPen / monthlyBeforeDiscount) * 100)
+    monthlyVsOneMonth > 0 && termMonths > 1
+      ? Math.round((1 - monthlyMaintenance / monthlyVsOneMonth) * 100)
       : 0;
+  const monthlyBeforeDiscount = monthlyVsOneMonth;
+  const monthlyBeforeDiscountTotal = money2(
+    monthlyBeforeDiscount + monthlyBeforeDiscount * MAINTENANCE_IGV_RATE,
+  );
 
   const visitPen = moneyPen(
     MAINTENANCE_INDIVIDUAL_VISIT_BASE_PEN *
@@ -741,6 +812,7 @@ export function calculateMaintenancePlanQuote(
 
   return {
     serviceMode: state.serviceMode,
+    planKind: includeSupplies ? 'supplies' : 'maintenance',
     baseMonthly: MAINTENANCE_PLAN_REF_MONTHLY_PEN,
     volumeFactor,
     discountRate,
@@ -751,8 +823,16 @@ export function calculateMaintenancePlanQuote(
     monthlyIgvPen,
     monthlyTotalPen,
     monthlyBeforeDiscountTotal,
+    unitContractPen,
+    colorSurchargePen,
+    maintenanceContractPen,
+    suppliesPen,
+    contractPen,
+    contractIgvPen,
+    contractTotalPen,
     visitPen,
     savingsPercent,
+    supplyProjection,
     equipmentLabel: equipment.label,
     modelLabel: resolveMaintenanceModelLabel(state.modelId, state.customModel),
     difficultyLabel: difficultyLabel(model.difficulty),
@@ -760,7 +840,7 @@ export function calculateMaintenancePlanQuote(
     printType: state.printType,
     quantity,
     volumePages,
-    termMonths: state.termMonths,
+    termMonths,
     city: state.city.trim() || 'Lima',
     district: state.district.trim(),
   };
@@ -794,10 +874,33 @@ export function buildMaintenancePlanWhatsAppMessage(
   ];
 
   if (quote.serviceMode === 'plan') {
+    const planKindLabel =
+      quote.planKind === 'supplies' ? 'Plan de suministros' : 'Solo mantenimiento';
     lines.push(
+      `Tipo de plan: ${planKindLabel}`,
       `Volumen: ${quote.volumePages.toLocaleString('es-PE')} págs/mes`,
       `Duración: ${quote.termMonths} meses`,
-      `Inversión estimada: ${formatMaintenancePen(quote.monthlyPen)} + IGV (${formatMaintenancePen(quote.monthlyTotalPen)} total)/mes`,
+      `Plan de mantenimiento: ${formatMaintenancePen(quote.maintenanceContractPen, 2)} + IGV`,
+    );
+    if (quote.colorSurchargePen > 0) {
+      lines.push(
+        `Recargo color: ${formatMaintenancePen(quote.colorSurchargePen, 2)} por equipo`,
+      );
+    }
+    if (quote.planKind === 'supplies' && quote.supplyProjection) {
+      const supply = quote.supplyProjection;
+      lines.push(
+        `Páginas proyectadas (${quote.termMonths} meses): ${supply.totalPages.toLocaleString('es-PE')}`,
+        ...supply.lines.map(
+          (line) =>
+            `Tóner ${line.color}: ${line.unitsToBuy} cartucho(s) · rend. ${line.yieldPages.toLocaleString('es-PE')} págs · ${formatMaintenancePen(line.unitSalePen, 2)} c/u`,
+        ),
+        `Suministros: ${formatMaintenancePen(supply.suppliesPen, 2)} + IGV`,
+      );
+    }
+    lines.push(
+      `Total plan: ${formatMaintenancePen(quote.contractPen, 2)} + IGV (${formatMaintenancePen(quote.contractTotalPen, 2)} con IGV)`,
+      `Equivalente mensual: ${formatMaintenancePen(quote.monthlyPen, 2)} + IGV /mes`,
     );
   } else {
     lines.push(`Visita estimada: ${formatMaintenancePen(quote.visitPen)}`);

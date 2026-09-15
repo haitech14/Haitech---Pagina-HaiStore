@@ -17,10 +17,10 @@ interface ProductCardStatsLineProps {
 
 function formatStockLabel(outOfStock: boolean, stock: number): string {
   if (outOfStock) return PRODUCT_ON_REQUEST_STOCK_LABEL;
-  return String(Math.max(0, Math.floor(Number(stock) || 0)));
+  return `Stock ${Math.max(0, Math.floor(Number(stock) || 0))}`;
 }
 
-/** Línea compacta: código (izq) + stock (der). Velocidad/SPDF van en badges. */
+/** Línea compacta: código a la izquierda y stock a la derecha. */
 export function ProductCardStatsLine({
   product: _product,
   stock,
@@ -38,19 +38,20 @@ export function ProductCardStatsLine({
   return (
     <div
       className={cn(
-        'flex min-w-0 items-center gap-2 text-[0.6875rem] font-medium leading-none text-[#8a93a3] sm:text-[0.75rem]',
+        'grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-left',
+        'text-[0.6875rem] font-medium leading-none text-[#8a93a3] sm:text-[0.75rem]',
         className,
       )}
       aria-label={[
         codeLabel ? `Código ${codeLabel}` : null,
-        showStock ? (outOfStock ? stockLabel : `Stock ${stockLabel}`) : null,
+        showStock ? stockLabel : null,
       ]
         .filter(Boolean)
         .join(', ')}
     >
       {codeLabel ? (
-        <span className="min-w-0 truncate tabular-nums" title={codeLabel}>
-          {codeLabel}
+        <span className="min-w-0 truncate text-left tabular-nums" title={codeLabel}>
+          Cód. {codeLabel}
         </span>
       ) : (
         <span className="min-w-0" aria-hidden="true" />
@@ -58,7 +59,7 @@ export function ProductCardStatsLine({
       {showStock ? (
         <span
           className={cn(
-            'ml-auto inline-flex shrink-0 items-center gap-1 tabular-nums',
+            'inline-flex shrink-0 items-center justify-end gap-1 whitespace-nowrap text-right tabular-nums',
             outOfStock ? 'text-[#8a93a3]' : 'text-emerald-700',
           )}
         >

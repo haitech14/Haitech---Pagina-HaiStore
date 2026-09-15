@@ -22,7 +22,25 @@ export const IM550F_COMPATIBLE_TONER_PRODUCT_ID = 'compat-tc-im-550-intercopy';
 /** Equipo M 320F en inventario. */
 export const M320F_EQUIPMENT_PRODUCT_ID = 'bfb264b8-70dc-4ad4-9686-2df02df8c75e';
 
-/** Equipo IM C320F (color A4) en inventario. */
+/** Equipo IM 460F (nueva) en inventario. */
+export const IM460F_EQUIPMENT_PRODUCT_ID = '71289ec2-dbca-4780-b319-eb3d259fadb5';
+
+/** Casetera adicional IM 460F — código 423525. */
+export const IM460F_CASETERA_IMAGE = '/products/im-460f/casetera-423525.png';
+
+/** High Cabinet Type A8 — código 52900. */
+export const IM460F_CABINET_IMAGE = '/products/im-460f/high-cabinet-type-a8.png';
+
+/** PostScript3 Unit Type M54 — código 423511. */
+export const IM460F_POSTSCRIPT_IMAGE = '/products/im-460f/postscript3-m54.png';
+
+/** OCR Unit Type M54 — código 423515. */
+export const IM460F_OCR_IMAGE = '/products/im-460f/ocr-m54.png';
+
+/** Print Cartridge IM 460 — código 842801. */
+export const IM460F_TONER_IMAGE = '/products/im-460f/print-cartridge-im-460.png';
+export const IM460F_TONER_OPTION_ID = 'toner-original-im-460';
+export const IM460F_TONER_YIELD_LABEL = '22,000 páginas al 5%';
 export const IM_C320F_EQUIPMENT_PRODUCT_ID = '481dbc77-436b-464d-b76f-930f7d79f4ff';
 
 /** Equipo IM C300F (color A4, nueva) en inventario. */
@@ -219,6 +237,11 @@ const OPTION_CATALOG_HINTS: Record<string, OptionCatalogHint> = {
     ],
     fallbackImage: '/categories/toner-suministros.png',
   },
+  'toner-original-im-460': {
+    keywords: ['842801', 'print cartridge', 'im 460', 'toner original'],
+    categories: ['Toner', 'Tóner', 'Toner Original', 'Suministros'],
+    fallbackImage: '/products/im-460f/print-cartridge-im-460.png',
+  },
   'toner-compatible': {
     keywords: ['toner', 'tóner', 'compatible', 'cartucho'],
     categories: [
@@ -259,6 +282,26 @@ const OPTION_CATALOG_HINTS: Record<string, OptionCatalogHint> = {
     keywords: ['tall cabinet', 'cabinet type u', 'pedestal', 'cabinet'],
     categories: ['Accesorios', 'Repuestos'],
     fallbackImage: '/categories/accesorios-impresoras.png',
+  },
+  'casetera-adicional-423525': {
+    keywords: ['423525', 'casetera', 'paper bank', 'paper feed'],
+    categories: ['Accesorios', 'Repuestos', 'Repuestos Originales'],
+    fallbackImage: '/products/im-460f/casetera-423525.png',
+  },
+  'high-cabinet-a8': {
+    keywords: ['52900', 'high cabinet', 'cabinet type a8', 'gabinete'],
+    categories: ['Accesorios', 'Repuestos', 'Repuestos Originales'],
+    fallbackImage: '/products/im-460f/high-cabinet-type-a8.png',
+  },
+  'postscript-m54': {
+    keywords: ['423511', 'postscript', 'type m54'],
+    categories: ['Accesorios', 'Repuestos'],
+    fallbackImage: '/products/im-460f/postscript3-m54.png',
+  },
+  'ocr-m54': {
+    keywords: ['423515', 'ocr', 'type m54'],
+    categories: ['Accesorios', 'Repuestos', 'Suministros'],
+    fallbackImage: '/products/im-460f/ocr-m54.png',
   },
   'ocr-m13': {
     keywords: ['ocr', 'm13', 'pdf', 'reconocimiento'],

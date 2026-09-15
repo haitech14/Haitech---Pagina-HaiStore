@@ -48,46 +48,6 @@ function resolveCardTitle(product: HaitechShopProduct): string {
   return combined;
 }
 
-function ConditionPill({
-  condition,
-  isOffer,
-}: {
-  condition?: HaitechShopProduct['condition'];
-  isOffer?: boolean;
-}) {
-  const showCondition = condition === 'nuevo' || condition === 'seminuevo';
-  if (!showCondition && !isOffer) return null;
-  const isNuevo = condition === 'nuevo';
-
-  return (
-    <span className="inline-flex shrink-0 items-center gap-1">
-      {isOffer ? (
-        <span
-          className={cn(
-            'inline-flex h-[18px] w-fit shrink-0 items-center justify-center rounded-full px-2.5',
-            'bg-[#E30613] text-[9px] font-bold uppercase leading-none tracking-[0.08em] text-white',
-          )}
-        >
-          Oferta
-        </span>
-      ) : null}
-      {showCondition ? (
-        <span
-          className={cn(
-            'inline-flex h-[18px] w-fit shrink-0 items-center justify-center rounded-full px-2.5',
-            'text-[9px] font-bold uppercase leading-none tracking-[0.08em]',
-            isNuevo
-              ? 'bg-[#111111] text-white'
-              : 'border border-[#555] bg-white text-[#555]',
-          )}
-        >
-          {isNuevo ? 'NUEVO' : 'SEMINUEVO'}
-        </span>
-      ) : null}
-    </span>
-  );
-}
-
 export function HaitechHomeHoursDealCard({ product }: { product: HaitechShopProduct }) {
   const { data: companySettings } = useCompanySettings();
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
@@ -117,13 +77,6 @@ export function HaitechHomeHoursDealCard({ product }: { product: HaitechShopProd
 
   const body = (
     <>
-      <div className="flex items-center justify-between gap-2">
-        <p className="min-w-0 truncate text-[0.6875rem] font-bold uppercase tracking-wide text-[#E30613] sm:text-xs">
-          {product.brand ?? 'RICOH'}
-        </p>
-        <ConditionPill condition={product.condition} isOffer={product.isOffer === true} />
-      </div>
-
       <div className="mt-1.5 flex h-[112px] w-full items-center justify-center sm:h-[132px]">
         {imgError ? (
           <div className="flex size-full items-center justify-center rounded-lg bg-[#F0F0F0] text-sm font-bold text-[#999]">

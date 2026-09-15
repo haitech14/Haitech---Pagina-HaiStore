@@ -39,6 +39,7 @@ import {
   resolveEquipmentShowcaseCode,
 } from '@/data/haitech-home-equipment-showcase';
 import { formatHaitechPen, resolveHaitechShopStockLocations, type HaitechShopProduct } from '@/data/haitech-home-shop';
+import { useCatalogProductRow } from '@/hooks/use-catalog-product-row';
 import { useCompanySettings } from '@/hooks/use-company-settings';
 import { useHaitechWhatsAppQuoteContext } from '@/hooks/use-haitech-whatsapp-quote';
 import { useInventoryMutations } from '@/hooks/use-products';
@@ -64,7 +65,7 @@ import { toPublicProduct } from '@/lib/pricing';
 import { getProductTableSpecDisplay } from '@/lib/product-table-spec-columns';
 import { randomId } from '@/lib/random-id';
 import { ensureFullPrices, type PriceRole } from '@/lib/roles';
-import { findShowcaseCatalogRow, resolveShowcaseProductHref } from '@/lib/showcase-product-href';
+import { findShowcaseCatalogRow, resolveShowcaseMediaCatalogId, resolveShowcaseProductHref } from '@/lib/showcase-product-href';
 import { resolveShowcaseProductPricesUsd, showcaseDisplayUsd, showcaseUsdToPen } from '@/lib/showcase-product-pricing';
 import { penToUsd, cn } from '@/lib/utils';
 import type { InventoryBulkPatch } from '@/types/inventory-bulk';
@@ -617,7 +618,11 @@ function EquipmentShowcaseTableRow({
   const { isSelected, toggle } = useProductCompare();
   const saleRate = companySettings?.usdToPenExchangeRate;
   const isConsumable = Boolean(product.toner) || /repuesto|unidad de imagen|t[oó]ner/i.test(product.name);
-  const catalogRow = catalogReady ? findShowcaseCatalogRow(product) : undefined;
+  const liveCatalogProduct = useCatalogProductRow(resolveShowcaseMediaCatalogId(product), {
+    loadIfMissing: catalogReady,
+  });
+  const catalogRow =
+    liveCatalogProduct ?? (catalogReady ? findShowcaseCatalogRow(product) : undefined);
   const canManage = isAdmin && catalogRow != null;
   const specs = resolveEquipmentCardSpecs(product);
   const title = formatEquipmentShowcaseFullTitle(product);

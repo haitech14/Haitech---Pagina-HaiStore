@@ -11,7 +11,14 @@ import { Heart, Plane, ShoppingCart } from 'lucide-react';
 
 import { ProductCardHoverImage } from '@/components/product/product-card-hover-image';
 import { ProductCardFeaturedPricing } from '@/components/product/product-card-featured-pricing';
-import { ProductCardPill } from '@/components/product/product-card-pill';
+import {
+  ProductCardDefault,
+  ProductCardHover,
+  ProductCardHoverToggle,
+  PRODUCT_CARD_PREMIUM_ADD_BUTTON_CLASS,
+  PRODUCT_CARD_PREMIUM_SHELL_CLASS,
+  useProductCardHoverReveal,
+} from '@/components/product/product-card-premium-hover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/cart-context';
 import { useWishlist } from '@/context/wishlist-context';
@@ -32,7 +39,9 @@ import {
 import { resolveProductCardBadgeLabel } from '@/lib/product-card-condition';
 import { productHasSpdf } from '@/lib/product-card-pill-badges';
 import { resolveProductCardPricing } from '@/lib/product-card-pricing';
+import { buildProductCardHoverFeatures } from '@/lib/product-card-hover-features';
 import { buildProductCardQuickSpecsLine } from '@/lib/product-card-quick-specs';
+import { ProductCardStatsLine } from '@/components/product/product-card-stats-line';
 import { ProductCardSplitBrandTitle } from '@/components/product/product-card-title';
 import { getProductCardTitleContent } from '@/lib/product-card-title';
 import { productPath } from '@/lib/product-path';
@@ -60,9 +69,6 @@ const ProductWhatsAppButton = lazy(() =>
     default: m.ProductWhatsAppButton,
   })),
 );
-
-const FEATURED_HOVER_BADGES_REVEAL_CLASS =
-  'grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-within:grid-rows-[1fr] group-focus-within:opacity-100 motion-reduce:grid-rows-[1fr] motion-reduce:opacity-100 motion-reduce:transition-none';
 
 const FEATURED_CARD_OVERLAY_BUTTON_CLASS =
   'flex size-7 shrink-0 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#4B5563] shadow-sm transition-colors hover:bg-[#FFF0F1] hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-1';
@@ -154,6 +160,7 @@ export function HomeStorefrontProductCard({
   const { addItem } = useCart();
   const { isSelected: isWishlisted, toggle: toggleWishlist } = useWishlist();
   const [chromeReady, setChromeReady] = useState(false);
+  const hoverReveal = useProductCardHoverReveal();
   const { catalogProduct, image_url: liveImageUrl, gallery: liveGallery, imageVersion } =
     useLiveProductCardMedia(product.id, {
       image: product.image,
@@ -217,6 +224,10 @@ export function HomeStorefrontProductCard({
       ? formatStorefrontProductTitle(rawProductTitle, brand, conditionLabel)
       : rawProductTitle;
   const hoverSpecBadges = buildStorefrontHoverSpecBadges(productSource);
+  const hoverFeatures = useMemo(
+    () => buildProductCardHoverFeatures(productSource),
+    [productSource],
+  );
   const productCodeLabel = (displayCode ?? code)?.trim() || null;
   const clipboardBasicFeatures = buildProductCardQuickSpecsLine(productSource);
   const wishlistSelected = isWishlisted(product.id);
@@ -285,9 +296,14 @@ export function HomeStorefrontProductCard({
 
   return (
     <article
-      className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#EAEAEA] bg-white shadow-[0_2px_10px_rgba(15,31,61,0.05)] transition-shadow duration-200 hover:shadow-[0_4px_16px_rgba(15,31,61,0.09)]"
+      className={cn(
+        'group flex h-full flex-col overflow-hidden border border-[#EAEAEA] bg-white',
+        PRODUCT_CARD_PREMIUM_SHELL_CLASS,
+        'shadow-[0_2px_10px_rgba(15,31,61,0.05)]',
+      )}
       onPointerEnter={warmChrome}
       onFocusCapture={warmChrome}
+      {...hoverReveal.cardProps}
     >
       <div className="relative px-1 pt-2.5 sm:px-1.5 sm:pt-3">
         <button
@@ -367,13 +383,14 @@ export function HomeStorefrontProductCard({
             alt={product.name}
             loading={priority ? 'eager' : 'lazy'}
             imageVersion={imageVersion}
+            zoomOnCardHover
             className="size-full max-h-[124px] max-w-[124px] sm:max-h-[220px] sm:max-w-[220px] lg:max-h-[208px] lg:max-w-[208px]"
             imageClassName="size-full max-h-[124px] max-w-[124px] object-contain object-center sm:max-h-[220px] sm:max-w-[220px] lg:max-h-[208px] lg:max-w-[208px]"
           />
         </Link>
       </div>
 
-      <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-1 sm:px-3 sm:pb-3">
+      <ProductCardDefault className="px-2.5 pb-2.5 pt-1 sm:px-3 sm:pb-3">
         {(brand || conditionLabel) ? (
           <div className="flex min-w-0 items-center justify-between gap-2">
             {brand ? (
@@ -413,30 +430,13 @@ export function HomeStorefrontProductCard({
           </h3>
         </Link>
 
-        <div className={FEATURED_HOVER_BADGES_REVEAL_CLASS}>
-          <div className="min-h-0 overflow-hidden">
-            <div
-              className="mt-1.5 flex min-w-0 items-center gap-1.5"
-              aria-label={productCodeLabel ? `Código ${productCodeLabel}` : undefined}
-            >
-              {productCodeLabel ? (
-                <span className="min-w-0 truncate text-[0.625rem] font-medium tabular-nums leading-none text-[#6B7280] sm:text-[0.6875rem]">
-                  {productCodeLabel}
-                </span>
-              ) : null}
-            </div>
-            {hoverSpecBadges.length > 0 ? (
-              <div
-                className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1"
-                aria-label="Especificaciones"
-              >
-                {hoverSpecBadges.map((badge) => (
-                  <ProductCardPill key={badge.id} label={badge.label} variant="secondary" />
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </div>
+        <ProductCardStatsLine
+          product={productSource}
+          stock={stockCount}
+          outOfStock={outOfStock}
+          code={productCodeLabel}
+          className="mt-1 text-[0.625rem] sm:text-[0.6875rem]"
+        />
 
         <div className="mt-2.5">
           {showPriceOnRequest ? (
@@ -448,17 +448,35 @@ export function HomeStorefrontProductCard({
               compareUsd={pricing.compareUsd}
               showAccentBar={false}
               accentUsd
-              category={product.category}
-              wholesaleUsd={product.prices?.mayorista}
             />
           )}
         </div>
+
+        <ProductCardHoverToggle
+          expanded={hoverReveal.expanded}
+          productName={product.name}
+          onToggle={hoverReveal.toggleExpanded}
+        />
+
+        <ProductCardHover
+          features={hoverFeatures}
+          detailHref={detailPath}
+          productName={product.name}
+          stock={stockCount}
+          outOfStock={outOfStock}
+          onAddToCart={() => addItem(cartProduct, { quantity: 1 })}
+          addLabel={buyNowLabel}
+        />
 
         <div className="mt-auto flex items-center gap-2 pt-2">
           <button
             type="button"
             onClick={handleAdd}
-            className="flex h-9 min-h-9 max-h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg text-[0.6875rem] font-semibold text-white transition-colors hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-1 sm:text-xs"
+            aria-label={`${buyNowLabel}: ${product.name}`}
+            className={cn(
+              PRODUCT_CARD_PREMIUM_ADD_BUTTON_CLASS,
+              'flex h-9 min-h-9 max-h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg text-[0.6875rem] font-semibold text-white hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613] focus-visible:ring-offset-1 sm:text-xs',
+            )}
             style={{ backgroundColor: outOfStock ? '#111111' : STOREFRONT_ORANGE }}
           >
             {outOfStock ? (
@@ -494,7 +512,7 @@ export function HomeStorefrontProductCard({
             </button>
           )}
         </div>
-      </div>
+      </ProductCardDefault>
     </article>
   );
 }

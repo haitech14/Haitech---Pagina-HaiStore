@@ -1,6 +1,6 @@
 import { useMemo, type Ref, type RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, FileText, Plane, ShoppingCart } from 'lucide-react';
+import { Calculator, Headphones, ShoppingCart } from 'lucide-react';
 
 import {
   formatOrderQuantityHint,
@@ -23,12 +23,15 @@ import { ProductDetailRentalConfigurator,
   computeEquipmentRentalEstimate,
   type EquipmentRentalEstimate,
 } from '@/components/product-detail/product-detail-rental-configurator';
-import { SeminuevaPreparationPriceRows } from '@/components/product-detail/product-detail-seminueva-preparation-prices';
 import { ProductDetailPurchaseMode } from '@/components/product-detail/product-detail-purchase-mode';
 import { ProductDetailPurchaseQuantity } from '@/components/product-detail/product-detail-purchase-quantity';
 import { ProductDetailPurchasePaymentShipping } from '@/components/product-detail/product-detail-purchase-payment-shipping';
+import { ProductDetailHeroCollapsibleSection } from '@/components/product-detail/product-detail-hero-collapsible-section';
+import { ProductDetailHeroWarrantySelector } from '@/components/product-detail/product-detail-hero-warranty-selector';
 import { ProductDetailPurchaseCardTrust } from '@/components/product-detail/product-detail-purchase-card-trust';
+import type { ConfigureHeroWarrantyUpgrade } from '@/lib/product-configure-hero-options';
 import { ProductDetailVolumePurchaseHint } from '@/components/product-detail/product-detail-volume-purchase-hint';
+import { HOME_HERO_WHATSAPP_LINK } from '@/data/home-hero-slides';
 import type { PurchaseMode } from '@/components/product-detail/product-detail-optional-products';
 import type { SeminuevaPreparationType } from '@/lib/seminueva-preparation';
 import type { CartConfigurationLine } from '@/types/product';
@@ -50,7 +53,6 @@ interface ProductDetailPurchaseCardProps {
   maintenancePlanMonthlyPen?: number | null;
   preparationType?: SeminuevaPreparationType;
   preparationSurchargeUsd?: number;
-  showSeminuevaPreparationPrices?: boolean;
   showRentalAction?: boolean;
   onRentalClick?: () => void;
   showMaintenancePlanAction?: boolean;
@@ -62,6 +64,11 @@ interface ProductDetailPurchaseCardProps {
   rentalConfiguratorRef?: Ref<HTMLDivElement>;
   /** Slot para «Complementa tu compra» (sidebar mockup). */
   complementaSlot?: React.ReactNode;
+  warrantyBaseLabel?: string;
+  warrantyUpgrades?: ConfigureHeroWarrantyUpgrade[];
+  selectedWarrantyOptionId?: string;
+  onWarrantySelect?: (optionId: string) => void;
+  warrantyIdPrefix?: string;
   layout?: 'default' | 'mockup';
   outOfStock?: boolean;
 }
@@ -81,7 +88,6 @@ export function ProductDetailPurchaseCard({
   maintenancePlanMonthlyPen,
   preparationType,
   preparationSurchargeUsd = 0,
-  showSeminuevaPreparationPrices = false,
   showRentalAction = false,
   onRentalClick,
   showMaintenancePlanAction = false,
@@ -92,6 +98,11 @@ export function ProductDetailPurchaseCard({
   onRentalEstimateChange,
   rentalConfiguratorRef,
   complementaSlot,
+  warrantyBaseLabel,
+  warrantyUpgrades = [],
+  selectedWarrantyOptionId,
+  onWarrantySelect,
+  warrantyIdPrefix = '',
   layout = 'default',
   outOfStock: _outOfStock = false,
 }: ProductDetailPurchaseCardProps) {
@@ -106,7 +117,8 @@ export function ProductDetailPurchaseCard({
     Math.max(0, Math.floor(Number(catalogStock) || 0)),
   );
   const hasStock = stockCount > 0;
-  const stockLabel = `Stock ${stockCount}`;
+  const stockStatusLabel = hasStock ? 'En stock' : 'Agotado';
+  const skuLabel = detail.sku?.trim() || product.code?.trim() || '';
 
   const fullPrices = useMemo(
     () => ensureFullPrices(product.prices ? product.prices : { public: product.price }),
@@ -151,10 +163,14 @@ export function ProductDetailPurchaseCard({
       type="button"
       variant="outline"
       onClick={onQuoteClick}
-      className="mt-3 h-10 min-h-10 w-full gap-1.5 rounded-lg border-neutral-300 text-sm font-semibold text-[#0f1f3d] hover:bg-neutral-50"
+      className={cn(
+        'mt-3 h-11 min-h-11 w-full gap-1.5 rounded-full text-sm font-semibold',
+        isMockupLayout
+          ? 'border-[#E31B23] text-[#E31B23] hover:bg-[#E31B23] hover:text-white'
+          : 'border-neutral-300 text-[#0f1f3d] hover:bg-neutral-50',
+      )}
     >
-      <FileText className="size-4 shrink-0" aria-hidden="true" />
-      {isRentMode ? 'Descargar propuesta PDF' : 'Generar cotización'}
+      {isRentMode ? 'Descargar propuesta PDF' : 'Solicitar cotización'}
     </Button>
   ) : null;
 
@@ -205,62 +221,77 @@ export function ProductDetailPurchaseCard({
 
   const buyPriceBlock = (
     <div aria-live="polite" aria-atomic="true">
-      {showSeminuevaPreparationPrices && preparationType ? (
-        <SeminuevaPreparationPriceRows
-          product={product}
-          catalogPublicUsd={displayUsd}
-          preparationType={preparationType}
-          quantity={quantity}
-          bulkDiscountTiers={detail.bulkDiscountTiers}
-          floorPriceUsd={fullPrices.tecnico}
-          equipmentExtrasUsd={equipmentExtrasUsd}
-          className="mb-3"
-        />
-      ) : (
-        <PurchaseSidebarRolePrices
-          variant="buy-sidebar"
-          product={product}
-          quantity={quantity}
-          fullPrices={fullPrices}
-          bulkDiscountTiers={detail.bulkDiscountTiers}
-          equipmentExtrasUsd={equipmentExtrasUsd}
-          preparationSurchargeUsd={preparationSurchargeUsd}
-          oldPricePen={detail.oldPricePen}
-          isOnOffer={detail.isOnOffer}
-          discountPercent={detail.discountPercent}
-          catalogPublicUsd={displayUsd}
-          offerUnitUsd={offerUnitUsd}
-          showDiscountBadge={!isMockupLayout}
-          showAdminPurchaseLine={isMockupLayout && isAdmin}
-          showOfferBreakdown={isLaptopMockup}
-        />
-      )}
+      <PurchaseSidebarRolePrices
+        variant="buy-sidebar"
+        product={product}
+        quantity={quantity}
+        fullPrices={fullPrices}
+        bulkDiscountTiers={detail.bulkDiscountTiers}
+        equipmentExtrasUsd={equipmentExtrasUsd}
+        preparationSurchargeUsd={preparationSurchargeUsd}
+        oldPricePen={detail.oldPricePen}
+        isOnOffer={detail.isOnOffer}
+        discountPercent={detail.discountPercent}
+        catalogPublicUsd={displayUsd}
+        offerUnitUsd={offerUnitUsd}
+        showDiscountBadge={!isMockupLayout}
+        showAdminPurchaseLine={isMockupLayout && isAdmin}
+        showOfferBreakdown={isLaptopMockup}
+      />
     </div>
   );
 
   const showMockupBuyLayout = !isRentMode;
+  const showWarrantyAccordion =
+    showMockupBuyLayout &&
+    warrantyUpgrades.length > 0 &&
+    Boolean(warrantyBaseLabel) &&
+    selectedWarrantyOptionId != null &&
+    onWarrantySelect != null;
 
-  const mockupPromoHeader =
-    isMockupLayout && showMockupBuyLayout ? (
+  const warrantyAccordion = showWarrantyAccordion ? (
+    <ProductDetailHeroCollapsibleSection
+      title="Garantía"
+      badge="Opcional"
+      panelAriaLabel="Opciones de garantía"
+      className="mt-3"
+    >
+      <ProductDetailHeroWarrantySelector
+        baseLabel={warrantyBaseLabel ?? '1 año de garantía'}
+        upgrades={warrantyUpgrades}
+        selectedOptionId={selectedWarrantyOptionId ?? ''}
+        onSelectOption={onWarrantySelect ?? (() => undefined)}
+        embedded
+        hideTitle
+        idPrefix={warrantyIdPrefix}
+      />
+    </ProductDetailHeroCollapsibleSection>
+  ) : null;
+
+  const mockupPromoHeader = showMockupBuyLayout ? (
       isLaptopMockup ? (
-        <div className="mb-3 flex flex-wrap items-center gap-2">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <span
             className={cn(
-              'rounded px-2 py-0.5 text-[0.6875rem] font-semibold',
-              hasStock ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-100 text-neutral-600',
+              'inline-flex items-center gap-1.5 text-sm font-medium',
+              hasStock ? 'text-emerald-600' : 'text-neutral-500',
             )}
           >
-            {stockLabel}
+            <span
+              className={cn('size-2 rounded-full', hasStock ? 'bg-emerald-500' : 'bg-neutral-400')}
+              aria-hidden="true"
+            />
+            {stockStatusLabel}
           </span>
-          <span className="rounded bg-pink-50 px-2 py-0.5 text-[0.6875rem] font-semibold text-pink-700">
-            Exclusivo online
-          </span>
+          {skuLabel ? (
+            <span className="text-xs font-medium text-neutral-400">SKU: {skuLabel}</span>
+          ) : null}
         </div>
       ) : (
-        <div className="mb-3 flex items-center justify-end gap-2">
+        <div className="mb-3 flex items-center justify-between gap-2">
           <span
             className={cn(
-              'inline-flex items-center gap-1.5 text-xs font-medium',
+              'inline-flex items-center gap-1.5 text-sm font-medium',
               hasStock ? 'text-emerald-600' : 'text-neutral-500',
             )}
           >
@@ -271,8 +302,11 @@ export function ProductDetailPurchaseCard({
               )}
               aria-hidden="true"
             />
-            {stockLabel}
+            {stockStatusLabel}
           </span>
+          {skuLabel ? (
+            <span className="text-xs font-medium text-neutral-400">SKU: {skuLabel}</span>
+          ) : null}
         </div>
       )
     ) : null;
@@ -287,7 +321,7 @@ export function ProductDetailPurchaseCard({
         Comprar {product.name}
       </h2>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
         {purchaseMode != null && onPurchaseModeChange && !isMockupLayout ? (
           <ProductDetailPurchaseMode
             purchaseMode={purchaseMode}
@@ -315,6 +349,10 @@ export function ProductDetailPurchaseCard({
 
         {showMockupBuyLayout ? mockupPromoHeader : null}
         {showMockupBuyLayout ? buyPriceBlock : null}
+        {showMockupBuyLayout && isMockupLayout ? (
+          <p className="mt-1.5 text-xs text-neutral-400">IGV incluido</p>
+        ) : null}
+        {warrantyAccordion}
 
         {showMockupBuyLayout ? (
           <>
@@ -329,58 +367,57 @@ export function ProductDetailPurchaseCard({
               />
             ) : null}
 
-            <div className="mt-4 flex w-full items-end gap-2">
+            <div className="mt-5 flex w-full items-center gap-2">
               <ProductDetailPurchaseQuantity
                 product={product}
                 quantity={quantity}
                 onQuantityChange={onQuantityChange}
-                className="w-[7.25rem] shrink-0"
+                hideLabel
+                className="w-[7.5rem] shrink-0"
               />
               <Button
                 type="button"
                 onClick={isMockupLayout ? handleAddToCart : handleBuyNow}
-                className="h-10 min-h-10 min-w-0 flex-1 gap-1.5 rounded-lg border-0 bg-red-600 text-sm font-semibold text-white hover:bg-red-500 focus-visible:ring-red-600"
+                className="h-11 min-h-11 min-w-0 flex-1 gap-1.5 rounded-full border-0 bg-[#E31B23] text-sm font-semibold text-white hover:bg-[#c41820] focus-visible:ring-[#E31B23]"
               >
-                {includesOnRequest ? (
-                  <Plane className="size-4 shrink-0" aria-hidden="true" />
-                ) : (
-                  <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
-                )}
+                <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
                 {isMockupLayout ? addToCartLabel : buyNowLabel}
               </Button>
             </div>
 
-            <div className="mt-3 w-full">
-              <ProductWhatsAppButton
-                stopPropagation={false}
-                accent="outline"
-                label="Comprar por WhatsApp"
-                skipDialogIfComplete
-                defaultGenerateQuote
-                quantity={quantity}
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  priceUsd: offerUnitUsd,
-                  category: product.category,
-                  brand: product.brand ?? null,
-                }}
-                quoteContext={{
-                  product,
-                  displayTitle: detail.displayTitle,
-                  sku: detail.sku,
-                  brandLabel: detail.brandLabel,
-                  categoryLabel: detail.categoryLabel,
-                  heroSpecBullets: detail.heroSpecBullets,
-                  heroLead: detail.heroLead,
-                  heroDescription: detail.heroDescription,
-                  quantity,
-                  ...(equipmentConfiguration ? { equipmentConfiguration } : {}),
-                }}
-                {...(onQuoteGenerated ? { onQuoteGenerated } : {})}
-                className="h-10 min-h-10 w-full gap-1.5 rounded-lg border-green-600/80 bg-white text-sm font-semibold normal-case tracking-normal text-green-700 hover:border-green-600 hover:bg-green-50 hover:text-green-700 focus-visible:ring-green-600"
-              />
-            </div>
+            {isMockupLayout ? quoteButton : (
+              <div className="mt-3 w-full">
+                <ProductWhatsAppButton
+                  stopPropagation={false}
+                  accent="outline"
+                  label="Comprar por WhatsApp"
+                  skipDialogIfComplete
+                  defaultGenerateQuote
+                  quantity={quantity}
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    priceUsd: offerUnitUsd,
+                    category: product.category,
+                    brand: product.brand ?? null,
+                  }}
+                  quoteContext={{
+                    product,
+                    displayTitle: detail.displayTitle,
+                    sku: detail.sku,
+                    brandLabel: detail.brandLabel,
+                    categoryLabel: detail.categoryLabel,
+                    heroSpecBullets: detail.heroSpecBullets,
+                    heroLead: detail.heroLead,
+                    heroDescription: detail.heroDescription,
+                    quantity,
+                    ...(equipmentConfiguration ? { equipmentConfiguration } : {}),
+                  }}
+                  {...(onQuoteGenerated ? { onQuoteGenerated } : {})}
+                  className="h-10 min-h-10 w-full gap-1.5 rounded-lg border-green-600/80 bg-white text-sm font-semibold normal-case tracking-normal text-green-700 hover:border-green-600 hover:bg-green-50 hover:text-green-700 focus-visible:ring-green-600"
+                />
+              </div>
+            )}
 
             {quoteButton && !isMockupLayout ? quoteButton : null}
 
@@ -392,7 +429,33 @@ export function ProductDetailPurchaseCard({
               </div>
             ) : null}
 
-            <ProductDetailPurchaseCardTrust className="mt-4" variant={isLaptopMockup ? 'laptop' : 'default'} />
+            <ProductDetailPurchaseCardTrust
+              className="mt-4"
+              variant={isMockupLayout ? 'premium' : isLaptopMockup ? 'laptop' : 'default'}
+            />
+
+            {isMockupLayout ? (
+              <div className="mt-3.5 rounded-xl bg-neutral-50 px-3 py-2.5">
+                <div className="flex items-start gap-2.5">
+                  <Headphones className="mt-0.5 size-4 shrink-0 text-neutral-400" aria-hidden="true" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-neutral-900">¿Necesitas asesoría?</p>
+                    <p className="mt-0.5 text-[11px] leading-snug text-neutral-500">
+                      Te ayudamos a elegir la mejor solución para tu negocio.
+                    </p>
+                    <a
+                      href={HOME_HERO_WHATSAPP_LINK}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-[#E31B23] transition-colors hover:text-[#c41820]"
+                    >
+                      Contacta a un asesor
+                      <span aria-hidden="true">→</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             {showRentalAction && onRentalClick && detail.rentalPlans.length === 0 ? (
               <Button

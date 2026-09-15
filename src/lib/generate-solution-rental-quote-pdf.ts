@@ -2,7 +2,9 @@ import {
   conditionLabel,
   equipmentLabel,
   formatSolutionPen,
+  formatSolutionTermLabel,
   modelById,
+  SOLUTION_MIN_MONTHLY_PEN,
   type SolutionConfiguratorState,
   type SolutionQuoteBreakdown,
 } from '@/data/rental-solution-configurator';
@@ -46,7 +48,7 @@ export function buildSolutionRentalQuoteSummaryNotes(
     `Equipo: ${equipmentLabel(state)}`,
     `Condición: ${conditionLabel(state.condition)}`,
     `Cantidad: ${state.quantity}`,
-    `Plazo: ${state.termMonths} meses`,
+    `Plazo: ${formatSolutionTermLabel(state.termMonths)}`,
     volumeNote,
     `Ciudad: ${state.city.trim() || 'Lima'}`,
     state.district.trim() ? `Distrito: ${state.district.trim()}` : null,
@@ -54,7 +56,7 @@ export function buildSolutionRentalQuoteSummaryNotes(
     '',
     'DESGLOSE MENSUAL ESTIMADO (SIN IGV)',
     state.condition === 'nueva'
-      ? `Cuota equipo (corp. + 20% / ${state.termMonths} meses): ${formatSolutionPen(quote.equipmentFinanceMonthly, 2)}`
+      ? `Cuota equipo (corp. + 20% / ${formatSolutionTermLabel(state.termMonths)}): ${formatSolutionPen(quote.equipmentFinanceMonthly, 2)}`
       : null,
     model.usesPrintVolume
       ? `Impresión bolsa + excedentes: ${formatSolutionPen(quote.printBundleMonthly, 2)}`
@@ -72,7 +74,10 @@ export function buildSolutionRentalQuoteSummaryNotes(
     model.usesPrintVolume
       ? `Escaneo (cortesía ${quote.scanCourtesyPages.toLocaleString('es-PE')} · excedente ${quote.scanExcessPages.toLocaleString('es-PE')}): ${formatSolutionPen(quote.scanMonthly, 2)}`
       : null,
-    `Envío (${model.paperFormat}: S/ ${quote.shippingLegPen} ida + S/ ${quote.shippingLegPen} vuelta = ${formatSolutionPen(quote.shippingTotalPen)} / ${state.termMonths} meses): ${formatSolutionPen(quote.shippingMonthly, 2)}`,
+    `Envío (${model.paperFormat}: S/ ${quote.shippingLegPen} ida + S/ ${quote.shippingLegPen} vuelta = ${formatSolutionPen(quote.shippingTotalPen)} / ${formatSolutionTermLabel(state.termMonths)}): ${formatSolutionPen(quote.shippingMonthly, 2)}`,
+    quote.minMonthlyApplied > 0
+      ? `Mínimo mensual (${formatSolutionPen(SOLUTION_MIN_MONTHLY_PEN)}): ${formatSolutionPen(quote.minMonthlyApplied, 2)}`
+      : null,
     quote.extrasMonthly > 0
       ? `Servicios adicionales: ${formatSolutionPen(quote.extrasMonthly, 2)}`
       : null,
@@ -254,7 +259,7 @@ export function buildSolutionQuoteWhatsAppMessage(input: {
     `*${equipmentLabel(state)}*`,
     `Condición: *${conditionLabel(state.condition)}*`,
     `Cantidad: *${state.quantity}*`,
-    `Plazo: *${state.termMonths} meses*`,
+    `Plazo: *${formatSolutionTermLabel(state.termMonths)}*`,
     volumeLine ? `*${volumeLine}*` : null,
     `Ciudad: *${state.city.trim() || 'Lima'}*`,
     state.district.trim() ? `Distrito: *${state.district.trim()}*` : null,

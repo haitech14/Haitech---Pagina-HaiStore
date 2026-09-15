@@ -1,6 +1,6 @@
 import { CONSULTAR_PRECIO_LABEL, discountedUsdPrice, isPriceOnRequest } from '@/lib/display-price';
 import {
-  DEFAULT_BULK_DISCOUNT_TIERS,
+  EQUIPMENT_BULK_DISCOUNT_TIERS,
   parseBulkDiscountRange,
 } from '@/lib/bulk-discount-tiers';
 import { CATALOG_VOLUME_TIERS, getCatalogCardPricing } from '@/lib/product-catalog-card-meta';
@@ -185,7 +185,7 @@ export function resolveProductClipboardVolumeDiscount(
     };
   }
 
-  // Equipos: DEFAULT_BULK (2 → 5%). Tóner/repuestos: CATALOG_VOLUME (3 → 5%).
+  // Equipos: 2 → 2% (tope 5%). Tóner/repuestos: CATALOG_VOLUME (3 → 5%).
   if (isTonerOrRepuestosCategory(options?.category)) {
     const catalogTier = CATALOG_VOLUME_TIERS.filter((tier) => tier.discountPercent > 0);
     const first = catalogTier[0];
@@ -202,7 +202,7 @@ export function resolveProductClipboardVolumeDiscount(
     };
   }
 
-  const equipmentTier = DEFAULT_BULK_DISCOUNT_TIERS.filter((tier) => tier.discountPercent > 0);
+  const equipmentTier = EQUIPMENT_BULK_DISCOUNT_TIERS.filter((tier) => tier.discountPercent > 0);
   const firstEquipment = equipmentTier[0];
   if (!firstEquipment) return null;
   const parsedMin = parseBulkDiscountRange(firstEquipment.range)?.min;

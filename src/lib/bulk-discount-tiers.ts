@@ -7,6 +7,40 @@ export const DEFAULT_BULK_DISCOUNT_TIERS: BulkDiscountTier[] = [
   { range: '10+', discount: '20% dscto.', discountPercent: 20 },
 ];
 
+/** Tope de descuento por volumen en equipos (impresoras / multifuncionales). */
+export const EQUIPMENT_BULK_DISCOUNT_MAX_PERCENT = 5;
+
+/** Tramos graduales de equipos: 2% → 3% → 5%. */
+export const EQUIPMENT_BULK_DISCOUNT_TIERS: BulkDiscountTier[] = [
+  { range: '2', discount: '2% dscto.', discountPercent: 2 },
+  { range: '3', discount: '3% dscto.', discountPercent: 3 },
+  {
+    range: '5',
+    discount: `${EQUIPMENT_BULK_DISCOUNT_MAX_PERCENT}% dscto.`,
+    discountPercent: EQUIPMENT_BULK_DISCOUNT_MAX_PERCENT,
+  },
+];
+
+export function resolveCatalogBulkDiscountTiers(
+  isEquipment: boolean,
+  companyTiers?: BulkDiscountTier[] | null,
+): BulkDiscountTier[] {
+  if (isEquipment) return EQUIPMENT_BULK_DISCOUNT_TIERS;
+  return companyTiers && companyTiers.length > 0 ? companyTiers : DEFAULT_BULK_DISCOUNT_TIERS;
+}
+
+/** Copy de ahorro por unidad, p. ej. `$30 menos en cada uno`. */
+export function formatUsdLessPerUnit(savingsUsd: number): string {
+  const safe = Math.max(0, savingsUsd);
+  const rounded = Math.round(safe);
+  if (rounded >= 1) {
+    return `$${rounded.toLocaleString('en-US')} menos en cada uno`;
+  }
+  const cents = Math.round(safe * 100) / 100;
+  if (cents <= 0) return '$0 menos en cada uno';
+  return `$${cents.toFixed(2)} menos en cada uno`;
+}
+
 const LEGACY_BULK_DISCOUNT_RANGES = new Set(['1-4', '5-9', '10-14', '15-20']);
 
 export function formatBulkDiscountLabel(discountPercent: number): string {

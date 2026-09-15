@@ -15,6 +15,7 @@ interface ProductDetailPurchaseQuantityProps {
   quantity: number;
   onQuantityChange: (quantity: number) => void;
   className?: string;
+  hideLabel?: boolean;
 }
 
 export function ProductDetailPurchaseQuantity({
@@ -22,6 +23,7 @@ export function ProductDetailPurchaseQuantity({
   quantity,
   onQuantityChange,
   className,
+  hideLabel = false,
 }: ProductDetailPurchaseQuantityProps) {
   const orderHint = formatOrderQuantityHint(product, quantity);
 
@@ -31,9 +33,11 @@ export function ProductDetailPurchaseQuantity({
 
   return (
     <div className={cn('space-y-0.5', className)}>
-      <p className="text-[0.6875rem] font-medium text-neutral-500">Cantidad</p>
+      {hideLabel ? null : (
+        <p className="text-[0.6875rem] font-medium text-neutral-500">Cantidad</p>
+      )}
       <div
-        className="flex h-10 w-full items-stretch overflow-hidden rounded-lg border border-neutral-200/80 bg-white"
+        className="flex h-11 w-full items-stretch overflow-hidden rounded-full border border-neutral-200 bg-white"
         role="group"
         aria-label={
           orderHint

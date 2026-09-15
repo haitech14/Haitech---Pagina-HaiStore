@@ -19,7 +19,7 @@ export const MAINTENANCE_VISIT_ID = 'agenda-visita';
 
 export type VisitTechnicianId = 'jhelcen-romero' | 'nicolas-aliaga' | 'aleatorio';
 export type VisitShiftId = 'refrigerio' | 'corrido';
-export type VisitDefectId = 'correctivo' | 'preventivo' | 'general';
+export type VisitDefectId = 'correctivo' | 'preventivo' | 'general' | 'remoto';
 export type VisitFaultId =
   | 'atasco'
   | 'manchas'
@@ -29,7 +29,7 @@ export type VisitFaultId =
   | 'ruido'
   | 'fusor'
   | 'otro';
-export type VisitServiceIconId = 'wrench' | 'shield' | 'settings';
+export type VisitServiceIconId = 'wrench' | 'shield' | 'settings' | 'headset';
 export type VisitCoverageZone = 'lima-cerca' | 'lima-lejos' | 'piura' | 'provincia';
 
 export interface VisitTechnician {
@@ -163,6 +163,13 @@ export const VISIT_DEFECT_OPTIONS: readonly VisitDefectOption[] = [
     icon: 'settings',
     basePen: 380,
   },
+  {
+    id: 'remoto',
+    label: 'Soporte Remoto',
+    hint: 'Asistencia a distancia',
+    icon: 'headset',
+    basePen: 80,
+  },
 ] as const;
 
 export const VISIT_FAULT_OPTIONS: readonly VisitFaultOption[] = [
@@ -226,7 +233,14 @@ function visitZoneLabel(zone: VisitCoverageZone): string {
   return 'Lima y alrededores';
 }
 
-function visitCoverageNote(zone: VisitCoverageZone, includesPackage: boolean): string {
+function visitCoverageNote(
+  zone: VisitCoverageZone,
+  includesPackage: boolean,
+  service: VisitDefectId,
+): string {
+  if (service === 'remoto') {
+    return 'Asistencia remota. Precio fijo S/ 80 por sesión, sin recargo por distrito.';
+  }
   if (zone === 'lima-lejos') {
     return includesPackage
       ? 'Zona alejada de Lince (Villa El Salvador, Comas, Carabayllo, Lurín, Chosica). Paquete de 3 visitas técnicas.'
@@ -246,6 +260,7 @@ function visitUnitPrice(
   printType: MaintenancePrintType,
   zone: VisitCoverageZone,
 ): number {
+  if (service === 'remoto') return 80;
   const color = printType === 'color';
   if (service === 'general') return color ? 450 : 380;
   if (service === 'correctivo') {
@@ -258,6 +273,13 @@ function visitUnitPrice(
 }
 
 function visitIncludes(service: VisitDefectId, includesPackage: boolean): string[] {
+  if (service === 'remoto') {
+    return [
+      'Conexión remota segura al equipo',
+      'Diagnóstico y ajustes de configuración',
+      'Registro de acciones realizadas',
+    ];
+  }
   const items: string[] = includesPackage
     ? [...PACKAGE_INCLUDES]
     : ['Visita técnica por diagnóstico'];
@@ -278,7 +300,7 @@ export const DEFAULT_MAINTENANCE_VISIT_STATE: MaintenanceVisitState = {
   serialNumber: '',
   counter: '',
   quantity: 1,
-  defectId: 'preventivo',
+  defectId: 'correctivo',
   defectCustom: '',
   imageName: '',
   address: '',
@@ -435,7 +457,8 @@ export function calculateMaintenanceVisitQuote(state: MaintenanceVisitState): Ma
   const model = maintenanceModelById(state.modelId);
   const defect = visitDefectById(state.defectId);
   const zone = visitCoverageZone(state.city, state.district);
-  const includesPackage = zone !== 'provincia';
+  const isRemote = state.defectId === 'remoto';
+  const includesPackage = !isRemote && zone !== 'provincia';
   const visitPen = moneyPen(visitUnitPrice(state.defectId, state.printType, zone) * quantity);
   const location = [state.city.trim() || 'Lima', state.district.trim()].filter(Boolean).join(' · ');
   const faultLabel = visitFaultLabel(state.defectCustom);
@@ -455,10 +478,10 @@ export function calculateMaintenanceVisitQuote(state: MaintenanceVisitState): Ma
     visitPen,
     zone,
     zoneLabel: visitZoneLabel(zone),
-    coverageNote: visitCoverageNote(zone, includesPackage),
+    coverageNote: visitCoverageNote(zone, includesPackage, state.defectId),
     includesPackage,
     includes: visitIncludes(state.defectId, includesPackage),
-    priceSuffix: includesPackage ? 'paquete de 3 visitas' : '/visita',
+    priceSuffix: isRemote ? '/sesión' : includesPackage ? 'paquete de 3 visitas' : '/visita',
     locationLabel: location,
     serviceLabel,
     faultLabel,
@@ -505,7 +528,9 @@ export function buildMaintenanceVisitWhatsAppMessage(
       : visitTechnicianById(state.technicianId);
 
   return [
-    'Hola, quiero agendar una visita técnica a demanda Ricoh.',
+    state.defectId === 'remoto'
+      ? 'Hola, quiero agendar un soporte remoto Ricoh.'
+      : 'Hola, quiero agendar una visita técnica a demanda Ricoh.',
     `RUC: ${state.ruc.trim()}`,
     `Razón social: ${state.razonSocial.trim()}`,
     `Atención: ${state.atencion.trim()}`,

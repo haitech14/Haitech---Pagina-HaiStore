@@ -11,6 +11,7 @@ import {
 import { resolveProductImageUrl } from '@/lib/product-image-url';
 import type { Product } from '@/types/product';
 import { isHomeCarouselExcludedProduct } from '../../shared/home-excluded-products.js';
+import { isIm550fChildVariantSku } from '../../shared/equipment-search-variants.js';
 
 export const FEATURED_CAROUSEL_LIMIT = 8;
 
@@ -82,6 +83,7 @@ export function filterStoreProductsForHomeSection(
   return [...products]
     .filter((product) => {
       if (isHomeCarouselExcludedProduct(product)) return false;
+      if (isIm550fChildVariantSku(product)) return false;
       if (family === 'repuestos' && isPrinterEquipmentProduct(product)) {
         return false;
       }

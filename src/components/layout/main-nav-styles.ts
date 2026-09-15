@@ -97,7 +97,7 @@ export function haitechWhiteNavLinkClass(isActive: boolean) {
 /** Triggers con mega menú en la barra blanca HAITECH. */
 export function haitechWhiteSubmenuTriggerClass(isRouteActive: boolean, isOpen: boolean) {
   return cn(
-    'relative inline-flex h-full shrink-0 items-center gap-0.5 whitespace-nowrap px-2.5 text-[14px] font-medium text-[#111] transition-colors',
+    'relative inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap px-2.5 py-1 text-[14px] font-medium text-[#111] transition-colors',
     'hover:text-[#E30613] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E30613]/30',
     'after:absolute after:inset-x-2.5 after:bottom-0 after:h-0.5 after:bg-[#E30613] after:opacity-0 after:transition-opacity',
     'hover:after:opacity-100',

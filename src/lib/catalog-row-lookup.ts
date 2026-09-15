@@ -8,15 +8,17 @@ function warehouseStockTotal(row: CatalogRow | undefined): number {
   );
 }
 
-/** Stock usable en vitrina: índice, almacenes y fallback de la card. */
+/** Stock usable en vitrina: índice vivo; el mock de la card solo si no hay fila. */
 export function resolveCatalogStock(
   row: CatalogRow | undefined,
   fallbackStock?: number,
 ): number {
-  const rowStock = Math.max(0, Math.floor(Number(row?.stock) || 0));
-  const warehouseStock = warehouseStockTotal(row);
-  const fallback = Math.max(0, Math.floor(Number(fallbackStock) || 0));
-  return Math.max(rowStock, warehouseStock, fallback);
+  if (row) {
+    const rowStock = Math.max(0, Math.floor(Number(row.stock) || 0));
+    const warehouseStock = warehouseStockTotal(row);
+    return Math.max(rowStock, warehouseStock);
+  }
+  return Math.max(0, Math.floor(Number(fallbackStock) || 0));
 }
 
 export function resolveCatalogRowForProduct(product: {

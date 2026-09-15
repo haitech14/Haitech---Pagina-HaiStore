@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   formatSolutionPen,
+  formatSolutionTermLabel,
   type SolutionConfiguratorState,
   type SolutionQuoteBreakdown,
 } from '@/data/rental-solution-configurator';
@@ -317,5 +318,5 @@ function conditionAndPlanNote(
   state: SolutionConfiguratorState,
   quote: SolutionQuoteBreakdown,
 ): string {
-  return `${state.condition} · ${state.termMonths} meses · ${state.quantity} equipo(s) · ${formatSolutionPen(quote.totalMonthly)}/mes`;
+  return `${state.condition} · ${formatSolutionTermLabel(state.termMonths)} · ${state.quantity} equipo(s) · ${formatSolutionPen(quote.totalMonthly)}/mes`;
 }

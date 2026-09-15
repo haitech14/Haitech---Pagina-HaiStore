@@ -34,7 +34,7 @@ export function StorePromoHeroBanner({ className }: { className?: string }) {
   return (
     <section
       aria-labelledby="store-promo-hero-title"
-      className={cn('w-full bg-white px-3 pb-2 pt-0 sm:px-4 sm:pb-3 lg:px-5', className)}
+      className={cn('w-full bg-white px-3 pb-1 pt-0 sm:px-4 sm:pb-1.5 lg:px-5', className)}
     >
       <div className="mx-auto" style={{ maxWidth: HAITECH_HOME.heroMaxWidth }}>
         <h2 id="store-promo-hero-title" className="sr-only">

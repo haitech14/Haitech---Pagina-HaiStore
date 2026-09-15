@@ -4,7 +4,6 @@ import {
   getDisplayPriceVisibility,
   isPriceOnRequest,
 } from '@/lib/display-price';
-import { ProductVolumeBuyIncentive } from '@/components/product/product-volume-buy-incentive';
 import { cn, formatPenFromUsd, formatUsd, formatEquipmentUsd } from '@/lib/utils';
 
 const FEATURED_PRICE_COMPARE_CLASS =
@@ -120,8 +119,6 @@ export interface ProductCardFeaturedPricingProps {
   /** Tamaño tipográfico del precio (carrusel / destacados). */
   size?: 'default' | 'lg';
   align?: 'start' | 'center';
-  category?: string | null;
-  wholesaleUsd?: number | null;
   className?: string;
 }
 
@@ -140,8 +137,6 @@ export function ProductCardFeaturedPricing({
   showOfferLabel = false,
   size = 'default',
   align = 'start',
-  category,
-  wholesaleUsd,
   className,
 }: ProductCardFeaturedPricingProps) {
   const { displayCurrency, dualPriceOrder } = useDisplayCurrency();
@@ -188,7 +183,7 @@ export function ProductCardFeaturedPricing({
         ) : null}
         <div
           className={cn(
-            'flex flex-wrap items-baseline gap-1.5',
+            'flex flex-wrap items-center gap-1.5',
             centered && 'justify-center',
           )}
         >
@@ -210,12 +205,6 @@ export function ProductCardFeaturedPricing({
             {secondaryLabel}
           </p>
         ) : null}
-        <ProductVolumeBuyIncentive
-          unitPriceUsd={currentUsd}
-          category={category}
-          wholesaleUsd={wholesaleUsd}
-          align={align}
-        />
         {hasDiscount && showAccentBar ? (
           <span
             className={cn('mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]', centered && 'mx-auto')}
@@ -263,12 +252,6 @@ export function ProductCardFeaturedPricing({
           )}
         </p>
       ) : null}
-      <ProductVolumeBuyIncentive
-        unitPriceUsd={currentUsd}
-        category={category}
-        wholesaleUsd={wholesaleUsd}
-        align={align}
-      />
       {hasDiscount && showAccentBar ? (
         <span
           className={cn('mt-1 block h-0.5 w-8 rounded-full bg-[#16A34A]', centered && 'mx-auto')}
