@@ -1689,6 +1689,13 @@ export async function buildProductQuotePdf(
     issueDate,
   });
 
+  doc.setProperties({
+    title: filename.replace(/\.pdf$/i, ''),
+    subject: `${company.quoteDocumentLabel} ${quoteNumber}`,
+    author: company.legalName,
+    creator: company.companyName,
+  });
+
   return {
     blob: doc.output('blob'),
     filename,
@@ -1696,37 +1703,90 @@ export async function buildProductQuotePdf(
   };
 }
 
-export function downloadQuotePdf(blob: Blob, filename: string): void {
+function sanitizeDownloadFilename(filename: string): string {
+  const cleaned = filename.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim();
+  const withExt = /\.pdf$/i.test(cleaned) ? cleaned : `${cleaned || 'PROFORMA'}.pdf`;
+  return withExt.slice(0, 184);
+}
+
+export function createNamedPdfFile(blob: Blob, filename: string): File {
   const pdfBlob =
     blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+  return new File([pdfBlob], sanitizeDownloadFilename(filename), {
+    type: 'application/pdf',
+    lastModified: Date.now(),
+  });
+}
 
-  const saveWithAnchor = () => {
-    const url = URL.createObjectURL(pdfBlob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = filename;
-    anchor.rel = 'noopener';
-    if (isMobile) anchor.target = '_blank';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-    window.setTimeout(() => URL.revokeObjectURL(url), isMobile ? 60_000 : 2_000);
-  };
+function triggerNamedPdfDownload(file: File): void {
+  const url = URL.createObjectURL(file);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = file.name;
+  anchor.rel = 'noopener';
+  anchor.type = 'application/pdf';
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
 
+type SaveFilePickerWindow = Window & {
+  showSaveFilePicker?: (options: {
+    suggestedName?: string;
+    types?: Array<{ description: string; accept: Record<string, string[]> }>;
+  }) => Promise<{
+    createWritable: () => Promise<{
+      write: (data: Blob) => Promise<void>;
+      close: () => Promise<void>;
+    }>;
+  }>;
+};
+
+/** Descarga el PDF con el nombre de la proforma. No abre el visor blob (UUID). */
+export function downloadQuotePdf(
+  blob: Blob,
+  filename: string,
+  options?: { skipPicker?: boolean },
+): void {
+  const file = createNamedPdfFile(blob, filename);
+  const picker = options?.skipPicker ? undefined : (window as SaveFilePickerWindow).showSaveFilePicker;
+
+  if (typeof picker === 'function') {
+    void picker
+      .call(window, {
+        suggestedName: file.name,
+        types: [{ description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }],
+      })
+      .then(async (handle) => {
+        const writable = await handle.createWritable();
+        await writable.write(file);
+        await writable.close();
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        triggerNamedPdfDownload(file);
+      });
+    return;
+  }
+
+  triggerNamedPdfDownload(file);
+}
+
+/** Comparte el PDF con el nombre de archivo de la proforma (p. ej. WhatsApp). */
+export function shareQuotePdf(blob: Blob, filename: string): void {
+  const file = createNamedPdfFile(blob, filename);
   if (
-    isMobile &&
     typeof navigator.share === 'function' &&
     typeof navigator.canShare === 'function' &&
     navigator.canShare({ files: [file] })
   ) {
-    void navigator.share({ files: [file], title: filename }).catch((error: unknown) => {
+    void navigator.share({ files: [file], title: file.name, text: file.name }).catch((error: unknown) => {
       if (error instanceof Error && error.name === 'AbortError') return;
-      saveWithAnchor();
+      triggerNamedPdfDownload(file);
     });
     return;
   }
-
-  saveWithAnchor();
+  triggerNamedPdfDownload(file);
 }

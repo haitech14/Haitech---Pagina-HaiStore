@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { Download, FileText } from 'lucide-react';
+import { Download, FileText, Share2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { downloadQuotePdf } from '@/lib/generate-product-quote-pdf';
+import { downloadQuotePdf, shareQuotePdf } from '@/lib/generate-product-quote-pdf';
 
 export interface QuotePdfPreview {
   url: string;
@@ -49,7 +49,7 @@ export function ProductQuotePdfViewer({
     const key = `${preview.filename}:${preview.quoteNumber ?? preview.url}`;
     if (autoDownloadedKeyRef.current === key) return;
     autoDownloadedKeyRef.current = key;
-    downloadQuotePdf(preview.blob, preview.filename);
+    downloadQuotePdf(preview.blob, preview.filename, { skipPicker: true });
   }, [autoDownload, preview]);
 
   const handleOpenChange = (open: boolean) => {
@@ -63,6 +63,15 @@ export function ProductQuotePdfViewer({
     if (!preview) return;
     downloadQuotePdf(preview.blob, preview.filename);
   };
+
+  const handleShare = () => {
+    if (!preview) return;
+    shareQuotePdf(preview.blob, preview.filename);
+  };
+
+  const iframeSrc = preview
+    ? `${preview.url}${preview.url.includes('#') ? '&' : '#'}toolbar=0&navpanes=0&scrollbar=1`
+    : '';
 
   return (
     <Dialog open={Boolean(preview)} onOpenChange={handleOpenChange}>
@@ -79,6 +88,11 @@ export function ProductQuotePdfViewer({
                   ? `Cotización ${preview.quoteNumber}. Revise el documento antes de descargarlo.`
                   : 'Revise el PDF generado antes de descargarlo o compartirlo con el cliente.')}
             </DialogDescription>
+            {preview?.filename ? (
+              <p className="mt-2 truncate text-xs font-medium text-neutral-700" title={preview.filename}>
+                {preview.filename}
+              </p>
+            ) : null}
           </DialogHeader>
           {preview && mobile ? (
             <Button
@@ -98,8 +112,11 @@ export function ProductQuotePdfViewer({
               {mobile ? (
                 <div className="flex size-full min-h-[42vh] flex-col items-center justify-center gap-4 rounded-lg border border-neutral-200 bg-white px-6 py-8 text-center">
                   <FileText className="size-10 text-red-600" aria-hidden="true" />
+                  <p className="max-w-sm break-all text-sm font-medium text-neutral-800">
+                    {preview.filename}
+                  </p>
                   <p className="max-w-sm text-sm text-neutral-600">
-                    En el celular, descarga el PDF para abrirlo o compartirlo.
+                    En el celular, descarga el PDF para conservarlo con este nombre.
                   </p>
                   <Button
                     type="button"
@@ -109,11 +126,20 @@ export function ProductQuotePdfViewer({
                     <Download className="size-4" aria-hidden="true" />
                     {downloadLabel}
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleShare}
+                    className="w-full max-w-xs gap-2"
+                  >
+                    <Share2 className="size-4" aria-hidden="true" />
+                    Compartir
+                  </Button>
                 </div>
               ) : (
                 <iframe
-                  src={preview.url}
-                  title={`Vista previa ${preview.filename}`}
+                  src={iframeSrc}
+                  title={preview.filename}
                   className="size-full min-h-[72vh] rounded-lg border border-neutral-200 bg-white"
                 />
               )}
@@ -128,6 +154,12 @@ export function ProductQuotePdfViewer({
               >
                 Cerrar
               </Button>
+              {mobile ? (
+                <Button type="button" variant="outline" onClick={handleShare} className="gap-2 sm:min-w-32">
+                  <Share2 className="size-4" aria-hidden="true" />
+                  Compartir
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 onClick={handleDownload}
