@@ -3,10 +3,14 @@ const V2_RUC_URL = 'https://api.apis.net.pe/v2/sunat/ruc';
 const POSITIVE_TTL_MS = 24 * 60 * 60 * 1000;
 const NEGATIVE_TTL_MS = 10 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 400;
+const CACHE_VERSION = 'v2-fiscal-address';
 
 /** @type {Map<string, { expiresAt: number, data: SunatRucResult | null }>} */
 const cache = new Map();
 
+function cacheKey(numero) {
+  return `${CACHE_VERSION}:${numero}`;
+}
 /**
  * @typedef {object} SunatRucResult
  * @property {string} numero
@@ -81,7 +85,30 @@ function remember(numero, data, ttlMs) {
     const oldestKey = cache.keys().next().value;
     if (oldestKey) cache.delete(oldestKey);
   }
-  cache.set(numero, { data, expiresAt: Date.now() + ttlMs });
+  cache.set(cacheKey(numero), { data, expiresAt: Date.now() + ttlMs });
+}
+
+function buildFiscalAddress(street, distrito, provincia, departamento) {
+  const base = String(street ?? '').trim();
+  const parts = [];
+  const seen = new Set();
+
+  const pushUnique = (value) => {
+    const trimmed = String(value ?? '').trim();
+    if (!trimmed) return;
+    const key = placeKey(trimmed);
+    if (!key || seen.has(key)) return;
+    if (base && placeKey(base).includes(key)) return;
+    seen.add(key);
+    parts.push(trimmed);
+  };
+
+  if (base) parts.push(base);
+  pushUnique(distrito);
+  pushUnique(provincia);
+  pushUnique(departamento);
+
+  return parts.join(', ');
 }
 
 /**
@@ -102,10 +129,18 @@ function mapSunatPayload(payload, numero) {
   if (provinciaKey === 'lima' || departamentoKey === 'lima') ciudad = 'Lima';
   if (provinciaKey === 'callao' || departamentoKey === 'callao') ciudad = 'Callao';
 
+  const street = pickString(payload, [
+    'direccion',
+    'domicilioFiscal',
+    'direccionCompleta',
+    'direccion_completa',
+    'domicilio_fiscal',
+  ]);
+
   return {
     numero: pickString(payload, ['numeroDocumento', 'ruc']) || numero,
     razonSocial,
-    direccion: pickString(payload, ['direccion', 'domicilioFiscal', 'direccionCompleta']),
+    direccion: buildFiscalAddress(street, distrito, provincia, departamento),
     ciudad,
     distrito,
     departamento,
@@ -146,7 +181,7 @@ export async function lookupSunatRuc(rawNumero) {
     throw new SunatRucError('Ingresa un RUC de 11 dígitos.', 400);
   }
 
-  const cached = cache.get(numero);
+  const cached = cache.get(cacheKey(numero));
   if (cached && cached.expiresAt > Date.now()) {
     return cached.data;
   }

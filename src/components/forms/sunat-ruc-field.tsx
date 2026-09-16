@@ -39,7 +39,7 @@ export function SunatRucField({
   className,
   inputClassName,
   labelClassName,
-  successMessage = 'Razón social actualizada desde SUNAT.',
+  successMessage = 'Razón social y dirección actualizadas desde SUNAT.',
   onFocus,
   onBlur,
   'aria-controls': ariaControls,

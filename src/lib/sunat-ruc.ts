@@ -27,9 +27,9 @@ export function applySunatToQuoteForm(
   return {
     ...current,
     ruc: sunat.numero,
-    razonSocial: sunat.razonSocial,
-    direccion: current.direccion.trim() ? current.direccion : sunat.direccion || current.direccion,
-    ciudad: current.ciudad.trim() ? current.ciudad : sunat.ciudad || current.ciudad,
+    razonSocial: sunat.razonSocial || current.razonSocial,
+    direccion: sunat.direccion.trim() || current.direccion,
+    ciudad: sunat.ciudad.trim() || current.ciudad,
   };
 }
 
@@ -40,9 +40,9 @@ export function applySunatToClientForm(
   return {
     ...current,
     rucDni: sunat.numero,
-    nombre: sunat.razonSocial,
-    direccion: current.direccion.trim() ? current.direccion : sunat.direccion || current.direccion,
-    ciudad: current.ciudad.trim() ? current.ciudad : sunat.ciudad || current.ciudad,
+    nombre: sunat.razonSocial || current.nombre,
+    direccion: sunat.direccion.trim() || current.direccion,
+    ciudad: sunat.ciudad.trim() || current.ciudad,
   };
 }
 
@@ -55,14 +55,12 @@ export function applySunatToVisitFields<
     district: string;
   },
 >(current: T, sunat: SunatRucResult): T {
-  const city = current.city.trim();
-  const keepCity = city.length > 0 && city.toLowerCase() !== 'lima';
   return {
     ...current,
     ruc: sunat.numero,
     razonSocial: sunat.razonSocial || current.razonSocial,
-    address: current.address.trim() ? current.address : sunat.direccion || current.address,
-    city: keepCity ? current.city : sunat.ciudad || current.city,
-    district: current.district.trim() ? current.district : sunat.distrito || current.district,
+    address: sunat.direccion.trim() || current.address,
+    city: sunat.ciudad.trim() || current.city,
+    district: sunat.distrito.trim() || current.district,
   };
 }
