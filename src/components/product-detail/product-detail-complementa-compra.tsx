@@ -156,7 +156,7 @@ function resolveTonerCardLabels(card: ConfigureTonerCard): {
       title ||
       formatTonerCardDisplayTitle(card.title?.trim() || card.name?.trim() || supplyPrefix),
     code: card.code?.trim() || null,
-    yieldLabel: yieldPages ? `${yieldPages} págs al 5%` : null,
+    yieldLabel: yieldPages ? `${yieldPages} páginas al 5%` : null,
   };
 }
 
@@ -334,6 +334,11 @@ function ComplementaTonerCards({
                       {yieldLabel ? (
                         <p className="mt-0.5 truncate text-[0.625rem] leading-snug text-neutral-500">
                           {yieldLabel}
+                        </p>
+                      ) : null}
+                      {card.supplyType === 'original' ? (
+                        <p className="mt-0.5 line-clamp-2 text-[0.625rem] leading-snug text-neutral-500">
+                          Se emite carta de originalidad firmada por el fabricante a solicitud
                         </p>
                       ) : null}
                     </div>
@@ -541,6 +546,11 @@ function ComplementaSidebarRows({
                   {yieldLabel ? (
                     <span className="mt-0.5 block text-[0.625rem] leading-snug text-neutral-500">
                       {yieldLabel}
+                    </span>
+                  ) : null}
+                  {primaryToner.supplyType === 'original' ? (
+                    <span className="mt-0.5 block text-[0.625rem] leading-snug text-neutral-500">
+                      Se emite carta de originalidad firmada por el fabricante a solicitud
                     </span>
                   ) : null}
                 </span>

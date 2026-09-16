@@ -65,10 +65,12 @@ type LoadedImage = { dataUrl: string; width: number; height: number };
 const PAGE_W = 210;
 const PAGE_H = 297;
 const MARGIN = 12;
-/** Rojo marca HAITECH / RICOH (#E30613). */
-const PROFORMA_PRIMARY: Rgb = [227, 6, 19];
+/** Texto de marca y bloque QR (HAITECH, NBN, PROFORMA / COT / RUC). */
+const PROFORMA_INK: Rgb = [0, 0, 0];
+/** Azul de acento: cajas, cabecera de tabla, recuadro Total y pie. */
+const PROFORMA_PRIMARY: Rgb = [30, 74, 140];
 /** Cabeceras de sección y fila de columnas en tablas del PDF. */
-const PROFORMA_SECTION_HEADER: Rgb = [227, 6, 19];
+const PROFORMA_SECTION_HEADER: Rgb = [30, 74, 140];
 const QUOTE_LOGO_PATH = '/logo.png';
 const DEFAULT_PRINTER_FUNCTIONS = ['Copiadora', 'Impresora', 'Escáner'];
 const IMAGE_LOAD_TIMEOUT_MS = 1_500;
@@ -90,6 +92,13 @@ type RasterizeImageOptions = {
   stripBackground?: boolean;
   /** Convierte el trazo visible del logo a negro sobre fondo transparente. */
   monochromeBlack?: boolean;
+  /**
+   * Exporta PNG para conservar alpha.
+   * Sin esto, el canvas se guarda como JPEG y la transparencia se vuelve negra.
+   */
+  preferPng?: boolean;
+  /** Pinta el canvas en blanco antes de dibujar (jsPDF trata el alpha como negro). */
+  compositeOnWhite?: boolean;
 };
 
 function rgbChannelDistance(
@@ -235,6 +244,10 @@ function rasterizeLoadedImage(
           resolve(null);
           return;
         }
+        if (options.compositeOnWhite) {
+          context.fillStyle = '#ffffff';
+          context.fillRect(0, 0, width, height);
+        }
         context.drawImage(image, 0, 0, width, height);
         if (options.stripBackground) {
           stripUniformBackground(context, width, height);
@@ -242,11 +255,21 @@ function rasterizeLoadedImage(
         if (options.monochromeBlack) {
           prepareDarkLogoForPdf(context, width, height);
         }
-        const usePng = options.stripBackground || options.monochromeBlack;
+        if (options.compositeOnWhite) {
+          context.fillStyle = '#ffffff';
+          context.globalCompositeOperation = 'destination-over';
+          context.fillRect(0, 0, width, height);
+          context.globalCompositeOperation = 'source-over';
+        }
+        const usePng =
+          options.stripBackground ||
+          options.monochromeBlack ||
+          options.preferPng ||
+          options.compositeOnWhite;
         resolve({
           dataUrl: usePng
             ? canvas.toDataURL('image/png')
-            : canvas.toDataURL('image/jpeg', 0.82),
+            : canvas.toDataURL('image/jpeg', 0.92),
           width,
           height,
         });
@@ -274,6 +297,8 @@ async function loadImageDataUrl(
     fetchUrl,
     options.stripBackground ? 'nobg' : '',
     options.monochromeBlack ? 'black' : '',
+    options.preferPng ? 'png' : '',
+    options.compositeOnWhite ? 'white' : '',
   ]
     .filter(Boolean)
     .join('::');
@@ -348,7 +373,7 @@ async function loadProductImageForQuote(src: string): Promise<LoadedImage | null
 }
 
 export function preloadQuotePdfAssets(imageUrls: Array<string | null | undefined> = []): void {
-  void loadImageDataUrl(QUOTE_LOGO_PATH, { stripBackground: false });
+  void loadImageDataUrl(QUOTE_LOGO_PATH, { preferPng: true, compositeOnWhite: true });
   for (const url of imageUrls) {
     if (url?.trim()) void loadProductImageForQuote(url.trim());
   }
@@ -620,8 +645,44 @@ function formatShortDate(date: Date): string {
   });
 }
 
-function sanitizePdfFilenamePart(value: string): string {
-  return value.replace(/[^\w\s-]/g, '').trim().slice(0, 40) || 'producto';
+function sanitizePdfFilenamePart(value: string, max = 40): string {
+  return value
+    .normalize('NFC')
+    .replace(/[\\/:*?"<>|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max);
+}
+
+function formatFilenameDate(date: Date): string {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}-${month}-${date.getFullYear()}`;
+}
+
+function quoteFilenameProductTitle(lines: QuoteProductData[]): string {
+  const preferred = lines.find((line) => line.name.trim() && !isQuoteStabilizerLine(line));
+  return (preferred ?? lines[0])?.name.trim() || 'producto';
+}
+
+/** PROFORMA {código} {título} - {razón social} {atención} {fecha}.pdf */
+function buildQuotePdfFilename(input: {
+  documentLabel: string;
+  quoteNumber: string;
+  productTitle: string;
+  razonSocial: string;
+  atencion: string;
+  issueDate: Date;
+}): string {
+  const label = sanitizePdfFilenamePart(input.documentLabel || 'PROFORMA', 20) || 'PROFORMA';
+  const code = sanitizePdfFilenamePart(input.quoteNumber, 28);
+  const title = sanitizePdfFilenamePart(input.productTitle, 80) || 'producto';
+  const razon = sanitizePdfFilenamePart(input.razonSocial, 50) || 'cliente';
+  const atencion = sanitizePdfFilenamePart(input.atencion, 40);
+  const date = formatFilenameDate(input.issueDate);
+  const clientPart = [razon, atencion].filter(Boolean).join(' ');
+  const stem = `${label} ${code} ${title} - ${clientPart} ${date}`.replace(/\s+/g, ' ').trim();
+  return `${stem.slice(0, 180)}.pdf`;
 }
 
 function imageFormat(dataUrl: string): 'PNG' | 'JPEG' {
@@ -715,9 +776,13 @@ async function loadQuoteLogo(
   _company: CompanySettings,
   options: Pick<RasterizeImageOptions, 'stripBackground' | 'monochromeBlack'> = {},
 ): Promise<LoadedImage | null> {
-  const logoOptions = {
+  // logo.png es negro sobre transparente. jsPDF pinta el alpha como negro
+  // (rectángulo sólido): hay que componerlo sobre blanco y exportar PNG.
+  const logoOptions: RasterizeImageOptions = {
     stripBackground: options.stripBackground ?? false,
-    monochromeBlack: false,
+    monochromeBlack: options.monochromeBlack ?? false,
+    preferPng: true,
+    compositeOnWhite: true,
   };
   const candidates = [QUOTE_LOGO_PATH];
 
@@ -1127,40 +1192,49 @@ export async function buildProductQuotePdf(
   let y = MARGIN;
 
   const qrSize = 18;
-  const qrX = PAGE_W - MARGIN - qrSize;
-  const badgeRight = PAGE_W - MARGIN;
   const logoW = 42;
   const logoH = 16;
+  const rucText = `RUC ${company.ruc}`;
 
   if (logo) {
     addFittedImage(doc, logo, MARGIN, y + 2, logoW, logoH, 'top');
   }
 
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  const labelW = doc.getTextWidth(company.quoteDocumentLabel);
+  doc.setFontSize(6.8);
+  const codeW = doc.getTextWidth(quoteNumber);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.6);
+  const rucW = doc.getTextWidth(rucText);
+  const clusterW = Math.max(qrSize, labelW, codeW, rucW) + 2;
+  const clusterCenterX = PAGE_W - MARGIN - clusterW / 2;
+  const qrX = clusterCenterX - qrSize / 2;
   const qrY = y + 1;
   if (badgeQrDataUrl) {
     doc.addImage(badgeQrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
   }
 
-  doc.setTextColor(...primary);
+  doc.setTextColor(...PROFORMA_INK);
   doc.setFont('helvetica', 'bold');
   let badgeY = qrY + qrSize + 3.4;
   doc.setFontSize(8);
-  doc.text(company.quoteDocumentLabel, badgeRight, badgeY, { align: 'right' });
+  doc.text(company.quoteDocumentLabel, clusterCenterX, badgeY, { align: 'center' });
   badgeY += 3.2;
   doc.setFontSize(6.8);
-  doc.text(quoteNumber, badgeRight, badgeY, { align: 'right' });
+  doc.text(quoteNumber, clusterCenterX, badgeY, { align: 'center' });
   badgeY += 3.1;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.6);
-  doc.text(`RUC ${company.ruc}`, badgeRight, badgeY, { align: 'right' });
+  doc.text(rucText, clusterCenterX, badgeY, { align: 'center' });
 
-  const clusterW = 34;
   const clusterX = PAGE_W - MARGIN - clusterW;
   const centerX = MARGIN + logoW + 3;
   const centerW = Math.max(52, clusterX - centerX - 3);
   let centerY = y + 4.5;
 
-  doc.setTextColor(...primary);
+  doc.setTextColor(...PROFORMA_INK);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11.5);
   doc.text(company.companyName, centerX + centerW / 2, centerY, { align: 'center' });
@@ -1279,10 +1353,8 @@ export async function buildProductQuotePdf(
   cx += col.desc;
   doc.text('CANT.', cx + 2, y + 4.1);
   cx += col.qty;
-  doc.setFontSize(5.8);
-  doc.text('U. Medida', cx + col.um / 2 - 1, y + 4.1, { align: 'center' });
+  doc.text('Unidad', cx + col.um / 2, y + 4.1, { align: 'center' });
   cx += col.um;
-  doc.setFontSize(6.6);
   doc.text('P. Unit', unitColRight, y + 4.1, { align: 'right' });
   doc.text('Total', amountColRight, y + 4.1, { align: 'right' });
 
@@ -1450,7 +1522,7 @@ export async function buildProductQuotePdf(
   doc.text('Total US$', totalsLabelRight, y + 3.8, { align: 'right' });
   doc.setTextColor(255, 255, 255);
   doc.text(totalUsdText, amountColRight, y + 3.8, { align: 'right' });
-  y += 7;
+  y += 10;
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7.2);
@@ -1608,8 +1680,14 @@ export async function buildProductQuotePdf(
   doc.setFontSize(5.6);
   doc.text(footerRight, groupX + leftW + iconGap + iconSize + iconGap, footerY);
 
-  const safeName = client.razonSocial.replace(/[^\w\s-]/g, '').trim().slice(0, 30);
-  const filename = `${company.quoteNumberPrefix}-${quoteNumber.split('-').pop()}-${safeName || 'cliente'}.pdf`.toLowerCase();
+  const filename = buildQuotePdfFilename({
+    documentLabel: company.quoteDocumentLabel,
+    quoteNumber,
+    productTitle: quoteFilenameProductTitle(quoteLines),
+    razonSocial: client.razonSocial,
+    atencion: client.atencion,
+    issueDate,
+  });
 
   return {
     blob: doc.output('blob'),

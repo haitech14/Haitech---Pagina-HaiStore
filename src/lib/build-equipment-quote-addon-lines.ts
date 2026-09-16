@@ -110,12 +110,31 @@ function stabilizerAlreadyQuoted(existing: EquipmentQuoteAddonOptions): boolean 
   return Boolean(existing.existingLines?.some((line) => /estabiliz/i.test(line.name)));
 }
 
+function formatTonerYieldForQuote(raw: string | null | undefined): string | null {
+  const trimmed = raw?.trim();
+  if (!trimmed) return null;
+  if (/p[aá]ginas?\s+al\s+5\s*%/i.test(trimmed)) {
+    return trimmed.replace(/^rendimiento:?\s*/i, '').trim();
+  }
+  const pagesMatch = trimmed.match(/([\d][\d.,]*)/);
+  if (!pagesMatch?.[1]) return trimmed;
+  const pages = Number(pagesMatch[1].replace(/[^\d]/g, ''));
+  if (!Number.isFinite(pages) || pages <= 0) return trimmed;
+  return `${pages.toLocaleString('es-PE')} páginas al 5%`;
+}
+
 function toTonerQuoteLine(
   item: ConsumableItem,
   supplyType: 'original' | 'compatible',
 ): ProductQuoteLineInput {
   const priceUsd = Number(item.priceUsd) || 0;
-  const yieldLine = item.yieldLabel ? `Rendimiento: ${item.yieldLabel}` : null;
+  const yieldText = formatTonerYieldForQuote(item.yieldLabel);
+  const descriptionLines = [
+    yieldText ? `Rendimiento: ${yieldText}` : null,
+    supplyType === 'original'
+      ? 'Se emite carta de originalidad firmada por el fabricante a solicitud'
+      : null,
+  ].filter(Boolean);
 
   return {
     name: item.name.replace(/\s+/g, ' ').trim() || (supplyType === 'original' ? 'Toner Original' : 'Toner Compatible'),
@@ -125,7 +144,7 @@ function toTonerQuoteLine(
     pricePen: usdToPen(priceUsd),
     quantity: 1,
     imageUrl: item.image || TONER_FALLBACK_IMAGE,
-    ...(yieldLine ? { shortDescription: yieldLine } : {}),
+    ...(descriptionLines.length > 0 ? { shortDescription: descriptionLines.join('\n') } : {}),
   };
 }
 

@@ -346,7 +346,7 @@ export const HAITECH_SHOP_FAVORITE_PRODUCTS: readonly HaitechShopProduct[] = [
     price: 160,
     toner: {
       original: false,
-      yieldLabel: '14.500 pág.',
+      yieldLabel: '15.500 pág.',
       colorLabel: 'Negro',
     },
     tabIds: ['ofertas', 'toner', 'mas-vendidos'],

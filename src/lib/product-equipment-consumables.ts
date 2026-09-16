@@ -618,7 +618,7 @@ function resolveKnownConsumablesForEquipment(equipment: Product): {
         fallback: {
           name: 'Toner Original RICOH IM 430F',
           priceUsd: 82.9,
-          yieldPages: 14_500,
+          yieldPages: 15_500,
           sku: '419078',
           image: '/products/toner-419078.webp',
         },

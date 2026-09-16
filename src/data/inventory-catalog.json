@@ -1737,7 +1737,7 @@
       "id": "ricoh-im-430f",
       "code": "418491",
       "name": "Impresora Multifuncional Nueva RICOH IM 430F",
-      "description": "Copiadora, Impresora, Escáner y fax\nVelocidad 40 ppm\nConectividad: Wi-Fi, Ethernet, USB\nMultifuncional monocromática A4, panel táctil 10.1\"\nFormato A4\nAño de fabricación: 2024\nRegalo: Envío Gratis",
+      "description": "Impresora Multifuncional RICOH IM 430F\n\nNueva sellada en caja. Multifuncional profesional 4 en 1: impresión, copia, escaneo y fax.\n\nVelocidad: 43 ppm.\nPantalla táctil 10.1\".\nFormato A4 dúplex automático.\nConectividad: Wi-Fi, Ethernet y USB.\nADF Doble Scan.\nCasetera 500 hojas + bypass 80 hojas.\nIncluye tóner inicial nuevo (8,000 páginas).\nGarantía de fábrica: 1 año o 20,000 páginas.\nRecomendado usar estabilizador sólido 2000W ante variaciones eléctricas.\n\nREGALO:\n\nEnvío gratis (Lima Metropolitana o agencia).\nInstalación y capacitación presencial/remota sin costo.\nRicoh Smart Suite gratis por 1 año (gestión remota).\nConstancia de garantía y carta de originalidad a solicitud.",
       "currency": "USD",
       "stock": 50,
       "category": "Multifuncionales, Multifuncionales Nuevas",
@@ -70607,8 +70607,8 @@
     {
       "id": "419078",
       "code": "419078",
-      "name": "Toner Cartucho Original RICOH IM 430 - IM 430 / P502 - (14,500 págs)",
-      "description": "Toner Cartucho Original RICOH IM 430 - IM 430 / P502 - (14,500 págs)",
+      "name": "Toner Cartucho Original RICOH IM 430 - IM 430 / P502 - (15,500 páginas al 5%)",
+      "description": "Toner Cartucho Original RICOH IM 430 - IM 430 / P502 - (15,500 páginas al 5%)\nSe emite carta de originalidad firmada por el fabricante a solicitud",
       "currency": "USD",
       "stock": 28,
       "category": "Toner, Toner Originales",
@@ -70671,7 +70671,7 @@
         {
           "id": "6f3874ea-2526-48d6-8623-7eb40dd5fdee",
           "name": "Rendimiento (5%)",
-          "value": "14,500 págs"
+          "value": "15,500 páginas al 5%"
         },
         {
           "id": "b4a973a4-7511-4d22-a20c-213374ed2fcc",

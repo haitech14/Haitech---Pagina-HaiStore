@@ -34,7 +34,9 @@ export function ProductDetailDescription({
     <div className="space-y-4">
       <div className="space-y-3 text-xs leading-snug text-neutral-600 sm:text-[0.8125rem] sm:leading-relaxed">
         {paragraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
+          <p key={paragraph} className="whitespace-pre-line">
+            {paragraph}
+          </p>
         ))}
       </div>
 

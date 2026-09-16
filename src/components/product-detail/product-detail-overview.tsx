@@ -31,7 +31,9 @@ export function ProductDetailOverview({ content, className }: ProductDetailOverv
         </h2>
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground sm:text-[0.9375rem]">
           {overviewParagraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
+            <p key={paragraph} className="whitespace-pre-line">
+              {paragraph}
+            </p>
           ))}
         </div>
         {content.overviewLink ? (

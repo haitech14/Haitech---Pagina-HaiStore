@@ -31,6 +31,7 @@ import {
 import { IM430F_DESCRIPTION } from '@/lib/im430f-description-story';
 import { M320F_DESCRIPTION } from '@/lib/m320f-description-story';
 import { enrichDescriptionContent } from '@/lib/product-description-media';
+import { buildEquipmentCommercialDescriptionParagraphs } from '@/lib/build-equipment-commercial-description';
 import {
   applyTitlePredominanceToSpecs,
   resolveTitlePredominantPrinterFields,
@@ -944,8 +945,35 @@ function buildDescriptionVisual(
 }
 
 function buildDescriptionContent(product: Product, isPrinter: boolean): ProductDescriptionContent | null {
-  if (isIm430f(product)) return IM430F_DESCRIPTION;
-  if (isM320f(product)) return M320F_DESCRIPTION;
+  const commercialParagraphs = isPrinter
+    ? buildEquipmentCommercialDescriptionParagraphs(product)
+    : [];
+  const commercialTitle = commercialParagraphs[0] ?? null;
+  const commercialBody =
+    commercialParagraphs.length > 1 ? commercialParagraphs.slice(1) : commercialParagraphs;
+
+  if (isIm430f(product)) {
+    return {
+      ...IM430F_DESCRIPTION,
+      overviewTitle: commercialTitle || IM430F_DESCRIPTION.overviewTitle || 'Descripción',
+      overviewParagraphs:
+        commercialBody.length > 0
+          ? commercialBody
+          : (IM430F_DESCRIPTION.overviewParagraphs ?? IM430F_DESCRIPTION.paragraphs),
+      paragraphs: commercialBody.length > 0 ? commercialBody : IM430F_DESCRIPTION.paragraphs,
+    };
+  }
+  if (isM320f(product)) {
+    return {
+      ...M320F_DESCRIPTION,
+      overviewTitle: commercialTitle || M320F_DESCRIPTION.overviewTitle || 'Descripción',
+      overviewParagraphs:
+        commercialBody.length > 0
+          ? commercialBody
+          : (M320F_DESCRIPTION.overviewParagraphs ?? M320F_DESCRIPTION.paragraphs),
+      paragraphs: commercialBody.length > 0 ? commercialBody : M320F_DESCRIPTION.paragraphs,
+    };
+  }
 
   if (isPrinter) {
     const highlights = [
@@ -954,22 +982,24 @@ function buildDescriptionContent(product: Product, isPrinter: boolean): ProductD
       { icon: Settings, title: 'Panel inteligente', subtitle: 'Operación intuitiva con pantalla táctil' },
       { icon: Cloud, title: 'Conectividad', subtitle: 'Impresión móvil y en la nube' },
     ];
+    const fallback =
+      product.description ??
+      'Equipo multifuncional profesional diseñado para oficinas que buscan productividad, conectividad y control de costos operativos.';
     return {
-      overviewTitle: 'Diseñada para la productividad',
-      overviewParagraphs: [
-        product.description ??
-          'Equipo multifuncional profesional diseñado para oficinas que buscan productividad, conectividad y control de costos operativos.',
-      ],
+      overviewTitle: commercialTitle || 'Diseñada para la productividad',
+      overviewParagraphs: commercialBody.length > 0 ? commercialBody : [fallback],
       featureCards: highlights.map((item) => ({
         icon: item.icon,
         title: item.title,
         description: item.subtitle,
       })),
-      paragraphs: [
-        product.description ??
-          'Equipo multifuncional profesional diseñado para oficinas que buscan productividad, conectividad y control de costos operativos.',
-        'Compatible con impresión móvil, escaneo a carpetas y servicios en la nube para equipos de trabajo híbridos.',
-      ],
+      paragraphs:
+        commercialBody.length > 0
+          ? commercialBody
+          : [
+              fallback,
+              'Compatible con impresión móvil, escaneo a carpetas y servicios en la nube para equipos de trabajo híbridos.',
+            ],
       highlights,
     };
   }

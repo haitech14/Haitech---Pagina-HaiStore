@@ -96,7 +96,9 @@ export function ProductDetailDescriptionPanel({
           )}
         >
           {overviewParagraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
+            <p key={paragraph} className="whitespace-pre-line">
+              {paragraph}
+            </p>
           ))}
         </div>
 

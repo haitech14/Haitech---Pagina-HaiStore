@@ -127,16 +127,16 @@ export const KNOWN_EQUIPMENT_TONER_SEEDS = [
   {
     id: '419078',
     code: '419078',
-    name: 'Toner Cartucho Original RICOH IM 430F (Rend 14,500)',
+    name: 'Toner Cartucho Original RICOH IM 430F (Rend 15,500)',
     description:
-      'Cartucho original negro — Rend 14,500 páginas al 5% — IM-430F / P-502 / IM-430F TL',
+      'Cartucho original negro — Rend 15,500 páginas al 5% — IM-430F / P-502 / IM-430F TL\nSe emite carta de originalidad firmada por el fabricante a solicitud',
     category: 'Toner Original',
     brand: 'Ricoh',
     image_url: '/products/toner-419078.webp',
     gallery: ['/products/toner-419078.webp'],
     attributes: [
       { name: 'Modelo de equipo', value: 'IM-430F / P-502' },
-      { name: 'Rendimiento (5%)', value: '14,500' },
+      { name: 'Rendimiento (5%)', value: '15,500 páginas al 5%' },
       { name: 'Color', value: 'Negro' },
     ],
     status: 'inactiva',
