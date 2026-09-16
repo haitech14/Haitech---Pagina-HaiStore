@@ -1277,7 +1277,7 @@ export async function buildProductQuotePdf(
     ['MONEDA:', QUOTE_CURRENCY_LABEL],
     ['TIPO DE CLIENTE:', company.defaultClientType],
   ];
-  const labelW = 18;
+  const fieldLabelW = 18;
   const valueW = boxW - 8;
   const sectionTitleH = 5.5;
   const afterTitleGap = 4.4;
@@ -1290,7 +1290,7 @@ export async function buildProductQuotePdf(
   const boxH =
     sectionTitleH +
     afterTitleGap +
-    Math.max(measureRowBlock(clientRows, labelW), measureRowBlock(detailRows, 28)) +
+    Math.max(measureRowBlock(clientRows, fieldLabelW), measureRowBlock(detailRows, 28)) +
     2.4;
   const leftX = MARGIN;
   const rightX = MARGIN + boxW + boxGap;
